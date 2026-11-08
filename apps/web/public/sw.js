@@ -21,6 +21,14 @@ self.addEventListener("fetch", (event) => {
   event.respondWith(fetch(event.request));
 });
 
+// Defensive redirect validation: push data may come from older senders.
+// Only same-origin app paths may be used for notification navigation.
+function safeNotificationPath(value) {
+  if (typeof value !== "string" || !value.startsWith("/") || value.startsWith("//")
+    || value.includes("\\") || /[\x00-\x1f\x7f]/.test(value)) return "/app";
+  return value;
+}
+
 // --- Web Push (TASK-118) -----------------------------------------------------
 // The web tier sends a JSON body shaped by lib/push/payload.ts:
 //   { title, body, tag, data: { url } }
@@ -37,7 +45,7 @@ self.addEventListener("push", (event) => {
     self.registration.showNotification(title, {
       body: msg.body || "",
       tag: msg.tag || undefined,
-      data: { url: (msg.data && msg.data.url) || "/" },
+      data: { url: safeNotificationPath(msg.data && msg.data.url) },
       icon: "/icons/icon-192.png",
       badge: "/icons/icon-192.png",
     }),
@@ -46,7 +54,7 @@ self.addEventListener("push", (event) => {
 
 self.addEventListener("notificationclick", (event) => {
   event.notification.close();
-  const url = (event.notification.data && event.notification.data.url) || "/";
+  const url = safeNotificationPath(event.notification.data && event.notification.data.url);
   event.waitUntil(
     self.clients.matchAll({ type: "window", includeUncontrolled: true }).then((clients) => {
       // Focus an existing tab on the same origin and navigate it; else open one.
