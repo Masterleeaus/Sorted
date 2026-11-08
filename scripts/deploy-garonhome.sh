@@ -82,6 +82,15 @@ require_uuid_env() {
 
 require_uuid_env BOOKING_ACCOUNT_ID
 
+# Separate DB credentials per service (infra/compose.garonhome.yml). Checked here so a
+# missing value fails before migrations run, not inside docker compose.
+for name in WEB_DATABASE_URL WORKER_DATABASE_URL; do
+  if [[ -z "${!name:-}" ]]; then
+    echo "${name} is required in ${ENV_FILE}. See infra/garonhome.env.example and docs/working/rls-web-tier-flip.md" >&2
+    exit 1
+  fi
+done
+
 cd "${REPO_ROOT}"
 
 DEPLOY_BRANCH="${DEPLOY_BRANCH:-main}"
