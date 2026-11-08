@@ -77,6 +77,43 @@ Migrations run inside this script. `scripts/db-migrate.sh` is a separate runner 
 
 Migration rules: files are additive. Applied filenames are immutable (see `ai/INVARIANTS.md`).
 
+### 4a. Database runtime roles
+
+Each service connects with its own role. `DATABASE_URL` in the env file is the admin URL, used for migrations, provisioning, and scripts. The role model is in `ai/INVARIANTS.md` and `docs/working/rls-web-tier-flip.md`.
+
+| Variable | Role | Attributes | Status |
+|---|---|---|---|
+| `WEB_DATABASE_URL` | `ai_fsm` (admin) until the web cutover gate clears, then `ai_fsm_web` | `ai_fsm_web` is NOBYPASSRLS | Web still bypasses RLS. Cutover is blocked (see the flip runbook). |
+| `WORKER_DATABASE_URL` | `ai_fsm_worker` | BYPASSRLS, DML on RLS tables, no DDL, no superuser | Active after this deploy. |
+
+`scripts/deploy-garonhome.sh` provisions the roles after migrations and before web and worker start:
+- `ai_fsm_worker` every deploy, using `AI_FSM_WORKER_PASSWORD` (required).
+- `ai_fsm_web` only when `AI_FSM_WEB_PASSWORD` is set.
+
+Provisioning is idempotent. It refuses a role whose attributes or ownership fall outside its model. Passwords stay in the env file and are never committed.
+
+First deploy of the role split, in order:
+1. Run section 3 (backup).
+2. Add these to `/opt/business/ai-fsm/env/.env`. Generate the values; never commit them.
+   - `AI_FSM_WORKER_PASSWORD=<random>`
+   - `WORKER_DATABASE_URL=postgresql://ai_fsm_worker:<same password>@postgres:5432/<POSTGRES_DB>`
+   - `WEB_DATABASE_URL=<same value as DATABASE_URL>`
+3. Run section 4. The preflight fails before any change if one of the three is missing.
+4. Verify with section 5 and the role query below. Check that the worker log shows polls and no authentication errors.
+
+Role check after deploy:
+
+```bash
+COMPOSE="docker compose --env-file /opt/business/ai-fsm/env/.env -f infra/compose.garonhome.yml"
+$COMPOSE exec -T postgres sh -lc \
+  'psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -c "SELECT rolname, rolsuper, rolbypassrls, rolcreatedb, rolcreaterole FROM pg_roles WHERE rolname LIKE '"'"'ai_fsm%'"'"' ORDER BY 1"'
+# expect ai_fsm_worker: rolsuper f, rolbypassrls t. ai_fsm_web (if provisioned): rolbypassrls f.
+```
+
+Worker rollback: set `WORKER_DATABASE_URL` to the admin URL and run `$COMPOSE up -d worker`. The role stays in place and does no harm.
+
+Web cutover (not part of this deploy): set `WEB_DATABASE_URL` to the `ai_fsm_web` URL only after every blocker and verification item in `docs/working/rls-web-tier-flip.md` is closed and checked on a staging copy.
+
 ## 5. Health checks
 
 Run on the host from `/opt/business/ai-fsm/repo`:
