@@ -2,7 +2,7 @@
   "name": "ai-fsm",
   "private": true,
   "version": "0.1.0",
-  "description": "AI-first Field Service Management MVP",
+  "description": "Dovetails FSM: residential handyman and home maintenance operating system",
   "packageManager": "pnpm@9.12.0",
   "scripts": {
     "dev": "pnpm -r --parallel --filter @ai-fsm/web --filter @ai-fsm/worker dev",

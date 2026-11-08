@@ -16,11 +16,17 @@ Trusting the local checkout mis-reported feature status **twice**. Always branch
 new work off `origin/main`, not the local HEAD.
 
 ## Deploy
-`bash scripts/deploy.sh` → ssh garonhome → reset `/opt` to `origin/main` → run
-SQL migrations (idempotent, tracked in `schema_migrations`) → rebuild web+worker
-→ wait for `/api/health`. Deploying is prod and gated; do it only on explicit
-say-so. After merging, the phone/PWA (`app.mydovetails.com`) does not change
-until this runs.
+Production procedure: `DEPLOY.md` (authoritative). Entrypoint:
+`bash scripts/deploy.sh [branch]` → ssh garonhome → reset `/opt/business/ai-fsm/repo`
+to `origin/<branch>` → `scripts/deploy-garonhome.sh` runs SQL migrations (idempotent,
+tracked in `schema_migrations`) → rebuilds web+worker → waits for `/api/health`.
+The deploy script does **not** take a backup; run `scripts/backup-garonhome.sh` first.
+Deploying is prod and gated; do it only on explicit say-so. After merging, the
+phone/PWA (`app.mydovetails.com`) does not change until this runs.
+
+**Not the production path:** `/home/admin/apps/ai-fsm`, the systemd unit `ai-fsm`,
+`start-production.sh`, and any UI-ZIP overlay. These are legacy (see `DEPLOY.md` §6).
+Never deploy by copying files into them.
 
 ## Two runtimes, asymmetric egress
 The **worker** container is on the `internal: true` network and has **no
