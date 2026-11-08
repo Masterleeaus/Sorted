@@ -11,6 +11,7 @@ export const dynamic = "force-dynamic";
 
 interface EstimateRow extends Record<string, unknown> {
   id: string;
+  account_id: string;
   status: string;
   subtotal_cents: number;
   tax_cents: number;
@@ -76,7 +77,7 @@ export async function GET(
        WHERE estimate_id = $1 AND visible_to_customer = true
          AND EXISTS (SELECT 1 FROM estimates e WHERE e.id = estimate_line_items.estimate_id AND e.account_id = $2)
        ORDER BY sort_order`,
-      [publicEstimate.id, accountId]
+      [estimate.id, accountId]
     );
     return rows;
   });
