@@ -121,8 +121,55 @@ export async function POST(request: NextRequest) {
   return NextResponse.json({ received: true });
 }
 
-// Mark the invoice's pending Square payment paid (or insert a paid row), then
-// emit payment.recorded and, if the invoice cleared, invoice.paid.
+// Square payment links are always priced in USD (see createSquarePaymentLink).
+const SQUARE_LINK_CURRENCY = "USD";
+
+interface PendingSquareRow {
+  id: string;
+  invoice_id: string;
+  amount_cents: number;
+}
+
+// Record a payment we could not safely apply. The row is written inside the
+// same transaction as the decision, so it survives the COMMIT and is visible
+// for reconciliation. Square still gets a 200, so it does not retry.
+async function quarantineSquarePayment(
+  client: PoolClient,
+  accountId: string,
+  payment: SquarePaymentObject,
+  reason: string,
+  target: { paymentRowId?: string; invoiceId?: string }
+): Promise<void> {
+  const entityType = target.paymentRowId ? "payment" : target.invoiceId ? "invoice" : "account";
+  const entityId = target.paymentRowId ?? target.invoiceId ?? accountId;
+  await client.query(
+    `INSERT INTO workflow_events (account_id, event_type, entity_type, entity_id, payload)
+     VALUES ($1, 'payment.square_quarantined', $2, $3, $4)`,
+    [
+      accountId,
+      entityType,
+      entityId,
+      JSON.stringify({
+        reason,
+        squarePaymentId: payment.id,
+        squareOrderId: payment.order_id ?? null,
+        squareAmountCents: payment.amount_money?.amount ?? null,
+        squareCurrency: payment.amount_money?.currency ?? null,
+        source: "square_webhook",
+      }),
+    ]
+  );
+  logger.error("Square webhook: payment quarantined for reconciliation", {
+    reason,
+    paymentId: payment.id,
+    orderId: payment.order_id ?? null,
+  });
+}
+
+// Mark the pending Square payment row for this payment's order paid, then emit
+// payment.recorded and, if the invoice cleared, invoice.paid. Anything that does
+// not match a pending row with the same amount and currency is quarantined and
+// left unpaid.
 async function handleCompletedPayment(
   pool: { connect: () => Promise<PoolClient> },
   accountId: string,
@@ -131,6 +178,12 @@ async function handleCompletedPayment(
   const client = await pool.connect();
   try {
     await client.query("BEGIN");
+
+    // Serialize all deliveries of this Square payment. A concurrent duplicate
+    // waits here, so the duplicate check below cannot race a sibling transaction.
+    await client.query(`SELECT pg_advisory_xact_lock(hashtext($1))`, [
+      `square-payment:${payment.id}`,
+    ]);
 
     // Idempotency: bail if we've already recorded this Square payment.
     const dup = await client.query(
@@ -144,75 +197,88 @@ async function handleCompletedPayment(
       return;
     }
 
-    // Match the invoice by the saved Square order id.
-    const invoiceRes = await client.query<{ id: string }>(
-      `SELECT id FROM invoices
-       WHERE account_id = $1 AND square_order_id = $2`,
-      [accountId, payment.order_id ?? ""]
-    );
-    const invoiceId = invoiceRes.rows[0]?.id;
-    if (!invoiceId) {
+    const orderId = payment.order_id ?? null;
+
+    // 1. Exact match: the pending row created for this Square order (one per link).
+    //    FOR UPDATE + status check makes the transition atomic per row.
+    let row: PendingSquareRow | undefined;
+    if (orderId) {
+      const exact = await client.query<PendingSquareRow>(
+        `SELECT id, invoice_id, amount_cents
+         FROM payments
+         WHERE account_id = $1 AND external_provider = 'square'
+           AND external_order_id = $2 AND status = 'pending'
+         FOR UPDATE`,
+        [accountId, orderId]
+      );
+      row = exact.rows[0];
+    }
+
+    // 2. Legacy fallback: pending rows created before external_order_id existed.
+    //    Only the invoice's current order can be identified, and only when it is
+    //    the single unmatched legacy row. Anything ambiguous is quarantined.
+    if (!row && orderId) {
+      const legacy = await client.query<PendingSquareRow>(
+        `SELECT p.id, p.invoice_id, p.amount_cents
+         FROM payments p
+         JOIN invoices i ON i.id = p.invoice_id
+         WHERE i.account_id = $1 AND i.square_order_id = $2
+           AND p.external_provider = 'square' AND p.status = 'pending'
+           AND p.external_order_id IS NULL AND p.external_payment_id IS NULL
+         FOR UPDATE OF p`,
+        [accountId, orderId]
+      );
+      if (legacy.rowCount === 1) row = legacy.rows[0];
+    }
+
+    if (!row) {
+      const inv = await client.query<{ id: string }>(
+        `SELECT id FROM invoices WHERE account_id = $1 AND square_order_id = $2`,
+        [accountId, orderId ?? ""]
+      );
+      await quarantineSquarePayment(client, accountId, payment, "no_pending_link", {
+        invoiceId: inv.rows[0]?.id,
+      });
       await client.query("COMMIT");
-      logger.error("Square webhook: no invoice for order", { orderId: payment.order_id });
       return;
     }
 
-    // Prefer completing the existing PENDING link row; otherwise insert one.
-    const pending = await client.query<{ id: string }>(
-      `SELECT id FROM payments
-       WHERE invoice_id = $1 AND external_provider = 'square'
-         AND status = 'pending' AND external_payment_id IS NULL
-       ORDER BY created_at ASC
-       LIMIT 1`,
-      [invoiceId]
-    );
-
-    let paymentRowId: string;
-    let amountCents: number;
-    if (pending.rowCount && pending.rowCount > 0) {
-      const upd = await client.query<{ id: string; amount_cents: number }>(
-        `UPDATE payments
-         SET status = 'paid', external_payment_id = $2,
-             paid_at = now(), received_at = now()
-         WHERE id = $1
-         RETURNING id, amount_cents`,
-        [pending.rows[0].id, payment.id]
-      );
-      paymentRowId = upd.rows[0].id;
-      amountCents = upd.rows[0].amount_cents;
-    } else {
-      amountCents = payment.amount_money?.amount ?? 0;
-      const inv = await client.query<{ account_id: string; client_id: string; job_id: string | null; created_by: string }>(
-        `SELECT account_id, client_id, job_id, created_by FROM invoices WHERE id = $1`,
-        [invoiceId]
-      );
-      // payments.created_by is NOT NULL; system-recorded Square payments are
-      // attributed to whoever created the invoice.
-      const ins = await client.query<{ id: string }>(
-        `INSERT INTO payments
-           (account_id, invoice_id, job_id, customer_id, amount_cents, method,
-            payment_type, status, external_provider, external_payment_id, paid_at, created_by)
-         VALUES ($1, $2, $3, $4, $5, 'square', 'progress', 'paid', 'square', $6, now(), $7)
-         ON CONFLICT (external_provider, external_payment_id)
-           WHERE external_provider IS NOT NULL AND external_payment_id IS NOT NULL
-           DO NOTHING
-         RETURNING id`,
-        [
-          inv.rows[0].account_id,
-          invoiceId,
-          inv.rows[0].job_id,
-          inv.rows[0].client_id,
-          amountCents,
-          payment.id,
-          inv.rows[0].created_by,
-        ]
-      );
-      if (ins.rowCount === 0) {
-        await client.query("COMMIT");
-        return;
-      }
-      paymentRowId = ins.rows[0].id;
+    // 3. Verify the signed event against the pending row before marking it paid.
+    const squareAmount = payment.amount_money?.amount;
+    const squareCurrency = payment.amount_money?.currency;
+    const mismatch =
+      squareAmount !== row.amount_cents
+        ? "amount_mismatch"
+        : squareCurrency !== SQUARE_LINK_CURRENCY
+          ? "currency_mismatch"
+          : null;
+    if (mismatch) {
+      await quarantineSquarePayment(client, accountId, payment, mismatch, {
+        paymentRowId: row.id,
+        invoiceId: row.invoice_id,
+      });
+      await client.query("COMMIT");
+      return;
     }
+
+    // 4. Conditional transition: only a row still pending can become paid.
+    const upd = await client.query<{ id: string }>(
+      `UPDATE payments
+       SET status = 'paid', external_payment_id = $2,
+           paid_at = now(), received_at = now()
+       WHERE id = $1 AND status = 'pending'
+       RETURNING id`,
+      [row.id, payment.id]
+    );
+    if (upd.rowCount === 0) {
+      await client.query("COMMIT");
+      logger.info("Square webhook: pending row already settled", { paymentId: payment.id });
+      return;
+    }
+
+    const invoiceId = row.invoice_id;
+    const amountCents = row.amount_cents;
+    const paymentRowId = upd.rows[0].id;
 
     // Daily Operations Log: payment recorded, and invoice.paid if cleared.
     await client.query(
