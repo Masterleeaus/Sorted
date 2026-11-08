@@ -211,7 +211,7 @@ export function AppShell({ role, userName, reviewPending, children }: AppShellPr
             <Link href={homeHref as Route} className="p7-sidebar-brand tg-field-brand" aria-label="Sorted Field home">
               <img className="tg-field-brand__mark" src="/icons/icon-192.png" alt="" aria-hidden="true" />
               <span className="tg-field-brand__copy">
-                <b>Titan <em>Field</em></b>
+                <b>Sorted <em>Field</em></b>
                 <small>OPERATIONS COMMAND</small>
               </span>
             </Link>
@@ -268,7 +268,7 @@ export function AppShell({ role, userName, reviewPending, children }: AppShellPr
           <header className="tg-desktop-topbar">
             <div className="tg-desktop-topbar__context">
               <span className="tg-mode-dot" aria-hidden="true" />
-              <strong>Zero <span style={{color:"#00e67a"}}>• Ready</span></strong>
+              <strong>Sorted <span className="tg-mode-dot" aria-hidden="true" /> Field</strong>
               <span className="tg-topbar-separator">/</span>
               <span>{currentLabel}</span>
             </div>
