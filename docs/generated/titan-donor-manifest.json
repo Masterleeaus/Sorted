@@ -1,0 +1,3169 @@
+{
+  "schemaVersion": 1,
+  "generatedOn": "2026-11-08",
+  "baseCommit": "9d801e1d5b20b446b31e12818476705c31ea151f",
+  "purpose": "Provenance map for titan-donor/ (preserved donor evidence) to the integrated copies that builds use. Checked by scripts/check-titan-manifest.mjs. Nothing listed here is deleted by this manifest.",
+  "canonical": {
+    "titanPlatformBuildSource": "packages/titan-platform/src/",
+    "appBuildSource": [
+      "apps/web/app/titan/",
+      "apps/web/lib/titan/",
+      "apps/web/app/api/v1/titan/",
+      "apps/web/app/app/"
+    ],
+    "preservedDonorEvidence": "titan-donor/",
+    "retiredCopy": "packages/workforce/ (package.json status: retired, production: false; no importers)"
+  },
+  "statusValues": {
+    "imported-identical": "Byte-identical copy at the same relative path under packages/titan-platform/src/",
+    "imported-identical-relocated": "Byte-identical copy at a different tracked path (see integratedPath)",
+    "not-integrated": "No byte-identical tracked copy exists in the repository; donor-only evidence"
+  },
+  "statusCounts": {
+    "not-integrated": 43,
+    "imported-identical-relocated": 78,
+    "imported-identical": 250
+  },
+  "entries": [
+    {
+      "donorPath": "titan-donor/incompatible-zero-runtime/production-runtime.ts",
+      "bytes": 2287,
+      "sha256": "c485f9a14781aab066ca72484096a48d80eb38764751198c53ecc05bc5b2b7ef",
+      "status": "not-integrated",
+      "integratedPath": null,
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/postgres-zero-patch-backup/interactions-route.ts",
+      "bytes": 3920,
+      "sha256": "9d6130af1d229917ca89a08a53d1110e40180d00b1074b2b18a60a3ccde7e81e",
+      "status": "not-integrated",
+      "integratedPath": null,
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/postgres-zero-patch-backup/runtime-dispatch.ts",
+      "bytes": 1464,
+      "sha256": "f30b2940ae144661ae042b565497b429e03353bad5afc64c8bd3e4ea2e243e9b",
+      "status": "not-integrated",
+      "integratedPath": null,
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/DEPENDENCY-REPORT.txt",
+      "bytes": 458,
+      "sha256": "f59ed6a97847af9521add07216c624ecfe08501a18d3e64a645f346380f4f533",
+      "status": "not-integrated",
+      "integratedPath": null,
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/apps/web/app/api/v1/titan/workforce/agents/plan/route.ts",
+      "bytes": 2267,
+      "sha256": "468e2ff9eebe0cad1b886ad9da8c286d7a49900a31431d950f94fb2ee7ac1881",
+      "status": "imported-identical-relocated",
+      "integratedPath": "apps/web/app/api/v1/titan/workforce/agents/plan/route.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/apps/web/app/api/v1/titan/workforce/commands/route.ts",
+      "bytes": 2326,
+      "sha256": "edb3a4e744edb030c94bc4702a871d464157d7049ac57a3a1c7329f010599039",
+      "status": "imported-identical-relocated",
+      "integratedPath": "apps/web/app/api/v1/titan/workforce/commands/route.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/apps/web/app/api/v1/titan/workforce/native/booking/route.ts",
+      "bytes": 3408,
+      "sha256": "fe1bb219b83fa50221fc3bdb832aea5007402e2e00cce6e39378e23df1c7d215",
+      "status": "imported-identical-relocated",
+      "integratedPath": "apps/web/app/api/v1/titan/workforce/native/booking/route.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/apps/web/app/api/v1/titan/workforce/native/customer-care/route.ts",
+      "bytes": 2273,
+      "sha256": "f585e534460b4d6f7615cbe838459cb7f7e7f1377bae5a82e7f6bab6c75a0a0e",
+      "status": "imported-identical-relocated",
+      "integratedPath": "apps/web/app/api/v1/titan/workforce/native/customer-care/route.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/apps/web/app/api/v1/titan/workforce/native/jobs/route.ts",
+      "bytes": 1954,
+      "sha256": "95562f4a7e4de4f4388ff3c6d1238d49e94bbc05978f6fd76066ff4add480263",
+      "status": "imported-identical-relocated",
+      "integratedPath": "apps/web/app/api/v1/titan/workforce/native/jobs/route.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/apps/web/app/api/v1/titan/workforce/native/reception/route.ts",
+      "bytes": 2695,
+      "sha256": "a6d337c643dad7ae461bd6d53e77115bf8658bd6e81ddbfe45002a54f1287e00",
+      "status": "imported-identical-relocated",
+      "integratedPath": "apps/web/app/api/v1/titan/workforce/native/reception/route.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/apps/web/app/api/v1/titan/workforce/native/sales/route.ts",
+      "bytes": 2998,
+      "sha256": "05dca4aa4d377ef093439a6d337262b509416f2c67f7aa52e7a6e605cebc917e",
+      "status": "imported-identical-relocated",
+      "integratedPath": "apps/web/app/api/v1/titan/workforce/native/sales/route.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/apps/web/app/api/v1/titan/workforce/native/scheduling/route.ts",
+      "bytes": 3406,
+      "sha256": "7b58d24d4c2f4e9ea094fb99ac1b15211957d8e075779decc299c5d27918f389",
+      "status": "imported-identical-relocated",
+      "integratedPath": "apps/web/app/api/v1/titan/workforce/native/scheduling/route.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/apps/web/app/api/v1/zero/interactions/__tests__/route.unit.test.ts",
+      "bytes": 2892,
+      "sha256": "9449ac40912ab99e2f57c05eaeea2cbe13b2d3952406a19db3e8642da3215616",
+      "status": "imported-identical-relocated",
+      "integratedPath": "apps/web/app/api/v1/zero/interactions/__tests__/route.unit.test.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/apps/web/app/api/v1/zero/interactions/route.ts",
+      "bytes": 3920,
+      "sha256": "9d6130af1d229917ca89a08a53d1110e40180d00b1074b2b18a60a3ccde7e81e",
+      "status": "not-integrated",
+      "integratedPath": null,
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/apps/web/app/components/__tests__/role-surfaces.unit.test.ts",
+      "bytes": 1586,
+      "sha256": "637bb3da840486f70eae9b721edb1dbcab76cadbb7b7e3e4b6e53daec94f9b94",
+      "status": "imported-identical-relocated",
+      "integratedPath": "apps/web/app/titan/components/__tests__/role-surfaces.unit.test.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/apps/web/app/components/generated-ui/generated-ui-envelope.tsx",
+      "bytes": 2068,
+      "sha256": "1c9f05c6bbc993488303ad6f9f6217e58c083688de73952fd7808ea43c56f6cf",
+      "status": "imported-identical-relocated",
+      "integratedPath": "apps/web/app/titan/components/generated-ui/generated-ui-envelope.tsx",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/apps/web/app/components/role-chat.surface-normalization.test.mjs",
+      "bytes": 514,
+      "sha256": "93650dd15ac03ef7341dd70db6a034ad20e01b6be496b4bd1c5c8aea862ab547",
+      "status": "imported-identical-relocated",
+      "integratedPath": "apps/web/app/titan/components/role-chat.surface-normalization.test.mjs",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/apps/web/app/components/role-chat.tsx",
+      "bytes": 21903,
+      "sha256": "26fdce9dc1ca45223431ab0d59a7dc2f7a75064cc37d5206b77ba07418aac29a",
+      "status": "imported-identical-relocated",
+      "integratedPath": "apps/web/app/titan/components/role-chat.tsx",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/apps/web/app/components/role-details.tsx",
+      "bytes": 17361,
+      "sha256": "9fa6fdafb9fec524a7620c160a16f99970d881839e237b79c2558ca0b6a717db",
+      "status": "imported-identical-relocated",
+      "integratedPath": "apps/web/app/titan/components/role-details.tsx",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/apps/web/app/components/role-secondary-surfaces.tsx",
+      "bytes": 8100,
+      "sha256": "6c38e95063e85d76df428573e0a9d46019920387f35208e376ea79ab7f122205",
+      "status": "imported-identical-relocated",
+      "integratedPath": "apps/web/app/titan/components/role-secondary-surfaces.tsx",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/apps/web/app/components/titan-brand.tsx",
+      "bytes": 1255,
+      "sha256": "bdd5545960dac254d078c781a147673cae6e00b1d5b8ead833e956de40f4d9b9",
+      "status": "imported-identical-relocated",
+      "integratedPath": "apps/web/app/titan/components/titan-brand.tsx",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/apps/web/app/runtime/__tests__/surface-contract.test.mjs",
+      "bytes": 1883,
+      "sha256": "b41e36b4c004cbc6cb10aac5decae32fc977ec02f7d063e5120a29cba51adc40",
+      "status": "imported-identical-relocated",
+      "integratedPath": "apps/web/app/titan/runtime/__tests__/surface-contract.test.mjs",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/apps/web/app/runtime/conversation-store.ts",
+      "bytes": 4151,
+      "sha256": "3d45a856d5e186a1178d84cad638a7b6e53d1913a625d02f3904aa5664c8ecdd",
+      "status": "imported-identical-relocated",
+      "integratedPath": "apps/web/app/titan/runtime/conversation-store.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/apps/web/app/runtime/demo-presentation-intent.ts",
+      "bytes": 2856,
+      "sha256": "2fe863e282c98f6802c1d56cd99837c0854426bd26cc6555d3d480bd9b925cb9",
+      "status": "imported-identical-relocated",
+      "integratedPath": "apps/web/app/titan/runtime/demo-presentation-intent.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/apps/web/app/runtime/go-field-runtime.d.mts",
+      "bytes": 2882,
+      "sha256": "f529f5a69f618e2026cf8402ae999f36e4fb84ab310c05c16d34b4645dd45a15",
+      "status": "imported-identical-relocated",
+      "integratedPath": "apps/web/app/titan/runtime/go-field-runtime.d.mts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/apps/web/app/runtime/go-field-runtime.mjs",
+      "bytes": 8813,
+      "sha256": "5d56bbba128ffe84f762f62d34cac02d2f5618d50e5d08bb941c6d2d16d58fee",
+      "status": "imported-identical-relocated",
+      "integratedPath": "apps/web/app/titan/runtime/go-field-runtime.mjs",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/apps/web/app/runtime/go-schedule-intelligence.d.mts",
+      "bytes": 1583,
+      "sha256": "ec3c3a5fc170f669a00840e4c84caa489dcd9a466545014b99971fb28103b7b4",
+      "status": "imported-identical-relocated",
+      "integratedPath": "apps/web/app/titan/runtime/go-schedule-intelligence.d.mts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/apps/web/app/runtime/go-schedule-intelligence.mjs",
+      "bytes": 5044,
+      "sha256": "749b6d55ee31cc664184fd9056415113b50479066baba18970b2e07b3a64d42e",
+      "status": "imported-identical-relocated",
+      "integratedPath": "apps/web/app/titan/runtime/go-schedule-intelligence.mjs",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/apps/web/app/runtime/interaction-client.ts",
+      "bytes": 6427,
+      "sha256": "ed7669ceb31fff89f715f926a5fdbfeb0db7f64e2ac37bc09ee87d593925ee7a",
+      "status": "imported-identical-relocated",
+      "integratedPath": "apps/web/app/titan/runtime/interaction-client.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/apps/web/app/runtime/multimodal-input.ts",
+      "bytes": 1532,
+      "sha256": "8226e995134c63a0c51de1ef5a78ac271d5e2115251f45da1706f9a1f9e86ffd",
+      "status": "imported-identical-relocated",
+      "integratedPath": "apps/web/app/titan/runtime/multimodal-input.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/apps/web/app/runtime/presentation-intent.ts",
+      "bytes": 2382,
+      "sha256": "b10d87e5237a9cf7c877ea61e40446b87fb140328a2fa7962247655e2f1da6ce",
+      "status": "imported-identical-relocated",
+      "integratedPath": "apps/web/app/titan/runtime/presentation-intent.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/apps/web/app/runtime/surface-contract.d.mts",
+      "bytes": 2442,
+      "sha256": "7f13041b4a58b700d610a12292d1d02a44e567d41e8ee72dbc505952d08e9ff0",
+      "status": "imported-identical-relocated",
+      "integratedPath": "apps/web/app/titan/runtime/surface-contract.d.mts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/apps/web/app/runtime/surface-contract.mjs",
+      "bytes": 6118,
+      "sha256": "b30cabcace86a3ac75ba134efb6d274558c1877daa25006721e44d4118a9f3cd",
+      "status": "imported-identical-relocated",
+      "integratedPath": "apps/web/app/titan/runtime/surface-contract.mjs",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/apps/web/app/runtime/zero-http-transport.test.ts",
+      "bytes": 1710,
+      "sha256": "30533e31fcdf2244ff39a1048ec531f1bd26e9d9fd99d7849961a06aababdb29",
+      "status": "imported-identical-relocated",
+      "integratedPath": "apps/web/app/titan/runtime/zero-http-transport.test.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/apps/web/app/runtime/zero-http-transport.ts",
+      "bytes": 1171,
+      "sha256": "e8440f304dda85d76b3a456b8c350a7c2d069afb35aad88e8cc288a0827a902b",
+      "status": "imported-identical-relocated",
+      "integratedPath": "apps/web/app/titan/runtime/zero-http-transport.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/apps/web/lib/builder-projection-executors.ts",
+      "bytes": 6507,
+      "sha256": "c57e61625288bc3ac2aab992ce0b79d1046b3d8aef97231d24b1f198b53b20d6",
+      "status": "not-integrated",
+      "integratedPath": null,
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/apps/web/lib/builder-signal-projection.ts",
+      "bytes": 1697,
+      "sha256": "f708767df40cf9e504d8aecd175c4cee6a9c48c3f917a320767fb402d39d6768",
+      "status": "not-integrated",
+      "integratedPath": null,
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/apps/web/lib/interface-runtime/__tests__/business-context.unit.test.ts",
+      "bytes": 1589,
+      "sha256": "a56c0760a6434904f3762247d705d865c4bf528e4d2c6ed26b524cb81cfea5a0",
+      "status": "imported-identical-relocated",
+      "integratedPath": "apps/web/lib/titan/interface-runtime/__tests__/business-context.unit.test.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/apps/web/lib/interface-runtime/__tests__/host.unit.test.ts",
+      "bytes": 1041,
+      "sha256": "1810d1a4fab6ed876d33fa585f861a67bab3855af0dd085634305fd25c96c58f",
+      "status": "imported-identical-relocated",
+      "integratedPath": "apps/web/lib/titan/interface-runtime/__tests__/host.unit.test.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/apps/web/lib/interface-runtime/__tests__/live-context.contract.test.ts",
+      "bytes": 766,
+      "sha256": "f22825f3a61d86a445aa68d641645697e0a27285cc76b98344dffab86f8ab588",
+      "status": "imported-identical-relocated",
+      "integratedPath": "apps/web/lib/titan/interface-runtime/__tests__/live-context.contract.test.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/apps/web/lib/interface-runtime/__tests__/shell-projection.unit.test.ts",
+      "bytes": 550,
+      "sha256": "d101277b0b27e294682059c1ab5df714301d718a93ac0c7261037c5ae9395142",
+      "status": "imported-identical-relocated",
+      "integratedPath": "apps/web/lib/titan/interface-runtime/__tests__/shell-projection.unit.test.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/apps/web/lib/interface-runtime/business-context.ts",
+      "bytes": 2619,
+      "sha256": "6406a8421fdc1182713027ea4409859575c866037fa54788865082190fce8653",
+      "status": "imported-identical-relocated",
+      "integratedPath": "apps/web/lib/titan/interface-runtime/business-context.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/apps/web/lib/interface-runtime/host.ts",
+      "bytes": 1270,
+      "sha256": "e6526734914d0a168845f47d6b776e3e8ce4b560d29066df672793e75d3bae8b",
+      "status": "imported-identical-relocated",
+      "integratedPath": "apps/web/lib/titan/interface-runtime/host.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/apps/web/lib/interface-runtime/live-context.ts",
+      "bytes": 2260,
+      "sha256": "769d32961a7445182a6eeff9f88d052f45d613f36ea72b5f5f8351bfe7a0a8c1",
+      "status": "imported-identical-relocated",
+      "integratedPath": "apps/web/lib/titan/interface-runtime/live-context.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/apps/web/lib/interface-runtime/shell-projection.ts",
+      "bytes": 1422,
+      "sha256": "5b265c521e7fda323d4a0d4bc8aae98c1c61c8fe2ab8cc6dd76160eb41d84acd",
+      "status": "imported-identical-relocated",
+      "integratedPath": "apps/web/lib/titan/interface-runtime/shell-projection.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/apps/web/lib/workforce-capacity/diagnostics.ts",
+      "bytes": 1628,
+      "sha256": "dd8164b0a5447605fe8fa8ffdcdad88a9546e4557e7b7fc94ba6dbbb59aeecc7",
+      "status": "imported-identical-relocated",
+      "integratedPath": "apps/web/lib/titan/workforce-capacity/diagnostics.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/apps/web/lib/workforce-command-gateway.ts",
+      "bytes": 3613,
+      "sha256": "c71eb21044b05de6347a9ce444295de4cfda58338bfafb1c658a1a32a92cf82c",
+      "status": "imported-identical-relocated",
+      "integratedPath": "apps/web/lib/titan/workforce-command-gateway.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/apps/web/lib/workforce-context/access.ts",
+      "bytes": 88,
+      "sha256": "c7d85b7b454ac927060ed49771e81c6f6b11448998d1a40a8ac8731d6da1cc66",
+      "status": "imported-identical-relocated",
+      "integratedPath": "apps/web/lib/titan/workforce-context/access.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/apps/web/lib/workforce-context/assembler.ts",
+      "bytes": 233,
+      "sha256": "6ef9bfe3a1c537d6364d50a94c25f4bce8750c2d2141506be6e179e828abefd3",
+      "status": "imported-identical-relocated",
+      "integratedPath": "apps/web/lib/titan/workforce-context/assembler.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/apps/web/lib/workforce-context/checkpoint.ts",
+      "bytes": 92,
+      "sha256": "7a1b6430c3686142599afdbaf1b6ab099e7d1a0531cd78ff9e42c516f0259f95",
+      "status": "imported-identical-relocated",
+      "integratedPath": "apps/web/lib/titan/workforce-context/checkpoint.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/apps/web/lib/workforce-context/compaction.ts",
+      "bytes": 92,
+      "sha256": "208a81f8d808b48e53b98f4d9a11036a9aefcf73db285c6252b159c3015f1faf",
+      "status": "imported-identical-relocated",
+      "integratedPath": "apps/web/lib/titan/workforce-context/compaction.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/apps/web/lib/workforce-context/continuity.ts",
+      "bytes": 92,
+      "sha256": "6feacd4c030cbe943bb050eb274ff8221f9947f692bcd689a9793a40006543dc",
+      "status": "imported-identical-relocated",
+      "integratedPath": "apps/web/lib/titan/workforce-context/continuity.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/apps/web/lib/workforce-context/contract.ts",
+      "bytes": 401,
+      "sha256": "b9759b4ea29fc0218c48c16e074c626acdc782dedf80e297d9e3028a8f4e792b",
+      "status": "imported-identical-relocated",
+      "integratedPath": "apps/web/lib/titan/workforce-context/contract.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/apps/web/lib/workforce-context/diagnostics.ts",
+      "bytes": 93,
+      "sha256": "63f26fae25f1ff7e8a41c9b97bb7eef21b70e9e0679426bc037f9998456711ba",
+      "status": "imported-identical-relocated",
+      "integratedPath": "apps/web/lib/titan/workforce-context/diagnostics.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/apps/web/lib/workforce-context/freshness.ts",
+      "bytes": 91,
+      "sha256": "853e9e7aaac2a5075440300b8c754da0f5765b559d38c83a5cfd86af9eabd018",
+      "status": "imported-identical-relocated",
+      "integratedPath": "apps/web/lib/titan/workforce-context/freshness.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/apps/web/lib/workforce-context/handoff.ts",
+      "bytes": 89,
+      "sha256": "9c8625a11e9f1560b45f113925e20c1f6101de87d01cd5fb16d147e80bd88f07",
+      "status": "imported-identical-relocated",
+      "integratedPath": "apps/web/lib/titan/workforce-context/handoff.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/apps/web/lib/workforce-context/projection.ts",
+      "bytes": 92,
+      "sha256": "24cf66331172c1316bed9aacfad66571a85ab18abe982a2286debf79b54db746",
+      "status": "imported-identical-relocated",
+      "integratedPath": "apps/web/lib/titan/workforce-context/projection.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/apps/web/lib/workforce-hierarchy/agent-binding.ts",
+      "bytes": 416,
+      "sha256": "42c2fe436128967659206425837178dd503f18a860be5c597d4559f9af02ae0e",
+      "status": "imported-identical-relocated",
+      "integratedPath": "apps/web/lib/titan/workforce-hierarchy/agent-binding.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/apps/web/lib/workforce-hierarchy/contract.ts",
+      "bytes": 382,
+      "sha256": "fd6e25a6d4fa89e03868655886fa348ba24b431a2859e8f6d4ab9b72d1680448",
+      "status": "imported-identical-relocated",
+      "integratedPath": "apps/web/lib/titan/workforce-hierarchy/contract.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/apps/web/lib/workforce-hierarchy/delegation-envelope.ts",
+      "bytes": 438,
+      "sha256": "72719544c8e456ab57d7b55fd6d1d82a6d4286f43582c0d2d5c2edd8122a0b20",
+      "status": "imported-identical-relocated",
+      "integratedPath": "apps/web/lib/titan/workforce-hierarchy/delegation-envelope.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/apps/web/lib/workforce-hierarchy/diagnostics.ts",
+      "bytes": 95,
+      "sha256": "4fba8f36596a8754b6d155f3643f3d24fffdf135b4a09cd119d8b44cb8c068b0",
+      "status": "imported-identical-relocated",
+      "integratedPath": "apps/web/lib/titan/workforce-hierarchy/diagnostics.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/apps/web/lib/workforce-hierarchy/e2e-verification.ts",
+      "bytes": 100,
+      "sha256": "94b5a1e8a145f7db128d85bf3dd11fe17036a923c1603afa126577a2411548d0",
+      "status": "imported-identical-relocated",
+      "integratedPath": "apps/web/lib/titan/workforce-hierarchy/e2e-verification.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/apps/web/lib/workforce-hierarchy/escalation-runtime.ts",
+      "bytes": 618,
+      "sha256": "406662b2f1992a72b5ca7e004a700833af78e83231d6b272aaf435cced2a3adf",
+      "status": "imported-identical-relocated",
+      "integratedPath": "apps/web/lib/titan/workforce-hierarchy/escalation-runtime.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/apps/web/lib/workforce-hierarchy/manager-runtime.ts",
+      "bytes": 539,
+      "sha256": "2725880289c8ea2c94d7d7d6862f0286b32ed3caee8e4344bf742bc64360ff43",
+      "status": "imported-identical-relocated",
+      "integratedPath": "apps/web/lib/titan/workforce-hierarchy/manager-runtime.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/apps/web/lib/workforce-hierarchy/state-persistence.ts",
+      "bytes": 101,
+      "sha256": "86d551e65edd3e2c6ade5b4c3281a2dd06bb26b77859ae261fc980f4662ac554",
+      "status": "imported-identical-relocated",
+      "integratedPath": "apps/web/lib/titan/workforce-hierarchy/state-persistence.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/apps/web/lib/workforce-hierarchy/supervisor-runtime.ts",
+      "bytes": 756,
+      "sha256": "f2a357953ee072f22e168a2125e6b524b3b703ff8b97e5cc8548331f9547bbe6",
+      "status": "imported-identical-relocated",
+      "integratedPath": "apps/web/lib/titan/workforce-hierarchy/supervisor-runtime.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/apps/web/lib/workforce-hierarchy/worker-runtime.ts",
+      "bytes": 558,
+      "sha256": "cbfd5a34922f41a1aea01cdc44b108d26901f164e600a0a055c837a7e5d6aaba",
+      "status": "imported-identical-relocated",
+      "integratedPath": "apps/web/lib/titan/workforce-hierarchy/worker-runtime.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/apps/web/lib/workforce-lifecycle/inspection.ts",
+      "bytes": 6014,
+      "sha256": "d40fdf69b365fd955e572a55b29f918fd70735e713a3256c615df61007a2defb",
+      "status": "imported-identical-relocated",
+      "integratedPath": "apps/web/lib/titan/workforce-lifecycle/inspection.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/apps/web/lib/workforce-native/booking.ts",
+      "bytes": 3006,
+      "sha256": "2471fba6eff8fd1a2b99ad7e6e61e14db8f5d02b3c0572cc6b548fbf6fff3975",
+      "status": "imported-identical-relocated",
+      "integratedPath": "apps/web/lib/titan/workforce-native/booking.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/apps/web/lib/workforce-native/customer-care.ts",
+      "bytes": 3210,
+      "sha256": "bdbe579ac3205a6c8dbe707cbea0c364eb3b1ee2dd9971ae377ad570398e4532",
+      "status": "imported-identical-relocated",
+      "integratedPath": "apps/web/lib/titan/workforce-native/customer-care.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/apps/web/lib/workforce-native/governance.ts",
+      "bytes": 1740,
+      "sha256": "ea1e2d795d781b71ae58886630f1e3744781be9d17a3aeccb490e64e63698f95",
+      "status": "imported-identical-relocated",
+      "integratedPath": "apps/web/lib/titan/workforce-native/governance.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/apps/web/lib/workforce-native/jobs.ts",
+      "bytes": 2639,
+      "sha256": "cea4f8437a6572b267aa5e127d664c4b60639832cd76d5f9bb61db4426da1968",
+      "status": "imported-identical-relocated",
+      "integratedPath": "apps/web/lib/titan/workforce-native/jobs.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/apps/web/lib/workforce-native/reception.ts",
+      "bytes": 2743,
+      "sha256": "b9db9b12dfd46825f096e6332e438561b4905e72eb8edb680fe16abd97ef0b08",
+      "status": "imported-identical-relocated",
+      "integratedPath": "apps/web/lib/titan/workforce-native/reception.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/apps/web/lib/workforce-native/sales.ts",
+      "bytes": 2978,
+      "sha256": "c5359fea95292859cbd12f7bf22ffa17d8d508c0ecd40846e1007641afd17ad4",
+      "status": "imported-identical-relocated",
+      "integratedPath": "apps/web/lib/titan/workforce-native/sales.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/apps/web/lib/workforce-native/scheduling.ts",
+      "bytes": 3200,
+      "sha256": "3451644330d8dd1fe6834892834a8e62abb15dc9e2c191dab4bbe2a6a43bf7a3",
+      "status": "imported-identical-relocated",
+      "integratedPath": "apps/web/lib/titan/workforce-native/scheduling.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/capability/SkillCapabilityRegistry.schema.json",
+      "bytes": 2119,
+      "sha256": "00b799f81556f8ead561b51893e33aaada6caccc4a961c10f9f35582a3b20522",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/capability/SkillCapabilityRegistry.schema.json",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/capability/evidence-backed-skill-proof.mjs",
+      "bytes": 5860,
+      "sha256": "09b611c1e9ab38e6844f1c588e08ded7fb914f5f9c2e017be6780de6fa53b2fe",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/capability/evidence-backed-skill-proof.mjs",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/capability/skill-capability-registry.ts",
+      "bytes": 8165,
+      "sha256": "1cedc857f54e0a92512b701ab4f80b11c568b4fa93d180c89d62546ce886fd71",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/capability/skill-capability-registry.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/capacity/WorkloadCapacitySnapshot.schema.json",
+      "bytes": 942,
+      "sha256": "b02c9c12aab6035dd7d70c3950fbadb105cf7e19a040d56cccfd9a5a8703458c",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/capacity/WorkloadCapacitySnapshot.schema.json",
+      "otherIdenticalPaths": [
+        "packages/workforce/capacity/WorkloadCapacitySnapshot.schema.json"
+      ]
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/capacity/workload-capacity-runtime.ts",
+      "bytes": 7863,
+      "sha256": "b2818f22837a9894bac5efbe60376d4c13f4bfd174d0f226c40b0481cf3ddf76",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/capacity/workload-capacity-runtime.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/catalogue/installed-client-workforce-master.json",
+      "bytes": 70169,
+      "sha256": "fbbce3b2854aa43a2ac3dd5c5dd719630113776457fee168c7f34df0996d2148",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/catalogue/installed-client-workforce-master.json",
+      "otherIdenticalPaths": [
+        "packages/titan-platform/src/ported/workforce/donor/installed-client-workforce-master.json"
+      ]
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/catalogue/provider-domain-map.json",
+      "bytes": 1953,
+      "sha256": "b5e13af02d68811141b3036e7f5719961bb358a804dd15567fe3b70c9bcbcdce",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/catalogue/provider-domain-map.json",
+      "otherIdenticalPaths": [
+        "packages/titan-platform/src/ported/workforce/donor/provider-domain-map.json"
+      ]
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/certification/BrowserLiveSmokeCertification.schema.json",
+      "bytes": 675,
+      "sha256": "a6f7e0b8e8ee3cc62c015422bbc5f66f8e9fd4ea16e3f0d2602b7d23777e6215",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/certification/BrowserLiveSmokeCertification.schema.json",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/certification/CrossSystemE2ECertification.schema.json",
+      "bytes": 783,
+      "sha256": "d7bef2c785b9955fd862c28c264d7ffa268d8f73d1fdc4fccece9bf67b4913a1",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/certification/CrossSystemE2ECertification.schema.json",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/certification/LiveLaravelHostCertification.schema.json",
+      "bytes": 1982,
+      "sha256": "85b565950d45a1f0665cc0da31f2a0114ec6050847fd938c351fd742f58683bc",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/certification/LiveLaravelHostCertification.schema.json",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/certification/browser-live-smoke-certification.ts",
+      "bytes": 298,
+      "sha256": "69bcb6d77b915a698d1ea51ec5bf4f77be6e778b03338fdf11cd7ef9664ea5ed",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/certification/browser-live-smoke-certification.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/certification/cross-system-e2e-certification.ts",
+      "bytes": 280,
+      "sha256": "17fd39d1d2af0db7c260db057696f0e6541a7741a0a1d83818abb71dba7f507a",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/certification/cross-system-e2e-certification.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/certification/live-laravel-host-certification.ts",
+      "bytes": 304,
+      "sha256": "0ce79136c7fe3ecf7ed8334d5538faf74f92d3c44d114c8eaf3c012cccf227e9",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/certification/live-laravel-host-certification.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/commissioning/CommissioningGates.schema.json",
+      "bytes": 1502,
+      "sha256": "40210a461a17ac3fdd8015ccafa78d7450484a1e8499a7ae5e6a5331814addf4",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/commissioning/CommissioningGates.schema.json",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/commissioning/commissioning-gates-runtime.ts",
+      "bytes": 253,
+      "sha256": "db0228b8a9eab0c016c7d0f66f8c75d6d30e00226599a6059b6e3ef5de99c810",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/commissioning/commissioning-gates-runtime.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/composition/composition-dimensions.json",
+      "bytes": 977,
+      "sha256": "859893105e0d8a53c5747beaee9f2fd4080f3c108fb00cf14ac856740659d9fe",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/composition/composition-dimensions.json",
+      "otherIdenticalPaths": [
+        "packages/titan-platform/src/ported/workforce/donor/composition-dimensions.json"
+      ]
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/contracts/ApprovalWait.schema.json",
+      "bytes": 670,
+      "sha256": "ae78be560ee510cc1951324e576155b70cb9e938ec906a4d034416a4afea5b76",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/contracts/ApprovalWait.schema.json",
+      "otherIdenticalPaths": [
+        "packages/workforce/contracts/ApprovalWait.schema.json"
+      ]
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/contracts/AssignmentDecision.schema.json",
+      "bytes": 775,
+      "sha256": "ffe0d63e0caeafe127ba1f740a934feaeac3512a8bedf210776a4e404e03c035",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/contracts/AssignmentDecision.schema.json",
+      "otherIdenticalPaths": [
+        "packages/workforce/contracts/AssignmentDecision.schema.json"
+      ]
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/contracts/ClientWorkerInstance.schema.json",
+      "bytes": 758,
+      "sha256": "e0e560b6cbd75a71524c7ac0d2602b039692226d3576742871824c7d6b993eaf",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/contracts/ClientWorkerInstance.schema.json",
+      "otherIdenticalPaths": [
+        "packages/workforce/contracts/ClientWorkerInstance.schema.json"
+      ]
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/contracts/ClientWorkforceControlIntent.schema.json",
+      "bytes": 1002,
+      "sha256": "663c4940308de4e13c6ffc7c584a69835a8a66f9ae6ebb122fea7abb0ff72af9",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/contracts/ClientWorkforceControlIntent.schema.json",
+      "otherIdenticalPaths": [
+        "packages/workforce/contracts/ClientWorkforceControlIntent.schema.json"
+      ]
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/contracts/ClientWorkforceManagerProjection.schema.json",
+      "bytes": 2017,
+      "sha256": "128aef788e28c6734e09a5240a9438c562bb85e1075a60f94ac63cf260d6bc6c",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/contracts/ClientWorkforceManagerProjection.schema.json",
+      "otherIdenticalPaths": [
+        "packages/workforce/contracts/ClientWorkforceManagerProjection.schema.json"
+      ]
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/contracts/ClientWorkforceProfile.schema.json",
+      "bytes": 753,
+      "sha256": "5a876ddcca8a262454a191f5d93a640be1d8d79665c4c512169cd30b7381cb8e",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/contracts/ClientWorkforceProfile.schema.json",
+      "otherIdenticalPaths": [
+        "packages/workforce/contracts/ClientWorkforceProfile.schema.json"
+      ]
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/contracts/EnvironmentalPerformancePlan.schema.json",
+      "bytes": 685,
+      "sha256": "58919b98ce1f99887628f36360e8666f7a295e80b20d719372d81cbe6f57f77a",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/contracts/EnvironmentalPerformancePlan.schema.json",
+      "otherIdenticalPaths": [
+        "packages/workforce/contracts/EnvironmentalPerformancePlan.schema.json"
+      ]
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/contracts/Escalation.schema.json",
+      "bytes": 741,
+      "sha256": "d700544d22abfafcb7fb6535313ea416aec3fa73737cc6b5fcfc1db5c3e53366",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/contracts/Escalation.schema.json",
+      "otherIdenticalPaths": [
+        "packages/workforce/contracts/Escalation.schema.json"
+      ]
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/contracts/ImprovementProposal.schema.json",
+      "bytes": 591,
+      "sha256": "f87399f3450d1afe19f0af17fca54530a2123c94fff6262f3146abfa0772a6e7",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/contracts/ImprovementProposal.schema.json",
+      "otherIdenticalPaths": [
+        "packages/workforce/contracts/ImprovementProposal.schema.json"
+      ]
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/contracts/OutcomeRecord.schema.json",
+      "bytes": 636,
+      "sha256": "595fe7763604fa51a6e829cb64fa9ee262ad63710ae832eca584ffca2643d69d",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/contracts/OutcomeRecord.schema.json",
+      "otherIdenticalPaths": [
+        "packages/workforce/contracts/OutcomeRecord.schema.json"
+      ]
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/contracts/RoleActivationProposal.schema.json",
+      "bytes": 721,
+      "sha256": "9ceec881f01a03b94285bbb00b3b53114fc4a31778060de711446316f748ca49",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/contracts/RoleActivationProposal.schema.json",
+      "otherIdenticalPaths": [
+        "packages/workforce/contracts/RoleActivationProposal.schema.json"
+      ]
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/contracts/RoleCapabilityBinding.schema.json",
+      "bytes": 795,
+      "sha256": "96b13a9dd18d3a70b315fa2e37c8735274048d4c369c3e5286ba48e86b093ce2",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/contracts/RoleCapabilityBinding.schema.json",
+      "otherIdenticalPaths": [
+        "packages/workforce/contracts/RoleCapabilityBinding.schema.json"
+      ]
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/contracts/WorkItem.schema.json",
+      "bytes": 1110,
+      "sha256": "a8854bf70e096326364f07972626fca682b27e91cf839bef4ec58df0e9bd870b",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/contracts/WorkItem.schema.json",
+      "otherIdenticalPaths": [
+        "packages/workforce/contracts/WorkItem.schema.json"
+      ]
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/coordination/ChiefOfStaffCoordination.schema.json",
+      "bytes": 797,
+      "sha256": "0fecc612c1756e97d68ac33c3a40aa898c30e487c8e2b7181b9ebdd929f929e0",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/coordination/ChiefOfStaffCoordination.schema.json",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/coordination/chief-of-staff-runtime.ts",
+      "bytes": 5096,
+      "sha256": "73cc4ec164c730839e11c91b14d3b724107656adc521d612bd70eafd12a02536",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/coordination/chief-of-staff-runtime.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/customer-care/ComplaintIntake.schema.json",
+      "bytes": 2108,
+      "sha256": "3197da9cc320804524672edff05ca8247faf6fd22464ea00cd11945e38721ec6",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/customer-care/ComplaintIntake.schema.json",
+      "otherIdenticalPaths": [
+        "packages/workforce/customer-care/ComplaintIntake.schema.json"
+      ]
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/customer-care/CustomerCareContract.schema.json",
+      "bytes": 877,
+      "sha256": "1a3ec6c401356460ac4927397540588237e64634ca6b15fcadef11b45de09802",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/customer-care/CustomerCareContract.schema.json",
+      "otherIdenticalPaths": [
+        "packages/workforce/customer-care/CustomerCareContract.schema.json"
+      ]
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/customer-care/CustomerCareGroundedResponse.schema.json",
+      "bytes": 1700,
+      "sha256": "61fd7270270c2a97a820738da8e89605ff35f0d6ecaeaef3551542ef0e7c4a45",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/customer-care/CustomerCareGroundedResponse.schema.json",
+      "otherIdenticalPaths": [
+        "packages/workforce/customer-care/CustomerCareGroundedResponse.schema.json"
+      ]
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/customer-care/CustomerCareHumanReview.schema.json",
+      "bytes": 958,
+      "sha256": "c524e4779dd6d4bb9f0dc108c200328c7b30f4197003989cd3c71795a6b8bca4",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/customer-care/CustomerCareHumanReview.schema.json",
+      "otherIdenticalPaths": [
+        "packages/workforce/customer-care/CustomerCareHumanReview.schema.json"
+      ]
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/customer-care/CustomerCareInventory.schema.json",
+      "bytes": 696,
+      "sha256": "afe01e7a3deaf633348ad24484e4fb159912cc7f39fcd694da1e6a89303587d3",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/customer-care/CustomerCareInventory.schema.json",
+      "otherIdenticalPaths": [
+        "packages/workforce/customer-care/CustomerCareInventory.schema.json"
+      ]
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/customer-care/CustomerCareSettingsPolicy.schema.json",
+      "bytes": 3396,
+      "sha256": "a894d3c8e818fb34b129dd66b1962c60088d59836c143ae8728d95b5895d7d2d",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/customer-care/CustomerCareSettingsPolicy.schema.json",
+      "otherIdenticalPaths": [
+        "packages/workforce/customer-care/CustomerCareSettingsPolicy.schema.json"
+      ]
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/customer-care/CustomerCareTriage.schema.json",
+      "bytes": 1764,
+      "sha256": "05ba709cd94677ae34448c7d250a2b476cabdc0efb9d1833f1ab40874c536fb1",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/customer-care/CustomerCareTriage.schema.json",
+      "otherIdenticalPaths": [
+        "packages/workforce/customer-care/CustomerCareTriage.schema.json"
+      ]
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/customer-care/PostJobSatisfactionTrigger.schema.json",
+      "bytes": 1190,
+      "sha256": "76dec7ad487d1e2233a57fcd10866604e47d61c02454bfd370f895bb3b853a71",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/customer-care/PostJobSatisfactionTrigger.schema.json",
+      "otherIdenticalPaths": [
+        "packages/workforce/customer-care/PostJobSatisfactionTrigger.schema.json"
+      ]
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/customer-care/ResolvedServiceHandoff.schema.json",
+      "bytes": 1518,
+      "sha256": "6b49b7e3529b7f469f8c4129f47e187fa64b2bdaccb7edaee4d10b1662e4c240",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/customer-care/ResolvedServiceHandoff.schema.json",
+      "otherIdenticalPaths": [
+        "packages/workforce/customer-care/ResolvedServiceHandoff.schema.json"
+      ]
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/customer-care/ReviewRequestEligibility.schema.json",
+      "bytes": 770,
+      "sha256": "cd88652561da4c60426b7a178ca5b735c6ac0cda71717c7f5404aa5dd6ffc7e1",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/customer-care/ReviewRequestEligibility.schema.json",
+      "otherIdenticalPaths": [
+        "packages/workforce/customer-care/ReviewRequestEligibility.schema.json"
+      ]
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/customer-care/complaint-intake.ts",
+      "bytes": 8141,
+      "sha256": "08597f6e62cf4a5e256597b8a00ec43e4a900fcded65d6ff5de46489d185ae05",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/customer-care/complaint-intake.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/customer-care/customer-care-contract.ts",
+      "bytes": 7638,
+      "sha256": "5ad7be5bc3b45e80661bd6e313705c9121b0fe7990c728095eeb52b67773999c",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/customer-care/customer-care-contract.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/customer-care/customer-care-human-review.ts",
+      "bytes": 9127,
+      "sha256": "942379c44cf980cddea2fd33194b28bbb3b465ee1cdc155f1a00afe642440253",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/customer-care/customer-care-human-review.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/customer-care/customer-care-inventory.ts",
+      "bytes": 3540,
+      "sha256": "7c0a4cc03b4ede3fb329ec6326832d9c6160f6011f5a207eb416fc2f0c4d4778",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/customer-care/customer-care-inventory.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/customer-care/customer-care-settings.ts",
+      "bytes": 10506,
+      "sha256": "689e884cc9ffe03de9301b51ee38a4dc6dc84afc416e0a1e5cd4e4251b911a38",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/customer-care/customer-care-settings.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/customer-care/customer-care-triage.ts",
+      "bytes": 8012,
+      "sha256": "983accbf6f73aed5de6746b2c0bd943646ceb14188ad5029156f579f2e9d9d33",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/customer-care/customer-care-triage.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/customer-care/followup-slippage.test.ts",
+      "bytes": 2135,
+      "sha256": "81d0aa74f2278b8bd73eda5d56ffa311a6ca79f3cf9cda314ba51d9b490c9c76",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/customer-care/followup-slippage.test.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/customer-care/followup-slippage.ts",
+      "bytes": 6009,
+      "sha256": "ae77de446c6a167841ef2b1fdfb1fa910dcbea011abce7f7702a2896ff444f32",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/customer-care/followup-slippage.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/customer-care/grounded-response.ts",
+      "bytes": 9633,
+      "sha256": "e75a552575f268bf136231a2b240fbebfe8b8f8923c3519a5a58f3f5f416461d",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/customer-care/grounded-response.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/customer-care/post-job-satisfaction-trigger.ts",
+      "bytes": 6384,
+      "sha256": "a05fe7f98941b5092d94e81e366d3793a8850c16eb3514d9243cf38f512ed95f",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/customer-care/post-job-satisfaction-trigger.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/customer-care/relationship-health.test.ts",
+      "bytes": 2073,
+      "sha256": "aa88fef9ce68d0617f5e21108a4f28557d6c9670bc6f9cb1935f072ef9949981",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/customer-care/relationship-health.test.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/customer-care/relationship-health.ts",
+      "bytes": 5006,
+      "sha256": "da1c3a8424db984e21efacedbb52c9d72f37db26c502261ac5f908bde2cb0735",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/customer-care/relationship-health.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/customer-care/resolved-service-handoff.ts",
+      "bytes": 6093,
+      "sha256": "1ab9cf0133b24eec92f2e3a8c3fe82059bc22d7ea0a0a332af253eda75d7ab9b",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/customer-care/resolved-service-handoff.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/customer-care/review-request-eligibility.ts",
+      "bytes": 6750,
+      "sha256": "60df6a4e7112da0180412b4a47f9b4c1c3c7338fbaaea9b66a4332bb3c3eb9f1",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/customer-care/review-request-eligibility.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/decision/DecisionRightsPolicy.schema.json",
+      "bytes": 1843,
+      "sha256": "d2b81df8ca70081712c1c00329f9082898a6177ef92755cb2aea31956fd28974",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/decision/DecisionRightsPolicy.schema.json",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/decision/decision-rights-runtime.ts",
+      "bytes": 6488,
+      "sha256": "c6da4dd758cf9a2d5306009196d774d6db9a0d40b3d0a18a6486fde0d86db972",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/decision/decision-rights-runtime.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/discovery/BusinessDiscoverySpecification.schema.json",
+      "bytes": 1276,
+      "sha256": "8563478dacedeedfd14ec0c6405ab317f2057f3c49533eddd08973912a7a8446",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/discovery/BusinessDiscoverySpecification.schema.json",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/discovery/business-discovery-compiler.ts",
+      "bytes": 275,
+      "sha256": "e1a2f6587bb35c4135c3ebd9a2276bc3ccc9d104b43c0af28012ad2f1eb49a14",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/discovery/business-discovery-compiler.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/dispatch/DispatchActionIntent.schema.json",
+      "bytes": 1482,
+      "sha256": "b007cd81d9f3e2c3edfbb56f24ac64fdacac16cb0a87a452b124ca4bcd2b7f84",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/dispatch/DispatchActionIntent.schema.json",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/dispatch/DispatchAdversarialAssessment.schema.json",
+      "bytes": 1614,
+      "sha256": "d3be6b9af821b2820af6fe1004a3e054e6a1b4266f45df66bfac0eb9673d7870",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/dispatch/DispatchAdversarialAssessment.schema.json",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/dispatch/DispatchChangePropagation.schema.json",
+      "bytes": 1425,
+      "sha256": "c2a7973b67782f2bc613e49689b3b86e7e5a5c2b7022a5280538b6959b515360",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/dispatch/DispatchChangePropagation.schema.json",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/dispatch/DispatchException.schema.json",
+      "bytes": 1460,
+      "sha256": "c5b6bb9effbd0336abb47c04744291e37219508a9efcc750fbb1dd4aac6ed73b",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/dispatch/DispatchException.schema.json",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/dispatch/DispatchGoldenEvaluation.schema.json",
+      "bytes": 725,
+      "sha256": "58bc321779a3cc6223af2ae207f9880814a025cc88ae2a6ab222606222a82d96",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/dispatch/DispatchGoldenEvaluation.schema.json",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/dispatch/DispatchProposal.schema.json",
+      "bytes": 1184,
+      "sha256": "17e9821e4361b2bf702e2df4d7cb045c6680d204c6e3ad01cbd55c9d126c23eb",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/dispatch/DispatchProposal.schema.json",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/dispatch/DispatchQueue.schema.json",
+      "bytes": 890,
+      "sha256": "32b7453c9db211aba6251681435308025d3fc1da94809dfb373d85750cb29552",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/dispatch/DispatchQueue.schema.json",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/dispatch/DispatchRecommendation.schema.json",
+      "bytes": 1113,
+      "sha256": "0216884f3ae4a3ba05148e3ba3a7e6066a681bb029739ebdebe4f41d86ef4994",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/dispatch/DispatchRecommendation.schema.json",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/dispatch/DispatchRecoveryAssessment.schema.json",
+      "bytes": 1690,
+      "sha256": "24825dc6833f653c9416d9d5e868c5715fa222fedefbb71e381a2a7ca149042e",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/dispatch/DispatchRecoveryAssessment.schema.json",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/dispatch/DispatchReleaseCertification.schema.json",
+      "bytes": 1088,
+      "sha256": "438820cfe70c71a6e3e3b7df610cd4d9d3486dcd829dd24b47cf300ed93e75e0",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/dispatch/DispatchReleaseCertification.schema.json",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/dispatch/DispatchSettingsPolicy.schema.json",
+      "bytes": 1024,
+      "sha256": "db19a60914fedb2deb9564e99f61a98a98d7112a3c7022d0d5bf50e82ea40ea9",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/dispatch/DispatchSettingsPolicy.schema.json",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/dispatch/DispatchTravelEvidence.schema.json",
+      "bytes": 1113,
+      "sha256": "c7b2a01b82d4a28c6df4651be3c9500d9b403ce0f72aae7f5365c7c4faee2433",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/dispatch/DispatchTravelEvidence.schema.json",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/dispatch/dispatch-action-runtime.mjs",
+      "bytes": 8982,
+      "sha256": "f0e1a17ea7e1353bab7f8b1743674d5a3ac9a48542d644bcafa2922a489eb23c",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/dispatch/dispatch-action-runtime.mjs",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/dispatch/dispatch-adversarial-runtime.mjs",
+      "bytes": 7745,
+      "sha256": "51476a1e71a903d18dc17044faa314b6f3aef78a967377996bebc58d7e20c0ef",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/dispatch/dispatch-adversarial-runtime.mjs",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/dispatch/dispatch-change-propagation-runtime.mjs",
+      "bytes": 9065,
+      "sha256": "6748d4e43d7dd9cd55d6133836234b94154de7070bdff80031d25d5418e20922",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/dispatch/dispatch-change-propagation-runtime.mjs",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/dispatch/dispatch-exception-runtime.mjs",
+      "bytes": 10452,
+      "sha256": "32f56d3131c3a7bd8be2b156438c9264c68dcee54addc0e913e07aa23b81d22c",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/dispatch/dispatch-exception-runtime.mjs",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/dispatch/dispatch-golden-evaluation-runtime.mjs",
+      "bytes": 7920,
+      "sha256": "6e31988cc3c5f1e61f6a59862941a3c5b436c24761b69fc62a6fa9d5593b8ded",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/dispatch/dispatch-golden-evaluation-runtime.mjs",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/dispatch/dispatch-proposal-runtime.mjs",
+      "bytes": 6982,
+      "sha256": "7141491490dfba3c5a88a2707fa7e30f1a84f459ba4d7401cdbe9cccbd1fd9e8",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/dispatch/dispatch-proposal-runtime.mjs",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/dispatch/dispatch-queue-runtime.mjs",
+      "bytes": 6425,
+      "sha256": "ec354c0ea4f3b34be6857c878fcac14735c71c8eaea8cbf46312a7840ffbbb2b",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/dispatch/dispatch-queue-runtime.mjs",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/dispatch/dispatch-recommendation-runtime.mjs",
+      "bytes": 7482,
+      "sha256": "87321a2aafe27188b016d123de0007788708075a87982f2549715e121fecfe85",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/dispatch/dispatch-recommendation-runtime.mjs",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/dispatch/dispatch-recovery-runtime.mjs",
+      "bytes": 5944,
+      "sha256": "6905b323aa4e2b7c4b7949000495fcfbea35dd6872af28133c53fa1a911ee10e",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/dispatch/dispatch-recovery-runtime.mjs",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/dispatch/dispatch-release-certification-runtime.mjs",
+      "bytes": 6145,
+      "sha256": "57de9aceb070704c1353bd7630d56b9917f76012ea1d01ddf74571a8b409e036",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/dispatch/dispatch-release-certification-runtime.mjs",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/dispatch/dispatch-settings-runtime.mjs",
+      "bytes": 4412,
+      "sha256": "62932a222a2cbbb74a52043c20a6ba4a270c13d9aac7477ed366aa2eee78b4de",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/dispatch/dispatch-settings-runtime.mjs",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/dispatch/dispatch-travel-runtime.mjs",
+      "bytes": 7313,
+      "sha256": "372980a22ffa790a9e3a3c0ce2c0989d5d37543a0251995943c223d080e9f1a5",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/dispatch/dispatch-travel-runtime.mjs",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/external/ExternalActorBoundary.schema.json",
+      "bytes": 725,
+      "sha256": "ca8efe8e9b86efb35e1bfe25b345073171294e5dca61ddd54e31908a5e9f6020",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/external/ExternalActorBoundary.schema.json",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/external/external-actor-boundary-runtime.ts",
+      "bytes": 334,
+      "sha256": "bcdac38fe928e1032289e598c31fa26a2975ea2f15beb1f73369959a16792e63",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/external/external-actor-boundary-runtime.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/finance/FinancialResourceGuardrails.schema.json",
+      "bytes": 832,
+      "sha256": "247313bc1a0c9293cc16fc2ccf2190689da99654fe249cfa8e7e737e4288fc37",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/finance/FinancialResourceGuardrails.schema.json",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/finance/financial-resource-guardrail-runtime.ts",
+      "bytes": 392,
+      "sha256": "538d3cfeea3d718229c03e3bfd06ee5a2dfb81e8870496a3507d774246acc550",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/finance/financial-resource-guardrail-runtime.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/gateway/AuthorityAutonomyBinding.schema.json",
+      "bytes": 1237,
+      "sha256": "19e7abf50133e4718cc0eee584d9a1510efb7f277f98cddec2d444272cf5d3d4",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/gateway/AuthorityAutonomyBinding.schema.json",
+      "otherIdenticalPaths": [
+        "packages/workforce/gateway/AuthorityAutonomyBinding.schema.json"
+      ]
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/gateway/FailureRetryContract.schema.json",
+      "bytes": 1538,
+      "sha256": "73767a8a972b4f51d2c92f5f3c17ab7a223a1c0eb8f3b2b4b0d6e0d1dd283645",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/gateway/FailureRetryContract.schema.json",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/gateway/GatewayContractV2.schema.json",
+      "bytes": 3006,
+      "sha256": "8c10b592b6a89f731ab20cf2f4b76de3848ae3b754aaab4b0c99761c08fb88df",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/gateway/GatewayContractV2.schema.json",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/gateway/MV3SyncRecovery.schema.json",
+      "bytes": 1032,
+      "sha256": "ff59b60358cce9903f287af2b7467fc1533a9dd928a0997f09f6bd65d5e0b5c9",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/gateway/MV3SyncRecovery.schema.json",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/gateway/ObservabilityContract.schema.json",
+      "bytes": 1312,
+      "sha256": "f4df1ebb04daeb5965a169c8449ea4a7b5467818f047befa2fbfaf937c859a3a",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/gateway/ObservabilityContract.schema.json",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/gateway/OfflineContractionBinding.schema.json",
+      "bytes": 735,
+      "sha256": "60071c1aba016938e9f45a0dc961afcaebde44b042e65d8f1f8ea69d30c3cf70",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/gateway/OfflineContractionBinding.schema.json",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/gateway/OperationLedger.schema.json",
+      "bytes": 1260,
+      "sha256": "dacb16f80dc169072db5fb6639c5720716fff8eb3efb5aaac15a00e59d29ed44",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/gateway/OperationLedger.schema.json",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/gateway/ProjectionCursorBinding.schema.json",
+      "bytes": 765,
+      "sha256": "f9da366e90a8877952eb882a4436a1647b4f29cd3d152d45172b3be615c84163",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/gateway/ProjectionCursorBinding.schema.json",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/gateway/ProposalLifecycle.schema.json",
+      "bytes": 668,
+      "sha256": "ed60e2cd1f0b11f750166d4eef96240ebfa22c2c665ed57b0433177b70f72c01",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/gateway/ProposalLifecycle.schema.json",
+      "otherIdenticalPaths": [
+        "packages/workforce/gateway/ProposalLifecycle.schema.json"
+      ]
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/gateway/RealtimeProjectionSync.schema.json",
+      "bytes": 1162,
+      "sha256": "1255358b14a7637df17bfab0b13cb037efcb5255cb98ac3bfa8d57603e40dc05",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/gateway/RealtimeProjectionSync.schema.json",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/gateway/backend-lineage.json",
+      "bytes": 2874,
+      "sha256": "fb02ead4ba405ac646997912710255559f58446f115360c8c2bdd5851a4fbbce",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/gateway/backend-lineage.json",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/gateway/cross-system-lineage.json",
+      "bytes": 1730,
+      "sha256": "5b569ddd65d6ef7ef9a8d1a57619308fb3d79393e1fd7bc39b646f65831a79b9",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/gateway/cross-system-lineage.json",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/gateway/failure-retry.ts",
+      "bytes": 4888,
+      "sha256": "bbc389f962d4c678e9bbbd5dbc4268b65ad5717a6e07d6299c97ff6c4649d3d4",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/gateway/failure-retry.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/graph/CanonicalWorkforceGraph.schema.json",
+      "bytes": 1256,
+      "sha256": "d148533c1915513e10021bcd3bab7b8a99e975dfc8bd63d2c5eb2eb49d18eb2b",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/graph/CanonicalWorkforceGraph.schema.json",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/graph/workforce-graph.ts",
+      "bytes": 8453,
+      "sha256": "5666368329c337a8ee45d63a688d1e1bfd3d492af2505170f34e735cd9c7b7b8",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/graph/workforce-graph.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/handover/InvestigationInstallationHandover.schema.json",
+      "bytes": 1357,
+      "sha256": "56927a8650e7e9fa298216e431da6aed8d6a66e37125e4ffeee2652eb14103e8",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/handover/InvestigationInstallationHandover.schema.json",
+      "otherIdenticalPaths": [
+        "packages/workforce/handover/InvestigationInstallationHandover.schema.json"
+      ]
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/handover/investigation-installation-handover.ts",
+      "bytes": 182657,
+      "sha256": "5a957d3290722fde07480427aca8c38b17e3f7e4d241841dc5c4ae468a69603c",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/handover/investigation-installation-handover.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/hierarchy/CALL-RECOVERY-WORKFLOW-PASS.md",
+      "bytes": 836,
+      "sha256": "223c7de040faafb861248eeb8964f840e0fe7251995856b0636b079d932baa08",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/hierarchy/CALL-RECOVERY-WORKFLOW-PASS.md",
+      "otherIdenticalPaths": [
+        "packages/workforce/hierarchy/CALL-RECOVERY-WORKFLOW-PASS.md"
+      ]
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/hierarchy/COMMUNICATION-PROVIDER-PASS.md",
+      "bytes": 1018,
+      "sha256": "979552580109d6fa173bfb81bf0140b9116f38418c85308c21cf3690ea40450f",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/hierarchy/COMMUNICATION-PROVIDER-PASS.md",
+      "otherIdenticalPaths": [
+        "packages/workforce/hierarchy/COMMUNICATION-PROVIDER-PASS.md"
+      ]
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/hierarchy/README.md",
+      "bytes": 1909,
+      "sha256": "af0ee812f76d78a14b3df73ec104d445d59d0a327203c48e957594d883f7b829",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/hierarchy/README.md",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/hierarchy/SMS-PUSH-CHANNEL-POLICY-PASS.md",
+      "bytes": 1048,
+      "sha256": "4178b1d5d805f68b23adb6cfb89b7d1b03d83a67878a4c56a4f8aa8f62253726",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/hierarchy/SMS-PUSH-CHANNEL-POLICY-PASS.md",
+      "otherIdenticalPaths": [
+        "packages/workforce/hierarchy/SMS-PUSH-CHANNEL-POLICY-PASS.md"
+      ]
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/hierarchy/VOICE-CALL-STATE-PASS.md",
+      "bytes": 404,
+      "sha256": "cfe9d3e985e5379c4de0d71bd01236f0213c1812c00f8762ffe55e0c648628e0",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/hierarchy/VOICE-CALL-STATE-PASS.md",
+      "otherIdenticalPaths": [
+        "packages/workforce/hierarchy/VOICE-CALL-STATE-PASS.md"
+      ]
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/hierarchy/VOICE-CALL-WORKERS-PASS.md",
+      "bytes": 522,
+      "sha256": "3e7396a8184ed1d7d718badc3ad35485293c8ddf56e2e753e011d0dc66b29d94",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/hierarchy/VOICE-CALL-WORKERS-PASS.md",
+      "otherIdenticalPaths": [
+        "packages/workforce/hierarchy/VOICE-CALL-WORKERS-PASS.md"
+      ]
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/hierarchy/atomic-worker-tool-binding-runtime.ts",
+      "bytes": 3335,
+      "sha256": "ff9cb859616e3b2a1515a84c3ab9138eb2a248c4b3a4b567f2234ea8c5ff7380",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/hierarchy/atomic-worker-tool-binding-runtime.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/hierarchy/atomic-worker-tool-bindings.json",
+      "bytes": 42507,
+      "sha256": "4d0c00d36a10519f66d76c952354e97fa6c401e23b1f6306abad2dad9e2097d2",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/hierarchy/atomic-worker-tool-bindings.json",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/hierarchy/call-lead-qualification-runtime.ts",
+      "bytes": 8667,
+      "sha256": "fac954dc9204b2ad73dd0274d1822322d8ef99b507f2a7425d4ff003400984bd",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/hierarchy/call-lead-qualification-runtime.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/hierarchy/call-recovery-workflow-runtime.ts",
+      "bytes": 7482,
+      "sha256": "f8c620e9d00ac6473a9a300974720e3cd243dc013ffc0d5619100d9af3b869dd",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/hierarchy/call-recovery-workflow-runtime.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/hierarchy/call-service-quote-readiness-runtime.ts",
+      "bytes": 5584,
+      "sha256": "824cc1ce3fdd600813587a968de05ce8aab655ca0ec51413b10c4e65c4df94c3",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/hierarchy/call-service-quote-readiness-runtime.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/hierarchy/caller-identity-lead-capture-runtime.ts",
+      "bytes": 6748,
+      "sha256": "29f90e75d716afdf26b8944ad655c033230bc6630b57d0dd039187fa15a58458",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/hierarchy/caller-identity-lead-capture-runtime.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/hierarchy/communication-provider-binding-runtime.ts",
+      "bytes": 7568,
+      "sha256": "c5529e6c6711577a2bd50f9ab85c3b6ab8fffcd019deda0930af7bd5058e0a5e",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/hierarchy/communication-provider-binding-runtime.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/hierarchy/communication-provider-bindings.json",
+      "bytes": 7199,
+      "sha256": "cdd2c73b0d2bbcd17380cf02b4c8b7adc6471317c9ed33f1b608279ebffbcf24",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/hierarchy/communication-provider-bindings.json",
+      "otherIdenticalPaths": [
+        "packages/workforce/hierarchy/communication-provider-bindings.json"
+      ]
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/hierarchy/delegation-routing-runtime.ts",
+      "bytes": 6584,
+      "sha256": "795032be296311684025669401686994a349946d6eff05c040a4c500e1f1cf78",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/hierarchy/delegation-routing-runtime.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/hierarchy/five-tier-recovery-registry.json",
+      "bytes": 30574,
+      "sha256": "f6f3b593277bb34fdea92d348ba93a8a2c9cab801d7da56e22b4cb62b9cb1be0",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/hierarchy/five-tier-recovery-registry.json",
+      "otherIdenticalPaths": [
+        "packages/workforce/hierarchy/five-tier-recovery-registry.json"
+      ]
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/hierarchy/five-tier-recovery-registry.ts",
+      "bytes": 571,
+      "sha256": "b80073fdfd2d4c194920524c4669dd90e9aeb579d05187b5c8487a63107b4770",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/hierarchy/five-tier-recovery-registry.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/hierarchy/voice-call-state-runtime.ts",
+      "bytes": 5729,
+      "sha256": "c03b08c75eec666969423bdfe82901f4e24cf7704ca0fa66e38ddb465b42a85a",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/hierarchy/voice-call-state-runtime.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/hierarchy/voice-call-worker-runtime.ts",
+      "bytes": 3050,
+      "sha256": "2b33617fa44075def815e1f0e214c664766a41f54fc5a7cbdd778bd76b8d497f",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/hierarchy/voice-call-worker-runtime.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/hierarchy/workforce-organizational-graph.json",
+      "bytes": 79479,
+      "sha256": "cba081ce8e4b070866e52486146a5f8389f4510cf06835a474d5392f3b3bb36c",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/hierarchy/workforce-organizational-graph.json",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/hierarchy/workforce-organizational-graph.ts",
+      "bytes": 594,
+      "sha256": "88bdd3ade7ea5310c59e83a7a24352db60d2bc2b99d0d2378d795cd0e4c486f1",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/hierarchy/workforce-organizational-graph.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/installation/InstallationPlan.schema.json",
+      "bytes": 1485,
+      "sha256": "5164760e0f72e27e1d469e752ada94fb3c6b58cdc6694af5bb3d4dadcfb57f05",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/installation/InstallationPlan.schema.json",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/installation/installation-planner.ts",
+      "bytes": 241,
+      "sha256": "d2b5ea1b056bd6ba864f7d2aa47dfab656d1dd8f773d0e091536422026c6df9b",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/installation/installation-planner.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/intelligence/WorkforceIntelligenceRouting.schema.json",
+      "bytes": 1244,
+      "sha256": "69fde2a50956d950e24b74bb93d657fdceafead68a0fea04b0276b6b36427681",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/intelligence/WorkforceIntelligenceRouting.schema.json",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/intelligence/workforce-intelligence-routing-runtime.ts",
+      "bytes": 354,
+      "sha256": "11609c4086db37196854c2019dadb3e76920e0eaaad00c15cd2e0d720ac11552",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/intelligence/workforce-intelligence-routing-runtime.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/investigation-participation-manager.ts",
+      "bytes": 6382,
+      "sha256": "c6a0e75e95e6981455a98f7f4d74636e48466b75e0bcee719ddb205b0e2a3071",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/investigation-participation-manager.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/knowledge/WorkforceKnowledgeAuthority.schema.json",
+      "bytes": 2620,
+      "sha256": "beca83db2f60f355f6b57c93f3d55b9b27e3a37917f81558a051137871e8b49a",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/knowledge/WorkforceKnowledgeAuthority.schema.json",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/knowledge/workforce-knowledge-authority-runtime.ts",
+      "bytes": 349,
+      "sha256": "4b16feec91137b7da855ba2b5dd577bd59d1bf59bcac8d51873a1bf702031514",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/knowledge/workforce-knowledge-authority-runtime.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/learning/ImprovementProposalSnapshot.schema.json",
+      "bytes": 1246,
+      "sha256": "0ddb36b781c7bf9cd61efc05940945ae87b34e44bf8b372bd962897a142b4e86",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/learning/ImprovementProposalSnapshot.schema.json",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/learning/LearningGovernorSnapshot.schema.json",
+      "bytes": 375,
+      "sha256": "3785613dce412feb7b94e7b5b8bd0872d1e312d4db8a23d0eb617786cdeaf3c7",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/learning/LearningGovernorSnapshot.schema.json",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/learning/improvement-proposal-runtime.ts",
+      "bytes": 6822,
+      "sha256": "9090104a6cebf5d3883a793bd4edfe1577af0347f83fef8cc88db408b3698e94",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/learning/improvement-proposal-runtime.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/learning/learning-governor-runtime.ts",
+      "bytes": 7549,
+      "sha256": "61184acb5bbd69fcb866e46c2ca0b12ebd67f51faa9afbddae11b270ba0a91fb",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/learning/learning-governor-runtime.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/memory/WorkforceWorkerMemory.schema.json",
+      "bytes": 3278,
+      "sha256": "dc54341a33401af538ba0ef1f4643dbd143a69c5299ac9136bb51b327997c964",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/memory/WorkforceWorkerMemory.schema.json",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/memory/workforce-worker-memory-runtime.ts",
+      "bytes": 334,
+      "sha256": "8c03a9fe5a1ae248a434727c74eae3083e685403da825e7d2653ed8d5070d24a",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/memory/workforce-worker-memory-runtime.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/migration/CrossVersionCompatibility.schema.json",
+      "bytes": 2223,
+      "sha256": "f8213eeedaab1395faad1ab4c09cd20610808617ef1c168987c03d6f4a20efa3",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/migration/CrossVersionCompatibility.schema.json",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/migration/MigrationUpgradeSafety.schema.json",
+      "bytes": 1544,
+      "sha256": "e0a163df32018a9f86f9b2ac73cb83c7abf154d4628189f11b35bc5ebf926440",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/migration/MigrationUpgradeSafety.schema.json",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/migration/cross-version-compatibility.ts",
+      "bytes": 263,
+      "sha256": "caf22dae95e227a2916cdbbb307d984cfb6e4f0b1f64d33b55f1d798160d6f67",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/migration/cross-version-compatibility.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/migration/migration-upgrade-safety.ts",
+      "bytes": 320,
+      "sha256": "dc4c6e12cc07291e6abf9c683abb515ae8834d7440099791c7364128949258d9",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/migration/migration-upgrade-safety.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/mission/MissionTeam.schema.json",
+      "bytes": 885,
+      "sha256": "87d973bd266bf3da93f31bac08bdc55490d1753b381cf47fb3d5641917ff0963",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/mission/MissionTeam.schema.json",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/mission/mission-team-runtime.ts",
+      "bytes": 5520,
+      "sha256": "b41379918a6bb18b91736c17dc071d30bf4657c7a3d974ee2152df92483747e8",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/mission/mission-team-runtime.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/notifications/WorkforceNotificationEscalation.schema.json",
+      "bytes": 666,
+      "sha256": "74af7f3fab134254da17cf223892cce8a4cd5beea737ef20b16d9a58133f08cf",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/notifications/WorkforceNotificationEscalation.schema.json",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/notifications/workforce-notification-escalation-runtime.ts",
+      "bytes": 3991,
+      "sha256": "9e83d3593bf448fec1829f31887e55c74dc2c79ee1f9f7de26f2e3763b7974f8",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/notifications/workforce-notification-escalation-runtime.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/performance/PerformanceOutcomeEvidence.schema.json",
+      "bytes": 632,
+      "sha256": "fb41fdd3443703c408ed3717fb089f6445debdce34a3f61e321ccf6afc31e66f",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/performance/PerformanceOutcomeEvidence.schema.json",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/performance/performance-outcome-runtime.ts",
+      "bytes": 7061,
+      "sha256": "bf964d9fb90947d33247e2b7c671eed28554cd7c068870e406beb27f7522e9c8",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/performance/performance-outcome-runtime.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/privacy/WorkforcePrivacyEvidenceControls.schema.json",
+      "bytes": 1083,
+      "sha256": "1352ad43a33c08f7aa2bf31f4b0ecc7dc22b596c3f15e0946093b840ea535df1",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/privacy/WorkforcePrivacyEvidenceControls.schema.json",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/privacy/workforce-privacy-evidence-runtime.ts",
+      "bytes": 381,
+      "sha256": "04c06899994580fce946312ba8cddfcbe1666dce1728af4dbc5c7e1f8bd6833f",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/privacy/workforce-privacy-evidence-runtime.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/risk/PhysicalEnvironmentalRiskHooks.schema.json",
+      "bytes": 1187,
+      "sha256": "3ddbf2844be36dc9f9be6c9c2bcef314e0ad2c097a2a51f6ea081f7ffc28ca9a",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/risk/PhysicalEnvironmentalRiskHooks.schema.json",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/risk/physical-environmental-risk-runtime.ts",
+      "bytes": 359,
+      "sha256": "45264af20008f78df7863e88451ef5dc5968348893c8954f44bc58f165a2fda4",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/risk/physical-environmental-risk-runtime.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/role-router.ts",
+      "bytes": 3378,
+      "sha256": "76aa6d8ddcc1668b0ba6e75bdf7d2b59868b1267d58d34736bffeeb04d49a0d9",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/role-router.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/scheduling/WorkforceScheduleRecurrence.schema.json",
+      "bytes": 731,
+      "sha256": "2b267556cdedadcc2b1a90b816d7f57cffdaa810d6e29598d8bc182fd2396184",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/scheduling/WorkforceScheduleRecurrence.schema.json",
+      "otherIdenticalPaths": [
+        "packages/workforce/scheduling/WorkforceScheduleRecurrence.schema.json"
+      ]
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/scheduling/assignment-offline-restart-runtime.ts",
+      "bytes": 8832,
+      "sha256": "f745edb40b7076c628b1362dc7a01eb26d5ce740bcb64f4f60ec3026f5d05e16",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/scheduling/assignment-offline-restart-runtime.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/scheduling/cleaning-assignment-requirement-suggestions.ts",
+      "bytes": 10275,
+      "sha256": "544bafcc34c0e8447793726b489f639509cc91f84d4022c195003e0cf134c668",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/scheduling/cleaning-assignment-requirement-suggestions.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/scheduling/manager-supervisor-team-assignment-hierarchy.ts",
+      "bytes": 10047,
+      "sha256": "29396fcbe43cbbfbe83d87b84efbcc3944529995a14d4e5fd4f015814f7c18db",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/scheduling/manager-supervisor-team-assignment-hierarchy.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/scheduling/scheduling-approval-escalation-runtime.ts",
+      "bytes": 7250,
+      "sha256": "b3ec79c3b89a22cb8ea55526ad4ff696fdc8a70b0cda90a44588f996ecca1601",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/scheduling/scheduling-approval-escalation-runtime.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/scheduling/worker-availability-capacity-state.ts",
+      "bytes": 4738,
+      "sha256": "8897573c6e7c096de4754f85ab29861d7c55ae0ea7cd3116aecb3a0d784fe42c",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/scheduling/worker-availability-capacity-state.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/scheduling/worker-skill-role-site-match.ts",
+      "bytes": 7307,
+      "sha256": "52b11a458fdf91ff757e46feccdf0b9fce66c93d479dae447d220a7b22c1f1a9",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/scheduling/worker-skill-role-site-match.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/scheduling/workforce-schedule-recurrence-runtime.ts",
+      "bytes": 341,
+      "sha256": "634beea491ac1632fbc6a8193b4ddd548d55050f738c542515099e6593615a8a",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/scheduling/workforce-schedule-recurrence-runtime.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/scheduling/workforce-scheduling-conflict-evaluator.ts",
+      "bytes": 9575,
+      "sha256": "3dc44b9daa8804e3d262b93893c6e68993676cbd307c927cf9b5bf278967033d",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/scheduling/workforce-scheduling-conflict-evaluator.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/security/WorkforceSecurityPosture.schema.json",
+      "bytes": 1444,
+      "sha256": "cd4a9f65d36f38dfa6c609676640346487fb0884047a9054dc40228508d2a28f",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/security/WorkforceSecurityPosture.schema.json",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/security/workforce-security-runtime.ts",
+      "bytes": 403,
+      "sha256": "0b235a906e76f1cb794632fc8d3e9843854e37c5df3d163372ee4f9ee2df1fab",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/security/workforce-security-runtime.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/staffing/DynamicStaffingSnapshot.schema.json",
+      "bytes": 658,
+      "sha256": "88e473b5ce1d0a4fbc1a7bc2576ac1f7478d291d625d58816d09faaa4ca62a5e",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/staffing/DynamicStaffingSnapshot.schema.json",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/staffing/dynamic-staffing-runtime.ts",
+      "bytes": 8166,
+      "sha256": "fd71cf62c8c013ddaeb425f0bd5af062bccebde0de4fee218531a66b9fa0a239",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/staffing/dynamic-staffing-runtime.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/starter-agents/booking/availability-service.ts",
+      "bytes": 3062,
+      "sha256": "5588e065377f02a09648563bf2f9151cf5eeb5171afcee8fae6ae52b92dfb311",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/starter-agents/booking/availability-service.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/starter-agents/booking/booking-agent-contract.json",
+      "bytes": 943,
+      "sha256": "a591a63171e9112038f2d05742e88b133bcae5632a71a9ced3d413dedbf010d4",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/starter-agents/booking/booking-agent-contract.json",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/starter-agents/booking/booking-confirmation-service.ts",
+      "bytes": 3941,
+      "sha256": "7541c7f924e0e59407ad628b5bbc93dacb543443e125397a2a700096dae90994",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/starter-agents/booking/booking-confirmation-service.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/starter-agents/booking/booking-handoffs.ts",
+      "bytes": 1918,
+      "sha256": "93c6ff4c3fd36d75b7ec22c6228f20833fc63ebb0d4c6fba9c7b3c0938c8c274",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/starter-agents/booking/booking-handoffs.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/starter-agents/booking/booking-hold-service.ts",
+      "bytes": 3057,
+      "sha256": "70012cffb412b7e3fbd7afbe161219dad7834fb1d496887dc47b58cfb4bf9cf8",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/starter-agents/booking/booking-hold-service.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/starter-agents/booking/booking-observability.ts",
+      "bytes": 2509,
+      "sha256": "00f54af2baa958871d6bcea6fe1daacc563481d1d8e26ecfe9832706fa3f263a",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/starter-agents/booking/booking-observability.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/starter-agents/booking/booking-orchestrator.ts",
+      "bytes": 2854,
+      "sha256": "e9b68c6570e7d063769cb9d48e0ff88392ba0ac494386db0b0f0121750f81928",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/starter-agents/booking/booking-orchestrator.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/starter-agents/booking/booking-source-adapter.ts",
+      "bytes": 2227,
+      "sha256": "69e4b8b11b24ca8f38e22c0d06244415a865231ac58799a8687a8cdb2b3d62bd",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/starter-agents/booking/booking-source-adapter.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/starter-agents/booking/booking-state-machine.ts",
+      "bytes": 2312,
+      "sha256": "376ff7bd9151bec2d985a05c1e1b51c186fc8a9bb2cd075c4501c4d6a49205da",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/starter-agents/booking/booking-state-machine.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/starter-agents/booking/calendar-reconciliation.ts",
+      "bytes": 2446,
+      "sha256": "16272cf58f1f3dc3096b353c1ec47beb3c2cde181d01e8499405b35fb9cf7e6d",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/starter-agents/booking/calendar-reconciliation.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/starter-agents/booking/contracts/BookingConfirmation.schema.json",
+      "bytes": 1511,
+      "sha256": "8fd8a5c9377d8bdf173f60ad70e4106bc0cc3f9a9b663e2bb45d64e69ab7ee3a",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/starter-agents/booking/contracts/BookingConfirmation.schema.json",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/starter-agents/booking/contracts/BookingHandoff.schema.json",
+      "bytes": 1083,
+      "sha256": "4cd0fe8f12b90f2355699a43ade96e926eda722facec2cc92b95b03183cabbb0",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/starter-agents/booking/contracts/BookingHandoff.schema.json",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/starter-agents/booking/contracts/BookingIntent.schema.json",
+      "bytes": 1625,
+      "sha256": "f1c020922635b47dceb0a733ab40327239537a3af6f70afe2aacd627f158b971",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/starter-agents/booking/contracts/BookingIntent.schema.json",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/starter-agents/booking/contracts/BookingProposal.schema.json",
+      "bytes": 1504,
+      "sha256": "44f97418b48efb1556767baf291226df09b0ec450d629b99f118499264c236c8",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/starter-agents/booking/contracts/BookingProposal.schema.json",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/starter-agents/booking/evals/pass12-evaluations.json",
+      "bytes": 895,
+      "sha256": "71988bf80e97c48caf74ee746cf558096f823de95964eb9602479654fb227989",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/starter-agents/booking/evals/pass12-evaluations.json",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/starter-agents/booking/index.ts",
+      "bytes": 563,
+      "sha256": "789f2a8cb8d1ad2131ecb81cfd76febba495b593429691ea198437419df0714b",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/starter-agents/booking/index.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/starter-agents/booking/settings/BookingSettings.schema.json",
+      "bytes": 2067,
+      "sha256": "9d8c2f1cfc7e92f9a1c8aabc53321f6e3c0e797a47e0a197f876f34a945460e8",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/starter-agents/booking/settings/BookingSettings.schema.json",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/starter-agents/booking/settings/booking-settings.ts",
+      "bytes": 3091,
+      "sha256": "a82b912646b928503dce2d22242cb6a8668e9b67fa985a5ba47b3d0d6e75036b",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/starter-agents/booking/settings/booking-settings.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/starter-agents/booking/starter-lifecycle-contribution.json",
+      "bytes": 713,
+      "sha256": "bf7b7bc5a80fb6eefdabcff9d809dd54b5d72b181d0e21015507973242831a93",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/starter-agents/booking/starter-lifecycle-contribution.json",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/starter-agents/dispatch/dispatch-agent.ts",
+      "bytes": 2049,
+      "sha256": "a8fc93beeadc98cd8ba3d72ea290c146881c0376f0cc4dc3149d519dbf86f99c",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/starter-agents/dispatch/dispatch-agent.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/starter-agents/invoicing/invoicing-agent.ts",
+      "bytes": 2618,
+      "sha256": "6595e74f4b4f9cb3110b57e6160e2471a4527ce5465f95a814b7158ded907ea2",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/starter-agents/invoicing/invoicing-agent.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/starter-agents/jobs/JobsDomainAudit.schema.json",
+      "bytes": 859,
+      "sha256": "b2504c85a66172f01626103fc21bf379b5649b53fafd4c8411b697193d7b13ff",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/starter-agents/jobs/JobsDomainAudit.schema.json",
+      "otherIdenticalPaths": [
+        "packages/workforce/starter-agents/jobs/JobsDomainAudit.schema.json"
+      ]
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/starter-agents/jobs/JobsHandoffContract.schema.json",
+      "bytes": 727,
+      "sha256": "09cbf318b2f48b7bb56902e89934810ced6d550da0dd0ce558c84eb7ee764aa0",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/starter-agents/jobs/JobsHandoffContract.schema.json",
+      "otherIdenticalPaths": [
+        "packages/workforce/starter-agents/jobs/JobsHandoffContract.schema.json"
+      ]
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/starter-agents/jobs/JobsLifecycleContract.schema.json",
+      "bytes": 749,
+      "sha256": "e1b322b258d3cc5092e97d27fa88f7a77fdd0c5c1cd57fa9a05cd91fa11eb6b6",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/starter-agents/jobs/JobsLifecycleContract.schema.json",
+      "otherIdenticalPaths": [
+        "packages/workforce/starter-agents/jobs/JobsLifecycleContract.schema.json"
+      ]
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/starter-agents/jobs/JobsSettings.schema.json",
+      "bytes": 616,
+      "sha256": "db88112f7033910857c79e5f3aeed79a67b30b2a128f1dc561edf6d21292199b",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/starter-agents/jobs/JobsSettings.schema.json",
+      "otherIdenticalPaths": [
+        "packages/workforce/starter-agents/jobs/JobsSettings.schema.json"
+      ]
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/starter-agents/jobs/jobs-agent-runtime.ts",
+      "bytes": 4322,
+      "sha256": "f902bf8936ef7aa53317db28cc5db000b9b68658e393facf1f933dcc8c2420fb",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/starter-agents/jobs/jobs-agent-runtime.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/starter-agents/jobs/jobs-completion-readiness.ts",
+      "bytes": 3078,
+      "sha256": "70ed31900af1b85899e2dd5bafcba8e2531aa7a2e9b20a0cedcbe7581f3af556",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/starter-agents/jobs/jobs-completion-readiness.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/starter-agents/jobs/jobs-context-bridge.ts",
+      "bytes": 2902,
+      "sha256": "6c5670643ebdec66c42a4a65d76e3599e2b3c84d4f184070742161db5f3a26e8",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/starter-agents/jobs/jobs-context-bridge.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/starter-agents/jobs/jobs-domain-audit.ts",
+      "bytes": 3654,
+      "sha256": "7edb06f692accfe0743ca8bc0a85d98bc56eeccabf48564eaa74cc3cd62c0345",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/starter-agents/jobs/jobs-domain-audit.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/starter-agents/jobs/jobs-evaluation-scenarios.json",
+      "bytes": 678,
+      "sha256": "cb3bd20bfc847577b896033fc7afa7030949c2fa04b5a2898e766a058f8d4e63",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/starter-agents/jobs/jobs-evaluation-scenarios.json",
+      "otherIdenticalPaths": [
+        "packages/workforce/starter-agents/jobs/jobs-evaluation-scenarios.json"
+      ]
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/starter-agents/jobs/jobs-evidence-policy.ts",
+      "bytes": 2737,
+      "sha256": "c4e3a1f7cda3d124139ec94ba5221029837d72ce7973333b9a231b48d2f3e458",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/starter-agents/jobs/jobs-evidence-policy.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/starter-agents/jobs/jobs-exception-runtime.ts",
+      "bytes": 4323,
+      "sha256": "6b3395801a8fdbfc4e07cd48285bbb88f9dcaf52e991c33952dfc7ab5ca7fe86",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/starter-agents/jobs/jobs-exception-runtime.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/starter-agents/jobs/jobs-field-context.ts",
+      "bytes": 3703,
+      "sha256": "abff9940fb265d99e8fe014f04514f00f35e5ad55b25487c9005657e2b01a28f",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/starter-agents/jobs/jobs-field-context.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/starter-agents/jobs/jobs-lifecycle-certification.ts",
+      "bytes": 2037,
+      "sha256": "1f2982dc9ce1e4bfcc9bb6f37140c1d51c53e25116f540109644a0f287a93258",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/starter-agents/jobs/jobs-lifecycle-certification.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/starter-agents/jobs/jobs-lifecycle-contract.ts",
+      "bytes": 3536,
+      "sha256": "a17ce80af79600f2c920f428ea362ff276bdb925ea77afb7895bb6f4be97ae7a",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/starter-agents/jobs/jobs-lifecycle-contract.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/starter-agents/jobs/jobs-offline-sync.ts",
+      "bytes": 2827,
+      "sha256": "3d1d2d94c002b218d14424c8561947d0bfb6301d8084b661d58fff7f47fc0dc8",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/starter-agents/jobs/jobs-offline-sync.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/starter-agents/jobs/jobs-settings.ts",
+      "bytes": 3289,
+      "sha256": "8712b9cbc426ba651d7ecbf1fd15e368f74c5c447ae18bb13d9cde30a936b20e",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/starter-agents/jobs/jobs-settings.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/starter-agents/jobs/jobs-work-order-adapter.ts",
+      "bytes": 3507,
+      "sha256": "7393543b67e4c8a5eee56162e0fb7745994c9b9828a5d7f1df40332172d0086b",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/starter-agents/jobs/jobs-work-order-adapter.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/starter-agents/quote/QuoteAgentReleaseContract.json",
+      "bytes": 1615,
+      "sha256": "126c4248bdffbf7f17fd2f8097a242136c847eeb047a6bfa69776b2bb8c49431",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/starter-agents/quote/QuoteAgentReleaseContract.json",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/starter-agents/quote/QuoteReviewerEvaluation.json",
+      "bytes": 1140,
+      "sha256": "e4d1e6a82e09a6d9224fdc7718332fc5f49e2d11bf6b23e28be72afd6b086c01",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/starter-agents/quote/QuoteReviewerEvaluation.json",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/starter-agents/quote/quote-agent.ts",
+      "bytes": 1777,
+      "sha256": "5a3f8cb4c4265d4a1a1b3a67ec18acd3345878b77528beb25f1cdffb0df7c618",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/starter-agents/quote/quote-agent.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/starter-agents/rebooking/RebookingDetectionBatch.schema.json",
+      "bytes": 1563,
+      "sha256": "f1df457eaca26d38f9232c130254e3737611ab11fc1e466dcb52459d6f822f32",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/starter-agents/rebooking/RebookingDetectionBatch.schema.json",
+      "otherIdenticalPaths": [
+        "packages/workforce/starter-agents/rebooking/RebookingDetectionBatch.schema.json"
+      ]
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/starter-agents/rebooking/RebookingDueDateCandidate.schema.json",
+      "bytes": 971,
+      "sha256": "d78b7e177b62279b7ceedb90169fee95102bddcbf260d37d388ddee8e4405a8f",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/starter-agents/rebooking/RebookingDueDateCandidate.schema.json",
+      "otherIdenticalPaths": [
+        "packages/workforce/starter-agents/rebooking/RebookingDueDateCandidate.schema.json"
+      ]
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/starter-agents/rebooking/RebookingGovernedOutreach.schema.json",
+      "bytes": 1201,
+      "sha256": "7870893e163249d41f8c9d3cad64cff2ef9fe93aa0b9b0d959ad326228855d77",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/starter-agents/rebooking/RebookingGovernedOutreach.schema.json",
+      "otherIdenticalPaths": [
+        "packages/workforce/starter-agents/rebooking/RebookingGovernedOutreach.schema.json"
+      ]
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/starter-agents/rebooking/RebookingOpportunity.schema.json",
+      "bytes": 1854,
+      "sha256": "25584b6eabaff5b1b44112edc3754546c73253a9fc84de60003f420915342cae",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/starter-agents/rebooking/RebookingOpportunity.schema.json",
+      "otherIdenticalPaths": [
+        "packages/workforce/starter-agents/rebooking/RebookingOpportunity.schema.json"
+      ]
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/starter-agents/rebooking/RebookingRecommendationScore.schema.json",
+      "bytes": 1660,
+      "sha256": "35a8971657413222c802d4b77c8eeb1e7668bc0c34dc1287387039b24b24b24e",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/starter-agents/rebooking/RebookingRecommendationScore.schema.json",
+      "otherIdenticalPaths": [
+        "packages/workforce/starter-agents/rebooking/RebookingRecommendationScore.schema.json"
+      ]
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/starter-agents/rebooking/RebookingRecurringLifecycle.schema.json",
+      "bytes": 1376,
+      "sha256": "9dbe102780bf9f0de7e00bfd7372e63395892a1f2b406d3da28557bdcb9cd656",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/starter-agents/rebooking/RebookingRecurringLifecycle.schema.json",
+      "otherIdenticalPaths": [
+        "packages/workforce/starter-agents/rebooking/RebookingRecurringLifecycle.schema.json"
+      ]
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/starter-agents/rebooking/RebookingResponseHandoff.schema.json",
+      "bytes": 1684,
+      "sha256": "e93f34e0c9004c8399c7fc6d8c10e2bdd285936a31dd3c4ca095354064bdaf4f",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/starter-agents/rebooking/RebookingResponseHandoff.schema.json",
+      "otherIdenticalPaths": [
+        "packages/workforce/starter-agents/rebooking/RebookingResponseHandoff.schema.json"
+      ]
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/starter-agents/rebooking/RebookingRetentionAnalytics.schema.json",
+      "bytes": 627,
+      "sha256": "8d0ffc92aec825ec856c2d9e7f90229d71c63083534bfc9895cb540f81105b49",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/starter-agents/rebooking/RebookingRetentionAnalytics.schema.json",
+      "otherIdenticalPaths": [
+        "packages/workforce/starter-agents/rebooking/RebookingRetentionAnalytics.schema.json"
+      ]
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/starter-agents/rebooking/RebookingSettingsPolicy.schema.json",
+      "bytes": 474,
+      "sha256": "b14c3d665fd918e018269a9bc92f53b585a99e3b31dd5a8e6e804d6af9ced07b",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/starter-agents/rebooking/RebookingSettingsPolicy.schema.json",
+      "otherIdenticalPaths": [
+        "packages/workforce/starter-agents/rebooking/RebookingSettingsPolicy.schema.json"
+      ]
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/starter-agents/rebooking/rebooking-contract.ts",
+      "bytes": 4441,
+      "sha256": "dda00d8ddca45f6f5dfa07348060a74208678dc4f57662ab2b9ff2266503e72f",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/starter-agents/rebooking/rebooking-contract.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/starter-agents/rebooking/rebooking-due-date-candidates.ts",
+      "bytes": 6160,
+      "sha256": "57967c517dd2b600f5b35e99b1ec6726191e80bd6260bd9b9b2e0fc21fcbc2ab",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/starter-agents/rebooking/rebooking-due-date-candidates.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/starter-agents/rebooking/rebooking-governed-outreach.ts",
+      "bytes": 7855,
+      "sha256": "6740d6e71abbdd1ec92071b7323b732fc356f97e00ab3efdc57e0afb48fdace5",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/starter-agents/rebooking/rebooking-governed-outreach.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/starter-agents/rebooking/rebooking-opportunity-detector.ts",
+      "bytes": 4300,
+      "sha256": "492ddb1f0c47aea840edc22ac2b63381e1c47727d424dc36bb6788b06a2e8828",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/starter-agents/rebooking/rebooking-opportunity-detector.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/starter-agents/rebooking/rebooking-recommendation-scoring.ts",
+      "bytes": 7434,
+      "sha256": "5fa5a9451ff4df620543d6e1d391c2a9a361d0e674b4c24aff02e2984b94417f",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/starter-agents/rebooking/rebooking-recommendation-scoring.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/starter-agents/rebooking/rebooking-recurring-lifecycle.ts",
+      "bytes": 10256,
+      "sha256": "657776a960a969032bb730a1046796a21db507c8fdc211b3eac4c06049d64a0e",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/starter-agents/rebooking/rebooking-recurring-lifecycle.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/starter-agents/rebooking/rebooking-response-handoff.ts",
+      "bytes": 8694,
+      "sha256": "60d19104c8e5eb6cd3b41aa8790dbfc79df2e785ec8ecc8d9f79a9215c1b9eef",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/starter-agents/rebooking/rebooking-response-handoff.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/starter-agents/rebooking/rebooking-retention-analytics.ts",
+      "bytes": 5014,
+      "sha256": "55b70f342b2919790496ea7c08c2cd33605cfbfba6571c3f248069f92807f628",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/starter-agents/rebooking/rebooking-retention-analytics.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/starter-agents/rebooking/rebooking-settings-policy.ts",
+      "bytes": 6221,
+      "sha256": "e5e0bded877097e31f8c7086434a0d85364f8699f4bc89343502910b879e320a",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/starter-agents/rebooking/rebooking-settings-policy.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/starter-agents/sales/runtime/SalesAgentContract.schema.json",
+      "bytes": 4428,
+      "sha256": "e0ee5b2d95ec020085e1d27ae4ca55131ddab2b3191cac3f30146f4d9c042e20",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/starter-agents/sales/runtime/SalesAgentContract.schema.json",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/starter-agents/sales/runtime/sales-adversarial-evals.ts",
+      "bytes": 9916,
+      "sha256": "c49abd8789ec73d696c8dd2ba87daf190fb5aa11ec2645c713b74f0a0202c55c",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/starter-agents/sales/runtime/sales-adversarial-evals.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/starter-agents/sales/runtime/sales-agent-contract.ts",
+      "bytes": 9947,
+      "sha256": "21ad8e03d787641b41ff8e2bca334b7593b6d3cd4827ca4a049a02e89d32a4bd",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/starter-agents/sales/runtime/sales-agent-contract.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/starter-agents/sales/runtime/sales-explainable-priority.ts",
+      "bytes": 8859,
+      "sha256": "4af4a15c6c8f6edece7eaf42c96451822f248a3d61969e52ea57fc72c7683b91",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/starter-agents/sales/runtime/sales-explainable-priority.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/starter-agents/sales/runtime/sales-follow-up-policy.ts",
+      "bytes": 8952,
+      "sha256": "f8b342c1a11211a0f1487cdf0f607d33000e6617a3b73eda1bb667d32e56978c",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/starter-agents/sales/runtime/sales-follow-up-policy.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/starter-agents/sales/runtime/sales-lead-response-adapter.ts",
+      "bytes": 9302,
+      "sha256": "0eb60be726b91580dc8e73fe6be1ecd5fcc4a077a983463b820186ffd135a52b",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/starter-agents/sales/runtime/sales-lead-response-adapter.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/starter-agents/sales/runtime/sales-next-best-action.ts",
+      "bytes": 6904,
+      "sha256": "8d14908fc0a394efb4466dc36f22f72a7e1f6f31dda61684c84725a37df84fe7",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/starter-agents/sales/runtime/sales-next-best-action.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/starter-agents/sales/runtime/sales-objection-handler.ts",
+      "bytes": 4802,
+      "sha256": "0029649d97c326f8eba5d52bf60604a0f82d3e6b5c508e4c644317f1eda5ba79",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/starter-agents/sales/runtime/sales-objection-handler.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/starter-agents/sales/runtime/sales-qualification-readiness.ts",
+      "bytes": 7988,
+      "sha256": "cd2e962a497d97e72334b4562ddcc2fc9a96a62bb58b50f14c4a29e88b982079",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/starter-agents/sales/runtime/sales-qualification-readiness.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/starter-agents/sales/runtime/sales-settings-policy.ts",
+      "bytes": 3378,
+      "sha256": "c331b9de2080a1ef9edfbd02612f845303e4e7df605d214d4915157329089f69",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/starter-agents/sales/runtime/sales-settings-policy.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/starter-agents/sales/runtime/sales-structured-handoff.ts",
+      "bytes": 6843,
+      "sha256": "3ed5ae9e2b332577192bfebf12bda53eda482a2efca5a4cfb06319b1054c3e91",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/starter-agents/sales/runtime/sales-structured-handoff.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/starter-agents/scheduling/scheduling-agent.ts",
+      "bytes": 1319,
+      "sha256": "600b8ba9383dc48cca005947c05e52af564239ac71008642a0037c20d045a3c9",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/starter-agents/scheduling/scheduling-agent.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/starter-agents/starter-agent-registry.json",
+      "bytes": 5699,
+      "sha256": "48397ebfcb5c9f7bdadc93eadf89811e21fdfe49f4f4775cb93be41c528ca8cc",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/starter-agents/starter-agent-registry.json",
+      "otherIdenticalPaths": [
+        "packages/workforce/starter-agents/starter-agent-registry.json"
+      ]
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/starter-agents/starter-agent-registry.ts",
+      "bytes": 685,
+      "sha256": "62b37544c60707556f7abae606e2f55e198907a058476c8c082a8a4fbcbc1cda",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/starter-agents/starter-agent-registry.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/starter/reception/ReceptionAgentContract.schema.json",
+      "bytes": 1393,
+      "sha256": "da93a1f1cd3c62175dd928b03c5218ac262ae116968cc4b2d9f62d806706605f",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/starter/reception/ReceptionAgentContract.schema.json",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/starter/reception/reception-agent-contract.ts",
+      "bytes": 3516,
+      "sha256": "5956298a8bca81d94826c67d271b9a6cbd68497247a17e6292ff8601612727b3",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/starter/reception/reception-agent-contract.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/supervision/SupervisorCoordination.schema.json",
+      "bytes": 831,
+      "sha256": "3bf71faf771d3e6d6fbde51c7b968c2ee399e0d26c1c9eca6fea3b71fecb2961",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/supervision/SupervisorCoordination.schema.json",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/supervision/supervisor-runtime.ts",
+      "bytes": 8451,
+      "sha256": "9eef3f3338d2d3eb397efdbe628e42f272bd20133c8f3ca3f11e39ed2ec486cb",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/supervision/supervisor-runtime.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/supervision/supervisor-workspace-projection.ts",
+      "bytes": 5900,
+      "sha256": "21085244b221293f570d022197724f43fc7a2a437514bc5f9bdc7b886fd01717",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/supervision/supervisor-workspace-projection.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/supervision/supervisor-workspace-view-model.ts",
+      "bytes": 4634,
+      "sha256": "b7686d41d84aa25983917316460aaa930090b3293ca68ed99441d53486d64d1e",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/supervision/supervisor-workspace-view-model.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/templates/client-team-templates.json",
+      "bytes": 2443,
+      "sha256": "9491695ee2e982a6ef4d1b66a81eca4a51d75d98a8a381cbc4ec46473b8ff8c9",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/templates/client-team-templates.json",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/unification/HumanAiWorkforceUnification.schema.json",
+      "bytes": 1463,
+      "sha256": "7d6d84bea0622941ebf91d5bbc14210869e984d495b2409345918d9dba959b6d",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/unification/HumanAiWorkforceUnification.schema.json",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/unification/human-ai-workforce-unification-runtime.ts",
+      "bytes": 299,
+      "sha256": "6dc610cd6e118cecdc422bd1d0d58dd933a178910043e486bbdcbb6667d04fb3",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/unification/human-ai-workforce-unification-runtime.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/uninstall/UninstallReversibility.schema.json",
+      "bytes": 1260,
+      "sha256": "6fc6cfc85b2dc41f9f52db345a2f5fa929b8d351b3717edd52a04dcd624456fd",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/uninstall/UninstallReversibility.schema.json",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/uninstall/uninstall-reversibility-runtime.ts",
+      "bytes": 299,
+      "sha256": "36255d2ecc94c1f4a34211129a4d5d82f6bd671b6e4b0203f1a75cd1184200d0",
+      "status": "imported-identical",
+      "integratedPath": "packages/titan-platform/src/ported/titan-workforce/uninstall/uninstall-reversibility-runtime.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/services/workforce/Dockerfile",
+      "bytes": 322,
+      "sha256": "1466005b6b0946f771a8ff70ea2a83a1bce9452575d9c1e9fbce554a3738746b",
+      "status": "not-integrated",
+      "integratedPath": null,
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/services/workforce/package.json",
+      "bytes": 390,
+      "sha256": "b6bb193f2c87e0e7f72d96b555e93fa2ef3856dfd9d7774517381371fc8ca44a",
+      "status": "not-integrated",
+      "integratedPath": null,
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/services/workforce/src/authority-regression.test.ts",
+      "bytes": 11809,
+      "sha256": "caaa83e71ff3e33c710a90efcd4962b32e729008c737bf0c46ad44226dfd176c",
+      "status": "not-integrated",
+      "integratedPath": null,
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/services/workforce/src/company-scoped-work-orders.ts",
+      "bytes": 9408,
+      "sha256": "cd7981e0ec8a0fb16bebb2b8fafa02c46916b1ca9ec0684a5d80f2b7afed581f",
+      "status": "not-integrated",
+      "integratedPath": null,
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/services/workforce/src/conversation-api.test.ts",
+      "bytes": 7732,
+      "sha256": "45d6d53ed30d91712676f7a1f8a44b31cb38cf9fdcc8f52e591a9471a3c3c5d4",
+      "status": "not-integrated",
+      "integratedPath": null,
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/services/workforce/src/conversation-api.ts",
+      "bytes": 13390,
+      "sha256": "0158ac90ded6f8555b290ea823149c080995638f4e3f6d00c3d9d8893495f53d",
+      "status": "not-integrated",
+      "integratedPath": null,
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/services/workforce/src/directadmin-workforce-owners.test.ts",
+      "bytes": 34515,
+      "sha256": "1f89f8083eb735c2dc565f54dab2a5a12ac876713cd9a35e90422c557ba5acd7",
+      "status": "not-integrated",
+      "integratedPath": null,
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/services/workforce/src/directadmin-workforce-owners.ts",
+      "bytes": 35310,
+      "sha256": "e1b8fea62f3be47796009aad429619a05818c64bd2ecd6dfac24f0ab46ffc2a4",
+      "status": "not-integrated",
+      "integratedPath": null,
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/services/workforce/src/directadmin-workforce-skills.ts",
+      "bytes": 7250,
+      "sha256": "d2716c7a07b4c31946e22f4315322a8c3d7f540dbfb1c37757db4573cd9d371e",
+      "status": "not-integrated",
+      "integratedPath": null,
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/services/workforce/src/field-service-runtime.mjs",
+      "bytes": 24768,
+      "sha256": "7f7346b7bcb70d2cf55e8921f5fe30c596be081452e864d477761d3e40063964",
+      "status": "not-integrated",
+      "integratedPath": null,
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/services/workforce/src/hosted-runtime.ts",
+      "bytes": 22589,
+      "sha256": "0c042d5d69fd0a8c174bf9e76402ab28ccd0c16f8a069d100058a6ab679b1946",
+      "status": "not-integrated",
+      "integratedPath": null,
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/services/workforce/src/index.test.ts",
+      "bytes": 5564,
+      "sha256": "9700446439df385a58f5974fd41621c2328982e29cbc41b791f17895c44fe8db",
+      "status": "not-integrated",
+      "integratedPath": null,
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/services/workforce/src/index.ts",
+      "bytes": 12385,
+      "sha256": "96835b330b1a1b08e965e0fb2f751ce5d53c10ee35a7436ede9219c657c02cae",
+      "status": "not-integrated",
+      "integratedPath": null,
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/services/workforce/src/memory-store.ts",
+      "bytes": 774,
+      "sha256": "371db03fe04d946beb39919a3a09465c4ff534ac34fb290246592d7743cc76e3",
+      "status": "not-integrated",
+      "integratedPath": null,
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/services/workforce/src/native-work-orders-company-store.test.ts",
+      "bytes": 10412,
+      "sha256": "3bac0ed4de8417b58831cc294cee6aeff926843ebf9a17d7c13ed4f0be34e142",
+      "status": "not-integrated",
+      "integratedPath": null,
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/services/workforce/src/native-work-orders.mjs",
+      "bytes": 1321,
+      "sha256": "c207d26957e1875b2bc729b4cf938a98d6162ec5ee17fca17142f9068b9c1e33",
+      "status": "not-integrated",
+      "integratedPath": null,
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/services/workforce/src/production-correlation.test.ts",
+      "bytes": 1254,
+      "sha256": "66984cef20b93c13339bdb0563ce4cd17da2583def6557bdc12d1620cd36ecdc",
+      "status": "not-integrated",
+      "integratedPath": null,
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/services/workforce/src/production-dependencies.test.ts",
+      "bytes": 23972,
+      "sha256": "f58df05d91c1409f2110b02af5aadb6209cf1a75782f01875eb0a2ac76844eae",
+      "status": "not-integrated",
+      "integratedPath": null,
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/services/workforce/src/production-dependencies.ts",
+      "bytes": 20977,
+      "sha256": "dc7d7223df0dd9d18c2f6cca34ca151ddacd83ce7a9465824d581e5ed7671c79",
+      "status": "not-integrated",
+      "integratedPath": null,
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/services/workforce/src/production-persistence-process-worker.mjs",
+      "bytes": 3055,
+      "sha256": "09a22fe17491c8e6747472c5fc20062439827505dc148599810a2a4bf452a0e7",
+      "status": "not-integrated",
+      "integratedPath": null,
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/services/workforce/src/production-runtime-bootstrap.test.ts",
+      "bytes": 15097,
+      "sha256": "a3e23c287e90fe7d7890787cea554b8a81075c299245275b89e2297056e849fc",
+      "status": "not-integrated",
+      "integratedPath": null,
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/services/workforce/src/production-runtime-bootstrap.ts",
+      "bytes": 4638,
+      "sha256": "afe8f5baad5672756c72ed1e71b2671e9eac47a9ac768057f561aabd259535da",
+      "status": "not-integrated",
+      "integratedPath": null,
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/services/workforce/src/runtime-adapter.ts",
+      "bytes": 2004,
+      "sha256": "901ddbfc65ff7a23bb84e640ae84dd1fb07fe3c5c26b7d914ba3cf712e84570e",
+      "status": "not-integrated",
+      "integratedPath": null,
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/services/workforce/src/server.test.ts",
+      "bytes": 5312,
+      "sha256": "cde5309e0e9db2e50f976192527669ad300ffbaa0f5cfeaca7b81ab8f72943cd",
+      "status": "not-integrated",
+      "integratedPath": null,
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/services/workforce/src/server.ts",
+      "bytes": 16570,
+      "sha256": "daf8902663d37f7b97922d73e0ec2dfdeb47074f0bce8d1fc554915e6af30b5b",
+      "status": "not-integrated",
+      "integratedPath": null,
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/services/workforce/src/session-credential-verifier.ts",
+      "bytes": 2318,
+      "sha256": "f47b4a57ea77143bcb4798e9a7149f63c1bc9d3e8c67686109db1b8b76141189",
+      "status": "not-integrated",
+      "integratedPath": null,
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/services/workforce/src/sqlite-store.ts",
+      "bytes": 8992,
+      "sha256": "88d3692834c26abf4a784214ecb7d3c2a6cb7cf9a1accf030d1908002beb8c76",
+      "status": "not-integrated",
+      "integratedPath": null,
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/services/workforce/src/zero-runtime-correlation.test.ts",
+      "bytes": 6563,
+      "sha256": "f56038cdfc1084f7e59300d396b29d81b7e4386a3af8329fb86ed81a5108f3d0",
+      "status": "not-integrated",
+      "integratedPath": null,
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/services/workforce/src/zero-runtime-dispatcher.test.ts",
+      "bytes": 7398,
+      "sha256": "5ff1abaaba57b85ee8fdafce23e3e7b5f1478149d259bac3058f4bda4f3a14dd",
+      "status": "not-integrated",
+      "integratedPath": null,
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/services/workforce/src/zero-runtime-dispatcher.ts",
+      "bytes": 28464,
+      "sha256": "c699319c8af083bb7b3a125e4d12a4038d5d9dffbde730488390c20ac7539758",
+      "status": "not-integrated",
+      "integratedPath": null,
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/services/workforce/tsconfig.json",
+      "bytes": 264,
+      "sha256": "c808c5ecd4a8ec10d8c45ffc4b739b2b9f87b934ee1a83037788336a2315091f",
+      "status": "not-integrated",
+      "integratedPath": null,
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/ui/AppShell.donor.tsx",
+      "bytes": 29470,
+      "sha256": "860fecf6061f6530fecb1234b7d55da55d354437b4bb34fad3dcd3d1cf6e7cf5",
+      "status": "not-integrated",
+      "integratedPath": null,
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/ui/WorkforceHierarchyPanel.tsx",
+      "bytes": 3776,
+      "sha256": "d0e5c0d4a9c365c1924a94c773297b6b2a11f172f15390c0640a62763954393c",
+      "status": "not-integrated",
+      "integratedPath": null,
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/ui/WorkforceLifecyclePanel.tsx",
+      "bytes": 2983,
+      "sha256": "1171745d7504da73e8b7dc51076ce391d205268f236eb833a798958e33c993e6",
+      "status": "imported-identical-relocated",
+      "integratedPath": "apps/web/app/app/settings/WorkforceLifecyclePanel.tsx",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/ui/ZeroChatFirst.tsx",
+      "bytes": 3830,
+      "sha256": "3b7c6b3da13a02347f715df166bbfe84f7084a57b6cb224d7c1b209b1c63e273",
+      "status": "imported-identical-relocated",
+      "integratedPath": "apps/web/app/app/ZeroChatFirst.tsx",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/ui/globals.donor.css",
+      "bytes": 536,
+      "sha256": "4a931f23e92d5040a517df345b9e192361d9a3052eb81c2597dc1870d4571f21",
+      "status": "not-integrated",
+      "integratedPath": null,
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/ui/layout.donor.tsx",
+      "bytes": 945,
+      "sha256": "b5ee6527166b608bb1ddb87cc8cd12e106586801da800bde8ada8ec5c5053ffb",
+      "status": "not-integrated",
+      "integratedPath": null,
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/ui/workforce-hierarchy-data.ts",
+      "bytes": 5307,
+      "sha256": "c46153f3acd817d59c0c2932e56eb07e664c6b36c10f9dad9fac4ca3e1123362",
+      "status": "imported-identical-relocated",
+      "integratedPath": "apps/web/app/app/settings/workforce-hierarchy-data.ts",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/ui/workforce-lifecycle-data.ts",
+      "bytes": 1870,
+      "sha256": "a78aa81e4d6873b76b9c132ab13d18f018caaa1883bad96f5d15bd66fef6ffe7",
+      "status": "imported-identical-relocated",
+      "integratedPath": "apps/web/app/app/settings/workforce-lifecycle-data.ts.backup-20261004-072759",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/workforce/contracts/WorkerDecisionPacket.schema.json",
+      "bytes": 1427,
+      "sha256": "95bd8958043e8e85280cf238f6d4251b49c6f0d07bcc69dced555a3b5d6264a0",
+      "status": "imported-identical-relocated",
+      "integratedPath": "packages/titan-platform/src/ported/workforce/contracts/WorkerDecisionPacket.schema.json",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/workforce/contracts/WorkerEvidenceRef.schema.json",
+      "bytes": 1187,
+      "sha256": "e1d3284b41b423015fd579d67f96b32106fd73009c3ee35af5c3ae44a795c40e",
+      "status": "imported-identical-relocated",
+      "integratedPath": "packages/titan-platform/src/ported/workforce/contracts/WorkerEvidenceRef.schema.json",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/workforce/contracts/WorkerExecutionReceiptRef.schema.json",
+      "bytes": 889,
+      "sha256": "8903960e7df633b00189904c7b3f3e274626bce68a859996e40915f6f314958b",
+      "status": "imported-identical-relocated",
+      "integratedPath": "packages/titan-platform/src/ported/workforce/contracts/WorkerExecutionReceiptRef.schema.json",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/workforce/contracts/WorkerHandoffPacket.schema.json",
+      "bytes": 1085,
+      "sha256": "a24d8cd7204833a5812341b3e402d9bf6b4e462e05c5aa428be633e51038cc85",
+      "status": "imported-identical-relocated",
+      "integratedPath": "packages/titan-platform/src/ported/workforce/contracts/WorkerHandoffPacket.schema.json",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/workforce/contracts/WorkerMaterialActionEnvelope.schema.json",
+      "bytes": 1780,
+      "sha256": "d641f68e88c9e192a84ada6c3d19b88a00fbb56ed247fd4c3af52271c7167248",
+      "status": "imported-identical-relocated",
+      "integratedPath": "packages/titan-platform/src/ported/workforce/contracts/WorkerMaterialActionEnvelope.schema.json",
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/workforce/contracts/WorkerPostActionVerification.schema.json",
+      "bytes": 783,
+      "sha256": "54b365069c29772150ed6d11bc87ded1e29fb333c697a3ccfc152ecbbec19536",
+      "status": "not-integrated",
+      "integratedPath": null,
+      "otherIdenticalPaths": []
+    },
+    {
+      "donorPath": "titan-donor/workforce/workforce/contracts/WorkerRecommendationEnvelope.schema.json",
+      "bytes": 2119,
+      "sha256": "47ec61252adf9f50fbd0c87580c362326d5db548e5efb315e6af76fee5fe6e3e",
+      "status": "imported-identical-relocated",
+      "integratedPath": "packages/titan-platform/src/ported/workforce/contracts/WorkerRecommendationEnvelope.schema.json",
+      "otherIdenticalPaths": []
+    }
+  ],
+  "knownInternalDuplicateGroups": [
+    {
+      "sha256": "3b2370e0685a26778e5f542384bc69be6ba42a113411e8ebf49d5b2e33095206",
+      "bytes": 2461,
+      "paths": [
+        "packages/titan-platform/src/ported/titan-agent/SEMANTIC-CHANGE-MANIFEST.json",
+        "packages/titan-platform/src/ported/titan-agent/SEMANTIC-CHANGE-P0-003.json"
+      ],
+      "note": "Identical copies inside packages/titan-platform/src/ported. Retained, not deleted in issue #9. Decide keep-one or keep-both under issue #4/#1."
+    },
+    {
+      "sha256": "fbbce3b2854aa43a2ac3dd5c5dd719630113776457fee168c7f34df0996d2148",
+      "bytes": 70169,
+      "paths": [
+        "packages/titan-platform/src/ported/titan-workforce/catalogue/installed-client-workforce-master.json",
+        "packages/titan-platform/src/ported/workforce/donor/installed-client-workforce-master.json"
+      ],
+      "note": "Identical copies inside packages/titan-platform/src/ported. Retained, not deleted in issue #9. Decide keep-one or keep-both under issue #4/#1."
+    },
+    {
+      "sha256": "b5e13af02d68811141b3036e7f5719961bb358a804dd15567fe3b70c9bcbcdce",
+      "bytes": 1953,
+      "paths": [
+        "packages/titan-platform/src/ported/titan-workforce/catalogue/provider-domain-map.json",
+        "packages/titan-platform/src/ported/workforce/donor/provider-domain-map.json"
+      ],
+      "note": "Identical copies inside packages/titan-platform/src/ported. Retained, not deleted in issue #9. Decide keep-one or keep-both under issue #4/#1."
+    },
+    {
+      "sha256": "859893105e0d8a53c5747beaee9f2fd4080f3c108fb00cf14ac856740659d9fe",
+      "bytes": 977,
+      "paths": [
+        "packages/titan-platform/src/ported/titan-workforce/composition/composition-dimensions.json",
+        "packages/titan-platform/src/ported/workforce/donor/composition-dimensions.json"
+      ],
+      "note": "Identical copies inside packages/titan-platform/src/ported. Retained, not deleted in issue #9. Decide keep-one or keep-both under issue #4/#1."
+    },
+    {
+      "sha256": "14d3e90233c65c97446dc22b7273d651e09876274333e89833520dfded738e55",
+      "bytes": 265,
+      "paths": [
+        "packages/titan-platform/src/ported/titan-zero-locales/en/messages.json",
+        "packages/titan-platform/src/ported/titan-zero-locales/en_GB/messages.json",
+        "packages/titan-platform/src/ported/titan-zero-locales/en_US/messages.json"
+      ],
+      "note": "Identical copies inside packages/titan-platform/src/ported. Retained, not deleted in issue #9. Decide keep-one or keep-both under issue #4/#1."
+    },
+    {
+      "sha256": "f3267d09de736bc0ac4fcbcc3cc13c3b4b88838b60ff0627ee99fe92885d99fe",
+      "bytes": 280,
+      "paths": [
+        "packages/titan-platform/src/ported/titan-zero-locales/es/messages.json",
+        "packages/titan-platform/src/ported/titan-zero-locales/es_419/messages.json"
+      ],
+      "note": "Identical copies inside packages/titan-platform/src/ported. Retained, not deleted in issue #9. Decide keep-one or keep-both under issue #4/#1."
+    },
+    {
+      "sha256": "0a2034a405e6778ab184e6f9446e9828bac73ac6b2cfad4fc817fa0ed7fe35aa",
+      "bytes": 289,
+      "paths": [
+        "packages/titan-platform/src/ported/titan-zero-locales/pt_BR/messages.json",
+        "packages/titan-platform/src/ported/titan-zero-locales/pt_PT/messages.json"
+      ],
+      "note": "Identical copies inside packages/titan-platform/src/ported. Retained, not deleted in issue #9. Decide keep-one or keep-both under issue #4/#1."
+    }
+  ]
+}
