@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { withAuth } from "@/lib/auth/middleware";
 import type { AuthSession } from "@/lib/auth/middleware";
-import { queryOne } from "@/lib/db";
+import { withDbSession } from "@/lib/db";
 import { logger } from "@/lib/logger";
 
 export const dynamic = "force-dynamic";
@@ -30,18 +30,22 @@ export const POST = withAuth(async (request: NextRequest, session: AuthSession) 
 
   try {
     // Verify session belongs to this account
-    const owns = await queryOne<{ id: string }>(
-      `SELECT id FROM vehicle_sessions WHERE id = $1 AND account_id = $2`,
-      [sessionId, session.accountId]
-    );
-    if (!owns) return NextResponse.json({ error: { message: "Not found" } }, { status: 404 });
+    const row = await withDbSession(session, async (client) => {
+      const owns = await client.query<{ id: string }>(
+        `SELECT id FROM vehicle_sessions WHERE id = $1 AND account_id = $2`,
+        [sessionId, session.accountId]
+      );
+      if (!owns.rows[0]) return "not_found" as const;
 
-    const row = await queryOne<{ id: string }>(
-      `INSERT INTO vehicle_session_activities (session_id, entity_type, entity_id, label)
-       VALUES ($1, $2, $3, $4)
-       RETURNING id`,
-      [sessionId, parsed.data.entity_type, parsed.data.entity_id ?? null, parsed.data.label ?? null]
-    );
+      const inserted = await client.query<{ id: string }>(
+        `INSERT INTO vehicle_session_activities (session_id, entity_type, entity_id, label)
+         VALUES ($1, $2, $3, $4)
+         RETURNING id`,
+        [sessionId, parsed.data.entity_type, parsed.data.entity_id ?? null, parsed.data.label ?? null]
+      );
+      return inserted.rows[0] ?? null;
+    });
+    if (row === "not_found") return NextResponse.json({ error: { message: "Not found" } }, { status: 404 });
     return NextResponse.json({ data: row }, { status: 201 });
   } catch (error) {
     logger.error("POST /api/v1/sessions/[id]/activities error", error, { traceId: session.traceId });
@@ -57,13 +61,16 @@ export const DELETE = withAuth(async (request: NextRequest, session: AuthSession
   if (!activityId) return NextResponse.json({ error: { message: "activity_id required" } }, { status: 400 });
 
   try {
-    const result = await queryOne<{ id: string }>(
-      `DELETE FROM vehicle_session_activities a
-       USING vehicle_sessions s
-       WHERE a.id = $1 AND a.session_id = s.id AND s.id = $2 AND s.account_id = $3
-       RETURNING a.id`,
-      [activityId, sessionId, session.accountId]
-    );
+    const result = await withDbSession(session, async (client) => {
+      const deleted = await client.query<{ id: string }>(
+        `DELETE FROM vehicle_session_activities a
+         USING vehicle_sessions s
+         WHERE a.id = $1 AND a.session_id = s.id AND s.id = $2 AND s.account_id = $3
+         RETURNING a.id`,
+        [activityId, sessionId, session.accountId]
+      );
+      return deleted.rows[0] ?? null;
+    });
     if (!result) return NextResponse.json({ error: { message: "Not found" } }, { status: 404 });
     return NextResponse.json({ data: { id: result.id } });
   } catch (error) {
