@@ -36,7 +36,7 @@ function clamp(s: string, max: number): string {
 export function buildPushPayload(input: PushInput): PushMessage {
   const url = input.url && input.url.startsWith("/") ? input.url : "/";
   return {
-    title: clamp(input.title || "Dovetails", TITLE_MAX),
+    title: clamp(input.title || "Sorted", TITLE_MAX),
     body: clamp(input.body ?? "", BODY_MAX),
     tag: (input.tag && input.tag.trim()) || `dovetails-${url}`,
     data: { url },
