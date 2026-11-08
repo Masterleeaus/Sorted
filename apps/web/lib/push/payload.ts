@@ -26,7 +26,7 @@ const BODY_MAX = 180;
 /** Reject protocol-relative, backslash and control-character redirect tricks. */
 function safeAppPath(candidate: string | undefined): string {
   if (!candidate || !candidate.startsWith("/") || candidate.startsWith("//")
-    || /[\\\\\\u0000-\\u001f\\u007f]/.test(candidate)) return "/app";
+    || candidate.includes("\\") || /[\x00-\x1f\x7f]/.test(candidate)) return "/app";
   return candidate;
 }
 
