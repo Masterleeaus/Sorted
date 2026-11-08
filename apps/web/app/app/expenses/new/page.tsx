@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth/session";
 import { canManageExpenses } from "@/lib/auth/permissions";
-import { query } from "@/lib/db";
+import { queryForSession } from "@/lib/db";
 import { Breadcrumbs, PageContainer, PageHeader, LinkButton, HubSubnav } from "@/components/ui";
 import { MONEY_HUB_LINKS } from "@/lib/navigation/hubs";
 import { ExpenseForm } from "./ExpenseForm";
@@ -29,7 +29,7 @@ export default async function NewExpensePage({
   // Open / in-progress jobs only — closed jobs clutter receipt entry.
   // Always include defaultJobId when deep-linked from a job page.
   const [jobs, clients, vehicles, openSession, activeVisits] = await Promise.all([
-    query<{ id: string; title: string; job_number: string | null; client_id: string | null }>(
+    queryForSession<{ id: string; title: string; job_number: string | null; client_id: string | null }>(session,
       isMaterialRun
         ? `SELECT j.id, j.title, j.job_number, j.client_id
            FROM jobs j
@@ -59,17 +59,17 @@ export default async function NewExpensePage({
            LIMIT 100`,
       [session.accountId, defaultJobId ?? nilUuid],
     ),
-    query<{ id: string; name: string }>(
+    queryForSession<{ id: string; name: string }>(session,
       `SELECT id, name FROM clients WHERE account_id = $1 ORDER BY name ASC LIMIT 100`,
       [session.accountId]
     ),
-    query<{ id: string; nickname: string }>(
+    queryForSession<{ id: string; nickname: string }>(session,
       `SELECT id, nickname FROM vehicles
         WHERE account_id = $1 AND is_active = true AND kind <> 'trailer'
         ORDER BY is_default DESC, nickname ASC`,
       [session.accountId],
     ),
-    query<{ vehicle_id: string }>(
+    queryForSession<{ vehicle_id: string }>(session,
       `SELECT vehicle_id FROM vehicle_sessions
         WHERE account_id = $1 AND created_by = $2
           AND status = 'open' AND end_odometer IS NULL AND miles IS NULL
@@ -78,7 +78,7 @@ export default async function NewExpensePage({
         LIMIT 1`,
       [session.accountId, session.userId],
     ),
-    query<{ job_id: string }>(
+    queryForSession<{ job_id: string }>(session,
       `SELECT v.job_id
        FROM visits v
        WHERE v.account_id = $1 AND v.assigned_user_id = $2

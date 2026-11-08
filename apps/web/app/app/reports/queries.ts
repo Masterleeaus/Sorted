@@ -1,7 +1,8 @@
-import { query } from "@/lib/db";
+import { queryForSession } from "@/lib/db";
 import { MINIMUM_SERVICE_FEE_CENTS } from "@ai-fsm/domain";
 import { collectedCashStatusSql } from "@/lib/reports/collected-cash";
 import { loadBusinessTimeZone, timestampBusinessMonthExpr } from "@/lib/reports/business-month";
+import type { SessionPayload } from "@/lib/auth/session";
 
 // ---------------------------------------------------------------------------
 // Row types
@@ -152,10 +153,11 @@ export interface ReportData {
 // Data loader — runs every Reports query for the target month.
 // ---------------------------------------------------------------------------
 
-export async function loadReportData(accountId: string, targetMonth: string): Promise<ReportData> {
-  const timeZone = await loadBusinessTimeZone(accountId);
+export async function loadReportData(session: SessionPayload, targetMonth: string): Promise<ReportData> {
+  const accountId = session.accountId;
+  const timeZone = await loadBusinessTimeZone(session);
   const monthOf = (column: string) => timestampBusinessMonthExpr(column, timeZone);
-  const feeRows = await query<{ minimum_service_fee_cents: string | number }>(
+  const feeRows = await queryForSession<{ minimum_service_fee_cents: string | number }>(session,
     `SELECT minimum_service_fee_cents
      FROM business_pricing_settings
      WHERE account_id = $1`,
@@ -166,7 +168,7 @@ export async function loadReportData(accountId: string, targetMonth: string): Pr
     : MINIMUM_SERVICE_FEE_CENTS;
 
   // === Invoiced revenue: invoices created in the business month ===
-  const invoiceStatuses = await query<InvoiceStatusRow>(
+  const invoiceStatuses = await queryForSession<InvoiceStatusRow>(session,
     `SELECT status,
             COUNT(*)::int as count,
             COALESCE(SUM(total_cents), 0)::bigint as total_cents,
@@ -186,7 +188,7 @@ export async function loadReportData(accountId: string, targetMonth: string): Pr
     revenuePaidCents += Number(row.paid_cents);
   }
 
-  const cashRows = await query<{ cash_cents: string }>(
+  const cashRows = await queryForSession<{ cash_cents: string }>(session,
     `SELECT COALESCE(SUM(amount_cents), 0)::bigint AS cash_cents
      FROM payments
      WHERE account_id = $1
@@ -196,7 +198,7 @@ export async function loadReportData(accountId: string, targetMonth: string): Pr
   );
   const cashCollectedCents = Number(cashRows[0]?.cash_cents ?? 0);
 
-  const arRows = await query<{ open_cents: string }>(
+  const arRows = await queryForSession<{ open_cents: string }>(session,
     `SELECT COALESCE(SUM(total_cents - paid_cents), 0)::bigint AS open_cents
      FROM invoices
      WHERE account_id = $1
@@ -206,7 +208,7 @@ export async function loadReportData(accountId: string, targetMonth: string): Pr
   const revenueOutstandingCents = Number(arRows[0]?.open_cents ?? 0);
 
   // === Expenses: by category for the month ===
-  const expensesByCategory = await query<ExpenseCategoryRow>(
+  const expensesByCategory = await queryForSession<ExpenseCategoryRow>(session,
     `SELECT category,
             COUNT(*)::int as count,
             COALESCE(SUM(amount_cents), 0)::bigint as total_cents
@@ -220,7 +222,7 @@ export async function loadReportData(accountId: string, targetMonth: string): Pr
   const expensesTotalCents = expensesByCategory.reduce((sum, r) => sum + Number(r.total_cents), 0);
 
   // === Mileage: for the month ===
-  const mileageRows = await query<{ trip_count: number; total_miles: string }>(
+  const mileageRows = await queryForSession<{ trip_count: number; total_miles: string }>(session,
     `SELECT COUNT(*)::int as trip_count,
             COALESCE(SUM(miles), 0)::numeric as total_miles
      FROM vehicle_sessions
@@ -232,7 +234,7 @@ export async function loadReportData(accountId: string, targetMonth: string): Pr
   const mileageTotalMiles = Number(mileageRows[0]?.total_miles ?? 0);
 
   // === Job profitability: invoices (all-time) + expenses + mileage (month-scoped) ===
-  const jobProfitRows = await query<JobProfitRow>(
+  const jobProfitRows = await queryForSession<JobProfitRow>(session,
     `SELECT
        j.id as job_id,
        j.title as job_title,
@@ -281,7 +283,7 @@ export async function loadReportData(accountId: string, targetMonth: string): Pr
   );
 
   // === Estimate margins: recent estimates with internal cost data ===
-  const estimateMarginRows = await query<EstimateMarginRow>(
+  const estimateMarginRows = await queryForSession<EstimateMarginRow>(session,
     `SELECT e.id as estimate_id, e.status as estimate_status,
             e.total_cents, e.deposit_cents, e.balance_cents,
             e.internal_labor_cost_cents, e.internal_material_cost_cents,
@@ -299,7 +301,7 @@ export async function loadReportData(accountId: string, targetMonth: string): Pr
   );
 
   // === Revenue by job type (month-scoped) ===
-  const revenueByJobType = await query<RevenueByJobTypeRow>(
+  const revenueByJobType = await queryForSession<RevenueByJobTypeRow>(session,
     `SELECT j.job_type,
             COUNT(DISTINCT j.id)::int as job_count,
             COALESCE(SUM(inv.total_cents), 0)::bigint as revenue_cents,
@@ -319,7 +321,7 @@ export async function loadReportData(accountId: string, targetMonth: string): Pr
   );
 
   // === Tech performance (month-scoped) ===
-  const techPerformance = await query<TechPerformanceRow>(
+  const techPerformance = await queryForSession<TechPerformanceRow>(session,
     `SELECT u.id as user_id,
             u.full_name as user_name,
             COUNT(*) FILTER (WHERE v.status = 'completed')::int as visits_completed,
@@ -344,7 +346,7 @@ export async function loadReportData(accountId: string, targetMonth: string): Pr
   );
 
   // === Estimate conversion funnel (month-scoped) ===
-  const estimateConversion = await query<EstimateConversionRow>(
+  const estimateConversion = await queryForSession<EstimateConversionRow>(session,
     `SELECT status,
             COUNT(*)::int as count,
             ROUND(
@@ -367,7 +369,7 @@ export async function loadReportData(accountId: string, targetMonth: string): Pr
   );
 
   // === Schedule utilization (salvaged from Operations Dashboard, month-scoped) ===
-  const scheduleUtilRows = await query<ScheduleUtilRow>(
+  const scheduleUtilRows = await queryForSession<ScheduleUtilRow>(session,
     `SELECT
        COUNT(*) FILTER (WHERE status = 'scheduled')::int AS scheduled_count,
        COUNT(*) FILTER (WHERE status = 'completed')::int AS completed_count,
@@ -383,7 +385,7 @@ export async function loadReportData(accountId: string, targetMonth: string): Pr
   };
 
   // === Low-value job ratio (salvaged from Operations Dashboard, current snapshot) ===
-  const lowValueRows = await query<LowValueRow>(
+  const lowValueRows = await queryForSession<LowValueRow>(session,
     `SELECT
        COUNT(*) FILTER (
          WHERE e.total_cents < $2
@@ -399,7 +401,7 @@ export async function loadReportData(accountId: string, targetMonth: string): Pr
   const lowValue = lowValueRows[0] ?? { below_minimum: 0, total_estimated_jobs: 0 };
 
   // === Pricing health (salvaged from Pricing Dashboard) ===
-  const pricingSummaryRows = await query<PricingSummaryRow>(
+  const pricingSummaryRows = await queryForSession<PricingSummaryRow>(session,
     `SELECT
        COUNT(*)::int AS total,
        COUNT(*) FILTER (WHERE total_cents < $2)::int AS below_minimum,
@@ -418,7 +420,7 @@ export async function loadReportData(accountId: string, targetMonth: string): Pr
     total: 0, below_minimum: 0, with_override: 0, price_book_line_items: 0, total_line_items: 0,
   };
 
-  const overrideReasonRows = await query<OverrideReasonRow>(
+  const overrideReasonRows = await queryForSession<OverrideReasonRow>(session,
     `SELECT minimum_service_override_reason AS reason, COUNT(*)::int AS count
      FROM estimates
      WHERE account_id = $1
@@ -428,7 +430,7 @@ export async function loadReportData(accountId: string, targetMonth: string): Pr
     [accountId]
   );
 
-  const belowMinimumEstimates = await query<BelowMinimumEstimateRow>(
+  const belowMinimumEstimates = await queryForSession<BelowMinimumEstimateRow>(session,
     `SELECT e.id, e.total_cents, e.minimum_service_override_reason,
             c.name AS client_name, j.title AS job_title
      FROM estimates e
@@ -442,7 +444,7 @@ export async function loadReportData(accountId: string, targetMonth: string): Pr
   );
 
   // === Where the owner's time went (activity ledger, month-scoped) ===
-  const timeByCategory = await query<TimeByCategoryRow>(
+  const timeByCategory = await queryForSession<TimeByCategoryRow>(session,
     `SELECT category,
             ROUND(SUM(EXTRACT(EPOCH FROM (COALESCE(ended_at, now()) - started_at)) / 60))::int AS minutes
      FROM activity_entries
@@ -503,13 +505,14 @@ export type InvoiceAgingData = {
   d90: number;
 };
 
-export async function loadInvoiceAging(accountId: string): Promise<InvoiceAgingData> {
-  const rows = await query<{
+export async function loadInvoiceAging(session: SessionPayload): Promise<InvoiceAgingData> {
+  const accountId = session.accountId;
+  const rows = await queryForSession<{
     current_cents: string;
     d30_cents: string;
     d60_cents: string;
     d90_cents: string;
-  }>(
+  }>(session,
     `SELECT
        COALESCE(SUM(total_cents - paid_cents) FILTER (WHERE due_date IS NULL OR due_date >= CURRENT_DATE), 0)::text AS current_cents,
        COALESCE(SUM(total_cents - paid_cents) FILTER (WHERE due_date < CURRENT_DATE AND due_date >= CURRENT_DATE - interval '30 days'), 0)::text AS d30_cents,

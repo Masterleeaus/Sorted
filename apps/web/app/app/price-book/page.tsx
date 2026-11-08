@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth/session";
-import { query } from "@/lib/db";
+import { queryForSession } from "@/lib/db";
 import PriceBookClient from "./PriceBookClient";
 
 export const dynamic = "force-dynamic";
@@ -35,7 +35,7 @@ export default async function PriceBookPage() {
   if (!session) redirect("/login");
   if (session.role === "tech") redirect("/app/my-work"); // EPIC-006: techs have no pricing access
 
-  const services = await query<PriceBookRow>(
+  const services = await queryForSession<PriceBookRow>(session,
     `SELECT id, code, name, category, tier, price_min_cents, price_max_cents,
             default_price_cents, add_on_price_cents, unit_type,
             description, notes, default_labor_hours::float, requires_materials,

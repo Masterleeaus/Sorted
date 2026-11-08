@@ -59,16 +59,16 @@ export default async function DayReviewPage({
     promiseEntities,
     companyFacts,
   ] = await Promise.all([
-    getDayReview(session.accountId, date),
+    getDayReview(session, date),
     loadDayCloseStatus(session, date),
-    loadDayVisitTimelines(session.accountId, date),
+    loadDayVisitTimelines(session, date),
     loadDayDraft(session.accountId, date),
-    loadStopInterview(session.accountId, date),
+    loadStopInterview(session, date),
     canReviewPromises ? loadReviewCaptures(session) : Promise.resolve([]),
     canReviewPromises
       ? loadPromiseEntityOptions(session, { date })
       : Promise.resolve([]),
-    loadDayCompanyFacts(session.accountId, date),
+    loadDayCompanyFacts(session, date),
   ]);
 
   const promiseStrip = canReviewPromises ? (

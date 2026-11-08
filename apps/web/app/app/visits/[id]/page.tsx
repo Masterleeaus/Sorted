@@ -450,7 +450,7 @@ export default async function VisitDetailPage({
     : null;
 
   // TASK-067: production sequence from lifecycle + visit-linked activities
-  const productionTimeline = await loadVisitTimeline(session.accountId, id);
+  const productionTimeline = await loadVisitTimeline(session, id);
 
   const [mediaFace, laterVisit, addWorkEstimate] = await Promise.all([
     queryOneForSession<{ n: number; latest_id: string | null }>(

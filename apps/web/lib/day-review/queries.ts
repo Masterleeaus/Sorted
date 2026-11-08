@@ -1,4 +1,4 @@
-import { query, queryOne } from "@/lib/db";
+import { queryForSession, queryOneForSession, withDbSession } from "@/lib/db";
 import {
   detectGaps,
   preSelectCandidates,
@@ -6,6 +6,7 @@ import {
   type MilesSource,
 } from "@ai-fsm/domain";
 import { loadHybridMileageForDay } from "@/lib/mileage/hybrid-day";
+import type { SessionPayload } from "@/lib/auth/session";
 
 export type DayReviewPayload = {
   businessDayId: string;
@@ -72,17 +73,18 @@ export type DayReviewPayload = {
 };
 
 export async function getDayReview(
-  accountId: string,
+  session: SessionPayload,
   date: string,
 ): Promise<DayReviewPayload | null> {
-  const day = await queryOne<{
+  const accountId = session.accountId;
+  const day = await queryOneForSession<{
     id: string;
     status: string;
     review_prompted_at: string | null;
     closed_at: string | null;
     confidence_threshold: number;
     min_dwell: number;
-  }>(
+  }>(session,
     `SELECT bd.id, bd.status,
             bd.review_prompted_at::text, bd.closed_at::text,
             a.visit_confidence_threshold AS confidence_threshold,
@@ -94,7 +96,7 @@ export async function getDayReview(
   );
   if (!day) return null;
 
-  const candidateRows = await query<{
+  const candidateRows = await queryForSession<{
     id: string;
     property_name: string;
     client_name: string;
@@ -109,7 +111,7 @@ export async function getDayReview(
     wo_resolution: string;
     classification: string | null;
     status: string;
-  }>(
+  }>(session,
     `SELECT vc.id, vc.property_id, p.address AS property_name, c.name AS client_name,
             vc.arrival_time::text, vc.departure_time::text,
             vc.duration_minutes, vc.confidence_score,
@@ -149,12 +151,12 @@ export async function getDayReview(
   ];
   const openWorkOrdersByProperty: DayReviewPayload["openWorkOrdersByProperty"] = {};
   if (propertyIds.length > 0) {
-    const woRows = await query<{
+    const woRows = await queryForSession<{
       property_id: string;
       id: string;
       title: string;
       scheduled_today: boolean;
-    }>(
+    }>(session,
       `SELECT j.property_id::text AS property_id, w.id, w.title,
               EXISTS (
                 SELECT 1 FROM visits v
@@ -180,7 +182,7 @@ export async function getDayReview(
     }
   }
 
-  const segmentRows = await query<{
+  const segmentRows = await queryForSession<{
     id: string;
     kind: "stop" | "drive";
     started_at: string;
@@ -189,7 +191,7 @@ export async function getDayReview(
     zone: string | null;
     status: string;
     is_likely_noise: boolean;
-  }>(
+  }>(session,
     `SELECT id, kind, started_at::text, ended_at::text,
             place_label, zone, status, is_likely_noise
      FROM location_segments
@@ -198,7 +200,7 @@ export async function getDayReview(
     [accountId, date],
   );
 
-  const entryRows = await query<{
+  const entryRows = await queryForSession<{
     id: string;
     activity_type: string;
     entity_label: string | null;
@@ -207,7 +209,7 @@ export async function getDayReview(
     started_at: string;
     ended_at: string;
     duration_minutes: number;
-  }>(
+  }>(session,
     `SELECT ae.id, ae.activity_type, ae.note,
             ae.started_at::text AS started_at, ae.ended_at::text AS ended_at,
             ROUND(EXTRACT(EPOCH FROM (ae.ended_at - ae.started_at)) / 60)::int AS duration_minutes,
@@ -244,7 +246,9 @@ export async function getDayReview(
     day.min_dwell,
   );
 
-  const hybrid = await loadHybridMileageForDay(accountId, date);
+  const hybrid = await withDbSession(session, (client) =>
+    loadHybridMileageForDay(accountId, date, { client }),
+  );
 
   return {
     businessDayId: day.id,
@@ -310,16 +314,17 @@ export type DayCompanyFacts = {
 
 /** Today's bills and coming-back houses for the night recap. */
 export async function loadDayCompanyFacts(
-  accountId: string,
+  session: SessionPayload,
   date: string,
 ): Promise<DayCompanyFacts> {
+  const accountId = session.accountId;
   const [billRows, returnRows] = await Promise.all([
-    query<{
+    queryForSession<{
       id: string;
       status: string;
       house_label: string;
       client_name: string | null;
-    }>(
+    }>(session,
       `SELECT i.id, i.status,
               COALESCE(p.address, c.name, 'House') AS house_label,
               c.name AS client_name
@@ -336,11 +341,11 @@ export async function loadDayCompanyFacts(
        ORDER BY i.created_at ASC`,
       [accountId, date],
     ),
-    query<{
+    queryForSession<{
       house_label: string;
       next_start: string | null;
       start_here: string | null;
-    }>(
+    }>(session,
       `SELECT COALESCE(p.address, 'House') AS house_label,
               (
                 SELECT nv.scheduled_start::text

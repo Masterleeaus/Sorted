@@ -43,8 +43,8 @@ export default async function ReportsPage({ searchParams }: PageProps) {
   const today = businessMonthKey(new Date(), "America/New_York");
   const targetMonth = month && /^\d{4}-\d{2}$/.test(month) ? month : today;
 
-  const data = await loadReportData(session.accountId, targetMonth);
-  const invoiceAging = await loadInvoiceAging(session.accountId);
+  const data = await loadReportData(session, targetMonth);
+  const invoiceAging = await loadInvoiceAging(session);
 
   const currentValues: Record<string, string> = {};
   if (month) currentValues.month = month;

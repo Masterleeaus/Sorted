@@ -2,7 +2,7 @@ import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
 import type { Route } from "next";
 import { getSession } from "@/lib/auth/session";
-import { query, queryOne } from "@/lib/db";
+import { queryForSession, queryOneForSession } from "@/lib/db";
 import { PageContainer, PageHeader, Card, SectionHeader, StatusBadge, LinkButton } from "@/components/ui";
 import type { StatusVariant } from "@/components/ui";
 import { ReviewActions } from "./ReviewActions";
@@ -106,7 +106,7 @@ export default async function BookingRequestDetailPage({
   if (!session) redirect("/login");
   if (session.role === "tech") redirect("/app");
 
-  const br = await queryOne<BookingRow>(
+  const br = await queryOneForSession<BookingRow>(session,
     `SELECT br.*, u.full_name AS reviewed_by_name,
             j.title AS job_title, j.status AS job_status
      FROM booking_requests br
@@ -120,7 +120,7 @@ export default async function BookingRequestDetailPage({
 
   const duplicateIds = br.duplicate_candidate_ids ?? [];
   const duplicateRows = duplicateIds.length > 0
-    ? await query<DuplicateBookingRow>(
+    ? await queryForSession<DuplicateBookingRow>(session,
       `SELECT id, name, created_at, status
        FROM booking_requests
        WHERE account_id = $1 AND id = ANY($2::uuid[])
@@ -137,7 +137,7 @@ export default async function BookingRequestDetailPage({
   });
 
   // Load latest invite to determine next-step banner state
-  const inviteRows = await query<{ token: string; used_at: string | null; expires_at: string; created_at: string }>(
+  const inviteRows = await queryForSession<{ token: string; used_at: string | null; expires_at: string; created_at: string }>(session,
     `SELECT token::text, used_at, expires_at, created_at
      FROM intake_invites
      WHERE booking_request_id = $1

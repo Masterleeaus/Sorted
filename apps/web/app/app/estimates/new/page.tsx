@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth/session";
 import { canCreateEstimates } from "@/lib/auth/permissions";
 import { resolveDepositPolicy } from "@ai-fsm/domain";
-import { query, queryOne } from "@/lib/db";
+import { queryForSession, queryOneForSession } from "@/lib/db";
 import { Breadcrumbs, Card, PageContainer, PageHeader, HubSubnav } from "@/components/ui";
 import { WORK_HUB_LINKS } from "@/lib/navigation/hubs";
 import { EstimateEntryShell } from "./EstimateEntryShell";
@@ -103,19 +103,19 @@ export default async function NewEstimatePage({ searchParams }: PageProps) {
       : null;
 
   const [clients, jobs, properties, accountRow] = await Promise.all([
-    query<Client>(
+    queryForSession<Client>(session,
       `SELECT id, name FROM clients WHERE account_id = $1 ORDER BY name ASC`,
       [session.accountId]
     ),
-    query<Job>(
+    queryForSession<Job>(session,
       `SELECT id, title, client_id FROM jobs WHERE account_id = $1 AND status NOT IN ('completed','cancelled','invoiced') ORDER BY title ASC`,
       [session.accountId]
     ),
-    query<Property>(
+    queryForSession<Property>(session,
       `SELECT id, address, client_id FROM properties WHERE account_id = $1 ORDER BY address ASC`,
       [session.accountId]
     ),
-    queryOne<{ settings: { deposit_percent?: number; deposit_terms?: string } | null }>(
+    queryOneForSession<{ settings: { deposit_percent?: number; deposit_terms?: string } | null }>(session,
       `SELECT settings FROM accounts WHERE id = $1`,
       [session.accountId]
     ),
@@ -127,7 +127,7 @@ export default async function NewEstimatePage({ searchParams }: PageProps) {
   // Fetch vault item context for pre-populating estimate notes
   let vaultItemContext: { name: string; category: string; location: string | null } | null = null;
   if (vault_item_id) {
-    const rows = await query<{ name: string; category: string; location: string | null }>(
+    const rows = await queryForSession<{ name: string; category: string; location: string | null }>(session,
       `SELECT name, category, location FROM property_vault_items WHERE id = $1 AND account_id = $2`,
       [vault_item_id, session.accountId]
     );
@@ -137,7 +137,7 @@ export default async function NewEstimatePage({ searchParams }: PageProps) {
   // Fetch the source booking request (if any) to pre-populate the notes field.
   let bookingRequestContext: BookingRequestRow | null = null;
   if (booking_request_id) {
-    const rows = await query<BookingRequestRow>(
+    const rows = await queryForSession<BookingRequestRow>(session,
       `SELECT id, service_description, service_category,
               property_id, routing_path, referral_source, review_notes
        FROM booking_requests
@@ -150,11 +150,11 @@ export default async function NewEstimatePage({ searchParams }: PageProps) {
   // Soft guard: assessment path without a completed assessment packet
   let assessmentPathWarning: string | null = null;
   if (job_id && from_assessment !== "1") {
-    const pathRows = await query<{
+    const pathRows = await queryForSession<{
       routing_path: string | null;
       open_site: string;
       completed_assessment: string;
-    }>(
+    }>(session,
       `SELECT
          (SELECT br.routing_path FROM booking_requests br
           WHERE br.job_id = $1 AND br.account_id = $2
@@ -181,7 +181,7 @@ export default async function NewEstimatePage({ searchParams }: PageProps) {
 
   let walkthroughContext: WalkthroughContext | null = null;
   if (from_visit) {
-    walkthroughContext = await queryOne<WalkthroughContext>(
+    walkthroughContext = await queryOneForSession<WalkthroughContext>(session,
       `SELECT v.id, v.scheduled_start, v.tech_notes,
               v.job_id, j.title AS job_title,
               c.name AS client_name,
@@ -221,7 +221,7 @@ export default async function NewEstimatePage({ searchParams }: PageProps) {
     walkthroughPrefill = parts.join("\n\n");
   }
   if (walkthroughContext) {
-    const partRows = await query<{ name: string; quantity: number | string }>(
+    const partRows = await queryForSession<{ name: string; quantity: number | string }>(session,
       `SELECT name, quantity FROM visit_parts
        WHERE visit_id = $1 AND account_id = $2
        ORDER BY created_at ASC`,
@@ -241,7 +241,7 @@ export default async function NewEstimatePage({ searchParams }: PageProps) {
   // T&M one-click from job: assemble briefing from job + property + latest field notes
   let initialTmBriefing = "";
   if (mode === "tm" && job_id) {
-    const tmSource = await queryOne<{
+    const tmSource = await queryOneForSession<{
       title: string;
       description: string | null;
       intake_notes: string | null;
@@ -251,7 +251,7 @@ export default async function NewEstimatePage({ searchParams }: PageProps) {
       field_notes: string | null;
       request_description: string | null;
       pricing_mode: "flat_rate" | "hourly_internal" | null;
-    }>(
+    }>(session,
       `SELECT j.title,
               j.description,
               j.intake_notes,
