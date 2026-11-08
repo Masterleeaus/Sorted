@@ -192,6 +192,18 @@ export const INTAKE_TOKEN_RATE_LIMIT: RateLimitConfig = {
   windowSeconds: 15 * 60,
 };
 
+/** Public intake photo upload/remove: 60 requests per 15 minutes per IP (a household shares an IP) */
+export const INTAKE_MEDIA_IP_RATE_LIMIT: RateLimitConfig = {
+  limit: 60,
+  windowSeconds: 15 * 60,
+};
+
+/** Public intake photo upload/remove: 30 requests per 15 minutes per token */
+export const INTAKE_MEDIA_TOKEN_RATE_LIMIT: RateLimitConfig = {
+  limit: 30,
+  windowSeconds: 15 * 60,
+};
+
 /* ------------------------------------------------------------------ */
 /*  Test helpers                                                       */
 /* ------------------------------------------------------------------ */
