@@ -39,7 +39,9 @@ describe("Sorted Field UI branding", () => {
     expect(shellSource).toContain("<b>SORTED</b>");
     expect(shellSource).toContain("Sorted Field navigation");
     expect(shellSource).toContain("Sorted Field menu");
-    expect(shellSource).not.toMatch(/Titan Go Field home|Titan Zero Field navigation|Titan <em>Field<\\/em>/);
+    expect(shellSource).not.toContain("<b>Titan <em>Field</em></b>");
+    expect(shellSource).not.toContain("Titan Go Field home");
+    expect(shellSource).not.toContain("Titan Zero Field navigation");
   });
 
   it("uses Sorted in server-side metadata", () => {
