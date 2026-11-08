@@ -6,7 +6,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { withAuth } from "@/lib/auth/middleware";
 import type { AuthSession } from "@/lib/auth/middleware";
-import { query, getPool } from "@/lib/db";
+import { getPool, queryForSession } from "@/lib/db";
 import { logger } from "@/lib/logger";
 
 export const dynamic = "force-dynamic";
@@ -63,7 +63,7 @@ export const GET = withAuth(async (request: NextRequest, session: AuthSession) =
     params.push(supplier);
   }
 
-  const rows = await query(
+  const rows = await queryForSession(session,
     `SELECT id, name, brand, category, unit, unit_cost_cents, supplier, sku,
             last_purchased_at, notes, updated_at,
             avg_paid_cents, purchase_count

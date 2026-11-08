@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { withRole } from "@/lib/auth/middleware";
 import type { AuthSession } from "@/lib/auth/middleware";
-import { getPool, queryOne } from "@/lib/db";
+import { getPool, queryOneForSession } from "@/lib/db";
 import { normalizeClientName } from "@/lib/crm/normalization";
 import { appendAuditLog } from "@/lib/db/audit";
 import { logger } from "@/lib/logger";
@@ -47,7 +47,7 @@ const patchClientBody = z
 
 export const GET = withRole(["owner", "admin"], async (_request: NextRequest, session: AuthSession) => {
   const id = getPathId(_request.nextUrl.pathname);
-  const row = await queryOne(
+  const row = await queryOneForSession(session,
     `SELECT c.*, 
             COUNT(DISTINCT p.id)::int AS property_count,
             COUNT(DISTINCT j.id)::int AS job_count,

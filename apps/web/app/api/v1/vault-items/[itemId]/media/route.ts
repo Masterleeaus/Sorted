@@ -4,7 +4,7 @@ import path from "path";
 import { randomUUID } from "crypto";
 import { withAuth } from "../../../../../../lib/auth/middleware";
 import type { AuthSession } from "../../../../../../lib/auth/middleware";
-import { getPool, query, queryOne } from "../../../../../../lib/db";
+import { getPool, queryForSession, queryOneForSession } from "../../../../../../lib/db";
 import { logger } from "../../../../../../lib/logger";
 import { payloadTooLargeResponse, readMultipartWithLimit, UPLOAD_BODY_LIMITS } from "../../../../../../lib/uploads/body-limit";
 import {
@@ -22,7 +22,7 @@ const MAX_SIZE_BYTES = 10 * 1024 * 1024;
 const ALLOWED_MIME_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif", "image/heic", "image/heif"];
 
 async function getVaultItem(itemId: string, session: AuthSession) {
-  return queryOne<{ id: string }>(
+  return queryOneForSession<{ id: string }>(session,
     `SELECT id FROM property_vault_items WHERE id = $1 AND account_id = $2`,
     [itemId, session.accountId]
   );
@@ -45,7 +45,7 @@ export const GET = withAuth(async (request: NextRequest, session: AuthSession) =
     );
   }
 
-  const rows = await query(
+  const rows = await queryForSession(session,
     `SELECT id, vault_item_id, original_name, mime_type, size_bytes, created_at
      FROM property_vault_item_media
      WHERE vault_item_id = $1 AND account_id = $2

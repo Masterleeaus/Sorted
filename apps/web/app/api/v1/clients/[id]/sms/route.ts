@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { withRole } from "@/lib/auth/middleware";
 import type { AuthSession } from "@/lib/auth/middleware";
-import { queryOne } from "@/lib/db";
+import { queryOneForSession } from "@/lib/db";
 import { logger } from "@/lib/logger";
 import { normalizePhone } from "@/lib/phone";
 import { isSmsGatewayConfigured, sendSmsViaGateway } from "@/lib/sms/gateway";
@@ -72,12 +72,12 @@ export const POST = withRole(
       );
     }
 
-    const client = await queryOne<{
+    const client = await queryOneForSession<{
       id: string;
       name: string;
       phone: string | null;
       sms_consent: boolean;
-    }>(
+    }>(session,
       `SELECT id, name, phone, sms_consent FROM clients WHERE id = $1 AND account_id = $2`,
       [clientId, session.accountId]
     );
@@ -129,7 +129,7 @@ export const POST = withRole(
 
     let jobId = parsed.data.job_id ?? null;
     if (jobId) {
-      const job = await queryOne<{ id: string }>(
+      const job = await queryOneForSession<{ id: string }>(session,
         `SELECT id FROM jobs WHERE id = $1 AND account_id = $2 AND client_id = $3`,
         [jobId, session.accountId, clientId]
       );

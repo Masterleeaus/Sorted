@@ -11,7 +11,7 @@ import {
 } from "@ai-fsm/domain";
 import { withRole } from "@/lib/auth/middleware";
 import type { AuthSession } from "@/lib/auth/middleware";
-import { query } from "@/lib/db";
+import { queryForSession } from "@/lib/db";
 import { logger } from "@/lib/logger";
 
 export const dynamic = "force-dynamic";
@@ -29,7 +29,7 @@ export const GET = withRole(["owner", "admin"], async (request: NextRequest, ses
     const fromDate = isDate(from) ? from : today;
     const toDate = isDate(to) ? to : fromDate;
 
-    const sessions = await query<{
+    const sessions = await queryForSession<{
       id: string;
       session_date: string;
       vehicle_name: string | null;
@@ -37,7 +37,7 @@ export const GET = withRole(["owner", "admin"], async (request: NextRequest, ses
       end_odometer: number | null;
       odometer_miles: number | null;
       miles_source: string | null;
-    }>(
+    }>(session,
       `SELECT vs.id,
               vs.session_date::text AS session_date,
               v.nickname AS vehicle_name,
@@ -54,7 +54,7 @@ export const GET = withRole(["owner", "admin"], async (request: NextRequest, ses
       [session.accountId, fromDate, toDate],
     );
 
-    const gpsByDate = await query<{ session_date: string; meters: number }>(
+    const gpsByDate = await queryForSession<{ session_date: string; meters: number }>(session,
       `SELECT segment_date::text AS session_date,
               COALESCE(SUM(distance_meters), 0)::float8 AS meters
        FROM location_segments
