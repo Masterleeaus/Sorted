@@ -120,3 +120,48 @@ test("setup rejects unknown channels and stale revisions without crossing compan
   assert.equal((await authority.read(context)).revision, 1);
   assert.equal((await authority.read({ company_id: "company-b" })).revision, 0);
 });
+
+test("workforce notification defaults are authority-owned, not supplied by the save caller", async () => {
+  const database = memoryDatabase();
+  const authority = createPaymentsCommunicationsSetupAuthority({
+    database,
+    nativeContributions: [{ id: "channel.email", title: "Email" }],
+    workforceGlobalDefaults: {
+      notifications: {
+        max_delivery_attempts: 2,
+        max_escalation_depth: 1,
+        cooldown_ms: 600000,
+        ack_minutes_by_urgency: { HIGH: 15 },
+      },
+    },
+  });
+  const context = { company_id: "company-a" };
+  const input = {
+    payments: { methods: ["cash"] },
+    communications: { channels: ["channel.email"] },
+    notifications: {
+      max_delivery_attempts: 10,
+      max_escalation_depth: 5,
+      cooldown_ms: 1000,
+      ack_minutes_by_urgency: { HIGH: 90 },
+      automatic_dispatch: true,
+    },
+  };
+  await assert.rejects(
+    () => authority.save(context, {
+      ...input, workforceGlobalDefaults: { notifications: { max_delivery_attempts: 10 } },
+    }),
+    /workforceGlobalDefaults must be configured by the onboarding authority/,
+  );
+  assert.equal((await authority.read(context)).revision, 0);
+  const saved = await authority.save(context, input);
+  assert.equal(saved.revision, 1);
+  const stored = (await authority.read(context)).notifications;
+  assert.equal(stored.max_delivery_attempts, 2);
+  assert.equal(stored.max_escalation_depth, 1);
+  assert.equal(stored.cooldown_ms, 600000);
+  assert.equal(stored.ack_minutes_by_urgency.HIGH, 15);
+  assert.equal(stored.automatic_dispatch, false);
+  assert.equal(stored.dispatch_permitted, false);
+  assert.equal(stored.settings_can_grant_authority, false);
+});
