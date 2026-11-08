@@ -24,6 +24,10 @@ Product direction comes only from:
 
 Historical plans, generated reports, archived agent docs, and working notes are supporting material only.
 
+## Titan Go
+
+Titan Go is the installable PWA and UI layer inside this app (Field mode). It is not a separate product. Canonical docs define scope. See [docs/working/titan-go-identity-decision-2026-11-08.md](docs/working/titan-go-identity-decision-2026-11-08.md) for the decision and the list of prototype surfaces.
+
 ## Quick Start
 
 ```bash

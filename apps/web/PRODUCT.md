@@ -47,3 +47,7 @@ A craftsman's tool, not a SaaS product. Rugged and dependable; plainspoken label
 - Touch targets ≥ 44px; primary field actions larger still.
 - Status is never conveyed by color alone (label/icon + color), important given heavy use of status pills.
 - Respect `prefers-reduced-motion` with a crossfade/instant fallback on every animation.
+
+## Titan Go UI layer
+
+Titan Go (Field mode) is the installable PWA surface for this product. It is a UI layer, not a separate product. Prototype surfaces under `apps/web/app/titan/` are not in live navigation. See `docs/working/titan-go-identity-decision-2026-11-08.md`.
