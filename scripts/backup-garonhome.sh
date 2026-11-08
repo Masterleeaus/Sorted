@@ -7,9 +7,10 @@ ENV_FILE="${FSM_ENV_FILE:-${DEPLOY_ROOT}/env/.env}"
 COMPOSE_FILE="${FSM_COMPOSE_FILE:-${REPO_ROOT}/infra/compose.garonhome.yml}"
 BACKUP_DIR="${FSM_BACKUP_DIR:-${DEPLOY_ROOT}/backups}"
 TIMESTAMP="$(date -u +%Y%m%dT%H%M%SZ)"
-DB_FILE="${BACKUP_DIR}/ai_fsm_${TIMESTAMP}.dump"
-UPLOADS_FILE="${BACKUP_DIR}/ai_fsm_uploads_${TIMESTAMP}.tar.gz"
+DB_FILE="${BACKUP_DIR}/ai_fsm_${TIMESTAMP}.dump.gpg"
+UPLOADS_FILE="${BACKUP_DIR}/ai_fsm_uploads_${TIMESTAMP}.tar.gz.gpg"
 ENV_FILE_BACKUP="${BACKUP_DIR}/ai_fsm_env_${TIMESTAMP}.gpg"
+MANIFEST_FILE="${BACKUP_DIR}/ai_fsm_${TIMESTAMP}.sha256"
 
 set -a
 # shellcheck disable=SC1090
@@ -30,15 +31,41 @@ PASSPHRASE_FILE="${FSM_BACKUP_PASSPHRASE_FILE:-${DEPLOY_ROOT}/env/backup.passphr
 
 mkdir -p "${BACKUP_DIR}"
 
+# Every artifact is encrypted (AES-256, gpg symmetric, key from PASSPHRASE_FILE)
+# while it is still in the pipeline, so no plaintext dump or archive is written
+# to disk or uploaded. Without a passphrase nothing is written at all.
+if [[ ! -s "${PASSPHRASE_FILE}" ]]; then
+  echo "ERROR: backup passphrase file missing or empty: ${PASSPHRASE_FILE}" >&2
+  echo "ERROR: refusing to write or upload unencrypted backups" >&2
+  exit 1
+fi
+# The key must not sit beside the archives it protects.
+case "$(realpath -m "${PASSPHRASE_FILE}")" in
+  "$(realpath -m "${BACKUP_DIR}")"/*)
+    echo "ERROR: passphrase file must not live inside the backup directory" >&2
+    exit 1 ;;
+esac
+
+# Remove partial output from this run if it stops mid-write. Finished artifacts
+# (renamed out of .partial) are never removed here.
+trap 'rm -f -- "${BACKUP_DIR}/ai_fsm_"*"${TIMESTAMP}"*.partial' EXIT
+
+encrypt_stdin_to() {
+  local out="$1"
+  gpg --batch --yes --quiet --symmetric --cipher-algo AES256 \
+    --passphrase-file "${PASSPHRASE_FILE}" -o "${out}.partial"
+  mv -f -- "${out}.partial" "${out}"
+}
+
 docker compose --env-file "${ENV_FILE}" -f "${COMPOSE_FILE}" exec -T postgres \
   pg_dump -U "${POSTGRES_USER}" -d "${POSTGRES_DB}" --format=custom --compress=9 \
-  > "${DB_FILE}"
-echo "backup written: ${DB_FILE}"
+  | encrypt_stdin_to "${DB_FILE}"
+echo "backup written (encrypted): ${DB_FILE}"
 
 # Uploaded files (receipts, job photos) — not covered by the DB dump
 if [[ -d "${DATA_ROOT}/uploads" ]]; then
-  tar -czf "${UPLOADS_FILE}" -C "${DATA_ROOT}" uploads
-  echo "backup written: ${UPLOADS_FILE}"
+  tar -czf - -C "${DATA_ROOT}" uploads | encrypt_stdin_to "${UPLOADS_FILE}"
+  echo "backup written (encrypted): ${UPLOADS_FILE}"
 else
   UPLOADS_FILE=""
   echo "WARNING: ${DATA_ROOT}/uploads not found; skipping uploads backup" >&2
@@ -47,20 +74,22 @@ fi
 # Encrypted copy of .env — needed to decrypt APP_ENCRYPTION_KEY-protected data
 # (e.g. Square tokens) after a restore. Keep the passphrase file itself out of
 # git and out of this backup (chmod 600, store its value in a password manager).
-if [[ -f "${PASSPHRASE_FILE}" ]]; then
-  gpg --batch --yes --symmetric --cipher-algo AES256 \
-    --passphrase-file "${PASSPHRASE_FILE}" \
-    -o "${ENV_FILE_BACKUP}" "${ENV_FILE}"
-  echo "backup written: ${ENV_FILE_BACKUP}"
-else
-  ENV_FILE_BACKUP=""
-  echo "WARNING: ${PASSPHRASE_FILE} not found; skipping encrypted .env backup" >&2
+encrypt_stdin_to "${ENV_FILE_BACKUP}" < "${ENV_FILE}"
+echo "backup written (encrypted): ${ENV_FILE_BACKUP}"
+
+# SHA-256 of every encrypted artifact in this set, for integrity checks before restore.
+SET_FILES=("$(basename "${DB_FILE}")")
+if [[ -n "${UPLOADS_FILE}" ]]; then
+  SET_FILES+=("$(basename "${UPLOADS_FILE}")")
 fi
+SET_FILES+=("$(basename "${ENV_FILE_BACKUP}")")
+(cd "${BACKUP_DIR}" && sha256sum -- "${SET_FILES[@]}" > "$(basename "${MANIFEST_FILE}")")
+echo "checksums written: ${MANIFEST_FILE}"
 
 # Offsite copy to Google Drive (non-fatal — pruning must still run)
 RCLONE_REMOTE="${FSM_RCLONE_REMOTE:-googledrive}"
 RCLONE_DEST="${RCLONE_REMOTE}:ai-fsm-backups"
-for f in "${DB_FILE}" "${UPLOADS_FILE}" "${ENV_FILE_BACKUP}"; do
+for f in "${DB_FILE}" "${UPLOADS_FILE}" "${ENV_FILE_BACKUP}" "${MANIFEST_FILE}"; do
   [[ -z "${f}" ]] && continue
   if rclone copy "${f}" "${RCLONE_DEST}/" --log-level INFO; then
     echo "offsite copy complete: ${RCLONE_DEST}/$(basename "${f}")"
@@ -69,8 +98,11 @@ for f in "${DB_FILE}" "${UPLOADS_FILE}" "${ENV_FILE_BACKUP}"; do
   fi
 done
 
-# Prune local backups older than 7 days (runs regardless of offsite result)
-find "${BACKUP_DIR}" \( -name "ai_fsm_*.dump" -o -name "ai_fsm_uploads_*.tar.gz" -o -name "ai_fsm_env_*.gpg" \) -mtime +7 -delete
+# Prune local backups older than 7 days (runs regardless of offsite result).
+# Legacy unencrypted patterns are kept so old plaintext files still age out.
+find "${BACKUP_DIR}" \( -name "ai_fsm_*.dump" -o -name "ai_fsm_uploads_*.tar.gz" \
+  -o -name "ai_fsm_*.dump.gpg" -o -name "ai_fsm_uploads_*.tar.gz.gpg" \
+  -o -name "ai_fsm_env_*.gpg" -o -name "ai_fsm_*.sha256" \) -mtime +7 -delete
 echo "old local backups pruned"
 
 # Prune offsite copies older than 30 days (best-effort; local retention is authoritative)
