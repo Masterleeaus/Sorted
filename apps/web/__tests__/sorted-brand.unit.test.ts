@@ -1,4 +1,9 @@
 import { describe, expect, it } from "vitest";
+import { readFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
+
+const shellSource = readFileSync(fileURLToPath(new URL("../components/AppShell.tsx", import.meta.url)), "utf8");
+const layoutSource = readFileSync(fileURLToPath(new URL("../app/layout.tsx", import.meta.url)), "utf8");
 import manifest from "../app/manifest";
 import { CURRENT_TITAN_GO_MODE_META } from "../lib/titan-go/modes";
 
@@ -25,5 +30,20 @@ describe("Sorted Field identity", () => {
       "/app/my-work",
       "/app/workforce",
     ]);
+  });
+});
+
+describe("Sorted Field UI branding", () => {
+  it("keeps desktop, mobile, and accessibility surfaces aligned", () => {
+    expect(shellSource).toContain("<b>Sorted <em>Field</em></b>");
+    expect(shellSource).toContain("<b>SORTED</b>");
+    expect(shellSource).toContain("Sorted Field navigation");
+    expect(shellSource).toContain("Sorted Field menu");
+    expect(shellSource).not.toMatch(/Titan Go Field home|Titan Zero Field navigation|Titan <em>Field<\\/em>/);
+  });
+
+  it("uses Sorted in server-side metadata", () => {
+    expect(layoutSource).toContain('applicationName: "Sorted"');
+    expect(layoutSource).toContain('title: "Sorted"');
   });
 });
