@@ -44,10 +44,17 @@ describe("withTokenAccountContext", () => {
     expect(result).toBe(42);
     expect(client.calls[0].text).toBe("BEGIN");
     expect(client.calls[1].text).toContain("set_config('app.current_account_id'");
-    expect(client.calls[1].params).toEqual([ACCOUNT]);
+    expect(client.calls[1].params).toEqual([ACCOUNT, "public"]);
     expect(client.calls[2].text).toBe("SELECT 1");
     expect(client.calls.at(-1)?.text).toBe("COMMIT");
     expect(client.release).toHaveBeenCalled();
+  });
+
+  it("uses the owner role only when the caller asks for it", async () => {
+    const client = fakeClient();
+    connect.mockResolvedValue(client);
+    await withTokenAccountContext(ACCOUNT, async () => 1, "owner");
+    expect(client.calls[1].params).toEqual([ACCOUNT, "owner"]);
   });
 
   it("rolls back and rethrows when fn fails", async () => {
