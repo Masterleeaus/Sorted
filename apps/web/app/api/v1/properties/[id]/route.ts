@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { withRole } from "@/lib/auth/middleware";
 import type { AuthSession } from "@/lib/auth/middleware";
-import { getPool, queryOne } from "@/lib/db";
+import { getPool, withDbSession } from "@/lib/db";
 import { appendAuditLog } from "@/lib/db/audit";
 import { logger } from "@/lib/logger";
 import { getPathId } from "@/lib/route-utils";
@@ -23,7 +23,8 @@ const patchPropertyBody = z
 
 export const GET = withRole(["owner", "admin"], async (request: NextRequest, session: AuthSession) => {
   const id = getPathId(request.nextUrl.pathname);
-  const row = await queryOne(
+  const row = await withDbSession(session, async (client) => {
+    const result = await client.query(
     `SELECT p.*, c.name AS client_name,
             COUNT(DISTINCT j.id)::int AS job_count,
             COUNT(DISTINCT v.id)::int AS visit_count,
@@ -55,7 +56,9 @@ export const GET = withRole(["owner", "admin"], async (request: NextRequest, ses
      WHERE p.id = $1 AND p.account_id = $2
      GROUP BY p.id, c.name`,
     [id, session.accountId]
-  );
+    );
+    return result.rows[0] ?? null;
+  });
   if (!row) {
     return NextResponse.json(
       { error: { code: "NOT_FOUND", message: "Property not found", traceId: session.traceId } },

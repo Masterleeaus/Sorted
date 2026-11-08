@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { withAuth } from "../../../../../../lib/auth/middleware";
 import type { AuthSession } from "../../../../../../lib/auth/middleware";
-import { query, queryOne, getPool } from "../../../../../../lib/db";
+import { getPool, withDbSession } from "../../../../../../lib/db";
 import { appendAuditLog } from "../../../../../../lib/db/audit";
 import { logger } from "../../../../../../lib/logger";
 import { VAULT_CATEGORIES } from "@ai-fsm/domain";
@@ -37,20 +37,26 @@ export const GET = withAuth(
     if (!pid) return NextResponse.json({ error: { code: "NOT_FOUND", message: "Property not found", traceId: session.traceId } }, { status: 404 });
 
     // Verify property belongs to this account
-    const prop = await queryOne(
-      `SELECT id FROM properties WHERE id = $1 AND account_id = $2`,
-      [pid, session.accountId]
-    );
-    if (!prop) return NextResponse.json({ error: { code: "NOT_FOUND", message: "Property not found", traceId: session.traceId } }, { status: 404 });
+    return withDbSession(session, async (client) => {
+      const prop = (
+        await client.query(
+          `SELECT id FROM properties WHERE id = $1 AND account_id = $2`,
+          [pid, session.accountId]
+        )
+      ).rows[0];
+      if (!prop) return NextResponse.json({ error: { code: "NOT_FOUND", message: "Property not found", traceId: session.traceId } }, { status: 404 });
 
-    const items = await query(
-      `SELECT * FROM property_vault_items
-       WHERE property_id = $1 AND account_id = $2
-       ORDER BY category ASC, name ASC`,
-      [pid, session.accountId]
-    );
+      const items = (
+        await client.query(
+          `SELECT * FROM property_vault_items
+           WHERE property_id = $1 AND account_id = $2
+           ORDER BY category ASC, name ASC`,
+          [pid, session.accountId]
+        )
+      ).rows;
 
-    return NextResponse.json({ data: items });
+      return NextResponse.json({ data: items });
+    });
   }
 );
 

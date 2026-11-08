@@ -6,7 +6,7 @@ import fs from "fs";
 import path from "path";
 import { withAuth } from "../../../../../../../../lib/auth/middleware";
 import type { AuthSession } from "../../../../../../../../lib/auth/middleware";
-import { queryOne } from "../../../../../../../../lib/db";
+import { withDbSession } from "../../../../../../../../lib/db";
 import { logger } from "../../../../../../../../lib/logger";
 import { UPLOAD_ROOT, resolveStoredUpload } from "../../../../../../../../lib/uploads/paths";
 
@@ -25,10 +25,13 @@ export const GET = withAuth(
     }
 
     // Verify visit is accessible to this session
-    const visit = await queryOne<{ id: string; assigned_user_id: string | null }>(
-      `SELECT id, assigned_user_id FROM visits WHERE id = $1 AND account_id = $2`,
-      [visitId, session.accountId]
-    );
+    const visit = await withDbSession(session, async (client) => {
+      const result = await client.query<{ id: string; assigned_user_id: string | null }>(
+        `SELECT id, assigned_user_id FROM visits WHERE id = $1 AND account_id = $2`,
+        [visitId, session.accountId]
+      );
+      return result.rows[0] ?? null;
+    });
     if (!visit) {
       return NextResponse.json(
         { error: { code: "NOT_FOUND", message: "Visit not found", traceId: session.traceId } },
@@ -43,10 +46,13 @@ export const GET = withAuth(
     }
 
     // Look up the media record
-    const media = await queryOne<{ filename: string; mime_type: string }>(
-      `SELECT filename, mime_type FROM visit_media WHERE id = $1 AND visit_id = $2 AND account_id = $3`,
-      [mediaId, visitId, session.accountId]
-    );
+    const media = await withDbSession(session, async (client) => {
+      const result = await client.query<{ filename: string; mime_type: string }>(
+        `SELECT filename, mime_type FROM visit_media WHERE id = $1 AND visit_id = $2 AND account_id = $3`,
+        [mediaId, visitId, session.accountId]
+      );
+      return result.rows[0] ?? null;
+    });
     if (!media) {
       return NextResponse.json(
         { error: { code: "NOT_FOUND", message: "Media not found", traceId: session.traceId } },
