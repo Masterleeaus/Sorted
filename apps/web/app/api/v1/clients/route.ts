@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { withRole } from "@/lib/auth/middleware";
 import type { AuthSession } from "@/lib/auth/middleware";
-import { getPool, query } from "@/lib/db";
+import { getPool, queryForSession } from "@/lib/db";
 import { normalizeClientName } from "@/lib/crm/normalization";
 import { appendAuditLog } from "@/lib/db/audit";
 import { logger } from "@/lib/logger";
@@ -72,7 +72,7 @@ export const GET = withRole(["owner", "admin"], async (request: NextRequest, ses
   }
   params.push(limit);
 
-  const rows = await query(
+  const rows = await queryForSession(session,
     `SELECT c.*, 
             COUNT(DISTINCT p.id)::int AS property_count,
             COUNT(DISTINCT j.id)::int AS job_count

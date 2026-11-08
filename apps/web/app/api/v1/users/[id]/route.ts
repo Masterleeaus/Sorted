@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { withAuth } from "@/lib/auth/middleware";
 import type { AuthSession } from "@/lib/auth/middleware";
-import { getPool, queryOne } from "@/lib/db";
+import { getPool, queryOneForSession } from "@/lib/db";
 import { appendAuditLog } from "@/lib/db/audit";
 import { logger } from "@/lib/logger";
 import { getPathId } from "@/lib/route-utils";
@@ -28,7 +28,7 @@ export const GET = withAuth(async (request: NextRequest, session: AuthSession) =
       { status: 403 }
     );
   }
-  const row = await queryOne(
+  const row = await queryOneForSession(session,
     `SELECT id, full_name, email, phone, role, created_at FROM users WHERE id = $1 AND account_id = $2`,
     [id, session.accountId]
   );

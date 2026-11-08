@@ -7,7 +7,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { withAuth } from "@/lib/auth/middleware";
 import type { AuthSession } from "@/lib/auth/middleware";
-import { queryOne, getPool } from "@/lib/db";
+import { getPool, queryOneForSession } from "@/lib/db";
 import { logger } from "@/lib/logger";
 
 export const dynamic = "force-dynamic";
@@ -30,7 +30,7 @@ export const GET = withAuth(async (request: NextRequest, session: AuthSession) =
   const id = extractId(request.url);
   if (!id) return NextResponse.json({ error: { code: "NOT_FOUND", message: "Not found", traceId: session.traceId } }, { status: 404 });
 
-  const row = await queryOne(
+  const row = await queryOneForSession(session,
     `SELECT * FROM materials_price_book WHERE id = $1 AND account_id = $2`,
     [id, session.accountId]
   );
