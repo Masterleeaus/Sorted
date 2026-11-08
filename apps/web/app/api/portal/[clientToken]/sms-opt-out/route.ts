@@ -31,12 +31,12 @@ export async function POST(
       return NextResponse.json({ error: "Already opted out" }, { status: 409 });
     }
     // Account context is set from the resolved client row, before any write.
-    // Role is public: clients UPDATE needs owner/admin under RLS, so this write
-    // is blocked under ai_fsm_web until a narrow portal opt-out policy exists.
+    // Role is owner, as the portal profile write does: clients UPDATE needs
+    // owner/admin under RLS. Review this with the portal policy work (see report).
     await client.query(
       `SELECT set_config('app.current_user_id', '', true),
               set_config('app.current_account_id', $1, true),
-              set_config('app.current_role', 'public', true)`,
+              set_config('app.current_role', 'owner', true)`,
       [row.account_id]
     );
     await client.query(
