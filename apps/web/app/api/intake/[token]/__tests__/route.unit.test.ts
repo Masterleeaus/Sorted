@@ -29,6 +29,7 @@ const db = vi.hoisted(() => {
     committedBookingNames: [] as string[],
     queryCount: 0,
     sqlLog: [] as string[],
+    statusReadContext: [] as string[],
     failNextBookingUpdate: false,
     intakeMediaByInvite: {} as Record<string, number>,
     lastMetadataJson: null as string | null,
@@ -49,6 +50,9 @@ const db = vi.hoisted(() => {
     state.sqlLog.push(sql);
     const txId = tx?.id ?? 0;
 
+    if (sql.includes("set_config") && tx) {
+      (tx as Tx & { ctx?: string }).ctx = String(params?.[0]);
+    }
     if (sql.startsWith("BEGIN") || sql.includes("set_config")) return { rows: [] };
 
     if (sql.startsWith("SELECT id, account_id, booking_request_id")) {
@@ -57,6 +61,7 @@ const db = vi.hoisted(() => {
     }
 
     if (sql.startsWith("SELECT used_at, expires_at")) {
+      state.statusReadContext.push((tx as (Tx & { ctx?: string }) | null)?.ctx ?? "none");
       const inv = state.invites.find((i) => i.token === params[0]);
       return {
         rows: inv
@@ -197,6 +202,7 @@ beforeEach(() => {
   db.state.committedBookingNames = [];
   db.state.queryCount = 0;
   db.state.sqlLog = [];
+  db.state.statusReadContext = [];
   db.state.failNextBookingUpdate = false;
   db.state.lockOwner = null;
   db.state.lockWaiters = [];
@@ -233,6 +239,9 @@ describe("intake invite claim (atomic consume)", () => {
 
     const loser = a.status === 409 ? a : b;
     expect((await loser.json()).error.code).toBe("ALREADY_USED");
+    // The loser's status read runs inside the invite's account context, not on a bare pool.
+    expect(db.state.statusReadContext).toContain(invite.account_id);
+    expect(db.state.statusReadContext).not.toContain("none");
 
     // Exactly one booking update was committed, and the invite is consumed.
     expect(db.state.committedBookingNames).toHaveLength(1);
