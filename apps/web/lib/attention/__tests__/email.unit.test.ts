@@ -61,7 +61,53 @@ describe("Sorted Field operational email identity", () => {
     expect(inserted!.values[3]).toBe("[Sorted Field] Invoice paid");
     expect(inserted!.values[4]).toContain("needs attention in Sorted Field.");
     expect(inserted!.values[4]).not.toContain("Dovetails");
-    expect(inserted!.values[5]).toMatch(/^attention-email:invoice.paid:invoice-123:/);
+    expect(inserted!.values[5]).toMatch(/^attention-email:v2:account-a:invoice.paid:invoice-123:/);
     expect(inserted!.values[7]).toBe("invoice-123");
   });
+  it("scopes identical invoice events to separate accounts without idempotency collisions", async () => {
+    const keys: string[] = [];
+    const client = {
+      query: vi.fn(async (sql: string, values: unknown[]) => {
+        if (sql.includes("FROM users")) return { rows: [{ email: "owner@example.test" }] };
+        if (sql.includes("FROM notification_queue")) return { rows: [] };
+        if (sql.includes("INSERT INTO notification_queue")) keys.push(String(values[5]));
+        return { rows: [] };
+      }),
+    } as unknown as PoolClient;
+    for (const accountId of ["company-a", "company-b"]) {
+      expect(await enqueueAttentionOwnerEmail(client, {
+        accountId, type: "invoice.paid", entityType: "invoice", entityId: "same-id",
+        title: "Invoice paid", href: "/app/invoices/same-id",
+      })).toBe("enqueued");
+    }
+    expect(keys).toHaveLength(2);
+    expect(keys[0]).not.toBe(keys[1]);
+    expect(keys[0]).toContain(":company-a:");
+    expect(keys[1]).toContain(":company-b:");
+  });
+
+  it("rejects unsafe owner-alert links and stores only the sanitized destination", async () => {
+    const unsafe = ["//external.example/phish", "/\\external.example", "/app\" onclick=\"alert(1)", "https://external.example"];
+    for (const href of unsafe) {
+      const queries: Array<{ sql: string; values: unknown[] }> = [];
+      const client = {
+        query: vi.fn(async (sql: string, values: unknown[]) => {
+          queries.push({ sql, values });
+          if (sql.includes("FROM users")) return { rows: [{ email: "owner@example.test" }] };
+          return { rows: [] };
+        }),
+      } as unknown as PoolClient;
+      const outcome = await enqueueAttentionOwnerEmail(client, {
+        accountId: "company-a", type: "invoice.paid", entityType: "invoice",
+        entityId: "inv-1", title: "Invoice paid", href,
+      });
+      expect(outcome).toBe("enqueued");
+      const insert = queries.find(q => q.sql.includes("INSERT INTO notification_queue"))!;
+      expect(insert.values[4]).toContain('href="http://localhost:3000/app"');
+      expect(JSON.parse(String(insert.values[8]))).toEqual({
+        attentionType: "invoice.paid", href: "/app",
+      });
+    }
+  });
+
 });
