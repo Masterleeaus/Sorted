@@ -9,6 +9,7 @@ import { checkRateLimit, getClientIp, SENSITIVE_RATE_LIMIT } from "@/lib/rate-li
 import { logger } from "@/lib/logger";
 import { BUSINESS_PHONE_DISPLAY, SMS_CONSENT_TEXT } from "@/lib/sms/consent";
 import { appendAuditLog } from "@/lib/db/audit";
+import { escapeHtml, hrefAttr } from "@ai-fsm/email-templates";
 
 export const dynamic = "force-dynamic";
 
@@ -99,7 +100,7 @@ export async function PATCH(
       to: newEmail,
       subject: "Confirm your new email for Dovetails",
       text: `Hi ${client.name},\n\nConfirm this is your new email for your Dovetails account:\n${verifyUrl}\n\nThe link expires in 1 hour. If you didn't ask for this, ignore this email.`,
-      html: `<p>Hi ${escapeHtml(client.name)},</p><p>Confirm this is your new email for your Dovetails account:</p><p><a href="${verifyUrl}">Confirm my email</a></p><p style="color:#6b7280;font-size:12px">The link expires in 1 hour. If you didn't ask for this, ignore this email.</p>`,
+      html: `<p>Hi ${escapeHtml(client.name)},</p><p>Confirm this is your new email for your Dovetails account:</p><p><a href="${hrefAttr(verifyUrl)}">Confirm my email</a></p><p style="color:#6b7280;font-size:12px">The link expires in 1 hour. If you didn't ask for this, ignore this email.</p>`,
     });
     if (!sent.ok) {
       logger.warn("portal email-change verify send failed", { error: sent.error });
@@ -176,6 +177,3 @@ export async function PATCH(
   return NextResponse.json({ ok: true, emailPending });
 }
 
-function escapeHtml(s: string): string {
-  return s.replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`);
-}
