@@ -5,6 +5,7 @@ import { withAuth } from "../../../../../../../../lib/auth/middleware";
 import type { AuthSession } from "../../../../../../../../lib/auth/middleware";
 import { queryOne } from "../../../../../../../../lib/db";
 import { logger } from "../../../../../../../../lib/logger";
+import { UPLOAD_ROOT, resolveStoredUpload } from "../../../../../../../../lib/uploads/paths";
 
 export const dynamic = "force-dynamic";
 
@@ -41,7 +42,14 @@ export const GET = withAuth(async (request: NextRequest, session: AuthSession) =
     );
   }
 
-  const filePath = path.join("/app/uploads/vault-items", itemId, media.filename);
+  const filePath = resolveStoredUpload(path.join(UPLOAD_ROOT, "vault-items"), itemId, media.filename);
+  if (!filePath) {
+    logger.warn("[vault-item-media image GET] rejected stored filename", { itemId, mediaId });
+    return NextResponse.json(
+      { error: { code: "NOT_FOUND", message: "Image file not found", traceId: session.traceId } },
+      { status: 404 }
+    );
+  }
   try {
     const buffer = fs.readFileSync(filePath);
     return new NextResponse(buffer, {

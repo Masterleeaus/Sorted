@@ -34,8 +34,10 @@ export async function GET(
   });
   if (!media) return notFound();
 
+  const filePath = visitMediaPath(media.visit_id, media.filename);
+  if (!filePath) return notFound();
   try {
-    const buf = fs.readFileSync(visitMediaPath(media.visit_id, media.filename));
+    const buf = fs.readFileSync(filePath);
     return new NextResponse(buf, {
       status: 200,
       headers: {

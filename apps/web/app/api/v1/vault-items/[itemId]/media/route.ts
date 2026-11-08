@@ -6,9 +6,18 @@ import { withAuth } from "../../../../../../lib/auth/middleware";
 import type { AuthSession } from "../../../../../../lib/auth/middleware";
 import { getPool, query, queryOne } from "../../../../../../lib/db";
 import { logger } from "../../../../../../lib/logger";
+import { payloadTooLargeResponse, readMultipartWithLimit, UPLOAD_BODY_LIMITS } from "../../../../../../lib/uploads/body-limit";
+import {
+  UPLOAD_ROOT,
+  imageExtensionForMime,
+  isSafePathSegment,
+  resolveStoredUpload,
+  sanitizeDisplayName,
+} from "../../../../../../lib/uploads/paths";
 
 export const dynamic = "force-dynamic";
 
+const VAULT_MEDIA_ROOT = path.join(UPLOAD_ROOT, "vault-items");
 const MAX_SIZE_BYTES = 10 * 1024 * 1024;
 const ALLOWED_MIME_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif", "image/heic", "image/heif"];
 
@@ -49,7 +58,7 @@ export const GET = withAuth(async (request: NextRequest, session: AuthSession) =
 
 export const POST = withAuth(async (request: NextRequest, session: AuthSession) => {
   const itemId = request.url.match(/\/vault-items\/([^/]+)\/media/)?.[1];
-  if (!itemId) {
+  if (!itemId || !isSafePathSegment(itemId)) {
     return NextResponse.json(
       { error: { code: "NOT_FOUND", message: "Vault item not found", traceId: session.traceId } },
       { status: 404 }
@@ -64,15 +73,17 @@ export const POST = withAuth(async (request: NextRequest, session: AuthSession) 
     );
   }
 
-  let formData: FormData;
-  try {
-    formData = await request.formData();
-  } catch {
+  const multipart = await readMultipartWithLimit(request, UPLOAD_BODY_LIMITS.mediaPhoto);
+  if (!multipart.ok && multipart.reason === "too_large") {
+    return payloadTooLargeResponse(session.traceId, UPLOAD_BODY_LIMITS.mediaPhoto);
+  }
+  if (!multipart.ok) {
     return NextResponse.json(
       { error: { code: "VALIDATION_ERROR", message: "Expected multipart form data", traceId: session.traceId } },
       { status: 422 }
     );
   }
+  const formData = multipart.formData;
 
   const file = formData.get("file") as File | null;
   if (!file) {
@@ -94,10 +105,17 @@ export const POST = withAuth(async (request: NextRequest, session: AuthSession) 
     );
   }
 
-  const ext = file.name.split(".").pop() ?? "jpg";
-  const filename = `${randomUUID()}.${ext}`;
-  const uploadDir = path.join("/app/uploads/vault-items", itemId);
-  const filePath = path.join(uploadDir, filename);
+  // Stored name is server-generated; the extension comes from the allowlist, not from file.name.
+  const ext = imageExtensionForMime(file.type);
+  const filePath = ext ? resolveStoredUpload(VAULT_MEDIA_ROOT, itemId, `${randomUUID()}.${ext}`) : null;
+  if (!filePath) {
+    return NextResponse.json(
+      { error: { code: "VALIDATION_ERROR", message: "Only image files are allowed", traceId: session.traceId } },
+      { status: 422 }
+    );
+  }
+  const uploadDir = path.dirname(filePath);
+  const filename = path.basename(filePath);
 
   try {
     fs.mkdirSync(uploadDir, { recursive: true });
@@ -135,7 +153,7 @@ export const POST = withAuth(async (request: NextRequest, session: AuthSession) 
        RETURNING id, vault_item_id, original_name, mime_type, size_bytes,
                  photo_role, visit_id, paired_media_id, created_at`,
       [
-        session.accountId, itemId, filename, file.name, file.type, file.size,
+        session.accountId, itemId, filename, sanitizeDisplayName(file.name), file.type, file.size,
         role, visitId ?? null, pairedMediaId ?? null, session.userId,
       ]
     );

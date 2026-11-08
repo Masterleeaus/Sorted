@@ -7,6 +7,7 @@ import type { AuthSession } from "../../../../../lib/auth/middleware";
 import { getPool } from "../../../../../lib/db";
 import { appendAuditLog } from "../../../../../lib/db/audit";
 import { logger } from "../../../../../lib/logger";
+import { UPLOAD_ROOT, isSafePathSegment } from "../../../../../lib/uploads/paths";
 import { VAULT_CATEGORIES } from "@ai-fsm/domain";
 
 export const dynamic = "force-dynamic";
@@ -144,11 +145,13 @@ export const DELETE = withAuth(
 
       await client.query("COMMIT");
 
-      const uploadDir = path.join("/app/uploads/vault-items", id);
-      try {
-        fs.rmSync(uploadDir, { recursive: true, force: true });
-      } catch (err) {
-        logger.warn("[vault-items DELETE] failed to remove media directory", { uploadDir, err, traceId: session.traceId });
+      const uploadDir = path.join(UPLOAD_ROOT, "vault-items", id);
+      if (isSafePathSegment(id)) {
+        try {
+          fs.rmSync(uploadDir, { recursive: true, force: true });
+        } catch (err) {
+          logger.warn("[vault-items DELETE] failed to remove media directory", { uploadDir, err, traceId: session.traceId });
+        }
       }
 
       return NextResponse.json({ deleted: true });
