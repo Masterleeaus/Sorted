@@ -5,6 +5,8 @@ import { fileURLToPath } from "node:url";
 const shellSource = readFileSync(fileURLToPath(new URL("../components/AppShell.tsx", import.meta.url)), "utf8");
 const layoutSource = readFileSync(fileURLToPath(new URL("../app/layout.tsx", import.meta.url)), "utf8");
 const loginSource = readFileSync(fileURLToPath(new URL("../app/(auth)/login/page.tsx", import.meta.url)), "utf8");
+const workerSource = readFileSync(fileURLToPath(new URL("../public/sw.js", import.meta.url)), "utf8");
+const actionMenuSource = readFileSync(fileURLToPath(new URL("../components/NewActionMenu.tsx", import.meta.url)), "utf8");
 import manifest from "../app/manifest";
 import { CURRENT_TITAN_GO_MODE_META } from "../lib/titan-go/modes";
 
@@ -57,5 +59,19 @@ describe("Sorted Field login", () => {
     expect(loginSource).toContain("Enter Sorted");
     expect(loginSource).toContain("field operations and assigned work");
     expect(loginSource).not.toMatch(/TITAN GO|Titan Go|titan-zero-field-lockup/);
+  });
+});
+
+describe("Sorted Field notifications and action menu", () => {
+  it("uses Sorted as the notification fallback while preserving the supplied message title", () => {
+    expect(workerSource).toContain('const title = msg.title || "Sorted"');
+    expect(workerSource).toContain('msg = { title: "Sorted"');
+    expect(workerSource).not.toContain('"Titan Go"');
+    expect(workerSource).toContain('self.registration.showNotification(title');
+  });
+
+  it("names the create menu after Sorted Field", () => {
+    expect(actionMenuSource).toContain('aria-label="Create in Sorted Field"');
+    expect(actionMenuSource).not.toContain('aria-label="Create in Titan Field"');
   });
 });
