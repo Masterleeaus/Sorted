@@ -92,6 +92,11 @@ export async function initializeFreshCompanyNativeStore(input: {
   if (typeof companyProfile?.name !== "string" || companyProfile.name.trim().length === 0) {
     fail("company-native-schema-company-mismatch");
   }
+  // Reject a populated database before any migration I/O. A non-fresh store
+  // must never be eligible for fresh initialization, even if a source file is
+  // missing or unreadable. The transactional freshness guard below is retained
+  // to prevent a race with concurrent writers.
+  await assertFresh(storage);
   const migrations = await Promise.all(manifest.migrations.map(async migration => {
     const sql = await loadProfileMigration(migration.path);
     if (sourceSha256(sql) !== migration.sha256) fail("company-native-schema-migration-source-mismatch");
@@ -101,7 +106,6 @@ export async function initializeFreshCompanyNativeStore(input: {
     migration !== manifest.migrations[index])) {
     fail("company-native-schema-manifest-invalid");
   }
-  await assertFresh(storage);
 
   return storage.transaction(async tx => {
     await assertFresh(tx);
