@@ -1,6 +1,15 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi, beforeEach } from "vitest";
 import { buildVisitTimeline } from "@ai-fsm/domain";
-import { groupActivitiesByVisitId } from "../load-visit-timeline";
+
+const { queryForSession } = vi.hoisted(() => ({ queryForSession: vi.fn() }));
+
+vi.mock("@/lib/db", () => ({ queryForSession }));
+
+import { groupActivitiesByVisitId, loadVisitTimeline } from "../load-visit-timeline";
+
+beforeEach(() => {
+  queryForSession.mockReset();
+});
 
 describe("groupActivitiesByVisitId", () => {
   it("groups activity rows by entity_id", () => {
@@ -59,5 +68,19 @@ describe("buildVisitTimeline integration smoke", () => {
     });
     expect(events.some((e) => e.is_open)).toBe(true);
     expect(events.map((e) => e.kind)).toEqual(["scheduled", "arrived", "activity"]);
+  });
+});
+
+describe("loadVisitTimeline tenant scope", () => {
+  it("reads visit rows through the session helper scoped to the session account", async () => {
+    const session = {
+      userId: "00000000-0000-0000-0000-000000000001",
+      accountId: "00000000-0000-0000-0000-000000000002",
+      role: "owner" as const,
+    };
+    queryForSession.mockResolvedValueOnce([]);
+    await expect(loadVisitTimeline(session, "visit-1")).resolves.toEqual([]);
+    expect(queryForSession.mock.calls[0][0]).toBe(session);
+    expect(queryForSession.mock.calls[0][2]).toEqual([session.accountId, "visit-1"]);
   });
 });
