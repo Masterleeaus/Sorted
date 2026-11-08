@@ -8,7 +8,6 @@ const loginSource = readFileSync(fileURLToPath(new URL("../app/(auth)/login/page
 const workerSource = readFileSync(fileURLToPath(new URL("../public/sw.js", import.meta.url)), "utf8");
 const actionMenuSource = readFileSync(fileURLToPath(new URL("../components/NewActionMenu.tsx", import.meta.url)), "utf8");
 import manifest from "../app/manifest";
-import { viewport } from "../app/layout";
 import { CURRENT_TITAN_GO_MODE_META } from "../lib/titan-go/modes";
 
 describe("Sorted Field identity", () => {
@@ -51,7 +50,7 @@ describe("Sorted Field UI branding", () => {
   it("keeps browser chrome and installable PWA theme consistent", () => {
     const app = manifest();
     expect(app.theme_color).toBe("#17365d");
-    expect(viewport.themeColor).toBe(app.theme_color);
+    expect(layoutSource).toContain(`themeColor: "${app.theme_color}"`);
     expect(app.background_color).toBe("#070708");
   });
 
