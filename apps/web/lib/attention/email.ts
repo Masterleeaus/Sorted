@@ -88,13 +88,26 @@ export async function enqueueAttentionOwnerEmail(
     `;
 
     // priority 30 = HIGH (bypass cooldown/daily cap for owner alerts)
-    await client.query(
+    const queued = await client.query<{ id: string }>(
       `INSERT INTO notification_queue
          (account_id, client_id, automation_type, priority, to_address,
           subject, html_body, idempotency_key, entity_type, entity_id,
           next_attempt_at, metadata)
        VALUES ($1, NULL, $2, 30, $3, $4, $5, $6, $7, $8, now(), $9)
-       ON CONFLICT (idempotency_key) DO NOTHING`,
+       ON CONFLICT (idempotency_key) DO UPDATE
+         SET status = 'pending',
+             attempt_count = 0,
+             failed_at = NULL,
+             failure_reason = NULL,
+             sent_at = NULL,
+             next_attempt_at = now(),
+             to_address = EXCLUDED.to_address,
+             subject = EXCLUDED.subject,
+             html_body = EXCLUDED.html_body,
+             metadata = EXCLUDED.metadata
+       WHERE notification_queue.status = 'failed'
+         AND notification_queue.account_id = EXCLUDED.account_id
+       RETURNING id`,
       [
         opts.accountId,
         `attention.${opts.type}`,
@@ -107,7 +120,9 @@ export async function enqueueAttentionOwnerEmail(
         JSON.stringify({ attentionType: opts.type, href }),
       ],
     );
-    return "enqueued";
+    // A simultaneous enqueue can win between the initial SELECT and INSERT.
+    // Never report success when the unique key did not insert or reset.
+    return queued.rows.length ? "enqueued" : "duplicate";
   } catch (err) {
     logger.error("enqueueAttentionOwnerEmail failed (non-fatal)", err, {
       type: opts.type,
