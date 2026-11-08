@@ -1,6 +1,6 @@
 import { redirect, notFound } from "next/navigation";
 import { getSession } from "@/lib/auth/session";
-import { query } from "@/lib/db";
+import { queryForSession } from "@/lib/db";
 import {
   computeMaterials,
   groupMaterialsBySection,
@@ -71,7 +71,7 @@ export default async function ShoppingListPage({
   const { id: estimateId } = await params;
 
   const [estimateRows, snapshotRows, lineRows] = await Promise.all([
-    query<EstimateRow>(
+    queryForSession<EstimateRow>(session,
       `SELECT e.id, c.name AS client_name, c.email AS client_email, e.created_at,
               e.room_specs, e.shopping_list_json
        FROM estimates e
@@ -79,7 +79,7 @@ export default async function ShoppingListPage({
        WHERE e.id = $1 AND e.account_id = $2`,
       [estimateId, session.accountId]
     ),
-    query<SnapshotRow>(
+    queryForSession<SnapshotRow>(session,
       `SELECT ess.id, ess.category, ess.components, ess.complexity, pb.code AS service_code
        FROM estimate_scope_snapshots ess
        LEFT JOIN estimate_line_items eli ON eli.id = ess.estimate_line_item_id
@@ -88,7 +88,7 @@ export default async function ShoppingListPage({
        ORDER BY ess.created_at ASC`,
       [estimateId]
     ),
-    query<{ code: string | null; category: string | null }>(
+    queryForSession<{ code: string | null; category: string | null }>(session,
       `SELECT pb.code, pb.category
        FROM estimate_line_items eli
        LEFT JOIN price_book pb ON pb.id = eli.price_book_id
@@ -118,7 +118,7 @@ export default async function ShoppingListPage({
     if (categories.length > 0) {
       const catPlaceholders = categories.map((_, i) => `$${i + 1}`).join(", ");
 
-      const materialRows = await query<MaterialRow>(
+      const materialRows = await queryForSession<MaterialRow>(session,
         `SELECT id, price_book_id, category, material_name, description,
                 quantity_type, scope_component_key,
                 quantity_multiplier::float, quantity_flat::float,

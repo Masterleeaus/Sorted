@@ -8,7 +8,7 @@ import {
   type HybridMileageDaySummary,
   type MilesSource,
 } from "@ai-fsm/domain";
-import { query, queryForSession } from "@/lib/db";
+import { queryForSession } from "@/lib/db";
 import type { SessionPayload } from "@/lib/auth/session";
 
 type SessionRow = {
@@ -21,9 +21,9 @@ type SessionRow = {
 };
 
 async function gpsDriveMilesMeters(
+  client: PoolClient,
   accountId: string,
   date: string,
-  client?: PoolClient,
 ): Promise<number> {
   // Corroboration: non-dismissed drive segments for the day (not only confirmed).
   const sql = `
@@ -35,20 +35,17 @@ async function gpsDriveMilesMeters(
       AND status <> 'dismissed'
       AND COALESCE(is_likely_noise, false) = false
   `;
-  if (client) {
-    const { rows } = await client.query<{ meters: number }>(sql, [accountId, date]);
-    return Number(rows[0]?.meters ?? 0);
-  }
-  const rows = await query<{ meters: number }>(sql, [accountId, date]);
+  const { rows } = await client.query<{ meters: number }>(sql, [accountId, date]);
   return Number(rows[0]?.meters ?? 0);
 }
 
 export async function loadHybridMileageForDay(
   accountId: string,
   date: string,
-  opts?: { userId?: string | null; client?: PoolClient },
+  opts: { userId?: string | null; client: PoolClient },
 ): Promise<HybridMileageDaySummary> {
-  const userId = opts?.userId ?? null;
+  // Requires a client that already carries the account context (fail closed).
+  const userId = opts.userId ?? null;
   const sessionSql = `
     SELECT vs.id,
            v.nickname AS vehicle_name,
@@ -66,16 +63,10 @@ export async function loadHybridMileageForDay(
   `;
   const params = userId ? [accountId, date, userId] : [accountId, date];
 
-  let session: SessionRow | null = null;
-  if (opts?.client) {
-    const { rows } = await opts.client.query<SessionRow>(sessionSql, params);
-    session = rows[0] ?? null;
-  } else {
-    const rows = await query<SessionRow>(sessionSql, params);
-    session = rows[0] ?? null;
-  }
+  const { rows: sessionRows } = await opts.client.query<SessionRow>(sessionSql, params);
+  const session: SessionRow | null = sessionRows[0] ?? null;
 
-  const meters = await gpsDriveMilesMeters(accountId, date, opts?.client);
+  const meters = await gpsDriveMilesMeters(opts.client, accountId, date);
   const gpsMiles = meters / 1609.34;
   const source = (session?.miles_source as MilesSource | null) ?? null;
 

@@ -1,5 +1,17 @@
-import { describe, expect, it } from "vitest";
-import { jobPricingModeFromSources } from "../prefill-from-job";
+import { describe, expect, it, vi, beforeEach } from "vitest";
+
+const { queryForSession } = vi.hoisted(() => ({ queryForSession: vi.fn() }));
+
+vi.mock("@/lib/db", () => ({
+  queryForSession,
+  getPool: vi.fn(),
+}));
+
+import { jobPricingModeFromSources, resolveJobPricingMode } from "../prefill-from-job";
+
+beforeEach(() => {
+  queryForSession.mockReset();
+});
 
 describe("jobPricingModeFromSources", () => {
   it("defaults a job with no estimate and no booking to hourly (quick-book)", () => {
@@ -43,5 +55,22 @@ describe("jobPricingModeFromSources", () => {
         jobPricingMode: "hourly_internal",
       }),
     ).toBe("hourly_internal");
+  });
+});
+
+describe("resolveJobPricingMode tenant scope", () => {
+  it("reads through the session helper so account context is set", async () => {
+    const session = {
+      userId: "00000000-0000-0000-0000-000000000001",
+      accountId: "00000000-0000-0000-0000-000000000002",
+      role: "owner" as const,
+    };
+    queryForSession.mockResolvedValueOnce([]);
+    await expect(resolveJobPricingMode(session, "job-1")).resolves.toBe("hourly_internal");
+    expect(queryForSession).toHaveBeenCalledTimes(1);
+    const [calledSession, sql, params] = queryForSession.mock.calls[0];
+    expect(calledSession).toBe(session);
+    expect(String(sql)).toContain("account_id = $2");
+    expect(params).toEqual(["job-1", session.accountId]);
   });
 });

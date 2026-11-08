@@ -1,4 +1,5 @@
-import { query } from "@/lib/db";
+import { queryForSession } from "@/lib/db";
+import type { SessionPayload } from "@/lib/auth/session";
 
 /** Dovetails operates in Eastern time when an account has no saved zone. */
 export const DEFAULT_BUSINESS_TIME_ZONE = "America/New_York";
@@ -39,13 +40,13 @@ export function timestampBusinessMonthExpr(column: string, timeZone: string): st
   return `to_char(${column} AT TIME ZONE '${sqlSafeTimeZone(timeZone)}', 'YYYY-MM')`;
 }
 
-export async function loadBusinessTimeZone(accountId: string): Promise<string> {
-  const rows = await query<{ working_hours_tz: string | null }>(
+export async function loadBusinessTimeZone(session: SessionPayload): Promise<string> {
+  const rows = await queryForSession<{ working_hours_tz: string | null }>(session,
     `SELECT working_hours_tz
      FROM automation_rules
      WHERE account_id = $1
      LIMIT 1`,
-    [accountId],
+    [session.accountId],
   );
   return sqlSafeTimeZone(rows[0]?.working_hours_tz);
 }

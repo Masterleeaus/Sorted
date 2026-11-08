@@ -17,7 +17,7 @@ import {
 } from "@/components/ui";
 import type { FilterDef } from "@/components/ui";
 import { MONEY_HUB_LINKS } from "@/lib/navigation/hubs";
-import { query } from "@/lib/db";
+import { queryForSession } from "@/lib/db";
 import { formatCents } from "../format";
 
 export const dynamic = "force-dynamic";
@@ -47,7 +47,7 @@ export default async function ReferralRoiPage({ searchParams }: PageProps) {
   const today = new Date().toISOString().slice(0, 7);
   const targetMonth = month && /^\d{4}-\d{2}$/.test(month) ? month : today;
 
-  const rows = await query<AggRow>(
+  const rows = await queryForSession<AggRow>(session,
     `SELECT
        br.referral_source AS source,
        COUNT(DISTINCT br.id)::int AS request_count,
@@ -77,13 +77,13 @@ export default async function ReferralRoiPage({ searchParams }: PageProps) {
     ),
   );
 
-  const realtorRows = await query<{
+  const realtorRows = await queryForSession<{
     referral_name: string | null;
     brokerage_name: string | null;
     request_count: string;
     job_count: string;
     paid_cents: string;
-  }>(
+  }>(session,
     `SELECT
        br.referral_name,
        br.brokerage_name,

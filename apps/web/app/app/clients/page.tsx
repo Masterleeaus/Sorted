@@ -3,7 +3,7 @@ import type { Route } from "next";
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth/session";
 import { canManageClients } from "@/lib/auth/permissions";
-import { query } from "@/lib/db";
+import { queryForSession } from "@/lib/db";
 import { formatClientContact } from "@/lib/crm/normalization";
 import { formatCents } from "@/lib/money";
 import {
@@ -79,7 +79,7 @@ export default async function ClientsPage({ searchParams }: PageProps) {
     idx++;
   }
 
-  const clients = await query<ClientRow>(
+  const clients = await queryForSession<ClientRow>(session,
     `SELECT c.*,
             COUNT(DISTINCT p.id)::int AS property_count,
             COUNT(DISTINCT j.id)::int AS job_count

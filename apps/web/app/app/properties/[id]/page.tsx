@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 import { getSession } from "@/lib/auth/session";
 import { LinkedDocuments } from "@/components/documents/LinkedDocuments";
 import { canManageClients, canTransitionJob, canCreateEstimates } from "@/lib/auth/permissions";
-import { query, queryForSession, queryOne } from "@/lib/db";
+import { queryForSession, queryOneForSession } from "@/lib/db";
 import { buildJobCreateHref, formatPropertyAddress } from "@/lib/crm/normalization";
 import { computeVaultCompleteness, type VaultCategory } from "@ai-fsm/domain";
 import {
@@ -184,7 +184,7 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
 
   // Round 1: property summary (simplified — correlated subqueries removed).
   // Active work counts are derived from parallel queries in round 2.
-  const property = await queryOne<PropertyRow>(
+  const property = await queryOneForSession<PropertyRow>(session,
     `SELECT p.*, c.name AS client_name, c.phone AS client_phone,
             c.primary_property_id,
             COUNT(DISTINCT j.id)::int AS job_count,
@@ -217,13 +217,13 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
   ] = await Promise.all([
 
     // Edit form client dropdown
-    query<ClientOption>(
+    queryForSession<ClientOption>(session,
       `SELECT id, name FROM clients WHERE account_id = $1 ORDER BY name ASC`,
       [session.accountId]
     ),
 
     // Active jobs — real DB status values (not pipeline stage names)
-    query<ActiveJobRow>(
+    queryForSession<ActiveJobRow>(session,
       `SELECT j.id, j.title, j.status,
               v.id AS next_visit_id,
               v.scheduled_start AS next_visit_start,
@@ -259,7 +259,7 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
     ),
 
     // Open estimates (draft or sent)
-    query<OpenEstimateRow>(
+    queryForSession<OpenEstimateRow>(session,
       `SELECT e.id, e.status, e.total_cents, e.created_at, j.title AS job_title
        FROM estimates e
        LEFT JOIN jobs j ON j.id = e.job_id
@@ -271,7 +271,7 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
     ),
 
     // Outstanding invoices
-    query<OpenInvoiceRow>(
+    queryForSession<OpenInvoiceRow>(session,
       `SELECT i.id, i.status, i.total_cents, i.balance_cents, j.title AS job_title
        FROM invoices i
        LEFT JOIN jobs j ON j.id = i.job_id
@@ -283,7 +283,7 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
     ),
 
     // Service history: completed/invoiced jobs with last visit + invoice info
-    query<ServiceHistoryRow>(
+    queryForSession<ServiceHistoryRow>(session,
       `SELECT j.id AS job_id, j.title AS job_title, j.status AS job_status,
               v.id AS last_visit_id,
               v.completed_at AS last_visit_date,
@@ -317,7 +317,7 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
 
     // Unified property timeline — sourced from property_timeline_v (single source of truth).
     // Covers: visit, estimate, invoice, payment, work_order, vault_item, photo, issue, note, membership.
-    query<TimelineEvent>(
+    queryForSession<TimelineEvent>(session,
       `SELECT event_type,
               entity_id::text          AS id,
               occurred_at              AS ts,
@@ -334,7 +334,7 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
     ),
 
     // Property notes for the Health section
-    query<PropertyNoteRow>(
+    queryForSession<PropertyNoteRow>(session,
       `SELECT id, source, body, pinned, visit_id::text AS visit_id, created_at
        FROM property_notes
        WHERE property_id = $1 AND account_id = $2
@@ -344,7 +344,7 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
     ),
 
     // Documents linked to this property or its jobs/estimates/invoices
-    query<DocumentRow>(
+    queryForSession<DocumentRow>(session,
       `WITH property_entities AS (
          SELECT id, 'job'::text      AS etype FROM jobs      WHERE property_id = $1 AND account_id = $2
          UNION ALL
@@ -364,7 +364,7 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
     ),
 
     // Visit photo counts — which visits have before/after media attached
-    query<VisitMediaRow>(
+    queryForSession<VisitMediaRow>(session,
       `SELECT v.id AS visit_id,
               COALESCE(j.title, 'Visit') AS job_title,
               COALESCE(v.completed_at, v.scheduled_start) AS visit_date,
@@ -381,7 +381,7 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
     ),
 
     // Vault items with photo counts (unchanged)
-    query<VaultItemRow>(
+    queryForSession<VaultItemRow>(session,
       `SELECT pvi.id, pvi.category, pvi.name, pvi.location, pvi.manufacturer, pvi.model_number,
               pvi.serial_number, pvi.install_date, pvi.last_serviced_date, pvi.next_service_date,
               pvi.notes, COALESCE(COUNT(m.id), 0)::int AS photo_count
@@ -394,7 +394,7 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
     ),
 
     // Conditions — most recent reading per area
-    query<ConditionRow>(
+    queryForSession<ConditionRow>(session,
       `SELECT DISTINCT ON (area)
          area, condition, note, assessed_at::text AS assessed_at, visit_id::text AS visit_id,
          '[]'::json AS trend
@@ -405,7 +405,7 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
     ),
 
     // All issues (including resolved — panel groups them internally)
-    query<IssueRow>(
+    queryForSession<IssueRow>(session,
       `SELECT id, area, item_key, title, description, status, severity,
               occurrence_count, first_noted_at::text AS first_noted_at,
               last_noted_at::text AS last_noted_at, auto_detected
