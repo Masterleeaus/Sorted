@@ -1,190 +1,134 @@
-# RLS web-tier flip runbook (TASK-146)
+# RLS web-tier flip runbook (TASK-146, issue #6 and #15)
 
-Turns the already-written RLS from documentation into enforcement, by switching
-the **web** container from the Postgres **superuser** to the restricted
-**`ai_fsm_web`** role. This is the step that actually activates every RLS policy
-in migrations `003` and `182`–`185`.
+Turns the already-written RLS from documentation into enforcement by moving the
+**web** container from the Postgres superuser to the restricted **`ai_fsm_web`**
+role. This is the step that activates the RLS policies in migrations `003` and
+`182`–`185`.
 
-Lands on **main** (it touches `infra/` + `scripts/` that only exist on main after
-PR #643). The RLS migrations, the coverage guard, and the sessionless-route
-`set_config` fixes rebase in from the `feat/task-120-deposit-gate` branch.
+**Status (2026-11-08): NOT READY.** The role split for the worker is done (see
+below). The web cutover is blocked by the items under "Blockers". Do not change
+`WEB_DATABASE_URL` to the `ai_fsm_web` URL until every blocker is closed and the
+verification steps pass on a staging copy.
 
-## Model
+## Model (decision record: ADR-024 in `docs/DECISION_LOG.md`)
 
-- **web → `ai_fsm_web`** (`NOBYPASSRLS`, `NOSUPERUSER`). Every request sets
-  `app.current_account_id` (via `withDbSession`), so RLS enforces tenant
-  isolation at the DB. **This is the security win.**
-- **worker → stays privileged** (the current superuser `DATABASE_URL`). The
-  worker is a trusted cross-tenant batch processor: no job sets account context
-  and most already query `estimates`/`invoices`/`visits` across accounts, so it
-  cannot run under a `NOBYPASSRLS` role. It bypasses RLS by design. **No worker
-  change in this flip.**
-- **migrations → admin** (`MIGRATION_DATABASE_URL`, the superuser). DDL and the
-  role provisioner need owner privileges.
+| Service | Role | Attributes | Why |
+|---|---|---|---|
+| migrations, provisioning, scripts | `ai_fsm` (admin) | superuser | DDL and role provisioning need owner rights. `DATABASE_URL`. |
+| web | `ai_fsm_web` (target) | NOSUPERUSER, NOBYPASSRLS | Every request sets `app.current_account_id`, so RLS enforces tenant isolation. **Not active yet**: `WEB_DATABASE_URL` still equals the admin URL. |
+| worker | `ai_fsm_worker` | NOSUPERUSER, BYPASSRLS, DML on RLS tables only | Trusted cross-account sweeps (migration 185). No job sets account context, and most already query estimates, invoices and visits across accounts. |
 
-## Prerequisites (all already true on main once the branch rebases)
+Why the worker uses BYPASSRLS instead of per-account jobs or SECURITY DEFINER
+sweeps: the worker runs about 15 cross-account sweeps. Per-account execution would
+rewrite each one. One SECURITY DEFINER function per sweep is more reviewed surface,
+more upkeep, and no more protection than a role with a narrow grant set. BYPASSRLS is
+the smallest change that keeps the worker's behaviour. The bypass is confined to
+`ai_fsm_worker`. The provisioner refuses a role whose bypass attribute is wrong, and
+refuses any role with superuser, CREATEDB, CREATEROLE, replication, ownership, or
+membership. The worker has no DDL. Its table grants match the web role's DML set on
+RLS tables. Per-table narrowing for the worker is a follow-up.
 
-1. **RLS coverage complete.** Migrations `182`–`185` secure every account-scoped
-   table; `node scripts/check-rls-coverage.mjs` prints `RLS coverage: ok` with an
-   empty allowlist.
-2. **Auth bootstrap is RLS-safe** (PR #643, `178_runtime_login_boundary.sql`):
-   - session resolve → `apps/web/lib/auth/session.ts` uses
-     `queryOneForSession(... WHERE id = $1 AND account_id = $2)` (context-scoped).
-   - login by email → `apps/web/app/api/v1/auth/login/route.ts` uses
-     `SELECT * FROM app_login_candidates($1)` (a `SECURITY DEFINER` lookup the
-     provisioner grants `EXECUTE` on to `ai_fsm_web`).
-   - sessionless public writes set context in-transaction:
-     `api/booking/route.ts` (`BOOKING_ACCOUNT_ID`) and
-     `api/intake/[token]/route.ts` (`invite.account_id`).
-3. **Provisioner present** — `scripts/db-provision-runtime.sh` (creates
-   `ai_fsm_web` `NOSUPERUSER NOBYPASSRLS`, grants CRUD on `relrowsecurity` tables
-   + sequences + `EXECUTE app_login_candidates`).
+Worker rule: because the worker bypasses RLS, a new worker sweep is **not** protected
+by a policy. It must scope its own writes by `account_id`, or it must be a reviewed
+cross-account job.
 
-## ⚠️ Blockers — DO NOT flip until these land (TASK-146)
+## Provisioning (what is implemented)
 
-The auth login path is RLS-safe (prereq 2), but the **client portal** path is
-not yet. Enabling the flip before fixing these breaks portal features silently:
+- `scripts/db-provision-runtime.sh` creates `ai_fsm_web` (NOBYPASSRLS) and
+  `ai_fsm_worker` (BYPASSRLS). It grants DML on RLS tables and sequences, and
+  EXECUTE on the login lookup for web only. Run it after migrations, once per role.
+  `PROVISION_VIA_COMPOSE=1` runs psql inside the postgres service, which is needed on
+  garonhome because postgres has no host port.
+- `scripts/deploy-garonhome.sh` runs the worker provisioning every deploy, and web
+  provisioning when `AI_FSM_WEB_PASSWORD` is set. It runs after migrations and before
+  web and worker start.
+- `infra/compose.garonhome.yml`: web reads `WEB_DATABASE_URL` and worker reads
+  `WORKER_DATABASE_URL`. Both are required with no fallback. The deploy preflight
+  fails early if they are missing.
+- `infra/garonhome.env.example` documents both URLs and the role passwords. Values
+  are placeholders. Real values live only in the host env file.
 
-1. **Portal read-bootstrap (P1).** `api/v1/portal/request-access` and the portal
-   client/estimate/invoice pages read `clients`/`estimates`/`invoices` — RLS-
-   protected since `003` — *before* any account context (the account is resolved
-   *from* the row). Under `ai_fsm_web` those reads return nothing, so a magic link
-   is silently not sent and portal pages 404. Permissive policies on
-   `portal_magic_links`/`portal_sessions` do **not** fix reads of other tables.
-   **Fix:** add a bounded `SECURITY DEFINER` resolver (mirroring
-   `app_login_candidates`) that maps a portal token/email → account, grant
-   `EXECUTE` to `ai_fsm_web`, and set context from it before those reads.
-2. **Attention-event portal writes (handled in migration 185).** Portal first-open
-   calls `emitAttentionEvent` on a raw pooled client pre-context; migration 185's
-   `attention_events` INSERT policy is therefore **permissive** so those telemetry
-   writes are not silently dropped. Verify this still holds before flipping.
-3. **Square webhook account lookup (P1).** `api/webhooks/square` reads
-   `integration_settings` by `locationId` with no session and no
-   `app.current_account_id`. Under `ai_fsm_web` that SELECT returns no row, the
-   handler acks `{ received: true }`, and completed payments stay pending (Square
-   stops retrying). **Fix:** a bounded `SECURITY DEFINER` lookup
-   `locationId → account_id` (or set context from the resolved account before the
-   rest of the handler), then `set_config` in-transaction.
-4. **Public estimate respond (P1).** `api/v1/estimates/[id]/respond` updates
-   `estimates` from a signed token *before* setting account context. RLS returns
-   no row, the handler treats it as idempotent success, and the customer sees
-   approve/decline while the estimate stays `sent`. **Fix:** resolve `account_id`
-   from the token (or a SECURITY DEFINER helper) and `set_config` before the
-   UPDATE.
+## Blockers before the web cutover (TASK-146)
 
-Until blockers 1, 3, and 4 land, treat the flip as **not ready** even though the
-coverage guard is green (the guard checks table RLS, not every app read-path's
-context). Audit remaining sessionless/token/internal entry points in the same
-pass — booking and intake already `set_config` in-transaction.
+The auth login path is RLS-safe (`app_login_candidates`). The rest is not:
 
-## Change 1 — env (`infra/garonhome.env.example` and the live env file)
+1. **Portal read-bootstrap (P1).** `api/v1/portal/request-access`, the portal
+   client, estimate and invoice routes, and `lib/portal/session.ts` read
+   `clients`, `estimates` and `invoices` before any account context. Under
+   `ai_fsm_web`, those reads return nothing. Fix: a bounded `SECURITY DEFINER`
+   resolver (token or email to account), granted to `ai_fsm_web`, then set context.
+2. **Square webhook account lookup (P1).** `api/webhooks/square` reads
+   `integration_settings` by `locationId` with no context. Fix: a bounded lookup
+   returning `account_id`, then `set_config` in the transaction.
+3. **Public estimate respond (P1).** `api/v1/estimates/[id]/respond` updates
+   `estimates` from a signed token before context. Fix: resolve the account from the
+   token, then `set_config`, before the UPDATE.
+4. **Raw query sites (new finding, 2026-11-08).** About 102 non-test files in
+   `apps/web` make DB calls and never set account context (heuristic: no
+   `withDbSession`, `queryForSession`, `queryOneForSession` or `set_config` in the
+   file). Example: `api/v1/clients/[id]` GET uses `queryOne` with `account_id` in the
+   SQL. Under `ai_fsm_web` it returns 404 for the owner's own client. Fix: move each
+   read to a session helper, or set context in the same transaction.
+5. **Verify every authenticated and token path under the role** (the checklist below),
+   including sessionless and internal endpoints.
 
-Keep `DATABASE_URL` as the **superuser** (worker + migrations use it). Add the
-restricted URL + password + explicit migration URL:
+Booking and intake already `set_config` in-transaction. `attention_events` INSERT is
+permissive so portal first-open telemetry is not dropped (migration 185).
 
-```diff
- POSTGRES_DB=ai_fsm
- POSTGRES_USER=ai_fsm
- POSTGRES_PASSWORD=change_me
- POSTGRES_HOST=postgres
- POSTGRES_PORT=5432
- DATABASE_URL=postgresql://ai_fsm:change_me@postgres:5432/ai_fsm
-+# Admin URL for DDL + provisioning (same superuser as DATABASE_URL).
-+MIGRATION_DATABASE_URL=postgresql://ai_fsm:change_me@postgres:5432/ai_fsm
-+# Restricted runtime role for the WEB tier (provisioned by db-provision-runtime.sh).
-+AI_FSM_WEB_PASSWORD=change_me_too
-+WEB_DATABASE_URL=postgresql://ai_fsm_web:change_me_too@postgres:5432/ai_fsm
-```
+## Change 1, 2, 3: already implemented, but web stays on the admin URL
 
-## Change 2 — compose (`infra/compose.garonhome.yml`)
+- Env: `WEB_DATABASE_URL` equals `DATABASE_URL` (admin) until the cutover. The cutover
+  is changing that one value to the `ai_fsm_web` URL in the host env file, then running
+  `docker compose ... up -d web`.
+- Compose: `web.environment.DATABASE_URL: ${WEB_DATABASE_URL:?...}` (implemented).
+- Deploy: `scripts/deploy-garonhome.sh` provisions roles after migrations, before build.
+  The cutover does not need a separate provisioning step.
 
-Override **only the web service's** `DATABASE_URL` (values in `environment:`
-win over `env_file:`); leave `worker` untouched so it keeps the superuser URL.
+## Verification
 
-```diff
-   web:
-     ...
-     environment:
-       NODE_ENV: production
-       APP_PORT: "3000"
-       TZ: America/New_York
-       SECURE_COOKIES: "${SECURE_COOKIES:-true}"
-+      # Web runs as the restricted, RLS-enforced role. Overrides env_file's
-+      # DATABASE_URL. The worker deliberately keeps the superuser URL from
-+      # env_file (trusted cross-tenant processor — see docs/working/rls-web-tier-flip.md).
-+      DATABASE_URL: ${WEB_DATABASE_URL:?WEB_DATABASE_URL is required for the RLS web tier}
-```
+Automated (scratch Postgres 16, all migrations applied, `ai_fsm_web` and `ai_fsm_worker`
+provisioned by the script):
 
-## Change 3 — deploy sequence
+- `apps/web/lib/__tests__/db-isolation.integration.test.ts` (`TEST_RUNTIME_DATABASE_URL`):
+  the role is not superuser or BYPASSRLS, cannot create tables, sees nothing with no
+  context, and reads and writes only its account with context.
+- `apps/web/lib/__tests__/api-tenant-isolation.integration.test.ts`
+  (`TEST_WEB_DATABASE_URL`): account A cannot read or change account B's client or
+  property through the real route handlers. Run it against `ai_fsm_web` at the cutover.
+  Own-account reads will fail there until blocker 4 is fixed.
+- `services/worker/src/worker-role.integration.test.ts` (`TEST_WORKER_DATABASE_URL`): the
+  worker role runs a cross-account sweep. The full worker integration suite also passes
+  when run as `ai_fsm_worker`.
+- `node scripts/check-rls-coverage.mjs`: every account table has RLS and a policy.
 
-Provision the restricted role after migrations, on every deploy (idempotent, and
-re-grants any newly-added RLS tables), before (re)starting web:
+Manual, on garonhome, before the cutover (owner):
 
-```bash
-# 1. migrate as admin
-MIGRATION_DATABASE_URL="$MIGRATION_DATABASE_URL" pnpm db:migrate
-
-# 2. provision / refresh the restricted web role's grants
-RUNTIME_DB_ROLE=ai_fsm_web \
-MIGRATION_DATABASE_URL="$MIGRATION_DATABASE_URL" \
-RUNTIME_DB_PASSWORD="$AI_FSM_WEB_PASSWORD" \
-  bash scripts/db-provision-runtime.sh
-
-# 3. start/restart with the new env
-COMPOSE_PROJECT_NAME=ai-fsm docker compose -f infra/compose.garonhome.yml up -d
-```
-
-`scripts/bootstrap.sh` (dev) can stay on the superuser `DATABASE_URL` — the flip
-is a production/garonhome concern. Optionally add step 2 there too, gated on
-`AI_FSM_WEB_PASSWORD` being set, to dogfood the restricted role locally.
-
-## Verification (do this before trusting the flip)
-
-1. **RLS denies with no context** (as the restricted role):
-   ```bash
-   psql "$WEB_DATABASE_URL" -c "SELECT count(*) FROM clients"   # expect 0
-   ```
-   0 rows = RLS is enforced (superuser would return the real count).
-2. **RLS allows with context**:
-   ```bash
-   psql "$WEB_DATABASE_URL" -c "SET app.current_account_id='<acct-uuid>';
-                                SET app.current_role='owner';
-                                SELECT count(*) FROM clients"    # expect the real count
-   ```
-3. **App smoke (as web, restricted role):** log in; load My Day / dashboard;
-   open a client + property; create and price an estimate; submit the **public
-   booking form**; open a **client portal** link; record a payment. All must work.
-4. **Worker unaffected:** `docker compose ... logs -f worker` shows jobs still
-   running (it kept the superuser URL).
+1. Role attributes, as the admin role:
+   `SELECT rolname, rolsuper, rolbypassrls FROM pg_roles WHERE rolname LIKE 'ai_fsm%'`
+   Expect `ai_fsm_web` f/f and `ai_fsm_worker` f/t.
+2. RLS denies with no context, as `ai_fsm_web`: `SELECT count(*) FROM clients` returns 0.
+3. RLS allows with context: `SET app.current_account_id='<acct>'; SET app.current_role='owner';`
+   then `SELECT count(*) FROM clients` returns the real count.
+4. App smoke on a staging copy with `WEB_DATABASE_URL` on `ai_fsm_web`: log in, load
+   My Day, open a client and property, create and price an estimate, submit the public
+   booking form, open a client portal link, record a payment, and complete the Square
+   webhook and estimate respond paths. All must work.
+5. Worker: `docker compose ... logs -f worker` shows polls running, with no
+   authentication errors.
 
 ## Rollback
 
-Point web back at the superuser and restart — instant, no data change:
+Point web back at the admin URL and restart. No data changes:
 
-```diff
--      DATABASE_URL: ${WEB_DATABASE_URL:?...}
-+      # DATABASE_URL: (reverted — web back on superuser via env_file)
-```
 ```bash
+# in the host env file: WEB_DATABASE_URL=<the same value as DATABASE_URL>
 COMPOSE_PROJECT_NAME=ai-fsm docker compose -f infra/compose.garonhome.yml up -d web
 ```
 
-## Gate wiring (once on main)
+Worker rollback: set `WORKER_DATABASE_URL` to the admin URL and restart the worker.
 
-`gate.sh` already runs `node scripts/*.test.mjs` (covers
-`check-rls-coverage.test.mjs`). Add the direct check next to the migration-prefix
-one so a new un-secured table fails CI:
+## Gate wiring
 
-```diff
- node scripts/check-migration-prefixes.mjs
-+node scripts/check-rls-coverage.mjs
- node --test scripts/*.test.mjs
-```
-
-## Later: a restricted worker (optional, not required for this flip)
-
-If the worker should also drop the superuser, it needs `BYPASSRLS` (per-account
-scoping is infeasible — it can't even enumerate accounts under RLS). That means
-relaxing the provisioner's DO-block guard to permit `BYPASSRLS` **for the worker
-role only**, keeping `ai_fsm_web` strictly `NOBYPASSRLS`. Out of scope here.
-```
+`scripts/gate.sh` already runs `node scripts/*.test.mjs`, which covers
+`check-rls-coverage.test.mjs`. The direct coverage check runs next to the migration
+prefix check.

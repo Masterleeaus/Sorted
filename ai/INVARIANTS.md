@@ -36,12 +36,21 @@ its own pooled connection; do not route external sends through the
 worker-drained `notification_queue`. Email works from the worker only because it
 targets a LAN SMTP relay.
 
-## DB role is a superuser → RLS is bypassed today
-The app DB role (`ai_fsm`) is `rolsuper`+`rolbypassrls` in dev and garonhome
-prod, so RLS is effectively off. Code still sets
-`app.current_account_id/user_id/role` defensively (`withDbSession`, the location
-ingest route, `lib/push/send.ts`) and **every query still scopes by
-`account_id`** — keep both. Don't assume RLS is enforcing isolation.
+## DB roles: web is still superuser-bound; the worker has its own role
+Roles (provisioned by `scripts/db-provision-runtime.sh`, deployed by `DEPLOY.md` section 4a):
+- **Admin** `ai_fsm`: superuser. Migrations, provisioning, scripts. `DATABASE_URL`.
+- **Web** (`WEB_DATABASE_URL`): still the admin URL. `ai_fsm_web` is provisioned NOBYPASSRLS
+  but is not in use. Until the cutover gate in `docs/working/rls-web-tier-flip.md` clears,
+  RLS is bypassed for web queries. Code sets `app.current_account_id` (`withDbSession`,
+  the location ingest route, `lib/push/send.ts`) and **every query scopes by `account_id`**.
+  Keep both. About 100 web files make DB calls without setting account context, so do not
+  flip the web URL early.
+- **Worker** (`WORKER_DATABASE_URL`): `ai_fsm_worker`, BYPASSRLS, NOSUPERUSER, DML on RLS
+  tables, no DDL or ownership. Cross-account sweeps need this bypass. Policies do not
+  protect worker writes, so each worker job must scope by `account_id` or be a reviewed
+  cross-account job. Decision record: ADR-024.
+
+Do not assume RLS isolates web requests until the web cutover has run.
 
 ## garonhome also runs Home Assistant
 Scheduled interrupts (RAM start-day, home-arrival + 8 PM day-review) are **HA
