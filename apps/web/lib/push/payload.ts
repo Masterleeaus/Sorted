@@ -7,7 +7,7 @@
 export interface PushInput {
   title: string;
   body?: string;
-  /** Where notificationclick navigates. Defaults to the app root. */
+  /** Where notificationclick navigates. Defaults to /app. */
   url?: string;
   /** Collapse key — a later push with the same tag replaces the earlier one. */
   tag?: string;
@@ -23,6 +23,13 @@ export interface PushMessage {
 const TITLE_MAX = 80;
 const BODY_MAX = 180;
 
+/** Reject protocol-relative, backslash and control-character redirect tricks. */
+function safeAppPath(candidate: string | undefined): string {
+  if (!candidate || !candidate.startsWith("/") || candidate.startsWith("//")
+    || /[\\\\\\u0000-\\u001f\\u007f]/.test(candidate)) return "/app";
+  return candidate;
+}
+
 function clamp(s: string, max: number): string {
   const t = s.trim();
   return t.length <= max ? t : t.slice(0, max - 1).trimEnd() + "…";
@@ -30,11 +37,11 @@ function clamp(s: string, max: number): string {
 
 /**
  * Normalize a trigger's input into the wire message: clamp lengths, default the
- * url to "/", and fall back to a per-message tag so distinct notifications don't
+ * url to "/app", and fall back to a per-message tag so distinct notifications don't
  * silently collapse. Returns the object; callers JSON.stringify for transport.
  */
 export function buildPushPayload(input: PushInput): PushMessage {
-  const url = input.url && input.url.startsWith("/") ? input.url : "/";
+  const url = safeAppPath(input.url);
   return {
     title: clamp(input.title || "Sorted", TITLE_MAX),
     body: clamp(input.body ?? "", BODY_MAX),
