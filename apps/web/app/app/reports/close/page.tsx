@@ -76,7 +76,7 @@ export default async function ClosePage({ searchParams }: PageProps) {
 
   // ---- Fetch checklist data ----
   // These queries use application-level account_id filtering (server component).
-  const timeZone = await loadBusinessTimeZone(session.accountId);
+  const timeZone = await loadBusinessTimeZone(session);
   const invoiceMonth = timestampBusinessMonthExpr("created_at", timeZone);
   const [invoiceSummary, outstandingInPeriod, outstandingAll, expenseCount, paymentCount] =
     await Promise.all([
