@@ -49,7 +49,14 @@ async function loadProfileMigration(path: string): Promise<string> {
   if (!source) {
     fail("company-native-schema-manifest-invalid");
   }
-  return readFile(source, "utf8");
+  // A missing or unreadable attested migration is a schema-integrity failure,
+  // not an opportunity to initialize an empty or partially migrated company DB.
+  // Keep the error within the attestation contract and fail before any writes.
+  try {
+    return await readFile(source, "utf8");
+  } catch {
+    fail("company-native-schema-migration-source-mismatch");
+  }
 }
 
 /**
