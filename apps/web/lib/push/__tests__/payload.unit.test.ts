@@ -28,6 +28,6 @@ describe("buildPushPayload", () => {
   });
 
   it("falls back to a default title", () => {
-    expect(buildPushPayload({ title: "" }).title).toBe("Dovetails");
+    expect(buildPushPayload({ title: "" }).title).toBe("Sorted");
   });
 });
