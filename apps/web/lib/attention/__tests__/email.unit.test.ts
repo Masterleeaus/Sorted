@@ -71,7 +71,6 @@ describe("Sorted Field operational email identity", () => {
       query: vi.fn(async (sql: string, values: unknown[]) => {
         if (sql.includes("FROM users")) return { rows: [{ email: "owner@example.test" }] };
         if (sql.includes("FROM notification_queue")) return { rows: [] };
-        if (sql.includes("INSERT INTO notification_queue")) return { rows: [{ id: "queue-1" }] };
         if (sql.includes("INSERT INTO notification_queue")) {
           keys.push(String(values[5]));
           return { rows: [{ id: `queue-${keys.length}` }] };
