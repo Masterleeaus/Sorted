@@ -19,6 +19,7 @@
     "gate": "bash scripts/gate.sh",
     "gate:fast": "bash scripts/gate.sh --fast",
     "knip": "knip",
+    "check:titan-manifest": "node scripts/check-titan-manifest.mjs",
     "db:migrate": "bash scripts/db-migrate.sh",
     "db:seed": "bash scripts/db-seed.sh"
   },

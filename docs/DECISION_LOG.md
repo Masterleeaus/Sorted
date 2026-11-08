@@ -279,3 +279,13 @@ Append-only log of technical decisions made by AI agents.
 - Health check: ok ({"status":"ok","service":"web","checks":{"db":"ok"}})
 - Login smoke test: skipped (no seed password on garonhome)
 - Notes: Port 3000 is occupied by Open WebUI on the host; health check must be run from inside the web container (`docker exec ai-fsm-web-1 wget -qO- http://localhost:3000/api/health`). Restore script's final wget fails because web port is not exposed to host — this is expected on garonhome. All containers healthy post-restore.
+
+### ADR-023: packages/titan-platform/src is the Titan build source; titan-donor is preserved evidence
+- Date (UTC): 2026-11-08
+- Agent: claude
+- Task ID: issue #9 (titan donor provenance)
+- Context: 250 donor files under titan-donor/ are byte-identical to files in packages/titan-platform/src/ported/. No tracked file imports titan-donor/.
+- Decision: packages/titan-platform/src is the canonical build and update tree. titan-donor/ is read-only evidence. Provenance is recorded in docs/generated/titan-donor-manifest.json and checked by scripts/check-titan-manifest.mjs (report only). No duplicates deleted.
+- Alternatives considered: delete donor copies (rejected: loses evidence without provenance); keep both as editable (rejected: drift risk).
+- Consequences: duplicate content stays on disk until a separate reviewed removal. Drift in integrated copies must be re-hashed in the manifest.
+- Rollback plan: remove the manifest and checker; the tree itself is unchanged.
