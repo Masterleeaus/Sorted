@@ -42,6 +42,7 @@ describe("Sorted Field operational email identity", () => {
         statements.push({ sql, values });
         if (sql.includes("FROM users")) return { rows: [{ email: "owner@example.test", full_name: "Owner" }] };
         if (sql.includes("FROM notification_queue")) return { rows: [] };
+        if (sql.includes("INSERT INTO notification_queue")) return { rows: [{ id: "queue-1" }] };
         return { rows: [] };
       }),
     } as unknown as PoolClient;
@@ -70,7 +71,11 @@ describe("Sorted Field operational email identity", () => {
       query: vi.fn(async (sql: string, values: unknown[]) => {
         if (sql.includes("FROM users")) return { rows: [{ email: "owner@example.test" }] };
         if (sql.includes("FROM notification_queue")) return { rows: [] };
-        if (sql.includes("INSERT INTO notification_queue")) keys.push(String(values[5]));
+        if (sql.includes("INSERT INTO notification_queue")) return { rows: [{ id: "queue-1" }] };
+        if (sql.includes("INSERT INTO notification_queue")) {
+          keys.push(String(values[5]));
+          return { rows: [{ id: `queue-${keys.length}` }] };
+        }
         return { rows: [] };
       }),
     } as unknown as PoolClient;
@@ -94,6 +99,7 @@ describe("Sorted Field operational email identity", () => {
         query: vi.fn(async (sql: string, values: unknown[]) => {
           queries.push({ sql, values });
           if (sql.includes("FROM users")) return { rows: [{ email: "owner@example.test" }] };
+          if (sql.includes("INSERT INTO notification_queue")) return { rows: [{ id: "queue-1" }] };
           return { rows: [] };
         }),
       } as unknown as PoolClient;
@@ -108,6 +114,45 @@ describe("Sorted Field operational email identity", () => {
         attentionType: "invoice.paid", href: "/app",
       });
     }
+  });
+
+  it("requeues failed owner notifications with fresh delivery state and never resets sent rows", async () => {
+    const statements: string[] = [];
+    const client = {
+      query: vi.fn(async (sql: string) => {
+        statements.push(sql);
+        if (sql.includes("FROM users")) return { rows: [{ email: "owner@example.test" }] };
+        if (sql.includes("FROM notification_queue")) return { rows: [{ status: "failed" }] };
+        if (sql.includes("INSERT INTO notification_queue")) return { rows: [{ id: "queue-1" }] };
+        return { rows: [] };
+      }),
+    } as unknown as PoolClient;
+    expect(await enqueueAttentionOwnerEmail(client, {
+      accountId: "company-a", type: "invoice.paid", entityType: "invoice",
+      entityId: "invoice-1", title: "Paid", href: "/app/invoices/invoice-1",
+    })).toBe("enqueued");
+    const upsert = statements.find(s => s.includes("INSERT INTO notification_queue"))!;
+    expect(upsert).toContain("ON CONFLICT (idempotency_key) DO UPDATE");
+    expect(upsert).toContain("attempt_count = 0");
+    expect(upsert).toContain("failed_at = NULL");
+    expect(upsert).toContain("WHERE notification_queue.status = 'failed'");
+    expect(upsert).toContain("notification_queue.account_id = EXCLUDED.account_id");
+    expect(upsert).toContain("RETURNING id");
+  });
+
+  it("reports duplicate when another enqueue wins the race", async () => {
+    const client = {
+      query: vi.fn(async (sql: string) => {
+        if (sql.includes("FROM users")) return { rows: [{ email: "owner@example.test" }] };
+        if (sql.includes("FROM notification_queue")) return { rows: [] };
+        // A conflicting non-failed row makes the conditional upsert return nothing.
+        return { rows: [] };
+      }),
+    } as unknown as PoolClient;
+    expect(await enqueueAttentionOwnerEmail(client, {
+      accountId: "company-a", type: "invoice.paid", entityType: "invoice",
+      entityId: "invoice-1", title: "Paid", href: "/app/invoices/invoice-1",
+    })).toBe("duplicate");
   });
 
 });
