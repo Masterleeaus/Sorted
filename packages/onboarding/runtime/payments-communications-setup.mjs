@@ -1,6 +1,6 @@
 import { normalizeCompanyContext } from '@titan-zero/storage/company-context';
-import { projectProviderControlCentre } from '../../settings/control-plane/ai-provider-control-centre.mjs';
-import { projectNotificationEscalationSettings } from '../../settings/control-plane/notification-escalation-settings.mjs';
+import { projectProviderControlCentre } from '@titan-zero/titan-platform/settings/ai-provider-control-centre';
+import { projectNotificationEscalationSettings } from '@titan-zero/titan-platform/settings/notification-escalation-settings';
 
 const LEGACY = new Set(['tenant_id','tenant_company_id','workspace_tenant_id','business_id']);
 const PAYMENT_METHODS = new Set(['payid','bank_transfer','cash','paypal','card_via_paypal']);
