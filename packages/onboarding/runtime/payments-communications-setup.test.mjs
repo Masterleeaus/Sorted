@@ -67,3 +67,56 @@ test("payments/communications setup remains isolated by company and configuratio
     /Cross-company payments\/communications setup payload rejected/,
   );
 });
+
+test("payment method normalization rejects case-insensitive duplicates without writing a record", async () => {
+  const database = memoryDatabase();
+  const authority = createPaymentsCommunicationsSetupAuthority({
+    database,
+    nativeContributions: [{ id: "channel.email", title: "Email" }],
+  });
+  await assert.rejects(
+    () => authority.save({ company_id: "company-a" }, {
+      payments: { methods: ["CASH", " cash "] },
+      communications: { channels: ["channel.email"] },
+    }),
+    /duplicate payment method: cash/,
+  );
+  assert.equal((await authority.read({ company_id: "company-a" })).revision, 0);
+  await assert.rejects(
+    () => authority.save({ company_id: "company-a" }, {
+      payments: { methods: "cash" },
+      communications: { channels: ["channel.email"] },
+    }),
+    /at least one payment method is required/,
+  );
+  assert.equal((await authority.read({ company_id: "company-a" })).payments, null);
+});
+
+test("setup rejects unknown channels and stale revisions without crossing company boundaries", async () => {
+  const database = memoryDatabase();
+  const authority = createPaymentsCommunicationsSetupAuthority({
+    database,
+    nativeContributions: [{ id: "channel.email", title: "Email" }],
+  });
+  const context = { company_id: "company-a" };
+  const valid = {
+    payments: { methods: ["CASH"] },
+    communications: { channels: ["channel.email"] },
+  };
+  await assert.rejects(
+    () => authority.save(context, {
+      ...valid, communications: { channels: ["channel.unknown"] },
+    }),
+    /unknown communication capability/,
+  );
+  assert.equal((await authority.read(context)).revision, 0);
+  const saved = await authority.save(context, { ...valid, expected_revision: 0 });
+  assert.equal(saved.revision, 1);
+  assert.deepEqual(saved.payment_methods, ["cash"]);
+  await assert.rejects(
+    () => authority.save(context, { ...valid, expected_revision: 0 }),
+    /revision mismatch/,
+  );
+  assert.equal((await authority.read(context)).revision, 1);
+  assert.equal((await authority.read({ company_id: "company-b" })).revision, 0);
+});
