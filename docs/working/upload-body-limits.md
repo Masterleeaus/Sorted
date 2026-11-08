@@ -27,6 +27,7 @@ The 413 response has this shape:
 | `POST /api/v1/expenses/[id]/receipt` | 10 MB | 11 MB |
 | `POST /api/v1/captures` | audio 25 MB, photo 10 MB | 40 MB |
 | `POST /api/v1/expenses/import/preview` | 5 MB | 6 MB |
+| `POST /api/intake/[token]/media` (public intake photo) | 10 MB | 11 MB |
 
 The caps are the constants `UPLOAD_BODY_LIMITS` in `body-limit.ts`. Change them there and in this table together.
 
