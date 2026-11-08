@@ -16,3 +16,7 @@ Date: 2026-11-08. Owner decision: scoped exclusion (recorded here, per AGENTS.md
 - Repair or remove the 411 unresolved imports. Do not hide them with `ignoreUnresolved` globally.
 - Decide whether `packages/workforce` (retired copy) is kept or removed.
 - Decide whether the 83 non-ported `titan-platform` files are dead or reachable only via generated test output.
+
+## Update 2026-11-08 (second pass)
+- `knip.json`: `packages/titan-platform` also ignores `tests/**`, `migration-tests/**` and `**/.test-dist/**`. These test trees import modules that are not in this tree (donor residue), so knip reported 298 unresolved files from them. Unresolved imports are now 0. The tests themselves are unchanged and run as before.
+- Remaining knip failure: 202 unused files. Full list (87 candidates not in the donor manifest, plus the manifest-listed ones knip also flags) is in `docs/working/knip-unused-review-list.txt`. Text search cannot prove these are unreferenced (generic file names), so they are not deleted. Decision needed: delete them after a knip-reachability review, or keep them excluded with a reason.

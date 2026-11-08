@@ -36,7 +36,10 @@
     "packages/*": {},
     "packages/titan-platform": {
       "ignore": [
-        "src/ported/**"
+        "src/ported/**",
+        "tests/**",
+        "migration-tests/**",
+        "**/.test-dist/**"
       ]
     }
   }
