@@ -32,8 +32,9 @@ test("onboarding imports the canonical settings projections without granting aut
 });
 
 test("payments/communications setup remains isolated by company and configuration-only", async () => {
+  const database = memoryDatabase();
   const authority = createPaymentsCommunicationsSetupAuthority({
-    database: memoryDatabase(),
+    database,
     nativeContributions: [{ id: "channel.email", title: "Email", risk_class: "low" }],
     clock: () => 12345,
   });
@@ -47,6 +48,16 @@ test("payments/communications setup remains isolated by company and configuratio
   assert.equal(saved.authority_granted, false);
   assert.equal(saved.execution_permitted, false);
   assert.equal(saved.credentials_stored_in_onboarding, false);
+  const record = await database.getRecord({ company_id: "company-a" }, {
+    module_id: "titan.onboarding",
+    collection: "payments-communications-setup",
+    record_id: "canonical",
+  });
+  assert.equal(record.provenance.provider_settings_owner, "@titan-zero/titan-platform/settings/ai-provider-control-centre");
+  assert.equal(record.provenance.notification_settings_owner, "@titan-zero/titan-platform/settings/notification-escalation-settings");
+  assert.equal(record.data.notifications.settings_owner, "@titan-zero/titan-platform/settings/notification-escalation-settings");
+  assert.equal(record.data.credentials_stored_in_onboarding, false);
+  assert.equal(record.data.authority_granted, false);
   assert.equal((await authority.read({ company_id: "company-b" })).payments, null);
   await assert.rejects(
     () => authority.save({ company_id: "company-a" }, {
