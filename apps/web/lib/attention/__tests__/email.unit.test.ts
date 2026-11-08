@@ -1,5 +1,6 @@
-import { describe, expect, it } from "vitest";
-import { emailIdempotencyBucket } from "../email";
+import { describe, expect, it, vi } from "vitest";
+import { emailIdempotencyBucket, enqueueAttentionOwnerEmail } from "../email";
+import type { PoolClient } from "pg";
 import { ATTENTION_EMAIL_TYPES, ATTENTION_EVENT_TYPES } from "../types";
 
 describe("emailIdempotencyBucket", () => {
@@ -30,5 +31,37 @@ describe("ATTENTION_EMAIL_TYPES", () => {
     for (const t of ATTENTION_EMAIL_TYPES) {
       expect(ATTENTION_EVENT_TYPES as readonly string[]).toContain(t);
     }
+  });
+});
+
+describe("Sorted Field operational email identity", () => {
+  it("brands owner alerts without changing their account scope or idempotency envelope", async () => {
+    const statements: Array<{ sql: string; values: unknown[] }> = [];
+    const client = {
+      query: vi.fn(async (sql: string, values: unknown[]) => {
+        statements.push({ sql, values });
+        if (sql.includes("FROM users")) return { rows: [{ email: "owner@example.test", full_name: "Owner" }] };
+        if (sql.includes("FROM notification_queue")) return { rows: [] };
+        return { rows: [] };
+      }),
+    } as unknown as PoolClient;
+    const outcome = await enqueueAttentionOwnerEmail(client, {
+      accountId: "account-a",
+      type: "invoice.paid",
+      entityType: "invoice",
+      entityId: "invoice-123",
+      title: "Invoice paid",
+      summary: "Payment received",
+      href: "/app/invoices/invoice-123",
+    });
+    expect(outcome).toBe("enqueued");
+    const inserted = statements.find((entry) => entry.sql.includes("INSERT INTO notification_queue"));
+    expect(inserted).toBeDefined();
+    expect(inserted!.values[0]).toBe("account-a");
+    expect(inserted!.values[3]).toBe("[Sorted Field] Invoice paid");
+    expect(inserted!.values[4]).toContain("needs attention in Sorted Field.");
+    expect(inserted!.values[4]).not.toContain("Dovetails");
+    expect(inserted!.values[5]).toMatch(/^attention-email:invoice.paid:invoice-123:/);
+    expect(inserted!.values[8]).toBe("invoice-123");
   });
 });
