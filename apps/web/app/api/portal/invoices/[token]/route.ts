@@ -86,7 +86,8 @@ export async function GET(
     const { rows } = await tx.query<LineItemRow>(
       `SELECT id, description, quantity, unit_price_cents, total_cents, sort_order
        FROM invoice_line_items
-       WHERE invoice_id = $1 AND account_id = $2 AND visible_to_customer = true
+       WHERE invoice_id = $1 AND visible_to_customer = true
+         AND EXISTS (SELECT 1 FROM invoices i WHERE i.id = invoice_line_items.invoice_id AND i.account_id = $2)
        ORDER BY sort_order`,
       [publicInvoice.id, accountId]
     );

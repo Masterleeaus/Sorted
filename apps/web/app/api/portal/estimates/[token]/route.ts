@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { isPortalPreview, PREVIEW_READ_ONLY_MESSAGE } from "@/lib/portal/session";
 import { z } from "zod";
-import { queryOne, query, getPool } from "@/lib/db";
+import { queryOne, getPool } from "@/lib/db";
+import { withTokenAccountContext } from "../../../_lib/account-context";
 import { createJobFromEstimate, getAccountOwnerUserId } from "@/lib/estimates/create-job-db";
 import { createApprovalArtifacts } from "@/lib/estimates/approve";
 import { logger } from "@/lib/logger";
@@ -43,9 +44,12 @@ export async function GET(
 ) {
   const { token } = await params;
 
+  // Bootstrap: the share token resolves the account. No account context exists
+  // yet, so this lookup stays cross-account until the token resolver exists
+  // (docs/working/rls-web-tier-flip.md, blocker 3).
   const estimate = await queryOne<EstimateRow>(
     `SELECT
-       e.id, e.status, e.subtotal_cents, e.tax_cents, e.total_cents,
+       e.id, e.account_id, e.status, e.subtotal_cents, e.tax_cents, e.total_cents,
        e.deposit_cents, e.notes, e.expires_at, e.sent_at, e.responded_at,
        e.client_approved_name,
        c.name AS client_name,
@@ -64,15 +68,20 @@ export async function GET(
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 
-  const lineItems = await query<LineItemRow>(
-    `SELECT id, description, quantity, unit_price_cents, total_cents, sort_order
-     FROM estimate_line_items
-     WHERE estimate_id = $1 AND visible_to_customer = true
-     ORDER BY sort_order`,
-    [estimate.id]
-  );
+  const { account_id: accountId, ...publicEstimate } = estimate;
+  const lineItems = await withTokenAccountContext(accountId, async (tx) => {
+    const { rows } = await tx.query<LineItemRow>(
+      `SELECT id, description, quantity, unit_price_cents, total_cents, sort_order
+       FROM estimate_line_items
+       WHERE estimate_id = $1 AND visible_to_customer = true
+         AND EXISTS (SELECT 1 FROM estimates e WHERE e.id = estimate_line_items.estimate_id AND e.account_id = $2)
+       ORDER BY sort_order`,
+      [publicEstimate.id, accountId]
+    );
+    return rows;
+  });
 
-  return NextResponse.json({ estimate, lineItems });
+  return NextResponse.json({ estimate: publicEstimate, lineItems });
 }
 
 const respondBody = z.object({
@@ -127,6 +136,14 @@ export async function POST(
   const dbClient = await pool.connect();
   try {
     await dbClient.query("BEGIN");
+    // Account context from the resolved estimate, before the write. Role owner:
+    // the estimates UPDATE policy needs owner or admin under RLS.
+    await dbClient.query(
+      `SELECT set_config('app.current_user_id', '', true),
+              set_config('app.current_account_id', $1, true),
+              set_config('app.current_role', 'owner', true)`,
+      [estimate.account_id]
+    );
 
     await dbClient.query(
       `UPDATE estimates
@@ -135,8 +152,8 @@ export async function POST(
            client_signature_svg = $3,
            responded_at = now(),
            updated_at = now()
-       WHERE id = $4`,
-      [newStatus, name ?? null, signature_svg ?? null, estimate.id]
+       WHERE id = $4 AND account_id = $5`,
+      [newStatus, name ?? null, signature_svg ?? null, estimate.id, estimate.account_id]
     );
 
     // On approval: set RLS context then create job + deposit invoice artifacts,
