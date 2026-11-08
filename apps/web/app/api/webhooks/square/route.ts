@@ -61,7 +61,9 @@ export async function POST(request: NextRequest) {
 
   const pool = getPool();
 
-  // Resolve the account + signing key from the location id (raw, RLS-bypassed).
+  // Bootstrap: resolves the account and signing key from the location id before
+  // any account context exists. Stays cross-account until a bounded resolver
+  // exists (docs/working/rls-web-tier-flip.md, blocker 2).
   const settingsRow = await pool.query<{
     account_id: string;
     enabled: boolean;
@@ -178,6 +180,7 @@ async function handleCompletedPayment(
   const client = await pool.connect();
   try {
     await client.query("BEGIN");
+    await setWebhookAccountContext(client, accountId);
 
     // Serialize all deliveries of this Square payment. A concurrent duplicate
     // waits here, so the duplicate check below cannot race a sibling transaction.
@@ -188,8 +191,8 @@ async function handleCompletedPayment(
     // Idempotency: bail if we've already recorded this Square payment.
     const dup = await client.query(
       `SELECT 1 FROM payments
-       WHERE external_provider = 'square' AND external_payment_id = $1`,
-      [payment.id]
+       WHERE account_id = $1 AND external_provider = 'square' AND external_payment_id = $2`,
+      [accountId, payment.id]
     );
     if (dup.rowCount && dup.rowCount > 0) {
       await client.query("COMMIT");
@@ -266,9 +269,9 @@ async function handleCompletedPayment(
       `UPDATE payments
        SET status = 'paid', external_payment_id = $2,
            paid_at = now(), received_at = now()
-       WHERE id = $1 AND status = 'pending'
+       WHERE id = $1 AND account_id = $3 AND status = 'pending'
        RETURNING id`,
-      [row.id, payment.id]
+      [row.id, payment.id, accountId]
     );
     if (upd.rowCount === 0) {
       await client.query("COMMIT");
@@ -291,8 +294,8 @@ async function handleCompletedPayment(
       ]
     );
     const inv = await client.query<{ status: string; invoice_number: string }>(
-      `SELECT status, invoice_number FROM invoices WHERE id = $1`,
-      [invoiceId]
+      `SELECT status, invoice_number FROM invoices WHERE id = $1 AND account_id = $2`,
+      [invoiceId, accountId]
     );
     if (inv.rows[0]?.status === "paid") {
       await client.query(
@@ -339,6 +342,21 @@ async function handleCompletedPayment(
   }
 }
 
+/**
+ * Sets the RLS context for a verified Square event. The account comes from the
+ * signed settings record resolved by location id, never from the request body.
+ * Role is owner: payments and invoices writes need owner or admin under RLS.
+ * See the report for the review of this role.
+ */
+async function setWebhookAccountContext(client: PoolClient, accountId: string): Promise<void> {
+  await client.query(
+    `SELECT set_config('app.current_user_id', '', true),
+            set_config('app.current_account_id', $1, true),
+            set_config('app.current_role', 'owner', true)`,
+    [accountId]
+  );
+}
+
 // Record a Square-initiated refund as a ledger-only payment row (status
 // 'refunded', payment_type 'refund'). The sync trigger ignores non-'paid' rows,
 // so paid_cents is unchanged — matching manual refund semantics. Linked to the
@@ -351,13 +369,14 @@ async function handleCompletedRefund(
   const client = await pool.connect();
   try {
     await client.query("BEGIN");
+    await setWebhookAccountContext(client, accountId);
 
     // Idempotency: refund.id is distinct from the payment id; the unique index
     // on (external_provider, external_payment_id) also guards the INSERT.
     const dup = await client.query(
       `SELECT 1 FROM payments
-       WHERE external_provider = 'square' AND external_payment_id = $1`,
-      [refund.id]
+       WHERE account_id = $1 AND external_provider = 'square' AND external_payment_id = $2`,
+      [accountId, refund.id]
     );
     if (dup.rowCount && dup.rowCount > 0) {
       await client.query("COMMIT");
@@ -378,8 +397,9 @@ async function handleCompletedRefund(
               i.created_by
        FROM payments p
        JOIN invoices i ON i.id = p.invoice_id
-       WHERE p.external_provider = 'square' AND p.external_payment_id = $1`,
-      [refund.payment_id ?? ""]
+       WHERE p.account_id = $2 AND i.account_id = $2
+         AND p.external_provider = 'square' AND p.external_payment_id = $1`,
+      [refund.payment_id ?? "", accountId]
     );
 
     let target = orig.rows[0];

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { randomUUID } from "crypto";
 import { getPool, queryOne } from "@/lib/db";
+import { withTokenAccountContext } from "../../_lib/account-context";
 import { logger } from "@/lib/logger";
 import {
   DETECTED_ACTIVITIES,
@@ -140,18 +141,31 @@ export async function POST(req: NextRequest) {
 
   // Privacy gating (TASK-046): drop when tracking is off or paused. GPS still
   // needs an open workday session; vehicle_connect may start that session.
-  const gate = await queryOne<{ enabled: boolean; paused: boolean; active_session: boolean }>(
-    `SELECT a.location_tracking_enabled AS enabled,
-            (a.location_paused_until IS NOT NULL AND a.location_paused_until > now()) AS paused,
-            EXISTS (
-              SELECT 1 FROM vehicle_sessions vs
-              WHERE vs.account_id = a.id
-                AND vs.session_date = ($2::timestamptz)::date
-                AND vs.ended_at IS NULL
-            ) AS active_session
-     FROM accounts a WHERE a.id = $1`,
-    [accountId, occurredAt],
-  );
+  // The gate and the idempotency check run inside the resolved account's context.
+  const { gate, seen } = await withTokenAccountContext(accountId, async (client) => {
+    const { rows: gateRows } = await client.query<{ enabled: boolean; paused: boolean; active_session: boolean }>(
+      `SELECT a.location_tracking_enabled AS enabled,
+              (a.location_paused_until IS NOT NULL AND a.location_paused_until > now()) AS paused,
+              EXISTS (
+                SELECT 1 FROM vehicle_sessions vs
+                WHERE vs.account_id = a.id
+                  AND vs.session_date = ($2::timestamptz)::date
+                  AND vs.ended_at IS NULL
+              ) AS active_session
+       FROM accounts a WHERE a.id = $1`,
+      [accountId, occurredAt],
+    );
+    // Idempotency: HA may retry the same event.
+    let duplicate: { id: string } | null = null;
+    if (data.external_id) {
+      const { rows: seenRows } = await client.query<{ id: string }>(
+        `SELECT id FROM location_events WHERE account_id = $1 AND external_id = $2 LIMIT 1`,
+        [accountId, data.external_id],
+      );
+      duplicate = seenRows[0] ?? null;
+    }
+    return { gate: gateRows[0] ?? null, seen: duplicate };
+  }, "owner"); // accounts SELECT needs owner under RLS; accountId is the resolved owner, not request input
   const ignored = locationEventDropReason({
     enabled: gate?.enabled === true,
     paused: gate?.paused === true,
@@ -163,16 +177,9 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: true, ignored });
   }
 
-  // Idempotency: HA may retry the same event.
-  if (data.external_id) {
-    const seen = await queryOne<{ id: string }>(
-      `SELECT id FROM location_events WHERE account_id = $1 AND external_id = $2 LIMIT 1`,
-      [accountId, data.external_id],
-    );
-    if (seen) {
-      logger.info("location event duplicate ignored", { traceId, external_id: data.external_id });
-      return NextResponse.json({ duplicate: true });
-    }
+  if (seen) {
+    logger.info("location event duplicate ignored", { traceId, external_id: data.external_id });
+    return NextResponse.json({ duplicate: true });
   }
 
   // Persist the event and apply segment mutations atomically. A single
