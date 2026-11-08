@@ -93,7 +93,7 @@ export default async function NewInvoicePage({ searchParams }: PageProps) {
   let prefillSource: "tm_actuals" | "estimate" | null = null;
 
   if (job_id) {
-    const pricingMode = await resolveJobPricingMode(session.accountId, job_id);
+    const pricingMode = await resolveJobPricingMode(session, job_id);
     if (pricingMode === "hourly_internal") {
       const actuals = await prefillLineItemsFromTmActuals(session.accountId, job_id);
       if (actuals.length > 0) {
