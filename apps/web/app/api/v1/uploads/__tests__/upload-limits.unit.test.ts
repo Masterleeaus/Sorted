@@ -23,18 +23,24 @@ const fsMocks = vi.hoisted(() => ({
 vi.mock("fs", () => ({ default: fsMocks, ...fsMocks }));
 
 const dbMocks = vi.hoisted(() => ({
-  queryOne: vi.fn(),
-  query: vi.fn(),
   withDbSession: vi.fn(),
   withExpenseContext: vi.fn(),
   clientQuery: vi.fn(),
 }));
-vi.mock("@/lib/db", () => ({
-  queryOne: (...args: unknown[]) => dbMocks.queryOne(...args),
-  query: (...args: unknown[]) => dbMocks.query(...args),
-  withDbSession: (...args: unknown[]) => dbMocks.withDbSession(...args),
-  getPool: () => ({ connect: async () => ({ query: dbMocks.clientQuery, release: vi.fn() }) }),
-}));
+// Session-scoped reads go through withDbSession, the same path the routes use.
+vi.mock("@/lib/db", () => {
+  const forSession = (session: unknown, sql: string, params?: unknown[]) =>
+    dbMocks.withDbSession(session, (client: { query: (s: string, p?: unknown[]) => Promise<{ rows: unknown[] }> }) =>
+      client.query(sql, params),
+    ) as Promise<{ rows: unknown[] }>;
+  return {
+    withDbSession: (...args: unknown[]) => dbMocks.withDbSession(...args),
+    queryForSession: async (session: unknown, sql: string, params?: unknown[]) => (await forSession(session, sql, params)).rows,
+    queryOneForSession: async (session: unknown, sql: string, params?: unknown[]) =>
+      ((await forSession(session, sql, params)).rows[0] as unknown) ?? null,
+    getPool: () => ({ connect: async () => ({ query: dbMocks.clientQuery, release: vi.fn() }) }),
+  };
+});
 vi.mock("@/lib/expenses/db", () => ({
   withExpenseContext: (...args: unknown[]) => dbMocks.withExpenseContext(...args),
 }));
@@ -68,8 +74,12 @@ const cases: Array<{
 beforeEach(() => {
   vi.clearAllMocks();
   mockSession.role = "owner";
-  // Visit and vault routes look up their parent record before parsing the body.
-  dbMocks.queryOne.mockResolvedValue({ id: ID, assigned_user_id: null });
+  // Visit and vault routes look up their parent record through withDbSession.
+  dbMocks.withDbSession.mockImplementation(
+    async (_session: unknown, fn: (client: { query: unknown }) => Promise<unknown>) =>
+      fn({ query: dbMocks.clientQuery }),
+  );
+  dbMocks.clientQuery.mockResolvedValue({ rows: [{ id: ID, assigned_user_id: null }] });
 });
 
 describe.each(cases)("$name: oversized multipart body", ({ url, handler, limit }) => {
