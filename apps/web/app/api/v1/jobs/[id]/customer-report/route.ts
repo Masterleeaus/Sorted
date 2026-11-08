@@ -10,6 +10,7 @@ import { logOutboundSms } from "@/lib/sms/outbound";
 import { loadReportEditor } from "@/lib/job-reports/load";
 import { cleanRecords, REPORT_AREAS, REPORT_WORK_TYPES } from "@/lib/job-reports/logic";
 import { logger } from "@/lib/logger";
+import { escapeHtml, hrefAttr } from "@ai-fsm/email-templates";
 
 export const dynamic = "force-dynamic";
 
@@ -130,7 +131,7 @@ export const POST = withRole(["owner", "admin"], async (request: NextRequest, se
         to: r.email,
         subject: `Your job report: ${report.title}`,
         text: `Hi ${first},\n\nHere's what we did${editor.job.address ? ` at ${editor.job.address}` : ""}, with photos:\n${url}\n\nThanks,\nDovetails`,
-        html: `<p>Hi ${escapeHtml(first)},</p><p>Here's what we did${editor.job.address ? ` at ${escapeHtml(editor.job.address)}` : ""}, with photos:</p><p><a href="${url}">View your job report</a></p><p>Thanks,<br>Dovetails</p>`,
+        html: `<p>Hi ${escapeHtml(first)},</p><p>Here's what we did${editor.job.address ? ` at ${escapeHtml(editor.job.address)}` : ""}, with photos:</p><p><a href="${hrefAttr(url)}">View your job report</a></p><p>Thanks,<br>Dovetails</p>`,
       });
       await logCommunication({
         accountId: session.accountId, channel: "email", direction: "outbound", outcome: sent.ok ? "sent" : "failed",
@@ -158,6 +159,3 @@ export const POST = withRole(["owner", "admin"], async (request: NextRequest, se
   }
 });
 
-function escapeHtml(s: string): string {
-  return s.replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`);
-}
