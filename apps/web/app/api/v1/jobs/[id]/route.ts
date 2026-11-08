@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { withAuth, withRole } from "../../../../../lib/auth/middleware";
 import type { AuthSession } from "../../../../../lib/auth/middleware";
-import { queryOne, getPool } from "../../../../../lib/db";
+import { getPool, withDbSession } from "../../../../../lib/db";
 import { appendAuditLog } from "../../../../../lib/db/audit";
 import { logger } from "../../../../../lib/logger";
 import { JOB_ACCEPTANCE_CATEGORIES, JOB_INTAKE_DECISIONS, VENDOR_COORDINATION_MODES } from "@ai-fsm/domain";
@@ -36,10 +36,13 @@ export const GET = withAuth(
       );
     }
 
-    const job = await queryOne(
-      `SELECT * FROM jobs WHERE id = $1 AND account_id = $2`,
-      [id, session.accountId]
-    );
+    const job = await withDbSession(session, async (client) => {
+      const result = await client.query(
+        `SELECT * FROM jobs WHERE id = $1 AND account_id = $2`,
+        [id, session.accountId]
+      );
+      return result.rows[0] ?? null;
+    });
 
     if (!job) {
       return NextResponse.json(

@@ -8,7 +8,8 @@ import path from "path";
 import { randomUUID } from "crypto";
 import { withAuth } from "../../../../../../lib/auth/middleware";
 import type { AuthSession } from "../../../../../../lib/auth/middleware";
-import { query, queryOne, getPool } from "../../../../../../lib/db";
+import type { PoolClient } from "pg";
+import { getPool, withDbSession } from "../../../../../../lib/db";
 import { logger } from "../../../../../../lib/logger";
 import { payloadTooLargeResponse, readMultipartWithLimit, UPLOAD_BODY_LIMITS } from "../../../../../../lib/uploads/body-limit";
 import {
@@ -27,11 +28,12 @@ const ALLOWED_MIME_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"
 const VALID_CATEGORIES = ["before", "after", "receipt", "assessment"] as const;
 type MediaCategory = typeof VALID_CATEGORIES[number];
 
-async function getVisit(visitId: string, session: AuthSession) {
-  return queryOne<{ id: string; assigned_user_id: string | null }>(
+async function getVisit(client: PoolClient, visitId: string, session: AuthSession) {
+  const result = await client.query<{ id: string; assigned_user_id: string | null }>(
     `SELECT id, assigned_user_id FROM visits WHERE id = $1 AND account_id = $2`,
     [visitId, session.accountId]
   );
+  return result.rows[0] ?? null;
 }
 
 export const GET = withAuth(
@@ -41,20 +43,6 @@ export const GET = withAuth(
       return NextResponse.json(
         { error: { code: "NOT_FOUND", message: "Visit not found", traceId: session.traceId } },
         { status: 404 }
-      );
-    }
-
-    const visit = await getVisit(visitId, session);
-    if (!visit) {
-      return NextResponse.json(
-        { error: { code: "NOT_FOUND", message: "Visit not found", traceId: session.traceId } },
-        { status: 404 }
-      );
-    }
-    if (session.role === "tech" && visit.assigned_user_id !== session.userId) {
-      return NextResponse.json(
-        { error: { code: "FORBIDDEN", message: "Access denied", traceId: session.traceId } },
-        { status: 403 }
       );
     }
 
@@ -68,15 +56,31 @@ export const GET = withAuth(
       params.push(category);
     }
 
-    const rows = await query(
-      `SELECT id, visit_id, category, original_name, mime_type, size_bytes, created_at
-       FROM visit_media
-       WHERE visit_id = $1 AND account_id = $2${categoryClause}
-       ORDER BY created_at`,
-      params
-    );
+    return withDbSession(session, async (client) => {
+      const visit = await getVisit(client, visitId, session);
+      if (!visit) {
+        return NextResponse.json(
+          { error: { code: "NOT_FOUND", message: "Visit not found", traceId: session.traceId } },
+          { status: 404 }
+        );
+      }
+      if (session.role === "tech" && visit.assigned_user_id !== session.userId) {
+        return NextResponse.json(
+          { error: { code: "FORBIDDEN", message: "Access denied", traceId: session.traceId } },
+          { status: 403 }
+        );
+      }
 
-    return NextResponse.json({ data: rows });
+      const result = await client.query(
+        `SELECT id, visit_id, category, original_name, mime_type, size_bytes, created_at
+         FROM visit_media
+         WHERE visit_id = $1 AND account_id = $2${categoryClause}
+         ORDER BY created_at`,
+        params
+      );
+
+      return NextResponse.json({ data: result.rows });
+    });
   }
 );
 
@@ -90,7 +94,7 @@ export const POST = withAuth(
       );
     }
 
-    const visit = await getVisit(visitId, session);
+    const visit = await withDbSession(session, (client) => getVisit(client, visitId, session));
     if (!visit) {
       return NextResponse.json(
         { error: { code: "NOT_FOUND", message: "Visit not found", traceId: session.traceId } },

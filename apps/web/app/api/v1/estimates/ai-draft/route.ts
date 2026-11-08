@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { withAuth } from "@/lib/auth/middleware";
-import { getPool, query } from "@/lib/db";
+import { withDbSession } from "@/lib/db";
 import { logger } from "@/lib/logger";
 import { draftEstimate } from "@/lib/estimates/ai-draft";
 import type { TradeDefinition } from "@/lib/estimates/ai-draft";
@@ -133,10 +133,10 @@ export const POST = withAuth(async (request: NextRequest, session) => {
   const { description, job_id } = parseResult.data;
 
   try {
-    const pool = getPool();
-
+    // Pre-AI context loads run in one account-scoped session; the AI call below runs outside it.
+    const ctx = await withDbSession(session, async (db) => {
     // Load active price book
-    const { rows: priceBook } = await pool.query<PriceBookEntry>(
+    const { rows: priceBook } = await db.query<PriceBookEntry>(
       `SELECT id, code, name, category,
               price_min_cents, price_max_cents, default_price_cents, add_on_price_cents,
               unit_type, description, default_labor_hours, requires_materials, upsell_codes,
@@ -148,7 +148,7 @@ export const POST = withAuth(async (request: NextRequest, session) => {
     );
 
     // Load scope templates + components + factors
-    const { rows: templateRows } = await pool.query<{ id: string; category: string; label: string; description: string | null; default_assumptions: string | null; [key: string]: unknown }>(
+    const { rows: templateRows } = await db.query<{ id: string; category: string; label: string; description: string | null; default_assumptions: string | null; [key: string]: unknown }>(
       `SELECT id, category, label, description, default_assumptions FROM scope_templates ORDER BY label ASC`
     );
 
@@ -158,12 +158,12 @@ export const POST = withAuth(async (request: NextRequest, session) => {
       const idPlaceholders = templateIds.map((_, i) => `$${i + 1}`).join(", ");
 
       const [componentRows, factorRows] = await Promise.all([
-        query<ComponentRow>(
+        db.query<ComponentRow>(
           `SELECT id, template_id, key, label, unit, input_type, options::text, required, sort_order
            FROM scope_components WHERE template_id IN (${idPlaceholders}) ORDER BY template_id, sort_order ASC`,
           templateIds
         ),
-        query<FactorRow>(
+        db.query<FactorRow>(
           `SELECT id, template_id, key, label, description, factor_type, default_value::float, sort_order
            FROM complexity_factors WHERE template_id IN (${idPlaceholders}) ORDER BY template_id, sort_order ASC`,
           templateIds
@@ -176,7 +176,7 @@ export const POST = withAuth(async (request: NextRequest, session) => {
         label: t.label,
         description: t.description,
         default_assumptions: t.default_assumptions,
-        components: componentRows
+        components: componentRows.rows
           .filter((c) => c.template_id === t.id)
           .map((c) => ({
             id: c.id,
@@ -188,7 +188,7 @@ export const POST = withAuth(async (request: NextRequest, session) => {
             required: c.required,
             sort_order: c.sort_order,
           })),
-        complexity_factors: factorRows
+        complexity_factors: factorRows.rows
           .filter((f) => f.template_id === t.id)
           .map((f) => ({
             id: f.id,
@@ -203,7 +203,7 @@ export const POST = withAuth(async (request: NextRequest, session) => {
     }
 
     // Load trade definitions
-    const { rows: tradeRows } = await pool.query<TradeDefinition>(
+    const { rows: tradeRows } = await db.query<TradeDefinition>(
       `SELECT trade_key, display_name, scope_template_category,
               service_code_range_start, service_code_range_end, extra_code_notes,
               detection_keywords, routing_rules, disambiguation_rules,
@@ -216,7 +216,7 @@ export const POST = withAuth(async (request: NextRequest, session) => {
     // Enriched job context: job title/notes, property address, recent estimate history
     let jobContext: string | undefined;
     if (job_id) {
-      const { rows: jobRows } = await pool.query<{
+      const { rows: jobRows } = await db.query<{
         title: string; notes: string | null; client_id: string; property_id: string | null;
       }>(
         `SELECT j.title, j.notes, j.client_id, j.property_id
@@ -229,7 +229,7 @@ export const POST = withAuth(async (request: NextRequest, session) => {
         if (notes) parts.push(`Notes: ${notes}`);
 
         if (property_id) {
-          const { rows: propRows } = await pool.query<{ address: string; year_built: number | null; sqft: number | null }>(
+          const { rows: propRows } = await db.query<{ address: string; year_built: number | null; sqft: number | null }>(
             `SELECT address, year_built, sqft FROM properties WHERE id = $1 AND account_id = $2`,
             [property_id, session.accountId]
           );
@@ -241,7 +241,7 @@ export const POST = withAuth(async (request: NextRequest, session) => {
         }
 
         // Recent estimate history for this client (last 3 completed)
-        const { rows: recentRows } = await pool.query<{ title: string; total_cents: number; status: string; created_at: string }>(
+        const { rows: recentRows } = await db.query<{ title: string; total_cents: number; status: string; created_at: string }>(
           `SELECT j.title, e.total_cents, e.status, e.created_at
            FROM estimates e JOIN jobs j ON j.id = e.job_id
            WHERE e.account_id = $1 AND j.client_id = $2 AND e.status IN ('approved','invoiced','sent')
@@ -255,6 +255,9 @@ export const POST = withAuth(async (request: NextRequest, session) => {
         jobContext = parts.join('\n');
       }
     }
+    return { priceBook, templates, tradeRows, jobContext };
+    });
+    const { priceBook, templates, tradeRows, jobContext } = ctx;
 
     const draft = await draftEstimate(description, priceBook, templates, tradeRows, jobContext);
 
@@ -266,16 +269,19 @@ export const POST = withAuth(async (request: NextRequest, session) => {
       const categories = [...new Set(draft.services.map((s) => s.service_category))];
       const catPlaceholders = categories.map((_, i) => `$${i + 1}`).join(", ");
 
-      const { rows: materialRows } = await pool.query<ServiceMaterial>(
-        `SELECT id, category, material_name, description, quantity_type,
-                scope_component_key, quantity_multiplier, waste_factor, unit, unit_cost_cents,
-                store_section, sort_order, is_optional, is_consumable, condition_factor_key,
-                quantity_flat, price_book_id
-         FROM service_materials
-         WHERE category IN (${catPlaceholders})
-         ORDER BY sort_order ASC`,
-        categories
-      );
+      const materialRows = await withDbSession(session, async (db) => {
+        const result = await db.query<ServiceMaterial>(
+          `SELECT id, category, material_name, description, quantity_type,
+                  scope_component_key, quantity_multiplier, waste_factor, unit, unit_cost_cents,
+                  store_section, sort_order, is_optional, is_consumable, condition_factor_key,
+                  quantity_flat, price_book_id
+           FROM service_materials
+           WHERE category IN (${catPlaceholders})
+           ORDER BY sort_order ASC`,
+          categories
+        );
+        return result.rows;
+      });
 
       for (const svc of draft.services) {
         const template = templates.find((t) => t.category === svc.service_category);

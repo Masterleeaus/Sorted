@@ -8,7 +8,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { withAuth } from "@/lib/auth/middleware";
 import type { AuthSession } from "@/lib/auth/middleware";
-import { query } from "@/lib/db";
+import { withDbSession } from "@/lib/db";
 import { logger } from "@/lib/logger";
 import { generateMaterials, MaterialsGenerationError } from "@/lib/estimates/materials-generator";
 import type { RoomMeasurement, SavedMaterial } from "@/lib/estimates/materials-generator";
@@ -94,19 +94,24 @@ export const POST = withAuth(async (request: NextRequest, session: AuthSession) 
         }));
 
   // Load the account's saved materials price book
-  const savedRows = (await query(
-    `SELECT id, name, brand, category, unit, unit_cost_cents, supplier
-     FROM materials_price_book
-     WHERE account_id = $1 AND is_active = true
-     ORDER BY name`,
-    [session.accountId]
-  )) as unknown as SavedMaterial[];
-
-  // Load account pricing settings (markup %)
-  const accountRow = await query(
-    `SELECT settings FROM accounts WHERE id = $1`,
-    [session.accountId]
-  );
+  const { savedRows, accountRow } = await withDbSession(session, async (client) => {
+    const saved = await client.query(
+      `SELECT id, name, brand, category, unit, unit_cost_cents, supplier
+       FROM materials_price_book
+       WHERE account_id = $1 AND is_active = true
+       ORDER BY name`,
+      [session.accountId]
+    );
+    // Load account pricing settings (markup %)
+    const account = await client.query(
+      `SELECT settings FROM accounts WHERE id = $1`,
+      [session.accountId]
+    );
+    return {
+      savedRows: saved.rows as unknown as SavedMaterial[],
+      accountRow: account.rows,
+    };
+  });
   const settings = (accountRow[0]?.settings as Record<string, unknown>) ?? {};
   const materialMarkupPct = typeof settings.material_markup_pct === "number"
     ? settings.material_markup_pct
