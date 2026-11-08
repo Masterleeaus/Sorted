@@ -23,6 +23,8 @@ export const UPLOAD_BODY_LIMITS = {
   expenseReceipt: 11 * MIB,
   /** Captures: 25 MB audio + 10 MB photo + transcript text. */
   captures: 40 * MIB,
+  /** Public intake photo: 10 MB file, one file per request. */
+  intakePhoto: 11 * MIB,
   /** Expense CSV import preview: 5 MB file. */
   expenseImportPreview: 6 * MIB,
 } as const;
