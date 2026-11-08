@@ -30,11 +30,19 @@ export async function POST(
       await client.query("ROLLBACK");
       return NextResponse.json({ error: "Already opted out" }, { status: 409 });
     }
+    // Account context is set from the resolved client row, before any write.
+    // Role is public: clients UPDATE needs owner/admin under RLS, so this write
+    // is blocked under ai_fsm_web until a narrow portal opt-out policy exists.
     await client.query(
-      `UPDATE clients SET sms_consent = false, sms_consent_at = NOW(), sms_consent_source = 'portal_opt_out', preferred_contact = 'email' WHERE id = $1`,
-      [row.id]
+      `SELECT set_config('app.current_user_id', '', true),
+              set_config('app.current_account_id', $1, true),
+              set_config('app.current_role', 'public', true)`,
+      [row.account_id]
     );
-    await client.query(`SELECT set_config('app.current_account_id', $1, true)`, [row.account_id]);
+    await client.query(
+      `UPDATE clients SET sms_consent = false, sms_consent_at = NOW(), sms_consent_source = 'portal_opt_out', preferred_contact = 'email' WHERE id = $1 AND account_id = $2`,
+      [row.id, row.account_id]
+    );
     await client.query(
       `INSERT INTO communications_log (account_id, client_id, channel, direction, outcome, body_preview)
        VALUES ($1, $2, 'sms', 'inbound', 'replied', 'STOP (portal opt-out)')`,
