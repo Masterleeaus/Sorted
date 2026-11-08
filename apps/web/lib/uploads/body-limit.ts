@@ -45,9 +45,17 @@ class BodyLimitExceeded extends Error {
   }
 }
 
-export async function readMultipartWithLimit(request: NextRequest, maxBytes: number): Promise<MultipartResult> {
+/**
+ * True when the request declares a Content-Length above `maxBytes`. Cheap header check, so
+ * routes can run it before any DB lookup, parsing or writes.
+ */
+export function declaredLengthExceeds(request: NextRequest, maxBytes: number): boolean {
   const declared = request.headers.get("content-length");
-  if (declared !== null && /^\d+$/.test(declared) && Number(declared) > maxBytes) {
+  return declared !== null && /^\d+$/.test(declared) && Number(declared) > maxBytes;
+}
+
+export async function readMultipartWithLimit(request: NextRequest, maxBytes: number): Promise<MultipartResult> {
+  if (declaredLengthExceeds(request, maxBytes)) {
     return { ok: false, reason: "too_large" };
   }
 
