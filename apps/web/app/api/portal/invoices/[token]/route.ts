@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { isPortalPreview, PREVIEW_READ_ONLY_MESSAGE } from "@/lib/portal/session";
 import { SPONSORED_DOCUMENT_JOIN, SPONSORED_DOCUMENT_SELECT } from "@/lib/invoices/sponsored";
-import { queryOne, query, getPool } from "@/lib/db";
+import { queryOne, getPool } from "@/lib/db";
+import { withTokenAccountContext } from "../../../_lib/account-context";
 import { loadSquareSettings, createSquarePaymentLink } from "@/lib/integrations/square-payments";
 import { requestedDepositCents, type InvoiceDepositType } from "@/lib/invoices/deposit";
 import { amountDueCents } from "@/lib/invoices/payments";
@@ -54,9 +55,12 @@ export async function GET(
 ) {
   const { token } = await params;
 
+  // Bootstrap: the share token resolves the account. This lookup has no account
+  // context yet and stays cross-account until the token resolver exists
+  // (docs/working/rls-web-tier-flip.md, blocker 1).
   const invoice = await queryOne<InvoiceRow>(
     `SELECT
-       i.id, i.status, i.invoice_number, i.subtotal_cents, i.tax_cents,
+       i.id, i.account_id, i.status, i.invoice_number, i.subtotal_cents, i.tax_cents,
        i.total_cents, i.paid_cents, i.deposit_cents, i.notes, i.due_date,
        i.sent_at, i.paid_at, i.square_payment_link_url,
        c.name AS client_name,
@@ -77,15 +81,19 @@ export async function GET(
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 
-  const lineItems = await query<LineItemRow>(
-    `SELECT id, description, quantity, unit_price_cents, total_cents, sort_order
-     FROM invoice_line_items
-     WHERE invoice_id = $1 AND visible_to_customer = true
-     ORDER BY sort_order`,
-    [invoice.id]
-  );
+  const { account_id: accountId, ...publicInvoice } = invoice;
+  const lineItems = await withTokenAccountContext(accountId, async (tx) => {
+    const { rows } = await tx.query<LineItemRow>(
+      `SELECT id, description, quantity, unit_price_cents, total_cents, sort_order
+       FROM invoice_line_items
+       WHERE invoice_id = $1 AND account_id = $2 AND visible_to_customer = true
+       ORDER BY sort_order`,
+      [publicInvoice.id, accountId]
+    );
+    return rows;
+  });
 
-  return NextResponse.json({ invoice, lineItems });
+  return NextResponse.json({ invoice: publicInvoice, lineItems });
 }
 
 // POST — return a Square-hosted checkout link for the outstanding balance so the
@@ -146,41 +154,54 @@ export async function POST(
   const pool = getPool();
   const client = await pool.connect();
   try {
+    // One transaction with the invoice's account context for every read and write.
+    // The Square link call is made inside it. Role is owner, as the other portal
+    // writes are (invoices and payments writes need owner or admin under RLS).
+    await client.query("BEGIN");
+    await client.query(
+      `SELECT set_config('app.current_user_id', '', true),
+              set_config('app.current_account_id', $1, true),
+              set_config('app.current_role', 'owner', true)`,
+      [invoice.account_id],
+    );
+
     // Reuse a pending Square link only when its amount matches the current
     // collectible balance. Stale links (created before deposit-credit math)
     // would charge the uncredited total.
     if (invoice.square_payment_link_url) {
       const pending = await client.query<{ amount_cents: number }>(
         `SELECT amount_cents FROM payments
-         WHERE invoice_id = $1 AND status = 'pending' AND method = 'square'
+         WHERE invoice_id = $1 AND account_id = $2 AND status = 'pending' AND method = 'square'
          ORDER BY created_at DESC LIMIT 1`,
-        [invoice.id],
+        [invoice.id, invoice.account_id],
       );
       const pendingAmount = pending.rows[0]?.amount_cents;
       if (pendingAmount === chargeCents) {
+        await client.query("COMMIT");
         return NextResponse.json({ url: invoice.square_payment_link_url });
       }
       // Drop mismatched pending row + link so we recreate below.
       await client.query(
         `DELETE FROM payments
-         WHERE invoice_id = $1 AND status = 'pending' AND method = 'square'`,
-        [invoice.id],
+         WHERE invoice_id = $1 AND account_id = $2 AND status = 'pending' AND method = 'square'`,
+        [invoice.id, invoice.account_id],
       );
       await client.query(
         `UPDATE invoices
          SET square_order_id = NULL, square_checkout_id = NULL, square_payment_link_url = NULL
-         WHERE id = $1`,
-        [invoice.id],
+         WHERE id = $1 AND account_id = $2`,
+        [invoice.id, invoice.account_id],
       );
     }
 
-    const settings = await loadSquareSettings(client, invoice.account_id as string);
+    const settings = await loadSquareSettings(client, invoice.account_id);
     if (
       !settings ||
       !settings.enabled ||
       !settings.secrets.accessToken ||
       !settings.config.locationId
     ) {
+      await client.query("COMMIT");
       return NextResponse.json(
         { error: "Online payment is not available for this invoice." },
         { status: 422 }
@@ -193,12 +214,11 @@ export async function POST(
       idempotencyKey: `portal:${invoice.id}:${chargeKind}:${chargeCents}`,
     });
 
-    await client.query("BEGIN");
     await client.query(
       `UPDATE invoices
        SET square_order_id = $2, square_checkout_id = $3, square_payment_link_url = $4
-       WHERE id = $1`,
-      [invoice.id, link.orderId, link.paymentLinkId, link.url]
+       WHERE id = $1 AND account_id = $5`,
+      [invoice.id, link.orderId, link.paymentLinkId, link.url, invoice.account_id]
     );
     await client.query(
       `INSERT INTO payments
