@@ -74,6 +74,9 @@ describe("Sorted Field notifications and action menu", () => {
     expect(workerSource).toContain('const title = msg.title || "Sorted"');
     expect(workerSource).toContain('msg = { title: "Sorted"');
     expect(workerSource).not.toContain('"Titan Go"');
+    expect(workerSource).toContain("function safeNotificationPath(value)");
+    expect(workerSource).toContain("data: { url: safeNotificationPath(msg.data && msg.data.url) }");
+    expect(workerSource).toContain("const url = safeNotificationPath(event.notification.data && event.notification.data.url)");
     expect(workerSource).toContain('self.registration.showNotification(title');
   });
 
