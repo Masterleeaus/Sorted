@@ -66,7 +66,7 @@ export async function enqueueAttentionOwnerEmail(
 
     const base = appUrl();
     const link = `${base}${opts.href.startsWith("/") ? opts.href : `/${opts.href}`}`;
-    const subject = `[Dovetails] ${opts.title}`;
+    const subject = `[Sorted Field] ${opts.title}`;
     const summaryLine = opts.summary
       ? `<p style="color:#57534e;margin:8px 0">${escapeHtml(opts.summary)}</p>`
       : "";
@@ -75,7 +75,7 @@ export async function enqueueAttentionOwnerEmail(
         <h2 style="margin:0 0 8px;color:#166534">${escapeHtml(opts.title)}</h2>
         ${summaryLine}
         <p><a href="${link}" style="color:#166534;font-weight:600">Open in app →</a></p>
-        <p style="font-size:12px;color:#78716c;margin-top:24px">You received this because something needs attention in Dovetails.</p>
+        <p style="font-size:12px;color:#78716c;margin-top:24px">You received this because something needs attention in Sorted Field.</p>
       </div>
     `;
 
