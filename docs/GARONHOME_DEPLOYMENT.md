@@ -84,7 +84,9 @@ Required env values:
 - `POSTGRES_DB`
 - `POSTGRES_USER`
 - `POSTGRES_PASSWORD`
-- `DATABASE_URL`
+- `DATABASE_URL` (admin URL: migrations and provisioning)
+- `WEB_DATABASE_URL` and `WORKER_DATABASE_URL` (per-service roles; `DEPLOY.md` section 4a)
+- `AI_FSM_WORKER_PASSWORD`
 - `AUTH_SECRET`
 - `APP_BASE_URL`
 
