@@ -5,6 +5,7 @@ import { randomUUID } from "crypto";
 import { withRole } from "@/lib/auth/middleware";
 import { withExpenseContext } from "@/lib/expenses/db";
 import { logger } from "@/lib/logger";
+import { imageExtensionForMime } from "@/lib/uploads/paths";
 import { syncReceiptToPaperless } from "@/lib/paperless/receipt-sync";
 
 export const dynamic = "force-dynamic";
@@ -26,15 +27,9 @@ function expenseIdFromPath(request: NextRequest): string | undefined {
   return request.nextUrl.pathname.split("/").at(-2);
 }
 
+/** Extension comes from the allowed MIME type only, never from the client filename. */
 function safeExtension(file: File): string {
-  const ext = file.name.split(".").pop()?.toLowerCase().replace(/[^a-z0-9]/g, "");
-  if (ext) return ext;
-  if (file.type === "image/png") return "png";
-  if (file.type === "image/webp") return "webp";
-  if (file.type === "image/gif") return "gif";
-  if (file.type === "image/heic") return "heic";
-  if (file.type === "image/heif") return "heif";
-  return "jpg";
+  return imageExtensionForMime(file.type) ?? "jpg";
 }
 
 export const GET = withRole(["owner", "admin"], async (request: NextRequest, session) => {

@@ -10,9 +10,17 @@ import { withAuth } from "../../../../../../lib/auth/middleware";
 import type { AuthSession } from "../../../../../../lib/auth/middleware";
 import { query, queryOne, getPool } from "../../../../../../lib/db";
 import { logger } from "../../../../../../lib/logger";
+import {
+  UPLOAD_ROOT,
+  imageExtensionForMime,
+  isSafePathSegment,
+  resolveStoredUpload,
+  sanitizeDisplayName,
+} from "../../../../../../lib/uploads/paths";
 
 export const dynamic = "force-dynamic";
 
+const VISIT_MEDIA_ROOT = path.join(UPLOAD_ROOT, "visits");
 const MAX_SIZE_BYTES = 10 * 1024 * 1024; // 10 MB
 const ALLOWED_MIME_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif", "image/heic", "image/heif"];
 const VALID_CATEGORIES = ["before", "after", "receipt", "assessment"] as const;
@@ -28,7 +36,7 @@ async function getVisit(visitId: string, session: AuthSession) {
 export const GET = withAuth(
   async (request: NextRequest, session: AuthSession) => {
     const visitId = request.url.match(/\/visits\/([^/]+)\/media/)?.[1];
-    if (!visitId) {
+    if (!visitId || !isSafePathSegment(visitId)) {
       return NextResponse.json(
         { error: { code: "NOT_FOUND", message: "Visit not found", traceId: session.traceId } },
         { status: 404 }
@@ -74,7 +82,7 @@ export const GET = withAuth(
 export const POST = withAuth(
   async (request: NextRequest, session: AuthSession) => {
     const visitId = request.url.match(/\/visits\/([^/]+)\/media/)?.[1];
-    if (!visitId) {
+    if (!visitId || !isSafePathSegment(visitId)) {
       return NextResponse.json(
         { error: { code: "NOT_FOUND", message: "Visit not found", traceId: session.traceId } },
         { status: 404 }
@@ -133,11 +141,17 @@ export const POST = withAuth(
       );
     }
 
-    const ext = file.name.split(".").pop() ?? "jpg";
-    const uuid = randomUUID();
-    const filename = `${uuid}.${ext}`;
-    const uploadDir = path.join("/app/uploads/visits", visitId);
-    const filePath = path.join(uploadDir, filename);
+    // Stored name is server-generated; the extension comes from the allowlist, not from file.name.
+    const ext = imageExtensionForMime(file.type);
+    const filePath = ext ? resolveStoredUpload(VISIT_MEDIA_ROOT, visitId, `${randomUUID()}.${ext}`) : null;
+    if (!filePath) {
+      return NextResponse.json(
+        { error: { code: "VALIDATION_ERROR", message: "Only image files are allowed", traceId: session.traceId } },
+        { status: 422 }
+      );
+    }
+    const uploadDir = path.dirname(filePath);
+    const filename = path.basename(filePath);
 
     try {
       fs.mkdirSync(uploadDir, { recursive: true });
@@ -166,7 +180,7 @@ export const POST = withAuth(
         `INSERT INTO visit_media (account_id, visit_id, category, filename, original_name, mime_type, size_bytes, created_by)
          VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
          RETURNING id, visit_id, category, original_name, mime_type, size_bytes, created_at`,
-        [session.accountId, visitId, category, filename, file.name, file.type, file.size, session.userId]
+        [session.accountId, visitId, category, filename, sanitizeDisplayName(file.name), file.type, file.size, session.userId]
       );
 
       await client.query("COMMIT");
