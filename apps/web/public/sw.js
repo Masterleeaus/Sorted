@@ -36,7 +36,8 @@ function safeNotificationPath(value) {
 self.addEventListener("push", (event) => {
   let msg = {};
   try {
-    msg = event.data ? event.data.json() : {};
+    const parsed = event.data ? event.data.json() : {};
+    msg = parsed && typeof parsed === "object" && !Array.isArray(parsed) ? parsed : {};
   } catch {
     msg = { title: "Sorted", body: event.data ? event.data.text() : "" };
   }
