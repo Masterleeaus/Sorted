@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { withRole } from "@/lib/auth/middleware";
-import { getPool } from "@/lib/db";
+import { queryForSession } from "@/lib/db";
 import { logger } from "@/lib/logger";
 import { sendEmail, appUrl, isEmailConfigured } from "@/lib/email/mailer";
 import { intakeInviteEmailHtml, intakeInviteEmailText } from "@ai-fsm/email-templates";
@@ -38,13 +38,11 @@ export const POST = withRole(["owner", "admin"], async (request: NextRequest, se
       );
     }
 
-    const pool = getPool();
-
     // Load the booking request
-    const { rows: brRows } = await pool.query<{
+    const brRows = await queryForSession<{
       id: string; account_id: string; name: string; email: string | null;
       phone: string | null; client_id: string | null;
-    }>(
+    }>(session,
       `SELECT id, account_id, name, email, phone, client_id
        FROM booking_requests
        WHERE id = $1 AND account_id = $2`,
@@ -69,7 +67,7 @@ export const POST = withRole(["owner", "admin"], async (request: NextRequest, se
     }
 
     // Check for an active (unexpired, unused) invite
-    const { rows: existingInvites } = await pool.query<{ token: string; expires_at: string }>(
+    const existingInvites = await queryForSession<{ token: string; expires_at: string }>(session,
       `SELECT token, expires_at FROM intake_invites
        WHERE booking_request_id = $1 AND used_at IS NULL AND expires_at > now()
        ORDER BY created_at DESC LIMIT 1`,
@@ -85,7 +83,7 @@ export const POST = withRole(["owner", "admin"], async (request: NextRequest, se
       expiresAt = existingInvites[0].expires_at;
     } else {
       // Create a new invite
-      const { rows: insertRows } = await pool.query<{ token: string; expires_at: string }>(
+      const insertRows = await queryForSession<{ token: string; expires_at: string }>(session,
         `INSERT INTO intake_invites
            (account_id, booking_request_id, lead_name, lead_email, lead_phone)
          VALUES ($1, $2, $3, $4, $5)
@@ -97,7 +95,7 @@ export const POST = withRole(["owner", "admin"], async (request: NextRequest, se
 
       // Update the booking request email if it was missing
       if (!br.email && email) {
-        await pool.query(
+        await queryForSession(session,
           `UPDATE booking_requests SET email = $1 WHERE id = $2`,
           [email, bookingRequestId]
         );
