@@ -48,14 +48,14 @@ describe("POST /api/portal/[clientToken]/sms-opt-out", () => {
     expect(mockQuery.mock.calls[2][0]).toBe("ROLLBACK");
   });
 
-  it("200 — clears consent and logs to communications_log", async () => {
+  it("200 — sets account context before clearing consent and logs to communications_log", async () => {
     const { POST } = await import("../[clientToken]/sms-opt-out/route");
 
     mockQuery
       .mockResolvedValueOnce({ rows: [] })  // BEGIN
       .mockResolvedValueOnce({ rows: [{ id: CLIENT_ID, account_id: ACCOUNT_ID, sms_consent: true }] }) // SELECT client
+      .mockResolvedValueOnce({ rows: [] })  // set_config (account context)
       .mockResolvedValueOnce({ rows: [] })  // UPDATE clients
-      .mockResolvedValueOnce({ rows: [] })  // set_config
       .mockResolvedValueOnce({ rows: [] })  // INSERT communications_log
       .mockResolvedValueOnce({ rows: [] }); // COMMIT
 
@@ -67,6 +67,14 @@ describe("POST /api/portal/[clientToken]/sms-opt-out", () => {
     const json = await res.json();
     expect(json).toEqual({ ok: true });
     expect(mockRelease).toHaveBeenCalled();
+
+    const sql = mockQuery.mock.calls.map((c) => String(c[0]));
+    const ctx = sql.findIndex((s) => s.includes("set_config('app.current_account_id'"));
+    const update = sql.findIndex((s) => s.startsWith("UPDATE clients"));
+    expect(ctx).toBeGreaterThan(0);
+    expect(update).toBeGreaterThan(ctx);
+    expect(mockQuery.mock.calls[ctx][1]).toEqual([ACCOUNT_ID]);
+    expect(sql[update]).toContain("AND account_id = $2");
   });
 
   it("404 — token not found", async () => {

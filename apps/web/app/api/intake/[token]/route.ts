@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import type { Pool } from "pg";
 import { getPool } from "@/lib/db";
+import { withTokenAccountContext } from "../../_lib/account-context";
 import { logger } from "@/lib/logger";
 import { scoreSiteVisitProbability } from "@ai-fsm/domain";
 import {
@@ -102,13 +103,32 @@ async function readJsonBody(
 /**
  * Response for a token that cannot be claimed. Used both when the pre-check
  * finds nothing usable and when the conditional claim matches zero rows.
+ *
+ * When `accountId` is known from the invite row, the status read runs inside
+ * that account's context. Without it, the lookup is by token alone and runs
+ * on the pool. That lookup has no account to set yet, so it stays cross-account
+ * until the token resolver in docs/working/rls-web-tier-flip.md (blocker 1) exists.
  */
-async function unavailableInviteResponse(pool: Pool, token: string): Promise<NextResponse> {
+async function unavailableInviteResponse(
+  pool: Pool,
+  token: string,
+  accountId?: string
+): Promise<NextResponse> {
   // Check if it exists but is expired or used, to give a better message
-  const { rows: checkRows } = await pool.query<{ used_at: string | null; expires_at: string }>(
-    `SELECT used_at, expires_at FROM intake_invites WHERE token = $1`,
-    [token]
-  );
+  const checkRows = accountId
+    ? await withTokenAccountContext(accountId, async (client) => {
+        const { rows } = await client.query<{ used_at: string | null; expires_at: string }>(
+          `SELECT used_at, expires_at FROM intake_invites WHERE token = $1 AND account_id = $2`,
+          [token, accountId]
+        );
+        return rows;
+      })
+    : (
+        await pool.query<{ used_at: string | null; expires_at: string }>(
+          `SELECT used_at, expires_at FROM intake_invites WHERE token = $1`,
+          [token]
+        )
+      ).rows;
   if (checkRows[0]?.used_at) {
     return NextResponse.json({ error: { code: "ALREADY_USED", message: "This form has already been submitted." } }, { status: 409 });
   }
@@ -193,7 +213,7 @@ export async function POST(
     );
     if (claimedRows.length === 0) {
       await client.query("ROLLBACK");
-      return unavailableInviteResponse(pool, token);
+      return unavailableInviteResponse(pool, token, invite.account_id);
     }
 
     // Photo count comes from the server's records, not the client payload.

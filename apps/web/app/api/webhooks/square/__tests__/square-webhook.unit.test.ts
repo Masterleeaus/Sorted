@@ -94,10 +94,13 @@ function fakeDb(state: FakeState) {
     const none = { rows: [], rowCount: 0 };
     if (/^(BEGIN|COMMIT|ROLLBACK)$/.test(s)) return none;
     if (/pg_advisory_xact_lock/.test(s)) return none;
+    if (/set_config/.test(s)) return none;
 
     // Duplicate check by Square payment id.
-    if (/SELECT 1 FROM payments WHERE external_provider = 'square' AND external_payment_id/.test(s)) {
-      const hit = state.payments.filter((p) => p.external_payment_id === params[0]);
+    if (/SELECT 1 FROM payments WHERE account_id = \$1 AND external_provider = 'square' AND external_payment_id = \$2/.test(s)) {
+      const hit = state.payments.filter(
+        (p) => p.account_id === params[0] && p.external_payment_id === params[1]
+      );
       return { rows: hit.map(() => ({ "?column?": 1 })), rowCount: hit.length };
     }
 
@@ -142,7 +145,9 @@ function fakeDb(state: FakeState) {
 
     // Conditional transition: only a pending row becomes paid.
     if (/^UPDATE payments SET status = 'paid'/.test(s) && /AND status = 'pending'/.test(s)) {
-      const row = state.payments.find((p) => p.id === params[0] && p.status === "pending");
+      const row = state.payments.find(
+        (p) => p.id === params[0] && p.account_id === params[2] && p.status === "pending"
+      );
       if (!row) return none;
       row.status = "paid";
       row.external_payment_id = params[1] as string;
@@ -283,9 +288,21 @@ describe("POST /api/webhooks/square — payment.updated COMPLETED", () => {
     await POST(req(completedEvent("P1", "ORD2", 7000)));
     const sql = mockClientQuery.mock.calls.map((c) => String(c[0]));
     const lockAt = sql.findIndex((s) => /pg_advisory_xact_lock/.test(s));
-    const dupAt = sql.findIndex((s) => /external_payment_id = \$1/.test(s));
+    const dupAt = sql.findIndex((s) => /external_payment_id = \$2/.test(s));
     expect(lockAt).toBeGreaterThan(-1);
     expect(lockAt).toBeLessThan(dupAt);
+  });
+
+  it("sets the account context from the signed settings record before any write", async () => {
+    settingsFound();
+    mockClientQuery.mockImplementation(fakeDb(twoLinks()));
+    await POST(req(completedEvent("P1", "ORD2", 7000)));
+    const sql = mockClientQuery.mock.calls.map((c) => String(c[0]));
+    const ctx = sql.findIndex((s) => /set_config\('app\.current_account_id'/.test(s));
+    const update = sql.findIndex((s) => /^UPDATE payments/.test(s));
+    expect(ctx).toBeGreaterThan(-1);
+    expect(update).toBeGreaterThan(ctx);
+    expect(mockClientQuery.mock.calls[ctx][1]).toEqual([ACCOUNT]);
   });
 
   it("uses a conditional status = 'pending' update for the transition", async () => {
@@ -294,7 +311,7 @@ describe("POST /api/webhooks/square — payment.updated COMPLETED", () => {
     await POST(req(completedEvent("P1", "ORD2", 7000)));
     const update = mockClientQuery.mock.calls.find((c) => /UPDATE payments/.test(String(c[0])));
     expect(String(update![0])).toMatch(/status = 'paid'/);
-    expect(String(update![0])).toMatch(/WHERE id = \$1 AND status = 'pending'/);
+    expect(String(update![0])).toMatch(/WHERE id = \$1 AND account_id = \$3 AND status = 'pending'/);
   });
 
   it("multiple links on one invoice: pays the row for the webhook's order, not the oldest", async () => {
@@ -479,6 +496,7 @@ describe("POST /api/webhooks/square — refund.updated COMPLETED", () => {
     settingsFound();
     mockClientQuery
       .mockResolvedValueOnce({ rows: [], rowCount: 0 })          // BEGIN
+      .mockResolvedValueOnce({ rows: [], rowCount: 0 })          // set_config (account context)
       .mockResolvedValueOnce({ rows: [], rowCount: 0 })          // dup check → none
       .mockResolvedValueOnce({ rows: [{ invoice_id: INVOICE, account_id: ACCOUNT, client_id: "C1", job_id: null, created_by: "U1" }], rowCount: 1 }) // original payment
       .mockResolvedValueOnce({ rows: [{ id: "REFROW" }], rowCount: 1 }) // INSERT refund row

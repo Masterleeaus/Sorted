@@ -66,6 +66,9 @@ function req(body: Record<string, unknown>, key = "test-key"): NextRequest {
 function handleQuery(sql: string) {
   if (sql.includes("FROM vehicles")) return { rows: [{ id: VEHICLE }] };
   if (sql.includes("INSERT INTO location_segments")) return { rows: [{ id: "seg-1" }] };
+  if (sql.includes("location_tracking_enabled")) {
+    return { rows: [{ enabled: true, paused: false, active_session: false }] };
+  }
   return { rows: [] };
 }
 
@@ -90,6 +93,19 @@ beforeEach(() => {
 });
 
 describe("POST /api/internal/location — van connect starts the company day", () => {
+  it("runs the privacy gate inside the resolved owner account context", async () => {
+    const res = await POST(req({ kind: "vehicle_connect", vehicle_bluetooth: "AA:BB:CC:DD:EE:FF", person: "Nick" }));
+    expect(res.status).toBe(200);
+    const sqls = mockClientQuery.mock.calls.map((c) => String(c[0]));
+    const ctxIdx = sqls.findIndex((s) => s.includes("set_config('app.current_account_id'"));
+    const gateIdx = sqls.findIndex((s) => s.includes("location_tracking_enabled"));
+    expect(ctxIdx).toBeGreaterThanOrEqual(0);
+    expect(gateIdx).toBeGreaterThan(ctxIdx);
+    expect(mockClientQuery.mock.calls[ctxIdx][1]).toEqual([ACCOUNT, "owner"]);
+    // The gate must not run on the bare pool anymore.
+    expect(mockQueryOne.mock.calls.some((c) => String(c[0]).includes("location_tracking_enabled"))).toBe(false);
+  });
+
   it("does not drop vehicle_connect when no mileage session is open yet", async () => {
     const res = await POST(
       req({
