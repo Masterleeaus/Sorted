@@ -4,7 +4,7 @@ import { runInNewContext } from "node:vm";
 import { fileURLToPath } from "node:url";
 
 const workerSource = readFileSync(
-  fileURLToPath(new URL("../../public/sw.js", import.meta.url)), "utf8",
+  fileURLToPath(new URL("../public/sw.js", import.meta.url)), "utf8",
 );
 
 function createWorkerHarness() {
