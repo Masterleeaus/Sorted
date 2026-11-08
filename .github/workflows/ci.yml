@@ -65,6 +65,8 @@ jobs:
         run: pnpm typecheck
       - name: Verify onboarding runtime contract independently of storage migrations
         run: pnpm --filter @titan-zero/onboarding test
+      - name: Verify notification redirect isolation independently of storage migrations
+        run: pnpm --filter @ai-fsm/web exec vitest run __tests__/service-worker-security.unit.test.ts lib/push/__tests__/payload.unit.test.ts
 
   # ── 3. Build ─────────────────────────────────────────────────────────────
   # Runs after typecheck. Lint remains independently required for merge; a
