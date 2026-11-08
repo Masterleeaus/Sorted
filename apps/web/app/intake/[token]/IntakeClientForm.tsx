@@ -1,7 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { INTAKE_QUESTIONS } from "@/lib/intake/questions";
+import {
+  INTAKE_PHOTO_ACCEPT,
+  MAX_INTAKE_PHOTOS,
+  validateIntakePhotoMeta,
+} from "@/lib/intake/photos";
 
 interface IntakeClientFormProps {
   token: string;
@@ -48,6 +53,16 @@ const OWNERSHIP_TYPES = [
 
 type Step = "details" | "service" | "done";
 
+interface PhotoItem {
+  key: string;
+  file: File;
+  previewUrl: string;
+  status: "uploading" | "done" | "failed";
+  /** Server id of the stored photo, set once the upload succeeds. */
+  mediaId?: string;
+  error?: string;
+}
+
 export function IntakeClientForm({ token, leadName, leadEmail, leadPhone }: IntakeClientFormProps) {
   const [step, setStep] = useState<Step>("details");
   const [submitting, setSubmitting] = useState(false);
@@ -74,10 +89,120 @@ export function IntakeClientForm({ token, leadName, leadEmail, leadPhone }: Inta
 
   const questions = category ? (INTAKE_QUESTIONS[category] ?? []) : [];
 
+  // Photos. Each one uploads as soon as it is picked, so the customer sees
+  // upload problems before they submit the form.
+  const [photos, setPhotos] = useState<PhotoItem[]>([]);
+  const [photoError, setPhotoError] = useState<string | null>(null);
+  const photoInputRef = useRef<HTMLInputElement>(null);
+  const photosRef = useRef<PhotoItem[]>([]);
+  // Keys removed while their upload was still running. The upload deletes its
+  // stored photo when it finishes.
+  const removedWhileUploading = useRef<Set<string>>(new Set());
+
+  useEffect(() => {
+    photosRef.current = photos;
+  }, [photos]);
+
+  useEffect(() => {
+    return () => {
+      for (const p of photosRef.current) URL.revokeObjectURL(p.previewUrl);
+    };
+  }, []);
+
+  function patchPhoto(key: string, patch: Partial<PhotoItem>) {
+    setPhotos((prev) => prev.map((p) => (p.key === key ? { ...p, ...patch } : p)));
+  }
+
+  async function uploadPhoto(item: PhotoItem) {
+    patchPhoto(item.key, { status: "uploading", error: undefined });
+    try {
+      const body = new FormData();
+      body.append("file", item.file);
+      const res = await fetch(`/api/intake/${token}/media`, { method: "POST", body });
+      const json = (await res.json().catch(() => null)) as
+        | { data?: { id?: string }; error?: { message?: string } }
+        | null;
+
+      if (!res.ok || !json?.data?.id) {
+        patchPhoto(item.key, {
+          status: "failed",
+          error: json?.error?.message ?? "This photo could not be uploaded. Please try again.",
+        });
+        return;
+      }
+
+      if (removedWhileUploading.current.has(item.key)) {
+        removedWhileUploading.current.delete(item.key);
+        void fetch(`/api/intake/${token}/media/${json.data.id}`, { method: "DELETE" }).catch(() => undefined);
+        return;
+      }
+      patchPhoto(item.key, { status: "done", mediaId: json.data.id });
+    } catch {
+      patchPhoto(item.key, {
+        status: "failed",
+        error: "Network error. Check your connection and try again.",
+      });
+    }
+  }
+
+  function addPhotos(list: FileList | null) {
+    if (!list) return;
+    const errors: string[] = [];
+    const toAdd: PhotoItem[] = [];
+    let room = MAX_INTAKE_PHOTOS - photos.length;
+
+    for (const file of Array.from(list)) {
+      if (room <= 0) {
+        errors.push(`You can attach up to ${MAX_INTAKE_PHOTOS} photos.`);
+        break;
+      }
+      const problem = validateIntakePhotoMeta({ type: file.type, size: file.size });
+      if (problem) {
+        errors.push(`${file.name}: ${problem}`);
+        continue;
+      }
+      room -= 1;
+      toAdd.push({
+        key: `${Date.now()}-${Math.random().toString(36).slice(2)}`,
+        file,
+        previewUrl: URL.createObjectURL(file),
+        status: "uploading",
+      });
+    }
+
+    setPhotoError(errors.length > 0 ? errors.join(" ") : null);
+    if (toAdd.length > 0) {
+      setPhotos((prev) => [...prev, ...toAdd]);
+      for (const item of toAdd) void uploadPhoto(item);
+    }
+    if (photoInputRef.current) photoInputRef.current.value = "";
+  }
+
+  async function removePhoto(item: PhotoItem) {
+    setPhotoError(null);
+    if (item.status === "uploading") {
+      removedWhileUploading.current.add(item.key);
+    } else if (item.status === "done" && item.mediaId) {
+      try {
+        const res = await fetch(`/api/intake/${token}/media/${item.mediaId}`, { method: "DELETE" });
+        if (!res.ok) throw new Error("delete failed");
+      } catch {
+        setPhotoError("That photo could not be removed. Please try again.");
+        return;
+      }
+    }
+    URL.revokeObjectURL(item.previewUrl);
+    setPhotos((prev) => prev.filter((p) => p.key !== item.key));
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!description.trim() || description.trim().length < 20) {
       setError("Please describe your project in at least 20 characters.");
+      return;
+    }
+    if (photos.some((p) => p.status !== "done")) {
+      setError("Please wait for your photos to finish uploading, or remove any that did not upload.");
       return;
     }
     setSubmitting(true);
@@ -96,7 +221,6 @@ export function IntakeClientForm({ token, leadName, leadEmail, leadPhone }: Inta
           intake_metadata: {
             ...intakeAnswers,
             ...(ownershipType ? { ownership_type: ownershipType } : {}),
-            photo_count: 0,  // placeholder — upload support TBD
           },
           referral_source: referralSource || null,
           referral_name: referralSource === "realtor" ? realtorName.trim() || null : null,
@@ -211,9 +335,59 @@ export function IntakeClientForm({ token, leadName, leadEmail, leadPhone }: Inta
             required
             minLength={20}
           />
-          <span style={{ fontSize: 12, color: description.length < 20 ? "#71717a" : "#16a34a" }}>
+          <span style={{ fontSize: 14, color: description.length < 20 ? "#71717a" : "#16a34a" }}>
             {description.length} / 20 characters minimum
           </span>
+        </div>
+
+        {/* ── Photos (section 8: "Support photos immediately") ─────────── */}
+        <div style={fieldStyle}>
+          <label style={labelStyle}>
+            Photos <span style={{ fontWeight: 400, color: "#71717a" }}>(optional, up to {MAX_INTAKE_PHOTOS})</span>
+          </label>
+          <span style={{ fontSize: 14, color: "#52525b" }}>
+            Photos of the area or the problem help us quote accurately. Each photo must be 10 MB or smaller.
+          </span>
+          <input
+            ref={photoInputRef}
+            type="file"
+            accept={INTAKE_PHOTO_ACCEPT}
+            multiple
+            onChange={(e) => addPhotos(e.target.files)}
+            disabled={photos.length >= MAX_INTAKE_PHOTOS}
+            style={{ fontSize: 16, marginTop: 4 }}
+          />
+          {photoError && (
+            <p role="alert" style={{ color: "#dc2626", fontSize: 14, margin: "4px 0 0" }}>{photoError}</p>
+          )}
+          {photos.length > 0 && (
+            <ul style={{ listStyle: "none", padding: 0, margin: "8px 0 0", display: "flex", flexWrap: "wrap", gap: 12 }}>
+              {photos.map((p) => (
+                <li key={p.key} style={{ width: 140, display: "flex", flexDirection: "column", gap: 6 }}>
+                  {/* Local blob: URL preview of the customer's own file. next/image cannot load it. */}
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={p.previewUrl}
+                    alt={`Preview of ${p.file.name}`}
+                    style={{ width: 140, height: 140, objectFit: "cover", borderRadius: 6, border: "1px solid #d1d5db", background: "#f4f4f5" }}
+                  />
+                  <span style={{ fontSize: 14, wordBreak: "break-all" }}>{p.file.name}</span>
+                  <span style={{ fontSize: 14, color: p.status === "failed" ? "#dc2626" : "#52525b" }}>
+                    {p.status === "uploading" ? "Uploading…" : p.status === "done" ? "Added" : "Upload failed"}
+                  </span>
+                  {p.error && <span style={{ fontSize: 14, color: "#dc2626" }}>{p.error}</span>}
+                  {p.status === "failed" && (
+                    <button type="button" onClick={() => void uploadPhoto(p)} style={photoButtonStyle}>
+                      Try again
+                    </button>
+                  )}
+                  <button type="button" onClick={() => void removePhoto(p)} style={photoButtonStyle}>
+                    Remove photo
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
       </fieldset>
 
@@ -389,6 +563,16 @@ const labelStyle: React.CSSProperties = {
   fontSize: 13,
   fontWeight: 600,
   color: "#374151",
+};
+
+const photoButtonStyle: React.CSSProperties = {
+  minHeight: 44,
+  padding: "8px 10px",
+  borderRadius: 6,
+  border: "1px solid #d1d5db",
+  background: "#fff",
+  fontSize: 15,
+  cursor: "pointer",
 };
 
 const inputStyle: React.CSSProperties = {
