@@ -1,20 +1,20 @@
 import type { MetadataRoute } from "next";
 
 /**
- * Titan Go is the single installable PWA for the Titan Zero suite. Which modes
- * appear inside it (Build / Desk / Field / Pay) are determined by subscription
- * entitlements and role. This deployment currently opens in Field mode.
+ * Sorted is the installable Field application. Other ecosystem products,
+ * including Supercharged Desk and LMS Academy, retain separate identities.
+ * Do not claim that unavailable app modes are installed in this PWA.
  */
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "Titan Go",
-    short_name: "Titan Go",
-    description: "Titan Go — one mobile app for your Titan Zero business systems. Current mode: Field.",
+    name: "Sorted",
+    short_name: "Sorted",
+    description: "Sorted — field service operations, scheduling and workforce.",
     start_url: "/app",
     scope: "/",
     display: "standalone",
     background_color: "#070708",
-    theme_color: "#f5c542",
+    theme_color: "#17365d",
     icons: [
       { src: "/icons/icon-192.png", sizes: "192x192", type: "image/png", purpose: "any" },
       { src: "/icons/icon-512.png", sizes: "512x512", type: "image/png", purpose: "any" },
@@ -24,21 +24,21 @@ export default function manifest(): MetadataRoute.Manifest {
       {
         name: "Field Command",
         short_name: "Command",
-        description: "Open Titan Go in Field command mode",
+        description: "Open Sorted field command",
         url: "/app",
         icons: [{ src: "/icons/icon-192.png", sizes: "192x192", type: "image/png" }],
       },
       {
         name: "Today",
         short_name: "Today",
-        description: "Open today's Field work",
+        description: "Open today's field work",
         url: "/app/my-work",
         icons: [{ src: "/icons/icon-192.png", sizes: "192x192", type: "image/png" }],
       },
       {
         name: "Workforce",
         short_name: "Workforce",
-        description: "Open Field workforce",
+        description: "Open Sorted workforce",
         url: "/app/workforce",
         icons: [{ src: "/icons/icon-192.png", sizes: "192x192", type: "image/png" }],
       },
