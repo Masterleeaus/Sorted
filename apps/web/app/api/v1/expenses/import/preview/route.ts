@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { withRole } from "@/lib/auth/middleware";
 import { withExpenseContext } from "@/lib/expenses/db";
 import { logger } from "@/lib/logger";
+import { payloadTooLargeResponse, readMultipartWithLimit, UPLOAD_BODY_LIMITS } from "@/lib/uploads/body-limit";
 import { parsePurchaseCsv } from "@/lib/expenses/import/detect";
 import {
   csvImportStatus,
@@ -65,15 +66,17 @@ function suggestJob(
 }
 
 export const POST = withRole(["owner", "admin"], async (request: NextRequest, session) => {
-  let formData: FormData;
-  try {
-    formData = await request.formData();
-  } catch {
+  const multipart = await readMultipartWithLimit(request, UPLOAD_BODY_LIMITS.expenseImportPreview);
+  if (!multipart.ok && multipart.reason === "too_large") {
+    return payloadTooLargeResponse(session.traceId, UPLOAD_BODY_LIMITS.expenseImportPreview);
+  }
+  if (!multipart.ok) {
     return NextResponse.json(
       { error: { code: "VALIDATION_ERROR", message: "Expected a CSV file upload", traceId: session.traceId } },
       { status: 422 }
     );
   }
+  const formData = multipart.formData;
   const file = formData.get("file") as File | null;
   if (!file) {
     return NextResponse.json(

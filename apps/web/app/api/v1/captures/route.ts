@@ -10,6 +10,7 @@ import { withRole } from "@/lib/auth/middleware";
 import type { AuthSession } from "@/lib/auth/middleware";
 import { withDbSession } from "@/lib/db";
 import { logger } from "@/lib/logger";
+import { payloadTooLargeResponse, readMultipartWithLimit, UPLOAD_BODY_LIMITS } from "@/lib/uploads/body-limit";
 import { captureDir, captureFilePath } from "./files";
 
 export const dynamic = "force-dynamic";
@@ -94,12 +95,14 @@ function errorJson(session: AuthSession, status: number, code: string, message: 
 }
 
 export const POST = withRole(["owner", "admin"], async (request: NextRequest, session: AuthSession) => {
-  let formData: FormData;
-  try {
-    formData = await request.formData();
-  } catch {
+  const multipart = await readMultipartWithLimit(request, UPLOAD_BODY_LIMITS.captures);
+  if (!multipart.ok && multipart.reason === "too_large") {
+    return payloadTooLargeResponse(session.traceId, UPLOAD_BODY_LIMITS.captures);
+  }
+  if (!multipart.ok) {
     return errorJson(session, 422, "VALIDATION_ERROR", "Expected multipart form data");
   }
+  const formData = multipart.formData;
 
   const audio = asFile(formData.get("audio"));
   const photo = asFile(formData.get("photo"));

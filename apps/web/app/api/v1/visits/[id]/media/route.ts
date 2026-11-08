@@ -10,6 +10,7 @@ import { withAuth } from "../../../../../../lib/auth/middleware";
 import type { AuthSession } from "../../../../../../lib/auth/middleware";
 import { query, queryOne, getPool } from "../../../../../../lib/db";
 import { logger } from "../../../../../../lib/logger";
+import { payloadTooLargeResponse, readMultipartWithLimit, UPLOAD_BODY_LIMITS } from "../../../../../../lib/uploads/body-limit";
 import {
   UPLOAD_ROOT,
   imageExtensionForMime,
@@ -103,15 +104,17 @@ export const POST = withAuth(
       );
     }
 
-    let formData: FormData;
-    try {
-      formData = await request.formData();
-    } catch {
+    const multipart = await readMultipartWithLimit(request, UPLOAD_BODY_LIMITS.mediaPhoto);
+    if (!multipart.ok && multipart.reason === "too_large") {
+      return payloadTooLargeResponse(session.traceId, UPLOAD_BODY_LIMITS.mediaPhoto);
+    }
+    if (!multipart.ok) {
       return NextResponse.json(
         { error: { code: "VALIDATION_ERROR", message: "Expected multipart form data", traceId: session.traceId } },
         { status: 422 }
       );
     }
+    const formData = multipart.formData;
 
     const file = formData.get("file") as File | null;
     const category = formData.get("category") as string | null;
