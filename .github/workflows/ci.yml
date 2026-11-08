@@ -63,6 +63,8 @@ jobs:
         run: pnpm install --frozen-lockfile
       - name: Run tsc --noEmit across all workspaces
         run: pnpm typecheck
+      - name: Verify onboarding runtime contract independently of storage migrations
+        run: pnpm --filter @titan-zero/onboarding test
 
   # ── 3. Build ─────────────────────────────────────────────────────────────
   # Runs after typecheck. Lint remains independently required for merge; a
