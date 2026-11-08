@@ -22,17 +22,27 @@ const fsMocks = vi.hoisted(() => ({
 }));
 vi.mock("fs", () => ({ default: fsMocks, ...fsMocks }));
 
+// Every session-scoped read and write goes through withDbSession, which hands the callback a
+// client. clientQuery is that client: it returns rows based on the SQL it is given (see rowsFor).
 const dbMocks = vi.hoisted(() => ({
-  queryOne: vi.fn(),
-  query: vi.fn(),
+  withDbSession: vi.fn(),
   clientQuery: vi.fn(),
   release: vi.fn(),
+  storedFilename: { value: "" },
 }));
-vi.mock("@/lib/db", () => ({
-  queryOne: (...args: unknown[]) => dbMocks.queryOne(...args),
-  query: (...args: unknown[]) => dbMocks.query(...args),
-  getPool: () => ({ connect: async () => ({ query: dbMocks.clientQuery, release: dbMocks.release }) }),
-}));
+vi.mock("@/lib/db", () => {
+  const forSession = (session: unknown, sql: string, params?: unknown[]) =>
+    dbMocks.withDbSession(session, (client: { query: (s: string, p?: unknown[]) => Promise<{ rows: unknown[] }> }) =>
+      client.query(sql, params),
+    ) as Promise<{ rows: unknown[] }>;
+  return {
+    withDbSession: (...args: unknown[]) => dbMocks.withDbSession(...args),
+    queryForSession: async (session: unknown, sql: string, params?: unknown[]) => (await forSession(session, sql, params)).rows,
+    queryOneForSession: async (session: unknown, sql: string, params?: unknown[]) =>
+      ((await forSession(session, sql, params)).rows[0] as unknown) ?? null,
+    getPool: () => ({ connect: async () => ({ query: dbMocks.clientQuery, release: dbMocks.release }) }),
+  };
+});
 
 vi.mock("@/lib/logger", () => ({
   logger: { error: vi.fn(), warn: vi.fn() },
@@ -94,17 +104,30 @@ function insertParams(): unknown[] {
   return call![1] as unknown[];
 }
 
+/** Rows the session client returns for each statement the routes run. DELETE and INSERT are matched first. */
+function rowsFor(sql: string): unknown[] {
+  if (sql.includes("DELETE FROM")) return [{ filename: dbMocks.storedFilename.value }];
+  if (sql.includes("INSERT INTO")) {
+    return [{ id: MEDIA, visit_id: PARENT, original_name: "x", mime_type: "image/jpeg", size_bytes: 1 }];
+  }
+  if (sql.includes("FROM visits") || sql.includes("FROM property_vault_items")) {
+    return [{ id: PARENT, assigned_user_id: null }];
+  }
+  if (sql.includes("FROM visit_media") || sql.includes("FROM property_vault_item_media")) {
+    return [{ filename: dbMocks.storedFilename.value, mime_type: "image/jpeg" }];
+  }
+  return [];
+}
+
 beforeEach(() => {
   vi.clearAllMocks();
   mockSession.role = "owner";
-  dbMocks.queryOne.mockImplementation(async (sql: string) => {
-    if (sql.includes("FROM visit_media")) return { filename: `${STORED_UUID}.jpg`, mime_type: "image/jpeg" };
-    if (sql.includes("FROM property_vault_item_media")) return { filename: `${STORED_UUID}.jpg`, mime_type: "image/jpeg" };
-    return { id: PARENT, assigned_user_id: null };
-  });
-  dbMocks.clientQuery.mockImplementation(async () => ({
-    rows: [{ id: MEDIA, visit_id: PARENT, original_name: "x", mime_type: "image/jpeg", size_bytes: 1 }],
-  }));
+  dbMocks.storedFilename.value = `${STORED_UUID}.jpg`;
+  dbMocks.withDbSession.mockImplementation(
+    async (_session: unknown, fn: (client: { query: unknown }) => Promise<unknown>) =>
+      fn({ query: dbMocks.clientQuery }),
+  );
+  dbMocks.clientQuery.mockImplementation(async (sql: unknown) => ({ rows: rowsFor(String(sql)) }));
 });
 
 describe("visit media POST: hostile client filenames", () => {
@@ -139,7 +162,7 @@ describe("visit media POST: hostile client filenames", () => {
     const res = await visitPost(post(url, uploadForm("a.jpg")), {} as never);
     expect(res.status).toBe(404);
     expect(fsMocks.writeFileSync).not.toHaveBeenCalled();
-    expect(dbMocks.queryOne).not.toHaveBeenCalled();
+    expect(dbMocks.withDbSession).not.toHaveBeenCalled();
   });
 });
 
@@ -147,10 +170,7 @@ describe("visit media image GET and DELETE: stored filename containment", () => 
   const hostileStored = ["../../../../etc/passwd", "..\\..\\secret.jpg", "a/../../x.jpg", ".."];
 
   it.each(hostileStored)("does not read %j", async (stored) => {
-    dbMocks.queryOne.mockImplementation(async (sql: string) => {
-      if (sql.includes("FROM visit_media")) return { filename: stored, mime_type: "image/jpeg" };
-      return { id: PARENT, assigned_user_id: null };
-    });
+    dbMocks.storedFilename.value = stored;
     const res = await visitImageGet(new NextRequest(visitsUrl(`/${MEDIA}/image`)), {} as never);
     expect(res.status).toBe(404);
     expect(fsMocks.readFileSync).not.toHaveBeenCalled();
@@ -163,10 +183,7 @@ describe("visit media image GET and DELETE: stored filename containment", () => 
   });
 
   it.each(hostileStored)("deletes the row but never unlinks %j outside the directory", async (stored) => {
-    dbMocks.clientQuery.mockImplementation(async (sql: string) => {
-      if (String(sql).includes("DELETE FROM visit_media")) return { rows: [{ filename: stored }] };
-      return { rows: [] };
-    });
+    dbMocks.storedFilename.value = stored;
     const res = await visitDelete(new NextRequest(visitsUrl(`/${MEDIA}`), { method: "DELETE" }), {} as never);
     expect(res.status).toBe(200);
     expect(fsMocks.unlinkSync).not.toHaveBeenCalled();
@@ -198,20 +215,14 @@ describe("vault item media image GET and DELETE: stored filename containment", (
   const hostileStored = ["../../../../etc/passwd", "..\\..\\secret.jpg", "a/../../x.jpg"];
 
   it.each(hostileStored)("does not read %j", async (stored) => {
-    dbMocks.queryOne.mockImplementation(async (sql: string) => {
-      if (sql.includes("FROM property_vault_item_media")) return { filename: stored, mime_type: "image/jpeg" };
-      return { id: PARENT };
-    });
+    dbMocks.storedFilename.value = stored;
     const res = await vaultImageGet(new NextRequest(vaultUrl(`/${MEDIA}/image`)), {} as never);
     expect(res.status).toBe(404);
     expect(fsMocks.readFileSync).not.toHaveBeenCalled();
   });
 
   it.each(hostileStored)("deletes the row but never unlinks %j", async (stored) => {
-    dbMocks.clientQuery.mockImplementation(async (sql: string) => {
-      if (String(sql).includes("DELETE FROM property_vault_item_media")) return { rows: [{ filename: stored }] };
-      return { rows: [] };
-    });
+    dbMocks.storedFilename.value = stored;
     const res = await vaultDelete(new NextRequest(vaultUrl(`/${MEDIA}`), { method: "DELETE" }), {} as never);
     expect(res.status).toBe(200);
     expect(fsMocks.unlinkSync).not.toHaveBeenCalled();
