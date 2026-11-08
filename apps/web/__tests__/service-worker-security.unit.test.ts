@@ -50,7 +50,7 @@ function createWorkerHarness() {
     });
     await pending;
   }
-  return { push, click, existingClient, openWindow, notifications };
+  return { push, click, existingClient, openWindow, notifications, clients: self.clients };
 }
 
 describe("Sorted service worker notification isolation", () => {
@@ -84,6 +84,39 @@ describe("Sorted service worker notification isolation", () => {
       expect(notice.title).toBe("Sorted");
       expect(notice.options.data.url).toBe("/");
     }
+  });
+
+  it("keeps the notification event alive until navigation and focus complete", async () => {
+    const worker = createWorkerHarness();
+    let completeNavigation: (() => void) | undefined;
+    worker.existingClient.navigate.mockImplementationOnce(
+      () => new Promise<void>((resolve) => { completeNavigation = resolve; }),
+    );
+    let finished = false;
+    const pending = worker.click("/app/jobs/456").then(() => { finished = true; });
+    await vi.waitFor(() => {
+      expect(worker.existingClient.navigate).toHaveBeenCalledWith("/app/jobs/456");
+    });
+    expect(finished).toBe(false);
+    expect(worker.existingClient.focus).not.toHaveBeenCalled();
+    completeNavigation!();
+    await pending;
+    expect(worker.existingClient.focus).toHaveBeenCalledOnce();
+  });
+
+  it("opens a safe window if all existing client navigations fail", async () => {
+    const worker = createWorkerHarness();
+    worker.existingClient.navigate.mockRejectedValueOnce(new Error("closed tab"));
+    await worker.click("/app/my-work");
+    expect(worker.openWindow).toHaveBeenCalledWith("/app/my-work");
+    expect(worker.existingClient.focus).not.toHaveBeenCalled();
+  });
+
+  it("opens an app window when no existing client is available", async () => {
+    const worker = createWorkerHarness();
+    worker.clients.matchAll.mockResolvedValueOnce([]);
+    await worker.click("//outside.example");
+    expect(worker.openWindow).toHaveBeenCalledWith("/");
   });
 
   it("rejects a malicious legacy notification click even without a prior push event", async () => {
