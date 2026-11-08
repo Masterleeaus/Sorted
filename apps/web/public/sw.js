@@ -65,8 +65,12 @@ self.addEventListener("notificationclick", (event) => {
         // the wrong screen. Try a navigable tab or open a new window instead.
         if (typeof client.navigate !== "function" || typeof client.focus !== "function") continue;
         try {
-          await client.navigate(url);
-          await client.focus();
+          const navigated = await client.navigate(url);
+          // The platform can resolve navigate() with null when a client
+          // closes or the target cannot be represented as a WindowClient.
+          // A null result is not proof that the destination was opened.
+          if (!navigated) continue;
+          await navigated.focus();
           return;
         } catch {
           // A closed or blocked client must not consume the notification click.
