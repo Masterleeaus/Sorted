@@ -1,4 +1,4 @@
-// Minimal service worker for Titan Go.
+// Minimal service worker for Sorted Field.
 //
 // Scope: installability only. Chromium gates the install prompt on the presence
 // of a service worker with a fetch handler; this provides exactly that and
@@ -30,9 +30,9 @@ self.addEventListener("push", (event) => {
   try {
     msg = event.data ? event.data.json() : {};
   } catch {
-    msg = { title: "Titan Go", body: event.data ? event.data.text() : "" };
+    msg = { title: "Sorted", body: event.data ? event.data.text() : "" };
   }
-  const title = msg.title || "Titan Go";
+  const title = msg.title || "Sorted";
   event.waitUntil(
     self.registration.showNotification(title, {
       body: msg.body || "",
