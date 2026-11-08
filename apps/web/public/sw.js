@@ -25,7 +25,7 @@ self.addEventListener("fetch", (event) => {
 // Only same-origin app paths may be used for notification navigation.
 function safeNotificationPath(value) {
   if (typeof value !== "string" || !value.startsWith("/") || value.startsWith("//")
-    || value.includes("\\") || /[\x00-\x1f\x7f]/.test(value)) return "/app";
+    || value.includes("\\") || /[\x00-\x1f\x7f]/.test(value)) return "/";
   return value;
 }
 
