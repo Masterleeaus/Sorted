@@ -11,7 +11,7 @@ import type { AuthSession } from "../../../../../../lib/auth/middleware";
 import type { PoolClient } from "pg";
 import { getPool, withDbSession } from "../../../../../../lib/db";
 import { logger } from "../../../../../../lib/logger";
-import { payloadTooLargeResponse, readMultipartWithLimit, UPLOAD_BODY_LIMITS } from "../../../../../../lib/uploads/body-limit";
+import { declaredLengthExceeds, payloadTooLargeResponse, readMultipartWithLimit, UPLOAD_BODY_LIMITS } from "../../../../../../lib/uploads/body-limit";
 import {
   UPLOAD_ROOT,
   imageExtensionForMime,
@@ -92,6 +92,11 @@ export const POST = withAuth(
         { error: { code: "NOT_FOUND", message: "Visit not found", traceId: session.traceId } },
         { status: 404 }
       );
+    }
+
+    // Declared oversize bodies are refused before any DB lookup, parsing or writes (#16).
+    if (declaredLengthExceeds(request, UPLOAD_BODY_LIMITS.mediaPhoto)) {
+      return payloadTooLargeResponse(session.traceId, UPLOAD_BODY_LIMITS.mediaPhoto);
     }
 
     const visit = await withDbSession(session, (client) => getVisit(client, visitId, session));

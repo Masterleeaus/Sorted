@@ -6,7 +6,7 @@ import { withAuth } from "../../../../../../lib/auth/middleware";
 import type { AuthSession } from "../../../../../../lib/auth/middleware";
 import { getPool, queryForSession, queryOneForSession } from "../../../../../../lib/db";
 import { logger } from "../../../../../../lib/logger";
-import { payloadTooLargeResponse, readMultipartWithLimit, UPLOAD_BODY_LIMITS } from "../../../../../../lib/uploads/body-limit";
+import { declaredLengthExceeds, payloadTooLargeResponse, readMultipartWithLimit, UPLOAD_BODY_LIMITS } from "../../../../../../lib/uploads/body-limit";
 import {
   UPLOAD_ROOT,
   imageExtensionForMime,
@@ -63,6 +63,11 @@ export const POST = withAuth(async (request: NextRequest, session: AuthSession) 
       { error: { code: "NOT_FOUND", message: "Vault item not found", traceId: session.traceId } },
       { status: 404 }
     );
+  }
+
+  // Declared oversize bodies are refused before any DB lookup, parsing or writes (#16).
+  if (declaredLengthExceeds(request, UPLOAD_BODY_LIMITS.mediaPhoto)) {
+    return payloadTooLargeResponse(session.traceId, UPLOAD_BODY_LIMITS.mediaPhoto);
   }
 
   const item = await getVaultItem(itemId, session);
