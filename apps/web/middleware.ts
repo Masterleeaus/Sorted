@@ -1,6 +1,38 @@
 import { NextResponse, type NextRequest } from "next/server";
 
 /**
+ * Builds the global Content-Security-Policy.
+ *
+ * Production: no 'unsafe-eval'. Next.js production output and React's
+ * production build do not evaluate strings.
+ *
+ * Development exceptions (only when NODE_ENV !== "production"):
+ *   - 'unsafe-eval' in script-src: Next dev uses eval-based source maps and
+ *     React dev call-stack reconstruction. Needed for `next dev` only.
+ *
+ * Still-broad allowances (see docs/working/csp-inventory.md):
+ *   - script-src 'unsafe-inline': Next.js App Router emits inline bootstrap
+ *     scripts. A nonce is blocked on dynamic rendering (see inventory doc).
+ *   - style-src 'unsafe-inline': React `style={{}}` props across the app.
+ */
+export function buildContentSecurityPolicy(nodeEnv: string | undefined = process.env.NODE_ENV): string {
+  const isDevelopment = nodeEnv !== "production";
+  const scriptSrc = ["'self'", "'unsafe-inline'", ...(isDevelopment ? ["'unsafe-eval'"] : [])];
+  return [
+    "default-src 'self'",
+    `script-src ${scriptSrc.join(" ")}`,
+    "style-src 'self' 'unsafe-inline'",
+    // OpenStreetMap tiles for the day map (TASK-026) — external tile images.
+    "img-src 'self' data: https://*.tile.openstreetmap.org",
+    "font-src 'self'",
+    "connect-src 'self'",
+    "frame-ancestors 'none'",
+    "base-uri 'self'",
+    "form-action 'self'",
+  ].join("; ");
+}
+
+/**
  * Next.js Edge Middleware — adds security response headers to every response.
  *
  * Runs at the Edge before route handlers. This is the canonical place for
@@ -36,23 +68,8 @@ export function middleware(request: NextRequest) {
       : "camera=(), microphone=(), geolocation=(), payment=()"
   );
 
-  // Content-Security-Policy — restrictive baseline
-  // self for scripts/styles, inline styles allowed for Next.js
-  response.headers.set(
-    "Content-Security-Policy",
-    [
-      "default-src 'self'",
-      "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
-      "style-src 'self' 'unsafe-inline'",
-      // OpenStreetMap tiles for the day map (TASK-026) — external tile images.
-      "img-src 'self' data: https://*.tile.openstreetmap.org",
-      "font-src 'self'",
-      "connect-src 'self'",
-      "frame-ancestors 'none'",
-      "base-uri 'self'",
-      "form-action 'self'",
-    ].join("; ")
-  );
+  // Content-Security-Policy — see buildContentSecurityPolicy() above.
+  response.headers.set("Content-Security-Policy", buildContentSecurityPolicy());
 
   // Strict-Transport-Security — enforce HTTPS (respected by browsers after first visit)
   response.headers.set(
