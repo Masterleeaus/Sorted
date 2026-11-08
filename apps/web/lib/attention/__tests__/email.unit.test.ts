@@ -62,6 +62,6 @@ describe("Sorted Field operational email identity", () => {
     expect(inserted!.values[4]).toContain("needs attention in Sorted Field.");
     expect(inserted!.values[4]).not.toContain("Dovetails");
     expect(inserted!.values[5]).toMatch(/^attention-email:invoice.paid:invoice-123:/);
-    expect(inserted!.values[8]).toBe("invoice-123");
+    expect(inserted!.values[7]).toBe("invoice-123");
   });
 });
