@@ -109,7 +109,9 @@ async function loadJobPhotoRecap(
   const recap: { bytes: Uint8Array; mimeType: string }[] = [];
   for (const photo of picked) {
     try {
-      const buf = fs.readFileSync(visitMediaPath(photo.visitId, photo.filename));
+      const filePath = visitMediaPath(photo.visitId, photo.filename);
+      if (!filePath) continue;
+      const buf = fs.readFileSync(filePath);
       recap.push({ bytes: new Uint8Array(buf), mimeType: photo.mimeType });
     } catch {
       /* missing file on disk — skip */
