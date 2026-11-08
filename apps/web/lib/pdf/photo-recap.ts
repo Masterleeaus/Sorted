@@ -1,3 +1,6 @@
+import path from "path";
+import { UPLOAD_ROOT, resolveStoredUpload } from "../uploads/paths";
+
 export type VisitPhoto = {
   category: string;
   visitId: string;
@@ -12,6 +15,7 @@ export function selectDayPhotoRecap(photos: VisitPhoto[], limit = 4): VisitPhoto
   return [...after, ...before].slice(0, limit);
 }
 
-export function visitMediaPath(visitId: string, filename: string): string {
-  return `/app/uploads/visits/${visitId}/${filename}`;
+/** Absolute path of a stored visit photo, or null when the ids would leave the visits upload root. */
+export function visitMediaPath(visitId: string, filename: string): string | null {
+  return resolveStoredUpload(path.join(UPLOAD_ROOT, "visits"), visitId, filename);
 }
