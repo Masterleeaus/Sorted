@@ -106,7 +106,12 @@ export function runCheck(root) {
     checkDeclaredPath(root, entry.donorPath, entry.sha256, "donor", errors);
     if (entry.integratedPath) {
       declared.add(entry.integratedPath);
-      checkDeclaredPath(root, entry.integratedPath, entry.sha256, "integrated", errors);
+      if (entry.status === "imported-modified") {
+        // Locally edited after import: check against the recorded integrated checksum.
+        checkDeclaredPath(root, entry.integratedPath, entry.integratedSha256, "integrated", errors);
+      } else {
+        checkDeclaredPath(root, entry.integratedPath, entry.sha256, "integrated", errors);
+      }
     }
     for (const extra of entry.otherIdenticalPaths ?? []) {
       declared.add(extra);
