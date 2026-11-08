@@ -57,14 +57,20 @@ self.addEventListener("notificationclick", (event) => {
   event.notification.close();
   const url = safeNotificationPath(event.notification.data && event.notification.data.url);
   event.waitUntil(
-    self.clients.matchAll({ type: "window", includeUncontrolled: true }).then((clients) => {
-      // Focus an existing tab on the same origin and navigate it; else open one.
+    self.clients.matchAll({ type: "window", includeUncontrolled: true }).then(async (clients) => {
+      // Keep this event alive until navigation and focus finish. If a tab
+      // cannot navigate, try the next tab or open a new same-origin window.
       for (const client of clients) {
-        if ("focus" in client) {
-          client.focus();
-          if ("navigate" in client) client.navigate(url).catch(() => {});
-          return;
+        if (!("focus" in client)) continue;
+        if ("navigate" in client) {
+          try {
+            await client.navigate(url);
+          } catch {
+            continue;
+          }
         }
+        await client.focus();
+        return;
       }
       return self.clients.openWindow(url);
     }),
