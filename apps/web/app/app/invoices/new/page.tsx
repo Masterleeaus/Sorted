@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth/session";
 import { canCreateInvoices } from "@/lib/auth/permissions";
-import { query, queryForSession } from "@/lib/db";
+import { queryForSession } from "@/lib/db";
 import { Breadcrumbs, Card, PageContainer, PageHeader, HubSubnav } from "@/components/ui";
 import { MONEY_HUB_LINKS } from "@/lib/navigation/hubs";
 import { NewInvoiceForm } from "./NewInvoiceForm";
@@ -64,15 +64,15 @@ export default async function NewInvoicePage({ searchParams }: PageProps) {
   const { client_id, job_id, property_id, approved_estimate_id } = await searchParams;
 
   const [clients, jobs, properties, propertyContacts] = await Promise.all([
-    query<Client>(
+    queryForSession<Client>(session,
       `SELECT id, name FROM clients WHERE account_id = $1 ORDER BY name ASC`,
       [session.accountId]
     ),
-    query<Job>(
+    queryForSession<Job>(session,
       `SELECT id, title, client_id FROM jobs WHERE account_id = $1 ORDER BY title ASC`,
       [session.accountId]
     ),
-    query<Property>(
+    queryForSession<Property>(session,
       `SELECT id, address, client_id FROM properties WHERE account_id = $1 ORDER BY address ASC`,
       [session.accountId]
     ),
@@ -104,7 +104,7 @@ export default async function NewInvoicePage({ searchParams }: PageProps) {
   }
 
   if (!prefillLineItems && approved_estimate_id) {
-    const estimateItems = await query<EstimateLineItem>(
+    const estimateItems = await queryForSession<EstimateLineItem>(session,
       `SELECT eli.description, eli.quantity, eli.unit_price_cents, eli.sort_order
        FROM estimate_line_items eli
        JOIN estimates e ON e.id = eli.estimate_id

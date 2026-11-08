@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth/session";
-import { query } from "@/lib/db";
+import { queryForSession } from "@/lib/db";
 import MaterialsCatalogClient from "./MaterialsCatalogClient";
 
 export const dynamic = "force-dynamic";
@@ -26,7 +26,7 @@ export default async function MaterialsCatalogPage() {
   if (!session) redirect("/login");
   if (session.role === "tech") redirect("/app/my-work");
 
-  const materials = await query<MaterialCatalogRow>(
+  const materials = await queryForSession<MaterialCatalogRow>(session,
     `SELECT id, name, brand, category, unit, unit_cost_cents,
             avg_paid_cents, purchase_count, supplier, sku,
             last_purchased_at::text AS last_purchased_at,

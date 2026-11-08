@@ -3,7 +3,7 @@ import type { Route } from "next";
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth/session";
 import { canManageClients, canTransitionJob } from "@/lib/auth/permissions";
-import { query } from "@/lib/db";
+import { queryForSession } from "@/lib/db";
 import { buildJobCreateHref, formatPropertyAddress } from "@/lib/crm/normalization";
 import {
   Card,
@@ -46,7 +46,7 @@ export default async function PropertiesPage({ searchParams }: PageProps) {
 
   const [{ q, client_id }, clients] = await Promise.all([
     searchParams,
-    query<ClientOption>(`SELECT id, name FROM clients WHERE account_id = $1 ORDER BY name ASC`, [session.accountId]),
+    queryForSession<ClientOption>(session, `SELECT id, name FROM clients WHERE account_id = $1 ORDER BY name ASC`, [session.accountId]),
   ]);
 
   const search = (q ?? "").trim().toLowerCase();
@@ -63,7 +63,7 @@ export default async function PropertiesPage({ searchParams }: PageProps) {
     idx++;
   }
 
-  const properties = await query<PropertyRow>(
+  const properties = await queryForSession<PropertyRow>(session,
     `SELECT p.*, c.name AS client_name,
             COUNT(DISTINCT j.id)::int AS job_count,
             COUNT(DISTINCT v.id)::int AS visit_count

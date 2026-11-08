@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
-import { getSession } from "@/lib/auth/session";
-import { query } from "@/lib/db";
+import { getSession, type SessionPayload } from "@/lib/auth/session";
+import { queryForSession } from "@/lib/db";
 import AutomationsClient from "./AutomationsClient";
 
 export const dynamic = "force-dynamic";
@@ -32,25 +32,25 @@ type AuditEventRow = {
   [key: string]: unknown;
 };
 
-async function getAutomationStats(accountId: string, type: string): Promise<EventStats> {
+async function getAutomationStats(session: SessionPayload, type: string): Promise<EventStats> {
   const [last24h, last7d] = await Promise.all([
-    query<{ sent: number; errors: number }>(
+    queryForSession<{ sent: number; errors: number }>(session,
       `SELECT
          COUNT(*) FILTER (WHERE action = 'insert')::int AS sent,
          COUNT(*) FILTER (WHERE action = 'error')::int AS errors
        FROM audit_log
        WHERE account_id = $1 AND entity_type = $2
          AND created_at >= now() - interval '24 hours'`,
-      [accountId, type]
+      [session.accountId, type]
     ),
-    query<{ sent: number; errors: number }>(
+    queryForSession<{ sent: number; errors: number }>(session,
       `SELECT
          COUNT(*) FILTER (WHERE action = 'insert')::int AS sent,
          COUNT(*) FILTER (WHERE action = 'error')::int AS errors
        FROM audit_log
        WHERE account_id = $1 AND entity_type = $2
          AND created_at >= now() - interval '7 days'`,
-      [accountId, type]
+      [session.accountId, type]
     ),
   ]);
   return {
@@ -59,15 +59,15 @@ async function getAutomationStats(accountId: string, type: string): Promise<Even
   };
 }
 
-async function getRecentEvents(accountId: string): Promise<AuditEventRow[]> {
-  return query<AuditEventRow>(
+async function getRecentEvents(session: SessionPayload): Promise<AuditEventRow[]> {
+  return queryForSession<AuditEventRow>(session,
     `SELECT id, entity_type, entity_id, new_value, created_at::text
      FROM audit_log
      WHERE account_id = $1
        AND entity_type IN ('visit_reminder', 'invoice_followup', 'booking_confirmed', 'review_request')
      ORDER BY created_at DESC
      LIMIT 30`,
-    [accountId]
+    [session.accountId]
   );
 }
 
@@ -77,7 +77,7 @@ export default async function AutomationsPage() {
 
   const isAdmin = session.role === "owner" || session.role === "admin";
 
-  const automations = await query<AutomationRow>(
+  const automations = await queryForSession<AutomationRow>(session,
     `SELECT id, account_id, type, enabled, config,
             next_run_at::text, last_run_at::text
      FROM automations
@@ -93,11 +93,11 @@ export default async function AutomationsPage() {
 
   const [visitReminderStats, invoiceFollowupStats, bookingConfirmedStats, reviewRequestStats, recentEvents] =
     await Promise.all([
-      getAutomationStats(session.accountId, "visit_reminder"),
-      getAutomationStats(session.accountId, "invoice_followup"),
-      getAutomationStats(session.accountId, "booking_confirmed"),
-      getAutomationStats(session.accountId, "review_request"),
-      getRecentEvents(session.accountId),
+      getAutomationStats(session, "visit_reminder"),
+      getAutomationStats(session, "invoice_followup"),
+      getAutomationStats(session, "booking_confirmed"),
+      getAutomationStats(session, "review_request"),
+      getRecentEvents(session),
     ]);
 
   return (

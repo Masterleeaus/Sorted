@@ -1,7 +1,7 @@
 import { redirect, notFound } from "next/navigation";
 import { getSession } from "@/lib/auth/session";
 import { canCreateVisit, canAssignVisit } from "@/lib/auth/permissions";
-import { query, queryOne } from "@/lib/db";
+import { queryForSession, queryOneForSession } from "@/lib/db";
 import { VisitScheduleForm } from "./VisitScheduleForm";
 import { Card, PageContainer, PageHeader } from "@/components/ui";
 
@@ -54,7 +54,7 @@ export default async function NewVisitPage({
   if (!session) redirect("/login");
   if (!canCreateVisit(session.role)) redirect(`/app/jobs/${id}`);
 
-  const job = await queryOne<Job>(
+  const job = await queryOneForSession<Job>(session,
     `SELECT id, title, job_category FROM jobs WHERE id = $1 AND account_id = $2`,
     [id, session.accountId]
   );
@@ -64,14 +64,14 @@ export default async function NewVisitPage({
   const canAssign = canAssignVisit(session.role);
 
   const users = canAssign
-    ? await query<User>(
+    ? await queryForSession<User>(session,
         `SELECT id, full_name, role FROM users WHERE account_id = $1 ORDER BY full_name ASC`,
         [session.accountId]
       )
     : [];
 
   // Bookable WOs only (draft promoted to ready on book). Completed/cancelled excluded.
-  const workOrders = await query<{ id: string; title: string; status: string }>(
+  const workOrders = await queryForSession<{ id: string; title: string; status: string }>(session,
     `SELECT id, title, status FROM work_orders
      WHERE job_id = $1 AND account_id = $2
        AND status IN ('draft','ready','scheduled','dispatched','waiting')

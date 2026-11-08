@@ -8,7 +8,7 @@ import {
   canManageClients,
   canTransitionJob,
 } from "@/lib/auth/permissions";
-import { query, queryOne } from "@/lib/db";
+import { queryForSession, queryOneForSession } from "@/lib/db";
 import { buildJobCreateHref, formatClientContact, formatPropertyAddress } from "@/lib/crm/normalization";
 import { formatBusinessDateTime } from "@/lib/time/business-tz";
 import {
@@ -128,7 +128,7 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
   if (!session) redirect("/login");
   if (!canManageClients(session.role)) redirect("/app");
 
-  const client = await queryOne<ClientRow>(
+  const client = await queryOneForSession<ClientRow>(session,
     `SELECT c.*
      FROM clients c
      WHERE c.id = $1 AND c.account_id = $2`,
@@ -146,7 +146,7 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
     !!client.square_customer_id;
 
   const [properties, activeJobs, allJobCountRows, activityEvents, estimates, invoices, openAssessments, vaultItems] = await Promise.all([
-    query<PropertyRow>(
+    queryForSession<PropertyRow>(session,
       `SELECT p.id, p.name, p.address, p.city, p.state, p.zip,
               (SELECT COUNT(*) FROM jobs j
                WHERE j.property_id = p.id AND j.account_id = p.account_id
@@ -161,7 +161,7 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
        LIMIT 10`,
       [id, session.accountId]
     ),
-    query<ActiveJobRow>(
+    queryForSession<ActiveJobRow>(session,
       `SELECT j.id, j.title, j.status,
               p.address AS property_address,
               v.id AS next_visit_id,
@@ -188,13 +188,13 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
        LIMIT 5`,
       [id, session.accountId]
     ),
-    queryOne<{ job_count: string }>(
+    queryOneForSession<{ job_count: string }>(session,
       `SELECT COUNT(*)::text AS job_count
        FROM jobs
        WHERE client_id = $1 AND account_id = $2`,
       [id, session.accountId],
     ),
-    query<ActivityEvent>(
+    queryForSession<ActivityEvent>(session,
       `SELECT event_type, id, ts, label, status, link_id, total_cents, property_address FROM (
          SELECT 'visit'::text AS event_type, v.id,
                 COALESCE(v.completed_at, v.scheduled_start) AS ts,
@@ -243,7 +243,7 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
        ) t ORDER BY ts DESC LIMIT 50`,
       [id, session.accountId]
     ),
-    query<EstimateRow>(
+    queryForSession<EstimateRow>(session,
       `SELECT e.id, e.status, e.total_cents, e.created_at, j.title AS job_title
        FROM estimates e
        LEFT JOIN jobs j ON j.id = e.job_id
@@ -252,7 +252,7 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
        LIMIT 20`,
       [id, session.accountId]
     ),
-    query<InvoiceRow>(
+    queryForSession<InvoiceRow>(session,
       `SELECT i.id, i.status, i.total_cents, i.balance_cents, i.due_date, i.created_at, j.title AS job_title
        FROM invoices i
        LEFT JOIN jobs j ON j.id = i.job_id
@@ -261,14 +261,14 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
        LIMIT 20`,
       [id, session.accountId]
     ),
-    query<{
+    queryForSession<{
       id: string;
       scheduled_start: string;
       status: string;
       job_id: string;
       job_title: string | null;
       assessment_completed: boolean;
-    }>(
+    }>(session,
       `SELECT v.id, v.scheduled_start::text, v.status, v.job_id,
               j.title AS job_title,
               (sva.completed_at IS NOT NULL) AS assessment_completed
@@ -282,7 +282,7 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
        LIMIT 10`,
       [id, session.accountId],
     ),
-    query<VaultItemRow>(
+    queryForSession<VaultItemRow>(session,
       `SELECT pvi.id, pvi.name, pvi.category,
               p.id AS property_id, p.address AS property_address,
               pvi.created_at,
