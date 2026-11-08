@@ -112,6 +112,21 @@ describe("Sorted service worker notification isolation", () => {
     expect(worker.existingClient.focus).not.toHaveBeenCalled();
   });
 
+  it("opens a new window when focusing a navigated tab fails", async () => {
+    const worker = createWorkerHarness();
+    worker.existingClient.focus.mockRejectedValueOnce(new Error("tab closed"));
+    await worker.click("/app/my-work");
+    expect(worker.existingClient.navigate).toHaveBeenCalledWith("/app/my-work");
+    expect(worker.openWindow).toHaveBeenCalledWith("/app/my-work");
+  });
+
+  it("does not focus a tab that cannot navigate to the notification destination", async () => {
+    const worker = createWorkerHarness();
+    worker.clients.matchAll.mockResolvedValueOnce([{ focus: vi.fn() }] as any);
+    await worker.click("/app/jobs/123");
+    expect(worker.openWindow).toHaveBeenCalledWith("/app/jobs/123");
+  });
+
   it("opens an app window when no existing client is available", async () => {
     const worker = createWorkerHarness();
     worker.clients.matchAll.mockResolvedValueOnce([]);
