@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { withAuth } from "@/lib/auth/middleware";
 import type { AuthSession } from "@/lib/auth/middleware";
-import { query } from "@/lib/db";
+import { withDbSession } from "@/lib/db";
 import { logger } from "@/lib/logger";
 
 export const dynamic = "force-dynamic";
@@ -15,8 +15,8 @@ export const GET = withAuth(async (request: NextRequest, session: AuthSession) =
   }
 
   try {
-    const [jobs, visits, estimates] = await Promise.all([
-      query<{ id: string; title: string }>(
+    const { jobs, visits, estimates } = await withDbSession(session, async (client) => {
+      const jobRows = await client.query<{ id: string; title: string }>(
         `SELECT id, title FROM jobs
          WHERE account_id = $1
            AND status IN ('scheduled', 'in_progress', 'completed')
@@ -27,8 +27,8 @@ export const GET = withAuth(async (request: NextRequest, session: AuthSession) =
          ORDER BY title
          LIMIT 20`,
         [session.accountId, date]
-      ),
-      query<{ id: string; title: string | null; job_title: string | null; scheduled_start: string | null }>(
+      );
+      const visitRows = await client.query<{ id: string; title: string | null; job_title: string | null; scheduled_start: string | null }>(
         `SELECT v.id, v.title, j.title AS job_title, v.scheduled_start::text
          FROM visits v
          LEFT JOIN jobs j ON j.id = v.job_id
@@ -38,8 +38,8 @@ export const GET = withAuth(async (request: NextRequest, session: AuthSession) =
          ORDER BY v.scheduled_start
          LIMIT 20`,
         [session.accountId, date]
-      ),
-      query<{ id: string; id_short: string; client_name: string | null }>(
+      );
+      const estimateRows = await client.query<{ id: string; id_short: string; client_name: string | null }>(
         `SELECT e.id, e.id_short, c.name AS client_name
          FROM estimates e
          LEFT JOIN clients c ON c.id = e.client_id
@@ -48,8 +48,9 @@ export const GET = withAuth(async (request: NextRequest, session: AuthSession) =
          ORDER BY e.created_at DESC
          LIMIT 10`,
         [session.accountId, date]
-      ),
-    ]);
+      );
+      return { jobs: jobRows.rows, visits: visitRows.rows, estimates: estimateRows.rows };
+    });
 
     return NextResponse.json({
       data: {
