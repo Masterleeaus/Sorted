@@ -1,0 +1,84 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "titan.workforce.starter.rebooking-response-handoff.v1",
+  "title": "Rebooking Response Handoff",
+  "type": "object",
+  "required": [
+    "schema",
+    "response_handoff_id",
+    "company_id",
+    "customer_id",
+    "service_id",
+    "opportunity_id",
+    "response_id",
+    "response_type",
+    "state",
+    "response_provenance",
+    "consent_effect"
+  ],
+  "properties": {
+    "schema": {
+      "const": "titan.workforce.starter.rebooking-response-handoff.v1"
+    },
+    "response_handoff_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "company_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "opportunity_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "response_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "response_type": {
+      "enum": [
+        "YES",
+        "NO",
+        "LATER",
+        "CHANGE_FREQUENCY"
+      ]
+    },
+    "state": {
+      "enum": [
+        "BOOKING_REVIEW_READY",
+        "SCHEDULING_REVIEW_READY",
+        "DEFERRED",
+        "DECLINED",
+        "DECLINED_OPT_OUT_REVIEW",
+        "DUPLICATE_SUPPRESSED",
+        "REVIEW"
+      ]
+    },
+    "creates_booking": {
+      "const": false
+    },
+    "creates_schedule": {
+      "const": false
+    },
+    "creates_followup": {
+      "const": false
+    },
+    "changes_consent": {
+      "const": false
+    },
+    "changes_authority": {
+      "const": false
+    },
+    "execution_permitted": {
+      "const": false
+    },
+    "grants_authority": {
+      "const": false
+    },
+    "identity_is_authority": {
+      "const": false
+    }
+  },
+  "additionalProperties": true
+}

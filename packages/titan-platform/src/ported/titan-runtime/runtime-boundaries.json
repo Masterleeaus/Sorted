@@ -1,0 +1,86 @@
+{
+  "schema": "titan-zero-runtime-boundaries/v1",
+  "step": 3,
+  "company_boundary": "company_id",
+  "activation_confers_authority": false,
+  "wired_into_legacy_runtime": false,
+  "runtimes": [
+    {
+      "id": "core",
+      "name": "Core Runtime",
+      "kind": "none",
+      "purpose": "Owns browser runtime primitives, company boundary helpers, correlation and shared lifecycle contracts.",
+      "authority_conferred_by_activation": false
+    },
+    {
+      "id": "interaction-engine",
+      "name": "Interaction Engine",
+      "kind": "intent",
+      "purpose": "Owns understanding, conversation, journeys, wizards and PresentationIntent; never grants execution authority.",
+      "authority_conferred_by_activation": false
+    },
+    {
+      "id": "decision-engine",
+      "name": "Decision Engine",
+      "kind": "decision",
+      "purpose": "Owns evidence-backed option evaluation, prediction, ranking and selected recommendations; never directly executes browser effects.",
+      "authority_conferred_by_activation": false
+    },
+    {
+      "id": "prime",
+      "name": "Prime Mission Runtime",
+      "kind": "mission",
+      "purpose": "Owns durable objectives, missions, checkpoints and bounded delegation; authority remains external.",
+      "authority_conferred_by_activation": false
+    },
+    {
+      "id": "authority",
+      "name": "Authority Runtime",
+      "kind": "authority",
+      "purpose": "Owns local governance/autonomy/T0GM proof evaluation boundaries; identity is not authority.",
+      "authority_conferred_by_activation": false
+    },
+    {
+      "id": "safety",
+      "name": "Safety Runtime",
+      "kind": "safety",
+      "purpose": "Owns risk, assurance, shield and trust-proof evaluation boundaries; may constrain or block effects.",
+      "authority_conferred_by_activation": false
+    },
+    {
+      "id": "execution",
+      "name": "Execution Runtime",
+      "kind": "execution",
+      "purpose": "Owns command/capability dispatch envelopes and provider receipts; providers perform effects only after authority gates.",
+      "authority_conferred_by_activation": false
+    },
+    {
+      "id": "knowledge",
+      "name": "Knowledge Runtime",
+      "kind": "knowledge",
+      "purpose": "Owns local knowledge provenance, freshness and retrieval contracts; private records remain company scoped.",
+      "authority_conferred_by_activation": false
+    },
+    {
+      "id": "outcome",
+      "name": "Outcome Runtime",
+      "kind": "outcome",
+      "purpose": "Owns signal, rewind, outcome and learning-event contracts; does not rewrite historical evidence.",
+      "authority_conferred_by_activation": false
+    },
+    {
+      "id": "interface-runtime",
+      "name": "Interface Runtime",
+      "kind": "presentation",
+      "purpose": "Owns declarative presentation composition and contributions; never owns business meaning or action authority.",
+      "authority_conferred_by_activation": false
+    },
+    {
+      "id": "visual-runtime",
+      "name": "Visual Runtime",
+      "kind": "visual",
+      "purpose": "Owns motion, transitions, visual treatments, assets and accessibility degradation; never changes business meaning.",
+      "authority_conferred_by_activation": false
+    }
+  ]
+}

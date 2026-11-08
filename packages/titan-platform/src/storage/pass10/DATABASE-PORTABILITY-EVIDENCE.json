@@ -1,0 +1,37 @@
+{
+  "schema": "titan-zero-storage-portability-evidence/v1",
+  "packet_id": "TZ-FINISH-STORAGE-DATA-AUTHORITY-001",
+  "pass": 10,
+  "native_storage_selection": {
+    "supported_backends": [
+      "indexeddb",
+      "memory",
+      "mysql",
+      "postgres"
+    ],
+    "explicit_factory_required_for_external_backends": true,
+    "unsupported_protocol": "FAIL_CLOSED",
+    "factory_failure": "FAIL_CLOSED",
+    "silent_fallback": false
+  },
+  "existing_web_sql_corpus_audit": {
+    "command": "node scripts/db-portability-report.mjs",
+    "exit_code": 0,
+    "portable": false,
+    "total_findings": 960,
+    "counts": {
+      "pg_cast": 478,
+      "returning": 182,
+      "set_config": 196,
+      "ilike": 2,
+      "interval_literal": 59,
+      "on_conflict": 37,
+      "jsonb_operator": 1,
+      "distinct_on": 2,
+      "skip_locked": 3
+    },
+    "interpretation": "Native storage adapter selection is portable/fail-closed, but the retained apps/web SQL corpus remains materially PostgreSQL-coupled. This packet intentionally did not mass-rewrite 194+ route/data paths; Manager should not represent the entire web SQL layer as MySQL-portable yet."
+  },
+  "company_boundary": "company_id",
+  "identity_grants_authority": false
+}

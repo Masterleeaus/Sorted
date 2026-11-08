@@ -1,0 +1,39 @@
+{
+  "schema": "titan-zero-retriever-finish-pass06-verification/v1",
+  "workspace": "Builder 3",
+  "packet_id": "TZ-FINISH-RETRIEVER-NATIVE-001",
+  "pass": 6,
+  "status": "PASS_COMPLETE_CONTINUE",
+  "manager_baseline": {
+    "merge": 52,
+    "sha256": "ea6c219d40ffbddcbb68e9c9ed741c93568fe12be2e4f09dd69af0b528366d92"
+  },
+  "reuse": {
+    "legacy_reference": "packages/titan-platform/src/ported/titan-runtime/adapters/adapter-session-recovery.ts",
+    "reuse_mode": "SEMANTIC_FORWARD_PORT_ONLY",
+    "legacy_merge46_execution_reused": false
+  },
+  "tdd": {
+    "red": "Pass6 recovery exports absent",
+    "green": "28/28 focused Retriever tests PASS"
+  },
+  "checks": {
+    "titan_platform_npm_test": "36/36 PASS",
+    "titan_platform_typecheck": "PASS",
+    "lifecycle_checkpoint_restore": "PASS",
+    "stale_resumable_epoch_increment": "PASS",
+    "connection_change_recovery": "PASS",
+    "cross_company_recovery": "FAIL_CLOSED",
+    "legacy_tenant_boundary": "REJECTED",
+    "fresh_negotiation_after_stale": "REQUIRED",
+    "fresh_authority_after_stale": "REQUIRED",
+    "auto_execute_after_reconnect": false,
+    "authority_restored_from_checkpoint": false,
+    "chrome_runtime_refs": 0,
+    "retriever_background_refs": 0,
+    "monica_refs": 0,
+    "company_boundary": "company_id",
+    "identity_grants_authority": false
+  },
+  "next_gate": "Pass 7: migrate protected-hash retirement checks to semantic native contracts and produce the authoritative donor-retirement ledger without deleting provenance prematurely."
+}

@@ -1,0 +1,35 @@
+{
+  "schema":"titan.zero.quote-agent-release-contract.v1",
+  "agent":"Quote Agent",
+  "packet_id":"TZ-STARTER-QUOTE-001",
+  "company_boundary":"company_id",
+  "quote_truth_owner":"Titan CRM",
+  "pricing_authority":"authoritative Titan provider only",
+  "tax_authority":"explicit provider/settings provenance only",
+  "execution_permitted":false,
+  "identity_grants_authority":false,
+  "approval_authority":false,
+  "send_authority":false,
+  "booking_creation_authority":false,
+  "customer_contact_authority":false,
+  "contracts":[
+    "titan.zero.quote-plan.v1",
+    "titan.zero.quote-pricing-calculation.v1",
+    "titan.zero.quote-customer-draft.v1",
+    "titan.zero.quote-independent-review.v1",
+    "titan.zero.quote-lifecycle.v1",
+    "titan.zero.quote-golden-eval-report.v1"
+  ],
+  "lifecycle":["draft","reviewed","approval_required","approved","sent","viewed","accepted","declined","expired"],
+  "release_guarantees":[
+    "missing requirements fail closed and are never guessed",
+    "financial totals are deterministic integer-minor-unit calculations",
+    "line, adjustment and tax provenance is mandatory",
+    "independent review cannot approve, send or execute",
+    "discount, high-value, margin, manual-override and unsupported-service policy gates cannot be bypassed by agent identity",
+    "settings can nominate governed auto-send eligibility but never grant send authority",
+    "accepted quote handoff requires authoritative duplicate-booking check",
+    "follow-up requires explicit consent and remains recommendation-only",
+    "legacy tenant and organization boundary keys are rejected"
+  ]
+}

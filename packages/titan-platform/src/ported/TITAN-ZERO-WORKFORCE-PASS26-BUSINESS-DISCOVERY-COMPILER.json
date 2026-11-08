@@ -1,0 +1,16 @@
+{
+  "schema":"titan.zero.workforce.pass/v1",
+  "pass":26,
+  "title":"Business Discovery Compiler",
+  "company_boundary":"company_id only",
+  "contract":"titan.workforce.business-discovery.v1",
+  "installation_spec_contract":"titan.workforce.installation-specification.v1",
+  "inputs":["investigation-installation handover","business processes","people/accountable actors","systems","devices","documents","objectives","risks","required capabilities"],
+  "outputs":["deterministic installation specification","completeness blockers","source lineage"],
+  "automatic_installation":false,
+  "automatic_provisioning":false,
+  "automatic_authority_change":false,
+  "authority_granted":false,
+  "execution_permitted":false,
+  "grants_authority":false
+}

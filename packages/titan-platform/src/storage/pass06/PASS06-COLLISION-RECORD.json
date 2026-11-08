@@ -1,0 +1,14 @@
+{
+  "schema": "titan-zero-storage-finish-pass06-collision/v1",
+  "packet_id": "TZ-FINISH-STORAGE-DATA-AUTHORITY-001",
+  "pass": 6,
+  "exclusive_hotspot_used": "storage authority responsibility",
+  "cross_hotspot_files": [
+    "apps/web/app/app/capture/pending-queue.ts",
+    "apps/web/app/app/capture/CaptureRecorder.tsx",
+    "apps/web/app/app/capture/page.tsx"
+  ],
+  "reason": "Required to close the only identified operational browser-storage bypass.",
+  "ui_style_changed": false,
+  "result": "NARROW_OPERATIONAL_FIX"
+}

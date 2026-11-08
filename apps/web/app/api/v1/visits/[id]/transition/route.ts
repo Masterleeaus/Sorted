@@ -1,0 +1,461 @@
+import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
+import { withAuth } from "../../../../../../lib/auth/middleware";
+import type { AuthSession } from "../../../../../../lib/auth/middleware";
+import { getPool } from "../../../../../../lib/db";
+import { appendAuditLog } from "../../../../../../lib/db/audit";
+import { logger } from "../../../../../../lib/logger";
+import { checkCompletionPacket, isQuickJobPacketExempt } from "../../../../../../lib/completion-guard";
+import { visitTransitions, visitStatusSchema } from "@ai-fsm/domain";
+import type { VisitStatus } from "@ai-fsm/domain";
+interface VisitRow {
+  id: string;
+  account_id: string;
+  job_id: string | null;
+  work_order_id: string | null;
+  assigned_user_id: string | null;
+  status: VisitStatus;
+  arrived_at: string | null;
+  completed_at: string | null;
+  tech_notes: string | null;
+  updated_at: string;
+  visit_type?: string | null;
+  has_estimate?: boolean;
+}
+import { seedConditionSnapshots } from "../../../../../../lib/visits/condition-seeding";
+import { writeWorkflowEvent } from "../../../../../../lib/workflow-events";
+import {
+  syncWorkOrderStatus,
+  syncWorkOrdersForJob,
+} from "../../../../../../lib/work-orders/sync-status";
+
+export const dynamic = "force-dynamic";
+
+const transitionBody = z.object({
+  status: visitStatusSchema,
+  tech_notes: z.string().optional(),
+});
+
+export const POST = withAuth(
+  async (request: NextRequest, session: AuthSession) => {
+    const id = request.url.match(/\/visits\/([^/]+)\/transition/)?.[1];
+
+    if (!id) {
+      return NextResponse.json(
+        { error: { code: "NOT_FOUND", message: "Visit not found", traceId: session.traceId } },
+        { status: 404 }
+      );
+    }
+
+    const body = await request.json().catch(() => null);
+    const parsed = transitionBody.safeParse(body);
+
+    if (!parsed.success) {
+      return NextResponse.json(
+        {
+          error: {
+            code: "VALIDATION_ERROR",
+            message: "Invalid request body",
+            details: parsed.error.flatten().fieldErrors,
+            traceId: session.traceId,
+          },
+        },
+        { status: 422 }
+      );
+    }
+
+    const targetStatus = parsed.data.status as VisitStatus;
+    const techNotes = parsed.data.tech_notes;
+
+    const pool = getPool();
+    const client = await pool.connect();
+
+    try {
+      await client.query("BEGIN");
+      await client.query(
+        `SELECT set_config('app.current_user_id', $1, true), set_config('app.current_account_id', $2, true), set_config('app.current_role', $3, true)`,
+        [session.userId, session.accountId, session.role]
+      );
+
+      const existing = await client.query(
+        `SELECT v.*,
+                EXISTS(
+                  SELECT 1 FROM estimates e
+                  WHERE e.job_id = v.job_id AND e.account_id = v.account_id
+                ) AS has_estimate
+         FROM visits v
+         WHERE v.id = $1 AND v.account_id = $2
+         FOR UPDATE`,
+        [id, session.accountId]
+      );
+
+      if (!existing.rows[0]) {
+        await client.query("ROLLBACK");
+        return NextResponse.json(
+          { error: { code: "NOT_FOUND", message: "Visit not found", traceId: session.traceId } },
+          { status: 404 }
+        );
+      }
+
+      const visit = existing.rows[0];
+      const currentStatus = visit.status as VisitStatus;
+      const allowed = visitTransitions[currentStatus];
+
+      if (!allowed.includes(targetStatus)) {
+        await client.query("ROLLBACK");
+        return NextResponse.json(
+          {
+            error: {
+              code: "INVALID_TRANSITION",
+              message: `Cannot transition visit from '${currentStatus}' to '${targetStatus}'`,
+              traceId: session.traceId,
+            },
+          },
+          { status: 422 }
+        );
+      }
+
+      // Precondition: techs need assignment. Owner/admin field work may start an
+      // unassigned visit; in that case assign it to the actor before transition.
+      if (targetStatus === "arrived" && !visit.assigned_user_id) {
+        if (session.role === "owner" || session.role === "admin") {
+          visit.assigned_user_id = session.userId;
+          await client.query(
+            `UPDATE visits SET assigned_user_id = $1, updated_at = now() WHERE id = $2 AND account_id = $3`,
+            [session.userId, id, session.accountId]
+          );
+        } else {
+          await client.query("ROLLBACK");
+          return NextResponse.json(
+            {
+              error: {
+                code: "PRECONDITION_FAILED",
+                message: "Visit must have an assigned technician before it can be started",
+                traceId: session.traceId,
+              },
+            },
+            { status: 422 }
+          );
+        }
+      }
+
+      // Precondition: membership visits must reach the Reporting phase before completion.
+      if (
+        targetStatus === "completed" &&
+        visit.generated_from_plan_id &&
+        visit.membership_visit_phase !== "reporting"
+      ) {
+        await client.query("ROLLBACK");
+        return NextResponse.json(
+          {
+            error: {
+              code: "PRECONDITION_FAILED",
+              message: "Complete the Reporting phase before marking this membership visit as done",
+              traceId: session.traceId,
+            },
+          },
+          { status: 422 }
+        );
+      }
+
+      // Precondition: membership visits must have the client summary/snapshot sent
+      // or explicitly marked sent before the visit can be closed.
+      if (
+        targetStatus === "completed" &&
+        visit.generated_from_plan_id &&
+        !visit.membership_snapshot_sent_at
+      ) {
+        await client.query("ROLLBACK");
+        return NextResponse.json(
+          {
+            error: {
+              code: "PRECONDITION_FAILED",
+              message: "Send or mark the visit summary as sent before completing this membership visit",
+              traceId: session.traceId,
+            },
+          },
+          { status: 422 }
+        );
+      }
+
+      if (targetStatus === "completed") {
+        const packetResult = await client.query(
+          `SELECT photo_urls, signature_url, signature_waiver, photos_waived, photos_waiver_reason
+           FROM completion_packets
+           WHERE visit_id = $1 AND account_id = $2`,
+          [id, session.accountId]
+        );
+        const exempt = isQuickJobPacketExempt(visit);
+        const guard = checkCompletionPacket(packetResult.rows[0] ?? null, {
+          requirePhoto: !exempt,
+          requireSignature: !exempt,
+        });
+
+        if (!guard.ok) {
+          await client.query("ROLLBACK");
+          const message = guard.error === "MISSING_PHOTO"
+            ? "At least one photo is required before completing this visit (or waive photos)"
+            : "A signature or waiver is required before completing this visit";
+          return NextResponse.json(
+            { error: { code: guard.error, message, traceId: session.traceId } },
+            { status: 422 }
+          );
+        }
+      }
+
+      // -----------------------------------------------------------------------
+      // "Start Job" — when tech taps arrived, we step through two valid DB
+      // transitions in one transaction to satisfy the trigger:
+      //   1. scheduled → arrived  (records arrived_at)
+      //   2. arrived   → in_progress
+      // The visit is never visible in 'arrived' state outside this tx.
+      // -----------------------------------------------------------------------
+      let updated: VisitRow;
+      let effectiveStatus: VisitStatus;
+
+      if (targetStatus === "arrived") {
+        // Step 1: scheduled → arrived (DB trigger allows this)
+        await client.query(
+          `UPDATE visits SET status = 'arrived', arrived_at = now(), updated_at = now()
+           WHERE id = $1 AND account_id = $2`,
+          [id, session.accountId]
+        );
+        // Step 2: arrived → in_progress (DB trigger allows this)
+        const noteClause2 = techNotes !== undefined ? `, tech_notes = $3` : "";
+        const params2: unknown[] = [id, session.accountId];
+        if (techNotes !== undefined) params2.push(techNotes);
+        const { rows: rows2 } = await client.query<VisitRow>(
+          `UPDATE visits SET status = 'in_progress', updated_at = now()${noteClause2}
+           WHERE id = $1 AND account_id = $2
+           RETURNING *`,
+          params2
+        );
+        updated = rows2[0];
+        effectiveStatus = "in_progress";
+      } else {
+        const completedClause = targetStatus === "completed" ? ", completed_at = now()" : "";
+        const noteClause = techNotes !== undefined ? `, tech_notes = $4` : "";
+        const params: unknown[] = [targetStatus, id, session.accountId];
+        if (techNotes !== undefined) params.push(techNotes);
+        const { rows } = await client.query<VisitRow>(
+          `UPDATE visits
+           SET status = $1, updated_at = now()${completedClause}${noteClause}
+           WHERE id = $2 AND account_id = $3
+           RETURNING *`,
+          params
+        );
+        updated = rows[0];
+        effectiveStatus = targetStatus;
+      }
+
+      if (effectiveStatus === "in_progress" && currentStatus !== "in_progress") {
+        // Activity ledger hard trigger: arriving on site IS doing job work.
+        // activity_entries is the single source of truth for time (the legacy
+        // visit_time_logs writer was removed in TASK-064). Close whatever was
+        // active, start job_work linked to this visit.
+        await client.query(
+          `UPDATE activity_entries SET ended_at = now()
+           WHERE account_id = $1 AND user_id = $2
+             AND ended_at IS NULL AND voided_at IS NULL
+             AND NOT (activity_type = 'job_work' AND entity_type = 'visit' AND entity_id = $3)`,
+          [session.accountId, session.userId, id]
+        );
+        await client.query(
+          `INSERT INTO activity_entries
+             (account_id, user_id, session_date, activity_type, category, entity_type, entity_id, source)
+           SELECT $1, $2, CURRENT_DATE, 'job_work', 'revenue', 'visit', $3, 'auto_visit'
+           WHERE NOT EXISTS (
+             SELECT 1 FROM activity_entries
+             WHERE account_id = $1 AND user_id = $2
+               AND ended_at IS NULL AND voided_at IS NULL
+           )`,
+          [session.accountId, session.userId, id]
+        );
+      }
+
+      if (effectiveStatus === "completed" || effectiveStatus === "cancelled") {
+        // Activity ledger: closing out the visit ends its job_work segment.
+        // (The legacy visit_time_logs close was removed in TASK-064.)
+        await client.query(
+          `UPDATE activity_entries SET ended_at = now()
+           WHERE account_id = $1 AND user_id = $2
+             AND ended_at IS NULL AND voided_at IS NULL
+             AND entity_type = 'visit' AND entity_id = $3`,
+          [session.accountId, session.userId, id]
+        );
+      }
+
+      await appendAuditLog(client, {
+        account_id: session.accountId,
+        entity_type: "visit",
+        entity_id: id,
+        action: "update",
+        actor_id: session.userId,
+        trace_id: session.traceId,
+        old_value: { status: currentStatus },
+        new_value: { status: effectiveStatus },
+      });
+
+      // -----------------------------------------------------------------------
+      // Job auto-advancement (operations only — never project closeout):
+      //
+      // • When an execution visit starts, advance scheduled → in_progress.
+      // • When a visit completes/cancels: keep the project open. Visits and
+      //   work orders never auto-complete the project. Owner must explicitly
+      //   mark the project completed (billing review + final invoice).
+      // • If the only remaining field activity was cancelled and no completed
+      //   execution visits exist, soft-revert in_progress → scheduled.
+      // -----------------------------------------------------------------------
+      if (updated.job_id) {
+        const jobRow = await client.query(
+          `SELECT id, status FROM jobs WHERE id = $1 AND account_id = $2 FOR UPDATE`,
+          [updated.job_id, session.accountId]
+        );
+        const job = jobRow.rows[0];
+
+        if (job) {
+          const isExecutionVisit =
+            visit.visit_type === "standard" || visit.visit_type === "punch_list";
+
+          if (
+            effectiveStatus === "in_progress" &&
+            job.status === "scheduled" &&
+            isExecutionVisit
+          ) {
+            // Execution visit started — advance job from scheduled → in_progress
+            await client.query(
+              `UPDATE jobs SET status = 'in_progress', updated_at = now()
+               WHERE id = $1 AND account_id = $2`,
+              [updated.job_id, session.accountId]
+            );
+            await appendAuditLog(client, {
+              account_id: session.accountId,
+              entity_type: "job",
+              entity_id: updated.job_id,
+              action: "update",
+              actor_id: session.userId,
+              trace_id: session.traceId,
+              old_value: { status: "scheduled" },
+              new_value: { status: "in_progress" },
+            });
+          } else if (
+            isExecutionVisit &&
+            effectiveStatus === "completed" &&
+            (job.status === "scheduled" || job.status === "quoted")
+          ) {
+            // Day of work finished — project is active, not closed
+            await client.query(
+              `UPDATE jobs SET status = 'in_progress', updated_at = now()
+               WHERE id = $1 AND account_id = $2`,
+              [updated.job_id, session.accountId]
+            );
+            await appendAuditLog(client, {
+              account_id: session.accountId,
+              entity_type: "job",
+              entity_id: updated.job_id,
+              action: "update",
+              actor_id: session.userId,
+              trace_id: session.traceId,
+              old_value: { status: job.status },
+              new_value: { status: "in_progress" },
+            });
+          } else if (
+            isExecutionVisit &&
+            effectiveStatus === "cancelled" &&
+            job.status === "in_progress"
+          ) {
+            // Soft revert only when no completed work and nothing still in field
+            const fieldState = await client.query<{
+              pending: string;
+              completed: string;
+              active: string;
+            }>(
+              `SELECT
+                 COUNT(*) FILTER (WHERE status NOT IN ('completed','cancelled')) AS pending,
+                 COUNT(*) FILTER (WHERE status = 'completed') AS completed,
+                 COUNT(*) FILTER (
+                   WHERE status IN ('in_progress','arrived','dispatched','traveling','waiting')
+                 ) AS active
+               FROM visits
+               WHERE job_id = $1 AND account_id = $2
+                 AND visit_type IN ('standard','punch_list')`,
+              [updated.job_id, session.accountId]
+            );
+            const { pending, completed: completedCount, active } = fieldState.rows[0];
+            if (
+              parseInt(pending, 10) === 0 &&
+              parseInt(active, 10) === 0 &&
+              parseInt(completedCount, 10) === 0
+            ) {
+              await client.query(
+                `UPDATE jobs SET status = 'scheduled', updated_at = now()
+                 WHERE id = $1 AND account_id = $2`,
+                [updated.job_id, session.accountId]
+              );
+              await appendAuditLog(client, {
+                account_id: session.accountId,
+                entity_type: "job",
+                entity_id: updated.job_id,
+                action: "update",
+                actor_id: session.userId,
+                trace_id: session.traceId,
+                old_value: { status: "in_progress" },
+                new_value: { status: "scheduled" },
+              });
+            }
+          }
+        }
+      }
+
+      // Seed condition snapshots from checklist dispositions on visit completion
+      if (effectiveStatus === "completed" && updated.job_id) {
+        const jobProp = await client.query<{ property_id: string | null }>(
+          `SELECT property_id FROM jobs WHERE id = $1 AND account_id = $2`,
+          [updated.job_id, session.accountId]
+        );
+        const propertyId = jobProp.rows[0]?.property_id;
+        if (propertyId) {
+          await seedConditionSnapshots(client, id, propertyId, session.accountId);
+        }
+      }
+
+      // Final invoices are created only when the owner explicitly marks the
+      // project completed (jobs transition). Visits never auto-bill.
+
+      if (updated.work_order_id) {
+        await syncWorkOrderStatus(client, updated.work_order_id, session.accountId);
+      } else if (updated.job_id) {
+        await syncWorkOrdersForJob(client, updated.job_id, session.accountId);
+      }
+
+      // Emit workflow events for automation cancellation and downstream processing
+      if (effectiveStatus === "completed" || effectiveStatus === "cancelled") {
+        await writeWorkflowEvent(client, {
+          accountId: session.accountId,
+          eventType: effectiveStatus === "completed" ? "visit.completed" : "visit.cancelled",
+          entityType: "visit",
+          entityId: id,
+          payload: { jobId: updated.job_id },
+        });
+      }
+
+      await client.query("COMMIT");
+      return NextResponse.json({ data: updated });
+    } catch (err) {
+      await client.query("ROLLBACK");
+      logger.error("[visits transition POST]", err, { traceId: session.traceId });
+      return NextResponse.json(
+        {
+          error: {
+            code: "INTERNAL_ERROR",
+            message: "Failed to transition visit",
+            traceId: session.traceId,
+          },
+        },
+        { status: 500 }
+      );
+    } finally {
+      client.release();
+    }
+  }
+);

@@ -1,0 +1,35 @@
+{
+  "schema": "titan.post-finish-hardening.round8.v1",
+  "round": 8,
+  "convergence": "CLEAN_FORWARD_PORT",
+  "canonical_base": "Titan-Zero-CANONICAL-MASTER-2026-09-05.zip",
+  "canonical_version_id": 15,
+  "base_file_count": 1657,
+  "final_file_count": 1664,
+  "added": [
+    "tests/reliability_completion_order_guard.test.mjs",
+    "tests/reliability_dependency_snapshot_freshness.test.mjs",
+    "tests/reliability_diagnostic_cardinality_guard.test.mjs",
+    "tests/reliability_operational_health_round8.test.mjs",
+    "titan-reliability/completion-order-guard.mjs",
+    "titan-reliability/dependency-snapshot-freshness.mjs",
+    "titan-reliability/diagnostic-cardinality-guard.mjs"
+  ],
+  "modified": [
+    "titan-reliability/operational-health-summary.mjs"
+  ],
+  "deleted": [],
+  "live_unpacked_chrome": "NOT_CLAIMED",
+  "changes": [
+    "dependency snapshot freshness guard",
+    "completion order guard",
+    "diagnostic cardinality guard",
+    "operational health integration"
+  ],
+  "authority": {
+    "grants_authority": false,
+    "changes_permissions": false,
+    "changes_autonomy": false
+  },
+  "company_boundary": "company_id"
+}

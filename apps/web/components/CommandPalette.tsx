@@ -1,0 +1,183 @@
+"use client";
+
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
+import type { Route } from "next";
+import type { Role } from "@ai-fsm/domain";
+import { filterCommands } from "@/lib/navigation/command-index";
+
+export function CommandPalette({ role }: { role: Role }) {
+  const router = useRouter();
+  const [open, setOpen] = useState(false);
+  const [query, setQuery] = useState("");
+  const [active, setActive] = useState(0);
+  const [entityHits, setEntityHits] = useState<Array<{ id: string; kind?: string; title: string; detail: string; href: string }>>([]);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const commands = useMemo(() => filterCommands(query, role).slice(0, 8), [query, role]);
+  const results = useMemo(
+    () => [
+      ...entityHits.map((house) => ({
+        id: `${house.kind ?? "hit"}-${house.id}`,
+        label: house.detail ? `${house.title} — ${house.detail}` : house.title,
+        href: house.href,
+      })),
+      ...commands.map((item) => ({ id: item.id, label: item.label, href: item.href })),
+    ].slice(0, 12),
+    [entityHits, commands],
+  );
+
+  const close = useCallback(() => {
+    setOpen(false);
+    setQuery("");
+    setActive(0);
+  }, []);
+
+  const go = useCallback(
+    (item: { href: string }) => {
+      close();
+      router.push(item.href as Route);
+    },
+    [close, router],
+  );
+
+  useEffect(() => {
+    const q = query.trim();
+    if (q.length < 2) {
+      setEntityHits([]);
+      return;
+    }
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => {
+      void fetch(`/api/v1/search?q=${encodeURIComponent(q)}`, { signal: ctrl.signal })
+        .then((res) => (res.ok ? res.json() : { data: [] }))
+        .then((json: { data?: Array<{ id: string; kind?: string; title: string; detail: string; href: string }> }) => {
+          setEntityHits(json.data ?? []);
+        })
+        .catch(() => {});
+    }, 200);
+    return () => {
+      clearTimeout(timer);
+      ctrl.abort();
+    };
+  }, [query]);
+
+  useEffect(() => {
+    function onKey(e: KeyboardEvent) {
+      const meta = e.metaKey || e.ctrlKey;
+      if (meta && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        setOpen((v) => !v);
+        return;
+      }
+      if (!open) return;
+      if (e.key === "Escape") {
+        e.preventDefault();
+        close();
+      }
+    }
+    function onFind() {
+      setOpen(true);
+    }
+    document.addEventListener("keydown", onKey);
+    window.addEventListener("titan:find", onFind);
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      window.removeEventListener("titan:find", onFind);
+    };
+  }, [open, close]);
+
+  useEffect(() => {
+    if (open) inputRef.current?.focus();
+  }, [open]);
+
+  useEffect(() => {
+    setActive(0);
+  }, [query]);
+
+  return open ? (
+        <div
+          className="p7-modal-overlay"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Find in Titan Field"
+          data-testid="command-palette"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) close();
+          }}
+        >
+          <div className="p7-modal" style={{ maxWidth: 480, width: "min(480px, 100%)" }}>
+            <div className="p7-modal-header">
+              <h2 className="p7-modal-title" id="command-palette-title">
+                Find in Titan Field
+              </h2>
+              <button type="button" className="p7-modal-close" onClick={close} aria-label="Close">
+                ×
+              </button>
+            </div>
+            <div className="p7-modal-body">
+              <input
+                ref={inputRef}
+                data-testid="command-palette-input"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Search Field pages, sites and actions"
+                aria-labelledby="command-palette-title"
+                style={{
+                  width: "100%",
+                  padding: "10px 12px",
+                  border: "1px solid var(--border)",
+                  borderRadius: 6,
+                  fontSize: 16,
+                  marginBottom: 12,
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === "ArrowDown") {
+                    e.preventDefault();
+                    setActive((i) => Math.min(i + 1, Math.max(0, results.length - 1)));
+                  } else if (e.key === "ArrowUp") {
+                    e.preventDefault();
+                    setActive((i) => Math.max(i - 1, 0));
+                  } else if (e.key === "Enter" && results[active]) {
+                    e.preventDefault();
+                    go(results[active]);
+                  }
+                }}
+              />
+              {results.length === 0 ? (
+                <p style={{ margin: 0, color: "var(--fg-muted)", fontSize: "var(--text-sm)" }}>
+                  Nothing matches. Try “jobs”, “schedule”, “workforce”, or “materials”.
+                </p>
+              ) : (
+                <ul style={{ listStyle: "none", margin: 0, padding: 0 }}>
+                  {results.map((item, i) => (
+                    <li key={item.id}>
+                      <button
+                        type="button"
+                        data-testid={i === 0 ? "command-palette-first" : undefined}
+                        onClick={() => go(item)}
+                        style={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                          width: "100%",
+                          textAlign: "left",
+                          padding: "10px 12px",
+                          border: 0,
+                          borderRadius: 6,
+                          background: i === active ? "var(--accent-subtle)" : "transparent",
+                          cursor: "pointer",
+                          fontSize: 14,
+                        }}
+                      >
+                        <strong>{item.label}</strong>
+                        <span style={{ color: "var(--fg-muted)", fontSize: 12 }}>{item.href}</span>
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          </div>
+        </div>
+  ) : null;
+}

@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Titan Provider Contribution",
+  "type": "object",
+  "required": [
+    "provider",
+    "capabilities",
+    "owner",
+    "authority_mode"
+  ],
+  "properties": {
+    "provider": {
+      "type": "string"
+    },
+    "capabilities": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "owner": {
+      "type": "string"
+    },
+    "authority_mode": {
+      "enum": [
+        "authoritative",
+        "calculation",
+        "projection",
+        "execution_adapter",
+        "evidence",
+        "compatibility"
+      ]
+    },
+    "company_scoped": {
+      "type": "boolean"
+    },
+    "requires_governed_execution": {
+      "type": "boolean"
+    }
+  }
+}

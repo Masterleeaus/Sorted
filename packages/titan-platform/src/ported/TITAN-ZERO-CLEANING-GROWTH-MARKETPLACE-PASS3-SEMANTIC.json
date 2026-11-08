@@ -1,0 +1,20 @@
+{
+  "schema": "titan-semantic-change-manifest/v1",
+  "pass": 3,
+  "changes": [
+    {
+      "area": "cleaning growth marketplace",
+      "change": "service-line opportunity aggregation from company evidence"
+    },
+    {
+      "area": "growth evidence ledger",
+      "change": "optional explicit estimated_value and currency"
+    },
+    {
+      "area": "marketplace UI",
+      "change": "readiness and missing launch-component cards"
+    }
+  ],
+  "authority_effect": false,
+  "company_boundary": "company_id"
+}

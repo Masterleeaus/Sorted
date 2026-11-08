@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "titan.workforce.gateway.authority-autonomy-binding.v1",
+  "title": "Titan Workforce Gateway Authority and Autonomy Binding",
+  "type": "object",
+  "required": ["company_id", "worker", "requirement", "permissions", "entitlements", "policy_allows", "governance_allows", "assurance_allows", "risk", "autonomy_snapshot", "grants_authority"],
+  "properties": {
+    "company_id": {"type": "string", "minLength": 1},
+    "worker": {"type": "object"},
+    "requirement": {"type": "object"},
+    "permissions": {"type": "array", "items": {"type": "string"}},
+    "entitlements": {"type": "array", "items": {"type": "string"}},
+    "policy_allows": {"type": "boolean"},
+    "governance_allows": {"type": "boolean"},
+    "assurance_allows": {"type": "boolean"},
+    "risk": {"enum": ["none", "low", "medium", "high", "critical"]},
+    "autonomy_snapshot": {"type": ["object", "null"]},
+    "identity_confers_authority": {"const": false},
+    "role_confers_authority": {"const": false},
+    "activation_confers_authority": {"const": false},
+    "model_choice_confers_authority": {"const": false},
+    "grants_authority": {"const": false}
+  },
+  "additionalProperties": true
+}

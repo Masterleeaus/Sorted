@@ -1,0 +1,9 @@
+{
+  "schema": "titan-zero-change-impact/v1",
+  "packet_id": "TZ-FINISH-004",
+  "pass": 4,
+  "risk": "medium-ui-routing",
+  "wholesale_replacement": false,
+  "protected_runtime_changes": 0,
+  "expected_user_effect": "AI/Retriever launchers become reachable from more Chrome surfaces while existing Titan and donor UI remains available."
+}

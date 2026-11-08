@@ -1,0 +1,9 @@
+{
+  "schema": "titan-zero-semantic-change/v1",
+  "packet_id": "TZ-TOOLS-ABSORB-001",
+  "pass": 8,
+  "summary": "Augments retained rich Discover/Toolbox surface with registry-backed search, categories, company-scoped favourites/recent tools and Titan-owned launches. No donor navigation; discovery visibility grants no authority.",
+  "company_boundary": "company_id",
+  "authority": "tool discovery and visibility do not grant execution authority",
+  "ui_strategy": "additive_to_retained_rich_discover"
+}

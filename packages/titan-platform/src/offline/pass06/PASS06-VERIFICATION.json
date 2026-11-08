@@ -1,0 +1,26 @@
+{
+  "schema": "titan-zero-offline-pass06-verification/v1",
+  "workspace": "Builder 3",
+  "packet_id": "TZ-FINISH-OFFLINE-RESILIENCE-001",
+  "pass": 6,
+  "status": "PASS_COMPLETE_CONTINUE",
+  "checks": {
+    "typecheck": "PASS",
+    "fresh_compile": "PASS",
+    "full_titan_platform_suite": "119/119 PASS",
+    "fresh_authority_required": "PASS",
+    "stale_policy": "FAIL_CLOSED",
+    "expired_authority": "FAIL_CLOSED",
+    "revision_mismatch": "FAIL_CLOSED",
+    "missing_permission": "FAIL_CLOSED",
+    "missing_entitlement": "FAIL_CLOSED",
+    "protected_offline_action": "FAIL_CLOSED",
+    "offline_score_contraction": "PASS",
+    "online_never_expands_source_score": "PASS",
+    "cross_company": "FAIL_CLOSED",
+    "legacy_alias": "FAIL_CLOSED",
+    "cached_identity_grants_authority": false,
+    "cached_role_grants_authority": false
+  },
+  "next_gate": "Pass 7: field evidence/media metadata queuing and resumable synchronization."
+}

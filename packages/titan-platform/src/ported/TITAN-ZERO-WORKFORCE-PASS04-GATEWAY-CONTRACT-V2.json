@@ -1,0 +1,20 @@
+{
+  "schema": "titan-zero-workforce-pass4/v1",
+  "pass": 4,
+  "title": "Gateway Contract v2",
+  "status": "IMPLEMENTED",
+  "principles": [
+    "reuse existing Titan Zero gateway client",
+    "company_id sole boundary",
+    "grants_authority false",
+    "causality and idempotency bound",
+    "v1 receipt/projection compatibility accepted"
+  ],
+  "changed_runtime": [
+    "titan-workforce-gateway-client.js"
+  ],
+  "added": [
+    "titan-workforce/gateway/GatewayContractV2.schema.json",
+    "tests/client_workforce_gateway_contract_v2.test.mjs"
+  ]
+}

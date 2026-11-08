@@ -1,0 +1,32 @@
+{
+  "template": {
+    "id": "store-stock-transfer",
+    "version": "1.0.0",
+    "name": "Store Stock Transfer",
+    "status": "ready",
+    "category": "inventory",
+    "entry_wizard": "store_stock_transfer_v1",
+    "capabilities": [
+      "inventory.transfers.create"
+    ],
+    "channels": [
+      "chat",
+      "mobile",
+      "tablet",
+      "desktop",
+      "voice"
+    ],
+    "governance": {
+      "authority": "human_review_when_required",
+      "offline": true
+    },
+    "metadata": {
+      "verticals": [
+        "retail",
+        "wholesale",
+        "ecommerce"
+      ],
+      "pack": "commerce_multi_vertical_2026_08"
+    }
+  }
+}

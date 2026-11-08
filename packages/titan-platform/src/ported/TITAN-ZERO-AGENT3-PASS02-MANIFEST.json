@@ -1,0 +1,25 @@
+{
+  "schema": "titan-zero-agent3-pass/v1",
+  "agent": "agent-3",
+  "pass": 2,
+  "parent": "Titan-Zero-Agent3-YJS-Pass01-CUMULATIVE.zip",
+  "purpose": "Fix invalid DOMStringMap dataset marker in Workforce surface split bridge",
+  "root_cause": "Hyphenated dataset key titan-workforce-surface-split was used via dataset[MARKER], which throws SyntaxError/DOMException.",
+  "changes": {
+    "added": [
+      "titan-regression/agent3/pass02-workforce-dataset-key.test.mjs"
+    ],
+    "modified": [
+      "titan-workforce-surface-split.js"
+    ],
+    "deleted": []
+  },
+  "verification": [
+    "Agent3 dataset regression PASS",
+    "Workforce surface split PASS",
+    "Workforce Pass9 regression assault PASS",
+    "workforce-ui-restore suite 3/3 PASS",
+    "manifest JSON PASS",
+    "changed JS syntax PASS"
+  ]
+}

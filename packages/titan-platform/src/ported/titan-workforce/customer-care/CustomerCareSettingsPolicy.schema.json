@@ -1,0 +1,69 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "titan.workforce.customer-care.settings-policy.v1",
+  "title": "Customer Care Settings Policy",
+  "type": "object",
+  "required": ["company_id", "tone", "response_sla_minutes", "complaint_thresholds", "remediation", "review_timing", "escalation_contacts", "allowed_channels", "authority_granted", "execution_permitted"],
+  "properties": {
+    "company_id": {"type": "string", "minLength": 1},
+    "tone": {"enum": ["PROFESSIONAL", "WARM", "CONCISE", "EMPATHETIC"]},
+    "response_sla_minutes": {
+      "type": "object",
+      "required": ["LOW", "MEDIUM", "HIGH", "CRITICAL"],
+      "properties": {
+        "LOW": {"type": "integer", "minimum": 1, "maximum": 10080},
+        "MEDIUM": {"type": "integer", "minimum": 1, "maximum": 4320},
+        "HIGH": {"type": "integer", "minimum": 1, "maximum": 1440},
+        "CRITICAL": {"type": "integer", "minimum": 1, "maximum": 60}
+      },
+      "additionalProperties": false
+    },
+    "complaint_thresholds": {
+      "type": "object",
+      "required": ["human_review_severity", "manager_review_severity", "mandatory_issue_classes"],
+      "properties": {
+        "human_review_severity": {"enum": ["MEDIUM", "HIGH", "CRITICAL"]},
+        "manager_review_severity": {"enum": ["HIGH", "CRITICAL"]},
+        "mandatory_issue_classes": {"type": "array", "items": {"enum": ["SAFETY", "PRIVACY", "PROPERTY_DAMAGE"]}, "uniqueItems": true}
+      },
+      "additionalProperties": false
+    },
+    "remediation": {
+      "type": "object",
+      "required": ["mode", "allowed_proposals", "never_executable_by_customer_care"],
+      "properties": {
+        "mode": {"enum": ["NONE", "PROPOSE_ONLY", "REQUIRE_APPROVAL"]},
+        "allowed_proposals": {"type": "array", "items": {"enum": ["APOLOGY", "STATUS_UPDATE", "REWORK_REVIEW", "CREDIT_REVIEW", "REFUND_REVIEW", "MANAGER_CALLBACK"]}, "uniqueItems": true},
+        "never_executable_by_customer_care": {"type": "array", "items": {"enum": ["REFUND", "CREDIT", "FREE_REWORK", "LEGAL_ADMISSION", "SAFETY_COMMITMENT"]}, "minItems": 5, "uniqueItems": true}
+      },
+      "additionalProperties": false
+    },
+    "review_timing": {
+      "type": "object",
+      "required": ["minimum_delay_minutes", "maximum_delay_minutes", "require_satisfactory_outcome"],
+      "properties": {
+        "minimum_delay_minutes": {"type": "integer", "minimum": 0, "maximum": 43200},
+        "maximum_delay_minutes": {"type": "integer", "minimum": 1, "maximum": 129600},
+        "require_satisfactory_outcome": {"const": true}
+      },
+      "additionalProperties": false
+    },
+    "escalation_contacts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["contact_id", "company_id", "roles"],
+        "properties": {
+          "contact_id": {"type": "string", "minLength": 1},
+          "company_id": {"type": "string", "minLength": 1},
+          "roles": {"type": "array", "items": {"enum": ["MANAGER", "SAFETY", "PRIVACY", "FINANCE", "LEGAL"]}, "minItems": 1, "uniqueItems": true}
+        },
+        "additionalProperties": false
+      }
+    },
+    "allowed_channels": {"type": "array", "items": {"enum": ["SMS", "EMAIL", "WHATSAPP", "VOICE", "IN_APP"]}, "minItems": 1, "uniqueItems": true},
+    "authority_granted": {"const": false},
+    "execution_permitted": {"const": false}
+  },
+  "additionalProperties": false
+}

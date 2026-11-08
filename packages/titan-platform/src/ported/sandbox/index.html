@@ -1,0 +1,1142 @@
+<!-- pages/sandbox/index.html -->
+<!DOCTYPE html>
+<html>
+
+<head>
+    <script>
+        // --- Conversion Utility To ToolOutput ---
+        function toToolOutput(data) {
+            if (data === null || data === undefined) {
+                return [];
+            }
+            if (Array.isArray(data)) {
+                return data.filter(item => item !== undefined && item !== null);
+            }
+            if (typeof data === 'object' || typeof data === 'string') {
+                return [data];
+            }
+            return [String(data)];
+        }
+
+        // --- Code-plan `vars` persistence ---
+        // Serializes the sandbox `vars` global for the results postMessage. Per-key
+        // JSON round-trip: guarantees the snapshot is structured-clonable (a function
+        // or DOM node would otherwise throw DataCloneError and lose the ENTIRE
+        // results message, hanging the execution until timeout).
+        const VARS_PER_VAR_MAX_CHARS = 1_000_000; // ~1MB per variable
+        const VARS_TOTAL_MAX_CHARS = 4_000_000;   // ~4MB across all variables
+        function __rtrvrSerializeVars(varsObj, warn) {
+            const out = {};
+            if (!varsObj || typeof varsObj !== 'object') return out;
+            let total = 0;
+            for (const key of Object.keys(varsObj)) {
+                let json;
+                try {
+                    json = JSON.stringify(varsObj[key]);
+                } catch (e) {
+                    warn(`vars.${key} was NOT saved: not JSON-serializable (${e && e.message})`);
+                    continue;
+                }
+                if (json === undefined) {
+                    warn(`vars.${key} was NOT saved: functions/undefined cannot persist`);
+                    continue;
+                }
+                if (json.length > VARS_PER_VAR_MAX_CHARS) {
+                    warn(`vars.${key} was NOT saved: ${json.length} chars exceeds the per-variable cap`);
+                    continue;
+                }
+                if (total + json.length > VARS_TOTAL_MAX_CHARS) {
+                    warn(`vars.${key} was NOT saved: total saved-vars budget exceeded`);
+                    continue;
+                }
+                total += json.length;
+                out[key] = JSON.parse(json);
+            }
+            return out;
+        }
+
+        // Override fetch to proxy through the main extension
+        const originalFetch = window.fetch;
+        window.__rtrvrCurrentExecutionContext = null;
+        window.__rtrvrAvailableTools = [];
+        // Line offset of the currently eval'd user code: 0 for direct eval,
+        // 1 when evaluateSandboxCode rewraps it in an async IIFE.
+        window.__rtrvrEvalLineOffset = 0;
+
+        // Best-effort source line of the rtrvr.* call site inside the eval'd
+        // script (V8 reports eval frames as "<anonymous>:LINE:COL"; the first
+        // such frame is the innermost user-code frame — wrapper frames carry
+        // this page's filename). Powers the live execution pointer in the UI.
+        function __rtrvrCaptureCallLine() {
+            try {
+                const stack = String(new Error().stack || '');
+                const match = stack.match(/<anonymous>:(\d+):(\d+)/);
+                if (!match) return undefined;
+                const line = Number(match[1]) - (window.__rtrvrEvalLineOffset || 0);
+                return Number.isFinite(line) && line > 0 ? line : undefined;
+            } catch (_) {
+                return undefined;
+            }
+        }
+
+        function __rtrvrContextWithCallLine() {
+            const base = window.__rtrvrCurrentExecutionContext;
+            const callLineNumber = __rtrvrCaptureCallLine();
+            if (!base && callLineNumber === undefined) return undefined;
+            return { ...(base || {}), callLineNumber };
+        }
+
+        // rtrvr.* namespace — same shape as webpage page-tool runtime so
+        // generated code can be portable between sandbox and webpage modes.
+        window.rtrvr = window.rtrvr || {};
+
+        window.rtrvr.listTools = (names) => {
+            try {
+                const all = JSON.parse(JSON.stringify(window.__rtrvrAvailableTools || []));
+                // Optional names filter: the planner prompt lists most tools by
+                // name only and fetches their schemas here on demand. Dot-suffix
+                // matches tolerate a bare tool name for namespaced entries.
+                if (!Array.isArray(names) || names.length === 0) return all;
+                const wanted = names.map(String);
+                return all.filter((tool) => wanted.some((n) => tool.name === n || tool.name.endsWith('.' + n)));
+            } catch (_) {
+                return [];
+            }
+        };
+
+        // The tabs the user selected for this run, as { tabId, title, url, active, isSource }
+        // (SOURCE first). A trusted function the model can call to get a REAL tab id at
+        // runtime — so it never has to reference the injected `selectedTabs`/`tabIds`
+        // globals it distrusts, nor transcribe a numeric id. Local accessor (no RPC),
+        // mirroring rtrvr.listTools above; reads the window.selectedTabs the execute
+        // handler injects from executionContext.selectedTabs.
+        // async so it returns a Promise: the model treats every documented
+        // `await rtrvr.*()` helper as thenable and writes `.then(...)` on it — a sync
+        // array return would throw "selectedTabs(...).then is not a function".
+        window.rtrvr.selectedTabs = async () => {
+            try {
+                return JSON.parse(JSON.stringify(window.selectedTabs || []));
+            } catch (_) {
+                return [];
+            }
+        };
+
+        // Set when the parent posts 'cancelExecution' for the current run (the
+        // user hit Stop). Cooperative helpers (rtrvr.mapLimit) read it to stop
+        // scheduling new work; scripts can poll it via rtrvr.isCancelled().
+        window.__rtrvrCancelled = false;
+        window.__rtrvrCurrentExecutionId = null;
+        window.addEventListener('message', (event) => {
+            if (event.source !== window.parent || event.data?.type !== 'cancelExecution') return;
+            const ids = event.data.executionIds;
+            if (!Array.isArray(ids) || ids.includes(window.__rtrvrCurrentExecutionId)) {
+                window.__rtrvrCancelled = true;
+            }
+        });
+
+        // async so it's thenable like every other documented rtrvr.* helper
+        // (mirrors rtrvr.selectedTabs above).
+        window.rtrvr.isCancelled = async () => window.__rtrvrCancelled === true;
+
+        // Terminal signal: returns the completion marker the plan script
+        // `return`s to end the task (verify-then-finish). Native version of
+        // the backend's compat shim — the shim's `if (!rtrvr.done)` guard
+        // defers to this implementation. Synchronous by design so it can be
+        // returned directly: `return rtrvr.done({ summary })`.
+        window.rtrvr.done = (o) => ({ __rtrvrDone: true, ...(o || {}) });
+
+        window.rtrvr.invokeBuiltin = (helperName, args = {}) => {
+            return new Promise((resolve, reject) => {
+                if (typeof helperName !== 'string' || !helperName) {
+                    reject(new Error('rtrvr.invokeBuiltin requires a helper name'));
+                    return;
+                }
+                if (!window.parent || window.parent === window) {
+                    reject(new Error('Cannot call builtin helper: no parent window access'));
+                    return;
+                }
+                const rpcId = crypto.randomUUID();
+                const listener = (event) => {
+                    if (event.source !== window.parent) return;
+                    if (event.data?.type !== 'builtinHelperResult' || event.data?.rpcId !== rpcId) return;
+                    window.removeEventListener('message', listener);
+                    if (event.data.error) {
+                        const err = new Error(event.data.error.message || `rtrvr.${helperName} failed`);
+                        if (event.data.error.name) err.name = event.data.error.name;
+                        if (event.data.error.details && typeof event.data.error.details === 'object') err.details = event.data.error.details;
+                        reject(err);
+                    } else {
+                        resolve(event.data.result);
+                    }
+                };
+                window.addEventListener('message', listener);
+                try {
+                    window.parent.postMessage({
+                        type: 'builtinHelper',
+                        rpcId,
+                        helper: helperName,
+                        args: args || {},
+                        executionContext: __rtrvrContextWithCallLine(),
+                    }, '*');
+                } catch (e) {
+                    window.removeEventListener('message', listener);
+                    reject(e);
+                }
+            });
+        };
+
+        const __rtrvrPlannerToolAliases = {
+            act_on_tab: 'act',
+            extract_from_tab: 'extract',
+            crawl_and_extract_from_tab: 'crawl',
+            sheets_workflow: 'sheetsWorkflow',
+            infer_sheet_data: 'inferSheetData',
+            create_sheet_from_data: 'createSheetFromData',
+            query_rtrvr_ai_documentation: 'queryRtrvrDocs',
+            google_doc_generator: 'googleDocGenerator',
+            google_slides_generator: 'googleSlidesGenerator',
+            webpage_generator: 'webpageGenerator',
+            pdf_generator: 'pdfGenerator',
+            pdf_filler: 'pdfFiller',
+            custom_tool_generator: 'customToolGenerator',
+            process_text: 'processText',
+            capture_screenshot: 'captureScreenshot',
+        };
+
+        window.rtrvr.mapLimit = async (items, concurrency, fn) => {
+            if (typeof concurrency === 'function') {
+                fn = concurrency;
+                // No explicit concurrency: fall back to the user's Max Parallel Tabs
+                // budget (injected as window.maxParallelTabs) instead of a fixed 3.
+                concurrency = Number(window.maxParallelTabs) || 3;
+            }
+            if (!Array.isArray(items)) throw new Error('rtrvr.mapLimit requires an array');
+            if (typeof fn !== 'function') throw new Error('rtrvr.mapLimit requires an async callback');
+            const limit = Math.max(1, Math.min(items.length || 1, Math.floor(Number(concurrency) || 1)));
+            const results = new Array(items.length);
+            let cursor = 0;
+            // Cancel observed: stop scheduling new items but keep completed slots.
+            let stopped = false;
+            await Promise.all(Array.from({ length: limit }, async () => {
+                while (cursor < items.length && !stopped && window.__rtrvrCancelled !== true) {
+                    const index = cursor++;
+                    try {
+                        results[index] = await fn(items[index], index);
+                    } catch (error) {
+                        // Cancel is a stop signal, not a failure: resolve with PARTIAL
+                        // results (unprocessed slots stay undefined) so the script's
+                        // trailing flush (e.g. appendRow) still runs. The error-name
+                        // match covers a missed cancelExecution message — any gated
+                        // rtrvr.* call rejects with this name on cancel (see
+                        // RTRVR_CANCELLED_ERROR_NAME in @rtrvr-ai/shared constants).
+                        if (window.__rtrvrCancelled === true || (error && error.name === 'RtrvrCancelledError')) {
+                            stopped = true;
+                            return;
+                        }
+                        // Ordinary failures keep the old semantics: unwind mapLimit.
+                        throw error;
+                    }
+                }
+            }));
+            return results;
+        };
+
+        window.rtrvr.executeMultipleTools = async ({ toolCalls, tool_calls, concurrency = 1 } = {}) => {
+            const calls = Array.isArray(toolCalls) ? toolCalls : tool_calls;
+            if (!Array.isArray(calls) || calls.length === 0) {
+                throw new Error('rtrvr.executeMultipleTools requires { toolCalls }');
+            }
+            const normalized = calls.map((call, index) => {
+                if (!call || typeof call !== 'object') {
+                    throw new Error(`rtrvr.executeMultipleTools toolCalls[${index}] must be an object`);
+                }
+                if (call.name !== undefined && call.name !== null && String(call.name).trim() !== '') {
+                    throw new Error(`rtrvr.executeMultipleTools toolCalls[${index}] uses ambiguous "name"; use helper for rtrvr helpers or toolName for custom tools`);
+                }
+                const explicitHelper = String(call.helper || '').trim();
+                const explicitTool = String(call.toolName || call.tool_name || '').trim();
+                if (explicitHelper && explicitTool) {
+                    throw new Error(`rtrvr.executeMultipleTools toolCalls[${index}] must use either helper or toolName, not both`);
+                }
+                const rawName = String(explicitHelper || explicitTool || '').trim();
+                if (!rawName) throw new Error(`rtrvr.executeMultipleTools toolCalls[${index}] is missing helper/toolName`);
+                const stripped = rawName.startsWith('rtrvr.') ? rawName.slice('rtrvr.'.length) : rawName;
+                const alias = __rtrvrPlannerToolAliases[stripped];
+                const helper = alias || stripped;
+                const args = call.args || call.parameters || call.toolArgs || call.tool_args || {};
+                const rendered = JSON.stringify({ helper, args });
+                if (/\{\{|\bhistory\.step\b|\bstep\./.test(rendered || '')) {
+                    throw new Error(`rtrvr.executeMultipleTools toolCalls[${index}] contains planner placeholders; use JavaScript sequencing instead`);
+                }
+                return { helper, toolName: alias ? undefined : stripped, args, mode: explicitHelper || alias ? 'helper' : 'tool' };
+            });
+            for (const call of normalized) {
+                if (call.mode === 'helper' && (typeof window.rtrvr[call.helper] !== 'function' || call.helper === 'executeMultipleTools')) {
+                    throw new Error(`Unknown rtrvr helper '${call.helper}'`);
+                }
+            }
+            const results = await window.rtrvr.mapLimit(normalized, concurrency, async ({ helper, toolName, args, mode }, index) => {
+                const fn = window.rtrvr[helper];
+                try {
+                    if (mode === 'helper') {
+                        if (typeof fn !== 'function' || helper === 'executeMultipleTools') {
+                            throw new Error(`Unknown rtrvr helper '${helper}'`);
+                        }
+                        return { index, helper, ok: true, result: await fn(args || {}) };
+                    }
+                    if (typeof window.rtrvr.callTool === 'function') {
+                        return { index, helper: toolName || helper, ok: true, result: await window.rtrvr.callTool(toolName || helper, args || {}) };
+                    }
+                    throw new Error(`Unknown helper or tool '${helper}'`);
+                } catch (error) {
+                    return { index, helper, ok: false, error: error?.message || String(error) };
+                }
+            });
+            const openedTabs = results.flatMap(r => Array.isArray(r.result?.openedTabs) ? r.result.openedTabs : []);
+            const closedTabIds = results.flatMap(r => Array.isArray(r.result?.closedTabIds) ? r.result.closedTabIds : []);
+            const failed = results.filter(r => !r.ok).length;
+            return {
+                results,
+                count: results.length,
+                succeeded: results.length - failed,
+                failed,
+                openedTabs: openedTabs.length ? openedTabs : undefined,
+                closedTabIds: closedTabIds.length ? closedTabIds : undefined,
+            };
+        };
+
+        window.rtrvr.createSheet = (args = {}) => window.rtrvr.invokeBuiltin('createSheet', args);
+        window.rtrvr.appendRow = (args = {}) => window.rtrvr.invokeBuiltin('appendRow', args);
+        window.rtrvr.appendColumn = (args = {}) => window.rtrvr.invokeBuiltin('appendColumn', args);
+        window.rtrvr.readSheet = (args = {}) => window.rtrvr.invokeBuiltin('readSheet', args);
+        window.rtrvr.updateRange = (args = {}) => window.rtrvr.invokeBuiltin('updateRange', args);
+        window.rtrvr.getPageTree = (args = {}) => window.rtrvr.invokeBuiltin('getPageTree', args);
+        window.rtrvr.pageAction = (args = {}) => window.rtrvr.invokeBuiltin('pageAction', args);
+        window.rtrvr.listTabs = (args = {}) => window.rtrvr.invokeBuiltin('listTabs', args);
+        // User skill files (persistent markdown memory). This file cannot import,
+        // so it is a hand-kept mirror of the BuiltinHelperName union — a helper
+        // registered in builtinHelpers.ts but missing here is "not a function"
+        // inside plan scripts (the exact failure that hit rtrvr.saveSkill).
+        window.rtrvr.readSkill = (args = {}) => window.rtrvr.invokeBuiltin('readSkill', args);
+        window.rtrvr.saveSkill = (args = {}) => window.rtrvr.invokeBuiltin('saveSkill', args);
+        window.rtrvr.listSkills = (args = {}) => window.rtrvr.invokeBuiltin('listSkills', args);
+        window.rtrvr.editSkill = (args = {}) => window.rtrvr.invokeBuiltin('editSkill', args);
+        window.rtrvr.createTool = (args = {}) => window.rtrvr.invokeBuiltin('createTool', args);
+        window.rtrvr.customToolGenerator = (args = {}) => window.rtrvr.invokeBuiltin('customToolGenerator', args);
+        window.rtrvr.listRecordings = (args = {}) => window.rtrvr.invokeBuiltin('listRecordings', args);
+        window.rtrvr.startRecording = (args = {}) => window.rtrvr.invokeBuiltin('startRecording', args);
+        window.rtrvr.finishRecording = (args = {}) => window.rtrvr.invokeBuiltin('finishRecording', args);
+        window.rtrvr.act = (args = {}) => window.rtrvr.invokeBuiltin('act', args);
+        window.rtrvr.extract = (args = {}) => window.rtrvr.invokeBuiltin('extract', args);
+        window.rtrvr.crawl = (args = {}) => window.rtrvr.invokeBuiltin('crawl', args);
+        window.rtrvr.sheetsWorkflow = (args = {}) => window.rtrvr.invokeBuiltin('sheetsWorkflow', args);
+        window.rtrvr.inferSheetData = (args = {}) => window.rtrvr.invokeBuiltin('inferSheetData', args);
+        window.rtrvr.createSheetFromData = (args = {}) => window.rtrvr.invokeBuiltin('createSheetFromData', args);
+        window.rtrvr.queryRtrvrDocs = (args = {}) => window.rtrvr.invokeBuiltin('queryRtrvrDocs', args);
+        window.rtrvr.googleDocGenerator = (args = {}) => window.rtrvr.invokeBuiltin('googleDocGenerator', args);
+        window.rtrvr.googleSlidesGenerator = (args = {}) => window.rtrvr.invokeBuiltin('googleSlidesGenerator', args);
+        window.rtrvr.webpageGenerator = (args = {}) => window.rtrvr.invokeBuiltin('webpageGenerator', args);
+        window.rtrvr.pdfGenerator = (args = {}) => window.rtrvr.invokeBuiltin('pdfGenerator', args);
+        window.rtrvr.pdfFiller = (args = {}) => window.rtrvr.invokeBuiltin('pdfFiller', args);
+        window.rtrvr.discoverNetworkData = (args = {}) => window.rtrvr.invokeBuiltin('discoverNetworkData', args);
+        window.rtrvr.processText = (args = {}) => window.rtrvr.invokeBuiltin('processText', args);
+        // Full-text access to attached files: the remedy a cut file's
+        // [truncated: showing X of Y characters …] marker names.
+        window.rtrvr.readFile = (args = {}) => window.rtrvr.invokeBuiltin('readFile', args);
+        window.rtrvr.searchFile = (args = {}) => window.rtrvr.invokeBuiltin('searchFile', args);
+        window.rtrvr.scrape = (args = {}) => window.rtrvr.invokeBuiltin('scrape', args);
+        window.rtrvr.enrich = (args = {}) => window.rtrvr.invokeBuiltin('enrich', args);
+        window.rtrvr.webSearch = (args = {}) => window.rtrvr.invokeBuiltin('webSearch', args);
+        window.rtrvr.captureScreenshot = (args = {}) => window.rtrvr.invokeBuiltin('captureScreenshot', args);
+        window.rtrvr.generateImage = (args = {}) => window.rtrvr.invokeBuiltin('generateImage', args);
+        window.rtrvr.getLlmConfig = (args = {}) => window.rtrvr.invokeBuiltin('getLlmConfig', args);
+        window.rtrvr.setLlmConfig = (args = {}) => window.rtrvr.invokeBuiltin('setLlmConfig', args);
+        window.rtrvr.getUserSettings = (args = {}) => window.rtrvr.invokeBuiltin('getUserSettings', args);
+        window.rtrvr.setUserSettings = (args = {}) => window.rtrvr.invokeBuiltin('setUserSettings', args);
+        window.rtrvr.schedule = (args = {}) => window.rtrvr.invokeBuiltin('schedule', args);
+        window.rtrvr.trigger = (args = {}) => window.rtrvr.invokeBuiltin('trigger', args);
+        window.rtrvr.checkScheduleResults = (args = {}) => window.rtrvr.invokeBuiltin('checkScheduleResults', args);
+        window.rtrvr.checkTriggerResults = (args = {}) => window.rtrvr.invokeBuiltin('checkTriggerResults', args);
+        // Bright Data dataset ids as constants so generated code never retypes
+        // raw gd_ ids. This file cannot import, so it is the ONE hand-kept mirror
+        // of ENRICH_DATASETS (shared/lib/types/agent-types.ts); enrich-datasets.test.ts
+        // parses this literal and fails if the two ever drift.
+        window.rtrvr.datasets = {
+            linkedinPeople: 'gd_l1viktl72bvl7bjuj0',
+            linkedinPeopleContact: 'gd_me5ppxjr2ge6icjuh0',
+            linkedinCompanies: 'gd_l1vikfnt1wgvvqz95w',
+            crunchbaseCompanies: 'gd_l1vijqt9jfj7olije',
+            instagramProfiles: 'gd_l1vikfch901nx3by4',
+            amazonProducts: 'gd_l7q7dkf244hwjntr0',
+            zillowProperties: 'gd_lfqkr8wm13ixtbd8f5',
+            indeedJobs: 'gd_l4dx9j9sscpvs7no2',
+            googleMaps: 'gd_m8ebnr0q2qlklc02fz',
+        };
+        window.rtrvr.askUser = (args = {}) => window.rtrvr.invokeBuiltin('askUser', args);
+        window.rtrvr.withNewTab = async (options = {}, fn) => {
+            if (!options || typeof options.url !== 'string' || !options.url.trim()) {
+                throw new Error('rtrvr.withNewTab requires { url }');
+            }
+            if (typeof fn !== 'function') {
+                throw new Error('rtrvr.withNewTab requires an async callback');
+            }
+            const opened = await window.rtrvr.pageAction({
+                tool: 'open_new_tab',
+                args: { url: options.url },
+                tabId: options.tabId,
+            });
+            const tabId = opened?.newTabId || opened?.openedTabs?.[0]?.tabId;
+            if (!tabId) throw new Error('rtrvr.withNewTab failed to open a tab');
+            try {
+                return await fn({ tabId, opened });
+            } finally {
+                if (options.close !== false) {
+                    try {
+                        await window.rtrvr.pageAction({
+                            tool: 'close_tab',
+                            args: { tab_id: tabId },
+                            tabId: options.tabId,
+                        });
+                    } catch (error) {
+                        console.warn('rtrvr.withNewTab failed to close tab', error);
+                    }
+                }
+            }
+        };
+
+        // --- Semantic page interaction (find/click/type/waitFor/waitForUrl) ---
+        // Proxied to the target tab's page-tool runtime via the parent's
+        // pageToolRpc channel. Targets the execution's sourceTabId by default;
+        // pass { tabId } in the options to address another tab.
+        const __rtrvrSleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+        const __rtrvrSerializeMatcher = (matcher) => {
+            if (matcher instanceof RegExp) {
+                return { __rtrvrRegex: true, source: matcher.source, flags: matcher.flags };
+            }
+            return matcher;
+        };
+        const __rtrvrSerializeTarget = (target) => {
+            if (!target || typeof target !== 'object') return target;
+            if (target.__rtrvrPageHandle === true) return target;
+            return {
+                selector: target.selector,
+                text: __rtrvrSerializeMatcher(target.text),
+                role: target.role,
+                name: __rtrvrSerializeMatcher(target.name),
+                placeholder: __rtrvrSerializeMatcher(target.placeholder),
+                within:
+                    typeof target.within === 'string'
+                        ? target.within
+                        : target.within && typeof target.within === 'object'
+                            ? __rtrvrSerializeTarget(target.within)
+                            : undefined,
+                focused: target.focused === true ? true : undefined,
+            };
+        };
+        const __rtrvrPageToolRpc = (command, tabId) => new Promise((resolve, reject) => {
+            if (!window.parent || window.parent === window) {
+                reject(new Error('Cannot proxy page tool command: no parent window access.'));
+                return;
+            }
+            const rpcId = crypto.randomUUID();
+            const timeoutId = window.setTimeout(() => {
+                window.removeEventListener('message', onMessage);
+                reject(new Error('Page tool RPC timed out for ' + command.kind));
+            }, 30000);
+            const onMessage = (event) => {
+                if (event.source !== window.parent || event.data?.type !== 'pageToolRpcResponse' || event.data?.rpcId !== rpcId) {
+                    return;
+                }
+                window.clearTimeout(timeoutId);
+                window.removeEventListener('message', onMessage);
+                if (event.data.error) {
+                    const error = new Error(event.data.error.message || 'Page tool RPC failed');
+                    if (event.data.error.name) error.name = event.data.error.name;
+                    if (event.data.error.stack) error.stack = event.data.error.stack;
+                    if (event.data.error.details && typeof event.data.error.details === 'object') error.details = event.data.error.details;
+                    reject(error);
+                    return;
+                }
+                resolve(event.data.payload);
+            };
+            window.addEventListener('message', onMessage);
+            const baseContext = window.__rtrvrCurrentExecutionContext || {};
+            const effectiveTabId = Number.isFinite(Number(tabId)) ? Number(tabId) : baseContext.sourceTabId;
+            window.parent.postMessage({
+                type: 'pageToolRpc',
+                rpcId,
+                command,
+                executionContext: {
+                    ...baseContext,
+                    sourceTabId: effectiveTabId,
+                    callLineNumber: __rtrvrCaptureCallLine(),
+                },
+            }, '*');
+        });
+        window.rtrvr.find = async (target, options = {}) => {
+            return await __rtrvrPageToolRpc({ kind: 'find', target: __rtrvrSerializeTarget(target) }, options.tabId);
+        };
+        window.rtrvr.elementId = async (target, options = {}) => {
+            return await __rtrvrPageToolRpc({ kind: 'elementId', target: __rtrvrSerializeTarget(target) }, options.tabId);
+        };
+        window.rtrvr.click = async (target, options = {}) => {
+            return await __rtrvrPageToolRpc({ kind: 'click', target: __rtrvrSerializeTarget(target) }, options.tabId);
+        };
+        window.rtrvr.type = async (target, value, options = {}) => {
+            return await __rtrvrPageToolRpc({
+                kind: 'type',
+                target: __rtrvrSerializeTarget(target),
+                value: String(value ?? ''),
+                options: (options.clear !== undefined || options.submit !== undefined)
+                    ? { clear: options.clear, submit: options.submit }
+                    : undefined,
+            }, options.tabId);
+        };
+        window.rtrvr.waitFor = async (targetOrFn, options = {}) => {
+            const timeoutMs = Number.isFinite(Number(options.timeoutMs)) ? Number(options.timeoutMs) : 10000;
+            const intervalMs = Number.isFinite(Number(options.intervalMs)) ? Number(options.intervalMs) : 250;
+            const startedAt = Date.now();
+            while (Date.now() - startedAt <= timeoutMs) {
+                if (typeof targetOrFn === 'function') {
+                    const result = await Promise.resolve(targetOrFn());
+                    if (result) return result;
+                } else {
+                    const handle = await window.rtrvr.find(targetOrFn, { tabId: options.tabId });
+                    if (handle) return handle;
+                }
+                await __rtrvrSleep(intervalMs);
+            }
+            let missSummary;
+            if (typeof targetOrFn !== 'function') {
+                try {
+                    missSummary = await __rtrvrPageToolRpc(
+                        { kind: 'describeMiss', target: __rtrvrSerializeTarget(targetOrFn) },
+                        options.tabId,
+                    );
+                } catch { /* diagnostics are best-effort */ }
+            }
+            const targetDesc = typeof targetOrFn === 'function'
+                ? 'page condition'
+                : 'page target ' + JSON.stringify(__rtrvrSerializeTarget(targetOrFn));
+            throw new Error(
+                'Timed out waiting for ' + targetDesc + '.' +
+                (missSummary ? ' Closest matches on page: ' + missSummary : ''),
+            );
+        };
+        window.rtrvr.waitForUrl = async (match, options = {}) => {
+            const timeoutMs = Number.isFinite(Number(options.timeoutMs)) ? Number(options.timeoutMs) : 10000;
+            const intervalMs = Number.isFinite(Number(options.intervalMs)) ? Number(options.intervalMs) : 250;
+            const startedAt = Date.now();
+            const predicate =
+                typeof match === 'function'
+                    ? match
+                    : match instanceof RegExp
+                        ? (url) => new RegExp(match.source, match.flags).test(url)
+                        : (url) => String(url || '').includes(String(match));
+            while (Date.now() - startedAt <= timeoutMs) {
+                const currentUrl = await __rtrvrPageToolRpc({ kind: 'getCurrentUrl' }, options.tabId);
+                if (predicate(String(currentUrl || ''))) {
+                    return String(currentUrl || '');
+                }
+                await __rtrvrSleep(intervalMs);
+            }
+            throw new Error('Timed out waiting for page URL condition.');
+        };
+
+        function parsesAsAsyncFunctionBody(code) {
+            // V8's SyntaxError text for top-level `await`/`return` varies across
+            // versions (sloppy-mode `await x` now reports "Unexpected identifier 'x'"),
+            // so decide by re-parsing instead of matching error messages.
+            const AsyncFunction = Object.getPrototypeOf(async function () {}).constructor;
+            try {
+                new AsyncFunction(code);
+                return true;
+            } catch {
+                return false;
+            }
+        }
+
+        async function evaluateSandboxCode(code) {
+            try {
+                window.__rtrvrEvalLineOffset = 0;
+                const result = eval(code);
+                return (result instanceof Promise) ? await result : result;
+            } catch (error) {
+                // A SyntaxError from eval is thrown at parse time, before any
+                // statement runs, so retrying cannot double-execute side effects.
+                const isSyntaxError = !!error && error.name === 'SyntaxError';
+                if (!isSyntaxError || !parsesAsAsyncFunctionBody(code)) {
+                    throw error;
+                }
+                // The async-IIFE wrapper shifts the user's code down one line.
+                window.__rtrvrEvalLineOffset = 1;
+                const result = eval(`(async () => {\n${code}\n})()`);
+                return (result instanceof Promise) ? await result : result;
+            }
+        }
+
+        window.rtrvr.callTool = (toolName, parameters = {}) => {
+            return new Promise((resolve, reject) => {
+                if (typeof toolName !== 'string' || !toolName) {
+                    reject(new Error('rtrvr.callTool requires a non-empty tool name'));
+                    return;
+                }
+                if (!window.parent || window.parent === window) {
+                    reject(new Error('Cannot call tool: no parent window access'));
+                    return;
+                }
+                const rpcId = crypto.randomUUID();
+                const listener = (event) => {
+                    if (event.source !== window.parent) return;
+                    if (event.data?.type !== 'callToolResult' || event.data?.rpcId !== rpcId) return;
+                    window.removeEventListener('message', listener);
+                    if (event.data.error) {
+                        const err = new Error(event.data.error.message || 'callTool failed');
+                        if (event.data.error.name) err.name = event.data.error.name;
+                        if (event.data.error.details && typeof event.data.error.details === 'object') err.details = event.data.error.details;
+                        reject(err);
+                    } else {
+                        resolve(event.data.result);
+                    }
+                };
+                window.addEventListener('message', listener);
+                try {
+                    window.parent.postMessage({
+                        type: 'callTool',
+                        rpcId,
+                        toolName,
+                        parameters: parameters || {},
+                        // Stamped (not the bare stored context) so the execution
+                        // overlay can point at the rtrvr.callTool line — same as
+                        // rtrvr.invokeBuiltin and the page-tool RPC below.
+                        executionContext: __rtrvrContextWithCallLine(),
+                    }, '*');
+                } catch (e) {
+                    window.removeEventListener('message', listener);
+                    reject(e);
+                }
+            });
+        };
+        // --- Base URL for DOMParser documents built from fetched HTML ---
+        // This sandbox page lives at chrome-extension://<id>/sandbox/index.html and a
+        // DOMParser document inherits that as its base URL, so a relative href in fetched
+        // HTML ("/news/articles/...") resolved through `a.href` to a chrome-extension://
+        // URL that leaked straight into sheets. Remember which URL each proxied fetch body
+        // came from — keyed by the body string itself (Map compares strings by value, so
+        // the `.text()` result the plan script holds finds it) — and stamp a <base href>
+        // on documents parsed from that string so `a.href` / `img.src` resolve against the
+        // fetched page. Bounded LRU: bodies are already held by the script; this only
+        // extends their lifetime a little.
+        const __rtrvrFetchedBodyUrls = new Map();
+        const FETCHED_BODY_URL_MAX_ENTRIES = 32;
+        const FETCHED_BODY_URL_MAX_CHARS = 48_000_000;
+        let __rtrvrFetchedBodyUrlChars = 0;
+        function __rtrvrRememberFetchedBodyUrl(body, url) {
+            if (typeof body !== 'string' || !body || typeof url !== 'string' || !/^https?:\/\//i.test(url)) return;
+            if (__rtrvrFetchedBodyUrls.has(body)) {
+                __rtrvrFetchedBodyUrls.delete(body); // re-insert so it becomes most-recent
+                __rtrvrFetchedBodyUrlChars -= body.length;
+            }
+            __rtrvrFetchedBodyUrls.set(body, url);
+            __rtrvrFetchedBodyUrlChars += body.length;
+            while (
+                __rtrvrFetchedBodyUrls.size > 1 &&
+                (__rtrvrFetchedBodyUrls.size > FETCHED_BODY_URL_MAX_ENTRIES ||
+                    __rtrvrFetchedBodyUrlChars > FETCHED_BODY_URL_MAX_CHARS)
+            ) {
+                const oldest = __rtrvrFetchedBodyUrls.keys().next().value;
+                __rtrvrFetchedBodyUrlChars -= oldest.length;
+                __rtrvrFetchedBodyUrls.delete(oldest);
+            }
+        }
+        function __rtrvrResolveParsedDocBaseUrl(doc, source) {
+            const fetchedUrl = typeof source === 'string' ? __rtrvrFetchedBodyUrls.get(source) : undefined;
+            if (fetchedUrl) return fetchedUrl;
+            // The script sliced/trimmed the HTML before parsing (lookup miss): the page's own
+            // canonical / og:url still carries the right origin for root-relative links.
+            const declared =
+                doc.querySelector('link[rel~="canonical"][href]')?.getAttribute('href') ||
+                doc.querySelector('meta[property="og:url"][content]')?.getAttribute('content') ||
+                '';
+            return /^https?:\/\//i.test(declared.trim()) ? declared.trim() : undefined;
+        }
+        const __rtrvrNativeParseFromString = DOMParser.prototype.parseFromString;
+        DOMParser.prototype.parseFromString = function (source, type) {
+            const doc = __rtrvrNativeParseFromString.call(this, source, type);
+            try {
+                const mime = String(type || '').toLowerCase();
+                if ((mime === 'text/html' || mime === 'application/xhtml+xml') && doc && doc.head) {
+                    const existingBase = doc.querySelector('base[href]');
+                    const existingHref = existingBase ? String(existingBase.getAttribute('href') || '').trim() : '';
+                    // An absolute <base href> declared by the page itself wins untouched.
+                    if (!/^[a-z][a-z0-9+.-]*:/i.test(existingHref)) {
+                        const baseUrl = __rtrvrResolveParsedDocBaseUrl(doc, source);
+                        if (baseUrl) {
+                            if (existingBase) {
+                                // A relative <base href="/"> would itself resolve against the
+                                // sandbox origin — absolutize it against the fetched URL.
+                                existingBase.setAttribute('href', existingHref ? new URL(existingHref, baseUrl).href : baseUrl);
+                            } else {
+                                const base = doc.createElement('base');
+                                base.setAttribute('href', baseUrl);
+                                doc.head.insertBefore(base, doc.head.firstChild);
+                            }
+                        }
+                    }
+                }
+            } catch (_) {
+                // Best effort: base-URL stamping must never break a parse.
+            }
+            return doc;
+        };
+
+        window.fetch = (...args) => {
+            return new Promise((resolve, reject) => {
+                const fetchId = crypto.randomUUID();
+                const toPlainHeaders = (headersLike) => {
+                    try {
+                        const out = {};
+                        new Headers(headersLike || {}).forEach((value, key) => {
+                            out[key] = value;
+                        });
+                        return out;
+                    } catch (_) {
+                        return headersLike;
+                    }
+                };
+
+                const toSerializableArgs = (input, init) => {
+                    const allowedInitKeys = [
+                        'method',
+                        'headers',
+                        'body',
+                        'credentials',
+                        'mode',
+                        'redirect',
+                        'referrer',
+                        'referrerPolicy',
+                        'cache',
+                        'integrity',
+                        'keepalive',
+                    ];
+                    const toSerializableInit = (initLike) => {
+                        if (!initLike || typeof initLike !== 'object') return undefined;
+                        const nextInit = {};
+                        for (const key of allowedInitKeys) {
+                            if (initLike[key] !== undefined) {
+                                nextInit[key] = initLike[key];
+                            }
+                        }
+                        if (nextInit.headers) {
+                            nextInit.headers = toPlainHeaders(nextInit.headers);
+                        }
+                        return nextInit;
+                    };
+
+                    let nextInput = input;
+                    let nextInit = toSerializableInit(init);
+
+                    if (typeof Request !== 'undefined' && input instanceof Request) {
+                        nextInput = {
+                            url: input.url,
+                            method: input.method,
+                            headers: toPlainHeaders(input.headers),
+                            credentials: input.credentials,
+                            mode: input.mode,
+                            redirect: input.redirect,
+                            referrer: input.referrer,
+                            referrerPolicy: input.referrerPolicy,
+                            cache: input.cache,
+                            integrity: input.integrity,
+                            keepalive: input.keepalive,
+                        };
+                    }
+
+                    return [nextInput, nextInit];
+                };
+                const serializableArgs = toSerializableArgs(args[0], args[1]);
+
+                if (window.parent && window.parent !== window) {
+                    window.parent.postMessage({
+                        type: 'fetch',
+                        args: serializableArgs,
+                        fetchId,
+                        executionContext: window.__rtrvrCurrentExecutionContext || undefined
+                    }, '*');
+                } else {
+                    reject(new Error("Cannot proxy fetch: No parent window access."));
+                    return;
+                }
+
+                const fetchResponseListener = (event) => {
+                    if (event.source === window.parent &&
+                        event.data.type === 'fetchResponse' &&
+                        event.data.fetchId === fetchId) {
+                        window.removeEventListener('message', fetchResponseListener);
+                        if (event.data.error) {
+                            reject(new Error(event.data.error));
+                        } else {
+                            const payload = event.data.payload || {};
+                            // Backward compatibility: older sender sent "response" as plain body string.
+                            const body = payload.body !== undefined ? payload.body : (event.data.response || '');
+                            const status = Number.isFinite(Number(payload.status)) ? Number(payload.status) : 200;
+                            const statusText = typeof payload.statusText === 'string' ? payload.statusText : '';
+                            const headers = payload.headers && typeof payload.headers === 'object' ? payload.headers : {};
+                            const response = new Response(body, { status, statusText, headers });
+                            const finalUrl = typeof payload.url === 'string' && payload.url
+                                ? payload.url
+                                : typeof payload.requestedUrl === 'string' ? payload.requestedUrl : '';
+                            __rtrvrRememberFetchedBodyUrl(body, finalUrl);
+                            if (finalUrl) {
+                                try {
+                                    // Response.url is a prototype getter that reads '' on a
+                                    // constructed Response; expose the real (post-redirect) URL
+                                    // so plan scripts can `new URL(href, response.url)`.
+                                    Object.defineProperty(response, 'url', { value: finalUrl, configurable: true });
+                                } catch (_) {}
+                            }
+                            try {
+                                Object.defineProperty(response, '__rtrvrDebug', {
+                                    value: {
+                                        url: typeof payload.url === 'string' ? payload.url : undefined,
+                                        requestedUrl: typeof payload.requestedUrl === 'string' ? payload.requestedUrl : undefined,
+                                        status,
+                                        statusText,
+                                        retried: Boolean(payload.retried),
+                                        transport: typeof payload.transport === 'string' ? payload.transport : undefined,
+                                    },
+                                    configurable: true,
+                                });
+                            } catch (_) {}
+                            resolve(response);
+                        }
+                    }
+                };
+                window.addEventListener('message', fetchResponseListener);
+            });
+        };
+
+        class ProxyXMLHttpRequest extends EventTarget {
+            constructor() {
+                super();
+                this.readyState = 0;
+                this.status = 0;
+                this.statusText = '';
+                this.responseType = '';
+                this.response = null;
+                this.responseText = '';
+                this.responseURL = '';
+                this.timeout = 0;
+                this.withCredentials = false;
+                this.onreadystatechange = null;
+                this.onload = null;
+                this.onerror = null;
+                this.onloadend = null;
+                this.onabort = null;
+                this._headers = {};
+                this._responseHeaders = {};
+                this._method = 'GET';
+                this._url = '';
+                this._aborted = false;
+            }
+
+            open(method, url) {
+                this._method = String(method || 'GET').toUpperCase();
+                this._url = String(url || '');
+                this._aborted = false;
+                this.readyState = 1;
+                this._emit('readystatechange');
+            }
+
+            setRequestHeader(name, value) {
+                this._headers[String(name)] = String(value);
+            }
+
+            getResponseHeader(name) {
+                const target = String(name || '').toLowerCase();
+                for (const [key, value] of Object.entries(this._responseHeaders || {})) {
+                    if (String(key).toLowerCase() === target) return value;
+                }
+                return null;
+            }
+
+            getAllResponseHeaders() {
+                return Object.entries(this._responseHeaders || {})
+                    .map(([key, value]) => `${key}: ${value}`)
+                    .join('\r\n');
+            }
+
+            overrideMimeType() {}
+
+            abort() {
+                this._aborted = true;
+                this._emit('abort');
+                this._emit('loadend');
+            }
+
+            async send(body = null) {
+                if (!this._url) {
+                    this._fail(new Error('XHR send called before open'));
+                    return;
+                }
+
+                const runFetch = async () => {
+                    const response = await window.fetch(this._url, {
+                        method: this._method,
+                        headers: this._headers,
+                        body,
+                        credentials: this.withCredentials ? 'include' : 'same-origin',
+                    });
+                    const text = await response.text();
+                    return { response, text };
+                };
+
+                try {
+                    const { response, text } = await (this.timeout > 0
+                        ? Promise.race([
+                            runFetch(),
+                            new Promise((_, reject) =>
+                                setTimeout(() => reject(new Error('XHR timeout')), this.timeout),
+                            ),
+                        ])
+                        : runFetch());
+
+                    if (this._aborted) return;
+
+                    this.status = Number(response.status) || 0;
+                    this.statusText = response.statusText || '';
+                    this.responseURL = response.url || this._url;
+                    this._responseHeaders = {};
+                    response.headers.forEach((value, key) => {
+                        this._responseHeaders[key] = value;
+                    });
+                    this.readyState = 2;
+                    this._emit('readystatechange');
+                    this.readyState = 4;
+
+                    if (this.responseType === 'json') {
+                        try {
+                            this.response = text ? JSON.parse(text) : null;
+                        } catch (_) {
+                            this.response = null;
+                        }
+                        this.responseText = text;
+                    } else if (this.responseType === 'arraybuffer') {
+                        this.response = new TextEncoder().encode(text).buffer;
+                        this.responseText = '';
+                    } else {
+                        this.responseText = text;
+                        this.response = text;
+                    }
+
+                    this._emit('readystatechange');
+                    this._emit('load');
+                    this._emit('loadend');
+                } catch (error) {
+                    if (this._aborted) return;
+                    this._fail(error);
+                }
+            }
+
+            _fail(error) {
+                this.status = 0;
+                this.statusText = error && error.message ? error.message : 'XHR proxy failed';
+                this.readyState = 4;
+                this._emit('readystatechange');
+                this._emit('error');
+                this._emit('loadend');
+            }
+
+            _emit(type) {
+                const event = new Event(type);
+                this.dispatchEvent(event);
+                const handler = this[`on${type}`];
+                if (typeof handler === 'function') {
+                    try {
+                        handler.call(this, event);
+                    } catch (_) { }
+                }
+            }
+        }
+
+        ProxyXMLHttpRequest.UNSENT = 0;
+        ProxyXMLHttpRequest.OPENED = 1;
+        ProxyXMLHttpRequest.HEADERS_RECEIVED = 2;
+        ProxyXMLHttpRequest.LOADING = 3;
+        ProxyXMLHttpRequest.DONE = 4;
+        window.XMLHttpRequest = ProxyXMLHttpRequest;
+
+        window.addEventListener('message', async (event) => {
+            // Ensure the message is from the direct parent and is of type 'execute'
+            if (event.source === window.parent && event.data.type === 'execute') {
+                const executionId = event.data.executionId; // Get execution ID
+                // DEBUG_LOGS from the host: mirror the generated script's console
+                // output into devtools too. Off by default — the execution overlay's
+                // Console panel gets it either way.
+                const debugLogs = event.data.debugLogs === true;
+                // Initialize results array with pre-calculated MCP results, if provided
+                const results = event.data.initialMcpResults ? [...event.data.initialMcpResults] : [];
+                // Expose the user's tool registry to generated code via rtrvr.listTools()
+                if (Array.isArray(event.data.availableTools)) {
+                    window.__rtrvrAvailableTools = event.data.availableTools;
+                }
+
+                // Execute sandboxed functions (event.data.functions)
+                for (const { functionCallArgs, code, executionContext } of event.data.functions) {
+                    let consoleOutput = '';
+                    let error = null;
+                    let finalResult = null;
+                    const consoleMethods = ['log', 'info', 'warn', 'error'];
+                    const originalConsole = {};
+                    const previousExecutionContext = window.__rtrvrCurrentExecutionContext;
+                    const previousTabId = window.tabId;
+                    const previousSourceTabId = window.sourceTabId;
+                    const previousTabIds = window.tabIds;
+                    const previousSelectedTabs = window.selectedTabs;
+                    const previousMaxParallelTabs = window.maxParallelTabs;
+                    const previousVars = window.vars;
+                    const previousPageTrees = window.pageTrees;
+                    const previousCancelled = window.__rtrvrCancelled;
+                    const previousExecutionId = window.__rtrvrCurrentExecutionId;
+
+                    try {
+                        // ALWAYS reset so a pooled iframe reused by the next attempt
+                        // (e.g. a repair pass) never inherits a stale cancel flag.
+                        window.__rtrvrCancelled = false;
+                        window.__rtrvrCurrentExecutionId = executionId;
+                        // Consume and STRIP priorVars/pageTrees before storing the context:
+                        // __rtrvrContextWithCallLine() echoes the stored context on every
+                        // rtrvr.* RPC postMessage, and both can be tens of KB to megabytes.
+                        let effectiveContext = executionContext || null;
+                        let injectedVars = {};
+                        let injectedPageTrees = {};
+                        if (effectiveContext && ((effectiveContext.priorVars && typeof effectiveContext.priorVars === 'object')
+                            || (effectiveContext.pageTrees && typeof effectiveContext.pageTrees === 'object'))) {
+                            effectiveContext = { ...effectiveContext };
+                            if (effectiveContext.priorVars && typeof effectiveContext.priorVars === 'object') {
+                                injectedVars = effectiveContext.priorVars;
+                                delete effectiveContext.priorVars;
+                            }
+                            if (effectiveContext.pageTrees && typeof effectiveContext.pageTrees === 'object') {
+                                injectedPageTrees = effectiveContext.pageTrees;
+                                delete effectiveContext.pageTrees;
+                            }
+                        }
+                        window.__rtrvrCurrentExecutionContext = effectiveContext;
+                        // ALWAYS reset (fresh {} when no priorVars) so a reused iframe
+                        // never leaks one task's vars into another execution.
+                        window.vars = injectedVars;
+                        // The enriched trees the planner saw ("Current Observation"),
+                        // keyed by tab id: { [tabId]: { url, title, tree } }. Fresh {}
+                        // when absent (e.g. replay) so scripts referencing pageTrees
+                        // never ReferenceError and a reused iframe never leaks trees.
+                        window.pageTrees = injectedPageTrees;
+                        // Inject the user's selected tab ids so plan code can reference
+                        // tabId / sourceTabId / tabIds directly — no hardcoded ids (avoids `tabId = 0`).
+                        if (executionContext && typeof executionContext.sourceTabId === 'number') {
+                            window.tabId = executionContext.sourceTabId;
+                            window.sourceTabId = executionContext.sourceTabId;
+                        }
+                        if (executionContext && Array.isArray(executionContext.tabIds)) {
+                            window.tabIds = executionContext.tabIds;
+                        }
+                        // Per-tab descriptors so plan code iterates `selectedTabs`
+                        // ({ tabId, title, url, active, isSource }) instead of hardcoding ids.
+                        if (executionContext && Array.isArray(executionContext.selectedTabs)) {
+                            window.selectedTabs = executionContext.selectedTabs;
+                        }
+                        // The user's Max Parallel Tabs budget, so rtrvr.mapLimit (and
+                        // generated code) can size concurrency to it.
+                        if (executionContext && typeof executionContext.maxParallelTabs === 'number') {
+                            window.maxParallelTabs = executionContext.maxParallelTabs;
+                        }
+                        consoleMethods.forEach(method => {
+                            originalConsole[method] = console[method];
+                            console[method] = (...args) => {
+                                let text;
+                                try {
+                                    text = args.map(arg =>
+                                        typeof arg === 'object' ? JSON.stringify(arg, null, 2) : String(arg)
+                                    ).join(' ');
+                                } catch (stringifyError) {
+                                    text = 'Error stringifying console arguments.';
+                                }
+                                consoleOutput += `[${method}] ${text}\n`;
+                                // Stream each line live so the execution overlay can show the
+                                // plan's own narration (e.g. "filled Name", "Code filled: ...").
+                                try {
+                                    window.parent.postMessage({
+                                        type: 'codePlanConsoleLine',
+                                        level: method,
+                                        line: text,
+                                        executionContext: window.__rtrvrCurrentExecutionContext || undefined,
+                                    }, '*');
+                                } catch (postError) { /* overlay streaming is best-effort */ }
+                                if (debugLogs) originalConsole[method].apply(console, args);
+                            };
+                        });
+                        finalResult = await evaluateSandboxCode(code);
+                    } catch (e) {
+                        error = {
+                            name: e.name || 'ExecutionError',
+                            message: e.message || 'An error occurred in sandboxed code.',
+                            stack: e.stack,
+                            details: e.details && typeof e.details === 'object' ? e.details : undefined,
+                        };
+                    } finally {
+                        // Capture `vars` before restoring — runs on success, thrown
+                        // errors, and askUser interrupts alike. (Timeout is the one
+                        // lossy path: the pool listener is already gone by then.)
+                        const varsWarn = (msg) => {
+                            consoleOutput += `[warn] ${msg}\n`;
+                            try {
+                                window.parent.postMessage({
+                                    type: 'codePlanConsoleLine',
+                                    level: 'warn',
+                                    line: msg,
+                                    executionContext: window.__rtrvrCurrentExecutionContext || undefined,
+                                }, '*');
+                            } catch (_) { /* overlay streaming is best-effort */ }
+                        };
+                        const capturedVars = __rtrvrSerializeVars(window.vars, varsWarn);
+                        window.vars = previousVars;
+                        window.pageTrees = previousPageTrees;
+                        window.__rtrvrCurrentExecutionContext = previousExecutionContext || null;
+                        window.tabId = previousTabId;
+                        window.sourceTabId = previousSourceTabId;
+                        window.tabIds = previousTabIds;
+                        window.selectedTabs = previousSelectedTabs;
+                        window.maxParallelTabs = previousMaxParallelTabs;
+                        window.__rtrvrCancelled = previousCancelled;
+                        window.__rtrvrCurrentExecutionId = previousExecutionId;
+                        consoleMethods.forEach(method => {
+                            console[method] = originalConsole[method];
+                        });
+                        // *** CHANGE IS HERE: Convert the result to ToolOutput before pushing ***
+                        const toolOutputResult = toToolOutput(finalResult);
+                        results.push({
+                            functionCallArgs: functionCallArgs,
+                            result: toolOutputResult,
+                            consoleOutput: consoleOutput,
+                            error: error,
+                            vars: Object.keys(capturedVars).length > 0 ? capturedVars : undefined,
+                        });
+                    }
+                }
+                // Post all results (MCP + Sandboxed) back
+                if (event.source && event.source.postMessage) {
+                    event.source.postMessage({
+                        type: 'results',
+                        executionId: executionId, // Include execution ID
+                        results: results,
+                    }, '*');
+                }
+            }
+        });
+    </script>
+</head>
+
+<body>
+</body>
+
+</html>

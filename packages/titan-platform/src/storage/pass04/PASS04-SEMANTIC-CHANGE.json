@@ -1,0 +1,7 @@
+{
+  "schema": "titan-zero-storage-finish-pass04-semantic-change/v1",
+  "packet_id": "TZ-FINISH-STORAGE-DATA-AUTHORITY-001",
+  "pass": 4,
+  "semantic_delta": "Adds company-scoped migration coordination with success-only checkpoints, idempotent skip semantics, retry-after-failure, checksum/version drift fencing, and rollback receipts.",
+  "migration_files_changed": 0
+}

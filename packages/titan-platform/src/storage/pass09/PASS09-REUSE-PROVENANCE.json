@@ -1,0 +1,35 @@
+{
+  "schema": "titan-zero-storage-reuse-provenance/v1",
+  "packet_id": "TZ-FINISH-STORAGE-DATA-AUTHORITY-001",
+  "pass": 9,
+  "dispositions": [
+    {
+      "source": "TZ-WP-003 Pass02 company-scoped checkpoint storage",
+      "status": "REUSED",
+      "semantics": [
+        "checkpoint survives service recreation",
+        "cross-company invisibility",
+        "legacy alias rejection",
+        "authority-neutral persistence"
+      ]
+    },
+    {
+      "source": "TZ-WP-002 Pass03 storage authority diagnostics",
+      "status": "ADAPTED",
+      "semantics": [
+        "read-only authority health snapshot",
+        "readonly transaction canary",
+        "migration/idempotency capability inventory",
+        "drift detection",
+        "company_id audit"
+      ]
+    },
+    {
+      "source": "TZ-WP-002 IndexedDB schema/store/index diagnostics",
+      "status": "REJECTED_WITH_REASON",
+      "reason": "Current native storage core is backend-neutral; IndexedDB-specific schema/index inspection belongs to the IndexedDB adapter and must not become a second generic storage contract."
+    }
+  ],
+  "parallel_storage_authority_created": false,
+  "storage_mutation_by_diagnostics": false
+}

@@ -1,0 +1,34 @@
+{
+  "schema": "titan-zero-offline-reuse-provenance/v1",
+  "packet_id": "TZ-FINISH-OFFLINE-RESILIENCE-001",
+  "pass": 1,
+  "dispositions": [
+    {
+      "source": "ported/titan-offline/*",
+      "status": "REUSED_AS_DONOR_RUNWAY",
+      "reason": "Mature restart/recovery/continuation/conflict evidence retained for adaptation in later passes."
+    },
+    {
+      "source": "ported/titan-reliability/bounded-work-queue.ts",
+      "status": "REUSED_AS_DONOR_RUNWAY",
+      "target_pass": 3
+    },
+    {
+      "source": "ported/titan-reliability/retry-budget.ts",
+      "status": "REUSED_AS_DONOR_RUNWAY",
+      "target_pass": 3
+    },
+    {
+      "source": "ported/background-bootstrap.ts",
+      "status": "REJECTED_AS_NATIVE_AUTHORITY",
+      "reason": "Chrome-dependent service worker compatibility only."
+    },
+    {
+      "source": "storage/reconciliation.ts#createCompanyCheckpointFacade",
+      "status": "REUSED_DEPENDENCY",
+      "reason": "Native company-scoped checkpoint persistence from predecessor Storage packet."
+    }
+  ],
+  "rewrite_avoided": true,
+  "parallel_offline_runtime_created": false
+}

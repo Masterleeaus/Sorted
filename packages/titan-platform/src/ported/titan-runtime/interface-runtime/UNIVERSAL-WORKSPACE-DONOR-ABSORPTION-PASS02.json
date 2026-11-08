@@ -1,0 +1,25 @@
+{
+  "schema": "titan-zero.universal-workspace-donor-absorption/v1",
+  "pass": 2,
+  "donor": "Titan-Zero-Universal-Workspace-v3-Pass01-Canonical-Baseline-Reconvergence-FULL-CUMULATIVE.zip",
+  "absorbed": [
+    "offline local-first policy resolution",
+    "company/actor/device/idempotency scoped offline queue semantics",
+    "evidence-first sync planning with authoritative pull",
+    "explicit stale/terminal server conflict classification",
+    "replay revalidation of company actor device capability and autonomy",
+    "working-set context-only composition with company/user scoping",
+    "working-set safe metadata filtering and non-executable membership intents"
+  ],
+  "authority_neutral": true,
+  "company_boundary": "company_id",
+  "remaining_donor_categories": [
+    "configuration lifecycle workspace",
+    "focus/guidance/attention workspace",
+    "navigation projection",
+    "presentation quality/performance/cache gates",
+    "richer contribution/object/presentation registries",
+    "governance decision and spatial workspace contracts",
+    "browser interaction offline persistence/crypto stores"
+  ]
+}

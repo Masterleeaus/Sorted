@@ -1,0 +1,22 @@
+{
+  "schema": "titan.workforce.pass-manifest/v1",
+  "pass": 37,
+  "title": "Human + Advanced Intelligence Workforce Unification",
+  "company_boundary": "company_id",
+  "contract": "titan.workforce.human-ai-unification.v1",
+  "changes": [
+    "one canonical worker fabric for human and Advanced Intelligence workers",
+    "shared graph/mission/assignment/capability/capacity/evidence structures",
+    "distinct human employment identity and AI runtime identity",
+    "same role never implies same authority",
+    "governed assignment evaluation without automatic assignment or substitution"
+  ],
+  "automatic_substitution": false,
+  "automatic_hire": false,
+  "automatic_fire": false,
+  "automatic_reassignment": false,
+  "automatic_authority_change": false,
+  "authority_granted": false,
+  "execution_permitted": false,
+  "grants_authority": false
+}

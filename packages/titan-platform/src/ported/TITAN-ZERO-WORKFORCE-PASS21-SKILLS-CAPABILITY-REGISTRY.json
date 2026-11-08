@@ -1,0 +1,13 @@
+{
+  "schema": "titan.workforce.pass/v1",
+  "pass": 21,
+  "title": "Skills + Capability Registry",
+  "company_boundary": "company_id only",
+  "platform_capability_registry_reused": true,
+  "parallel_global_capability_registry_created": false,
+  "capability_presence_confers_authority": false,
+  "proficiency_confers_authority": false,
+  "verification_confers_authority": false,
+  "capacity_integration": true,
+  "grants_authority": false
+}

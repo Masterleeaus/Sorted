@@ -1,0 +1,136 @@
+{
+  "schema": "titan-agent-registry/v1",
+  "agents": [
+    {
+      "agent_id": "titan-zero-module-runtime-agent",
+      "status": "completed_source_pending_package_proof",
+      "task": "TZ-P0-003 Module Runtime v2 + installer + signed marketplace lifecycle convergence on Manager canonical baseline",
+      "pass": "v0.18.2-p0-003-platform-manager-lifecycle-convergence",
+      "base_artifact_id": "titan-zero-v0.18.1-manager-canonical-convergence",
+      "base_sha256": "b355dfcc9c7c3c676fdd8c76d889962f84b14cd014bba44fb251543089f7cdf7",
+      "started_at": "2026-09-05T02:51:06+10:00",
+      "areas": [
+        "manifest.json",
+        "titan-modules/**",
+        "modules.js",
+        "tests/**",
+        "titan-agent/**"
+      ],
+      "dependencies": [
+        "company_id",
+        "TitanModuleV1",
+        "titan-module-package/v1",
+        "governance_grant",
+        "Module Runtime v2",
+        "Manager canonical v0.18.1"
+      ],
+      "completed_at": "2026-09-05T02:55:41+10:00"
+    },
+    {
+      "agent_id": "titan-zero-runtime-workforce-agent",
+      "status": "completed_source_pending_package_proof",
+      "task": "TZ-P0-001 Native runtime + workforce convergence / Monica retirement using surgical compatibility seams with no UI replacement",
+      "pass": "v0.18.1-p0-001-native-runtime-workforce-convergence",
+      "base_artifact_id": "titan-zero-v0.18.0-business-database-convergence",
+      "base_sha256": "3b37f806849c6ce387e0f51369173dbb4b84658e063f35aa590b043d89712373",
+      "started_at": "2026-09-05T01:45:00+10:00",
+      "areas": [
+        "manifest.json",
+        "background-bootstrap.js",
+        "titan-workforce.js",
+        "titan-workforce/**",
+        "runtime/**",
+        "tests/**",
+        "titan-agent/**"
+      ],
+      "dependencies": [
+        "company_id",
+        "TitanBusinessDatabaseV1",
+        "titan.runtime.v1",
+        "governance_grant",
+        "Retriever compatibility"
+      ],
+      "completed_at": "2026-09-05T01:59:00+10:00"
+    },
+    {
+      "agent_id": "gpt-5.6-sol-convergence-v018",
+      "status": "completed",
+      "task": "Converge company-scoped IndexedDB business storage onto the rich v0.17/v0.14 Chrome extension lineage without replacing existing UI or weakening marketplace/governance/runtime contracts",
+      "pass": "v0.18.0-business-database-convergence",
+      "base_artifact_id": "titan-zero-v0.14.0-converged-signed-marketplace-device-first",
+      "base_sha256": "872b59c0758b69e9780270adff52d1b24b5b14788c7f3a2d9a31a16e953226d2",
+      "started_at": "2026-09-05T01:08:00+10:00",
+      "areas": [
+        "titan-local/storage/**",
+        "background-bootstrap.js",
+        "manifest.json",
+        "tests/**",
+        "titan-agent/**"
+      ],
+      "dependencies": [
+        "company_id",
+        "TitanBusinessDatabaseV1",
+        "TitanModuleV1",
+        "governance_grant",
+        "module-runtime/v2"
+      ],
+      "completed_at": "2026-09-05T01:08:00+10:00"
+    },
+    {
+      "agent_id": "gpt-5.6-sol-convergence-v017",
+      "status": "completed",
+      "task": "Rebase Runtime v2, safe install, company module manager and workforce convergence onto richer v0.14 signed-marketplace/governance baseline without replacing UI",
+      "pass": "v0.17.0-rich-lineage-convergence",
+      "base_artifact_id": "titan-zero-v0.14.0-converged-signed-marketplace-device-first",
+      "base_sha256": "872b59c0758b69e9780270adff52d1b24b5b14788c7f3a2d9a31a16e953226d2",
+      "started_at": "2026-09-05T00:38:00+10:00",
+      "areas": [
+        "titan-modules/**",
+        "titan-workforce/**",
+        "modules.js",
+        "modules.html",
+        "main.html",
+        "sidePanel.html",
+        "tests/**",
+        "titan-agent/**"
+      ],
+      "dependencies": [
+        "company_id",
+        "TitanModuleV1",
+        "titan-module-package/v1",
+        "governance_grant",
+        "MODULE_RUNTIME_VERSION"
+      ],
+      "completed_at": "2026-09-05T00:38:00+10:00"
+    },
+    {
+      "agent_id": "gpt-5.6-sol-convergence-v014",
+      "status": "completed",
+      "task": "Converge v0.11 module ecosystem with v0.13 Device-First SDK, v0.12 vertical workforce, signed package marketplace, lifecycle rollback, governed grants and Agent Mesh coordination",
+      "pass": "v0.14.0-signed-marketplace-device-first-convergence",
+      "base_artifact_id": "titan-zero-v0.11.0-converged-module-ecosystem",
+      "base_sha256": "18fc9f46f5daf77db64c9d4d6305e4f90ef708eee7fdd38a103ebc0591036e17",
+      "started_at": "2026-09-04T21:09:00+10:00",
+      "areas": [
+        "titan-modules/**",
+        "titan-local/**",
+        "titan-business-services/**",
+        "titan-workforce/**",
+        "modules.js",
+        "modules.html",
+        "module-view.*",
+        "main.html",
+        "sidePanel.html",
+        "tests/**",
+        "titan-agent/**"
+      ],
+      "dependencies": [
+        "company_id",
+        "TitanModuleV1",
+        "TITAN_EXECUTE_OUTCOME",
+        "titan-module-package/v1"
+      ],
+      "completed_at": "2026-09-04T21:42:00+10:00"
+    }
+  ]
+}

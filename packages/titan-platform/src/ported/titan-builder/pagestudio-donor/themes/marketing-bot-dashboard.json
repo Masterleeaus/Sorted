@@ -1,0 +1,27 @@
+{
+  "id": "marketing-bot-dashboard",
+  "theme": {
+    "name": "marketing-bot-dashboard",
+    "extends": "default",
+    "asset-path": "themes/marketing-bot-dashboard",
+    "dashboard": {
+      "googleFonts": {
+        "Spline+Sans": [
+          "600",
+          "700"
+        ],
+        "Inter": [
+          "400",
+          "500"
+        ]
+      }
+    },
+    "defaultVariations": {
+      "card": {
+        "variant": "solid"
+      }
+    },
+    "description": "marketing-bot-dashboard \u2014 TG: @heew_support",
+    "support_telegram": "heew_support"
+  }
+}

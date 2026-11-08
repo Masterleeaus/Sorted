@@ -1,0 +1,193 @@
+{
+  "schema": "titan-zero-retriever-finish-pass01-dependency-map/v1",
+  "packet_id": "TZ-FINISH-RETRIEVER-NATIVE-001",
+  "pass": 1,
+  "manager_base": {
+    "merge": 52,
+    "artifact": "Titan-Zero-CANONICAL-2026-09-13-MERGE52-QUOTE-AGENT-CONVERGED.zip",
+    "sha256": "ea6c219d40ffbddcbb68e9c9ed741c93568fe12be2e4f09dd69af0b528366d92",
+    "files": 7537
+  },
+  "authoritative_findings": {
+    "native_retriever_directory_exists": false,
+    "web_retriever_directory_exists": false,
+    "root_retriever_directory_exists": false,
+    "titan_platform_exports": {
+      ".": "./src/index.ts",
+      "./runtime": "./src/runtime.ts",
+      "./workforce": "./src/workforce.ts",
+      "./intelligence": "./src/intelligence.ts",
+      "./business-ops": "./src/business-ops.ts"
+    },
+    "titan_platform_compilation_roots": [
+      "src/index.ts",
+      "src/descriptor.ts",
+      "src/runtime.ts",
+      "src/workforce.ts",
+      "src/intelligence.ts",
+      "src/business-ops.ts"
+    ],
+    "ported_retriever_exported": false,
+    "ported_retriever_compiled_as_root": false
+  },
+  "surfaces": {
+    "standalone_live_facades": [
+      {
+        "path": "packages/titan-platform/src/index.ts",
+        "exists": true
+      },
+      {
+        "path": "packages/titan-platform/src/runtime.ts",
+        "exists": true
+      },
+      {
+        "path": "packages/titan-platform/src/workforce.ts",
+        "exists": true
+      },
+      {
+        "path": "packages/titan-platform/src/intelligence.ts",
+        "exists": true
+      },
+      {
+        "path": "packages/titan-platform/src/business-ops.ts",
+        "exists": true
+      },
+      {
+        "path": "packages/titan-platform/src/descriptor.ts",
+        "exists": true
+      },
+      {
+        "path": "packages/titan-platform/package.json",
+        "exists": true
+      },
+      {
+        "path": "packages/titan-platform/tsconfig.json",
+        "exists": true
+      }
+    ],
+    "ported_extension_reference": [
+      {
+        "path": "packages/titan-platform/src/ported/retriever-background.iife.ts",
+        "exists": true
+      },
+      {
+        "path": "packages/titan-platform/src/ported/compatibility/monica/background-runtime-boundary.ts",
+        "exists": true
+      },
+      {
+        "path": "packages/titan-platform/src/ported/titan-runtime/adapters/retriever-adapter.ts",
+        "exists": true
+      },
+      {
+        "path": "packages/titan-platform/src/ported/side-panel/titan-retriever-bridge.ts",
+        "exists": true
+      },
+      {
+        "path": "packages/titan-platform/src/ported/retriever-capability-catalog.json",
+        "exists": true
+      }
+    ],
+    "migration_reference_only": [
+      {
+        "path": "packages/titan-zero-migration-source/portable-core/titan-runtime/adapters/retriever-adapter.mjs",
+        "exists": true
+      },
+      {
+        "path": "packages/titan-zero-migration-source/complete-extension-source-census/browser-adapter-required/side-panel/titan-retriever-bridge.js",
+        "exists": true
+      },
+      {
+        "path": "packages/titan-zero-migration-source/complete-extension-source-census/contracts-config-docs/compatibility/monica/README.md",
+        "exists": true
+      }
+    ]
+  },
+  "reachability": {
+    "all_non_migration_code_references": {
+      "retriever-adapter": [
+        "packages/titan-platform/src/ported/titan-runtime/adapters/retriever-adapter.ts"
+      ],
+      "retriever-background.iife": [
+        "packages/titan-platform/src/ported/retriever-background.iife.ts",
+        "packages/titan-platform/src/ported/titan-runtime/performance/donor-surface-activation.ts",
+        "packages/titan-platform/src/ported/compatibility/monica/background-runtime-boundary.ts"
+      ],
+      "titan-retriever-bridge": [
+        "packages/titan-platform/src/ported/side-panel/titan-retriever-bridge.ts"
+      ],
+      "background-runtime-boundary": [
+        "packages/titan-platform/src/ported/background-bootstrap.ts",
+        "packages/titan-platform/src/ported/compatibility/monica/background-runtime-boundary.ts"
+      ]
+    },
+    "external_live_consumers_outside_ported_tree": {
+      "retriever-adapter": [],
+      "retriever-background.iife": [],
+      "titan-retriever-bridge": [],
+      "background-runtime-boundary": []
+    },
+    "direct_live_consumer_count": 0
+  },
+  "classification": [
+    {
+      "capability": "standalone_typed_retriever_executor",
+      "state": "MISSING_NATIVE",
+      "evidence": "No packages/titan-platform/src/retriever directory and no Retriever export from @ai-fsm/titan-platform.",
+      "next_pass": 2
+    },
+    {
+      "capability": "company_and_authority_boundary",
+      "state": "REUSE_EXISTING",
+      "evidence": "packages/titan-platform/src/runtime.ts exposes company_id execution context/boundary functions and decision-engine authority seam.",
+      "next_pass": 2
+    },
+    {
+      "capability": "legacy_donor_background_runtime",
+      "state": "PORTED_REFERENCE_NOT_LIVE_FACADE",
+      "evidence": "retriever-background.iife.ts exists only under src/ported and is neither an export nor tsconfig root.",
+      "next_pass": 5
+    },
+    {
+      "capability": "legacy_retriever_adapter",
+      "state": "PORTED_REFERENCE_NOT_LIVE_FACADE",
+      "evidence": "ported retriever adapter exists but no live non-ported consumer was found.",
+      "next_pass": 2
+    },
+    {
+      "capability": "side_panel_retriever_bridge",
+      "state": "BROWSER_ADAPTER_REFERENCE_ONLY",
+      "evidence": "Bridge exists in ported/migration source; no standalone apps/web or package facade consumer found.",
+      "next_pass": 4
+    },
+    {
+      "capability": "work_submission_progress_completion_timeout_cancellation",
+      "state": "NO_STANDALONE_NATIVE_OWNER",
+      "evidence": "No current native Retriever module/facade owns these contracts in Merge52.",
+      "next_pass": 3
+    },
+    {
+      "capability": "restart_reconnect_stale_session_recovery",
+      "state": "NO_RETRIEVER_SPECIFIC_NATIVE_OWNER",
+      "evidence": "Standalone runtime has general company/runtime primitives, but no Retriever-specific recovery module exists.",
+      "next_pass": 6
+    },
+    {
+      "capability": "donor_hash_and_retirement_evidence",
+      "state": "HISTORICAL_REFERENCE_PRESENT",
+      "evidence": "Ported regression/hash ledgers remain staged reference data; new Merge52 packet requires semantic retirement evidence.",
+      "next_pass": 7
+    }
+  ],
+  "pass2_reuse_contracts": [
+    "packages/titan-platform/src/runtime.ts company execution context",
+    "packages/titan-platform/src/ported/titan-runtime/decision-engine/* authority decision seam",
+    "packages/titan-platform/src/ported/titan-runtime/adapters/retriever-adapter.ts as behavior/reference donor only",
+    "packages/titan-zero-migration-source/... Retriever evidence as compatibility reference only"
+  ],
+  "conclusion": {
+    "merge52_has_live_extension_retriever_execution": false,
+    "merge52_has_native_standalone_retriever_execution": false,
+    "safe_to_delete_ported_references_now": false,
+    "reason": "The standalone app no longer executes the donor through package exports, but a native Retriever execution capability has not yet been implemented. Ported/migration assets remain required as behavior and parity reference until Passes 2-8 establish native contracts and regression equivalence."
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "schema": "titan-zero-workforce-pass/v1",
+  "pass": 30,
+  "title": "Migration / Upgrade Safety",
+  "contract": "titan.workforce.migration-upgrade-safety.v1",
+  "company_boundary": "company_id",
+  "uses_existing_business_database_migration_ledger": true,
+  "arbitrary_browser_supplied_migration_code": false,
+  "idempotent_reentry_required": true,
+  "interrupted_upgrade_recovery": true,
+  "unknown_effect_replay_forbidden": true,
+  "rollback_checkpoint_required": true,
+  "automatic_authority_change": false,
+  "authority_granted": false,
+  "execution_permitted": false,
+  "grants_authority": false
+}

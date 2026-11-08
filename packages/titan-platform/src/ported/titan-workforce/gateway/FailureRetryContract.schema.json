@@ -1,0 +1,78 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "titan.workforce.failure-retry.v1",
+  "title": "Titan Workforce Failure Classification and Bounded Retry",
+  "type": "object",
+  "required": [
+    "company_id",
+    "category",
+    "failure_class",
+    "disposition",
+    "retry_allowed",
+    "automatic_effect_replay"
+  ],
+  "properties": {
+    "company_id": {
+      "type": "string",
+      "minLength": 2,
+      "maxLength": 128
+    },
+    "category": {
+      "enum": [
+        "network",
+        "authentication",
+        "policy",
+        "conflict",
+        "dependency",
+        "storage",
+        "permanent"
+      ]
+    },
+    "failure_class": {
+      "type": "string",
+      "minLength": 1
+    },
+    "disposition": {
+      "enum": [
+        "retry_scheduled",
+        "retry_exhausted",
+        "manual_review_required",
+        "conflict_review_required",
+        "blocked"
+      ]
+    },
+    "retry_allowed": {
+      "type": "boolean"
+    },
+    "retry_count": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "max_retries": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "next_retry_at": {
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "requires_review": {
+      "type": "boolean"
+    },
+    "requires_explicit_resume": {
+      "type": "boolean"
+    },
+    "automatic_effect_replay": {
+      "const": false
+    },
+    "effect_replay_allowed": {
+      "const": false
+    },
+    "grants_authority": {
+      "const": false
+    }
+  },
+  "additionalProperties": true
+}

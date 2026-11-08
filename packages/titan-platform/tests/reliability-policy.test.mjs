@@ -1,0 +1,5 @@
+import test from "node:test";import assert from "node:assert/strict";import {beginRecovery,transitionReliability,canAcceptConsequentialWork} from "../.test-dist/reliability-policy.js";
+const input={incident_id:"i1",company_id:"co1",detected_at:"2026-09-29T00:00:00Z",recovery_refs:[]};
+test("fails closed through degradation and requires recovery evidence",()=>{let x=beginRecovery(input);assert.equal(canAcceptConsequentialWork(x),true);x=transitionReliability(x,"DEGRADED");x=transitionReliability(x,"READ_ONLY");assert.equal(canAcceptConsequentialWork(x),false);x=transitionReliability(x,"RECOVERING");assert.throws(()=>transitionReliability(x,"RECOVERED"),/recovery-evidence/);x=transitionReliability(x,"RECOVERED","restore:1");assert.equal(canAcceptConsequentialWork(x),true)});
+test("rejects invalid recovery transitions and missing scope",()=>{assert.throws(()=>beginRecovery({...input,company_id:""}),/company/);assert.throws(()=>transitionReliability(beginRecovery(input),"RECOVERED"),/transition/)})
+

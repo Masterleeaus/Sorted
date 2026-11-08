@@ -1,0 +1,21 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema",
+  "$id":"titan.workforce.commissioning-gates.v1",
+  "title":"Titan Workforce Commissioning Gates",
+  "type":"object",
+  "required":["schema","company_id","commissioning_gate_set_id","source_installation_plan_id","state","gates","readiness","declares_live","automatic_go_live","authority_granted","execution_permitted","grants_authority"],
+  "properties":{
+    "schema":{"const":"titan.workforce.commissioning-gates.v1"},
+    "company_id":{"type":"string","minLength":2,"maxLength":128},
+    "commissioning_gate_set_id":{"type":"string","minLength":1},
+    "source_installation_plan_id":{"type":"string","minLength":1},
+    "state":{"enum":["BLOCKED","READY_FOR_LIVE_DECLARATION_REVIEW"]},
+    "gates":{"type":"array","minItems":8,"items":{"type":"object","required":["gate_id","kind","state","required_plan_step_ids","evidence_refs","evidence_backed","grants_authority"],"properties":{"gate_id":{"type":"string"},"kind":{"type":"string"},"state":{"enum":["PASSED","FAILED","BLOCKED","PENDING"]},"required_plan_step_ids":{"type":"array","items":{"type":"string"}},"evidence_refs":{"type":"array","items":{"type":"string"}},"evidence_backed":{"type":"boolean"},"grants_authority":{"const":false}}}},
+    "readiness":{"type":"object"},
+    "declares_live":{"const":false},
+    "automatic_go_live":{"const":false},
+    "authority_granted":{"const":false},
+    "execution_permitted":{"const":false},
+    "grants_authority":{"const":false}
+  }
+}

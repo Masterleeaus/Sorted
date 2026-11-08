@@ -1,0 +1,913 @@
+/**
+ * Dovetails Services LLC — canonical business rules.
+ *
+ * These are the source of truth for all pricing logic.
+ * Never hard-code these values anywhere else in the codebase.
+ * All money values are in CENTS unless the name ends in _RATE or _PCT.
+ */
+
+// ---------------------------------------------------------------------------
+// Labor
+// ---------------------------------------------------------------------------
+
+/**
+ * Default internal labor cost clock (owner pay / cost basis).
+ * Never shown on customer-facing output.
+ * Runtime source of truth is business_pricing_settings.labor_cost_cents_per_hour.
+ */
+export const LABOR_COST_CENTS_PER_HOUR = 50_00; // $50.00/hr
+
+/**
+ * Default customer-facing hourly rate for T&M or add-on labor line items.
+ * Runtime source of truth is business_pricing_settings.labor_billing_cents_per_hour.
+ */
+export const LABOR_CUSTOMER_RATE_CENTS_PER_HOUR = 115_00; // $115.00/hr
+
+/** Minimum customer-facing service value unless intentionally bundled or credited. */
+export const MINIMUM_SERVICE_FEE_CENTS = 185_00; // $185.00 (2026 rate)
+
+// ---------------------------------------------------------------------------
+// Block pricing
+// ---------------------------------------------------------------------------
+
+/** Half-day labor block (up to 4 book hours). */
+export const HALF_DAY_RATE_CENTS = 515_00;
+export const BLOCK_PRICING_HALF_DAY_HOURS = 4;
+
+/** Full-day labor block (up to 7–8 book hours). */
+export const FULL_DAY_RATE_CENTS = 980_00;
+export const BLOCK_PRICING_FULL_DAY_HOURS = 7;
+
+// ---------------------------------------------------------------------------
+// Bundle discount
+// ---------------------------------------------------------------------------
+
+/** 12% discount when 4+ distinct tasks are combined in one visit. */
+export const BUNDLE_DISCOUNT_RATE = 0.12;
+export const BUNDLE_DISCOUNT_MIN_TASKS = 4;
+
+/** Gross margin floor — estimates below 30% are blocked. */
+export const BUNDLE_MARGIN_FLOOR = 0.30;
+
+// ---------------------------------------------------------------------------
+// Regional pricing deltas
+// ---------------------------------------------------------------------------
+
+/** MA labor premium above NH baseline (heavier regulation, longer drive patterns). */
+export const MA_LABOR_RATE_DELTA = 0.15; // +15%
+
+// ---------------------------------------------------------------------------
+// Emergency & after-hours multipliers
+// ---------------------------------------------------------------------------
+
+export const EMERGENCY_RATE_MULTIPLIERS = {
+  saturday_daytime:  1.40,
+  sunday_daytime:    1.50,
+  weekday_evenings:  1.50,  // 5pm–10pm
+  overnight:         2.00,  // 10pm–6am, 2-hr min, +$150 dispatch
+  federal_holiday:   2.00,  // 2-hr min
+  true_emergency:    2.00,  // active water/electrical hazard, +$200 dispatch
+} as const;
+export type EmergencyRateWindow = keyof typeof EMERGENCY_RATE_MULTIPLIERS;
+
+// ---------------------------------------------------------------------------
+// Painting pricing (per square foot, in cents)
+// ---------------------------------------------------------------------------
+
+/**
+ * Minimum sqft rate used when the scope is uncertain or a budget floor is needed.
+ * Do not use this as the default — use PAINTING_RATE_LABOR_CENTS for estimates.
+ */
+export const PAINTING_RATE_MIN_CENTS = 175;   // $1.75/sq ft (floor rate)
+
+/**
+ * Internal labor cost basis per sqft of wall area.
+ * This is what goes into calculatePaintingEstimate() to price labor.
+ * For the customer-facing catalog price, see PAINTING_RATE_CATALOG_CENTS ($3.25).
+ */
+export const PAINTING_RATE_LABOR_CENTS = 205;  // $2.05/sq ft (labor basis)
+
+/**
+ * All-in customer-facing rate seeded in the price book catalog (service 5012).
+ * Covers labor + overhead + margin. Do NOT use in the painting estimate engine
+ * (which uses PAINTING_RATE_LABOR_CENTS) — this is for catalog display only.
+ */
+export const PAINTING_RATE_CATALOG_CENTS = 325;  // $3.25/sq ft (customer price)
+
+/** Add-on per sqft when baseboard/trim is included. */
+export const PAINTING_TRIM_ADD_CENTS = 20;        // +$0.20/sq ft
+
+/**
+ * Prep level multipliers for the painting estimator (1–10 numeric scale).
+ * Levels 1–5: standard rate. Levels 6–10: increasing multiplier for heavy prep.
+ *
+ * Note: the estimate engine (estimate-engine/rules.ts) uses a separate 4-level
+ * string system (none/minor/moderate/major) for room-by-room estimates.
+ * Both systems are intentional and serve different UX contexts.
+ */
+export const PREP_LEVEL_MULTIPLIERS: Record<number, number> = {
+  1: 1.00,
+  2: 1.00,
+  3: 1.00,
+  4: 1.00,
+  5: 1.00,
+  6: 1.08,
+  7: 1.14,
+  8: 1.20,
+  9: 1.28,
+  10: 1.38,
+};
+
+// ---------------------------------------------------------------------------
+// Materials
+// ---------------------------------------------------------------------------
+
+/**
+ * Customer-facing material handling rate shown on estimates.
+ * Applied to material subtotal before adding to the customer total.
+ * For internal cost accounting, use MATERIAL_MARKUP_TIERS instead.
+ */
+export const MATERIAL_HANDLING_CLIENT_RATE = 0.15;
+
+/**
+ * Tiered material markup rates.
+ * - Under $25: bundled into labor, no separate markup
+ * - $25–$250: 30% markup
+ * - Over $250: 22.5% markup (midpoint of 20–25% range)
+ */
+export const MATERIAL_MARKUP_TIERS = [
+  { maxCents: 25_00,       rate: 0    },
+  { maxCents: 250_00,      rate: 0.30 },
+  { maxCents: Infinity,    rate: 0.225 },
+] as const;
+
+/** Calculate material markup for a given material cost in cents. */
+export function calculateMaterialMarkup(materialCostCents: number): number {
+  const tier = MATERIAL_MARKUP_TIERS.find((t) => materialCostCents <= t.maxCents);
+  return Math.round(materialCostCents * (tier?.rate ?? 0.225));
+}
+
+// ---------------------------------------------------------------------------
+// Deposits & payment terms
+// ---------------------------------------------------------------------------
+
+/**  Deposits are explicit estimate policy; do not use as a default. */
+export const DEPOSIT_RATE = 0.30;
+
+/**  Balances are total minus explicit deposit policy. */
+export const BALANCE_RATE = 0.70;
+
+// ---------------------------------------------------------------------------
+// Payment options (for customer-facing output)
+// ---------------------------------------------------------------------------
+
+export const PAYMENT_OPTIONS = [
+  "Check payable to Dovetails Services LLC",
+  "Venmo @mydovetails",
+  "Cash, ACH, or major credit/debit cards via Square",
+] as const;
+
+// ---------------------------------------------------------------------------
+// Standard estimate / invoice terms (document footers; overridable in Settings)
+// ---------------------------------------------------------------------------
+
+export const DOCUMENT_STANDARD_VERSION = "2026.08";
+
+/** Short notes block auto-filled on new estimates (not the full legal terms). */
+export const STANDARD_ESTIMATE_NOTES = `
+All work performed by licensed and insured professionals.
+Price is valid for 30 days from estimate date.
+Any work outside the defined scope will be quoted separately.
+`.trim();
+
+/** Short payment blurb used by legacy estimate print sections. */
+export const STANDARD_PAYMENT_TERMS = `
+Deposits are required only when explicitly listed on the estimate.
+Any remaining balance is due upon completion of the work unless alternate terms
+are agreed in writing.
+`.trim();
+
+export const STANDARD_DISCLAIMER = `
+This estimate covers the scope of work as described above.
+Unforeseen conditions (e.g., hidden damage, additional prep) may affect final cost
+and will be communicated before proceeding.
+`.trim();
+
+/**
+ * Default **estimate** document terms (Settings → Estimate terms).
+ * Pre-job: validity, deposit before schedule, change orders, access, warranty.
+ */
+export const STANDARD_ESTIMATE_TERMS = `
+Thank you for choosing Dovetails Services LLC.
+
+Price Validity
+This estimate is valid for 30 days from the estimate date unless otherwise noted.
+
+Deposits
+A deposit of {deposit_percent} may be required before work is scheduled when materials or special-order items are needed. Deposits are applied toward the final invoice.
+
+Change Orders
+Any additional work requested after the original scope has been approved may require a revised estimate or change order and may increase the total project cost.
+
+Customer-Supplied Materials
+Dovetails Services LLC is not responsible for delays, defects, shortages, incorrect sizing, or warranty issues related to materials supplied by the customer.
+
+Access to Property
+The customer is responsible for providing safe access to the work area. Delays caused by restricted access, pets, occupants, or unforeseen site conditions may result in additional charges.
+
+Payment
+Any remaining balance is due upon completion of the work unless alternate terms are agreed in writing. We accept cash, check, ACH, Venmo (@mydovetails), and major credit/debit cards through Square.
+
+Warranty
+Labor is warranted for one (1) year from the date of completion against defects in workmanship under normal use. This warranty does not cover normal wear and tear, abuse, misuse, accidents, structural movement, moisture intrusion, manufacturer defects, customer-supplied materials, or work performed by others after project completion.
+
+Limitation of Liability
+Dovetails Services LLC shall not be responsible for concealed conditions or pre-existing issues that could not reasonably be discovered prior to beginning work.
+
+Photography
+Photos of completed work may be taken for documentation, warranty records, and marketing purposes. No personally identifiable information or customer addresses will be published without permission.
+`.trim();
+
+/**
+ * Default **invoice** document terms (Settings → Invoice terms).
+ * Post-job: due upon completion, late fees, payment methods, deposit applied, warranty.
+ */
+export const STANDARD_INVOICE_TERMS = `
+Thank you for choosing Dovetails Services LLC.
+
+Payment Due
+Payment is due upon completion of work unless other arrangements have been made in writing. Invoices not paid by the due date may be subject to a late fee of 1.5% per month (18% annually) or the maximum amount permitted by law.
+
+Accepted Payment Methods
+We accept cash, check, ACH, Venmo (@mydovetails), and all major credit/debit cards through Square. Returned checks are subject to a $35 returned check fee.
+
+Deposits
+Any deposit already paid has been applied to this invoice. Balance is due upon completion unless other arrangements were made in writing.
+
+Change Orders
+Any additional work performed after the original scope was approved is reflected on this invoice or on a separate change order.
+
+Warranty
+Labor is warranted for one (1) year from the date of completion against defects in workmanship under normal use. This warranty does not cover normal wear and tear, abuse, misuse, accidents, structural movement, moisture intrusion, manufacturer defects, customer-supplied materials, or work performed by others after project completion.
+
+Limitation of Liability
+Dovetails Services LLC shall not be responsible for concealed conditions or pre-existing issues that could not reasonably be discovered prior to beginning work.
+
+Photography
+Photos of completed work may be taken for documentation, warranty records, and marketing purposes. No personally identifiable information or customer addresses will be published without permission.
+`.trim();
+
+// ---------------------------------------------------------------------------
+// Deposit policy (one standard percentage for the business, set in Settings)
+// ---------------------------------------------------------------------------
+
+/** Standard deposit percentage when the account has not set one. */
+export const STANDARD_DEPOSIT_PERCENT = 30;
+
+/**
+ * Default Deposits wording. `{deposit_percent}` is replaced with the account's
+ * standard deposit percentage at render time (see renderDepositTerms).
+ */
+export const STANDARD_DEPOSIT_TERMS = `
+A deposit of {deposit_percent} is required before work is scheduled. Deposits are applied toward the final invoice.
+`.trim();
+
+/** Format a deposit percentage for display (30 → "30%", 33.5 → "33.5%"). */
+export function formatDepositPercent(percent: number): string {
+  // Number#toString drops trailing zeros, so 33.50 renders as "33.5".
+  return `${Math.round(percent * 100) / 100}%`;
+}
+
+/** Substitute the standard deposit percentage into the Deposits wording. */
+export function renderDepositTerms(terms: string, percent: number): string {
+  return terms.replace(/\{deposit_percent\}/g, formatDepositPercent(percent));
+}
+
+/**
+ * Resolve the account's deposit policy from its settings — the single source of
+ * truth for "the standard deposit". Pure, so both server branding and
+ * client-side surfaces (customer portal) use the same result.
+ */
+export function resolveDepositPolicy(
+  settings?: { deposit_percent?: number; deposit_terms?: string } | null,
+): { percent: number; terms: string } {
+  const raw = settings?.deposit_percent;
+  const percent =
+    typeof raw === "number" && Number.isFinite(raw) && raw >= 0 && raw <= 100
+      ? raw
+      : STANDARD_DEPOSIT_PERCENT;
+  const rawTerms = settings?.deposit_terms;
+  const custom = rawTerms?.trim();
+  // Explicitly cleared wording means "don't render a separate Deposits section"
+  // — used when the deposit sentence already lives inside the terms document.
+  if (rawTerms !== undefined && custom === "") return { percent, terms: "" };
+  // 0% means the business takes no deposit — suppress the default
+  // "a deposit is required" copy so documents don't say "a deposit of 0%".
+  // Explicit custom wording is still honored.
+  if (percent === 0 && !custom) return { percent, terms: "" };
+  return {
+    percent,
+    terms: renderDepositTerms(custom || STANDARD_DEPOSIT_TERMS, percent),
+  };
+}
+
+/**
+ * Dovetails payment terms: due upon completion.
+ *
+ * Returns the UTC ISO instant for **local midnight** on the completion
+ * calendar day in `timeZone` (default America/New_York). Matches:
+ *   date_trunc('day', ts AT TIME ZONE tz) AT TIME ZONE tz
+ *
+ * Using UTC midnight for the label day is wrong: 2026-07-09T00:00:00Z is still
+ * July 8 evening in Eastern, so `toLocaleDateString()` shows one day early.
+ */
+export function dueDateUponCompletion(
+  completedAt: Date | string | null | undefined = new Date(),
+  timeZone = "America/New_York",
+): string {
+  const d = completedAt != null ? new Date(completedAt) : new Date();
+  if (Number.isNaN(d.getTime())) {
+    return dueDateUponCompletion(new Date(), timeZone);
+  }
+
+  const ymd = new Intl.DateTimeFormat("en-CA", {
+    timeZone,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(d);
+  const [year, month, day] = ymd.split("-").map(Number);
+
+  // Resolve the UTC instant where wall-clock in `timeZone` is ymd 00:00:00.
+  let utcMs = Date.UTC(year, month - 1, day, 0, 0, 0);
+  for (let i = 0; i < 3; i++) {
+    const parts = new Intl.DateTimeFormat("en-CA", {
+      timeZone,
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      hourCycle: "h23",
+    }).formatToParts(new Date(utcMs));
+    const num = (type: Intl.DateTimeFormatPartTypes) =>
+      Number(parts.find((p) => p.type === type)?.value ?? "0");
+    const asUtc = Date.UTC(
+      num("year"),
+      num("month") - 1,
+      num("day"),
+      num("hour"),
+      num("minute"),
+      num("second"),
+    );
+    const offset = asUtc - utcMs;
+    utcMs = Date.UTC(year, month - 1, day, 0, 0, 0) - offset;
+  }
+  return new Date(utcMs).toISOString();
+}
+
+/**
+ * Job statuses whose work is not finished yet. An invoice tied to a job in one
+ * of these is "due on completion" — no due date until the job is marked complete.
+ * (Mirrors ACTIVE_JOB_STATUSES; kept as a literal here to avoid a module cycle.)
+ */
+const OPEN_JOB_STATUSES_FOR_BILLING = ["draft", "quoted", "scheduled", "in_progress"] as const;
+
+/**
+ * Under Dovetails' "due upon completion" terms, an invoice for the whole job is
+ * NOT due until the work is finished. True while the invoice is a standard/final
+ * invoice tied to a still-open job. Deposit invoices and jobless (ad-hoc) invoices
+ * are due now, so they are never "due on completion".
+ */
+export function invoiceDueOnCompletion(input: {
+  invoiceKind: string; // 'standard' | 'deposit' | 'final'
+  jobStatus: string | null | undefined;
+}): boolean {
+  if (input.invoiceKind === "deposit") return false;
+  return (
+    input.jobStatus != null &&
+    (OPEN_JOB_STATUSES_FOR_BILLING as readonly string[]).includes(input.jobStatus)
+  );
+}
+
+/**
+ * The due date to store when an invoice is issued. Null when it is "due on
+ * completion" (filled later when the job completes); otherwise the completion
+ * day (today). An explicit owner-provided due date always wins.
+ */
+export function resolveIssueDueDate(input: {
+  providedDueDate?: string | null;
+  invoiceKind: string;
+  jobStatus: string | null | undefined;
+  now?: Date | string | null;
+}): string | null {
+  if (input.providedDueDate) return input.providedDueDate;
+  if (invoiceDueOnCompletion({ invoiceKind: input.invoiceKind, jobStatus: input.jobStatus })) {
+    return null;
+  }
+  return dueDateUponCompletion(input.now ?? new Date());
+}
+
+/**
+ * Calendar date label YYYY-MM-DD in `timeZone` (default America/New_York).
+ * Used so "due today" is day-based, not UTC-instant-based.
+ *
+ * Representations we accept:
+ * - Plain `YYYY-MM-DD` → use as the calendar label (date pickers / MCP).
+ * - ISO at **UTC midnight** (`…T00:00:00.000Z`) → use the **UTC** date
+ *   components. Date pickers often do `new Date("YYYY-MM-DD").toISOString()`,
+ *   which is UTC midnight of the picked day; converting that through ET would
+ *   shift to the previous evening and mark due one day early.
+ * - Other instants (including `dueDateUponCompletion` Eastern-midnight stamps
+ *   like `T04:00:00.000Z` in EDT) → convert via `timeZone`.
+ */
+export function calendarYmdInTimeZone(
+  input: Date | string,
+  timeZone = "America/New_York",
+): string {
+  if (typeof input === "string") {
+    const s = input.trim();
+    if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
+    // Legacy date-picker: ISO UTC midnight for the intended calendar day.
+    const utcMidnight = s.match(
+      /^(\d{4}-\d{2}-\d{2})T00:00:00(?:\.\d+)?(?:Z|[+-]00:00)$/,
+    );
+    if (utcMidnight) return utcMidnight[1];
+  }
+  const d = typeof input === "string" ? new Date(input) : input;
+  if (Number.isNaN(d.getTime())) return "";
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(d);
+}
+
+/**
+ * Whole calendar days from "today" to the due date in `timeZone`.
+ *
+ * - `0`  = due today (not overdue)
+ * - `>0` = due in the future
+ * - `<0` = overdue by |n| full calendar days
+ *
+ * `due_date` is stored as local-midnight-as-UTC for the due day. Comparing
+ * that instant to `now()` wrongly marks same-day invoices OVERDUE as soon as
+ * they are sent after midnight. Calendar comparison is the product rule.
+ */
+export function daysUntilInvoiceDue(
+  dueDate: string | Date | null | undefined,
+  now: Date | string = new Date(),
+  timeZone = "America/New_York",
+): number | null {
+  if (dueDate == null || dueDate === "") return null;
+  const dueYmd = calendarYmdInTimeZone(dueDate, timeZone);
+  const nowYmd = calendarYmdInTimeZone(now, timeZone);
+  if (!dueYmd || !nowYmd) return null;
+  const [dy, dm, dd] = dueYmd.split("-").map(Number);
+  const [ny, nm, nd] = nowYmd.split("-").map(Number);
+  const dueUtc = Date.UTC(dy, dm - 1, dd);
+  const nowUtc = Date.UTC(ny, nm - 1, nd);
+  return Math.round((dueUtc - nowUtc) / 86_400_000);
+}
+
+/** True only when the due calendar day is strictly before today in `timeZone`. */
+export function isInvoiceCalendarOverdue(
+  dueDate: string | Date | null | undefined,
+  now: Date | string = new Date(),
+  timeZone = "America/New_York",
+): boolean {
+  const days = daysUntilInvoiceDue(dueDate, now, timeZone);
+  return days !== null && days < 0;
+}
+
+/**
+ * Full calendar days past the due date (0 if due today or in the future).
+ * Prefer this over millisecond-based aging for follow-ups and MCP.
+ */
+export function calendarDaysOverdue(
+  dueDate: string | Date | null | undefined,
+  now: Date | string = new Date(),
+  timeZone = "America/New_York",
+): number {
+  const days = daysUntilInvoiceDue(dueDate, now, timeZone);
+  if (days === null || days >= 0) return 0;
+  return -days;
+}
+
+export const ESTIMATE_DOCUMENT_SECTIONS = {
+  preparation:
+    "Preparation includes site protection, access setup, surface or work-area readiness, and confirming conditions before work begins.",
+  repair_install_work:
+    "Repair or installation work includes the customer-facing labor and service scope described in the line items above.",
+  finish_work:
+    "Finish work includes cleanup, touch-up, and reasonable presentation standards for the selected finish expectation.",
+  materials:
+    "Materials include listed customer-facing materials and applicable handling. Substitutions use comparable quality when availability changes.",
+  exclusions:
+    "Excluded work includes concealed damage, scope not listed, permit fees, hazardous materials, and owner-requested changes unless quoted separately.",
+  client_responsibilities:
+    "Client responsibilities include timely approvals, clear access to work areas, securing pets and valuables, and completing payment according to the terms.",
+} as const;
+
+// ---------------------------------------------------------------------------
+// Membership standards
+// ---------------------------------------------------------------------------
+
+export const MEMBERSHIP_TIERS = ["essential", "plus", "premier"] as const;
+export type MembershipTier = typeof MEMBERSHIP_TIERS[number];
+
+export const MEMBERSHIP_TIER_LABELS: Record<MembershipTier, string> = {
+  essential: "Essential",
+  plus: "Plus",
+  premier: "Premier",
+};
+
+export const MEMBERSHIP_TIER_VISITS_PER_YEAR: Record<MembershipTier, number> = {
+  essential: 1,
+  plus: 2,
+  premier: 4,
+};
+
+/** Included minor preventive/correction work after the health-check phase. */
+export const MEMBERSHIP_INCLUDED_LABOR_MINUTES_PER_VISIT = 60;
+
+export const MEMBERSHIP_BILLING_CADENCES = ["annual", "monthly"] as const;
+export type MembershipBillingCadence = typeof MEMBERSHIP_BILLING_CADENCES[number];
+
+export const MEMBERSHIP_ROUTING_ZONES = ["core", "extended", "out_of_area"] as const;
+export type MembershipRoutingZone = typeof MEMBERSHIP_ROUTING_ZONES[number];
+
+export const MEMBERSHIP_ROUTING_ZONE_LABELS: Record<MembershipRoutingZone, string> = {
+  core: "Core Zone",
+  extended: "Extended Zone",
+  out_of_area: "Out of Area",
+};
+
+export const MEMBERSHIP_VISIT_PHASES = ["health_check", "included_action", "reporting"] as const;
+export type MembershipVisitPhase = typeof MEMBERSHIP_VISIT_PHASES[number];
+
+export const MEMBERSHIP_CAP_STATUSES = ["within_cap", "cap_reached", "approval_required"] as const;
+export type MembershipCapStatus = typeof MEMBERSHIP_CAP_STATUSES[number];
+
+export const MEMBER_PRIORITY_LEVELS = ["standard", "priority", "vip"] as const;
+export type MemberPriorityLevel = typeof MEMBER_PRIORITY_LEVELS[number];
+export const MEMBER_PRIORITY_LABELS: Record<MemberPriorityLevel, string> = {
+  standard: "Standard",
+  priority: "Priority",
+  vip: "VIP",
+};
+
+export type MemberRenewalStatus = "active" | "approaching" | "expired" | "not_set";
+
+export function computeRenewalStatus(renewalDate: string | null | undefined): MemberRenewalStatus {
+  if (!renewalDate) return "not_set";
+  const daysUntil = Math.ceil((new Date(renewalDate).getTime() - Date.now()) / 86_400_000);
+  if (daysUntil < 0) return "expired";
+  if (daysUntil <= 30) return "approaching";
+  return "active";
+}
+
+// ---------------------------------------------------------------------------
+// Operations standards
+// ---------------------------------------------------------------------------
+
+export const JOB_ACCEPTANCE_CATEGORIES = [
+  "membership",
+  "realtor_baseline",
+  "high_margin_project",
+  "reactive_low_quality",
+] as const;
+export type JobAcceptanceCategory = typeof JOB_ACCEPTANCE_CATEGORIES[number];
+
+export const JOB_ACCEPTANCE_CATEGORY_LABELS: Record<JobAcceptanceCategory, string> = {
+  membership:           "Membership Work",
+  realtor_baseline:     "Realtor Baseline",
+  high_margin_project:  "High-Margin Project",
+  reactive_low_quality: "Reactive / Low-Quality",
+};
+
+export const JOB_INTAKE_DECISIONS = ["accept", "decline", "defer", "reframe"] as const;
+export type JobIntakeDecision = typeof JOB_INTAKE_DECISIONS[number];
+
+export const JOB_INTAKE_DECISION_LABELS: Record<JobIntakeDecision, string> = {
+  accept:  "Accept",
+  decline: "Decline",
+  defer:   "Defer",
+  reframe: "Reframe",
+};
+
+export const JOB_INTAKE_RATING_FIELDS = [
+  "strategy_fit",
+  "scope_clarity",
+  "margin_confidence",
+  "schedule_impact",
+  "quality_fit",
+] as const;
+export type JobIntakeRatingField = typeof JOB_INTAKE_RATING_FIELDS[number];
+
+export const JOB_INTAKE_RATING_LABELS: Record<JobIntakeRatingField, string> = {
+  strategy_fit:      "Strategy Fit",
+  scope_clarity:     "Scope Clarity",
+  margin_confidence: "Margin Confidence",
+  schedule_impact:   "Schedule Impact",
+  quality_fit:       "Quality Fit",
+};
+
+// ---------------------------------------------------------------------------
+// Vendor coordination
+// ---------------------------------------------------------------------------
+
+export const VENDOR_COORDINATION_MODES = ["referral", "concierge"] as const;
+export type VendorCoordinationMode = typeof VENDOR_COORDINATION_MODES[number];
+
+export const VENDOR_COORDINATION_LABELS: Record<VendorCoordinationMode, string> = {
+  referral:  "Referral",
+  concierge: "Concierge (Coordinated)",
+};
+
+export const VENDOR_COORDINATION_DESCRIPTIONS: Record<VendorCoordinationMode, string> = {
+  referral:  "Client is referred to a specialist. Dovetails is not involved in scheduling or coordination.",
+  concierge: "Dovetails coordinates the specialist on the client's behalf. A management fee applies.",
+};
+
+export const CONCIERGE_DEFAULT_FEE_CENTS = 15000; // $150
+
+// ---------------------------------------------------------------------------
+// Routing zone warnings
+// ---------------------------------------------------------------------------
+
+export const ROUTING_ZONE_WARNING_ZONES: MembershipRoutingZone[] = ["extended", "out_of_area"];
+
+export const ROUTING_ZONE_WARNINGS: Record<string, string> = {
+  extended:    "Extended zone — add travel surcharge and confirm route before scheduling.",
+  out_of_area: "Out of area — requires owner approval before accepting or scheduling.",
+};
+
+// ---------------------------------------------------------------------------
+// Scheduling policy
+// ---------------------------------------------------------------------------
+
+export const MAINTENANCE_SCHEDULE_DAY_OF_WEEK = 3; // Wednesday (JS Date.getDay(), 0=Sun)
+export const MAINTENANCE_JOB_CATEGORIES: JobAcceptanceCategory[] = ["membership", "realtor_baseline"];
+
+// ---------------------------------------------------------------------------
+// Pricing modes
+// ---------------------------------------------------------------------------
+
+export const PRICING_MODES = ["flat_rate", "hourly_internal"] as const;
+
+export const PRICING_MODE_LABELS: Record<typeof PRICING_MODES[number], string> = {
+  flat_rate: "Fixed Bid",
+  hourly_internal: "Time and Materials",
+};
+
+// ---------------------------------------------------------------------------
+// Line item categories
+// ---------------------------------------------------------------------------
+
+export const LINE_ITEM_TYPES = ["labor", "materials", "handling_fee", "adjustment"] as const;
+
+// ---------------------------------------------------------------------------
+// Estimate guardrails
+// ---------------------------------------------------------------------------
+
+export const ESTIMATE_TRIP_COUNT_OPTIONS = ["one_trip", "multi_trip"] as const;
+
+export const ESTIMATE_TRIP_COUNT_LABELS: Record<typeof ESTIMATE_TRIP_COUNT_OPTIONS[number], string> = {
+  one_trip: "One Trip",
+  multi_trip: "Multi-Trip",
+};
+
+export const ESTIMATE_FINISH_EXPECTATIONS = ["basic", "clean", "premium"] as const;
+
+export const ESTIMATE_FINISH_EXPECTATION_LABELS: Record<typeof ESTIMATE_FINISH_EXPECTATIONS[number], string> = {
+  basic: "Basic",
+  clean: "Clean",
+  premium: "Premium",
+};
+
+export const ESTIMATE_MINIMUM_OVERRIDE_REASONS = [
+  "bundled",
+  "membership_included",
+  "promo",
+  "owner_approved",
+] as const;
+export type EstimateMinimumOverrideReason = typeof ESTIMATE_MINIMUM_OVERRIDE_REASONS[number];
+
+export const ESTIMATE_MINIMUM_OVERRIDE_REASON_LABELS: Record<EstimateMinimumOverrideReason, string> = {
+  bundled: "Bundled",
+  membership_included: "Membership Included",
+  promo: "Promotion",
+  owner_approved: "Owner Approved",
+};
+
+export const ESTIMATE_ADJUSTMENT_TYPES = [
+  "bundle_credit",
+  "member_credit",
+  "promo",
+  "travel_surcharge",
+  "risk_adjustment",
+  "return_trip_charge",
+  "coordination_fee",
+] as const;
+
+export const ESTIMATE_ADJUSTMENT_TYPE_LABELS: Record<typeof ESTIMATE_ADJUSTMENT_TYPES[number], string> = {
+  bundle_credit: "Bundle Credit",
+  member_credit: "Member Credit",
+  promo: "Promotion",
+  travel_surcharge: "Travel Surcharge",
+  risk_adjustment: "Risk Adjustment",
+  return_trip_charge: "Return Trip Charge",
+  coordination_fee: "Coordination Fee",
+};
+
+export const ESTIMATE_PRICING_REVIEW_STATUSES = ["needs_review", "passed", "blocked"] as const;
+export type EstimatePricingReviewStatus = typeof ESTIMATE_PRICING_REVIEW_STATUSES[number];
+
+// ---------------------------------------------------------------------------
+// Digital Home Vault
+// ---------------------------------------------------------------------------
+
+export const VAULT_CATEGORIES = [
+  "mechanical",
+  "appliance",
+  "filter",
+  "paint_finish",
+  "monitor",
+  "vendor",
+  "other",
+] as const;
+export type VaultCategory = typeof VAULT_CATEGORIES[number];
+
+export const VAULT_CATEGORY_LABELS: Record<VaultCategory, string> = {
+  mechanical:   "Mechanical Systems",
+  appliance:    "Appliances",
+  filter:       "Filters & Consumables",
+  paint_finish: "Paint & Finishes",
+  monitor:      "Monitor Items",
+  vendor:       "Vendors & Referrals",
+  other:        "Other",
+};
+
+export const VAULT_COMPLETENESS_TARGET_CATEGORIES = [
+  "mechanical",
+  "appliance",
+  "filter",
+  "paint_finish",
+  "monitor",
+  "vendor",
+] as const satisfies readonly VaultCategory[];
+export type VaultCompletenessCategory = typeof VAULT_COMPLETENESS_TARGET_CATEGORIES[number];
+
+const VAULT_COLLECTION_STAGE_GROUPS = [
+  ["mechanical", "filter"],
+  ["appliance"],
+  ["paint_finish", "monitor"],
+  ["vendor"],
+] as const satisfies readonly (readonly VaultCompletenessCategory[])[];
+
+export interface VaultCollectionStep {
+  visitNumber: number;
+  annualVisitCount: number;
+  cycleVisitNumber: number;
+  cycleYear: number;
+  focusCategories: VaultCompletenessCategory[];
+  completedFocusCategories: VaultCompletenessCategory[];
+  missingFocusCategories: VaultCompletenessCategory[];
+  missingCoreCategories: VaultCompletenessCategory[];
+}
+
+function buildVaultCollectionStages(annualVisitCount: number): VaultCompletenessCategory[][] {
+  const bucketCount = Math.max(1, Math.min(Math.trunc(annualVisitCount) || 1, VAULT_COLLECTION_STAGE_GROUPS.length));
+  const baseSize = Math.floor(VAULT_COLLECTION_STAGE_GROUPS.length / bucketCount);
+  const extraBuckets = VAULT_COLLECTION_STAGE_GROUPS.length % bucketCount;
+  const groupedStages: VaultCompletenessCategory[][] = [];
+  let cursor = 0;
+
+  for (let bucket = 0; bucket < bucketCount; bucket += 1) {
+    const size = baseSize + (bucket < extraBuckets ? 1 : 0);
+    groupedStages.push(
+      VAULT_COLLECTION_STAGE_GROUPS.slice(cursor, cursor + size).flatMap((stage) => [...stage])
+    );
+    cursor += size;
+  }
+
+  return groupedStages;
+}
+
+export function getVaultCollectionStep(input: {
+  annualVisitCount: number;
+  visitNumber: number;
+  recordedCategories: ReadonlyArray<VaultCategory>;
+}): VaultCollectionStep {
+  const annualVisitCount = Math.max(1, Math.trunc(input.annualVisitCount) || 1);
+  const visitNumber = Math.max(1, Math.trunc(input.visitNumber) || 1);
+  const stages = buildVaultCollectionStages(annualVisitCount);
+  const cycleVisitNumber = ((visitNumber - 1) % stages.length) + 1;
+  const cycleYear = Math.floor((visitNumber - 1) / stages.length) + 1;
+  const recordedCategories = VAULT_COMPLETENESS_TARGET_CATEGORIES.filter((category) =>
+    input.recordedCategories.includes(category)
+  );
+  const focusCategories = stages[cycleVisitNumber - 1] ?? [];
+  const completedFocusCategories = focusCategories.filter((category) => recordedCategories.includes(category));
+  const missingFocusCategories = focusCategories.filter((category) => !recordedCategories.includes(category));
+  const missingCoreCategories = VAULT_COMPLETENESS_TARGET_CATEGORIES.filter(
+    (category) => !recordedCategories.includes(category)
+  );
+
+  return {
+    visitNumber,
+    annualVisitCount,
+    cycleVisitNumber,
+    cycleYear,
+    focusCategories,
+    completedFocusCategories,
+    missingFocusCategories,
+    missingCoreCategories,
+  };
+}
+
+export function computeVaultCompleteness(items: ReadonlyArray<{ category: VaultCategory }>) {
+  const coveredCategories = VAULT_COMPLETENESS_TARGET_CATEGORIES.filter((category) =>
+    items.some((item) => item.category === category)
+  );
+  const missingCategories = VAULT_COMPLETENESS_TARGET_CATEGORIES.filter(
+    (category) => !coveredCategories.includes(category)
+  );
+
+  return {
+    percent: Math.round((coveredCategories.length / VAULT_COMPLETENESS_TARGET_CATEGORIES.length) * 100),
+    coveredCount: coveredCategories.length,
+    totalCount: VAULT_COMPLETENESS_TARGET_CATEGORIES.length,
+    coveredCategories,
+    missingCategories,
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Client document standards
+// ---------------------------------------------------------------------------
+
+export const CLIENT_DOCUMENT_STATUSES = [
+  "draft",
+  "sent",
+  "approved",
+  "final",
+  "superseded",
+  "archived",
+] as const;
+export type ClientDocumentStatus = typeof CLIENT_DOCUMENT_STATUSES[number];
+
+export const CLIENT_DOCUMENT_TYPES = [
+  "estimate",
+  "invoice",
+  "membership_plan",
+  "visit_report",
+  "pricing_codebook",
+] as const;
+export type ClientDocumentType = typeof CLIENT_DOCUMENT_TYPES[number];
+
+function sanitizeFilenamePart(value: string, fallback: string): string {
+  const sanitized = value
+    .trim()
+    .replace(/[^A-Za-z0-9]+/g, "")
+    .slice(0, 48);
+  return sanitized || fallback;
+}
+
+function clientLastName(clientName: string | null | undefined): string {
+  if (!clientName) return "UnknownClient";
+  const parts = clientName.trim().split(/\s+/);
+  return sanitizeFilenamePart(parts.at(-1) ?? clientName, "UnknownClient");
+}
+
+function titleToken(value: string): string {
+  return value
+    .split(/[_\s-]+/)
+    .filter(Boolean)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase())
+    .join("");
+}
+
+export function buildClientDocumentFilename(input: {
+  date: string | Date;
+  clientName: string | null | undefined;
+  jobType: string | null | undefined;
+  documentType: ClientDocumentType;
+  status: ClientDocumentStatus;
+}): string {
+  const date =
+    input.date instanceof Date
+      ? input.date.toISOString().slice(0, 10)
+      : input.date.slice(0, 10);
+
+  return [
+    date,
+    clientLastName(input.clientName),
+    sanitizeFilenamePart(titleToken(input.jobType ?? "Job"), "Job"),
+    sanitizeFilenamePart(titleToken(input.documentType), "Document"),
+    sanitizeFilenamePart(titleToken(input.status), "Status"),
+  ].join("_");
+}

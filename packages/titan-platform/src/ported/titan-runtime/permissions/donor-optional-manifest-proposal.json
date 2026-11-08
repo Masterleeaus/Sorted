@@ -1,0 +1,32 @@
+{
+  "schema": "titan-zero-donor-optional-manifest-proposal/v1",
+  "packet_id": "TZ-FIX-PERMISSION-HARDENING-001",
+  "builder": "Builder 2",
+  "pass": 4,
+  "manager_only_hotspot": "manifest.json",
+  "applied_by_builder": false,
+  "currently_optional": ["cookies"],
+  "proposed_move_from_required_to_optional": [
+    "notifications",
+    "offscreen",
+    "tabGroups",
+    "webNavigation",
+    "webRequest"
+  ],
+  "preconditions_before_manager_convergence": [
+    "donor callsites must route through graceful-denial broker or equivalent",
+    "denial/revoke/restart regression must pass",
+    "no retained Retriever/Monica capability loss on explicit grant",
+    "no execution authority may derive from permission grant",
+    "company_id remains the sole company boundary"
+  ],
+  "explicitly_not_proposed_in_pass4": [
+    "storage",
+    "sidePanel",
+    "alarms",
+    "scripting",
+    "activeTab",
+    "clipboardRead",
+    "<all_urls>"
+  ]
+}

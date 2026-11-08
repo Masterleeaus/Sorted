@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": [
+    "company_id",
+    "role_definition_id",
+    "provider_extension",
+    "provider_capability",
+    "mode",
+    "required_permissions",
+    "requires_command_bus"
+  ],
+  "properties": {
+    "company_id": {
+      "type": "string"
+    },
+    "role_definition_id": {
+      "type": "string"
+    },
+    "provider_extension": {
+      "type": "string"
+    },
+    "provider_capability": {
+      "type": "string"
+    },
+    "mode": {
+      "enum": [
+        "read",
+        "propose",
+        "command"
+      ]
+    },
+    "required_permissions": {
+      "type": "array"
+    },
+    "requires_command_bus": {
+      "type": "boolean"
+    },
+    "binding_grants_authority": {
+      "const": false
+    }
+  }
+}

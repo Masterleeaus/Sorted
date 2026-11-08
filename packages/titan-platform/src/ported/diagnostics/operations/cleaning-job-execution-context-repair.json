@@ -1,0 +1,28 @@
+{
+  "schema": "titan.zero.cleaning-operations-pass05.v1",
+  "packet_id": "TZ-NEXT-002",
+  "pass": 5,
+  "manager_base": {
+    "merge": 42,
+    "artifact": "Titan-Zero-CANONICAL-MASTER-2026-09-09-MERGE-42-PERMISSION-HARDENING-CONVERGED.zip",
+    "sha256": "1c4b6f471ba16f44d7b27db546ba41db18032ce9967b1d725dc0926cd73cc930",
+    "files": 3023
+  },
+  "repair": "existing job -> verified cleaning checklist/site instructions/hazards/evidence requirements -> Jobs context proposal",
+  "guards": [
+    "authoritative existing-job receipt required",
+    "source_ref required for checklist/instruction/hazard/evidence items",
+    "company_id only",
+    "legacy tenant keys rejected",
+    "high/unknown/inferred hazards require authorised review",
+    "evidence satisfaction never implies acceptance or job completion"
+  ],
+  "targeted_pass05": "6/6 PASS",
+  "syntax": "PASS",
+  "canonical_full_zip_materialized": false,
+  "temporary_import_stubs_excluded": true,
+  "merge42_collision": "NONE_PERMISSION_HARDENING_SCOPE",
+  "authority_granted": false,
+  "company_boundary": "company_id",
+  "next_pass": 6
+}

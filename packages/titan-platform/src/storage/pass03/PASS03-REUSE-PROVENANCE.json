@@ -1,0 +1,59 @@
+{
+  "schema": "titan-zero-storage-reuse-provenance/v1",
+  "packet_id": "TZ-FINISH-STORAGE-DATA-AUTHORITY-001",
+  "pass": 3,
+  "dispositions": [
+    {
+      "source": "apps/web/lib/db/dialect.ts",
+      "status": "ADAPTED",
+      "reused_semantics": [
+        "postgres/postgresql protocol inference",
+        "mysql/mariadb protocol inference",
+        "unsupported protocol fail-closed"
+      ]
+    },
+    {
+      "source": "apps/web/lib/db/portable.ts",
+      "status": "ADAPTED",
+      "reused_semantics": [
+        "explicit dialect dispatch",
+        "transaction backend separation",
+        "no implicit cross-backend fallback"
+      ]
+    },
+    {
+      "source": "apps/web/lib/db/contracts.ts",
+      "status": "ADAPTED",
+      "reused_semantics": [
+        "adapter/executor interface separation",
+        "tenant/company scoping remains caller-owned"
+      ]
+    },
+    {
+      "source": "apps/web/lib/db/mysql.ts",
+      "status": "ADAPTED",
+      "reused_semantics": [
+        "backend-specific factory boundary",
+        "transaction failure propagation"
+      ]
+    },
+    {
+      "source": "Supervisor SUP-REUSE-B3-STORAGE-003 Business State Authority",
+      "status": "DEFERRED_TO_PASS7",
+      "reason": "Concurrency/conflict receipt semantics belong to Pass7; no duplicate implementation added in Pass3."
+    },
+    {
+      "source": "Supervisor SUP-REUSE-B3-STORAGE-003 TZ-FINISH-003 Pass05 migration checkpoints",
+      "status": "DEFERRED_TO_PASS4",
+      "reason": "Migration checkpoint/idempotency semantics belong to Pass4."
+    },
+    {
+      "source": "Supervisor SUP-REUSE-B3-STORAGE-003 TZ-WP-003 checkpoint storage",
+      "status": "DEFERRED_TO_PASS5_PASS9",
+      "reason": "Offline checkpoint semantics belong to later packet passes."
+    }
+  ],
+  "parallel_storage_authority_created": false,
+  "schema_duplication_added": false,
+  "mass_route_rewrite": false
+}

@@ -1,0 +1,33 @@
+{
+  "template": {
+    "id": "supplier-receiving-discrepancy",
+    "version": "1.0.0",
+    "name": "Supplier Receiving and Discrepancy",
+    "status": "ready",
+    "category": "inventory",
+    "entry_wizard": "supplier_receiving_discrepancy_v1",
+    "capabilities": [
+      "inventory.receipts.record"
+    ],
+    "channels": [
+      "chat",
+      "mobile",
+      "tablet",
+      "desktop",
+      "voice"
+    ],
+    "governance": {
+      "authority": "human_review_when_required",
+      "offline": true
+    },
+    "metadata": {
+      "verticals": [
+        "retail",
+        "wholesale",
+        "ecommerce",
+        "construction"
+      ],
+      "pack": "commerce_multi_vertical_2026_08"
+    }
+  }
+}

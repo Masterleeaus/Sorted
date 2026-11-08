@@ -1,0 +1,11 @@
+{
+  "schema": "titan-zero-agent-handoff/v1",
+  "pass": 11,
+  "status": "READY_FOR_MANAGER_SEMANTIC_MERGE",
+  "title": "Cleaning Marketplace Adoption & Value Tracking",
+  "parent_lineage": "Pass10 final certified cleaning marketplace",
+  "manager_target_merge": 29,
+  "merge_rule": "Semantically apply Pass11 cleaning files onto current Manager canonical; never replace Manager29 wholesale with this cumulative.",
+  "authority": "company_id only; identity and marketplace state grant no authority",
+  "next_recommended_pass": "Marketplace lifecycle review / renewal and replacement decision support"
+}

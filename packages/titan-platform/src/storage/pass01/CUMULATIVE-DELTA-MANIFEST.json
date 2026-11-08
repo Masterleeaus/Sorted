@@ -1,0 +1,87 @@
+{
+  "schema": "titan-zero-cumulative-builder-delta-manifest/v3",
+  "workspace": "Builder 3",
+  "packet_id": "TZ-FINISH-STORAGE-DATA-AUTHORITY-001",
+  "pass": 1,
+  "base_merge": 52,
+  "base_sha256": "ea6c219d40ffbddcbb68e9c9ed741c93568fe12be2e4f09dd69af0b528366d92",
+  "file_count": 15,
+  "files": [
+    {
+      "path": "Agent Mesh/Builder 3/OUTBOX/PASS01-CHANGE-IMPACT.json",
+      "sha256": "7b48504430d43a345329b26eb308162de5d94462fb8c8e7238507162c80c73d4",
+      "bytes": 305
+    },
+    {
+      "path": "Agent Mesh/Builder 3/OUTBOX/PASS01-HANDOFF.json",
+      "sha256": "7029cd4a26f8f782fb48370bbcc38f962e1ae9e43629aeafc531473e3ba7225b",
+      "bytes": 671
+    },
+    {
+      "path": "Agent Mesh/Builder 3/OUTBOX/PASS01-SEMANTIC-CHANGE.json",
+      "sha256": "846055fb7d3567184286e2a17ea18109480747d9f32ea0c4158a133d4644bc13",
+      "bytes": 298
+    },
+    {
+      "path": "Agent Mesh/Builder 3/OUTBOX/PASS01-VERIFICATION.json",
+      "sha256": "f6b078b2077f28bf9fd1b030eb1f937ea2f4518d04d327783c1e96b96cf95006",
+      "bytes": 667
+    },
+    {
+      "path": "Agent Mesh/Builder 3/OUTBOX/PERSISTENCE-AUTHORITY-MAP.json",
+      "sha256": "03b0d315a29eb3a5846f13a4681228f2b3e40ac7ae29c5468ed4e9ab0c305741",
+      "bytes": 5109
+    },
+    {
+      "path": "Agent Mesh/Builder 3/OUTBOX.json",
+      "sha256": "1254d1f29c3a4d882bbe9ec9170e0ed52064b82cf3d60166ca8fa054942fbb05",
+      "bytes": 305
+    },
+    {
+      "path": "Agent Mesh/Builder 3/ROLE.json",
+      "sha256": "1de05eff4569f3a10994cb08580233e8ec43c05e5d6d03d1e4b26ad77b2ff332",
+      "bytes": 2398
+    },
+    {
+      "path": "Agent Mesh/Builder 3/STATUS.json",
+      "sha256": "016b77cf90215198ec46a3ef8204e5d0a229065347f8774e39c235da21f9aa1e",
+      "bytes": 711
+    },
+    {
+      "path": "Agent Mesh/Builder 3/WORK-PACKET/TZ-FINISH-STORAGE-DATA-AUTHORITY-001.json",
+      "sha256": "071562eba852487483d348fdadc66e524c335189db6b31b0ab784ea228b3abab",
+      "bytes": 4609
+    },
+    {
+      "path": "Agent Mesh/Builder 3/WORK_PACKET.json",
+      "sha256": "071562eba852487483d348fdadc66e524c335189db6b31b0ab784ea228b3abab",
+      "bytes": 4609
+    },
+    {
+      "path": "packages/titan-platform/src/storage/pass01/PASS01-CHANGE-IMPACT.json",
+      "sha256": "7b48504430d43a345329b26eb308162de5d94462fb8c8e7238507162c80c73d4",
+      "bytes": 305
+    },
+    {
+      "path": "packages/titan-platform/src/storage/pass01/PASS01-HANDOFF.json",
+      "sha256": "7029cd4a26f8f782fb48370bbcc38f962e1ae9e43629aeafc531473e3ba7225b",
+      "bytes": 671
+    },
+    {
+      "path": "packages/titan-platform/src/storage/pass01/PASS01-SEMANTIC-CHANGE.json",
+      "sha256": "846055fb7d3567184286e2a17ea18109480747d9f32ea0c4158a133d4644bc13",
+      "bytes": 298
+    },
+    {
+      "path": "packages/titan-platform/src/storage/pass01/PASS01-VERIFICATION.json",
+      "sha256": "f6b078b2077f28bf9fd1b030eb1f937ea2f4518d04d327783c1e96b96cf95006",
+      "bytes": 667
+    },
+    {
+      "path": "packages/titan-platform/src/storage/pass01/PERSISTENCE-AUTHORITY-MAP.json",
+      "sha256": "03b0d315a29eb3a5846f13a4681228f2b3e40ac7ae29c5468ed4e9ab0c305741",
+      "bytes": 5109
+    }
+  ],
+  "deletions": []
+}

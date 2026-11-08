@@ -1,0 +1,30 @@
+{
+  "schema": "titan-zero-workforce-pass/v1",
+  "pass": 12,
+  "title": "MV3 Restart/Recovery Convergence",
+  "company_boundary": "company_id",
+  "uses_existing_restart_checkpoint_store": true,
+  "recovery_operation": "workforce-sync:<company_id>",
+  "persists": [
+    "projection_revision",
+    "projection_cursor",
+    "sync_generation",
+    "sync_started_at_ms",
+    "mode",
+    "poll_interval_ms",
+    "retry_count",
+    "last_event_at",
+    "last_error",
+    "connectivity"
+  ],
+  "does_not_persist": [
+    "gateway_token",
+    "authority_decision",
+    "command_as_authority"
+  ],
+  "automatic_effect_replay": false,
+  "fresh_authority_required_for_effects": true,
+  "ui_replacement": false,
+  "permissions_changed": false,
+  "deletions": 0
+}

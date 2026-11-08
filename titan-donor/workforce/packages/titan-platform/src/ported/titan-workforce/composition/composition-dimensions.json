@@ -1,0 +1,50 @@
+{
+  "business_tiers": [
+    "SOLO",
+    "SMALL",
+    "GROWING",
+    "ENTERPRISE"
+  ],
+  "service_models": [
+    "field_service",
+    "appointment_service",
+    "project_service",
+    "retail_or_commerce",
+    "professional_service",
+    "hybrid"
+  ],
+  "signals": [
+    "monthly_enquiry_volume",
+    "monthly_job_volume",
+    "active_customers",
+    "staff_count",
+    "ai_worker_count",
+    "revenue_complexity",
+    "quote_complexity",
+    "schedule_complexity",
+    "field_dispatch_required",
+    "inventory_complexity",
+    "asset_complexity",
+    "compliance_risk",
+    "environmental_materiality",
+    "cash_collection_pressure",
+    "customer_retention_pressure",
+    "marketing_intensity",
+    "integration_complexity"
+  ],
+  "activation_modes": [
+    "recommended",
+    "owner_approved",
+    "policy_approved",
+    "active",
+    "paused",
+    "retired"
+  ],
+  "worker_modes": [
+    "observe",
+    "assist",
+    "proactive",
+    "approval_gated",
+    "autonomous"
+  ]
+}

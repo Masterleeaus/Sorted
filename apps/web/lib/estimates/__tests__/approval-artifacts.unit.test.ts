@@ -1,0 +1,474 @@
+/**
+ * Unit tests for approval-side-effect consistency.
+ *
+ * Verifies that createApprovalArtifacts:
+ *   - creates a deposit invoice only when deposit_required=true and deposit_cents>0
+ *   - is idempotent (never creates a second deposit invoice)
+ *   - skips deposit creation when deposit_required=false or deposit_cents=0
+ *   - always creates the schedule_job action item
+ *
+ * And that createJobFromEstimate:
+ *   - is idempotent (returns existing job_id when estimate already has one)
+ *   - rejects non-approved estimates
+ */
+
+import { describe, it, expect, vi, beforeEach } from "vitest";
+import type { PoolClient } from "pg";
+
+vi.mock("@/lib/invoices/db", () => ({
+  generateInvoiceNumber: vi.fn().mockResolvedValue("DEP-0001"),
+}));
+
+// ── Mock client builder ────────────────────────────────────────────────────
+
+function makeClient(results: unknown[]): PoolClient {
+  let i = 0;
+  return {
+    query: vi.fn().mockImplementation(() => {
+      const r = results[i++];
+      return Promise.resolve(r ?? { rows: [], rowCount: 0 });
+    }),
+  } as unknown as PoolClient;
+}
+
+// ── createApprovalArtifacts ────────────────────────────────────────────────
+
+describe("createApprovalArtifacts", () => {
+  beforeEach(() => vi.clearAllMocks());
+
+  it("creates a deposit invoice when deposit_required=true and deposit_cents>0", async () => {
+    const { createApprovalArtifacts } = await import("../approve");
+
+    const client = makeClient([
+      // estData query
+      {
+        rows: [{
+          client_id: "c1", job_id: null, property_id: null,
+          deposit_cents: 15000, deposit_required: true, notes: "Faucet replacement",
+        }],
+        rowCount: 1,
+      },
+      // existingDeposit check: none found
+      { rows: [], rowCount: 0 },
+      // Invoice INSERT
+      { rows: [{ id: "dep-inv-1" }], rowCount: 1 },
+    ]);
+
+    const result = await createApprovalArtifacts(client, {
+      estimateId: "est-1",
+      accountId: "acct-1",
+      userId: "user-1",
+    });
+
+    expect(result.depositInvoiceId).toBe("dep-inv-1");
+    // Verify the invoice INSERT was called
+    const insertCall = (client.query as ReturnType<typeof vi.fn>).mock.calls.find(
+      (call: unknown[]) => typeof call[0] === "string" && (call[0] as string).includes("INSERT INTO invoices")
+    );
+    expect(insertCall).toBeDefined();
+  });
+
+  it("puts the deposit on the job when the estimate already has one", async () => {
+    const { createApprovalArtifacts } = await import("../approve");
+
+    const client = makeClient([
+      {
+        rows: [{
+          client_id: "c1", job_id: "job-1", property_id: "p1",
+          deposit_cents: 15000, deposit_required: true, notes: "Faucet",
+        }],
+        rowCount: 1,
+      },
+      { rows: [], rowCount: 0 },
+      { rows: [{ id: "dep-inv-2" }], rowCount: 1 },
+    ]);
+
+    await createApprovalArtifacts(client, {
+      estimateId: "est-1",
+      accountId: "acct-1",
+      userId: "user-1",
+    });
+
+    const insertCall = (client.query as ReturnType<typeof vi.fn>).mock.calls.find(
+      (call: unknown[]) => typeof call[0] === "string" && (call[0] as string).includes("INSERT INTO invoices"),
+    );
+    const args = insertCall![1] as unknown[];
+    expect(args[2]).toBe("job-1");
+  });
+
+  it("is idempotent — skips deposit creation if one already exists", async () => {
+    const { createApprovalArtifacts } = await import("../approve");
+
+    const client = makeClient([
+      // estData
+      {
+        rows: [{
+          client_id: "c1", job_id: null, property_id: null,
+          deposit_cents: 15000, deposit_required: true, notes: null,
+        }],
+        rowCount: 1,
+      },
+      // existingDeposit: already exists
+      { rows: [{ id: "existing-dep" }], rowCount: 1 },
+    ]);
+
+    const result = await createApprovalArtifacts(client, {
+      estimateId: "est-1",
+      accountId: "acct-1",
+      userId: "user-1",
+    });
+
+    expect(result.depositInvoiceId).toBeNull();
+    const insertCalls = (client.query as ReturnType<typeof vi.fn>).mock.calls.filter(
+      (call: unknown[]) => typeof call[0] === "string" && (call[0] as string).includes("INSERT INTO invoices")
+    );
+    expect(insertCalls).toHaveLength(0);
+  });
+
+  it("skips deposit creation when deposit_required=false", async () => {
+    const { createApprovalArtifacts } = await import("../approve");
+
+    const client = makeClient([
+      {
+        rows: [{
+          client_id: "c1", job_id: null, property_id: null,
+          deposit_cents: 0, deposit_required: false, notes: null,
+        }],
+        rowCount: 1,
+      },
+    ]);
+
+    const result = await createApprovalArtifacts(client, {
+      estimateId: "est-1",
+      accountId: "acct-1",
+      userId: "user-1",
+    });
+
+    expect(result.depositInvoiceId).toBeNull();
+  });
+
+  it("skips deposit creation when deposit_cents=0 even if deposit_required=true", async () => {
+    const { createApprovalArtifacts } = await import("../approve");
+
+    const client = makeClient([
+      {
+        rows: [{
+          client_id: "c1", job_id: null, property_id: null,
+          deposit_cents: 0, deposit_required: true, notes: null,
+        }],
+        rowCount: 1,
+      },
+    ]);
+
+    const result = await createApprovalArtifacts(client, {
+      estimateId: "est-1",
+      accountId: "acct-1",
+      userId: "user-1",
+    });
+
+    expect(result.depositInvoiceId).toBeNull();
+  });
+});
+
+// ── createJobFromEstimate ──────────────────────────────────────────────────
+
+describe("createJobFromEstimate", () => {
+  beforeEach(() => vi.clearAllMocks());
+
+  it("is idempotent — returns existing job_id if estimate already has one", async () => {
+    const { createJobFromEstimate } = await import("../create-job-db");
+
+    const client = makeClient([
+      {
+        rows: [{
+          id: "est-1", status: "approved",
+          client_id: "c1", property_id: null, job_id: "existing-job",
+          booking_request_id: null, notes: null, total_cents: 25000,
+          pricing_mode: "flat_rate",
+          client_name: "Jane", property_address: null,
+        }],
+        rowCount: 1,
+      },
+      { rows: [], rowCount: 0 }, // backfill deposit job_id
+      // promoteOrCreateWorkOrderFromEstimate — existing WO for estimate
+      { rows: [{ id: "wo-existing" }], rowCount: 1 },
+    ]);
+
+    const result = await createJobFromEstimate({
+      client,
+      estimateId: "est-1",
+      accountId: "acct-1",
+      createdBy: "user-1",
+    });
+
+    expect(result.jobId).toBe("existing-job");
+    expect(result.created).toBe(false);
+    expect(result.workOrderId).toBe("wo-existing");
+    // No INSERT should have been called
+    const insertCalls = (client.query as ReturnType<typeof vi.fn>).mock.calls.filter(
+      (call: unknown[]) => typeof call[0] === "string" && (call[0] as string).includes("INSERT INTO jobs")
+    );
+    expect(insertCalls).toHaveLength(0);
+  });
+
+  it("rejects estimates that are not approved", async () => {
+    const { createJobFromEstimate } = await import("../create-job-db");
+
+    const client = makeClient([
+      {
+        rows: [{
+          id: "est-1", status: "sent",
+          client_id: "c1", property_id: null, job_id: null,
+          booking_request_id: null, notes: null, total_cents: 25000,
+          pricing_mode: "flat_rate",
+          client_name: "Jane", property_address: null,
+        }],
+        rowCount: 1,
+      },
+    ]);
+
+    await expect(
+      createJobFromEstimate({
+        client,
+        estimateId: "est-1",
+        accountId: "acct-1",
+        createdBy: "user-1",
+      })
+    ).rejects.toMatchObject({ code: "INVALID_TRANSITION" });
+  });
+
+  it("creates a job and links it when the estimate has no job yet", async () => {
+    const { createJobFromEstimate } = await import("../create-job-db");
+
+    const client = makeClient([
+      // Estimate lock query
+      {
+        rows: [{
+          id: "est-1", status: "approved",
+          client_id: "c1", property_id: "p1", job_id: null,
+          booking_request_id: "br-1", notes: "Fix deck boards",
+          total_cents: 35000, pricing_mode: "flat_rate",
+          client_name: "Bob", property_address: "10 Oak St",
+        }],
+        rowCount: 1,
+      },
+      // findRecentClientWork — none
+      { rows: [], rowCount: 0 },
+      // Job INSERT
+      { rows: [{ id: "new-job-1" }], rowCount: 1 },
+      // Estimate UPDATE (link job_id)
+      { rows: [], rowCount: 1 },
+      // backfill deposit job_id
+      { rows: [], rowCount: 0 },
+      // promoteOrCreateWorkOrderFromEstimate
+      { rows: [], rowCount: 0 }, // no existing WO
+      {
+        rows: [{
+          id: "est-1", client_id: "c1", property_id: "p1", notes: "Fix deck boards",
+          total_cents: 35000, client_name: "Bob", property_address: "10 Oak St",
+        }],
+        rowCount: 1,
+      },
+      { rows: [], rowCount: 0 }, // no assessment-linked draft
+      { rows: [], rowCount: 0 }, // no fallback draft WO
+      { rows: [], rowCount: 0 }, // no line items
+      { rows: [{ id: "wo-new-1" }], rowCount: 1 }, // WO INSERT
+    ]);
+
+    const result = await createJobFromEstimate({
+      client,
+      estimateId: "est-1",
+      accountId: "acct-1",
+      createdBy: "user-1",
+    });
+
+    expect(result.jobId).toBe("new-job-1");
+    expect(result.created).toBe(true);
+    expect(result.workOrderId).toBe("wo-new-1");
+
+    // Verify booking_request_id is threaded through to the job
+    const insertCall = (client.query as ReturnType<typeof vi.fn>).mock.calls.find(
+      (call: unknown[]) => typeof call[0] === "string" && (call[0] as string).includes("INSERT INTO jobs")
+    );
+    expect(insertCall).toBeDefined();
+    const args = insertCall![1] as unknown[];
+    // booking_request_id is $6 in the INSERT
+    expect(args[5]).toBe("br-1");
+    expect(args[7]).toBe("flat_rate");
+  });
+
+  it("does not silently merge onto an open job at the house", async () => {
+    const { createJobFromEstimate } = await import("../create-job-db");
+
+    const client = makeClient([
+      {
+        rows: [{
+          id: "est-1", status: "approved",
+          client_id: "c1", property_id: "p1", job_id: null,
+          booking_request_id: null, notes: "New closet", total_cents: 10000,
+          pricing_mode: "flat_rate",
+          client_name: "Bob", property_address: "4 Ash",
+        }],
+        rowCount: 1,
+      },
+      { rows: [], rowCount: 0 }, // recent work
+      { rows: [{ id: "new-job-1" }], rowCount: 1 }, // INSERT new job
+      { rows: [], rowCount: 1 }, // link estimate
+      { rows: [], rowCount: 0 }, // backfill deposit
+      { rows: [], rowCount: 0 }, // no existing WO
+      {
+        rows: [{
+          id: "est-1", client_id: "c1", property_id: "p1", notes: "New closet",
+          total_cents: 10000, client_name: "Bob", property_address: "4 Ash",
+        }],
+        rowCount: 1,
+      },
+      { rows: [], rowCount: 0 },
+      { rows: [], rowCount: 0 },
+      { rows: [], rowCount: 0 },
+      { rows: [{ id: "wo-new" }], rowCount: 1 },
+    ]);
+
+    const result = await createJobFromEstimate({
+      client,
+      estimateId: "est-1",
+      accountId: "acct-1",
+      createdBy: "user-1",
+    });
+
+    expect(result.created).toBe(true);
+    expect(result.jobId).toBe("new-job-1");
+    const openJobLookups = (client.query as ReturnType<typeof vi.fn>).mock.calls.filter(
+      (call: unknown[]) =>
+        typeof call[0] === "string" &&
+        (call[0] as string).includes("j.status IN ('draft', 'quoted', 'scheduled', 'in_progress')") &&
+        (call[0] as string).includes("ORDER BY"),
+    );
+    expect(openJobLookups).toHaveLength(0);
+  });
+
+  it("links to an existing job only when the operator passes the id", async () => {
+    const { createJobFromEstimate } = await import("../create-job-db");
+
+    const client = makeClient([
+      {
+        rows: [{
+          id: "est-1", status: "approved",
+          client_id: "c1", property_id: "p1", job_id: null,
+          booking_request_id: null, notes: null, total_cents: 10000,
+          pricing_mode: "flat_rate",
+          client_name: "Bob", property_address: null,
+        }],
+        rowCount: 1,
+      },
+      { rows: [{ id: "open-job-1" }], rowCount: 1 }, // assertLinkableJob
+      { rows: [], rowCount: 1 }, // UPDATE estimates.job_id
+      { rows: [], rowCount: 0 }, // backfill deposit
+      { rows: [{ id: "wo-1" }], rowCount: 1 }, // existing WO
+    ]);
+
+    const result = await createJobFromEstimate({
+      client,
+      estimateId: "est-1",
+      accountId: "acct-1",
+      createdBy: "user-1",
+      linkExistingJobId: "open-job-1",
+    });
+
+    expect(result.jobId).toBe("open-job-1");
+    expect(result.created).toBe(false);
+    expect(result.linkedExisting).toBe(true);
+    const inserts = (client.query as ReturnType<typeof vi.fn>).mock.calls.filter(
+      (call: unknown[]) => typeof call[0] === "string" && (call[0] as string).includes("INSERT INTO jobs")
+    );
+    expect(inserts).toHaveLength(0);
+  });
+
+  it("blocks spawn when client has recent completed work with an invoice", async () => {
+    const { createJobFromEstimate } = await import("../create-job-db");
+
+    const client = makeClient([
+      {
+        rows: [{
+          id: "est-1", status: "approved",
+          client_id: "c1", property_id: null, job_id: null,
+          booking_request_id: null, notes: null, total_cents: 19000,
+          pricing_mode: "flat_rate",
+          client_name: "Norman", property_address: null,
+        }],
+        rowCount: 1,
+      },
+      // findRecentClientWork
+      {
+        rows: [{
+          job_id: "old-job",
+          job_title: "16 E Chamberlain",
+          job_status: "completed",
+          job_completed_at: "2026-07-09",
+          invoice_id: "inv-1",
+          invoice_number: "INV-0022",
+          invoice_status: "sent",
+          invoice_total_cents: 19598,
+        }],
+        rowCount: 1,
+      },
+    ]);
+
+    await expect(
+      createJobFromEstimate({
+        client,
+        estimateId: "est-1",
+        accountId: "acct-1",
+        createdBy: "user-1",
+      })
+    ).rejects.toMatchObject({ code: "CLIENT_RECENT_WORK" });
+  });
+
+  it("allows forceNewProject past the recent-work guard", async () => {
+    const { createJobFromEstimate } = await import("../create-job-db");
+
+    const client = makeClient([
+      {
+        rows: [{
+          id: "est-1", status: "approved",
+          client_id: "c1", property_id: null, job_id: null,
+          booking_request_id: null, notes: "Forced", total_cents: 1000,
+          pricing_mode: "hourly_internal",
+          client_name: "Bob", property_address: null,
+        }],
+        rowCount: 1,
+      },
+      // force skips recent-work query
+      { rows: [{ id: "forced-job" }], rowCount: 1 }, // INSERT job
+      { rows: [], rowCount: 1 }, // link estimate
+      { rows: [], rowCount: 0 }, // backfill deposit
+      { rows: [], rowCount: 0 }, // no existing WO
+      {
+        rows: [{
+          id: "est-1", client_id: "c1", property_id: null, notes: "Forced",
+          total_cents: 1000, client_name: "Bob", property_address: null,
+        }],
+        rowCount: 1,
+      },
+      { rows: [], rowCount: 0 },
+      { rows: [], rowCount: 0 },
+      { rows: [], rowCount: 0 },
+      { rows: [{ id: "wo-f" }], rowCount: 1 },
+    ]);
+
+    const result = await createJobFromEstimate({
+      client,
+      estimateId: "est-1",
+      accountId: "acct-1",
+      createdBy: "user-1",
+      forceNewProject: true,
+    });
+
+    expect(result.jobId).toBe("forced-job");
+    const insertCall = (client.query as ReturnType<typeof vi.fn>).mock.calls.find(
+      (call: unknown[]) => typeof call[0] === "string" && (call[0] as string).includes("INSERT INTO jobs"),
+    );
+    expect((insertCall![1] as unknown[])[7]).toBe("hourly_internal");
+    expect(result.created).toBe(true);
+  });
+});

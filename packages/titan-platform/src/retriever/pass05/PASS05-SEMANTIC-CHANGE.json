@@ -1,0 +1,7 @@
+{
+  "schema": "titan-zero-retriever-finish-pass05-semantic-change/v1",
+  "packet_id": "TZ-FINISH-RETRIEVER-NATIVE-001",
+  "pass": 5,
+  "semantic_delta": "Adds enforceable donor-reference policy and proves all executable Retriever donor seams are confined to non-live ported provenance.",
+  "production_behavior_change": "Prevents donor execution from being treated as an allowed native path; no donor provenance file is physically removed yet."
+}

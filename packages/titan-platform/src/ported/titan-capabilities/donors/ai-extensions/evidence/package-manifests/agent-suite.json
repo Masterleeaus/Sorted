@@ -1,0 +1,16 @@
+{
+  "category": "agent-suite",
+  "extensions": [
+    "AIAgent",
+    "AIAgentGmail",
+    "AIAgentSlackChannel",
+    "AIAgentToolMarketingBot",
+    "AIAgentToolSocialMediaAgent",
+    "AIAgentWhatsappChannel",
+    "MarketingBot",
+    "PhoneCallAgent",
+    "SocialMediaAgent",
+    "SocialMediaAutomation"
+  ],
+  "count": 10
+}

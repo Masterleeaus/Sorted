@@ -1,0 +1,110 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "titan.workforce.cross-version-compatibility.v1",
+  "type": "object",
+  "required": [
+    "schema",
+    "company_id",
+    "source_version",
+    "target_version",
+    "direction",
+    "compatibility",
+    "rollback",
+    "preservation",
+    "requires_fresh_authority_after_transition",
+    "requires_command_bus_for_protected_changes"
+  ],
+  "properties": {
+    "schema": {
+      "const": "titan.workforce.cross-version-compatibility.v1"
+    },
+    "company_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "source_version": {
+      "type": "string"
+    },
+    "target_version": {
+      "type": "string"
+    },
+    "direction": {
+      "enum": [
+        "SAME",
+        "UPGRADE",
+        "ROLLBACK",
+        "UNKNOWN"
+      ]
+    },
+    "authority_granted": {
+      "const": false
+    },
+    "execution_permitted": {
+      "const": false
+    },
+    "grants_authority": {
+      "const": false
+    },
+    "transition_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "snapshots": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "company_id",
+          "authority_neutral",
+          "data_preserving"
+        ],
+        "properties": {
+          "company_id": {
+            "type": "string"
+          },
+          "authority_neutral": {
+            "const": true
+          },
+          "data_preserving": {
+            "const": true
+          }
+        }
+      }
+    },
+    "preservation": {
+      "type": "object",
+      "required": [
+        "data",
+        "evidence",
+        "audit",
+        "authority_history"
+      ],
+      "properties": {
+        "data": {
+          "const": true
+        },
+        "evidence": {
+          "const": true
+        },
+        "audit": {
+          "const": true
+        },
+        "authority_history": {
+          "const": true
+        }
+      }
+    },
+    "requires_fresh_authority_after_transition": {
+      "const": true
+    },
+    "requires_command_bus_for_protected_changes": {
+      "const": true
+    },
+    "automatic_execution": {
+      "const": false
+    },
+    "automatic_authority_change": {
+      "const": false
+    }
+  }
+}

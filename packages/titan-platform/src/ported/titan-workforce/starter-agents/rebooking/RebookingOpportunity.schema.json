@@ -1,0 +1,98 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "titan.workforce.starter.rebooking-opportunity.v1",
+  "type": "object",
+  "required": [
+    "schema",
+    "company_id",
+    "opportunity_id",
+    "customer_id",
+    "service_id",
+    "source_type",
+    "source_event_id",
+    "state",
+    "consent",
+    "suppression",
+    "recurrence",
+    "outreach",
+    "booking_handoff",
+    "authority",
+    "revision",
+    "execution_permitted",
+    "grants_authority",
+    "identity_is_authority"
+  ],
+  "properties": {
+    "schema": {
+      "const": "titan.workforce.starter.rebooking-opportunity.v1"
+    },
+    "company_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "opportunity_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "customer_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "service_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "source_type": {
+      "enum": [
+        "COMPLETED_SERVICE",
+        "PAID_INVOICE",
+        "CUSTOMER_CARE"
+      ]
+    },
+    "source_event_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "state": {
+      "enum": [
+        "ELIGIBLE",
+        "SUPPRESSED",
+        "READY_FOR_OUTREACH",
+        "HANDED_OFF",
+        "CLOSED"
+      ]
+    },
+    "consent": {
+      "type": "object"
+    },
+    "suppression": {
+      "type": "object"
+    },
+    "recurrence": {
+      "type": "object"
+    },
+    "outreach": {
+      "type": "object"
+    },
+    "booking_handoff": {
+      "type": "object"
+    },
+    "authority": {
+      "type": "object"
+    },
+    "revision": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "execution_permitted": {
+      "const": false
+    },
+    "grants_authority": {
+      "const": false
+    },
+    "identity_is_authority": {
+      "const": false
+    }
+  },
+  "additionalProperties": false
+}

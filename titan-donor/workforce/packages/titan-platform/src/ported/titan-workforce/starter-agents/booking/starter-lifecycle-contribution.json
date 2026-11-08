@@ -1,0 +1,32 @@
+{
+  "schema": "titan.starter-workforce.lifecycle-contribution.v1",
+  "worker": "booking",
+  "company_boundary": "company_id",
+  "grants_authority": false,
+  "incoming": [
+    {
+      "from": "quote",
+      "condition": "accepted quote"
+    },
+    {
+      "from": "sales",
+      "condition": "fixed-price/no-quote workflow"
+    },
+    {
+      "from": "reception",
+      "condition": "direct eligible booking intake"
+    }
+  ],
+  "outgoing": [
+    {
+      "to": "scheduling",
+      "condition": "confirmed booking or external schedule conflict"
+    },
+    {
+      "to": "jobs",
+      "condition": "confirmed booking and no existing work_order_ref"
+    }
+  ],
+  "branching": true,
+  "linear_chain_required": false
+}

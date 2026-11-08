@@ -1,0 +1,56 @@
+{
+  "schema": "titan-zero-load-stability-root-cause-ledger/v1",
+  "packet_id": "TZ-FIX-LOAD-STABILITY-001",
+  "manager_merge": 39,
+  "formal_passes": 10,
+  "root_causes": [
+    {
+      "id": "LS-RC-001",
+      "title": "Stale extension-version rehydration marker could suppress required page-context recovery after update",
+      "first_proven_pass": 6,
+      "resolution": "Version-aware stale-marker recovery forces eligible-tab rehydration when the stored extension version differs from the current runtime version.",
+      "status": "FIXED",
+      "authority_effect": false
+    },
+    {
+      "id": "LS-RC-002",
+      "title": "Concurrent startup rehydration calls could duplicate page-context injection",
+      "first_proven_pass": 6,
+      "resolution": "Per-runtime in-flight coalescing guarantees concurrent callers share one recovery run.",
+      "status": "FIXED",
+      "authority_effect": false
+    },
+    {
+      "id": "LS-RC-003",
+      "title": "Page-context recovery failures lacked bounded machine-readable diagnostics",
+      "first_proven_pass": 6,
+      "resolution": "Recovery results and session markers now retain bounded generic diagnostic codes and failed tab IDs without storing URLs or raw exception text.",
+      "status": "FIXED",
+      "authority_effect": false
+    },
+    {
+      "id": "LS-RC-004",
+      "title": "Eligible page-context injections executed serially and caused startup latency to scale linearly with tab count",
+      "first_proven_pass": 8,
+      "resolution": "Bounded deterministic concurrency of four injections preserves retry/failure semantics while reducing 12-tab synthetic recovery from an approximately 120 ms serial reference to low-30 ms p50/p95 measurements.",
+      "status": "FIXED",
+      "authority_effect": false
+    }
+  ],
+  "assurance_gaps_closed": [
+    "service-worker bootstrap/import ordering",
+    "content-script MAIN/ISOLATED world registration and duplicate-injection guards",
+    "module registry/catalog startup contracts",
+    "workforce initialization, role catalog and company boundary startup contracts",
+    "deterministic popup/side-panel/content-script/diagnostics/offline restart harness",
+    "startup timing and heap-growth guardrails",
+    "broad Chrome-load regression, inherited-failure comparison and resource integrity"
+  ],
+  "known_environment_limitations": [
+    "The available Chromium build/policy blocks unpacked-extension loading, so real browser lifecycle certification remains environment-blocked rather than falsely passed."
+  ],
+  "unresolved_production_defects": 0,
+  "company_boundary_effect": false,
+  "authority_effect": false,
+  "result": "RESOLVED_FOR_MANAGER_REVIEW"
+}

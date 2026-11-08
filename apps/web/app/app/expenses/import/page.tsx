@@ -1,0 +1,23 @@
+import { redirect } from "next/navigation";
+import { getSession } from "@/lib/auth/session";
+import { PageContainer, PageHeader } from "@/components/ui";
+import { ImportExpensesClient } from "./ImportExpensesClient";
+
+export const dynamic = "force-dynamic";
+
+export default async function ImportExpensesPage() {
+  const session = await getSession();
+  if (!session) redirect("/login");
+  if (session.role === "tech") redirect("/app");
+
+  return (
+    <PageContainer>
+      <PageHeader
+        title="Import store purchases"
+        subtitle="Home Depot or Lowe's purchase CSV → one expense per trip/invoice, plus materials catalog prices"
+        backHref="/app/expenses"
+      />
+      <ImportExpensesClient />
+    </PageContainer>
+  );
+}

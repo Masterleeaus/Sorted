@@ -1,0 +1,15 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema",
+  "$id":"titan.workforce.proposal-lifecycle.v1",
+  "type":"object",
+  "required":["schema","company_id","intent_id","state","grants_authority","direct_mutation"],
+  "properties":{
+    "schema":{"const":"titan.workforce.proposal-lifecycle.v1"},
+    "company_id":{"type":"string","minLength":2},
+    "intent_id":{"type":"string","minLength":1},
+    "state":{"enum":["prepared","submitted","evaluated","approved","rejected","scheduled","executing","verified","completed","failed","reversed"]},
+    "grants_authority":{"const":false},
+    "direct_mutation":{"const":false}
+  },
+  "additionalProperties":true
+}

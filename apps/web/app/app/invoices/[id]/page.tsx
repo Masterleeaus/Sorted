@@ -1,0 +1,1009 @@
+import { Fragment } from "react";
+import { redirect, notFound } from "next/navigation";
+import Link from "next/link";
+import type { Route } from "next";
+import { groupInvoiceLineItems } from "@/lib/invoices/line-item-groups";
+import { getSession } from "@/lib/auth/session";
+import { LinkedDocuments } from "@/components/documents/LinkedDocuments";
+import { DocumentClientLocationCard } from "@/components/documents/DocumentClientLocationCard";
+import {
+  canCreateInvoices,
+  canDeleteRecords,
+  canRecordPayments,
+  canSendInvoices,
+  canLinkDocuments,
+} from "@/lib/auth/permissions";
+import { canOwnerHardDeleteInvoice } from "@/lib/invoices/delete-policy";
+import { DeleteInvoiceButton } from "./DeleteInvoiceButton";
+import {
+  documentJoins,
+  documentLocationSelect,
+  resolveServiceLocation,
+  formatAddressLine,
+  type DocumentLocationRow,
+} from "@/lib/documents/service-location";
+import { withInvoiceContext } from "@/lib/invoices/db";
+import { buildClientDocumentFilename, invoiceTransitions, invoiceDueOnCompletion } from "@ai-fsm/domain";
+import type { InvoiceStatus } from "@ai-fsm/domain";
+import { InvoiceTransitionForm } from "./InvoiceTransitionForm";
+import { RecordPaymentForm } from "./RecordPaymentForm";
+import { SquareLinkActions } from "./SquareLinkActions";
+import { loadSquareSettings } from "@/lib/integrations/square-payments";
+import { PaymentHistory } from "./PaymentHistory";
+import { InvoiceEditForm } from "./InvoiceEditForm";
+import { MarkDepositReceivedButton } from "./MarkDepositReceivedButton";
+import { InvoiceDepositForm } from "./InvoiceDepositForm";
+import { requestedDepositCents, type InvoiceDepositType } from "@/lib/invoices/deposit";
+import { amountDueCents } from "@/lib/invoices/payments";
+import { formatCents } from "@ai-fsm/money";
+import { buildWorkSummaryFromTasks } from "@/lib/invoices/work-summary";
+import { loadItemizedReceipts } from "@/lib/invoices/itemized-receipts";
+import { resolveDepositPolicy } from "@ai-fsm/domain";
+import { SendInvoiceButton } from "./SendInvoiceButton";
+import { InvoiceMobileDeliverBar } from "./InvoiceMobileDeliverBar";
+import { InvoiceLineItemsEditor } from "./InvoiceLineItemsEditor";
+import { LinkForgottenExpensesPanel } from "@/components/invoices/LinkForgottenExpensesPanel";
+import { materialHandlingRateFromSettings } from "@/lib/invoices/material-handling";
+import { invoiceReviewExceptions } from "@/lib/invoices/review-exceptions";
+import { InvoiceReview } from "./InvoiceReview";
+import { MarkEntityAttentionRead } from "@/components/attention/MarkEntityAttentionRead";
+import {
+  Breadcrumbs,
+  PageContainer,
+  PageHeader,
+  StatusBadge,
+  StatusStepper,
+  Card,
+  SectionHeader,
+  LinkButton,
+  EmptyState,
+} from "@/components/ui";
+import type { StatusVariant } from "@/components/ui";
+import { isEmailConfigured } from "@/lib/email/mailer";
+import { CopyPortalLinkButton } from "@/components/CopyPortalLinkButton";
+import { TravelPanel } from "@/components/travel/TravelPanel";
+import { formatInvoiceViewLabel } from "@/lib/invoices/client-view";
+import { SPONSORED_PURPOSE_LABELS, type BillingContext, type SponsoredPurpose } from "@/lib/invoices/sponsored";
+
+export const dynamic = "force-dynamic";
+
+interface InvoiceRow {
+  id: string;
+  account_id: string;
+  client_id: string;
+  job_id: string | null;
+  estimate_id: string | null;
+  property_id: string | null;
+  status: InvoiceStatus;
+  invoice_number: string;
+  subtotal_cents: number;
+  tax_cents: number;
+  total_cents: number;
+  paid_cents: number;
+  deposit_cents: number;
+  balance_cents: number;
+  square_payment_link_url: string | null;
+  deposit_paid_at: string | null;
+  deposit_type: InvoiceDepositType;
+  deposit_percentage: number | null;
+  deposit_fixed_cents: number | null;
+  notes: string | null;
+  work_summary: string | null;
+  show_itemized_receipts: boolean;
+  due_date: string | null;
+  sent_at: string | null;
+  paid_at: string | null;
+  first_viewed_at: string | null;
+  last_viewed_at: string | null;
+  view_count: number;
+  share_token: string;
+  created_by: string;
+  created_at: string;
+  updated_at: string;
+  client_name: string | null;
+  client_email: string | null;
+  job_title: string | null;
+  invoice_kind: string;
+  job_status: string | null;
+  billing_context: BillingContext;
+  sponsored_purpose: SponsoredPurpose | null;
+  beneficiary_property_contact_id: string | null;
+  business_purpose: string | null;
+  property_address: string | null;
+  beneficiary_name: string | null;
+  card_fee_pct_snapshot?: string | number | null;
+}
+
+type InvoicePropertyOption = { id: string; address: string; client_id: string | null };
+type InvoiceContactOption = { id: string; property_id: string; display_name: string };
+
+interface LineItemRow {
+  id: string;
+  invoice_id: string;
+  estimate_line_item_id: string | null;
+  description: string;
+  quantity: number;
+  unit_price_cents: number;
+  total_cents: number;
+  line_item_type: "labor" | "materials" | "handling_fee" | "adjustment";
+  material_kind: string | null;
+  store_section: string | null;
+  sort_order: number;
+  created_at: string;
+}
+
+const STATUS_LABELS: Record<InvoiceStatus, string> = {
+  draft: "Draft",
+  sent: "Sent",
+  partial: "Partially Paid",
+  paid: "Paid",
+  overdue: "Overdue",
+  void: "Void",
+};
+
+function formatDollars(cents: number): string {
+  return `$${(cents / 100).toFixed(2)}`;
+}
+
+export default async function InvoiceDetailPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ id: string }>;
+  searchParams?: Promise<{ deliver?: string }>;
+}) {
+  const { id } = await params;
+  const sp = searchParams ? await searchParams : {};
+  const deliverFocus = sp.deliver === "1" || sp.deliver === "true";
+  const session = await getSession();
+  if (!session) redirect("/login");
+
+  const result = await withInvoiceContext(session, async (client) => {
+    const invoiceResult = await client.query(
+      `SELECT i.*, c.name AS client_name, c.email AS client_email, j.title AS job_title, j.status AS job_status,
+              p.address AS property_address, COALESCE(contact_client.name, pc.external_name) AS beneficiary_name
+       FROM invoices i
+       LEFT JOIN clients c ON c.id = i.client_id
+       LEFT JOIN jobs j ON j.id = i.job_id
+       LEFT JOIN properties p ON p.id = i.property_id AND p.account_id = i.account_id
+       LEFT JOIN property_contacts pc ON pc.id = i.beneficiary_property_contact_id AND pc.account_id = i.account_id
+       LEFT JOIN clients contact_client ON contact_client.id = pc.client_id AND contact_client.account_id = pc.account_id
+       WHERE i.id = $1 AND i.account_id = $2`,
+      [id, session.accountId]
+    );
+
+    if (invoiceResult.rowCount === 0) return null;
+
+    const accountResult = await client.query<{ settings: Record<string, unknown> }>(
+      `SELECT settings FROM accounts WHERE id = $1`,
+      [session.accountId],
+    );
+
+    const lineItemsResult = await client.query(
+      `SELECT id, invoice_id, estimate_line_item_id,
+              description, quantity::float8 AS quantity, unit_price_cents, total_cents, line_item_type, material_kind, store_section, sort_order, created_at
+       FROM invoice_line_items
+       WHERE invoice_id = $1
+       ORDER BY sort_order ASC, created_at ASC`,
+      [id]
+    );
+
+    const locationResult = await client.query(
+      `SELECT i.property_id AS document_property_id,
+              ${documentLocationSelect({ includeEstimateProperty: true })}
+       FROM invoices i
+       ${documentJoins({ root: "i", includeEstimateProperty: true })}
+       WHERE i.id = $1 AND i.account_id = $2`,
+      [id, session.accountId]
+    );
+
+    // TASK-157: suggested room-by-room summary + itemized receipts behind materials.
+    const jobId = (invoiceResult.rows[0] as InvoiceRow).job_id;
+    const summaryTasks = jobId
+      ? (
+          await client.query<{
+            id: string;
+            label: string;
+            status: string;
+            parent_task_id: string | null;
+            required: boolean;
+            completion_outcome: string | null;
+          }>(
+            `SELECT t.id, t.label, t.status, t.parent_task_id, t.required, t.completion_outcome
+             FROM work_order_tasks t
+             JOIN work_orders w ON w.id = t.work_order_id
+             WHERE w.job_id = $1 AND w.account_id = $2
+             ORDER BY w.created_at ASC, t.sort_order ASC, t.created_at ASC`,
+            [jobId, session.accountId],
+          )
+        ).rows
+      : [];
+    const pricing = await client.query<{ card_fee_pct: string | number }>(
+      `SELECT card_fee_pct FROM business_pricing_settings WHERE account_id = $1`,
+      [session.accountId],
+    );
+    const invoiceRow = invoiceResult.rows[0] as InvoiceRow;
+    const snap = invoiceRow.card_fee_pct_snapshot;
+    const liveFee = Number(pricing.rows[0]?.card_fee_pct ?? 0);
+    const cardFeePct = snap == null || snap === "" || !Number.isFinite(Number(snap))
+      ? liveFee
+      : Number(snap);
+    const itemized = jobId
+      ? await loadItemizedReceipts(client, session.accountId, jobId, id)
+      : { receipts: [], total_cents: 0 };
+    const properties = await client.query<InvoicePropertyOption>(
+      `SELECT id, address, client_id FROM properties WHERE account_id = $1 ORDER BY address ASC`,
+      [session.accountId],
+    );
+    const propertyContacts = await client.query<InvoiceContactOption>(
+      `SELECT pc.id, pc.property_id, COALESCE(c.name, pc.external_name) AS display_name
+       FROM property_contacts pc
+       LEFT JOIN clients c ON c.id = pc.client_id AND c.account_id = pc.account_id
+       WHERE pc.account_id = $1
+       ORDER BY COALESCE(c.name, pc.external_name) ASC`,
+      [session.accountId],
+    );
+
+    return {
+      invoice: invoiceRow,
+      suggestedWorkSummary: buildWorkSummaryFromTasks(summaryTasks),
+      reviewTasks: summaryTasks,
+      cardFeePct,
+      itemized,
+      lineItems: lineItemsResult.rows as LineItemRow[],
+      accountSettings: accountResult.rows[0]?.settings ?? {},
+      location: locationResult.rows[0] as DocumentLocationRow | undefined,
+      properties: properties.rows,
+      propertyContacts: propertyContacts.rows,
+    };
+  });
+
+  if (!result) notFound();
+
+  const { invoice, lineItems, accountSettings, location, suggestedWorkSummary, itemized, properties, propertyContacts, reviewTasks, cardFeePct } = result;
+  const reviewExceptions = invoiceReviewExceptions({
+    tasks: reviewTasks.map((task) => ({
+      id: task.id,
+      label: task.label,
+      required: task.required,
+      completion_outcome: task.completion_outcome,
+    })),
+    lines: lineItems.map((line) => ({
+      description: line.description,
+      line_item_type: line.line_item_type,
+    })),
+    cardFeePct,
+  });
+  const materialsBilledCents = lineItems
+    .filter((li) => li.line_item_type === "materials")
+    .reduce((sum, li) => sum + li.total_cents, 0);
+  const serviceLocation = resolveServiceLocation(location ?? {});
+  const clientBillingAddress = location
+    ? formatAddressLine(
+        location.client_address_line1,
+        location.client_city,
+        location.client_state,
+        location.client_zip,
+      )
+    : null;
+  // Preserve explicit 0% overrides (do not use || — 0 is valid).
+  const handlingPct = Math.round(
+    materialHandlingRateFromSettings(accountSettings) * 100,
+  );
+  const currentStatus = invoice.status;
+  // paid/partial are driven by RecordPaymentForm (payment trigger), not manual transition.
+  // Reopen to draft keeps payments attached (TASK-154) — T&M bills change after a deposit.
+  const allowedTransitions = invoiceTransitions[currentStatus].filter(
+    (s) => s !== "paid" && s !== "partial"
+  );
+  const canTransition = canCreateInvoices(session.role);
+  const canDelete =
+    canDeleteRecords(session.role) &&
+    canOwnerHardDeleteInvoice({
+      status: currentStatus,
+      paid_cents: invoice.paid_cents,
+    });
+  // Deposit credit (separate deposit invoice model) + payments on this invoice.
+  // balance_cents is generated as total - deposit only (excludes paid_cents).
+  const amountDue = amountDueCents(
+    invoice.total_cents,
+    invoice.paid_cents,
+    invoice.deposit_cents,
+  );
+  // TASK-078: while the job is still open, the balance is "due on completion" —
+  // not past-due, not "owes now" — regardless of any stamped due_date.
+  const dueOnCompletion = invoiceDueOnCompletion({
+    invoiceKind: invoice.invoice_kind,
+    jobStatus: invoice.job_status,
+  });
+  const depositCredit = Math.max(0, invoice.deposit_cents);
+  const depositPending = depositCredit > 0 && !invoice.deposit_paid_at;
+  const canMarkDeposit = canTransition && !["paid", "void"].includes(currentStatus);
+  // Requested-deposit policy (first-payment model) — computed live from the total.
+  const requestedDeposit = requestedDepositCents(
+    {
+      depositType: invoice.deposit_type,
+      depositPercentage: invoice.deposit_percentage,
+      depositFixedCents: invoice.deposit_fixed_cents,
+    },
+    invoice.total_cents,
+  );
+  const standardDepositPercent = resolveDepositPolicy(accountSettings).percent;
+  // First-payment deposit only. deposit_cents is a credit from a separate deposit
+  // invoice — not an amount still to collect on this document.
+  const hasCollectibleDeposit = requestedDeposit > 0;
+  const canRecordPaymentAction = canRecordPayments(session.role) && ["sent", "partial", "overdue"].includes(currentStatus) && amountDue > 0;
+
+  // Square link actions: owner/admin only, on payable invoices, when Square is
+  // enabled. Settings are RLS-restricted to owner/admin so techs never load it.
+  let squareEnabled = false;
+  if (canRecordPaymentAction && (session.role === "owner" || session.role === "admin")) {
+    const sq = await withInvoiceContext(session, (client) =>
+      loadSquareSettings(client, session.accountId)
+    );
+    squareEnabled = !!sq?.enabled && !!sq?.config.locationId && !!sq?.secrets.accessToken;
+  }
+  const canEditLineItems = canTransition && currentStatus === "draft";
+  // Travel charges are line items carrying the <!--travel-charge--> marker.
+  const hasTravelCharge = lineItems.some((li) => li.description.includes("<!--travel-charge-->"));
+  const documentFilename = buildClientDocumentFilename({
+    date: invoice.sent_at ?? invoice.created_at,
+    clientName: invoice.client_name,
+    jobType: invoice.job_title ?? "Invoice",
+    documentType: "invoice",
+    status: currentStatus === "void" ? "archived" : currentStatus === "paid" ? "final" : currentStatus === "overdue" || currentStatus === "partial" ? "sent" : currentStatus,
+  });
+
+  return (
+    <PageContainer>
+      {(session.role === "owner" || session.role === "admin") && (
+        <MarkEntityAttentionRead entityType="invoice" entityId={id} />
+      )}
+      <Breadcrumbs
+        items={[
+          { href: "/app/invoices", label: "Bills" },
+          ...(invoice.client_id
+            ? [
+                {
+                  href: `/app/clients/${invoice.client_id}`,
+                  label: invoice.client_name ?? "Client",
+                },
+              ]
+            : []),
+          ...(invoice.job_id
+            ? [
+                {
+                  href: `/app/jobs/${invoice.job_id}`,
+                  label: invoice.job_title ?? "Job",
+                },
+              ]
+            : []),
+          { label: invoice.invoice_number },
+        ]}
+      />
+      <PageHeader
+        title={invoice.invoice_number}
+        subtitle={invoice.client_name ?? undefined}
+        backHref="/app/invoices"
+        backLabel="Bills"
+        actions={
+          <div style={{ display: "flex", alignItems: "center", gap: "var(--space-2)" }}>
+            <CopyPortalLinkButton
+              url={`${process.env.NEXT_PUBLIC_APP_URL ?? ""}/portal/invoices/${invoice.share_token}`}
+              label="Copy link"
+            />
+            <a
+              href={`/app/invoices/${invoice.id}/print`}
+              target="_blank"
+              rel="noopener noreferrer"
+              data-testid="invoice-print-preview"
+              className="p7-btn p7-btn-secondary p7-btn-sm"
+              style={{ textDecoration: "none" }}
+            >
+              Print preview
+            </a>
+            <a
+              href={`/api/v1/invoices/${invoice.id}/pdf`}
+              target="_blank"
+              rel="noopener noreferrer"
+              data-testid="invoice-download-pdf"
+              className="p7-btn p7-btn-secondary p7-btn-sm"
+              style={{ textDecoration: "none" }}
+            >
+              PDF
+            </a>
+            <span data-testid="invoice-status">
+              <StatusBadge variant={currentStatus as StatusVariant}>
+                {STATUS_LABELS[currentStatus]}
+              </StatusBadge>
+            </span>
+            {(() => {
+              const view = formatInvoiceViewLabel({
+                status: currentStatus,
+                first_viewed_at: invoice.first_viewed_at,
+                last_viewed_at: invoice.last_viewed_at,
+                view_count: invoice.view_count,
+              });
+              if (view.kind === "none") return null;
+              return (
+                <span
+                  data-testid="invoice-view-status"
+                  title={view.title}
+                  style={{
+                    fontSize: "var(--text-xs)",
+                    fontWeight: 700,
+                    padding: "3px 8px",
+                    borderRadius: 999,
+                    border: "1px solid var(--border)",
+                    background:
+                      view.kind === "unread"
+                        ? "color-mix(in srgb, var(--color-warning, #f59e0b) 12%, transparent)"
+                        : "color-mix(in srgb, var(--color-success, #16a34a) 12%, transparent)",
+                    color:
+                      view.kind === "unread"
+                        ? "var(--color-warning, #b45309)"
+                        : "var(--color-success, #166534)",
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  {view.kind === "unread" ? "Not opened" : view.label}
+                </span>
+              );
+            })()}
+          </div>
+        }
+      />
+
+      <InvoiceReview exceptions={reviewExceptions} />
+
+      {/* Trustworthy money bar — always visible, the point of an invoice */}
+      <div className="p7-invoice-money-bar" style={{
+        display: "flex",
+        flexWrap: "wrap",
+        gap: "var(--space-4)",
+        alignItems: "flex-end",
+        marginBottom: "var(--space-4)",
+        paddingBottom: "var(--space-4)",
+        borderBottom: "1px solid var(--border)"
+      }}>
+        <div>
+          <div style={{ fontSize: "var(--text-xs)", color: "var(--fg-muted)", fontWeight: 600, letterSpacing: "0.04em" }}>TOTAL</div>
+          <div style={{ fontSize: "clamp(1.25rem, 5vw, 2rem)", fontWeight: 700, fontFamily: "var(--font-mono)", lineHeight: 1 }} data-testid="invoice-total">
+            {formatDollars(invoice.total_cents)}
+          </div>
+        </div>
+
+        <div style={{ minWidth: 140 }}>
+          <div style={{ fontSize: "var(--text-xs)", color: "var(--fg-muted)", fontWeight: 600, letterSpacing: "0.04em" }}>BALANCE DUE</div>
+          <div
+            style={{
+              fontSize: "clamp(1.25rem, 5vw, 2rem)",
+              fontWeight: 700,
+              fontFamily: "var(--font-mono)",
+              lineHeight: 1,
+              color: amountDue > 0 ? "var(--color-danger)" : "var(--fg)"
+            }}
+            data-testid="invoice-balance"
+          >
+            {formatDollars(amountDue)}
+          </div>
+          {amountDue > 0 && currentStatus !== "draft" && (
+            dueOnCompletion ? (
+              <div style={{ fontSize: "var(--text-xs)", color: "var(--fg-muted)", marginTop: 2 }}>Due on completion</div>
+            ) : (
+              <div style={{ fontSize: "var(--text-xs)", color: "var(--color-danger)", marginTop: 2 }}>Client owes this now</div>
+            )
+          )}
+        </div>
+
+        <div>
+          <div style={{ fontSize: "var(--text-xs)", color: "var(--fg-muted)", fontWeight: 600, letterSpacing: "0.04em" }}>PAID ON THIS INVOICE</div>
+          <div style={{ fontSize: "clamp(1rem, 4vw, 1.5rem)", fontWeight: 600, fontFamily: "var(--font-mono)" }} data-testid="invoice-paid">
+            {formatDollars(invoice.paid_cents)}
+          </div>
+        </div>
+
+        {depositCredit > 0 && (
+          <div style={{ marginLeft: "auto", textAlign: "right" }} data-testid="invoice-deposit-credit">
+            <div style={{ fontSize: "var(--text-xs)", color: "var(--fg-muted)", fontWeight: 600, letterSpacing: "0.04em" }}>
+              DEPOSIT CREDIT
+            </div>
+            <div style={{ fontFamily: "var(--font-mono)", fontWeight: 600, color: "var(--color-success)" }}>
+              −{formatDollars(depositCredit)}
+              {invoice.deposit_paid_at ? " ✓" : ""}
+            </div>
+            <div style={{ fontSize: "var(--text-xs)", color: "var(--fg-muted)", marginTop: 2 }}>
+              {invoice.deposit_paid_at ? "Applied from deposit invoice" : "Credited (deposit invoice)"}
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Status Stepper */}
+      {(["draft", "sent", "partial", "paid"] as InvoiceStatus[]).includes(currentStatus) && (
+        <Card style={{ marginBottom: "var(--space-4)" }}>
+          <StatusStepper
+            steps={[
+              { key: "draft", label: "Draft" },
+              { key: "sent", label: "Sent" },
+              { key: "partial", label: "Partial" },
+              { key: "paid", label: "Paid" },
+            ]}
+            currentStep={currentStatus}
+            data-testid="invoice-status-stepper"
+          />
+        </Card>
+      )}
+
+      {/* Owner deliver: sticky on mobile; full strip after Complete & Invoice (?deliver=1) */}
+      {canSendInvoices(session.role) && (
+        <InvoiceMobileDeliverBar
+          invoiceId={invoice.id}
+          invoiceNumber={invoice.invoice_number}
+          clientEmail={invoice.client_email}
+          portalUrl={`${process.env.NEXT_PUBLIC_APP_URL ?? ""}/portal/invoices/${invoice.share_token}`}
+          pdfUrl={`/api/v1/invoices/${invoice.id}/pdf`}
+          status={currentStatus}
+          emailConfigured={isEmailConfigured()}
+          canSend={canSendInvoices(session.role)}
+          deliverFocus={deliverFocus}
+        />
+      )}
+
+      {/* Two-column detail */}
+      <div className="p7-detail-layout">
+        {/* Primary: Line items + history */}
+        <div className="p7-detail-primary">
+          <Card>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "var(--space-2)" }}>
+              <SectionHeader title="Line Items" />
+              <div style={{ fontSize: "var(--text-xs)", color: "var(--fg-muted)" }}>
+                {lineItems.length} lines · {formatDollars(invoice.subtotal_cents)} subtotal
+              </div>
+            </div>
+
+            {canEditLineItems && invoice.job_id && (
+              <LinkForgottenExpensesPanel
+                mode="invoice"
+                invoiceId={invoice.id}
+                jobId={invoice.job_id}
+                handlingPct={handlingPct}
+              />
+            )}
+
+            {/* Show Travel when it can be edited (draft) or a travel charge exists.
+                Hides the empty "locked, no travel" card on finalized invoices. */}
+            {canCreateInvoices(session.role) && (canEditLineItems || hasTravelCharge) && (
+              <TravelPanel
+                entityType="invoice"
+                entityId={invoice.id}
+                propertyId={invoice.property_id}
+                clientId={invoice.client_id}
+                projectValueCents={invoice.total_cents}
+                editable={canEditLineItems}
+              />
+            )}
+
+            {canEditLineItems ? (
+              <InvoiceLineItemsEditor
+                invoiceId={invoice.id}
+                jobId={invoice.job_id}
+                lineItems={lineItems}
+              />
+            ) : lineItems.length === 0 ? (
+              <EmptyState title="No line items" description="Line items are usually pulled from an approved estimate." />
+            ) : (
+              <div className="p7-table-wrapper p7-invoice-line-items">
+                <table className="p7-table" data-testid="invoice-line-items-table">
+                  <thead>
+                    <tr>
+                      <th>Description</th>
+                      <th className="p7-col-type">Type</th>
+                      <th className="p7-col-qty" style={{ textAlign: "right" }}>Qty</th>
+                      <th className="p7-col-amount" style={{ textAlign: "right" }}>Amount</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {(() => {
+                      const groups = groupInvoiceLineItems(lineItems);
+                      const showSubtotals = groups.length > 1;
+                      const renderRow = (item: LineItemRow) => (
+                        <tr key={item.id} data-testid="invoice-line-item-row">
+                          <td style={{ whiteSpace: "pre-line" }}>
+                            {item.description.replace(/<!--travel-charge-->/g, "").trim()}
+                          </td>
+                          <td>
+                            <span className="p7-badge p7-badge-count" style={{ fontSize: "10px" }}>
+                              {item.line_item_type.replace("_", " ")}
+                            </span>
+                          </td>
+                          <td style={{ textAlign: "right", fontFamily: "var(--font-mono)" }}>{item.quantity}</td>
+                          <td style={{ textAlign: "right", fontFamily: "var(--font-mono)", fontWeight: 600 }}>
+                            {formatDollars(item.total_cents)}
+                          </td>
+                        </tr>
+                      );
+                      return groups.map((group) => (
+                        <Fragment key={group.key}>
+                          <tr data-testid={`invoice-group-${group.key}`}>
+                            <td
+                              colSpan={4}
+                              style={{
+                                paddingTop: "var(--space-2)",
+                                fontWeight: 700,
+                                fontSize: "var(--text-xs)",
+                                textTransform: "uppercase",
+                                color: "var(--fg-muted)",
+                                background: "var(--bg-subtle)",
+                              }}
+                            >
+                              {group.label}
+                            </td>
+                          </tr>
+                          {group.subgroups
+                            ? group.subgroups.map((sub) => (
+                                <Fragment key={sub.label}>
+                                  <tr data-testid={`invoice-subsection-${group.key}`}>
+                                    <td colSpan={4} style={{ paddingLeft: "var(--space-4)", fontWeight: 600, fontSize: "var(--text-xs)", color: "var(--fg-muted)" }}>
+                                      {sub.label}
+                                    </td>
+                                  </tr>
+                                  {sub.items.map(renderRow)}
+                                  <tr data-testid={`invoice-subsection-subtotal-${group.key}`}>
+                                    <td colSpan={3} style={{ textAlign: "right", fontStyle: "italic", color: "var(--fg-muted)", fontSize: "var(--text-sm)" }}>
+                                      {sub.label} subtotal
+                                    </td>
+                                    <td style={{ textAlign: "right", fontFamily: "var(--font-mono)", color: "var(--fg-muted)" }}>
+                                      {formatDollars(sub.subtotalCents)}
+                                    </td>
+                                  </tr>
+                                </Fragment>
+                              ))
+                            : group.items.map(renderRow)}
+                          {showSubtotals && (
+                            <tr data-testid={`invoice-group-subtotal-${group.key}`}>
+                              <td colSpan={3} style={{ textAlign: "right", fontStyle: "italic", color: "var(--fg-muted)" }}>
+                                {group.label} subtotal
+                              </td>
+                              <td style={{ textAlign: "right", fontFamily: "var(--font-mono)", color: "var(--fg-muted)" }}>
+                                {formatDollars(group.subtotalCents)}
+                              </td>
+                            </tr>
+                          )}
+                        </Fragment>
+                      ));
+                    })()}
+                  </tbody>
+                  <tfoot>
+                    <tr style={{ borderTop: "2px solid var(--border)" }}>
+                      <td colSpan={3} style={{ textAlign: "right", fontWeight: 600 }}>Subtotal</td>
+                      <td style={{ textAlign: "right", fontFamily: "var(--font-mono)" }}>{formatDollars(invoice.subtotal_cents)}</td>
+                    </tr>
+                    {invoice.tax_cents > 0 && (
+                      <tr>
+                        <td colSpan={3} style={{ textAlign: "right" }}>Tax</td>
+                        <td style={{ textAlign: "right", fontFamily: "var(--font-mono)" }}>{formatDollars(invoice.tax_cents)}</td>
+                      </tr>
+                    )}
+                    <tr style={{ fontWeight: 700, fontSize: "var(--text-base)" }}>
+                      <td colSpan={3} style={{ textAlign: "right" }}>Total</td>
+                      <td style={{ textAlign: "right", fontFamily: "var(--font-mono)" }} data-testid="invoice-total-footer">
+                        {formatDollars(invoice.total_cents)}
+                      </td>
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
+            )}
+          </Card>
+
+          {/* Payment History — visible and direct once invoiced */}
+          {currentStatus !== "draft" && (
+            <Card data-testid="payment-history-panel" id="payment-history-panel">
+              <SectionHeader title="Payment History" />
+              <PaymentHistory
+                invoiceId={invoice.id}
+                invoiceStatus={currentStatus}
+                role={session.role}
+              />
+            </Card>
+          )}
+        </div>
+
+        {/* Sidebar controls + facts */}
+        <div className="p7-detail-sidebar">
+          {/* Financial breakdown (always honest) */}
+          <Card>
+            <SectionHeader title="Financials" />
+            <div style={{ display: "grid", gap: "var(--space-2)", fontSize: "var(--text-sm)" }}>
+              <div style={{ display: "flex", justifyContent: "space-between" }}>
+                <span>Subtotal</span>
+                <span style={{ fontFamily: "var(--font-mono)" }}>{formatDollars(invoice.subtotal_cents)}</span>
+              </div>
+              {invoice.tax_cents > 0 && (
+                <div style={{ display: "flex", justifyContent: "space-between" }}>
+                  <span>Tax</span>
+                  <span style={{ fontFamily: "var(--font-mono)" }}>{formatDollars(invoice.tax_cents)}</span>
+                </div>
+              )}
+              <div style={{ display: "flex", justifyContent: "space-between", fontWeight: 700, borderTop: "1px solid var(--border)", paddingTop: "var(--space-2)" }}>
+                <span>Total</span>
+                <span style={{ fontFamily: "var(--font-mono)" }}>{formatDollars(invoice.total_cents)}</span>
+              </div>
+
+              {depositCredit > 0 && (
+                <div style={{ display: "flex", justifyContent: "space-between", paddingTop: "var(--space-1)" }} data-testid="invoice-financials-deposit-credit">
+                  <span>Deposit credit</span>
+                  <span style={{ fontFamily: "var(--font-mono)", color: "var(--color-success)" }}>
+                    −{formatDollars(depositCredit)}
+                  </span>
+                </div>
+              )}
+
+              <div style={{ display: "flex", justifyContent: "space-between", paddingTop: "var(--space-1)" }}>
+                <span>Paid on this invoice</span>
+                <span style={{ fontFamily: "var(--font-mono)", color: "var(--color-success)" }}>
+                  −{formatDollars(invoice.paid_cents)}
+                </span>
+              </div>
+
+              <div style={{ display: "flex", justifyContent: "space-between", fontWeight: 700, fontSize: "var(--text-base)", color: amountDue > 0 ? "var(--color-danger)" : "var(--fg)" }}>
+                <span>Balance remaining</span>
+                <span style={{ fontFamily: "var(--font-mono)" }} data-testid="invoice-due">{formatDollars(amountDue)}</span>
+              </div>
+            </div>
+
+            {canMarkDeposit && depositPending && (
+              <div style={{ marginTop: "var(--space-3)" }}>
+                <MarkDepositReceivedButton invoiceId={invoice.id} depositCents={invoice.deposit_cents} />
+              </div>
+            )}
+          </Card>
+
+          {/* Primary actions — grouped by intent */}
+          {currentStatus === "draft" && canTransition && (
+            <Card>
+              <SectionHeader title="Next" />
+              <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-2)" }}>
+                <SendInvoiceButton
+                  invoiceId={invoice.id}
+                  clientEmail={invoice.client_email}
+                  sentAt={invoice.sent_at}
+                  emailConfigured={isEmailConfigured()}
+                />
+                <p style={{ fontSize: "var(--text-xs)", color: "var(--fg-muted)", margin: "var(--space-1) 0 0" }}>
+                  Draft invoices can still be edited. Send when the numbers are locked.
+                </p>
+              </div>
+            </Card>
+          )}
+
+          {/* Resend unpaid invoice (PDF + optional portal link, no login required) */}
+          {canSendInvoices(session.role) &&
+            ["sent", "partial", "overdue"].includes(currentStatus) && (
+              <Card>
+                <SectionHeader title="Email Client" />
+                <SendInvoiceButton
+                  invoiceId={invoice.id}
+                  clientEmail={invoice.client_email}
+                  sentAt={invoice.sent_at}
+                  emailConfigured={isEmailConfigured()}
+                />
+              </Card>
+            )}
+
+          {/* Paid receipt — email final PDF even if client never uses the portal */}
+          {canSendInvoices(session.role) && currentStatus === "paid" && (
+            <Card data-testid="email-paid-receipt-panel">
+              <SectionHeader title="Email Receipt" />
+              <p style={{ margin: "0 0 var(--space-2)", fontSize: "var(--text-sm)", color: "var(--fg-muted)" }}>
+                Send the paid invoice PDF to the client for their records. No customer portal required.
+              </p>
+              <SendInvoiceButton
+                invoiceId={invoice.id}
+                clientEmail={invoice.client_email}
+                sentAt={invoice.sent_at}
+                emailConfigured={isEmailConfigured()}
+                isPaid
+              />
+            </Card>
+          )}
+
+          {/* Record payment / refund (the money action) */}
+          {canRecordPayments(session.role) &&
+            ((["sent", "partial", "overdue"].includes(currentStatus) && amountDue > 0) || currentStatus === "paid") && (
+              <Card className="p7-card-accent" id="record-payment-panel" data-testid="record-payment-panel">
+                <SectionHeader title={currentStatus === "paid" ? "Refund or Adjustment" : "Record Payment"} />
+                {currentStatus === "paid" && (
+                  <p style={{ margin: "0 0 var(--space-2)", fontSize: "var(--text-sm)", color: "var(--fg-muted)" }}>
+                    Use Refund to log money returned.
+                  </p>
+                )}
+                <RecordPaymentForm invoiceId={invoice.id} remainingCents={amountDue} />
+              </Card>
+            )}
+
+          {/* Deposit policy — owner/admin, editable until the invoice is paid */}
+          {canMarkDeposit && (
+            <Card>
+              <SectionHeader title="Deposit" />
+              <InvoiceDepositForm
+                invoiceId={invoice.id}
+                totalCents={invoice.total_cents}
+                initialType={invoice.deposit_type}
+                initialPercentage={invoice.deposit_percentage}
+                initialFixedCents={invoice.deposit_fixed_cents}
+                standardPercent={standardDepositPercent}
+              />
+            </Card>
+          )}
+
+          {/* Square online pay link */}
+          {squareEnabled && (
+            <Card>
+              <SectionHeader title="Online Payment" />
+              <SquareLinkActions
+                invoiceId={invoice.id}
+                hasDeposit={hasCollectibleDeposit}
+                remainingCents={amountDue}
+                existingLinkUrl={invoice.square_payment_link_url}
+              />
+            </Card>
+          )}
+
+          {/* Status transitions for non-payment moves */}
+          {canTransition && allowedTransitions.length > 0 && (
+            <Card>
+              <SectionHeader title="Status" />
+              <InvoiceTransitionForm
+                invoiceId={invoice.id}
+                allowedTransitions={allowedTransitions as InvoiceStatus[]}
+                statusLabels={STATUS_LABELS}
+              />
+            </Card>
+          )}
+
+          {/* Secondary facts + edit */}
+          <Card>
+            <SectionHeader title="Details" />
+            <dl className="p7-detail-list" style={{ fontSize: "var(--text-sm)" }}>
+              {dueOnCompletion ? (
+                <div className="p7-detail-row">
+                  <dt>Due</dt>
+                  <dd>On completion</dd>
+                </div>
+              ) : invoice.due_date ? (
+                <div className="p7-detail-row">
+                  <dt>Due</dt>
+                  <dd>{new Date(invoice.due_date).toLocaleDateString()}</dd>
+                </div>
+              ) : null}
+              {invoice.sent_at && (
+                <div className="p7-detail-row">
+                  <dt>Sent</dt>
+                  <dd>{new Date(invoice.sent_at).toLocaleDateString()}</dd>
+                </div>
+              )}
+              {invoice.job_title && (
+                <div className="p7-detail-row">
+                  <dt>Project</dt>
+                  <dd>
+                    <Link href={`/app/jobs/${invoice.job_id}`} style={{ color: "var(--accent)" }}>
+                      {invoice.job_title}
+                    </Link>
+                  </dd>
+                </div>
+              )}
+              {invoice.billing_context === "realtor_sponsored" && (
+                <>
+                  <div className="p7-detail-row"><dt>Billing context</dt><dd>Realtor-sponsored property work</dd></div>
+                  <div className="p7-detail-row"><dt>Service property</dt><dd>{invoice.property_address}</dd></div>
+                  <div className="p7-detail-row"><dt>Work for</dt><dd>{invoice.beneficiary_name ?? "Not specified"}</dd></div>
+                  <div className="p7-detail-row"><dt>Purpose</dt><dd>{invoice.sponsored_purpose ? SPONSORED_PURPOSE_LABELS[invoice.sponsored_purpose] : "—"}</dd></div>
+                  {invoice.business_purpose ? (
+                    <div className="p7-detail-row"><dt>Business purpose</dt><dd style={{ whiteSpace: "pre-wrap" }}>{invoice.business_purpose}</dd></div>
+                  ) : null}
+                </>
+              )}
+              {invoice.estimate_id && (
+                <div className="p7-detail-row">
+                  <dt>From</dt>
+                  <dd>
+                    <Link href={`/app/estimates/${invoice.estimate_id}`} style={{ color: "var(--accent)" }}>
+                      Estimate
+                    </Link>
+                  </dd>
+                </div>
+              )}
+              {invoice.notes && (
+                <div className="p7-detail-row">
+                  <dt>Notes</dt>
+                  <dd style={{ whiteSpace: "pre-wrap" }}>{invoice.notes}</dd>
+                </div>
+              )}
+              {invoice.work_summary && (
+                <div className="p7-detail-row">
+                  <dt>Work completed</dt>
+                  <dd style={{ whiteSpace: "pre-wrap" }}>{invoice.work_summary}</dd>
+                </div>
+              )}
+              {invoice.show_itemized_receipts && (
+                <div className="p7-detail-row">
+                  <dt>Itemized receipts</dt>
+                  <dd>
+                    <a href={`/portal/invoices/${invoice.share_token}/receipts`} target="_blank" rel="noreferrer" style={{ color: "var(--accent)" }}>
+                      Client view
+                    </a>{" "}
+                    · {formatCents(itemized.total_cents)} across {itemized.receipts.length} receipts
+                  </dd>
+                </div>
+              )}
+              <div className="p7-detail-row">
+                <dt>File</dt>
+                <dd><code style={{ fontSize: "11px" }}>{documentFilename}</code></dd>
+              </div>
+            </dl>
+
+            {canTransition && currentStatus === "draft" && (
+              <div style={{ marginTop: "var(--space-3)" }}>
+                <InvoiceEditForm
+                  invoiceId={invoice.id}
+                  initialNotes={invoice.notes}
+                  initialDueDate={invoice.due_date}
+                  initialWorkSummary={invoice.work_summary}
+                  suggestedWorkSummary={suggestedWorkSummary}
+                  initialShowItemized={invoice.show_itemized_receipts}
+                  itemizedTotalCents={invoice.job_id ? itemized.total_cents : null}
+                  itemizedReceiptCount={itemized.receipts.length}
+                  materialsBilledCents={materialsBilledCents}
+                  payerClientId={invoice.client_id}
+                  initialPropertyId={invoice.property_id}
+                  initialBillingContext={invoice.billing_context}
+                  initialSponsoredPurpose={invoice.sponsored_purpose}
+                  initialBeneficiaryId={invoice.beneficiary_property_contact_id}
+                  initialBusinessPurpose={invoice.business_purpose}
+                  properties={properties}
+                  propertyContacts={propertyContacts}
+                />
+              </div>
+            )}
+          </Card>
+
+          <DocumentClientLocationCard
+            entityType="invoice"
+            entityId={invoice.id}
+            canEdit={canLinkDocuments(session.role)}
+            clientId={invoice.client_id}
+            clientName={invoice.client_name}
+            clientEmail={invoice.client_email}
+            jobId={invoice.job_id}
+            jobTitle={invoice.job_title}
+            propertyId={invoice.property_id}
+            documentPropertyId={invoice.property_id}
+            jobPropertyId={location?.job_property_id ?? null}
+            estimatePropertyId={location?.estimate_property_id ?? null}
+            resolvedPropertyId={location?.resolved_property_id ?? null}
+            serviceLocation={serviceLocation}
+            clientBillingAddress={clientBillingAddress}
+          />
+
+          <LinkedDocuments session={session} entityType="invoice" entityId={invoice.id} />
+        </div>
+      </div>
+
+      {canDelete && (
+        <div className="card danger-card" data-testid="danger-zone" style={{ marginTop: "var(--space-4)" }}>
+          <h2>Danger Zone</h2>
+          <p className="muted">
+            Permanently delete wrong or test invoices with no payments. Recorded in the audit log.
+          </p>
+          <DeleteInvoiceButton
+            invoiceId={invoice.id}
+            status={currentStatus}
+            invoiceNumber={invoice.invoice_number}
+          />
+        </div>
+      )}
+    </PageContainer>
+  );
+}

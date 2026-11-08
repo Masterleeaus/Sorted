@@ -1,0 +1,81 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Titan Booking Confirmation v1",
+  "type": "object",
+  "required": [
+    "schema",
+    "confirmation_id",
+    "intent_id",
+    "proposal_id",
+    "state",
+    "authoritative_booking_ref",
+    "company_id",
+    "correlation_id",
+    "idempotency_key",
+    "grants_authority",
+    "direct_mutation"
+  ],
+  "properties": {
+    "schema": {
+      "const": "titan.booking.confirmation.v1"
+    },
+    "company_id": {
+      "type": "string",
+      "minLength": 2
+    },
+    "correlation_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "idempotency_key": {
+      "type": "string",
+      "minLength": 1
+    },
+    "worker_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "grants_authority": {
+      "const": false
+    },
+    "direct_mutation": {
+      "const": false
+    },
+    "confirmation_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "intent_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "proposal_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "state": {
+      "enum": [
+        "confirmed",
+        "reconciliation_required",
+        "cancelled"
+      ]
+    },
+    "authoritative_booking_ref": {
+      "type": "object"
+    },
+    "receipt_ref": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "verified_at": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "date-time"
+    }
+  },
+  "additionalProperties": true
+}

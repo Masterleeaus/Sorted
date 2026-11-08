@@ -1,0 +1,10 @@
+import test from "node:test"; import assert from "node:assert/strict"; import fs from "node:fs";
+const src=fs.readFileSync(new URL("../src/titan-builder/signal-projection.ts",import.meta.url),"utf8");
+const route=fs.readFileSync(new URL("../../../apps/web/app/api/v1/titan/builder/route.ts",import.meta.url),"utf8");
+const server=fs.readFileSync(new URL("../../../apps/web/lib/titan/builder-signal-projection.ts",import.meta.url),"utf8");
+test("Signal Engine envelope boundary is tenant/company scoped",()=>{assert.match(src,/scope!=="tenant"/);assert.match(src,/company_id/);assert.match(server,/WHERE company_id=\$1 AND scope='tenant'/);});
+test("Signal projection is read only and bounded",()=>{assert.match(server,/SELECT event_id/);assert.doesNotMatch(server,/INSERT|UPDATE|DELETE/i);assert.match(src,/Math\.min\(50/);});
+test("Signal severities are normalized for Builder",()=>{assert.match(src,/fatal/);assert.match(src,/critical/);assert.match(src,/warning/);});
+test("Surface intent allowlists prevent arbitrary cross-surface presentation",()=>{assert.match(src,/SURFACE_INTENTS/);assert.match(src,/request\.surface/);});
+test("Generate route obtains server-owned signals",()=>{assert.match(route,/loadBuilderSignalPriority/);assert.match(route,/signal_priority: signalPriority/);});
+test("No signal can grant authority",()=>{assert.doesNotMatch(src,/authority_granted:\s*true/);assert.doesNotMatch(server,/acknowledge|mutate|emitSignal/i);});

@@ -1,0 +1,44 @@
+{
+  "schema": "titan-zero-storage-pass03-portability/v1",
+  "packet_id": "TZ-FINISH-STORAGE-DATA-AUTHORITY-001",
+  "pass": 3,
+  "supported_backends": [
+    "indexeddb",
+    "memory",
+    "mysql",
+    "postgres"
+  ],
+  "selection": {
+    "explicit_backend": "validated against supported registry",
+    "postgres_urls": [
+      "postgres:",
+      "postgresql:"
+    ],
+    "mysql_urls": [
+      "mysql:",
+      "mariadb:"
+    ],
+    "unsupported_protocol": "FAIL_CLOSED",
+    "missing_configuration": "FAIL_CLOSED",
+    "missing_external_factory": "FAIL_CLOSED",
+    "factory_failure": "FAIL_CLOSED",
+    "silent_fallback": false
+  },
+  "authority": {
+    "company_boundary": "company_id",
+    "authority_source": "external_policy_only",
+    "identity_grants_authority": false,
+    "execution_authority": false
+  },
+  "remaining_sql_portability_debt": {
+    "RETURNING": 99,
+    "ON_CONFLICT": 40,
+    "double_colon_cast": 146,
+    "ILIKE": 2,
+    "ANY": 16,
+    "jsonb": 27,
+    "set_config": 78,
+    "gen_random_uuid": 61,
+    "note": "Existing web SQL remains incremental migration debt; Pass3 does not mass-rewrite 194 API routes."
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "titan.zero.permission-gate-contract.v1",
+  "title": "Titan Zero Permission Gate Contract",
+  "type": "object",
+  "required": ["company_id", "permission_spec", "authority_neutral", "identity_confers_authority"],
+  "properties": {
+    "company_id": {"type":"string","minLength":1},
+    "permission_spec": {
+      "type":"object",
+      "required":["permissions","origins"],
+      "properties": {
+        "permissions":{"type":"array","items":{"type":"string","minLength":1},"uniqueItems":true},
+        "origins":{"type":"array","items":{"type":"string","minLength":1},"uniqueItems":true}
+      },
+      "additionalProperties": false
+    },
+    "explicit_user_action":{"type":"boolean"},
+    "authority_neutral":{"const":true},
+    "identity_confers_authority":{"const":false}
+  },
+  "additionalProperties": true
+}

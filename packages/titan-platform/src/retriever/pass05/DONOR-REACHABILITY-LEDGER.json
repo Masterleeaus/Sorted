@@ -1,0 +1,45 @@
+{
+  "schema": "titan-zero-retriever-pass05-donor-reachability/v1",
+  "packet_id": "TZ-FINISH-RETRIEVER-NATIVE-001",
+  "pass": 5,
+  "base": {
+    "merge": 52,
+    "sha256": "ea6c219d40ffbddcbb68e9c9ed741c93568fe12be2e4f09dd69af0b528366d92"
+  },
+  "policy": {
+    "live_donor_execution_allowed": false,
+    "ported_provenance_retained": true,
+    "donor_file_removal_deferred_to_pass9": true
+  },
+  "results": {
+    "live_non_ported_donor_references": [],
+    "live_executable_donor_imports": [],
+    "ported_provenance_executable_imports": [
+      {
+        "path": "packages/titan-platform/src/ported/background-bootstrap.ts",
+        "target": "./compatibility/monica/background-runtime-boundary.js",
+        "classification": "ported-provenance"
+      },
+      {
+        "path": "packages/titan-platform/src/ported/compatibility/monica/background-runtime-boundary.ts",
+        "target": "../../retriever-background.iife.js",
+        "classification": "ported-provenance"
+      }
+    ],
+    "live_non_ported_reference_count": 0,
+    "live_executable_import_count": 0,
+    "ported_provenance_import_count": 2,
+    "native_parity_surfaces": [
+      "typed execution/capability negotiation",
+      "work submission",
+      "progress observation",
+      "result delivery",
+      "cancellation",
+      "timeout",
+      "chat/workflow/side-panel-compatible surface bridge"
+    ]
+  },
+  "decision": "NO_LIVE_DONOR_SEAMS_REMAIN; RETAIN_PORTED_PROVENANCE_UNTIL_PASS9",
+  "files_removed": [],
+  "reason": "Only non-live src/ported provenance imports remain. They are not package exports or TypeScript roots, and Manager requires historical Retriever evidence to remain provenance. Pass9 owns physical donor removal after restart/recovery and semantic-retirement gates."
+}

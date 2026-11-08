@@ -1,0 +1,34 @@
+{
+  "schema": "titan-zero-chrome-load-repair-root-cause/v1",
+  "repair_id": "MERGE26-CHROME-LOAD-REPAIR-01",
+  "source": {
+    "artifact": "Titan-Zero-CANONICAL-MASTER-2026-09-07-MERGE-26-ALL-PASSES-STORAGE-CONVERGED.zip",
+    "sha256": "04241bb7c0fc647114e8ea23620ba93c3e8285d042d553d2ddd0cb6f9d23d89b",
+    "manager_merge": 26
+  },
+  "root_causes": [
+    {
+      "id": "workforce-dataset-invalid-key",
+      "severity": "fatal-runtime-exception",
+      "evidence": "titan-workforce-surface-split.js used document.documentElement.dataset[MARKER] where MARKER='titan-workforce-surface-split'; hyphens are invalid DOMStringMap property names.",
+      "repair": "Use data-titan-workforce-surface-split through getAttribute/setAttribute while retaining camelCase dataset keys for valid semantic markers."
+    },
+    {
+      "id": "duplicate-yjs-content-runtime",
+      "severity": "high",
+      "evidence": "manifest.json injected both content.js and titan-zero-chat-content.compat.js into ordinary webpages; both bundles contain Yjs, producing duplicate Yjs constructor/global state.",
+      "repair": "Keep content.js for the rich chatTab UI, but inject only titan-zero-chat-content.compat.js as the webpage compatibility runtime at document_start."
+    },
+    {
+      "id": "persistent-context-menu-recreation",
+      "severity": "high",
+      "evidence": "Compatibility background init recreated persistent context-menu roots on MV3 worker starts; quick-action refresh also removed/recreated without awaiting removal.",
+      "repair": "Remove persistent roots before recreation and await remove-before-create in quick-action refresh."
+    }
+  ],
+  "downstream_or_environmental_errors": [
+    "Extension context invalidated / BFCache message-channel closure can occur in tabs retaining an old extension context after reload.",
+    "CrepeSdk API sync Failed to fetch is a donor/provider network/configuration issue and was not identified as the extension load root cause.",
+    "Permissions policy unload warning is page/browser policy noise rather than an extension load failure."
+  ]
+}

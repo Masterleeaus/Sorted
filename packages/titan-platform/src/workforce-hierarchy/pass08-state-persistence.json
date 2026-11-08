@@ -1,0 +1,20 @@
+{
+  "schema": "titan-zero-workforce-hierarchy-pass/v1",
+  "packet_id": "TZ-WF-HIERARCHY-001",
+  "pass": 8,
+  "title": "Hierarchy state persistence, restart recovery, audit history and safe reassignment/reparenting",
+  "status": "IMPLEMENTED",
+  "persistence": {
+    "format": "json",
+    "device_first": true,
+    "validation_on_recovery": true,
+    "execution_authority_from_persistence": false
+  },
+  "reparenting": {
+    "tiers": ["supervisor", "agent", "worker"],
+    "requires_revision_match": true,
+    "requires_drained_delegations": true,
+    "authority_expansion_allowed": false
+  },
+  "business_truth_authority": "existing_business_ops_routes_and_domain_services"
+}

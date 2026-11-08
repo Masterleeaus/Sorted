@@ -1,0 +1,28 @@
+{
+  "schema":"titan.zero.quote-reviewer-release-evaluation.v1",
+  "packet_id":"TZ-STARTER-QUOTE-001",
+  "reviewer":"deterministic_independent_reviewer",
+  "status":"CERTIFIED_FOR_MANAGER_CONVERGENCE",
+  "pricing_authority":false,
+  "approval_authority":false,
+  "execution_authority":false,
+  "customer_send_authority":false,
+  "checks":[
+    "pricing-basis provenance",
+    "line-item provenance",
+    "adjustment provenance",
+    "tax provenance",
+    "subtotal reconciliation",
+    "adjustment reconciliation",
+    "taxable subtotal reconciliation",
+    "grand-total reconciliation",
+    "draft-total equality",
+    "confidence and assumption policy",
+    "approval threshold policy",
+    "discount approval policy"
+  ],
+  "allowed_outcomes":["reviewed","approval_required","rejected","escalated"],
+  "golden_eval_cases":["fixed_price","hourly_price","add_ons","missing_data","conflicting_rules","high_value","discount_abuse","invalid_model_output","cross_company_attack"],
+  "golden_eval_requirement":"9/9 PASS",
+  "authority_guarantee":"review certification never grants pricing, approval, send, CRM mutation or execution authority"
+}

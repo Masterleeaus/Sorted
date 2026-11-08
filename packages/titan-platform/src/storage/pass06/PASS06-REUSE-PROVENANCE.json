@@ -1,0 +1,32 @@
+{
+  "schema": "titan-zero-storage-reuse-provenance/v1",
+  "packet_id": "TZ-FINISH-STORAGE-DATA-AUTHORITY-001",
+  "pass": 6,
+  "dispositions": [
+    {
+      "source": "SUP-REUSE-B3-STORAGE-003 / TZ-FINISH-003 Pass09 storage-authority correction",
+      "status": "REUSED",
+      "semantics": [
+        "business state must remain under canonical authority",
+        "legacy/browser storage compatibility-only",
+        "company_id sole boundary"
+      ]
+    },
+    {
+      "source": "packages/titan-platform/src/ported/titan-offline/checkpoint-storage.ts",
+      "status": "ADAPTED",
+      "semantics": [
+        "company-bound device storage",
+        "cross-company rejection",
+        "authority-neutral persistence"
+      ]
+    },
+    {
+      "source": "apps/web/lib/estimates/assessment-context.ts",
+      "status": "RETAINED",
+      "reason": "Already explicitly persistence-primary/server-first; sessionStorage is only a transient same-tab accelerator."
+    }
+  ],
+  "rewritten_from_scratch": false,
+  "parallel_storage_authority_created": false
+}

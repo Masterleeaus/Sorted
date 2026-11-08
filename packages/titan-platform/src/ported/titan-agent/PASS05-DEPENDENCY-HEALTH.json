@@ -1,0 +1,33 @@
+{
+  "authority_effect": false,
+  "classification_module": "titan-reliability/dependency-health.mjs",
+  "company_boundary": "company_id",
+  "dependency_kinds": [
+    "browser",
+    "storage",
+    "local_bridge",
+    "network"
+  ],
+  "grants_authority": false,
+  "live_browser_claimed": false,
+  "local_bridge_unavailable_guidance": "use_device_or_byo_fallback",
+  "mixed_company_input_detected": true,
+  "non_authoritative": true,
+  "packet_id": "TZ-FINISH-005",
+  "pass": 5,
+  "profile": "titan-reliability/dependency-health-profile.json",
+  "schema": "titan-zero-reliability-dependency-health-evidence/v1",
+  "statuses": [
+    "healthy",
+    "degraded",
+    "unhealthy",
+    "unavailable",
+    "unknown"
+  ],
+  "unknown_is_not_promoted_to_healthy": true,
+  "verification": {
+    "cumulative_node": "26/26 PASS",
+    "cumulative_python": "8/8 PASS",
+    "focused_dependency_health_tests": "6/6 PASS"
+  }
+}

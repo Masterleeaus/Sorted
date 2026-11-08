@@ -1,0 +1,21 @@
+{
+  "schema": "titan-zero-ai-cost-routing-contract/v1",
+  "version": 1,
+  "pass": 7,
+  "status": "ACTIVE",
+  "company_boundary": "company_id",
+  "identity_grants_authority": false,
+  "settings_grant_execution_authority": false,
+  "settings_can_bypass_entitlements": false,
+  "settings_can_bypass_budgets": false,
+  "settings_can_bypass_runtime_approval": false,
+  "automatic_titan_spend": false,
+  "canonical_route_order": ["DEVICE_LOCAL", "CUSTOMER_LOCAL", "BYO_API", "BYO_SERVICE", "TITAN_ENTITLED", "TITAN_METERED_ADDON"],
+  "settings_keys": ["aiCostRoutingPreferences", "aiTitanManagedUsagePolicy", "freeModeEnabled", "creditCeilingEnabled", "creditCeiling"],
+  "titan_managed_usage_policies": ["never", "entitled-only", "approval-required"],
+  "default_titan_managed_usage_policy": "never",
+  "free_tier_policy": "TITAN_METERED_ADDON is removed from the Settings preference plan while freeModeEnabled is true, even if a stale or imported preference attempts to enable it.",
+  "runtime_owner": "titan-workforce/handover/investigation-installation-handover.mjs",
+  "runtime_gates_retained": ["availability", "privacy", "capability", "entitlement", "budget", "metered explicit opt-in", "authority"],
+  "compatibility_note": "Pass 7 projects Settings preferences into the existing cost-sovereign route model. It does not replace the workforce intelligence router or its receipt and approval requirements."
+}

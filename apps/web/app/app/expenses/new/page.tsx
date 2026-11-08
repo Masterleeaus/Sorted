@@ -1,0 +1,130 @@
+import { redirect } from "next/navigation";
+import { getSession } from "@/lib/auth/session";
+import { canManageExpenses } from "@/lib/auth/permissions";
+import { query } from "@/lib/db";
+import { Breadcrumbs, PageContainer, PageHeader, LinkButton, HubSubnav } from "@/components/ui";
+import { MONEY_HUB_LINKS } from "@/lib/navigation/hubs";
+import { ExpenseForm } from "./ExpenseForm";
+import {
+  RECEIPT_LINKABLE_JOB_STATUS_SQL,
+  receiptJobOrderSql,
+} from "@/lib/expenses/open-jobs";
+
+export const dynamic = "force-dynamic";
+
+export default async function NewExpensePage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ mode?: string; job?: string; client?: string }>;
+}) {
+  const session = await getSession();
+  if (!session) redirect("/login");
+  if (!canManageExpenses(session.role)) redirect("/app/expenses");
+  const params = (await searchParams) ?? {};
+  const isMaterialRun = params.mode === "run";
+  const defaultJobId = params.job;
+  const defaultClientId = params.client;
+  const nilUuid = "00000000-0000-0000-0000-000000000000";
+
+  // Open / in-progress jobs only — closed jobs clutter receipt entry.
+  // Always include defaultJobId when deep-linked from a job page.
+  const [jobs, clients, vehicles, openSession, activeVisits] = await Promise.all([
+    query<{ id: string; title: string; job_number: string | null; client_id: string | null }>(
+      isMaterialRun
+        ? `SELECT j.id, j.title, j.job_number, j.client_id
+           FROM jobs j
+           WHERE j.account_id = $1
+             AND (
+               j.status IN (${RECEIPT_LINKABLE_JOB_STATUS_SQL})
+               OR j.id = $2::uuid
+             )
+             AND (
+               j.status = 'in_progress'
+               OR j.id = $2::uuid
+               OR EXISTS (
+                 SELECT 1 FROM visits v
+                 WHERE v.job_id = j.id AND v.account_id = j.account_id
+                   AND v.scheduled_start::date = CURRENT_DATE
+               )
+             )
+           ORDER BY ${receiptJobOrderSql("j")}
+           LIMIT 100`
+        : `SELECT id, title, job_number, client_id FROM jobs
+           WHERE account_id = $1
+             AND (
+               status IN (${RECEIPT_LINKABLE_JOB_STATUS_SQL})
+               OR id = $2::uuid
+             )
+           ORDER BY ${receiptJobOrderSql()}
+           LIMIT 100`,
+      [session.accountId, defaultJobId ?? nilUuid],
+    ),
+    query<{ id: string; name: string }>(
+      `SELECT id, name FROM clients WHERE account_id = $1 ORDER BY name ASC LIMIT 100`,
+      [session.accountId]
+    ),
+    query<{ id: string; nickname: string }>(
+      `SELECT id, nickname FROM vehicles
+        WHERE account_id = $1 AND is_active = true AND kind <> 'trailer'
+        ORDER BY is_default DESC, nickname ASC`,
+      [session.accountId],
+    ),
+    query<{ vehicle_id: string }>(
+      `SELECT vehicle_id FROM vehicle_sessions
+        WHERE account_id = $1 AND created_by = $2
+          AND status = 'open' AND end_odometer IS NULL AND miles IS NULL
+          AND vehicle_id IS NOT NULL
+        ORDER BY started_at DESC NULLS LAST
+        LIMIT 1`,
+      [session.accountId, session.userId],
+    ),
+    query<{ job_id: string }>(
+      `SELECT v.job_id
+       FROM visits v
+       WHERE v.account_id = $1 AND v.assigned_user_id = $2
+         AND v.status IN ('dispatched','traveling','arrived','in_progress','waiting')
+       ORDER BY v.updated_at DESC NULLS LAST
+       LIMIT 1`,
+      [session.accountId, session.userId],
+    ),
+  ]);
+  const suggestedJobId = activeVisits[0]?.job_id ?? null;
+  const suggestedIsListed = !!suggestedJobId && jobs.some((job) => job.id === suggestedJobId);
+  const chosenJobId = defaultJobId ?? (suggestedIsListed ? suggestedJobId : undefined);
+
+  return (
+    <PageContainer>
+      <Breadcrumbs
+        items={[
+          { href: "/app/expenses", label: "Expenses" },
+          { label: isMaterialRun ? "Material run" : "New expense" },
+        ]}
+      />
+      <PageHeader
+        title={isMaterialRun ? "Material Run" : "New Expense"}
+        subtitle={
+          !defaultJobId && suggestedIsListed
+            ? "Suggested from the visit you are on. Change it if this receipt is for a different job."
+            : isMaterialRun
+              ? "Capture the receipt first, then save the supplier run"
+              : "Record an expense for this account"
+        }
+        actions={
+          <LinkButton href="/app/expenses" variant="ghost" size="sm">
+            ← Back
+          </LinkButton>
+        }
+      />
+      <HubSubnav hub="Money" links={MONEY_HUB_LINKS} pathname="/app/expenses" />
+      <ExpenseForm
+        jobs={jobs}
+        clients={clients}
+        vehicles={vehicles}
+        activeVehicleId={openSession[0]?.vehicle_id ?? (vehicles.length === 1 ? vehicles[0].id : null)}
+        defaultJobId={chosenJobId ?? undefined}
+        defaultClientId={defaultClientId}
+        mode={isMaterialRun ? "run" : "standard"}
+      />
+    </PageContainer>
+  );
+}

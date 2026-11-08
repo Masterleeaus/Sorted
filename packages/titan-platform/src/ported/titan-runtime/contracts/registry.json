@@ -1,0 +1,99 @@
+{
+  "schema": "titan-contract-registry/v1",
+  "version": "1.1.0",
+  "company_boundary": "company_id",
+  "authority_rule": "contracts describe data; registration/validation grants no authority",
+  "contracts": [
+    {
+      "name": "AuthorityDecision.schema",
+      "file": "schemas/AuthorityDecision.schema.json",
+      "id": "titan://contracts/AuthorityDecision/v1",
+      "sha256": "f677079faa00dbf4a5b898c578d347666af139206eca5dc532053acc9b03585a",
+      "source": "Titan Zero browser-native Step 5"
+    },
+    {
+      "name": "CapabilityContribution.schema",
+      "file": "schemas/CapabilityContribution.schema.json",
+      "id": "titan://contracts/CapabilityContribution/v1",
+      "sha256": "04c0aa16f9997048b67f34da4d801aabe81e4e8686a5afadcb49f4b24fdf42f2",
+      "source": "Titan Zero browser-native Step 5"
+    },
+    {
+      "name": "ConversationState.schema",
+      "file": "schemas/ConversationState.schema.json",
+      "id": "titan://contracts/ConversationState/v1",
+      "sha256": "7a721af1a2a9f79287bf77ca5a1faa904b9e0e2c3287cc451234abe196ca618e",
+      "source": "Titan Interaction Engine Master v10.12.0 semantic port; Titan Zero browser-native Step 11"
+    },
+    {
+      "name": "DecisionPacket.schema",
+      "file": "schemas/DecisionPacket.schema.json",
+      "id": null,
+      "sha256": "8de36cdb4e4eb502215373f4c88aceaa80508d91cda85f46449cbc52405e0ab4",
+      "source": "Titan Shared Platform Services Master Step 14.zip"
+    },
+    {
+      "name": "InteractionContext.schema",
+      "file": "schemas/InteractionContext.schema.json",
+      "id": "titan://contracts/InteractionContext/v1",
+      "sha256": "bce95596b53e4a53fb698b05672c1294c31b145a0ab7051543ba82f66a4443bf",
+      "source": "Titan Interaction Engine Master v10.12.0 semantic port; Titan Zero browser-native Step 11"
+    },
+    {
+      "name": "InteractionInterpretation.schema",
+      "file": "schemas/InteractionInterpretation.schema.json",
+      "id": "titan://contracts/InteractionInterpretation/v1",
+      "sha256": "b0f8e14d3236445fff83949455ad36f6c8c62e5d9405ce0777520def93865ed4",
+      "source": "Titan Interaction Engine Master v10.12.0 semantic port; Titan Zero browser-native Step 11"
+    },
+    {
+      "name": "JourneyState.schema",
+      "file": "schemas/JourneyState.schema.json",
+      "id": "titan://contracts/JourneyState/v1",
+      "sha256": "42dd2e36f1ce49e9be6be95ccb3e2c1ea293febd507bc55dfd168a6f1bf71f2b",
+      "source": "Titan Interaction Engine Master v10.12.0 semantic port; Titan Zero browser-native Step 11"
+    },
+    {
+      "name": "OperationIdentity.schema",
+      "file": "schemas/OperationIdentity.schema.json",
+      "id": "titan://contracts/OperationIdentity/v1",
+      "sha256": "b1a2a127d3191fcc7e67d5fd438b63dc4a24bf68b185d29da30d3c3a30352931",
+      "source": "Titan Zero browser-native Step 10"
+    },
+    {
+      "name": "PlatformServiceEnvelope.schema",
+      "file": "schemas/PlatformServiceEnvelope.schema.json",
+      "id": null,
+      "sha256": "1716266ec253150e91d5ae0fbed035c5307767a9a3fa8aeb913239c8b8e3d964",
+      "source": "Titan Shared Platform Services Master Step 14.zip"
+    },
+    {
+      "name": "PresentationIntent.schema",
+      "file": "schemas/PresentationIntent.schema.json",
+      "id": "titan://contracts/PresentationIntent/v1",
+      "sha256": "113efd8ea6faf7eb0975804a2d268e2fc0281b3e3d0ef34e238974770aae83a9",
+      "source": "Titan Zero browser-native Step 5"
+    },
+    {
+      "name": "PrimeMissionEnvelope.schema",
+      "file": "schemas/PrimeMissionEnvelope.schema.json",
+      "id": "titan://contracts/PrimeMissionEnvelope/v1",
+      "sha256": "ab35e9adf0d1b53baa8ba45d8f210172a880430182468b798577e73c7bbd2f28",
+      "source": "Titan Zero browser-native Step 5"
+    },
+    {
+      "name": "ProviderContribution.schema",
+      "file": "schemas/ProviderContribution.schema.json",
+      "id": null,
+      "sha256": "4d431f83a04ba9486c90270e067c7bcf4481a9faa05169f0edf59cb1a0fd52b2",
+      "source": "Titan Shared Platform Services Master Step 14.zip"
+    },
+    {
+      "name": "TitanEventEnvelope.schema",
+      "file": "schemas/TitanEventEnvelope.schema.json",
+      "id": "titan://contracts/TitanEventEnvelope/v1",
+      "sha256": "504447b0d1dd1db847c028d0689bf1d0e40120db4edb7e05f15893dcddf37513",
+      "source": "Titan Zero browser-native Step 5; extended Step 10 operation identity"
+    }
+  ]
+}

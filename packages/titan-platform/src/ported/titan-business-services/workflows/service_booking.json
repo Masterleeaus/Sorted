@@ -1,0 +1,148 @@
+{
+  "wizard": {
+    "id": "service_booking_v1",
+    "version": "1.0.0",
+    "name": "Service Booking",
+    "capability": "crm.appointment.create",
+    "permissions": {
+      "required_roles": [
+        "customer",
+        "staff",
+        "supervisor",
+        "manager",
+        "admin",
+        "owner",
+        "dispatcher"
+      ]
+    },
+    "metadata": {
+      "category": "field_services",
+      "template_id": "service-booking",
+      "template_version": "1.0.0",
+      "verticals": [
+        "field_services",
+        "home_services",
+        "cleaning"
+      ],
+      "interfaces": [
+        "chat",
+        "mobile",
+        "tablet",
+        "desktop",
+        "voice"
+      ],
+      "surfaces": [
+        "hub",
+        "command"
+      ]
+    },
+    "offline": {
+      "enabled": true,
+      "sync_priority": "normal",
+      "conflict_handling": "prompt_user"
+    },
+    "governance": {
+      "required_context": [
+        "company_id",
+        "user_id",
+        "device_id",
+        "correlation_id"
+      ],
+      "completion_rules": []
+    },
+    "steps": [
+      {
+        "id": "customer",
+        "title": "Customer and service",
+        "fields": [
+          {
+            "id": "customer_id",
+            "label": "Customer ID",
+            "type": "text",
+            "required": true
+          },
+          {
+            "id": "service_type",
+            "label": "Service type",
+            "type": "text",
+            "required": true
+          },
+          {
+            "id": "site_id",
+            "label": "Site ID",
+            "type": "text",
+            "required": true
+          }
+        ]
+      },
+      {
+        "id": "schedule",
+        "title": "Schedule",
+        "fields": [
+          {
+            "id": "requested_start_at",
+            "label": "Requested start",
+            "type": "text",
+            "required": true
+          },
+          {
+            "id": "duration_minutes",
+            "label": "Duration minutes",
+            "type": "number",
+            "required": true,
+            "min": 1
+          },
+          {
+            "id": "flexible_time",
+            "label": "Flexible time",
+            "type": "boolean",
+            "required": true
+          }
+        ]
+      },
+      {
+        "id": "access",
+        "title": "Access and notes",
+        "fields": [
+          {
+            "id": "access_instructions",
+            "label": "Access instructions",
+            "type": "text",
+            "required": false
+          },
+          {
+            "id": "service_notes",
+            "label": "Service notes",
+            "type": "text",
+            "required": false
+          },
+          {
+            "id": "pets_present",
+            "label": "Pets present",
+            "type": "boolean",
+            "required": true
+          }
+        ]
+      },
+      {
+        "id": "declaration",
+        "title": "Review",
+        "fields": [
+          {
+            "id": "declaration_accepted",
+            "label": "Declaration accepted",
+            "type": "boolean",
+            "required": true
+          }
+        ]
+      }
+    ]
+  },
+  "_titan_provenance": {
+    "source_product": "Titan Interaction Engine",
+    "source_version": "10.12.0",
+    "source_path": "resources/wizards/service_booking.json",
+    "company_boundary": "company_id",
+    "copied_without_domain_authority": true
+  }
+}

@@ -1,0 +1,710 @@
+"use client";
+
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { Button, LinkButton, Textarea } from "@/components/ui";
+import { getRequestGuidance } from "../request-guidance";
+import {
+  INTAKE_PATH_DETAILS,
+  INTAKE_PATH_LABELS,
+  type IntakeRoutingPath,
+} from "@/lib/visits/labels";
+
+type ReviewStatus = "needs_info" | "duplicate" | "reviewed" | "cancelled" | "lost";
+type PricingMode = "flat_rate" | "hourly_internal";
+type PricingChoice = PricingMode | null;
+type PathChoice = Exclude<IntakeRoutingPath, "pending">;
+
+const REVIEW_BUTTONS: Record<ReviewStatus, { label: string; variant: "primary" | "secondary" | "ghost" | "danger" }> = {
+  reviewed: { label: "Mark Reviewed", variant: "primary" },
+  needs_info: { label: "Needs Info", variant: "secondary" },
+  duplicate: { label: "Duplicate", variant: "ghost" },
+  lost: { label: "Mark Lost", variant: "danger" },
+  cancelled: { label: "Spam / Not a lead", variant: "ghost" },
+};
+
+const PRICING_LABELS: Record<PricingMode, string> = {
+  flat_rate: "Fixed Bid",
+  hourly_internal: "Time and Materials",
+};
+
+const PRICING_HELPER: Record<PricingMode, string> = {
+  flat_rate: "Usually assessment first, then estimate, approval, and schedule work.",
+  hourly_internal: "Open-ended or small repair — assess if unclear, or book work if scope is clear.",
+};
+
+const PATH_OPTIONS: PathChoice[] = ["site_visit", "book_work", "remote_estimate"];
+
+interface Props {
+  bookingId: string;
+  currentStatus: string;
+  initialNotes: string | null;
+  initialPricingMode: PricingChoice;
+  jobId: string | null;
+  clientEmail: string | null;
+  clientId: string | null;
+  propertyId: string | null;
+  visitId: string | null;
+  routingPath: string | null;
+  preferredDate: string | null;
+  preferredTimeSlot: string | null;
+}
+
+export function ReviewActions({
+  bookingId,
+  currentStatus,
+  initialNotes,
+  initialPricingMode,
+  jobId,
+  clientEmail,
+  clientId,
+  propertyId,
+  visitId,
+  routingPath: initialRoutingPath,
+  preferredDate,
+  preferredTimeSlot,
+}: Props) {
+  const router = useRouter();
+  const [notes, setNotes] = useState(initialNotes ?? "");
+  const [pricingMode, setPricingMode] = useState<PricingChoice>(initialPricingMode);
+  const [routingPath, setRoutingPath] = useState<IntakeRoutingPath | null>(
+    (initialRoutingPath as IntakeRoutingPath | null) ?? "pending",
+  );
+  const [pending, setPending] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [showAssessmentForm, setShowAssessmentForm] = useState(false);
+  const [intakeEmail, setIntakeEmail] = useState(clientEmail ?? "");
+  const [intakeSent, setIntakeSent] = useState(false);
+  const [intakeError, setIntakeError] = useState<string | null>(null);
+  const [visitDate, setVisitDate] = useState(preferredDate ?? new Date().toISOString().slice(0, 10));
+  const [visitSlot, setVisitSlot] = useState<string>(preferredTimeSlot ?? "morning");
+
+  const guidance = getRequestGuidance({
+    status: currentStatus,
+    pricing_mode: pricingMode,
+    routing_path: routingPath,
+    job_id: jobId,
+    visit_id: visitId,
+    walkthrough_score: null,
+  });
+
+  const isFinal =
+    currentStatus === "converted" ||
+    currentStatus === "cancelled" ||
+    currentStatus === "lost" ||
+    currentStatus === "duplicate";
+  const pathChosen = routingPath != null && routingPath !== "pending";
+
+  async function patchRequest(body: Record<string, unknown>) {
+    const res = await fetch(`/api/v1/booking-requests/${bookingId}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+    const json = await res.json().catch(() => ({}));
+    return { res, json };
+  }
+
+  async function handleMarkLost(reason: "customer_declined" | "other" = "customer_declined") {
+    setPending("lost");
+    setError(null);
+    try {
+      const { res, json } = await patchRequest({
+        status: "lost",
+        closed_reason: reason,
+        review_notes: notes || null,
+      });
+      if (!res.ok) {
+        setError(json.error?.message ?? "Failed to mark lost");
+        return;
+      }
+      router.refresh();
+    } catch {
+      setError("Network error — try again");
+    } finally {
+      setPending(null);
+    }
+  }
+
+  async function handlePricingModeChange(nextMode: PricingMode) {
+    if (nextMode === pricingMode) return;
+    setPending(`pricing-${nextMode}`);
+    setError(null);
+    try {
+      const { res, json } = await patchRequest({ pricing_mode: nextMode });
+      if (!res.ok) {
+        setError(json.error?.message ?? "Failed to update pricing mode");
+        return;
+      }
+      setPricingMode(nextMode);
+      router.refresh();
+    } catch {
+      setError("Network error — try again");
+    } finally {
+      setPending(null);
+    }
+  }
+
+  async function handlePathChange(next: PathChoice) {
+    if (next === routingPath) return;
+    setPending(`path-${next}`);
+    setError(null);
+    try {
+      const { res, json } = await patchRequest({ routing_path: next });
+      if (!res.ok) {
+        setError(json.error?.message ?? "Failed to update path");
+        return;
+      }
+      setRoutingPath(next);
+      setShowAssessmentForm(false);
+      router.refresh();
+    } catch {
+      setError("Network error — try again");
+    } finally {
+      setPending(null);
+    }
+  }
+
+  async function handleSendIntake() {
+    setPending("intake");
+    setIntakeError(null);
+    try {
+      const body: Record<string, string> = {};
+      if (intakeEmail && !clientEmail) body.email = intakeEmail;
+      const res = await fetch(`/api/v1/booking-requests/${bookingId}/send-intake`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      const json = (await res.json()) as { error?: { message?: string } };
+      if (!res.ok && res.status !== 207) {
+        setIntakeError(json.error?.message ?? "Failed to send intake form.");
+        return;
+      }
+      setIntakeSent(true);
+      router.refresh();
+    } catch {
+      setIntakeError("Network error. Try again.");
+    } finally {
+      setPending(null);
+    }
+  }
+
+  async function handleStatus(status: ReviewStatus) {
+    setPending(status);
+    setError(null);
+    try {
+      const body: Record<string, unknown> = { status, review_notes: notes || null };
+      if (status === "lost") body.closed_reason = "customer_declined";
+      if (status === "cancelled") body.closed_reason = "spam";
+      const { res, json } = await patchRequest(body);
+      if (!res.ok) {
+        setError(json.error?.message ?? "Failed to update");
+        return;
+      }
+      router.refresh();
+    } catch {
+      setError("Network error — try again");
+    } finally {
+      setPending(null);
+    }
+  }
+
+  async function handleRepair() {
+    setPending("repair");
+    setError(null);
+    try {
+      const res = await fetch(`/api/v1/booking-requests/${bookingId}/repair`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+      });
+      const d = await res.json();
+      if (!res.ok) {
+        setError(d.error?.message ?? "Failed to create job");
+        return;
+      }
+      if (d.data?.jobId) {
+        router.push(`/app/jobs/${d.data.jobId}`);
+      } else {
+        router.refresh();
+      }
+    } catch {
+      setError("Network error — try again");
+    } finally {
+      setPending(null);
+    }
+  }
+
+  async function handleConvertAssessment() {
+    setPending("convert");
+    setError(null);
+    try {
+      const res = await fetch(`/api/v1/booking-requests/${bookingId}/convert`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          preferred_date: visitDate,
+          preferred_time_slot: visitSlot,
+          review_notes: notes || null,
+        }),
+      });
+      const d = await res.json();
+      if (!res.ok) {
+        setError(d.error?.message ?? "Failed to schedule assessment");
+        return;
+      }
+      if (d.data?.visit_id) {
+        router.push(`/app/visits/${d.data.visit_id}`);
+      } else {
+        router.refresh();
+      }
+    } catch {
+      setError("Network error — try again");
+    } finally {
+      setPending(null);
+    }
+  }
+
+  async function saveNotes() {
+    setPending("notes");
+    setError(null);
+    try {
+      const { res, json } = await patchRequest({ review_notes: notes || null });
+      if (!res.ok) {
+        setError(json.error?.message ?? "Failed to save notes");
+        return;
+      }
+      router.refresh();
+    } catch {
+      setError("Network error — try again");
+    } finally {
+      setPending(null);
+    }
+  }
+
+  const primaryAction = (() => {
+    switch (guidance.primaryActionKind) {
+      case "choose_path":
+        return (
+          <span style={{ fontSize: "var(--text-sm)", color: "var(--fg-muted)" }}>
+            Choose how to proceed. That unlocks the next step.
+          </span>
+        );
+      case "create_estimate": {
+        const params = new URLSearchParams({ pricing_mode: "flat_rate" });
+        if (clientId) params.set("client_id", clientId);
+        if (propertyId) params.set("property_id", propertyId);
+        if (jobId) params.set("job_id", jobId);
+        params.set("booking_request_id", bookingId);
+        return (
+          <LinkButton href={`/app/estimates/new?${params.toString()}`} variant="primary" size="sm">
+            Create Estimate →
+          </LinkButton>
+        );
+      }
+      case "create_job":
+        return (
+          <Button
+            variant="primary"
+            onClick={handleRepair}
+            loading={pending === "repair"}
+            disabled={!!pending}
+            size="sm"
+          >
+            Create Job →
+          </Button>
+        );
+      case "schedule_assessment":
+        return !showAssessmentForm ? (
+          <Button
+            variant="primary"
+            onClick={() => setShowAssessmentForm(true)}
+            disabled={!!pending}
+            size="sm"
+          >
+            Book a look →
+          </Button>
+        ) : null;
+      case "schedule_work":
+        if (!jobId) {
+          return (
+            <Button
+              variant="primary"
+              onClick={handleRepair}
+              loading={pending === "repair"}
+              disabled={!!pending}
+              size="sm"
+            >
+              Create Job →
+            </Button>
+          );
+        }
+        return (
+          <LinkButton
+            href={`/app/jobs/${jobId}/visits/new?visit_type=standard&intent=book_work&bookingRequestId=${bookingId}`}
+            variant="primary"
+            size="sm"
+          >
+            Schedule Work Day →
+          </LinkButton>
+        );
+      case "close_request":
+        return (
+          <Button
+            variant="danger"
+            onClick={() => handleStatus("cancelled")}
+            loading={pending === "cancelled"}
+            disabled={!!pending || isFinal}
+            size="sm"
+          >
+            Spam / Not a lead →
+          </Button>
+        );
+      case "mark_lost":
+        return (
+          <div style={{ display: "flex", gap: "var(--space-2)", flexWrap: "wrap", alignItems: "center" }}>
+            <span style={{ fontSize: "var(--text-sm)", color: "var(--fg-muted)" }}>
+              Waiting on client — or close if they passed:
+            </span>
+            <Button
+              variant="danger"
+              onClick={() => handleMarkLost("customer_declined")}
+              loading={pending === "lost"}
+              disabled={!!pending || isFinal}
+              size="sm"
+            >
+              Mark Lost →
+            </Button>
+          </div>
+        );
+      default:
+        return null;
+    }
+  })();
+
+  const pathPicker = !isFinal ? (
+    <details open={!pathChosen} data-testid="intake-path-picker">
+      <summary style={{ cursor: "pointer", fontWeight: pathChosen ? 500 : 700, marginBottom: "var(--space-2)" }}>
+        {pathChosen ? "Change how we proceed" : "How should we proceed?"}
+      </summary>
+      <div
+        style={{
+          padding: "var(--space-3)",
+          border: pathChosen ? "1px solid var(--border)" : "2px solid var(--accent, #2563eb)",
+          borderRadius: "var(--radius)",
+          background: "var(--bg-subtle)",
+        }}
+      >
+        <p style={{ margin: "0 0 var(--space-3)", fontSize: "var(--text-sm)", color: "var(--fg-muted)" }}>
+          Book a look for unclear scope. Book work when you can show up and work. Remote quote for notes and photos only.
+        </p>
+        <div style={{ display: "grid", gap: "var(--space-2)" }}>
+          {PATH_OPTIONS.map((path) => {
+            const selected = routingPath === path;
+            return (
+              <button
+                key={path}
+                type="button"
+                data-testid={`intake-path-${path}`}
+                onClick={() => handlePathChange(path)}
+                disabled={!!pending}
+                style={{
+                  textAlign: "left",
+                  padding: "var(--space-3)",
+                  borderRadius: "var(--radius)",
+                  border: selected ? "2px solid var(--accent, #2563eb)" : "1px solid var(--border)",
+                  background: selected ? "var(--bg-card, #fff)" : "var(--bg)",
+                  cursor: pending ? "not-allowed" : "pointer",
+                }}
+              >
+                <div style={{ fontWeight: 700, fontSize: "var(--text-sm)" }}>
+                  {INTAKE_PATH_LABELS[path]}
+                  {selected ? " ✓" : ""}
+                </div>
+                <div style={{ fontSize: "var(--text-xs)", color: "var(--fg-muted)", marginTop: 4 }}>
+                  {INTAKE_PATH_DETAILS[path]}
+                </div>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+    </details>
+  ) : null;
+
+  return (
+    <div className="p7-form-stack" style={{ display: "flex", flexDirection: "column", gap: "var(--space-3)" }}>
+      {error && (
+        <div className="p7-card-danger" role="alert">
+          {error}
+        </div>
+      )}
+
+      {!pathChosen ? pathPicker : null}
+
+      <div
+        data-testid="request-primary-action"
+        style={{
+          padding: "var(--space-3)",
+          border: "1px solid var(--border)",
+          borderRadius: "var(--radius)",
+          background: "var(--bg-subtle)",
+        }}
+      >
+        <p
+          style={{
+            margin: 0,
+            fontSize: "var(--text-xs)",
+            fontWeight: 700,
+            textTransform: "uppercase",
+            letterSpacing: "0.08em",
+            color: "var(--fg-muted)",
+          }}
+        >
+          Recommended next step
+        </p>
+        <div style={{ marginTop: "var(--space-2)", fontSize: "var(--text-base)", fontWeight: 700 }}>
+          {guidance.recommendedLabel}
+        </div>
+        <div style={{ marginTop: "var(--space-1)", fontSize: "var(--text-sm)", color: "var(--fg-muted)" }}>
+          {guidance.recommendedDetail}
+        </div>
+        <div
+          style={{
+            marginTop: "var(--space-3)",
+            display: "flex",
+            gap: "var(--space-2)",
+            flexWrap: "wrap",
+            alignItems: "center",
+          }}
+        >
+          {primaryAction}
+          {!primaryAction && guidance.followUpKind && guidance.followUpHref && (
+            <LinkButton href={guidance.followUpHref} variant="primary">
+              {guidance.followUpKind === "view_visit" ? "Open the visit" : "Open the job"}
+            </LinkButton>
+          )}
+        </div>
+
+        {guidance.primaryActionKind === "schedule_assessment" && showAssessmentForm && (
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: "var(--space-3)",
+              marginTop: "var(--space-3)",
+              padding: "var(--space-3)",
+              background: "var(--bg)",
+              borderRadius: "var(--radius)",
+              border: "1px solid var(--border)",
+            }}
+          >
+            <strong style={{ fontSize: "var(--text-sm)" }}>Confirm assessment date</strong>
+            <p style={{ margin: 0, fontSize: "var(--text-xs)", color: "var(--fg-muted)" }}>
+              Creates an <strong>Assessment</strong> visit (site visit) with the assessment form — not a work day.
+            </p>
+            <div style={{ display: "flex", gap: "var(--space-2)", flexWrap: "wrap" }}>
+              <div className="form-group" style={{ flex: "1 1 160px", margin: 0 }}>
+                <label htmlFor="visit-date" style={{ fontSize: "var(--text-xs)", color: "var(--fg-muted)" }}>
+                  Date
+                </label>
+                <input
+                  id="visit-date"
+                  type="date"
+                  value={visitDate}
+                  onChange={(e) => setVisitDate(e.target.value)}
+                  disabled={!!pending}
+                  style={{ width: "100%" }}
+                />
+              </div>
+              <div className="form-group" style={{ flex: "1 1 140px", margin: 0 }}>
+                <label htmlFor="visit-slot" style={{ fontSize: "var(--text-xs)", color: "var(--fg-muted)" }}>
+                  Time
+                </label>
+                <select
+                  id="visit-slot"
+                  value={visitSlot}
+                  onChange={(e) => setVisitSlot(e.target.value)}
+                  disabled={!!pending}
+                  style={{ width: "100%" }}
+                >
+                  <option value="morning">Morning (9am–11am)</option>
+                  <option value="afternoon">Afternoon (1pm–3pm)</option>
+                  <option value="evening">Evening (4pm–6pm)</option>
+                  <option value="flexible">Flexible</option>
+                </select>
+              </div>
+            </div>
+            <div style={{ display: "flex", gap: "var(--space-2)", flexWrap: "wrap" }}>
+              <Button
+                variant="primary"
+                onClick={handleConvertAssessment}
+                loading={pending === "convert"}
+                disabled={!!pending || !visitDate}
+              >
+                Book a look
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowAssessmentForm(false)}
+                disabled={!!pending}
+              >
+                Cancel
+              </Button>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {pathChosen ? pathPicker : null}
+
+      <details>
+        <summary style={{ cursor: "pointer", color: "var(--fg-muted)", fontSize: "var(--text-sm)" }}>
+          Pricing and notes
+        </summary>
+        <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-3)", marginTop: "var(--space-3)" }}>
+          <Textarea
+            id="review_notes"
+            label="Review Notes"
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+            placeholder="Duplicate of #…, needs address clarification, out of service area…"
+            rows={3}
+            disabled={!!pending || isFinal}
+          />
+          <div>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                gap: "var(--space-2)",
+                marginBottom: "var(--space-2)",
+              }}
+            >
+              <p
+                style={{
+                  margin: 0,
+                  fontSize: "var(--text-xs)",
+                  fontWeight: 700,
+                  textTransform: "uppercase",
+                  letterSpacing: "0.08em",
+                  color: "var(--fg-muted)",
+                }}
+              >
+                Pricing style
+              </p>
+              <span style={{ fontSize: "var(--text-xs)", color: "var(--fg-muted)" }}>
+                {pricingMode ? PRICING_LABELS[pricingMode] : "Optional"}
+              </span>
+            </div>
+            <div style={{ display: "flex", gap: "var(--space-2)", flexWrap: "wrap" }}>
+              {(["flat_rate", "hourly_internal"] as const).map((mode) => (
+                <Button
+                  key={mode}
+                  type="button"
+                  variant={pricingMode === mode ? "primary" : "secondary"}
+                  size="sm"
+                  onClick={() => handlePricingModeChange(mode)}
+                  loading={pending === `pricing-${mode}`}
+                  disabled={!!pending || isFinal}
+                >
+                  {PRICING_LABELS[mode]}
+                </Button>
+              ))}
+            </div>
+            <p style={{ margin: "var(--space-2) 0 0", fontSize: "var(--text-xs)", color: "var(--fg-muted)" }}>
+              {pricingMode ? PRICING_HELPER[pricingMode] : "Optional. The recommended step above is the next action."}
+            </p>
+          </div>
+        </div>
+      </details>
+
+      {!isFinal && (
+        <details>
+          <summary style={{ cursor: "pointer", color: "var(--fg-muted)", fontSize: "var(--text-sm)" }}>
+            Status and other actions
+          </summary>
+          <div style={{ display: "flex", gap: "var(--space-2)", flexWrap: "wrap", marginTop: "var(--space-2)" }}>
+            {(["reviewed", "needs_info", "duplicate", "lost", "cancelled"] as ReviewStatus[]).map((s) => (
+              <Button
+                key={s}
+                variant={REVIEW_BUTTONS[s].variant}
+                onClick={() => handleStatus(s)}
+                loading={pending === s}
+                disabled={!!pending || currentStatus === s}
+                size="sm"
+              >
+                {REVIEW_BUTTONS[s].label}
+              </Button>
+            ))}
+            <Button variant="ghost" size="sm" onClick={saveNotes} loading={pending === "notes"} disabled={!!pending}>
+              Save Notes Only
+            </Button>
+          </div>
+        </details>
+      )}
+
+      <details>
+        <summary style={{ cursor: "pointer", color: "var(--fg-muted)", fontSize: "var(--text-sm)" }}>
+          Send intake form to client
+        </summary>
+        <div style={{ marginTop: "var(--space-2)" }}>
+          {intakeSent ? (
+            <p style={{ fontSize: "var(--text-xs)", color: "#16a34a", margin: 0 }}>Intake form sent.</p>
+          ) : (
+            <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-2)" }}>
+              {!clientEmail && (
+                <div>
+                  <label style={{ fontSize: "var(--text-xs)", display: "block", marginBottom: 4 }}>
+                    Client email (required)
+                  </label>
+                  <input
+                    type="email"
+                    value={intakeEmail}
+                    onChange={(e) => setIntakeEmail(e.target.value)}
+                    placeholder="client@email.com"
+                    style={{
+                      width: "100%",
+                      padding: "6px 8px",
+                      fontSize: "var(--text-xs)",
+                      border: "1px solid var(--border)",
+                      borderRadius: "var(--radius-sm)",
+                      boxSizing: "border-box",
+                    }}
+                  />
+                </div>
+              )}
+              {clientEmail && (
+                <p style={{ fontSize: "var(--text-xs)", color: "var(--fg-muted)", margin: 0 }}>
+                  Will send to: {clientEmail}
+                </p>
+              )}
+              {intakeError && (
+                <p style={{ fontSize: "var(--text-xs)", color: "#dc2626", margin: 0 }}>{intakeError}</p>
+              )}
+              <div>
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={handleSendIntake}
+                  loading={pending === "intake"}
+                  disabled={!!pending || (!clientEmail && !intakeEmail)}
+                >
+                  Send Intake Form
+                </Button>
+              </div>
+            </div>
+          )}
+        </div>
+      </details>
+
+      {isFinal && (
+        <p style={{ fontSize: "var(--text-xs)", color: "var(--fg-muted)" }}>
+          This request is {currentStatus} and cannot be changed.
+        </p>
+      )}
+    </div>
+  );
+}

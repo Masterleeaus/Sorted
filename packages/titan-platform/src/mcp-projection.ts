@@ -1,0 +1,6 @@
+export type McpTool=Readonly<{tool_id:string;host_id:string;company_id:string;capability_id:string;input_schema:string;consent_required:boolean;enabled:boolean}>;
+export type McpReceipt=Readonly<{receipt_id:string;host_id:string;company_id:string;capability_id:string;request_id:string;status:"ACCEPTED"|"REJECTED";authorityGranted:false}>;
+function req(v:string,n:string){if(!v.trim())throw new Error(`${n}-required`)}
+export function projectMcpTool(input:McpTool):McpTool{req(input.tool_id,"tool_id");req(input.host_id,"host_id");req(input.company_id,"company_id");req(input.capability_id,"capability_id");req(input.input_schema,"input_schema");return Object.freeze({...input})}
+export function createMcpReceipt(tool:McpTool,company_id:string,request_id:string,consent:boolean,status:McpReceipt["status"]):McpReceipt{req(company_id,"company_id");req(request_id,"request_id");if(tool.company_id!==company_id)throw new Error("mcp-company-mismatch");if(!tool.enabled)throw new Error("mcp-tool-disabled");if(tool.consent_required&&!consent)throw new Error("mcp-consent-required");return Object.freeze({receipt_id:`${tool.host_id}:${request_id}`,host_id:tool.host_id,company_id,capability_id:tool.capability_id,request_id,status,authorityGranted:false as const})}
+

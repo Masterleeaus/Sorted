@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Titan Workforce Cross-System E2E Certification",
+  "type": "object",
+  "required": [
+    "schema",
+    "company_id",
+    "state",
+    "checks",
+    "readiness"
+  ],
+  "properties": {
+    "schema": {
+      "const": "titan.workforce.cross-system-e2e-certification.v1"
+    },
+    "company_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "state": {
+      "enum": [
+        "PASS",
+        "PARTIAL",
+        "BLOCKED"
+      ]
+    },
+    "checks": {
+      "type": "array"
+    },
+    "readiness": {
+      "type": "object"
+    },
+    "authority_granted": {
+      "const": false
+    },
+    "execution_permitted": {
+      "const": false
+    },
+    "grants_authority": {
+      "const": false
+    }
+  }
+}

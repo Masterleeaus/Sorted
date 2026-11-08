@@ -1,0 +1,451 @@
+{
+  "schema": "titan-zero-cumulative-builder-delta-manifest/v2",
+  "workspace": "Builder 3",
+  "packet_id": "TZ-FINISH-RETRIEVER-NATIVE-001",
+  "pass": 8,
+  "base_merge": 52,
+  "base_sha256": "ea6c219d40ffbddcbb68e9c9ed741c93568fe12be2e4f09dd69af0b528366d92",
+  "file_count": 88,
+  "files": [
+    {
+      "path": "Agent Mesh/Builder 3/OUTBOX/DONOR-RETIREMENT-LEDGER-CERTIFIED.json",
+      "sha256": "880e7b487a6ed6bcd55c2e0daf97171fdc3866b63682df562ca746bf4aff8613",
+      "bytes": 3393
+    },
+    {
+      "path": "Agent Mesh/Builder 3/OUTBOX/PASS08-CHANGE-IMPACT.json",
+      "sha256": "7634067f911555fa88a85106ce168d7fd4efa9c23cf08c61c8e8e4ce8beb1e47",
+      "bytes": 373
+    },
+    {
+      "path": "Agent Mesh/Builder 3/OUTBOX/PASS08-COLLISION-RECORD.json",
+      "sha256": "94e8888bd29841b15760a8d1a31819a3d11f64cb2b836ecfaba81d908e7cdeae",
+      "bytes": 476
+    },
+    {
+      "path": "Agent Mesh/Builder 3/OUTBOX/PASS08-HANDOFF.json",
+      "sha256": "4da6e954adbd2d1bf8308ab61e7250e2da73633db1984b33ecb898563552693e",
+      "bytes": 708
+    },
+    {
+      "path": "Agent Mesh/Builder 3/OUTBOX/PASS08-REGRESSION-CERTIFICATION.json",
+      "sha256": "43930689ef64e12f542d76dcd6ac549c27080e8f2c38493fbc3f39a69edbedf2",
+      "bytes": 1613
+    },
+    {
+      "path": "Agent Mesh/Builder 3/OUTBOX/PASS08-SEMANTIC-CHANGE.json",
+      "sha256": "c136b505c6c8dc4ffd0da1d49af9800ec473de1fdee01730b8ef91bf3d44288f",
+      "bytes": 507
+    },
+    {
+      "path": "Agent Mesh/Builder 3/OUTBOX/PASS08-TOUCHED-FILES.json",
+      "sha256": "4423df04a2df1eb1896f889e02fef5dcf0a3ca734920cb51fe3541cd35d07c31",
+      "bytes": 744
+    },
+    {
+      "path": "Agent Mesh/Builder 3/OUTBOX/PASS08-VERIFICATION.json",
+      "sha256": "dc22b906ecd67f1d7d10ab8e4fb5e8cd2f00a5fc96b7595f387a27b0eb44221c",
+      "bytes": 1281
+    },
+    {
+      "path": "Agent Mesh/Builder 3/OUTBOX.json",
+      "sha256": "c86d815b4befea0dd8e4ce4c65d2ed696708a5c2ac656271372e6d9c7cbdd296",
+      "bytes": 293
+    },
+    {
+      "path": "Agent Mesh/Builder 3/ROLE.json",
+      "sha256": "1de05eff4569f3a10994cb08580233e8ec43c05e5d6d03d1e4b26ad77b2ff332",
+      "bytes": 2398
+    },
+    {
+      "path": "Agent Mesh/Builder 3/STATUS.json",
+      "sha256": "494f96a67653e5b5685d4d85244304c7c67b28fbbfa37e651970bdc606296fa8",
+      "bytes": 807
+    },
+    {
+      "path": "Agent Mesh/Builder 3/WORK-PACKET/TZ-FINISH-RETRIEVER-NATIVE-001.json",
+      "sha256": "164db73e86b26dede68e2b9c03407c599ef42cfd1d6f9ac943a52ca2b84ff382",
+      "bytes": 10571
+    },
+    {
+      "path": "Agent Mesh/Builder 3/WORK_PACKET.json",
+      "sha256": "164db73e86b26dede68e2b9c03407c599ef42cfd1d6f9ac943a52ca2b84ff382",
+      "bytes": 10571
+    },
+    {
+      "path": "packages/titan-platform/src/retriever/contracts.ts",
+      "sha256": "943ac5b6763a2c0d108a2c94337e5a6899d7ff061fda33ad54017976cc79ae25",
+      "bytes": 2379
+    },
+    {
+      "path": "packages/titan-platform/src/retriever/donor-policy.ts",
+      "sha256": "10ae63962f6632b089fb77bc471d206af6b8d66017704ae23ba8c507faff0370",
+      "bytes": 989
+    },
+    {
+      "path": "packages/titan-platform/src/retriever/executor.ts",
+      "sha256": "456b20a9e6918915bca4c2a798b373369509642dcc135c30b776483d94c8c51b",
+      "bytes": 7313
+    },
+    {
+      "path": "packages/titan-platform/src/retriever/index.ts",
+      "sha256": "e946973870134324d48f6285950ef5c0e54e8ebdd5159064cc9ef892485350a2",
+      "bytes": 1565
+    },
+    {
+      "path": "packages/titan-platform/src/retriever/lifecycle.ts",
+      "sha256": "e3be121bafe8290852bfae871fddeda1efcd8bd2788684e942e9f7d180e4e544",
+      "bytes": 12360
+    },
+    {
+      "path": "packages/titan-platform/src/retriever/pass01/CUMULATIVE-DELTA-MANIFEST.json",
+      "sha256": "4dc14b0dfa55591d16c26cb411531c0d5ee310182a4fcfd5b3c08e060247de44",
+      "bytes": 3326
+    },
+    {
+      "path": "packages/titan-platform/src/retriever/pass01/PASS01-CHANGE-IMPACT.json",
+      "sha256": "df9aa008066fe66ead5606c974af053e24c25d44afeee7f112ae5e79981e5c3c",
+      "bytes": 372
+    },
+    {
+      "path": "packages/titan-platform/src/retriever/pass01/PASS01-HANDOFF.json",
+      "sha256": "84b65b48ca913d945d139b695babaf9e6e6da78f7e52ab6b032e77978f2bc682",
+      "bytes": 722
+    },
+    {
+      "path": "packages/titan-platform/src/retriever/pass01/PASS01-SCAN.md",
+      "sha256": "a4db5dc744585f6442b68b4c67ce16e53f23ab5ccdb5ac0c89d72f5070f56e20",
+      "bytes": 1304
+    },
+    {
+      "path": "packages/titan-platform/src/retriever/pass01/PASS01-SEMANTIC-CHANGE.json",
+      "sha256": "caf0634d29c62a4b5e6b7a92bfb485da2db3f0d97986681ee7f39cae59c3e2f9",
+      "bytes": 300
+    },
+    {
+      "path": "packages/titan-platform/src/retriever/pass01/PASS01-VERIFICATION.json",
+      "sha256": "7a260a2e4f3e336adfb7ed1e8be150eb0e836b71da93c6970c4c1b3cdcf405f8",
+      "bytes": 943
+    },
+    {
+      "path": "packages/titan-platform/src/retriever/pass01/REMAINING-DEPENDENCY-MAP.json",
+      "sha256": "3b09b5d8c65a5a7a18918f213c668879fe39ee23a2f2a5da47d153bfa7fb33c4",
+      "bytes": 7342
+    },
+    {
+      "path": "packages/titan-platform/src/retriever/pass02/CUMULATIVE-DELTA-MANIFEST.json",
+      "sha256": "f3600d954510e80605676ef73bbe4db7a7e186621a7c658a29bdfd483ba39e0f",
+      "bytes": 5855
+    },
+    {
+      "path": "packages/titan-platform/src/retriever/pass02/PASS02-CHANGE-IMPACT.json",
+      "sha256": "2e71eecabd69b7b9081b2d7bd601266411ffbd91f3f9574ce0196da3980fb58e",
+      "bytes": 482
+    },
+    {
+      "path": "packages/titan-platform/src/retriever/pass02/PASS02-COLLISION-RECORD.json",
+      "sha256": "139ffebd1e8208fcc180eab83092a2f55293be45961247a36703569100b80221",
+      "bytes": 559
+    },
+    {
+      "path": "packages/titan-platform/src/retriever/pass02/PASS02-HANDOFF.json",
+      "sha256": "e414e218fd334e56a2076e5fedf1057a8da24acf785f725ab5ac5256abd81830",
+      "bytes": 849
+    },
+    {
+      "path": "packages/titan-platform/src/retriever/pass02/PASS02-SEMANTIC-CHANGE.json",
+      "sha256": "df49e424e4da22b677f95831c4be7f8af50babbfee67fd52dcf5518b68e482fa",
+      "bytes": 456
+    },
+    {
+      "path": "packages/titan-platform/src/retriever/pass02/PASS02-TOUCHED-FILES.json",
+      "sha256": "461b5e84c4338829320ca3d07e08fa9a3a6be140212d6455f54d7069d687c8c6",
+      "bytes": 753
+    },
+    {
+      "path": "packages/titan-platform/src/retriever/pass02/PASS02-VERIFICATION.json",
+      "sha256": "72eaa688919f10fb16faad08f0bc0d977e8ebe0e0976db9fe18dc77bd9043d99",
+      "bytes": 1336
+    },
+    {
+      "path": "packages/titan-platform/src/retriever/pass03/CUMULATIVE-DELTA-MANIFEST.json",
+      "sha256": "319244e2f1c9935382b29bd0909a62f028af918823c70e23678775ed88ed1e04",
+      "bytes": 7680
+    },
+    {
+      "path": "packages/titan-platform/src/retriever/pass03/PASS03-CHANGE-IMPACT.json",
+      "sha256": "bac7889ee3e42312444faca5f986be09357e492a71506a4ec454acc18000bc01",
+      "bytes": 457
+    },
+    {
+      "path": "packages/titan-platform/src/retriever/pass03/PASS03-COLLISION-RECORD.json",
+      "sha256": "1a8d1da4f1507c5548eb28f0c73194f6c144c68ebc910d1db176c79b1de7671b",
+      "bytes": 451
+    },
+    {
+      "path": "packages/titan-platform/src/retriever/pass03/PASS03-HANDOFF.json",
+      "sha256": "0ace2edc934dfce4bae5a77f12a053f0bdd7c04c13953c6adac4d3de92f203f9",
+      "bytes": 673
+    },
+    {
+      "path": "packages/titan-platform/src/retriever/pass03/PASS03-SEMANTIC-CHANGE.json",
+      "sha256": "7f546986362d04a50d44a89f2fb16c0bd850a70e874d60cac69cb84ed613e43f",
+      "bytes": 511
+    },
+    {
+      "path": "packages/titan-platform/src/retriever/pass03/PASS03-TOUCHED-FILES.json",
+      "sha256": "7302c13b94a1366844aee5a650b5eee1f672016a60c589b4a228f7ea0cda2630",
+      "bytes": 661
+    },
+    {
+      "path": "packages/titan-platform/src/retriever/pass03/PASS03-VERIFICATION.json",
+      "sha256": "b13506f86c63615c82e31e5e3fba2388f623ce866fdbbd2206aa807235a500fb",
+      "bytes": 1517
+    },
+    {
+      "path": "packages/titan-platform/src/retriever/pass04/CUMULATIVE-DELTA-MANIFEST.json",
+      "sha256": "d4e4dc908864c58b184a83722d855f3b1ebf98ec16d9f16d189e5980744d7151",
+      "bytes": 9515
+    },
+    {
+      "path": "packages/titan-platform/src/retriever/pass04/PASS04-CHANGE-IMPACT.json",
+      "sha256": "acedab236cdff12d608cfeb5786e2a75d52c2c6063cee57d065028bc0333bce7",
+      "bytes": 433
+    },
+    {
+      "path": "packages/titan-platform/src/retriever/pass04/PASS04-COLLISION-RECORD.json",
+      "sha256": "e37d5bbd962feb0a89fbc20b79ca259eb3396c631ea042fab87b740131f5baf3",
+      "bytes": 451
+    },
+    {
+      "path": "packages/titan-platform/src/retriever/pass04/PASS04-HANDOFF.json",
+      "sha256": "7d610c113847858b989f4e045960bfec08b363e6194556ea564bc4ceb6336657",
+      "bytes": 682
+    },
+    {
+      "path": "packages/titan-platform/src/retriever/pass04/PASS04-SEMANTIC-CHANGE.json",
+      "sha256": "5e253cd1b20a9e2e257b1333e405fef7026cad0c50dc6357142df2f7f28b9fec",
+      "bytes": 462
+    },
+    {
+      "path": "packages/titan-platform/src/retriever/pass04/PASS04-TOUCHED-FILES.json",
+      "sha256": "367eec4e471a9a9064abeec4770ef5a55412694e569143a377dae6b06716d563",
+      "bytes": 671
+    },
+    {
+      "path": "packages/titan-platform/src/retriever/pass04/PASS04-VERIFICATION.json",
+      "sha256": "4d8aa57f005ea12b664f91bda7a855ea1c6567da7fd92141ecbdf414888de8a0",
+      "bytes": 1372
+    },
+    {
+      "path": "packages/titan-platform/src/retriever/pass05/CUMULATIVE-DELTA-MANIFEST.json",
+      "sha256": "4b440416b3ddd508f4bfaf53a0aa5afe0e6402caa4c0c6e9f7a6aff86b1111af",
+      "bytes": 11755
+    },
+    {
+      "path": "packages/titan-platform/src/retriever/pass05/DONOR-REACHABILITY-LEDGER.json",
+      "sha256": "9171e51b39b731758a9475313d8ddf3baf12d077d55f5f6c23adebba9c4bda30",
+      "bytes": 1763
+    },
+    {
+      "path": "packages/titan-platform/src/retriever/pass05/PASS05-CHANGE-IMPACT.json",
+      "sha256": "de7c289504a2030f9f42c5679ff9eb79e081d8f9211898aaf80a1d69a5a99382",
+      "bytes": 446
+    },
+    {
+      "path": "packages/titan-platform/src/retriever/pass05/PASS05-COLLISION-RECORD.json",
+      "sha256": "a09f4bc984b61ebb13cb1c6db092d669677f95a417b90da783542f40d23bd276",
+      "bytes": 451
+    },
+    {
+      "path": "packages/titan-platform/src/retriever/pass05/PASS05-HANDOFF.json",
+      "sha256": "da3b1814ec8c2176207278d9b9cdaaaebfd8087f055fe77eec0774a188a573fb",
+      "bytes": 760
+    },
+    {
+      "path": "packages/titan-platform/src/retriever/pass05/PASS05-SEMANTIC-CHANGE.json",
+      "sha256": "d1756308eec09c50656b1ffc5a98ef0f386e47fa0c1df7f680f42d559aa7ff03",
+      "bytes": 447
+    },
+    {
+      "path": "packages/titan-platform/src/retriever/pass05/PASS05-TOUCHED-FILES.json",
+      "sha256": "fae7f14263699f6ac91ea539dc08a370d06aa2ac68fe7e304515294d20276e71",
+      "bytes": 756
+    },
+    {
+      "path": "packages/titan-platform/src/retriever/pass05/PASS05-VERIFICATION.json",
+      "sha256": "b0f6aa883ada637466c3a6adb7033a2a8817729f0431e584dd9dc4acfb2c1e43",
+      "bytes": 1224
+    },
+    {
+      "path": "packages/titan-platform/src/retriever/pass06/CUMULATIVE-DELTA-MANIFEST.json",
+      "sha256": "060c0e1c2a039bd343c4f0b5e15d9e62fcf49459ca1c9762da2d7a5552272c97",
+      "bytes": 13387
+    },
+    {
+      "path": "packages/titan-platform/src/retriever/pass06/PASS06-CHANGE-IMPACT.json",
+      "sha256": "348387df4603e8013a1deacb9097d661da11b1053b26766e8919aa6f7efa6b5b",
+      "bytes": 455
+    },
+    {
+      "path": "packages/titan-platform/src/retriever/pass06/PASS06-COLLISION-RECORD.json",
+      "sha256": "b629e4939d37b3fbcb813fb0fbde3a1da8cebbd535db9cd377117138e0e9983c",
+      "bytes": 451
+    },
+    {
+      "path": "packages/titan-platform/src/retriever/pass06/PASS06-HANDOFF.json",
+      "sha256": "50cd010831a250da810611fe1d7237c070991e288e04c77b7fd146e380ccf58a",
+      "bytes": 682
+    },
+    {
+      "path": "packages/titan-platform/src/retriever/pass06/PASS06-SEMANTIC-CHANGE.json",
+      "sha256": "c161d303882d9d6b99ed60e2ffb0fbfd7bfae9d00de05026f78bd73095291f77",
+      "bytes": 520
+    },
+    {
+      "path": "packages/titan-platform/src/retriever/pass06/PASS06-TOUCHED-FILES.json",
+      "sha256": "7003d289a7744855a173263da49eb86c958a241d2d8959a01cdcd4e0e17520e4",
+      "bytes": 717
+    },
+    {
+      "path": "packages/titan-platform/src/retriever/pass06/PASS06-VERIFICATION.json",
+      "sha256": "dc30d3c1454e6ea754982cf5801a93e49899db6d6ed84328a0da9129f23dd65c",
+      "bytes": 1526
+    },
+    {
+      "path": "packages/titan-platform/src/retriever/pass07/CUMULATIVE-DELTA-MANIFEST.json",
+      "sha256": "dd03d032f6691bdb5115863598dc537acc2385f1fdf8af5c6577e33009d7e7d6",
+      "bytes": 15630
+    },
+    {
+      "path": "packages/titan-platform/src/retriever/pass07/DONOR-RETIREMENT-LEDGER.json",
+      "sha256": "07ef094707fabc29ee739a5408cb11434417309a8208421288d3678132b74d47",
+      "bytes": 3257
+    },
+    {
+      "path": "packages/titan-platform/src/retriever/pass07/PASS07-CHANGE-IMPACT.json",
+      "sha256": "9a177d1912b269a8a53e5ca94bcc0d6c810ca1749d93d9d450e134f2a4b9b978",
+      "bytes": 418
+    },
+    {
+      "path": "packages/titan-platform/src/retriever/pass07/PASS07-COLLISION-RECORD.json",
+      "sha256": "56115e369a37cddb09771c32b34d494693413d613f08d1dcc605612db38824c4",
+      "bytes": 451
+    },
+    {
+      "path": "packages/titan-platform/src/retriever/pass07/PASS07-HANDOFF.json",
+      "sha256": "25973c1737a5f2176077664e1fd6d1bf3bb6253f1e70ee9c6849c38934f9ab03",
+      "bytes": 755
+    },
+    {
+      "path": "packages/titan-platform/src/retriever/pass07/PASS07-SEMANTIC-CHANGE.json",
+      "sha256": "26e01007ad2119d609d861156293f365e1becd5857f56941a5612824723923fe",
+      "bytes": 491
+    },
+    {
+      "path": "packages/titan-platform/src/retriever/pass07/PASS07-TOUCHED-FILES.json",
+      "sha256": "398a59fe8d54bb6f0f229afb9860b16d2c9ae1987115507e7132463811732782",
+      "bytes": 760
+    },
+    {
+      "path": "packages/titan-platform/src/retriever/pass07/PASS07-VERIFICATION.json",
+      "sha256": "70b2ba652b3525b71e431e73a58a2e6c90bf032a26ce5e6543c0b3b21e836b83",
+      "bytes": 1172
+    },
+    {
+      "path": "packages/titan-platform/src/retriever/pass08/DONOR-RETIREMENT-LEDGER-CERTIFIED.json",
+      "sha256": "880e7b487a6ed6bcd55c2e0daf97171fdc3866b63682df562ca746bf4aff8613",
+      "bytes": 3393
+    },
+    {
+      "path": "packages/titan-platform/src/retriever/pass08/PASS08-CHANGE-IMPACT.json",
+      "sha256": "7634067f911555fa88a85106ce168d7fd4efa9c23cf08c61c8e8e4ce8beb1e47",
+      "bytes": 373
+    },
+    {
+      "path": "packages/titan-platform/src/retriever/pass08/PASS08-COLLISION-RECORD.json",
+      "sha256": "94e8888bd29841b15760a8d1a31819a3d11f64cb2b836ecfaba81d908e7cdeae",
+      "bytes": 476
+    },
+    {
+      "path": "packages/titan-platform/src/retriever/pass08/PASS08-HANDOFF.json",
+      "sha256": "4da6e954adbd2d1bf8308ab61e7250e2da73633db1984b33ecb898563552693e",
+      "bytes": 708
+    },
+    {
+      "path": "packages/titan-platform/src/retriever/pass08/PASS08-REGRESSION-CERTIFICATION.json",
+      "sha256": "43930689ef64e12f542d76dcd6ac549c27080e8f2c38493fbc3f39a69edbedf2",
+      "bytes": 1613
+    },
+    {
+      "path": "packages/titan-platform/src/retriever/pass08/PASS08-SEMANTIC-CHANGE.json",
+      "sha256": "c136b505c6c8dc4ffd0da1d49af9800ec473de1fdee01730b8ef91bf3d44288f",
+      "bytes": 507
+    },
+    {
+      "path": "packages/titan-platform/src/retriever/pass08/PASS08-TOUCHED-FILES.json",
+      "sha256": "4423df04a2df1eb1896f889e02fef5dcf0a3ca734920cb51fe3541cd35d07c31",
+      "bytes": 744
+    },
+    {
+      "path": "packages/titan-platform/src/retriever/pass08/PASS08-VERIFICATION.json",
+      "sha256": "dc22b906ecd67f1d7d10ab8e4fb5e8cd2f00a5fc96b7595f387a27b0eb44221c",
+      "bytes": 1281
+    },
+    {
+      "path": "packages/titan-platform/src/retriever/recovery.ts",
+      "sha256": "6c4275bfa21c119db664f15be03e7c7bb350bc566894bc2300cf10442c30dac2",
+      "bytes": 7356
+    },
+    {
+      "path": "packages/titan-platform/src/retriever/semantic-retirement.ts",
+      "sha256": "bf36c1057f730e221262492ce5bce7f034b7c8734c5fcae542506b44f5cdcca8",
+      "bytes": 4532
+    },
+    {
+      "path": "packages/titan-platform/src/retriever/surface-bridge.ts",
+      "sha256": "d8e4cd4ee353e2c2a48100c6723f7495e5c33875d1f2940511ba7b2d8808dda2",
+      "bytes": 5633
+    },
+    {
+      "path": "packages/titan-platform/tests/retriever-native-pass02.test.mjs",
+      "sha256": "5f4edaa99c78d3a7c315c9cb5f4f636b6e0f1700c6a553ed99c8d47c9c797cc6",
+      "bytes": 3896
+    },
+    {
+      "path": "packages/titan-platform/tests/retriever-native-pass03-lifecycle.test.mjs",
+      "sha256": "612df5ae9013b07fe73af9aea0a69308bbd3aff513363c70618c46d1bd50088a",
+      "bytes": 5873
+    },
+    {
+      "path": "packages/titan-platform/tests/retriever-native-pass04-surface-bridge.test.mjs",
+      "sha256": "86a5cfe791f5f34ed078c869d457a0e1a658a0b60a1f369e1104d17aeafffe84",
+      "bytes": 4410
+    },
+    {
+      "path": "packages/titan-platform/tests/retriever-native-pass05-donor-reachability.test.mjs",
+      "sha256": "4b6132620b2f5a7fccf9c409038f6a2cfa3b5e2c25fc3aa40155486c985922c4",
+      "bytes": 3491
+    },
+    {
+      "path": "packages/titan-platform/tests/retriever-native-pass06-recovery.test.mjs",
+      "sha256": "7a26458bb1e1751f4bf81f7cf55e879a036998d03a6a4dbc8ca130b481d4a677",
+      "bytes": 5668
+    },
+    {
+      "path": "packages/titan-platform/tests/retriever-native-pass07-retirement-ledger.test.mjs",
+      "sha256": "5c7675c09789713c90d7dc5502f7d19cb95fb9d5ef385cf2d719330d1c5217a5",
+      "bytes": 4151
+    },
+    {
+      "path": "packages/titan-platform/tests/retriever-native-pass08-regression-certification.test.mjs",
+      "sha256": "acf3529041a84157694fe1d690139dd25ab84b1bfa44a746e64e3b5a474f09ae",
+      "bytes": 7206
+    },
+    {
+      "path": "packages/titan-platform/tsconfig.json",
+      "sha256": "c3e0306313d5e7a9118c80d2c9d5467859926bc427da04d1d8bdb4529d488476",
+      "bytes": 479
+    }
+  ]
+}

@@ -1,0 +1,74 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "titan.workforce.security-posture.v1",
+  "title": "Titan Workforce Security Posture",
+  "type": "object",
+  "required": [
+    "schema",
+    "company_id",
+    "state",
+    "endpoint",
+    "secret_policy",
+    "request_security",
+    "privileged_actions",
+    "compromise",
+    "readiness",
+    "automatic_authority_change",
+    "authority_granted",
+    "execution_permitted",
+    "grants_authority"
+  ],
+  "properties": {
+    "schema": {
+      "const": "titan.workforce.security-posture.v1"
+    },
+    "company_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "state": {
+      "enum": [
+        "HARDENED",
+        "HARDENING_REQUIRED",
+        "COMPROMISED"
+      ]
+    },
+    "endpoint": {
+      "type": "object"
+    },
+    "realtime_endpoint": {
+      "type": "object"
+    },
+    "secret_policy": {
+      "type": "object"
+    },
+    "request_security": {
+      "type": "object"
+    },
+    "privileged_actions": {
+      "type": "object"
+    },
+    "evidence": {
+      "type": "object"
+    },
+    "compromise": {
+      "type": "object"
+    },
+    "readiness": {
+      "type": "object"
+    },
+    "automatic_authority_change": {
+      "const": false
+    },
+    "authority_granted": {
+      "const": false
+    },
+    "execution_permitted": {
+      "const": false
+    },
+    "grants_authority": {
+      "const": false
+    }
+  },
+  "additionalProperties": true
+}

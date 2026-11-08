@@ -1,0 +1,28 @@
+{
+  "schema": "titan-zero-offline-authorization-contraction-contract/v1",
+  "packet_id": "TZ-FINISH-OFFLINE-RESILIENCE-001",
+  "pass": 6,
+  "policy": {
+    "company_boundary": "company_id",
+    "contraction_only": true,
+    "fresh_decision_required": true,
+    "cached_identity_grants_authority": false,
+    "cached_role_grants_authority": false,
+    "stale_policy_grants_authority": false,
+    "protected_actions_require_online_fresh_authority": true
+  },
+  "freshness": {
+    "default_max_policy_age_ms": 300000,
+    "expired": "FAIL_CLOSED",
+    "future_evaluation": "FAIL_CLOSED",
+    "context_revision_mismatch": "FAIL_CLOSED",
+    "account_revision_mismatch": "FAIL_CLOSED",
+    "policy_revision_mismatch": "FAIL_CLOSED"
+  },
+  "offline_contraction": {
+    "default_score_cap": 50,
+    "can_raise_authority": false,
+    "required_permission_missing": "FAIL_CLOSED",
+    "required_entitlement_missing": "FAIL_CLOSED"
+  }
+}

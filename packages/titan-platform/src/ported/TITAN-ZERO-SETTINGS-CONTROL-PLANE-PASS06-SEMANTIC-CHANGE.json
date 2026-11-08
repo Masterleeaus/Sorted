@@ -1,0 +1,35 @@
+{
+  "schema": "titan-zero-settings-control-plane-semantic-change/v1",
+  "pass": 6,
+  "title": "AI Provider Control Centre",
+  "status": "COMPLETE_PENDING_PACKAGE_VERIFICATION",
+  "base_artifact": "Titan-Zero-SETTINGS-CONTROL-PLANE-Pass05-CUMULATIVE.zip",
+  "manager_baseline": {
+    "merge": "19",
+    "artifact": "Titan-Zero-CANONICAL-MASTER-2026-09-06-MERGE-19-SETTINGS-CONVERGED.zip",
+    "sha256": "7b24c9e315507583cd9f6a78a2aa6f8e88c5178e83d803e387645bd713402408"
+  },
+  "implemented": [
+    "credential-safe provider control projection over existing providerConfigs records",
+    "provider enabled-state controls using the existing enabled field",
+    "provider priority using the existing providerConfigs array order",
+    "explicit fallback policy with manual and ordered-enabled modes",
+    "fallback-plan generation that never grants runtime authority",
+    "correction of providerConfigs registry metadata from object to verified array storage shape"
+  ],
+  "preserved": [
+    "existing BYO provider records and credential fields",
+    "existing Retriever provider storage key providerConfigs",
+    "existing provider storage/migration paths",
+    "rich Settings and Monica-derived UI",
+    "company_id as sole company boundary",
+    "AI identity not authority"
+  ],
+  "credential_policy": "Control projections never expose API keys/tokens/secrets/passwords/credentials. Raw existing provider records are preserved only in the storage update result so existing persistence paths are not rewritten.",
+  "runtime_authority": "Settings provider policy is configuration only; runtime authority, entitlements, privacy, budgets and provider availability remain separate gates.",
+  "next_pass": {
+    "pass": 7,
+    "title": "AI Cost Routing Settings"
+  },
+  "created_utc": "2026-09-06T13:53:45.941857Z"
+}

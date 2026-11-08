@@ -1,0 +1,23 @@
+{
+  "schema": "titan-zero-workforce-pass/v1",
+  "pass": 38,
+  "title": "Customer / External Actor Boundary",
+  "runtime_schema": "titan.workforce.external-actor-boundary.v1",
+  "company_boundary": "company_id only",
+  "external_actor_kinds": [
+    "CUSTOMER",
+    "SUPPLIER",
+    "CONTRACTOR",
+    "PARTNER",
+    "REGULATOR",
+    "ADVISER",
+    "VENDOR",
+    "OTHER"
+  ],
+  "external_actor_is_internal_workforce_member": false,
+  "automatic_membership": false,
+  "automatic_authority_change": false,
+  "authority_granted": false,
+  "execution_permitted": false,
+  "grants_authority": false
+}

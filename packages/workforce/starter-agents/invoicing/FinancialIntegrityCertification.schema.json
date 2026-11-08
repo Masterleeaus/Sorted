@@ -1,0 +1,16 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema",
+  "$id":"titan.workforce.starter.invoicing.financial-integrity-certification.v1",
+  "type":"object",
+  "required":["schema","company_id","worker","certified","checks","blocking_invariants","authority"],
+  "properties":{
+    "schema":{"const":"titan.workforce.starter.invoicing.financial-integrity-certification.v1"},
+    "company_id":{"type":"string","minLength":1},
+    "worker":{"const":"Invoicing Agent"},
+    "certified":{"type":"boolean"},
+    "checks":{"type":"array","items":{"type":"object","required":["name","passed"],"properties":{"name":{"type":"string"},"passed":{"type":"boolean"},"detail":{}},"additionalProperties":false}},
+    "blocking_invariants":{"type":"array","items":{"type":"string"}},
+    "authority":{"type":"object","required":["company_boundary","identity_grants_authority","authority_granted","grants_authority","execution_permitted","canonical_financial_mutation_permitted"]}
+  },
+  "additionalProperties":false
+}

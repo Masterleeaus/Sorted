@@ -1,0 +1,10 @@
+{
+  "schema": "titan.onboarding.cleaning-service-setup-contract.v1",
+  "company_boundary": "company_id",
+  "source_module": "titan.workforce.cleaning",
+  "source_projection": "job-types",
+  "catalogue_copy_permitted": false,
+  "pricing_modes": ["fixed", "hourly", "quote_required"],
+  "selection_fields": ["job_type_id", "service_label", "enabled", "pricing", "checklist_selection"],
+  "authority": {"grants_authority": false, "authority_granted": false, "execution_permitted": false}
+}

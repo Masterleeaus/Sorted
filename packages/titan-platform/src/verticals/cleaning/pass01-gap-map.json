@@ -1,0 +1,128 @@
+{
+  "schema": "titan.zero.vertical.cleaning.gap-map.v1",
+  "packet_id": "TZ-VERTICAL-CLEANING-001",
+  "pass": 1,
+  "manager_merge": 56,
+  "company_boundary": "company_id",
+  "identity_grants_authority": false,
+  "production_behavior_changed": false,
+  "objective": "Reuse and consolidate retained cleaning capability into a first-class cleaning vertical without forking shared booking, scheduling, jobs, reception, sales, customer-care, pricing or business-record authorities.",
+  "reuse_plan": [
+    {
+      "source": "packages/titan-platform/src/ported/titan-cleaning-workforce.ts",
+      "disposition": "ADAPT",
+      "reason": "Rich cleaning specialist catalogue already exists, but browser/chrome storage integration is quarantined and must not be promoted directly into the standalone runtime."
+    },
+    {
+      "source": "packages/titan-platform/src/ported/titan-workforce-cleaning-catalogue.ts",
+      "disposition": "ADAPT",
+      "reason": "Retain cleaning workforce catalogue semantics and presentation data; replace browser globals with standalone projections only where needed."
+    },
+    {
+      "source": "packages/titan-platform/src/ported/titan-onboarding/runtime/cleaning-service-setup.ts",
+      "disposition": "REUSE",
+      "reason": "Already company_id scoped, rejects legacy tenant aliases, normalizes service selections and keeps configuration authority-neutral."
+    },
+    {
+      "source": "packages/titan-platform/src/ported/titan-workforce/scheduling/cleaning-assignment-requirement-suggestions.ts",
+      "disposition": "REUSE",
+      "reason": "Already models crew size, skills/equipment evidence and company-scoped assignment suggestions without automatic assignment or authority grants."
+    },
+    {
+      "source": "packages/titan-platform/src/ported/titan-runtime/analytics/cleaning-kpi-definitions.ts",
+      "disposition": "REUSE",
+      "reason": "Retain cleaning KPI definitions as analytics evidence; do not create a parallel performance authority."
+    },
+    {
+      "source": "packages/titan-platform/src/ported/diagnostics/operations/cleaning-*.json",
+      "disposition": "REUSE",
+      "reason": "Seven retained cleaning diagnostics already map quote, booking, job, field execution, QA, invoice/payment and recurrence gaps."
+    },
+    {
+      "source": "packages/titan-platform/src/ported/titan-modules/builtin/workforce-verticals/manifest.json",
+      "disposition": "REUSE",
+      "reason": "Cleaning is already a registered vertical alongside other service verticals and is company_id scoped."
+    },
+    {
+      "source": "packages/titan-zero-migration-source/**/tests/*cleaning*",
+      "disposition": "REUSE_AS_REGRESSION_DONORS",
+      "reason": "At least 38 retained cleaning tests/scenarios exist and should be forward-ported selectively rather than rewritten."
+    }
+  ],
+  "shared_domain_owners_to_preserve": [
+    "workforce-native",
+    "booking",
+    "scheduling",
+    "jobs",
+    "reception",
+    "sales",
+    "customer-care",
+    "crm/business records",
+    "pricing/estimates",
+    "invoicing/payments"
+  ],
+  "gap_map": [
+    {
+      "id": "CLEAN-GAP-001",
+      "severity": "HIGH",
+      "area": "standalone vertical composition",
+      "finding": "Cleaning capability is substantial but fragmented across ported/quarantined modules rather than composed behind one standalone cleaning vertical contract.",
+      "next_pass": "Build the canonical cleaning service catalogue as native vertical configuration while retaining shared domain owners."
+    },
+    {
+      "id": "CLEAN-GAP-002",
+      "severity": "HIGH",
+      "area": "shared web language",
+      "finding": "Sixteen shared apps/web/lib files still contain Dovetails/handyman-specific prompts or branding assumptions.",
+      "examples": [
+        "apps/web/lib/estimates/ai-draft.ts",
+        "apps/web/lib/estimates/materials-generator.ts",
+        "apps/web/lib/estimates/task-decomposer.ts",
+        "apps/web/lib/sms/classify.ts",
+        "apps/web/lib/day-review/interpret-day-draft.ts",
+        "apps/web/lib/expenses/receipt-line-items.ts"
+      ],
+      "handling": "Do not mass-edit shared owners from this pass. Future cleaning adapters/projections must supply vertical context; shared-owner generalization requires collision-safe coordination."
+    },
+    {
+      "id": "CLEAN-GAP-003",
+      "severity": "MEDIUM",
+      "area": "service catalogue",
+      "finding": "Retained cleaning setup and workforce catalogue exist, but there is no first-class native catalogue in packages/titan-platform/src/verticals/cleaning covering residential, commercial, end-of-lease, Airbnb turnover, carpet/upholstery, window and pressure-cleaning variants with inclusions/add-ons."
+    },
+    {
+      "id": "CLEAN-GAP-004",
+      "severity": "MEDIUM",
+      "area": "recurring and commercial lifecycle",
+      "finding": "Generic recurrence exists and commercial cleaning specialists exist, but recurring cadence, rotating tasks, site instructions, worker continuity and contract changes are not yet one native cleaning lifecycle."
+    },
+    {
+      "id": "CLEAN-GAP-005",
+      "severity": "MEDIUM",
+      "area": "quality and rework",
+      "finding": "Cleaning QA is distributed across Jobs evidence/completion, cleaning quality specialists and Customer Care; it should be composed, not replaced with a new QA authority."
+    },
+    {
+      "id": "CLEAN-GAP-006",
+      "severity": "MEDIUM",
+      "area": "offline field execution",
+      "finding": "Retained Jobs field context supports checklists, hazards, equipment, materials and evidence, but cleaning-specific room/area execution packs are not yet exposed as a native vertical projection for Titan Go/offline use."
+    }
+  ],
+  "guardrails": {
+    "no_parallel_business_truth": true,
+    "no_parallel_workforce_runtime": true,
+    "no_automatic_assignment": true,
+    "no_authority_from_vertical_selection": true,
+    "no_destructive_overwrite_of_company_customization": true,
+    "preserve_existing_ui_style": true,
+    "device_first": true
+  },
+  "pass2_entry_criteria": [
+    "Reuse existing cleaning setup/catalogue semantics before adding fields.",
+    "Use company_id only.",
+    "Treat cleaning as configuration/composition over shared domain owners.",
+    "Keep quote-required and approval-required decisions explicit.",
+    "Do not introduce handyman terminology into cleaning-native surfaces."
+  ]
+}

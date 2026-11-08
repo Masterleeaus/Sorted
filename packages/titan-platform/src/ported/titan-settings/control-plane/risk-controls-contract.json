@@ -1,0 +1,23 @@
+{
+  "schema":"titan-zero-risk-controls-contract/v1",
+  "pass":13,
+  "status":"ACTIVE",
+  "company_boundary":"company_id",
+  "setting_key":"riskControlSettings",
+  "scope":"company",
+  "risk_levels":["low","medium","high","exceptional"],
+  "runtime_sources":[
+    "titan-intelligence/core/risk-classification.mjs",
+    "titan-workforce/risk/physical-environmental-risk-runtime.mjs",
+    "titan-workforce/handover/investigation-installation-handover.mjs"
+  ],
+  "settings_role":"risk floor, earlier review and escalation projection only",
+  "runtime_classifier_remains_authoritative":true,
+  "settings_can_change_classifier_weights":false,
+  "settings_can_lower_runtime_risk":false,
+  "settings_can_accept_risk":false,
+  "exceptional_runtime_risk_cannot_be_downgraded":true,
+  "critical_unresolved_physical_environmental_risk_remains_blocking":true,
+  "identity_grants_authority":false,
+  "execution_permitted":false
+}

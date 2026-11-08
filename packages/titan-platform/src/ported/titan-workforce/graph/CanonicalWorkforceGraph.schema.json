@@ -1,0 +1,21 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema",
+  "$id":"titan.workforce.graph.v1",
+  "type":"object",
+  "required":["schema","company_id","nodes","edges","derived","durable_authority","graph_confers_authority","grants_authority"],
+  "properties":{
+    "schema":{"const":"titan.workforce.graph.v1"},
+    "company_id":{"type":"string","minLength":2,"maxLength":128,"pattern":"^[A-Za-z0-9._:-]+$"},
+    "projection_revision":{"type":"integer","minimum":0},
+    "projection_cursor":{"type":["string","null"]},
+    "sync_generation":{"type":"integer","minimum":0},
+    "nodes":{"type":"array","items":{"type":"object","required":["node_id","company_id","kind","entity_id","grants_authority"],"properties":{"company_id":{"type":"string"},"grants_authority":{"const":false}}}},
+    "edges":{"type":"array","items":{"type":"object","required":["edge_id","company_id","type","from","to","grants_authority"],"properties":{"company_id":{"type":"string"},"grants_authority":{"const":false}}}},
+    "derived":{"const":true},
+    "durable_authority":{"const":false},
+    "identity_confers_authority":{"const":false},
+    "role_confers_authority":{"const":false},
+    "graph_confers_authority":{"const":false},
+    "grants_authority":{"const":false}
+  }
+}

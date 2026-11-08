@@ -1,0 +1,16 @@
+import test from "node:test";import assert from "node:assert/strict";
+import {createChatState,applyChatEvent,createChatEdgeCursor,reconcileChatEdgeMutation} from "../src/ported/titan-runtime/interaction-engine/chat-state.js";
+const base={conversation_id:"c1",company_id:"co1",surface:"go"};
+const msg=(id,text="x")=>({schema:"titan.chat.event.v1",event_id:id,conversation_id:"c1",company_id:"co1",surface:"go",type:"assistant_message",text,authority_granted:false});
+test("fresh edge mutation accepted with server sequence",()=>{const s=createChatState(base),c=createChatEdgeCursor(s,"phone");const r=reconcileChatEdgeMutation(s,c,msg("m1"));assert.equal(r.status,"accepted");assert.equal(r.assigned_sequence,1)});
+test("accepted event applies through canonical reducer",()=>{const s=createChatState(base),c=createChatEdgeCursor(s,"phone");const r=reconcileChatEdgeMutation(s,c,msg("m1"));assert.equal(applyChatEvent(s,r.event).last_sequence,1)});
+test("second device stale cursor conflicts",()=>{let s=createChatState(base);const stale=createChatEdgeCursor(s,"tablet");const a=reconcileChatEdgeMutation(s,createChatEdgeCursor(s,"phone"),msg("m1"));s=applyChatEvent(s,a.event);const r=reconcileChatEdgeMutation(s,stale,msg("m2"));assert.equal(r.status,"conflict");assert.equal(r.resolution,"refresh_then_reapply")});
+test("refresh cursor permits deterministic retry",()=>{let s=createChatState(base);let a=reconcileChatEdgeMutation(s,createChatEdgeCursor(s,"phone"),msg("m1"));s=applyChatEvent(s,a.event);const r=reconcileChatEdgeMutation(s,createChatEdgeCursor(s,"tablet"),msg("m2"));assert.equal(r.status,"accepted");assert.equal(r.assigned_sequence,2)});
+test("client cannot forge sequence",()=>{const s=createChatState(base);assert.throws(()=>reconcileChatEdgeMutation(s,createChatEdgeCursor(s,"phone"),{...msg("m"),sequence:99}),/cannot-assign-sequence/)});
+test("cross company cursor rejected",()=>{const s=createChatState(base),c={...createChatEdgeCursor(s,"x"),company_id:"evil"};assert.throws(()=>reconcileChatEdgeMutation(s,c,msg("m")),/company-mismatch/)});
+test("cross surface cursor rejected",()=>{const s=createChatState(base),c={...createChatEdgeCursor(s,"x"),surface:"hub"};assert.throws(()=>reconcileChatEdgeMutation(s,c,msg("m")),/surface-mismatch/)});
+test("cross conversation cursor rejected",()=>{const s=createChatState(base),c={...createChatEdgeCursor(s,"x"),conversation_id:"other"};assert.throws(()=>reconcileChatEdgeMutation(s,c,msg("m")),/conversation-mismatch/)});
+test("legacy tenant cursor rejected",()=>{const s=createChatState(base),c={...createChatEdgeCursor(s,"x"),tenant_id:"bad"};assert.throws(()=>reconcileChatEdgeMutation(s,c,msg("m")),/not an authority boundary/)});
+test("cursor ahead rejected",()=>{const s=createChatState(base),c={...createChatEdgeCursor(s,"x"),revision:5};assert.throws(()=>reconcileChatEdgeMutation(s,c,msg("m")),/cursor-ahead/)});
+test("device id required",()=>assert.throws(()=>createChatEdgeCursor(createChatState(base),""),/device-id-invalid/));
+test("reconciliation grants no authority",()=>{const s=createChatState(base),r=reconcileChatEdgeMutation(s,createChatEdgeCursor(s,"phone"),msg("m"));assert.equal(r.authority_granted,false);assert.equal(r.event.authority_granted,false)});

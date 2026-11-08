@@ -1,0 +1,174 @@
+{
+  "schema": "titan-zero-ui-restore-pass1/v1",
+  "packet_id": "TZ-UI-RESTORE-001",
+  "pass": 1,
+  "name": "Deep UI inventory and replacement map",
+  "base": {
+    "artifact": "Titan-Zero-CANONICAL-MASTER-2026-09-05.zip",
+    "manager_merge": "08",
+    "sha256": "a8a1691ab48f926eff0f9bf72467a80d2e829a1fd75a97225b1888d50cf1b668",
+    "files": 1778
+  },
+  "manifest_entrypoints": {
+    "action_popup": "titan-popup.html",
+    "options": "titan-zero-options.html",
+    "side_panel": "sidePanel.html",
+    "background": "background-bootstrap.js"
+  },
+  "inventory": [
+    {
+      "path": "chatTab.html",
+      "title": "Chat with Monica",
+      "bytes": 802,
+      "classification": "rich-retained-primary-candidate"
+    },
+    {
+      "path": "diagnostics.html",
+      "title": "Titan Zero Diagnostics",
+      "bytes": 2610,
+      "classification": "supporting"
+    },
+    {
+      "path": "dynamic-content/index.html",
+      "title": "rtrvr.ai Dynamic Content",
+      "bytes": 3426,
+      "classification": "supporting"
+    },
+    {
+      "path": "main.html",
+      "title": "Titan Zero",
+      "bytes": 384,
+      "classification": "thin-current-primary-or-bridge"
+    },
+    {
+      "path": "microphone-permission/index.html",
+      "title": "Allow Microphone",
+      "bytes": 402,
+      "classification": "supporting"
+    },
+    {
+      "path": "module-view.html",
+      "title": "Titan Zero Module",
+      "bytes": 1127,
+      "classification": "supporting"
+    },
+    {
+      "path": "modules.html",
+      "title": "Titan Zero Modules",
+      "bytes": 6108,
+      "classification": "retain-rebuild"
+    },
+    {
+      "path": "monicaOptions.html",
+      "title": "Monica Options",
+      "bytes": 589,
+      "classification": "rich-retained-primary-candidate"
+    },
+    {
+      "path": "monicaPopup.html",
+      "title": "Titan Zero",
+      "bytes": 653,
+      "classification": "rich-retained-primary-candidate"
+    },
+    {
+      "path": "offscreen/index.html",
+      "title": "Offscreen",
+      "bytes": 511,
+      "classification": "supporting"
+    },
+    {
+      "path": "sandbox/index.html",
+      "title": "",
+      "bytes": 62118,
+      "classification": "supporting"
+    },
+    {
+      "path": "side-panel/index.html",
+      "title": "Side Panel",
+      "bytes": 622,
+      "classification": "retriever-runtime-capability"
+    },
+    {
+      "path": "sidePanel.html",
+      "title": "Titan Zero",
+      "bytes": 19574,
+      "classification": "thin-current-primary-or-bridge"
+    },
+    {
+      "path": "titan-popup.html",
+      "title": "Titan Zero",
+      "bytes": 2179,
+      "classification": "thin-current-primary-or-bridge"
+    },
+    {
+      "path": "titan-zero-chat-runtime.html",
+      "title": "Titan Zero",
+      "bytes": 688,
+      "classification": "thin-current-primary-or-bridge"
+    },
+    {
+      "path": "titan-zero-options.html",
+      "title": "Titan Zero \u2014 Launch Settings",
+      "bytes": 3106,
+      "classification": "thin-current-primary-or-bridge"
+    }
+  ],
+  "primary_replacement_map": [
+    {
+      "current": "titan-popup.html",
+      "replacement": "monicaPopup.html",
+      "role": "popup",
+      "reason": "Current popup is a thin launcher. Existing Monica popup ships a 7.5MB UI bundle and 2.2MB stylesheet and is the richer interaction surface."
+    },
+    {
+      "current": "sidePanel.html",
+      "replacement": "rich Monica shell + retained Retriever runtime embedded as capability",
+      "role": "primary side panel / shell",
+      "reason": "Current 19KB shell exposes duplicate thin views, donor routes and runtime frames. Rich Monica chat/workspace assets already exist and should become the product shell."
+    },
+    {
+      "current": "titan-zero-chat-runtime.html",
+      "replacement": "chatTab.html",
+      "role": "full chat",
+      "reason": "Compatibility runtime is a thin compatibility wrapper over copied popup assets; chatTab is the retained rich full chat/tool surface."
+    },
+    {
+      "current": "titan-zero-options.html",
+      "replacement": "monicaOptions.html rebranded/wired into Titan Settings",
+      "role": "settings",
+      "reason": "Current Titan options page is a thin bridge. Existing options UI carries the richer retained settings architecture."
+    },
+    {
+      "current": "main.html -> sidePanel.html",
+      "replacement": "rich primary Titan Zero full-page shell",
+      "role": "full-page startup",
+      "reason": "main-redirect.js currently redirects the full-page entry to sidePanel.html, making the thin shell authoritative."
+    },
+    {
+      "current": "side-panel/index.html visible as Original Full Runtime",
+      "replacement": "retain internally as Retriever execution runtime, remove donor-facing product-route wording",
+      "role": "execution runtime",
+      "reason": "Retriever should remain an execution capability behind Titan authority, not a competing product destination."
+    },
+    {
+      "current": "modules.html",
+      "replacement": "modules.html retained but visually rebuilt as Titan Add-ons hub",
+      "role": "marketplace",
+      "reason": "Functional installer surface exists but visual/merchandising experience is sparse and developer-oriented."
+    }
+  ],
+  "visible_navigation_defects": [
+    "Theme & Colours is exposed as a top-level hamburger entry instead of inside Settings.",
+    "Monica AI \u2014 Full Chat & Tools, Popup and Options are exposed as donor-era entries instead of being the main Titan UI.",
+    "Retriever AI \u2014 Original Full Runtime and Titan Chat Compatibility Runtime are visible product concepts.",
+    "Business/Feed/Workforce are implemented inside the thin sidePanel shell instead of full rich pages.",
+    "The primary shell embeds multiple competing iframes instead of presenting one coherent product architecture."
+  ],
+  "pass2_priority": [
+    "Switch action popup entry from titan-popup.html to the rich popup architecture, preserving Titan branding.",
+    "Switch full-page/startup route away from sidePanel.html thin shell.",
+    "Keep Retriever execution runtime behind the rich UI rather than as a visible competing product.",
+    "Do not delete any unique capability while routes are being changed."
+  ],
+  "rendered_evidence_rule": "User screenshots are the acceptance baseline. Static tests alone cannot certify this packet."
+}

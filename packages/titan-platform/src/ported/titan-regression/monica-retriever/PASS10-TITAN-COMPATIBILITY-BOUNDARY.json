@@ -1,0 +1,28 @@
+{
+  "schema": "titan-zero.pass10-titan-compatibility-boundary/v1",
+  "packet_id": "TZ-WP-004",
+  "principle": "Titanize without subtraction",
+  "branding_boundary": {
+    "public_shell": "Titan Zero",
+    "presentation_runtime": "titan-shell.js",
+    "presentation_replacements": ["Monica -> Titan Zero", "Retriever AI -> Titan Work", "Retriever -> Titan Work"],
+    "internal_compatibility_names_retained": true
+  },
+  "protected_compatibility_surfaces": [
+    "chatTab.html",
+    "monicaOptions.html",
+    "monica-content.js",
+    "monica-background.js",
+    "monica-popup.js",
+    "content.js",
+    "content.css",
+    "side-panel/**",
+    "offscreen/**"
+  ],
+  "retirement_policy": "No donor compatibility path is retired in TZ-WP-004 because live unpacked-browser feature parity remains BLOCKED_ENVIRONMENT.",
+  "authority": {
+    "company_boundary": "company_id",
+    "branding_grants_authority": false,
+    "compatibility_identity_grants_authority": false
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "schema": "titan-zero-semantic-change/v1",
+  "packet_id": "TZ-NEXT-011",
+  "pass": 3,
+  "summary": "Preserve event/operation/job causal identity when operational events and workforce notifications are projected into Feed metadata.",
+  "contracts_added": [
+    "titan.feed.causality.v1"
+  ],
+  "preserves": [
+    "event ledger lifecycle authority",
+    "workforce notification lifecycle authority",
+    "visible feed read-state authority",
+    "company_id boundary",
+    "identity does not grant authority"
+  ],
+  "behavior": [
+    "event_id and causation_id retained",
+    "operation/root/parent/correlation/request/trace ids retained",
+    "job/work_order/booking refs retained",
+    "notification transitions retain causality",
+    "operational event projection is read-only"
+  ]
+}

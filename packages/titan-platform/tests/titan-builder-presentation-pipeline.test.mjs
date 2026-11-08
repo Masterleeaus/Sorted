@@ -1,0 +1,9 @@
+import test from 'node:test'; import assert from 'node:assert/strict'; import fs from 'node:fs';
+const pipeline=fs.readFileSync(new URL('../src/titan-builder/presentation-pipeline.ts',import.meta.url),'utf8');
+const bridge=fs.readFileSync(new URL('../src/titan-builder/runtime-bridge.ts',import.meta.url),'utf8');
+test('pipeline assigns one owner to each presentation responsibility',()=>{assert.match(pipeline,/semantic:"interaction-engine"/);assert.match(pipeline,/editing:"titan-builder"/);assert.match(pipeline,/composition:"interface-runtime"/);assert.match(pipeline,/visual_execution:"visual-runtime"/);assert.match(pipeline,/parallel_renderer:false/);});
+test('Interface Runtime is the sole composition path',()=>{assert.match(pipeline,/createTitanInterfaceRuntime\(\)\.presentation\.compose/);assert.match(bridge,/composeBuilderThroughInterfaceRuntime/);assert.doesNotMatch(bridge,/createTitanInterfaceRuntime\(\)/);});
+test('Visual Runtime is the sole visual planning path',()=>{assert.match(pipeline,/planVisualRuntime/);assert.match(bridge,/runBuilderPresentationPipeline/);assert.doesNotMatch(bridge,/planVisualRuntime\(/);});
+test('Builder actions are not promoted to Interface Runtime authority',()=>{assert.match(pipeline,/governed_actions:Object\.freeze\(\[\]\)/);assert.match(pipeline,/authority_granted:false/);});
+test('company and surface drift fail closed across context and visual environment',()=>{assert.match(pipeline,/builder_context_company_mismatch/);assert.match(pipeline,/builder_context_surface_mismatch/);assert.match(pipeline,/builder_visual_company_mismatch/);assert.match(pipeline,/builder_visual_surface_mismatch/);});
+test('canonical pipeline remains declarative and sanitized',()=>{assert.match(pipeline,/sanitizeBuilderProjection/);assert.match(pipeline,/resolveBuilderSurface/);});

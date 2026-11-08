@@ -1,0 +1,14 @@
+{
+  "template": {
+    "id": "payment-reconciliation",
+    "version": "0.1.0",
+    "name": "Payment Reconciliation",
+    "status": "draft",
+    "category": "finance",
+    "entry_wizard": "payment_reconciliation_v1",
+    "capabilities": ["finance.payment.reconcile"],
+    "channels": ["chat", "mobile", "tablet", "desktop"],
+    "governance": {"authority": "user_only", "offline": false},
+    "metadata": {"blocked_by": ["entry_wizard", "owning_provider_capability"], "verticals": ["field_services", "home_services", "cleaning"]}
+  }
+}

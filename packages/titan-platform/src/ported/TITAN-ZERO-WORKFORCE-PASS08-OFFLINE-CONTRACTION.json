@@ -1,0 +1,18 @@
+{
+  "schema":"titan.zero.workforce.integration.pass08/v1",
+  "pass":8,
+  "title":"Offline Contraction Integration",
+  "company_boundary":"company_id",
+  "authority_owner":"existing titan-runtime/authority evaluator",
+  "offline_rules":{
+    "cached_reads_allowed":true,
+    "prepared_intents_retained":true,
+    "proposal_network_submission_offline":false,
+    "protected_command_prepare_offline":false,
+    "local_can_raise_authority":false,
+    "fresh_authority_required_after_reconnect":true
+  },
+  "modified_runtime":"titan-workforce-gateway-client.js",
+  "parallel_offline_runtime_created":false,
+  "grants_authority":false
+}

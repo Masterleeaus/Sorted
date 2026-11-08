@@ -1,0 +1,7 @@
+{
+  "schema": "titan-zero-retriever-finish-pass01-change-impact/v1",
+  "packet_id": "TZ-FINISH-RETRIEVER-NATIVE-001",
+  "pass": 1,
+  "impact": "Evidence-only scan artifacts under the new Retriever finish namespace; no live runtime, UI, storage, authority or API behavior changed.",
+  "rollback": "Remove packages/titan-platform/src/retriever/pass01 evidence directory."
+}

@@ -1,0 +1,5 @@
+import test from "node:test";import assert from "node:assert/strict";import {registerConnector,activateConnector,issueConnectorReceipt} from "../.test-dist/connector-runtime.js";
+const input={connector_id:"x1",company_id:"co1",provider:"square",capability_ids:["payment.accept"],credential_ref:"cred:1"};
+test("registers and activates a capability-scoped connector with opaque credential ref",()=>{let c=registerConnector(input);c=activateConnector(c,"HEALTHY");const r=issueConnectorReceipt(c,"co1","payment.accept","idem:1","ACCEPTED","provider:1");assert.equal(r.company_id,"co1");assert.equal(r.authorityGranted,false);assert.equal(r.receipt_id,"x1:idem:1")});
+test("fails closed for invalid connector registration and capability use",()=>{assert.throws(()=>registerConnector({...input,credential_ref:""}),/credential/);let c=registerConnector(input);assert.throws(()=>issueConnectorReceipt(c,"co2","payment.accept","i","ACCEPTED"),/capability/);assert.throws(()=>issueConnectorReceipt(c,"co1","payment.accept","i","ACCEPTED"),/active/)})
+

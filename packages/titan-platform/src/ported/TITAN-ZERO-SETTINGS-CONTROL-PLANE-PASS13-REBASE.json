@@ -1,0 +1,12 @@
+{
+  "schema": "titan-zero-settings-control-plane-rebase/v1",
+  "pass": 13,
+  "from_manager_merge": 24,
+  "to_manager_merge": 25,
+  "manager_artifact": "Titan-Zero-CANONICAL-MASTER-2026-09-07-MERGE-25-OMNI-SCHEDULED-MONITOR-ABSORBED.zip",
+  "manager_sha256": "0d538ae3cc79d29f055a646244f9f54b94e9c12caae7cc730f987fa0a9ae24a1",
+  "manager_added_files": 3,
+  "manager_modified_files": 0,
+  "strategy": "Preserve all Merge25 files, then carry forward Settings control-plane lineage from Pass12. Merge25 introduced only three new scheduled-monitor files, so there were no shared-file conflicts.",
+  "result": "PASS"
+}

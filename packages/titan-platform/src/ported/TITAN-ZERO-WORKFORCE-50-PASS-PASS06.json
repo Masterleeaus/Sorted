@@ -1,0 +1,40 @@
+{
+  "schema": "titan.zero.workforce.50-pass.pass-result.v1",
+  "pass": 6,
+  "name": "Chief of Staff Command Centre",
+  "status": "COMPLETED",
+  "existing_code_first": true,
+  "parallel_replacement_created": false,
+  "company_boundary": "company_id",
+  "grants_authority": false,
+  "changed_surfaces": [
+    "sidePanel.html",
+    "titan-client-workforce-controls.js",
+    "titan-workforce.css",
+    "tests/workforce_chief_of_staff_command_centre_pass06.test.mjs",
+    "docs/workforce/TITAN-ZERO-WORKFORCE-50-PASS-UPGRADE-PLAN.md",
+    "docs/workforce/TITAN-ZERO-WORKFORCE-50-PASS-PASS06-VERIFICATION.md"
+  ],
+  "verification": {
+    "workforce_tests_passed": 212,
+    "workforce_tests_failed": 0,
+    "javascript_syntax": "PASS"
+  },
+  "runtime_reused": [
+    "state.chiefOfStaffCoordination",
+    "state.supervisorCoordination",
+    "state.dynamicStaffing",
+    "state.workloadCapacity",
+    "state.projection.workforce_graph"
+  ],
+  "command_centre_contract": {
+    "responsibility_gaps": true,
+    "responsibility_overlaps": true,
+    "consolidated_escalations": true,
+    "ranked_priorities": true,
+    "dynamic_staffing_pressure": true,
+    "governed_recommendations": true,
+    "recommendations_execute_automatically": false,
+    "chief_of_staff_identity_confers_authority": false
+  }
+}

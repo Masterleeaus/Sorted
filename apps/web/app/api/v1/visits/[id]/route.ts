@@ -1,0 +1,390 @@
+import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
+import { withAuth } from "../../../../../lib/auth/middleware";
+import type { AuthSession } from "../../../../../lib/auth/middleware";
+import { queryOne, getPool } from "../../../../../lib/db";
+import { appendAuditLog } from "../../../../../lib/db/audit";
+import { logger } from "../../../../../lib/logger";
+import { computeCapStatus } from "../../../../../lib/visits/membership-cap";
+import { syncWorkOrderLeadFromVisit } from "../../../../../lib/work-orders/assign-lead";
+import {
+  assigneeOverlap,
+  scheduleConflictMessage,
+  scheduleSlotLabel,
+  type ScheduleSlot,
+} from "../../../../../lib/visits/schedule-overlap";
+import { MEMBERSHIP_VISIT_PHASES } from "@ai-fsm/domain";
+
+export const dynamic = "force-dynamic";
+
+const membershipVisitPhaseSchema = z.enum(
+  MEMBERSHIP_VISIT_PHASES as unknown as [string, ...string[]]
+);
+
+// Owner/admin can update all mutable fields
+const ownerUpdateBody = z.object({
+  assigned_user_id: z.string().uuid().nullable().optional(),
+  scheduled_start: z.string().datetime().optional(),
+  scheduled_end: z.string().datetime().optional(),
+  tech_notes: z.string().nullable().optional(),
+  materials_used: z.string().nullable().optional(),
+  materials_needed: z.string().nullable().optional(),
+  issue_description: z.string().nullable().optional(),
+  membership_visit_phase: membershipVisitPhaseSchema.optional(),
+  included_labor_minutes_used: z.number().int().nonnegative().optional(),
+  membership_snapshot_sent: z.literal(true).optional(),
+  allow_overlap: z.literal(true).optional(),
+});
+
+// Tech can update notes, materials, issue description, and membership visit fields
+const techUpdateBody = z.object({
+  tech_notes: z.string().nullable().optional(),
+  materials_used: z.string().nullable().optional(),
+  materials_needed: z.string().nullable().optional(),
+  issue_description: z.string().nullable().optional(),
+  membership_visit_phase: membershipVisitPhaseSchema.optional(),
+  included_labor_minutes_used: z.number().int().nonnegative().optional(),
+  membership_snapshot_sent: z.literal(true).optional(),
+});
+
+export const GET = withAuth(
+  async (request: NextRequest, session: AuthSession) => {
+    // Extract [id] from URL — HOF wrappers don't forward route params
+    const id = request.url.match(/\/visits\/([^/]+)/)?.[1];
+
+    if (!id) {
+      return NextResponse.json(
+        { error: { code: "NOT_FOUND", message: "Visit not found", traceId: session.traceId } },
+        { status: 404 }
+      );
+    }
+
+    const visit = await queryOne(
+      `SELECT * FROM visits WHERE id = $1 AND account_id = $2`,
+      [id, session.accountId]
+    );
+
+    if (!visit) {
+      return NextResponse.json(
+        { error: { code: "NOT_FOUND", message: "Visit not found", traceId: session.traceId } },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json({ data: visit });
+  }
+);
+
+export const PATCH = withAuth(
+  async (request: NextRequest, session: AuthSession) => {
+    const id = request.url.match(/\/visits\/([^/]+)/)?.[1];
+
+    if (!id) {
+      return NextResponse.json(
+        { error: { code: "NOT_FOUND", message: "Visit not found", traceId: session.traceId } },
+        { status: 404 }
+      );
+    }
+
+    const body = await request.json().catch(() => null);
+
+    // Scope allowed fields by role — tech may only update tech_notes
+    const schema = session.role === "tech" ? techUpdateBody : ownerUpdateBody;
+    const parsed = schema.safeParse(body);
+
+    if (!parsed.success) {
+      return NextResponse.json(
+        {
+          error: {
+            code: "VALIDATION_ERROR",
+            message: "Invalid request body",
+            details: parsed.error.flatten().fieldErrors,
+            traceId: session.traceId,
+          },
+        },
+        { status: 422 }
+      );
+    }
+
+    const pool = getPool();
+    const client = await pool.connect();
+
+    try {
+      await client.query("BEGIN");
+      await client.query(
+        `SELECT set_config('app.current_user_id', $1, true), set_config('app.current_account_id', $2, true), set_config('app.current_role', $3, true)`,
+        [session.userId, session.accountId, session.role]
+      );
+
+      const existing = await client.query(
+        `SELECT * FROM visits WHERE id = $1 AND account_id = $2 FOR UPDATE`,
+        [id, session.accountId]
+      );
+
+      if (!existing.rows[0]) {
+        await client.query("ROLLBACK");
+        return NextResponse.json(
+          { error: { code: "NOT_FOUND", message: "Visit not found", traceId: session.traceId } },
+          { status: 404 }
+        );
+      }
+
+      const old = existing.rows[0];
+      const data = parsed.data;
+      const scheduledStart = "scheduled_start" in data ? data.scheduled_start : undefined;
+      const scheduledEnd = "scheduled_end" in data ? data.scheduled_end : undefined;
+      const nextAssignedUserId = "assigned_user_id" in data ? data.assigned_user_id : undefined;
+      const allowOverlap = "allow_overlap" in data && data.allow_overlap === true;
+      const scheduleTouched =
+        scheduledStart !== undefined ||
+        scheduledEnd !== undefined ||
+        nextAssignedUserId !== undefined;
+
+      if (scheduleTouched && !allowOverlap) {
+        const rawAssignee = nextAssignedUserId !== undefined
+          ? nextAssignedUserId
+          : old.assigned_user_id;
+        const assignee = typeof rawAssignee === "string" ? rawAssignee : null;
+        const start = String(scheduledStart ?? old.scheduled_start ?? "");
+        const end = String(scheduledEnd ?? old.scheduled_end ?? "");
+        if (assignee && start && end) {
+          const conflictRows = await client.query<{
+            id: string;
+            assigned_user_id: string | null;
+            scheduled_start: string;
+            scheduled_end: string;
+            status: string;
+            client_name: string | null;
+            property_address: string | null;
+          }>(
+            `SELECT v.id, v.assigned_user_id, v.scheduled_start::text, v.scheduled_end::text, v.status,
+                    c.name AS client_name, p.address AS property_address
+             FROM visits v
+             JOIN jobs j ON j.id = v.job_id
+             LEFT JOIN clients c ON c.id = j.client_id
+             LEFT JOIN properties p ON p.id = j.property_id
+             WHERE v.account_id = $1
+               AND v.assigned_user_id = $2
+               AND v.id <> $3
+               AND v.status NOT IN ('cancelled', 'completed')
+               AND v.scheduled_start < $5::timestamptz
+               AND v.scheduled_end > $4::timestamptz
+             LIMIT 5`,
+            [session.accountId, assignee, String(id), start, end],
+          );
+          const slots: ScheduleSlot[] = conflictRows.rows.map((row) => ({
+            id: String(row.id),
+            assignedUserId: row.assigned_user_id == null ? null : String(row.assigned_user_id),
+            start: String(row.scheduled_start),
+            end: String(row.scheduled_end),
+            status: String(row.status),
+            label: scheduleSlotLabel(
+              row.client_name == null ? null : String(row.client_name),
+              row.property_address == null ? null : String(row.property_address),
+            ),
+          }));
+          const hit = assigneeOverlap({ id: String(id), assignedUserId: assignee, start, end }, slots);
+          if (hit) {
+            await client.query("ROLLBACK");
+            return NextResponse.json(
+              {
+                error: {
+                  code: "SCHEDULE_CONFLICT",
+                  message: scheduleConflictMessage(hit),
+                  conflict: { visit_id: hit.id, label: hit.label },
+                  traceId: session.traceId,
+                },
+              },
+              { status: 409 },
+            );
+          }
+        }
+      }
+
+      const fields: string[] = [];
+      const values: unknown[] = [];
+      let idx = 3;
+      const { membership_snapshot_sent, ...patchData } = parsed.data;
+
+      for (const [key, val] of Object.entries(patchData)) {
+        if (key === "allow_overlap") continue;
+        if (val !== undefined) {
+          fields.push(`${key} = $${idx++}`);
+          values.push(val);
+        }
+      }
+
+      // Auto-compute membership_cap_status when labor minutes are updated
+      if (parsed.data.included_labor_minutes_used !== undefined) {
+        const capMinutes = old.included_labor_cap_minutes as number | null;
+        const capStatus = computeCapStatus(parsed.data.included_labor_minutes_used, capMinutes);
+        fields.push(`membership_cap_status = $${idx++}`);
+        values.push(capStatus);
+      }
+
+      if (membership_snapshot_sent) {
+        if (!old.generated_from_plan_id) {
+          await client.query("ROLLBACK");
+          return NextResponse.json(
+            {
+              error: {
+                code: "PRECONDITION_FAILED",
+                message: "Only membership visits can have a visit summary marked as sent",
+                traceId: session.traceId,
+              },
+            },
+            { status: 422 }
+          );
+        }
+
+        if (old.membership_visit_phase !== "reporting") {
+          await client.query("ROLLBACK");
+          return NextResponse.json(
+            {
+              error: {
+                code: "PRECONDITION_FAILED",
+                message: "Advance to the Reporting phase before marking the visit summary as sent",
+                traceId: session.traceId,
+              },
+            },
+            { status: 422 }
+          );
+        }
+
+        fields.push("membership_snapshot_sent_at = COALESCE(membership_snapshot_sent_at, now())");
+      }
+
+      if (fields.length === 0) {
+        await client.query("ROLLBACK");
+        return NextResponse.json({ data: old });
+      }
+
+      const { rows } = await client.query(
+        `UPDATE visits SET ${fields.join(", ")}, updated_at = now() WHERE id = $1 AND account_id = $2 RETURNING *`,
+        [id, session.accountId, ...values]
+      );
+
+      const updated = rows[0];
+
+      const nextAssignee: string | null | undefined =
+        "assigned_user_id" in parsed.data &&
+        (typeof parsed.data.assigned_user_id === "string" || parsed.data.assigned_user_id === null)
+          ? parsed.data.assigned_user_id
+          : undefined;
+      if (nextAssignee !== undefined && old.work_order_id) {
+        await syncWorkOrderLeadFromVisit(
+          client,
+          old.work_order_id,
+          session.accountId,
+          nextAssignee,
+        );
+      }
+
+      await appendAuditLog(client, {
+        account_id: session.accountId,
+        entity_type: "visit",
+        entity_id: id,
+        action: "update",
+        actor_id: session.userId,
+        trace_id: session.traceId,
+        old_value: old,
+        new_value: updated,
+      });
+
+      await client.query("COMMIT");
+      return NextResponse.json({ data: updated });
+    } catch (err) {
+      await client.query("ROLLBACK");
+      logger.error("[visits PATCH]", err, { traceId: session.traceId });
+      return NextResponse.json(
+        { error: { code: "INTERNAL_ERROR", message: "Failed to update visit", traceId: session.traceId } },
+        { status: 500 }
+      );
+    } finally {
+      client.release();
+    }
+  }
+);
+
+export const DELETE = withAuth(
+  async (request: NextRequest, session: AuthSession) => {
+    if (!["owner", "admin"].includes(session.role)) {
+      return NextResponse.json(
+        { error: { code: "FORBIDDEN", message: "Owner or admin role required to delete visits", traceId: session.traceId } },
+        { status: 403 }
+      );
+    }
+
+    const id = request.url.match(/\/visits\/([^/]+)/)?.[1];
+
+    if (!id) {
+      return NextResponse.json(
+        { error: { code: "NOT_FOUND", message: "Visit not found", traceId: session.traceId } },
+        { status: 404 }
+      );
+    }
+
+    const pool = getPool();
+    const client = await pool.connect();
+
+    try {
+      await client.query("BEGIN");
+      await client.query(
+        `SELECT set_config('app.current_user_id', $1, true), set_config('app.current_account_id', $2, true), set_config('app.current_role', $3, true)`,
+        [session.userId, session.accountId, session.role]
+      );
+
+      const existing = await client.query<{ id: string; status: string }>(
+        `SELECT id, status FROM visits WHERE id = $1 AND account_id = $2 FOR UPDATE`,
+        [id, session.accountId]
+      );
+
+      if (!existing.rows[0]) {
+        await client.query("ROLLBACK");
+        return NextResponse.json(
+          { error: { code: "NOT_FOUND", message: "Visit not found", traceId: session.traceId } },
+          { status: 404 }
+        );
+      }
+
+      const visit = existing.rows[0];
+      if (["completed", "cancelled"].includes(visit.status)) {
+        await client.query("ROLLBACK");
+        return NextResponse.json(
+          {
+            error: {
+              code: "IMMUTABLE_ENTITY",
+              message: `Cannot delete a visit in "${visit.status}" state.`,
+              traceId: session.traceId,
+            },
+          },
+          { status: 422 }
+        );
+      }
+
+      await client.query(`DELETE FROM visits WHERE id = $1 AND account_id = $2`, [id, session.accountId]);
+
+      await appendAuditLog(client, {
+        account_id: session.accountId,
+        entity_type: "visit",
+        entity_id: id,
+        action: "delete",
+        actor_id: session.userId,
+        trace_id: session.traceId,
+        old_value: { status: visit.status },
+      });
+
+      await client.query("COMMIT");
+      return NextResponse.json({ deleted: true });
+    } catch (err) {
+      await client.query("ROLLBACK");
+      logger.error("[visits DELETE]", err, { traceId: session.traceId });
+      return NextResponse.json(
+        { error: { code: "INTERNAL_ERROR", message: "Failed to delete visit", traceId: session.traceId } },
+        { status: 500 }
+      );
+    } finally {
+      client.release();
+    }
+  }
+);

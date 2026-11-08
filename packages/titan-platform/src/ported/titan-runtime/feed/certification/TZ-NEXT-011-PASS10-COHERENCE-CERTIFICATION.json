@@ -1,0 +1,82 @@
+{
+  "schema": "titan.feed.coherence-certification/v1",
+  "packet_id": "TZ-NEXT-011",
+  "pass": 10,
+  "title": "Feed / Inbox / Notification coherence and reconstruction certification",
+  "certified_utc": "2026-09-07T11:08:34Z",
+  "manager_baseline": {
+    "merge": 29,
+    "artifact": "Titan-Zero-CANONICAL-MASTER-2026-09-07-MERGE-29-REPAIR06-CONVERGED.zip",
+    "sha256": "3e5520d2495c2a5edde310d12d2b82de399e9277248c1fdfb5cd85df5df9d70b",
+    "files": 2245
+  },
+  "lane_parent": {
+    "artifact": "Titan-Zero-TZ-NEXT-011-PASS09-CUMULATIVE.zip",
+    "files": 2276
+  },
+  "coherence": {
+    "source_ownership": "CERTIFIED",
+    "severity_mapping": "CERTIFIED",
+    "causal_linking": "CERTIFIED",
+    "feed_inbox_separation": "CERTIFIED",
+    "deduplication": "CERTIFIED",
+    "presentation_state": "CERTIFIED",
+    "human_decision_routing": "CERTIFIED",
+    "offline_restart_delivery_guard": "CERTIFIED",
+    "high_volume_regression": "CERTIFIED"
+  },
+  "authority": {
+    "company_boundary": "company_id only",
+    "identity_not_authority": true,
+    "feed_grants_authority": false,
+    "presentation_ack_is_lifecycle_ack": false,
+    "delivery_success_grants_execution": false
+  },
+  "verification": {
+    "node_tests_total": 38,
+    "node_tests_passed": 38,
+    "node_tests_failed": 0,
+    "syntax_checks": "PASS",
+    "protected_hotspots": {
+      "titan-shell.js": {
+        "merge29_sha256": "e263d0a4b08d5e51791d7d1d17da6ce4f5c7d7c3440459bf585d500722c2a102",
+        "lane_sha256": "e263d0a4b08d5e51791d7d1d17da6ce4f5c7d7c3440459bf585d500722c2a102",
+        "identical": true
+      },
+      "titan-shell.css": {
+        "merge29_sha256": "bc82360f93d7a3863d232fb00c47bab3d54ce6c2499d7ec7aeaf92c804d4242b",
+        "lane_sha256": "bc82360f93d7a3863d232fb00c47bab3d54ce6c2499d7ec7aeaf92c804d4242b",
+        "identical": true
+      },
+      "sidePanel.html": {
+        "merge29_sha256": "5c234c1e976b0ea0cc70b3559281f79aab51915a8a0b8ecb21642589e45edac9",
+        "lane_sha256": "5c234c1e976b0ea0cc70b3559281f79aab51915a8a0b8ecb21642589e45edac9",
+        "identical": true
+      },
+      "manifest.json": {
+        "merge29_sha256": "97b7d1ab54210a438d5672ce504c2984c5900ca6bff7e5c6ce2ade68e4792f89",
+        "lane_sha256": "97b7d1ab54210a438d5672ce504c2984c5900ca6bff7e5c6ce2ade68e4792f89",
+        "identical": true
+      },
+      "chatTab.html": {
+        "merge29_sha256": "5cc0747a3983b431cc3041d7491faf03786ff6f18d8753953e70dbcb34168071",
+        "lane_sha256": "5cc0747a3983b431cc3041d7491faf03786ff6f18d8753953e70dbcb34168071",
+        "identical": true
+      },
+      "runtime/workforce-runtime-background.mjs": {
+        "merge29_sha256": "909ea43a77cca2a2371fd95bc9f306abf1d66b9dee16ff40d7eddd995e362c79",
+        "lane_sha256": "909ea43a77cca2a2371fd95bc9f306abf1d66b9dee16ff40d7eddd995e362c79",
+        "identical": true
+      }
+    },
+    "legacy_tenant_tokens": "deny-list/tests only; rejected fail-closed by runtime contracts"
+  },
+  "known_shared_surface_rebase": {
+    "required": true,
+    "reason": "Visible titan-shell.js still owns legacy global titanFeedRead presentation state. Feed lane did not edit this protected hotspot while UI/page-wiring claims remain active.",
+    "manager_action": "Semantically replace global titanFeedRead use with TITAN_FEED_PRESENTATION_STATE read/transition calls while preserving Merge29 launch/UI fixes.",
+    "blocks_lane_ready": false,
+    "blocks_claim_of_live_ui_end-to-end_certification": true
+  },
+  "status": "READY_FOR_MANAGER_MERGE_WITH_DECLARED_UI_SEMANTIC_REBASE"
+}

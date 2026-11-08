@@ -1,0 +1,15 @@
+{
+  "schema": "titan.workforce.pass/v1",
+  "pass": 33,
+  "title": "Privacy / Evidence Controls",
+  "company_boundary": "company_id only",
+  "runtime_schema": "titan.workforce.privacy-evidence-controls.v1",
+  "automatic_export": false,
+  "automatic_deletion": false,
+  "automatic_secondary_use": false,
+  "authority_granted": false,
+  "execution_permitted": false,
+  "grants_authority": false,
+  "next_pass": 34,
+  "next_title": "Local AI / BYO Routing"
+}

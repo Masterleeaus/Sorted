@@ -1,0 +1,18 @@
+{
+  "schema":"titan-zero-settings-tools-permissions-centre-contract/v1",
+  "setting_key":"toolsPermissionsCentre",
+  "scope":"company",
+  "owner":"tool_runtime",
+  "company_boundary":"company_id",
+  "canonical_tool_registry":"titan-tools/TOOL-REGISTRY.json",
+  "rules":[
+    "Settings uses canonical tool_id values and never creates a parallel tool catalogue.",
+    "Settings may disable tools and raise confirmation requirements, but cannot force-enable unavailable tools.",
+    "Settings cannot expand supported_roles, raise autonomy ceilings, bypass cost/entitlement policy, or disable runtime-required confirmation.",
+    "Tool identity, role support, discovery visibility, provider availability, entitlement and cost eligibility do not grant execution authority.",
+    "Every execution still requires runtime authority, approval/risk/autonomy checks and the governed execution boundary.",
+    "company_id is the sole company boundary; legacy tenant aliases are rejected."
+  ],
+  "settings_can_grant_authority":false,
+  "settings_can_execute":false
+}

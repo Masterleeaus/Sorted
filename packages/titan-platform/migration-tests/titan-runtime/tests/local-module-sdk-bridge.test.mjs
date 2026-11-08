@@ -1,0 +1,13 @@
+import assert from 'node:assert/strict';
+import {normalizeLocalModuleContract} from '../../titan-local/kernel/module-contract.mjs';
+import {buildModuleContributionIndex,toCapabilityContributions,createModuleSdkDescriptor} from '../module-sdk/index.mjs';
+const raw={module_id:'titan.test.local',name:'Test',version:'1.2.3',capabilities:['test.read'],commands:[{id:'write',mutates:true,authority:['test.write']}],queries:[{id:'read'}],events:['test.changed'],projections:['test.summary'],permissions:['base.read'],dependencies:['titan.core'],offline_support:true};
+const c=normalizeLocalModuleContract(raw);
+assert.deepEqual(c.capabilities,['test.read']);
+assert.equal(c.events[0],'test.changed');
+assert.equal(c.dependencies[0],'titan.core');
+const d=createModuleSdkDescriptor(raw,{company_id:'company-a'}); assert.equal(d.activation_confers_authority,false);
+const caps=toCapabilityContributions(raw,{company_id:'company-a'}); assert.equal(caps[0].company_id,'company-a'); assert.equal(caps[0].activation_confers_authority,false); assert.deepEqual(caps[0].permissions,['base.read']);
+const idx=buildModuleContributionIndex(raw,{company_id:'company-a'}); assert.equal(idx.commands[0].id,'write'); assert.equal(idx.queries[0].id,'read'); assert.equal(idx.events[0].id,'test.changed'); assert.equal(idx.projections[0].id,'test.summary'); assert.equal(idx.activation_confers_authority,false);
+assert.throws(()=>buildModuleContributionIndex(raw,{company_id:'a',tenant_id:'legacy'}),/legacy tenant|company_id/i);
+console.log('PASS local-module-sdk-bridge.test.mjs');

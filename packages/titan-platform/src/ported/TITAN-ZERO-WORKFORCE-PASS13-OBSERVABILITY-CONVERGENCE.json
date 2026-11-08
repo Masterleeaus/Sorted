@@ -1,0 +1,17 @@
+{
+  "schema": "titan-zero-workforce-pass/v1",
+  "pass": 13,
+  "title": "Observability Convergence",
+  "manager_baseline": "0.18.6",
+  "company_boundary": "company_id",
+  "changes": [
+    "Reuse titanDiagnosticLog as the shared Workforce diagnostic event stream",
+    "Add correlation-aware gateway, authority, receipt, projection, realtime and restart events",
+    "Expose operation/idempotency/recovery counters through the existing Workforce background runtime snapshot",
+    "Persist only authority-neutral company-scoped Workforce health summaries",
+    "Redact tokens, authorization, request bodies and response bodies from diagnostics"
+  ],
+  "diagnostics_ui_replaced": false,
+  "parallel_diagnostics_stack_created": false,
+  "grants_authority": false
+}

@@ -1,0 +1,15 @@
+{
+  "category": "chatbot-suite",
+  "extensions": [
+    "AIAgentToolChatbot",
+    "Chatbot",
+    "ChatbotAgent",
+    "ChatbotBooking",
+    "ChatbotCustomerTag",
+    "ChatbotEcommerce",
+    "ChatbotReview",
+    "ChatbotVoice",
+    "ChatbotVoiceCall"
+  ],
+  "count": 9
+}

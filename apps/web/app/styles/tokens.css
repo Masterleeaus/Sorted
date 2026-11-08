@@ -1,0 +1,287 @@
+/* ==========================================================================
+   P7 Design Tokens — Single source of truth for all CSS custom properties.
+   All P7 components use only these tokens. No raw hex values in components.
+   ========================================================================== */
+
+:root {
+  /* -------------------------------------------------------------------------
+     Color — Primitives
+     Titan Field identity: electric gold with neutral operational surfaces.
+     NOTE: the primitive names below stay `forest-*` only for compatibility
+     with existing consumers. Treat them as the Titan brand ramp.
+     ---------------------------------------------------------------------- */
+  --color-forest-900: #8b6500;   /* deep Field gold */
+  --color-forest-800: #f5c542;   /* Titan Field gold */
+  --color-forest-700: #ffd95a;   /* bright Field gold */
+  --color-forest-100: #fff1ad;  /* pale gold */
+  --color-forest-50:  #fff9df; /* subtle gold surface */
+
+  /* Legacy indigo primitives — remapped to the brand ramp so any straggling
+     consumer picks up the new identity. Do not use in new code. */
+  --color-indigo-700: var(--color-forest-900);
+  --color-indigo-600: var(--color-forest-800);
+  --color-indigo-500: var(--color-forest-700);
+  --color-indigo-100: var(--color-forest-100);
+  --color-indigo-50:  var(--color-forest-50);
+
+  /* Neutral ramp — values are warm STONE (the name is kept for compatibility
+     with existing consumers; treat "slate" as "neutral"). */
+  --color-slate-950: #0c0a09;
+  --color-slate-900: #1c1917;
+  --color-slate-800: #292524;
+  --color-slate-700: #44403c;
+  --color-slate-600: #57534e;
+  --color-slate-500: #78716c;
+  --color-slate-400: #a8a29e;
+  --color-slate-300: #d6d3d1;
+  --color-slate-200: #e7e5e4;
+  --color-slate-100: #f5f5f4;
+  --color-slate-50:  #fafaf9;
+
+  --color-white:     #ffffff;
+
+  --color-red-600:   #dc2626;
+  --color-red-500:   #ef4444;
+  --color-red-100:   #fee2e2;
+  --color-red-50:    #fef2f2;
+  --color-amber-600: #d97706;
+  --color-amber-500: #f59e0b;
+  --color-amber-100: #fef3c7;
+  --color-amber-50:  #fffbeb;
+  --color-green-600: #16a34a;
+  --color-green-500: #22c55e;
+  --color-green-100: #dcfce7;
+  --color-green-50:  #f0fdf4;
+  --color-blue-600:  #2563eb;
+  --color-blue-500:  #3b82f6;
+  --color-blue-100:  #dbeafe;
+  --color-blue-50:   #eff6ff;
+  --color-violet-600:#7c3aed;
+  --color-violet-100:#ede9fe;
+  --color-rose-600:  #e11d48;
+  --color-rose-100:  #ffe4e6;
+
+  /* -------------------------------------------------------------------------
+     Color — Semantic Aliases
+     ---------------------------------------------------------------------- */
+  --bg:            var(--color-slate-50);
+  --bg-subtle:     var(--color-slate-50);
+  --bg-card:       var(--color-white);
+  --bg-elevated:   var(--color-white);
+  --bg-overlay:    rgba(2, 6, 23, 0.4);
+  --fg:            var(--color-slate-900);
+  --fg-secondary:  var(--color-slate-600);
+  --fg-muted:      var(--color-slate-500);
+  --fg-inverse:    var(--color-white);
+  --border:        var(--color-slate-200);
+  --border-strong: var(--color-slate-300);
+  --border-subtle: var(--color-slate-100);
+  --accent:        var(--color-forest-800);
+  --accent-hover:  var(--color-forest-700);
+  --accent-subtle: var(--color-forest-50);
+  --accent-fg:     #090909;
+  --ring:          var(--color-forest-700);
+  --color-success: var(--color-green-600);
+  --color-warning: var(--color-amber-600);
+  --color-danger:  var(--color-red-600);
+
+  /* -------------------------------------------------------------------------
+     Status Semantic — used by Badge and status-pill components
+     ---------------------------------------------------------------------- */
+  --status-draft-bg:       var(--color-slate-100);
+  --status-draft-fg:       var(--color-slate-700);
+  --status-sent-bg:        var(--color-blue-100);
+  --status-sent-fg:        var(--color-blue-600);
+  --status-approved-bg:    var(--color-green-100);
+  --status-approved-fg:    var(--color-green-600);
+  --status-declined-bg:    var(--color-red-100);
+  --status-declined-fg:    var(--color-red-600);
+  --status-expired-bg:     var(--color-amber-100);
+  --status-expired-fg:     var(--color-amber-600);
+  --status-paid-bg:        var(--color-green-100);
+  --status-paid-fg:        var(--color-green-600);
+  --status-overdue-bg:     var(--color-red-100);
+  --status-overdue-fg:     var(--color-red-600);
+  --status-partial-bg:     var(--color-amber-100);
+  --status-partial-fg:     var(--color-amber-600);
+  --status-void-bg:        var(--color-slate-100);
+  --status-void-fg:        var(--color-slate-500);
+  --status-in_progress-bg: var(--color-blue-100);
+  --status-in_progress-fg: var(--color-blue-600);
+  /* Scheduled stays blue so it remains distinct from the Titan Field gold accent. */
+  --status-scheduled-bg:   var(--color-blue-100);
+  --status-scheduled-fg:   var(--color-blue-600);
+  --status-completed-bg:   var(--color-green-100);
+  --status-completed-fg:   var(--color-green-600);
+  --status-cancelled-bg:   var(--color-slate-100);
+  --status-cancelled-fg:   var(--color-slate-500);
+  --status-arrived-bg:     var(--color-blue-100);
+  --status-arrived-fg:     var(--color-blue-600);
+  --status-quoted-bg:      var(--color-blue-100);
+  --status-quoted-fg:      var(--color-blue-600);
+  --status-invoiced-bg:    var(--color-violet-100);
+  --status-invoiced-fg:    var(--color-violet-600);
+
+  /* -------------------------------------------------------------------------
+     Priority Semantic
+     ---------------------------------------------------------------------- */
+  --priority-urgent-bg:  var(--color-red-100);
+  --priority-urgent-fg:  var(--color-red-600);
+  --priority-high-bg:    var(--color-amber-100);
+  --priority-high-fg:    var(--color-amber-600);
+  --priority-medium-bg:  var(--color-blue-100);
+  --priority-medium-fg:  var(--color-blue-600);
+  --priority-low-bg:     var(--color-slate-100);
+  --priority-low-fg:     var(--color-slate-500);
+
+  /* -------------------------------------------------------------------------
+     Typography
+     ---------------------------------------------------------------------- */
+  --font-sans:      var(--font-archivo), -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
+  --font-mono:      'SF Mono', 'Fira Code', 'Fira Mono', 'Roboto Mono', monospace;
+  --text-xs:        0.75rem;    /* 12px */
+  --text-sm:        0.8125rem;  /* 13px */
+  --text-base:      0.9375rem;  /* 15px — slightly smaller base for denser info */
+  --text-lg:        1.125rem;   /* 18px */
+  --text-xl:        1.25rem;    /* 20px */
+  --text-2xl:       1.5rem;     /* 24px */
+  --text-3xl:       1.875rem;   /* 30px */
+  --leading-tight:  1.25;
+  --leading-snug:   1.375;
+  --leading-normal: 1.5;
+  --leading-relaxed:1.625;
+  --font-normal:    400;
+  --font-medium:    500;
+  --font-semibold:  600;
+  --font-bold:      700;
+
+  /* -------------------------------------------------------------------------
+     Spacing
+     ---------------------------------------------------------------------- */
+  --space-1:  0.25rem;  /* 4px */
+  --space-2:  0.5rem;   /* 8px */
+  --space-3:  0.75rem;  /* 12px */
+  --space-4:  1rem;     /* 16px */
+  --space-5:  1.25rem;  /* 20px */
+  --space-6:  1.5rem;   /* 24px */
+  --space-8:  2rem;     /* 32px */
+  --space-10: 2.5rem;   /* 40px */
+  --space-12: 3rem;     /* 48px */
+  --space-16: 4rem;     /* 64px */
+  --space-20: 5rem;     /* 80px */
+  --space-24: 6rem;     /* 96px */
+
+  /* -------------------------------------------------------------------------
+     Borders & Radii
+     ---------------------------------------------------------------------- */
+  --radius-xs:   3px;
+  --radius-sm:   6px;
+  --radius-md:   8px;
+  --radius-lg:   12px;
+  --radius-xl:   16px;
+  --radius-2xl:  20px;
+  --radius-full: 9999px;
+
+  /* -------------------------------------------------------------------------
+     Elevation / Shadow
+     Subtle, layered shadows for depth without harshness.
+     ---------------------------------------------------------------------- */
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.04), 0 2px 4px rgba(0, 0, 0, 0.04);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.06), 0 4px 6px rgba(0, 0, 0, 0.04);
+  --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.08), 0 8px 10px rgba(0, 0, 0, 0.04);
+  --shadow-inner: inset 0 1px 2px rgba(0, 0, 0, 0.04);
+
+  /* -------------------------------------------------------------------------
+     Layout
+     ---------------------------------------------------------------------- */
+  --sidebar-width:           268px;
+  --sidebar-collapsed-width: 64px;
+  --header-height:           60px;
+  --content-max-width:       1440px;
+  --panel-width:             360px;
+
+  /* -------------------------------------------------------------------------
+     Transitions
+     ---------------------------------------------------------------------- */
+  --transition-fast: 100ms ease;
+  --transition-base: 150ms ease;
+  --transition-slow: 250ms ease;
+
+  /* -------------------------------------------------------------------------
+     Z-index scale
+     ---------------------------------------------------------------------- */
+  --z-dropdown:  100;
+  --z-sticky:    200;
+  --z-overlay:   300;
+  --z-modal:     400;
+  --z-toast:     500;
+}
+
+
+/* ==========================================================================
+   Titan Zero dark theme
+   ========================================================================== */
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  --color-slate-950: #fafaf9;
+  --color-slate-900: #f5f5f4;
+  --color-slate-800: #e7e5e4;
+  --color-slate-700: #d6d3d1;
+  --color-slate-600: #a8a29e;
+  --color-slate-500: #a8a29e;
+  --color-slate-400: #78716c;
+  --color-slate-300: #57534e;
+  --color-slate-200: #44403c;
+  --color-slate-100: #292524;
+  --color-slate-50:  #1c1917;
+
+  --bg:            #070708;
+  --bg-subtle:     #101114;
+  --bg-card:       #121316;
+  --bg-elevated:   #1a1b20;
+  --bg-overlay:    rgba(0, 0, 0, 0.72);
+
+  --fg:            #fafaf9;
+  --fg-secondary:  #d6d3d1;
+  --fg-muted:      #a8a29e;
+  --fg-inverse:    #0c0a09;
+
+  --border:        #2c2e35;
+  --border-strong: #454852;
+  --border-subtle: #1f2025;
+
+  --accent-subtle: #2b240d;
+
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.35);
+  --shadow-sm: 0 2px 5px rgba(0, 0, 0, 0.38);
+  --shadow-md: 0 6px 14px rgba(0, 0, 0, 0.42);
+  --shadow-lg: 0 14px 30px rgba(0, 0, 0, 0.48);
+  --shadow-xl: 0 24px 50px rgba(0, 0, 0, 0.55);
+
+  --status-draft-bg:       #292524;
+  --status-draft-fg:       #d6d3d1;
+  --status-sent-bg:        #172554;
+  --status-approved-bg:    #052e16;
+  --status-declined-bg:    #450a0a;
+  --status-expired-bg:     #451a03;
+  --status-paid-bg:        #052e16;
+  --status-overdue-bg:     #450a0a;
+  --status-partial-bg:     #451a03;
+  --status-void-bg:        #292524;
+  --status-in_progress-bg: #172554;
+  --status-scheduled-bg:   #172554;
+  --status-completed-bg:   #052e16;
+  --status-cancelled-bg:   #292524;
+  --status-arrived-bg:     #172554;
+  --status-quoted-bg:      #172554;
+  --status-invoiced-bg:    #2e1065;
+
+  --priority-urgent-bg: #450a0a;
+  --priority-high-bg:   #451a03;
+  --priority-medium-bg: #172554;
+  --priority-low-bg:    #292524;
+}

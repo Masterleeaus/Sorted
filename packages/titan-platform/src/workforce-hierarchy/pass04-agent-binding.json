@@ -1,0 +1,15 @@
+{
+  "schema": "titan.workforce.hierarchy.pass04-agent-binding/v1",
+  "packet_id": "TZ-WF-HIERARCHY-001",
+  "pass": 4,
+  "manager_baseline_merge": 52,
+  "binding_source": "starter-agent-registry-v2-compatible-native-agent-descriptor",
+  "standalone_agents_observed": ["reception", "sales", "quote", "booking", "scheduling", "dispatch", "jobs", "invoicing", "customer-care", "rebooking"],
+  "ownership_model": "manager -> supervisor -> agent",
+  "direct_invocation_preserved": true,
+  "identity_grants_authority": false,
+  "ownership_grants_authority": false,
+  "direct_invocation_grants_authority": false,
+  "execution_requires": ["authority_evaluation", "capability_resolution", "existing_business_ops_route"],
+  "collision_boundary": "No edits to workforce-native exclusive paths or agent implementations owned by TZ-WF-NATIVE-CORE-001."
+}

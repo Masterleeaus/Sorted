@@ -1,0 +1,16 @@
+{
+  "schema":"titan-zero-workforce-50pass-pass/v1",
+  "pass":7,
+  "phase":"A_FOUNDATION",
+  "name":"Supervisor Workspaces",
+  "status":"PARTIAL_UI_COLLISION_BLOCKED_FOUNDATION_COMPLETE",
+  "base":{"manager_merge":23,"artifact":"Titan-Zero-CANONICAL-MASTER-2026-09-07-MERGE-23-NANO-WORKFLOW-ABSORBED.zip","sha256":"e6d4cbc9453fb42b31dbea02ac14d491272adf9b73f6c4554d172794d2710bad"},
+  "implemented":["read-only supervisor workspace projection","scoped workers and assignments","mission teams","capacity/workload","skills eligibility","performance evidence","open escalations","proposal-only staffing recommendations"],
+  "deferred":["visible Supervisor Workspace UI integration while TZ-WORKFORCE-UI-RESTORE-001 Pass10 owns shared Workforce management surface"],
+  "company_boundary":"company_id",
+  "supervisor_identity_confers_authority":false,
+  "hierarchy_confers_authority":false,
+  "automatic_execution":false,
+  "grants_authority":false,
+  "verification":{"focused_new":"5/5 PASS","surrounding_workforce":"30/30 PASS","syntax":"PASS"}
+}

@@ -1,0 +1,13 @@
+{
+  "packet_id": "TZ-FINISH-004",
+  "pass": 1,
+  "added": [
+    "TZ-FINISH-004-PASS01-UI-INVENTORY.json",
+    "TZ-FINISH-004-PASS01-PARITY-MATRIX.md",
+    "TZ-FINISH-004-PASS01-VERIFICATION.json"
+  ],
+  "modified": [],
+  "deleted": [],
+  "runtime_impact": "none",
+  "next_pass": 2
+}

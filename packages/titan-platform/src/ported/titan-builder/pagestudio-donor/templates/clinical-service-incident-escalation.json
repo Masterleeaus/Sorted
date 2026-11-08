@@ -1,0 +1,33 @@
+{
+  "template": {
+    "id": "clinical-service-incident-escalation",
+    "version": "1.0.0",
+    "name": "Clinical or Service Incident Escalation",
+    "status": "draft",
+    "category": "care",
+    "entry_wizard": "clinical_service_incident_escalation_v1",
+    "capabilities": [
+      "care.incidents.escalate"
+    ],
+    "channels": [
+      "chat",
+      "mobile",
+      "tablet",
+      "desktop",
+      "voice"
+    ],
+    "governance": {
+      "authority": "requires_regulated_incident_and_notification_integration",
+      "offline": false
+    },
+    "metadata": {
+      "verticals": [
+        "healthcare",
+        "allied_health",
+        "aged_care",
+        "disability_services"
+      ],
+      "pack": "commerce_multi_vertical_2026_08"
+    }
+  }
+}

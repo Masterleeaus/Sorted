@@ -1,0 +1,12 @@
+{
+  "schema": "titan-zero-builder-handoff/v2",
+  "workspace": "Builder 3",
+  "packet_id": "TZ-FINISH-RETRIEVER-NATIVE-001",
+  "pass": 6,
+  "status": "PASS_COMPLETE_CONTINUE",
+  "semantic_delta": "Native Retriever now supports restart/reconnect/stale-session recovery without restoring prior authority.",
+  "change_impact": "Additive recovery layer; no donor revival and no shared export edits.",
+  "recommended_convergence_class": "ADDITIVE_EXCLUSIVE_HOTSPOT_RECOVERY",
+  "next_pass": 7,
+  "next_action": "Pass 7: migrate protected-hash retirement checks to semantic native contracts and produce the authoritative donor-retirement ledger without deleting provenance prematurely."
+}

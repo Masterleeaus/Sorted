@@ -1,0 +1,28 @@
+{
+  "schema": "titan-zero-settings-control-plane-semantic-change/v1",
+  "pass": 8,
+  "change_type": "ADDITIVE_SETTINGS_PROJECTION_PLUS_MANAGER_REBASE",
+  "summary": "Adds company-scoped AI budget configuration with per-capability warning, review and hard thresholds, preserves legacy credit ceiling as a fail-closed bridge, and delegates enforcement to existing Workforce financial/resource guardrails.",
+  "added_capabilities": [
+    "company-scoped AI budget control object",
+    "per-capability budget categories",
+    "warning thresholds",
+    "review/approval thresholds",
+    "hard limits",
+    "legacy credit ceiling compatibility",
+    "advisory status projection",
+    "real Workforce guardrail integration"
+  ],
+  "preserved": [
+    "actual spend/reservation state remains runtime-owned",
+    "paid opt-in remains runtime-owned",
+    "entitlements remain runtime-owned",
+    "authority remains runtime-owned",
+    "rich Settings/theme authority",
+    "Merge20 Workforce Pass47-50 runtime"
+  ],
+  "authority_effect": false,
+  "automatic_spend": false,
+  "company_boundary": "company_id",
+  "next_pass": "Model Selection Policy"
+}

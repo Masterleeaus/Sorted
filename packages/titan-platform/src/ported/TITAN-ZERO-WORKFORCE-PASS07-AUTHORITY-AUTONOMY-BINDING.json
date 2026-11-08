@@ -1,0 +1,23 @@
+{
+  "schema": "titan.zero.workforce.integration.pass07.v1",
+  "pass": 7,
+  "title": "Authority + Autonomy Binding",
+  "status": "PASS_READY_FOR_MANAGER_REVIEW",
+  "company_boundary": "company_id",
+  "integration": {
+    "authority_evaluator": "existing titan-runtime/authority via TITAN_WORKFORCE_AUTHORITY_EVALUATE",
+    "command_boundary": "existing TITAN_WORKFORCE_COMMAND_PREPARE",
+    "autonomy_owner": "titan-autonomy",
+    "identity_confers_authority": false,
+    "role_confers_authority": false,
+    "activation_confers_authority": false,
+    "model_choice_confers_authority": false,
+    "gateway_direct_mutation": false
+  },
+  "rules": [
+    "Permissions, entitlements, policy, governance, assurance, evidence and approvals remain required by the existing authority evaluator.",
+    "Verified Titan Autonomy snapshot is required where the existing evaluator requires it.",
+    "Risk caps, Trusted Auto handshake and Predictive readiness remain owned by the existing authority evaluator.",
+    "Only ALLOW decisions can be forwarded to the existing Command Bus preparation seam."
+  ]
+}

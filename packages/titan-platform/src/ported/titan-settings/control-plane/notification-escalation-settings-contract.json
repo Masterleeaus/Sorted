@@ -1,0 +1,21 @@
+{
+  "schema": "titan.settings.notification-escalation-settings-contract.v1",
+  "pass": 17,
+  "company_boundary": "company_id",
+  "setting_key": "notificationEscalationSettings",
+  "scope": "company",
+  "owner": "workforce_runtime",
+  "composition": "workforceGlobalDefaults -> notificationEscalationSettings -> runtime hard bounds/state machine",
+  "runtime_bounds": {"max_delivery_attempts": [1,10], "max_escalation_depth": [0,5], "cooldown_ms": [1000,86400000]},
+  "hard_rules": [
+    "settings may tighten but not loosen workforce acknowledgement/retry/escalation/cooldown floors",
+    "HIGH and CRITICAL retain an IN_APP fallback when that channel is runtime-available",
+    "HIGH and CRITICAL retain a required escalation path",
+    "channel preferences are activated only when present in runtime available_channels",
+    "recipient identities and live delivery/escalation state are not stored as generic settings",
+    "escalation due is advisory and requires a governed runtime transition",
+    "settings never dispatch, escalate, grant authority, satisfy approval, or permit execution"
+  ],
+  "authority_granted": false,
+  "execution_permitted": false
+}

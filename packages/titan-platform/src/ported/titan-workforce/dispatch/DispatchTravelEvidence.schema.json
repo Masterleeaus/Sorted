@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "titan.workforce.dispatch.travel-evidence.v1",
+  "title": "Titan Workforce Dispatch Travel Evidence",
+  "type": "object",
+  "required": ["schema","travel_evidence_id","company_id","work_item_id","provider_mode","distance_km","duration_ms","billable_to_titan","execution_permitted","grants_authority"],
+  "properties": {
+    "schema": {"const": "titan.workforce.dispatch.travel-evidence.v1"},
+    "travel_evidence_id": {"type": "string", "minLength": 1},
+    "company_id": {"type": "string", "minLength": 2},
+    "work_item_id": {"type": "string", "minLength": 1},
+    "provider_mode": {"enum": ["LOCAL_GEOMETRY","BYO_PROVIDER"]},
+    "provider_id": {"type": ["string","null"]},
+    "distance_km": {"type": ["number","null"], "minimum": 0},
+    "duration_ms": {"type": ["number","null"], "minimum": 0},
+    "route_quality": {"enum": ["STRAIGHT_LINE_ONLY","PROVIDER_ROUTE"]},
+    "billable_to_titan": {"const": false},
+    "execution_permitted": {"const": false},
+    "grants_authority": {"const": false}
+  },
+  "additionalProperties": true
+}

@@ -1,0 +1,14 @@
+import test from"node:test";import assert from"node:assert/strict";import{createChatState,createChatPersistencePolicy,createChatPersistenceRecord,planChatPersistenceSync}from"../src/ported/titan-runtime/interaction-engine/chat-state.js";
+const base={conversation_id:"c",company_id:"co",surface:"go"};const state=()=>createChatState(base);const policy=()=>createChatPersistencePolicy({company_id:"co",surface:"go"});
+test("device first policy",()=>{const p=policy();assert.equal(p.local_state_owner,"device");assert.equal(p.business_authority_owner,"business_system")});
+test("device record is replica",()=>{const r=createChatPersistenceRecord(state(),policy(),{tier:"device"});assert.equal(r.replica,true);assert.equal(r.authoritative_business_state,false)});
+test("edge record remains replica",()=>assert.equal(createChatPersistenceRecord(state(),policy(),{tier:"edge"}).authoritative_business_state,false));
+test("chat state cannot persist as business authority",()=>assert.throws(()=>createChatPersistenceRecord(state(),policy(),{tier:"business_system"}),/cannot-become-business-authority/));
+test("offline retains local",()=>assert.equal(planChatPersistenceSync(createChatPersistenceRecord(state(),policy()),policy(),false).mode,"retain_local"));
+test("online replicates to edge",()=>{const x=planChatPersistenceSync(createChatPersistenceRecord(state(),policy()),policy(),true);assert.equal(x.target_tier,"edge");assert.equal(x.may_write_business_state,false)});
+test("sync requires business reauthorization",()=>assert.equal(planChatPersistenceSync(createChatPersistenceRecord(state(),policy()),policy(),true).requires_business_reauthorization,true));
+test("company mismatch rejected",()=>assert.throws(()=>createChatPersistenceRecord(state(),createChatPersistencePolicy({company_id:"other",surface:"go"})),/company-mismatch/));
+test("surface mismatch rejected",()=>assert.throws(()=>createChatPersistenceRecord(state(),createChatPersistencePolicy({company_id:"co",surface:"hub"})),/surface-mismatch/));
+test("legacy tenant policy rejected",()=>assert.throws(()=>createChatPersistencePolicy({company_id:"co",surface:"go",tenant_id:"x"}),/not an authority boundary/));
+test("forged authoritative record rejected",()=>{const r=createChatPersistenceRecord(state(),policy());assert.throws(()=>planChatPersistenceSync({...r,authoritative_business_state:true},policy(),true),/authority-invalid/)});
+test("all persistence outputs authority free",()=>{const r=createChatPersistenceRecord(state(),policy());assert.equal(r.authority_granted,false);assert.equal(planChatPersistenceSync(r,policy(),true).authority_granted,false)});

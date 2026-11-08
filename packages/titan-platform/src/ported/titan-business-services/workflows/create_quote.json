@@ -1,0 +1,147 @@
+{
+  "wizard": {
+    "id": "create_quote_v1",
+    "version": "1.0.0",
+    "name": "Create Quote",
+    "capability": "crm.quote.create",
+    "permissions": {
+      "required_roles": [
+        "estimator",
+        "sales",
+        "manager",
+        "admin",
+        "owner"
+      ]
+    },
+    "metadata": {
+      "category": "quotes",
+      "interfaces": [
+        "chat",
+        "mobile",
+        "tablet",
+        "desktop",
+        "voice"
+      ],
+      "surfaces": [
+        "command"
+      ]
+    },
+    "offline": {
+      "enabled": true,
+      "sync_priority": "high",
+      "conflict_handling": "prompt_user"
+    },
+    "steps": [
+      {
+        "id": "customer",
+        "title": "Select customer",
+        "fields": [
+          {
+            "id": "customer_id",
+            "label": "Customer",
+            "type": "text",
+            "required": true
+          }
+        ]
+      },
+      {
+        "id": "service",
+        "title": "Select service",
+        "fields": [
+          {
+            "id": "service_id",
+            "label": "Service",
+            "type": "text",
+            "required": true
+          },
+          {
+            "id": "quantity",
+            "label": "Quantity",
+            "type": "number",
+            "required": true,
+            "min": 1
+          }
+        ]
+      },
+      {
+        "id": "site",
+        "title": "Site details",
+        "fields": [
+          {
+            "id": "site_address",
+            "label": "Site address",
+            "type": "text",
+            "required": true
+          },
+          {
+            "id": "access_instructions",
+            "label": "Access instructions",
+            "type": "text",
+            "required": false,
+            "max": 500
+          }
+        ]
+      },
+      {
+        "id": "pricing",
+        "title": "Pricing",
+        "fields": [
+          {
+            "id": "subtotal",
+            "label": "Subtotal",
+            "type": "number",
+            "required": true,
+            "min": 0
+          },
+          {
+            "id": "discount",
+            "label": "Discount",
+            "type": "number",
+            "required": false,
+            "min": 0
+          },
+          {
+            "id": "total",
+            "label": "Total",
+            "type": "number",
+            "required": true,
+            "min": 0
+          },
+          {
+            "id": "manager_approved",
+            "label": "Manager approved",
+            "type": "boolean",
+            "required": false
+          }
+        ]
+      },
+      {
+        "id": "review",
+        "title": "Review and submit",
+        "fields": [
+          {
+            "id": "valid_days",
+            "label": "Valid for days",
+            "type": "number",
+            "required": true,
+            "min": 1,
+            "max": 365
+          },
+          {
+            "id": "send_to_customer",
+            "label": "Send to customer",
+            "type": "boolean",
+            "required": true
+          }
+        ]
+      }
+    ]
+  },
+  "_titan_provenance": {
+    "source_product": "Titan Interaction Engine",
+    "source_version": "10.12.0",
+    "source_path": "resources/wizards/create_quote.json",
+    "company_boundary": "company_id",
+    "copied_without_domain_authority": true
+  }
+}

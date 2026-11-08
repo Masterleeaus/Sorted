@@ -1,0 +1,14 @@
+{
+  "schema": "titan.zero.cleaning.customer-quote-repair.v1",
+  "packet_id": "TZ-NEXT-002",
+  "pass": 2,
+  "manager_base": {"merge": 41, "sha256": "dfbd39a0475de73dc00bc1dee82c3969194a45db0ae8fc1fc0a92651641addd2"},
+  "problem": "Sales quote handoff can be proposed without customer_id while the canonical create_quote workflow requires customer_id.",
+  "repair": "Plan customer creation/resolution through existing crm.customer.create before exposing existing governed crm.quote.create handoff; preserve lead/opportunity/correlation/journey continuity.",
+  "authority": {"new_authority": false, "customer_authority": "crm.customer.create", "quote_authority": "crm.quote.create", "proposal_only": true},
+  "company_boundary": "company_id only",
+  "legacy_tenant_keys": "rejected",
+  "duplicate_quote_guard": "delegated to existing Sales structured handoff",
+  "production_files_added": ["titan-business-services/runtime/customer-quote-flow.mjs"],
+  "tests_added": ["tests/cleaning_operations_e2e_pass02_customer_quote.test.mjs"]
+}

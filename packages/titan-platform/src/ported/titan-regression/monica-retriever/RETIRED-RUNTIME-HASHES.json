@@ -1,0 +1,598 @@
+{
+  "schema": "titan.zero.retired-runtime-hashes.v1",
+  "directive": "TZ-MGR-DONOR-SLIM-M42-003",
+  "entries": [
+    {
+      "path": "monica-background.js",
+      "sha256": "77f2ecf6ab5734f02845129ef25fae6b4363dfcd8804b66f26d56cc5ec598d3c",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "monica-content.css",
+      "sha256": "bac75be20e6f66f1ea5291141a2067157687a764012c5fc8478ce6191f9e464c",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "monica-content.js",
+      "sha256": "8e2062cda9c2de67235a44b7fa2520175bfdf1d02719de4a9ad3e0ecda4c08fb",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "monica-popup.css",
+      "sha256": "3efa011dc4965bf2035763086654bfa223a1a9a86aea849be1703fa500c6f845",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "monica-popup.js",
+      "sha256": "417b45f354630150d70a9da472bd17a1d590752a82c723ab74abbd7bb62e6cb0",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/aiReplyExample.png",
+      "sha256": "00459dac26b18d6775f7494b044242c99f6f52637ce21ce606d9033f186f1aa8",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/artifactDemo1.png",
+      "sha256": "a23ed657ddfdf486cd03960e1466904197ac9342933883c8c276eae3030ba721",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/artifactDemo2.png",
+      "sha256": "60da828181a8d1ac1d3a87bebbca12cb15c7e3250c45cf0f10a09531f9338aaf",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/artifactDemo3.png",
+      "sha256": "c93aaf4b8489e4e64a5953034b485a61f8c75a8c21bd05d34d6716d1f0f0853c",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/artifactDemo4.png",
+      "sha256": "f191b9873fcb9bf1bd47f695b57c86d9bf1d4ff134040ee80866ef85de9d855b",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/browserSidePanelPoz.webp",
+      "sha256": "ad98cb02f673894a72173862210904d2d853c6703433465a349da114bfe301a0",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/codeToolsExample.png",
+      "sha256": "5179260de4c4e027c7e6d8e43a5b700c920376940a6dd6bb9b09ef7d1d22b965",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/compareModelExample.png",
+      "sha256": "73b4c2fc3e9fb795f393fa980d3ec9c98e420698f3ef826af280c1d39440ae30",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/fixedSidebarExample.png",
+      "sha256": "c8971606d50ef8e310527cbcab25043dedf3e9a2308f7f648756c65c1bf11476",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/fixedSidebarExampleActive.png",
+      "sha256": "67752c69c0d0ddccedd12f2dad8eeecf15aabf18e6ce3700ca9e5fa8303427f6",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/githubSummaryExample.png",
+      "sha256": "4651fe6c4936034c22101f8bdbbfdfafef11cfe2db30238be517e0c6997bc315",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/GeneratorForm/uploadFile.webp",
+      "sha256": "096457541e10e03cdb9f7cf0012e3a2928285dff32e691b37fb9319f739ce05e",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/GeneratorForm/uploadPic.webp",
+      "sha256": "e5ac8bca82e997011719612acb3b228b40178636bcba5b160888b4ce73874afd",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/OnboardingDialog/aiTranslator.png",
+      "sha256": "36ab487fbda77881a6f3c92a49c897593ce5b9a45920b13bfcbdce0c4f7d2dfb",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/OnboardingDialog/finished.png",
+      "sha256": "0dd6f2578b571aa4516c61df78e7717f440593b078794cc464ab0ae43ef9e518",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/OnboardingDialog/gpt4V2.png",
+      "sha256": "ca0bd1bb75e0b6a51c9bb517afb1a2e3aa768a1f96e84cd7d63fc16fb687e7d9",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/OnboardingDialog/onboardingDialogChatPDF.png",
+      "sha256": "324dc0ae6c8c4401425962788200d51b43e6e6731b09a3c996561beab832d362",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/OnboardingDialog/pdfTools.png",
+      "sha256": "6544f978d4775861204ba43aa0649686af63d1a532ec0bedd3d1e8aa763073e3",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/OnboardingDialog/pdfToolsV2.png",
+      "sha256": "ed7a6a396e64b8bbd322121a58cac781cba61f5d15cfd972ad244c944d332e61",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/Pricing/education.webp",
+      "sha256": "b065dd0e0630deafafddbc424e030dea2a8ff61a769bd0c6db5bda6e295fa306",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/Pricing/success.webp",
+      "sha256": "a241fa93fd7b16da837e43a67e657f54f1bb4506e34cb16e046dbb34e9c55852",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/SubscriptionBenefit/free.png",
+      "sha256": "34baca6f6d43fc24c1768aafd3cb27bd385da82477f54dac4b5ec1d9fb4bc9b4",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/SubscriptionBenefit/unlimited.png",
+      "sha256": "107e2c374d5280959f9a95e7d24d900d1c6a12b0fb5cc368c6005af60f65ce5e",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/SuperCouponDialog/gift.png",
+      "sha256": "21c5bbf2655229da85d1e97641d369a03349ec9b7bb494e249e440a62c08c2b3",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/SuperCouponDialog/sound.png",
+      "sha256": "3315ad6429565cb472206a5300a49be79c0fc2cd17e5735767888e660de29da4",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/SuperCouponDialog/star.png",
+      "sha256": "cfaf28c774a1c13c7b47e1f61ea988a00dda236a2e90d10e27a4778c4a09db55",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/SupportModel/claude.png",
+      "sha256": "1112c821ebe2945b7075f2b5003e4422f373b77c805218e3e21c273271d09ca3",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/SupportModel/support_model_gemini.png",
+      "sha256": "2a5584e46725b944c29ecfa7c085b0d8784b27309c7f230c5d8daf8f66f1ef71",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/activity/newComer/banner_new_comer.webp",
+      "sha256": "d6f35b7a47bd2f726f1a7849960dc1adaa1801e2b1a8d8da3190c04dc6f1a9cc",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/allInOneBannerBgV2.webp",
+      "sha256": "dc6d5debf0c0adefb23afde5261ba3aa3d33fc95e78738a1ecd7974487fbadfa",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/billing/emailRemind.webp",
+      "sha256": "c3f2cc950682896022378ee87b97ee80d6be83d94847e557079af225a228da3f",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/billing/offerInvalid.webp",
+      "sha256": "c7458b8e2387ee2c64e339a97d3652dc0b0d34008fae54312175369a33896709",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/billing/success.webp",
+      "sha256": "a8d19736565580a84aca50789bf99d74824b3278847b309a0f137a08bec90424",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/chatGPT.png",
+      "sha256": "1802d55eb79d4cc2793ee53f14466cd5185e938a0e88d68529e0adf757507d75",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/giftAnimation/extendTrial.webp",
+      "sha256": "9ce3de9b114b52f00d1f7a4e18794e7fb1a0e6c64a9b4d67bb840476d4458d69",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/giftAnimation/flashSale.webp",
+      "sha256": "f359a26a8fdfb740573f3ff308d9a178da8f17d80cb46e2d64606e931103e682",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/giftAnimation/freeTrial.webp",
+      "sha256": "adb4a49261586c84ca5249cabbea029eef933ccb95547932314bb2f59a66554b",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/lowCode/aiLogoCover.webp",
+      "sha256": "65e4291dc894fbd12f09d2f9b8169138d23e87eb23a08689ac4f524ac102777b",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/lowCode/aiLogoPoster.webp",
+      "sha256": "cb6dfd014342bdfac40f2a3fb227b9d55f9d5ca613ee923e14b67018ac36ffb3",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/lowCode/aiWatermark.webp",
+      "sha256": "9cba52d0968a55204f9ee9dbeee382ef6c0ec4327c4436bcd6ab3f8011220509",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/lowCode/artifactsCover.webp",
+      "sha256": "443683445d77367a8969d672ea0b07c0eb32bfc11ff276e93e6a35b568a58224",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/lowCode/powerUpCover.webp",
+      "sha256": "df7f5a433f7567700717529e60da7a10199f46d8477d9edf47cabb5c4d0a0692",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/lowCode/stableDiffusionPoster.webp",
+      "sha256": "0e477b2071a8ee0dd58e76c678be32ec8d69caa4cce1d5332c3fa015de1b207b",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/recommendUpgradeDialog/ContentV2/chatPdf.webp",
+      "sha256": "24420df820d4409dc5bba244bad3a29973b458a6b54d0071faf5f51895130e53",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/recommendUpgradeDialog/ContentV2/claudePro.webp",
+      "sha256": "7d6d3ff3612da73fe0eae2d89b55703a36c79e2d18f65a33a83d5d205b3a8814",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/recommendUpgradeDialog/ContentV2/gemini.webp",
+      "sha256": "f81a168255ec9e0ccca6b2939f8aea6dbf816041761bf0b3f8a44527ea3572d5",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/recommendUpgradeDialog/ContentV2/gptPlus.webp",
+      "sha256": "77bebb6d4053eea95eb3739b1c605abe1f6ac61486b63dcf3ed7ad613d09d789",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/recommendUpgradeDialog/ContentV2/stability.webp",
+      "sha256": "8b2521ea0eade480e45a8c3a44ececd5b6a4c609948c76a9919dafd1b824a4c7",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/recommendUpgradeDialog/ContentV2/youtube.webp",
+      "sha256": "5416fa0ee68723320fe23ea48c91a0af3fb39535c160ab9ae07ff8859f876b15",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/glossaryDisabledExample.png",
+      "sha256": "f03077a71ea037b6f05a462b9a5aa86a25a753ff92fd91b8d927d636a1e5fc9a",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/glossaryEnabledExample.png",
+      "sha256": "8d13c5ea996fc13f477a92bae8bcd83ce10ee273696042717500fed8f6fcd40f",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/leftSidebarExample.png",
+      "sha256": "3128bd4facb9b4c9a636cf949f66a061712098e46d217511bce8b13138ab15a3",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/leftSidebarExampleActive.png",
+      "sha256": "25441c793e04edf37d258d28b992785a2c158ab079e254b7a41dc0b7967b9dd4",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/pdfEnhance.png",
+      "sha256": "3ce1e23a84986a90e15e946a629b5afb379a817b340cdd06cb1251be1bc9162d",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/quickAction.mp4",
+      "sha256": "5571df086667b46707bc9b00c31df6c7e43868318b98c3009e33620de0a05ea1",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/rightSidebarExample.png",
+      "sha256": "b03e0d5d91b6af6a9d1e6441220964fbae9bdc3620dd72fd1aeb760c8bd658e1",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/rightSidebarExampleActive.png",
+      "sha256": "c98f79cdf78496deda6199d5c81290e9ef9a6bddf9726ede9aa93e22b1a5f8a6",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/screenshot_qa.mp4",
+      "sha256": "a857891c815e570cfe512487b241c1fe20b7932cd5aefbf97ee642173560f580",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/searchEnhance/claude.png",
+      "sha256": "7749baabe156bb7432aa4b15180b6cb08176a770a66f61f116c624e5c78e3812",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/searchEnhance/default.png",
+      "sha256": "ac386a336902cfd5aa4458d5e279be8be181a355d7e8990787bf0994d61906e3",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/searchEnhance/llama.png",
+      "sha256": "5dd7aab29f8ce44dfe5856016bb1f934a91a32604bc59f8a14b8275f7c7679cd",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/sidebarExample.png",
+      "sha256": "609c3d630feabbe33516b3aef672605654a23f3fc5351fe8798dff1cbd2669c1",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/singleMonica.png",
+      "sha256": "07253fd303c396522005f45fb4f377d82e7bcf6bf3c1fbd2a0fb7b973cfecb27",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/socialMediaWritingAssistantExample.png",
+      "sha256": "863985831b37adcb43f03d3aa049ffcfb57b1748700dbdf4048b642d73f1b43d",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/tool-sidebar.png",
+      "sha256": "e00a58e5c5c3a4a54ed4fb38f0b26baf517b972196b43ffc1afe5004d0c4986b",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/tool-website.png",
+      "sha256": "791fa46f057ea7328180bb5aef1d22ac7987d83b6c6f017adb8443f0d67ad319",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/webTranslationGuide.png",
+      "sha256": "09b8a10a2fe14dca43a9d73606a73f3a123dab0fd1f722932f2e0cdbd30a3c8d",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/widenHint.png",
+      "sha256": "34097e5a929a69b252ee5d70dba2508e5d90a9ef450a9ae736288c28e3e9fefe",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/writingAssistantExample.png",
+      "sha256": "0196ea80a000cee8a4744283ed5dd0ab69c073ec0a4d45afc20d6df5c0ac79f1",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/youtubeSummaryExample.png",
+      "sha256": "22c1196bb8c1b10bd91a586ae1904f0483f5278f7fd73326c4fc3d906d77fcae",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/SearchAssistantExample.png",
+      "sha256": "075c2196e25ecd86641f3a2f925e804242f7794ec7fedf19321a247262938132",
+      "source": "monica-9.0.22-identical",
+      "retired_by": "TZ-MGR-DONOR-SLIM-M42-003",
+      "reason": "manager_authorized_phase3_retirement"
+    },
+    {
+      "path": "static/base/src/static/monicaLogo.png",
+      "sha256": "e410b5afe0a7f5e4341f661831379ac4cfd120621a0bcd72a58fb6fd924077ca",
+      "source": "monica-9.0.22-identical",
+      "retired_by": "TZ-MGR-DONOR-SLIM-M42-003",
+      "reason": "manager_authorized_phase3_retirement"
+    },
+    {
+      "path": "static/global/src/static/OnboardingDialog/aiContentDetector.webp",
+      "sha256": "f6901048b66bfa4f51d1dcad0abf62cf4e406aba86b368b5351bb10f006d0239",
+      "source": "monica-9.0.22-identical",
+      "retired_by": "TZ-MGR-DONOR-SLIM-M42-003",
+      "reason": "manager_authorized_phase3_retirement"
+    },
+    {
+      "path": "static/global/src/static/OnboardingDialog/chatWithPDF.png",
+      "sha256": "bd12b0f94ba1b3e9ea3fcd7edd5d84a3c403079745f28a4a91700e97d6e86b66",
+      "source": "monica-9.0.22-identical",
+      "retired_by": "TZ-MGR-DONOR-SLIM-M42-003",
+      "reason": "manager_authorized_phase3_retirement"
+    },
+    {
+      "path": "static/global/src/static/OnboardingDialog/imageToolsV2.png",
+      "sha256": "c3c5cc8b9489fd23eee528345f9abf2dbb3dbbe5c35fb4fffce0738a3ada6d66",
+      "source": "monica-9.0.22-identical",
+      "retired_by": "TZ-MGR-DONOR-SLIM-M42-003",
+      "reason": "manager_authorized_phase3_retirement"
+    },
+    {
+      "path": "static/global/src/static/OnboardingDialog/rewriteText.png",
+      "sha256": "0bf5f490b6816079234376a9952159205aba972c7fe2b7a69a1cac41a56bc284",
+      "source": "monica-9.0.22-identical",
+      "retired_by": "TZ-MGR-DONOR-SLIM-M42-003",
+      "reason": "manager_authorized_phase3_retirement"
+    },
+    {
+      "path": "static/global/src/static/OnboardingDialog/searchAgent.png",
+      "sha256": "f10f57c3a0e21a97198d527bf4ee29c6f62f0d2ab2f71e25e737ecddf640b497",
+      "source": "monica-9.0.22-identical",
+      "retired_by": "TZ-MGR-DONOR-SLIM-M42-003",
+      "reason": "manager_authorized_phase3_retirement"
+    },
+    {
+      "path": "static/global/src/static/OnboardingDialog/webAccessV2.png",
+      "sha256": "d9e3e516d36364eabb5e40f9e0c76c1d94cd92698981a100bf0dc2a7e1c0e398",
+      "source": "monica-9.0.22-identical",
+      "retired_by": "TZ-MGR-DONOR-SLIM-M42-003",
+      "reason": "manager_authorized_phase3_retirement"
+    },
+    {
+      "path": "static/global/src/static/OnboardingDialog/webSummary.png",
+      "sha256": "4d80d0e649af731a2f6fda54c659714e5e1d46f4cf17392996b2ab166056734d",
+      "source": "monica-9.0.22-identical",
+      "retired_by": "TZ-MGR-DONOR-SLIM-M42-003",
+      "reason": "manager_authorized_phase3_retirement"
+    },
+    {
+      "path": "static/global/src/static/OnboardingDialog/webTranslate.png",
+      "sha256": "c948ae3aace32a2ac393877accd4929ca3645548eadc6145e58ee1d3dea19130",
+      "source": "monica-9.0.22-identical",
+      "retired_by": "TZ-MGR-DONOR-SLIM-M42-003",
+      "reason": "manager_authorized_phase3_retirement"
+    },
+    {
+      "path": "static/global/src/static/OnboardingDialog/youTubeSummary.png",
+      "sha256": "b3477c7c2fe73f7721c208f67919779f7c615aa6ba77e5d40641816003ef13bf",
+      "source": "monica-9.0.22-identical",
+      "retired_by": "TZ-MGR-DONOR-SLIM-M42-003",
+      "reason": "manager_authorized_phase3_retirement"
+    },
+    {
+      "path": "static/global/src/static/brand/monicaCode.png",
+      "sha256": "2cfa91b593df86a54a8a435b20ce1eac8ba7e93f9f2ba30e5055ffc6fdef01d7",
+      "source": "monica-9.0.22-identical",
+      "retired_by": "TZ-MGR-DONOR-SLIM-M42-003",
+      "reason": "manager_authorized_phase3_retirement"
+    },
+    {
+      "path": "static/global/src/static/giftAnimation/flashSale.json",
+      "sha256": "86fe4bf8620810f9686756d25546a8f12e5cb9a5fb4ec3cb4e3dad1b2d683679",
+      "source": "monica-9.0.22-identical",
+      "retired_by": "TZ-MGR-DONOR-SLIM-M42-003",
+      "reason": "manager_authorized_phase3_retirement"
+    },
+    {
+      "path": "static/global/src/static/giftAnimation/freeTrial.json",
+      "sha256": "06b82b3b80da2a7f849706bd27d579253557b927e7d34b99b170561d05d4e7f9",
+      "source": "monica-9.0.22-identical",
+      "retired_by": "TZ-MGR-DONOR-SLIM-M42-003",
+      "reason": "manager_authorized_phase3_retirement"
+    },
+    {
+      "path": "static/global/src/static/logoPrd.svg",
+      "sha256": "9b1ae2c71977bba2f95b1333650ccb53ce04704680a7086c2b504dcb17e79ea1",
+      "source": "monica-9.0.22-identical",
+      "retired_by": "TZ-MGR-DONOR-SLIM-M42-003",
+      "reason": "manager_authorized_phase3_retirement"
+    },
+    {
+      "path": "static/global/src/static/logoPrdLight.svg",
+      "sha256": "8186d8997168fa6f8ba79b6210b905770f4474cbea70b4c5b4f416512dd59d51",
+      "source": "monica-9.0.22-identical",
+      "retired_by": "TZ-MGR-DONOR-SLIM-M42-003",
+      "reason": "manager_authorized_phase3_retirement"
+    },
+    {
+      "path": "static/global/src/static/lowCode/audioToTextCover.webp",
+      "sha256": "a82dc4f3dd8451c4a851dcd3e5b3be650b6ebb736d280abe641e26b9860b6f4e",
+      "source": "monica-9.0.22-identical",
+      "retired_by": "TZ-MGR-DONOR-SLIM-M42-003",
+      "reason": "manager_authorized_phase3_retirement"
+    },
+    {
+      "path": "static/global/src/static/lowCode/mindmapCover.webp",
+      "sha256": "9172688c40df32d7219cc956120f6884d7cb7209d1d212201e7ee79f13fd9cc6",
+      "source": "monica-9.0.22-identical",
+      "retired_by": "TZ-MGR-DONOR-SLIM-M42-003",
+      "reason": "manager_authorized_phase3_retirement"
+    },
+    {
+      "path": "static/global/src/static/lowCode/stableDiffusionCover.webp",
+      "sha256": "a23365d094bea6922a340dba889859602ebcb3dc476c10e0995509e5fbc39334",
+      "source": "monica-9.0.22-identical",
+      "retired_by": "TZ-MGR-DONOR-SLIM-M42-003",
+      "reason": "manager_authorized_phase3_retirement"
+    },
+    {
+      "path": "static/global/src/static/monicaLogo.png",
+      "sha256": "e410b5afe0a7f5e4341f661831379ac4cfd120621a0bcd72a58fb6fd924077ca",
+      "source": "monica-9.0.22-identical",
+      "retired_by": "TZ-MGR-DONOR-SLIM-M42-003",
+      "reason": "manager_authorized_phase3_retirement"
+    },
+    {
+      "path": "static/global/src/static/monicaSearch.png",
+      "sha256": "ab151bbb06560463da31ad6071bd7072c1ca01a86ca641087299fe013e9f7dc1",
+      "source": "monica-9.0.22-identical",
+      "retired_by": "TZ-MGR-DONOR-SLIM-M42-003",
+      "reason": "manager_authorized_phase3_retirement"
+    },
+    {
+      "path": "static/global/src/static/video/monicaApp.png",
+      "sha256": "c81d206a777e8dd88d9b164f7691881fd5fca99d3bbbacd3a1ccd4c6afaf7b19",
+      "source": "monica-9.0.22-identical",
+      "retired_by": "TZ-MGR-DONOR-SLIM-M42-003",
+      "reason": "manager_authorized_phase3_retirement"
+    },
+    {
+      "path": "static/global/src/static/video/monicaAppQr.png",
+      "sha256": "84a76aa69f232ca9cd81ba16ff76749a03bdac9816951d270b502ad57d77eeb8",
+      "source": "monica-9.0.22-identical",
+      "retired_by": "TZ-MGR-DONOR-SLIM-M42-003",
+      "reason": "manager_authorized_phase3_retirement"
+    },
+    {
+      "path": "static/grammarCheckExample.png",
+      "sha256": "237670e520a8d70ebf0a204a67774242ce1d10df172ba01db624e794db4a8102",
+      "source": "monica-9.0.22-identical",
+      "retired_by": "TZ-MGR-DONOR-SLIM-M42-003",
+      "reason": "manager_authorized_phase3_retirement"
+    },
+    {
+      "path": "static/imageToolExample.png",
+      "sha256": "81b551d0ddab2ad284e364cee6c202fbd3a16a3cff4d194d4bb980cd0f500c6f",
+      "source": "monica-9.0.22-identical",
+      "retired_by": "TZ-MGR-DONOR-SLIM-M42-003",
+      "reason": "manager_authorized_phase3_retirement"
+    },
+    {
+      "path": "static/monicaLogo.png",
+      "sha256": "2ac775c72cc5504de6439d401a590cb70e6d0409a14d1801c5d5d40417c34026",
+      "source": "monica-9.0.22-identical",
+      "retired_by": "TZ-MGR-DONOR-SLIM-M42-003",
+      "reason": "manager_authorized_phase3_retirement"
+    },
+    {
+      "path": "static/monicaSearchGuide.mp4",
+      "sha256": "4bb8a9c193b7a6353cf7d0f9e9db68ce935cfaa7df50df053013f47956d2a5f2",
+      "source": "monica-9.0.22-identical",
+      "retired_by": "TZ-MGR-DONOR-SLIM-M42-003",
+      "reason": "manager_authorized_phase3_retirement"
+    },
+    {
+      "path": "static/pdf-injected-script.js",
+      "sha256": "b6718449e46a1f27f1467e256e93d023d66a5be78362e60c7be5402884b500dd",
+      "source": "monica-9.0.22-identical",
+      "retired_by": "TZ-MGR-DONOR-SLIM-M42-003",
+      "reason": "manager_authorized_phase3_retirement"
+    },
+    {
+      "path": "static/readingToolExample.png",
+      "sha256": "ffc7a120c69d79e399223b899609cfb46e50827ef580f1cb74572a2d94a3cb0a",
+      "source": "monica-9.0.22-identical",
+      "retired_by": "TZ-MGR-DONOR-SLIM-M42-003",
+      "reason": "manager_authorized_phase3_retirement"
+    },
+    {
+      "path": "static/writingToolExample.png",
+      "sha256": "8afe4888a0cac051872697bfd231c8b9eec5656ab8fb2b9ba61b761fde8a26b2",
+      "source": "monica-9.0.22-identical",
+      "retired_by": "TZ-MGR-DONOR-SLIM-M42-003",
+      "reason": "manager_authorized_phase3_retirement"
+    },
+    {
+      "path": "content.css",
+      "sha256": "bac75be20e6f66f1ea5291141a2067157687a764012c5fc8478ce6191f9e464c",
+      "source": "monica-9.0.22-identical",
+      "retired_by": "TZ-MGR-DONOR-SLIM-M44-004",
+      "reason": "exact_duplicate_rewired_to_titan-zero-chat-content.compat.css_after_runtime_adapters_convergence"
+    }
+  ]
+}

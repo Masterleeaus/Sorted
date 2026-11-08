@@ -1,0 +1,7 @@
+{
+  "schema": "titan-zero-retriever-finish-pass06-change-impact/v1",
+  "packet_id": "TZ-FINISH-RETRIEVER-NATIVE-001",
+  "pass": 6,
+  "impact": "Additive recovery primitives inside Builder3 exclusive Retriever namespace. Existing UI, public exports, browser donor assets and workforce shared files remain untouched.",
+  "rollback": "Remove recovery.ts and Pass6 test/evidence, remove recovery exports, and remove lifecycle checkpoint/restore additions."
+}

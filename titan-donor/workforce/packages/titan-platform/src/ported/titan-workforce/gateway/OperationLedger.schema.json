@@ -1,0 +1,65 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Titan Workforce Operation Ledger v1",
+  "type": "object",
+  "required": [
+    "schema",
+    "company_id",
+    "operation_id",
+    "idempotency_key",
+    "operation",
+    "phase",
+    "state",
+    "grants_authority",
+    "authority_effect",
+    "automatic_effect_replay"
+  ],
+  "properties": {
+    "schema": {
+      "const": "titan.workforce.operation-ledger.v1"
+    },
+    "company_id": {
+      "type": "string",
+      "minLength": 2
+    },
+    "operation_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "idempotency_key": {
+      "type": "string",
+      "minLength": 1
+    },
+    "operation": {
+      "type": "string",
+      "minLength": 1
+    },
+    "phase": {
+      "type": "string"
+    },
+    "state": {
+      "enum": [
+        "claimed",
+        "delivery_unknown",
+        "gateway_rejected",
+        "receipt_verified",
+        "command_prepared",
+        "completed",
+        "failed",
+        "reversed"
+      ]
+    },
+    "receipt": {},
+    "result": {},
+    "grants_authority": {
+      "const": false
+    },
+    "authority_effect": {
+      "const": false
+    },
+    "automatic_effect_replay": {
+      "const": false
+    }
+  },
+  "additionalProperties": true
+}

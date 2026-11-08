@@ -1,0 +1,28 @@
+{
+  "pass": 9,
+  "title": "Model Selection Policy",
+  "status": "PASS_STATIC_VERIFIED",
+  "manager_base": {
+    "merge": 21,
+    "artifact": "Titan-Zero-CANONICAL-MASTER-2026-09-06-MERGE-21-ALL-LINEAGES-CONVERGED.zip",
+    "sha256": "bf39506c0f3c849b1496d77c6dd9b079cf5ab999746c1e9cfb64b10be38fbe5c",
+    "files": 2043
+  },
+  "company_boundary": "company_id",
+  "identity_grants_authority": false,
+  "settings_grant_execution_authority": false,
+  "live_browser_certified": false,
+  "live_laravel_certified": false,
+  "schema": "titan-zero-settings-control-plane-semantic-change/v1",
+  "changes": [
+    "Rebased retained Pass 8 AI budget controls onto Manager Merge 21 without replaying stale Merge 20 runtime files.",
+    "Added company-scoped aiModelSelectionPolicy for chat, research, reasoning, extraction and vision workload preferences.",
+    "Preserved existing chatOptions.model, providerConfigs[].modelId, managed-model and Gemini BYO model sources.",
+    "Model preferences only order real runtime candidates; provider enablement, availability, cost routing, budgets, entitlement, approval and authority remain independent gates.",
+    "Provider credentials are not copied into the model policy or its projections."
+  ],
+  "next_pass": {
+    "pass": 10,
+    "title": "Advanced Intelligence Behaviour"
+  }
+}

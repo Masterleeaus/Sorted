@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "titan.workforce.observability.v1",
+  "title": "Titan Workforce Observability Snapshot",
+  "type": "object",
+  "required": ["schema", "company_id", "grants_authority", "authority_effect"],
+  "properties": {
+    "schema": {"const": "titan.workforce.observability.v1"},
+    "company_id": {"type": "string", "minLength": 2, "maxLength": 128},
+    "last_event": {"type": ["string", "null"]},
+    "last_event_at": {"type": ["string", "null"]},
+    "last_level": {"type": ["string", "null"]},
+    "connectivity": {"type": ["string", "null"]},
+    "transport": {"type": ["string", "null"]},
+    "projection_revision": {"type": ["integer", "null"]},
+    "projection_cursor": {"type": ["string", "null"]},
+    "retry_count": {"type": "integer", "minimum": 0},
+    "failures": {"type": "integer", "minimum": 0},
+    "last_operation_id": {"type": ["string", "null"]},
+    "last_request_id": {"type": ["string", "null"]},
+    "last_trace_id": {"type": ["string", "null"]},
+    "last_correlation_id": {"type": ["string", "null"]},
+    "last_receipt_id": {"type": ["string", "null"]},
+    "last_error": {"type": ["string", "null"]},
+    "grants_authority": {"const": false},
+    "authority_effect": {"const": false}
+  },
+  "additionalProperties": true
+}

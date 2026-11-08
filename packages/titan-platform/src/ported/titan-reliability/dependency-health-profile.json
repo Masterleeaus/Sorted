@@ -1,0 +1,22 @@
+{
+  "schema": "titan.reliability.dependency-health-profile/v1",
+  "non_authoritative": true,
+  "company_boundary": "company_id",
+  "dependency_kinds": ["browser", "storage", "local_bridge", "network"],
+  "statuses": ["healthy", "degraded", "unhealthy", "unavailable", "unknown"],
+  "thresholds": {
+    "failure_threshold_degraded": 1,
+    "failure_threshold_unhealthy": 3,
+    "latency_degraded_ms": 1500,
+    "latency_unhealthy_ms": 5000,
+    "stale_degraded_ms": 30000,
+    "stale_unavailable_ms": 120000
+  },
+  "safety": {
+    "classification_grants_authority": false,
+    "classification_changes_permissions": false,
+    "classification_changes_autonomy": false,
+    "unavailable_local_bridge_prefers": "device_or_byo_fallback",
+    "failure_policy": "surface_status_and_guidance_only"
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "schema": "titan-zero-retriever-finish-pass02-semantic-change/v1",
+  "packet_id": "TZ-FINISH-RETRIEVER-NATIVE-001",
+  "pass": 2,
+  "semantic_delta": "Adds the first standalone typed Retriever-native executor, authority-neutral capability negotiation, and externally-authorized handler dispatch.",
+  "production_behavior_change": "No existing route is switched yet. Pass 3 will migrate lifecycle traffic onto this executor.",
+  "donor_revival": false
+}

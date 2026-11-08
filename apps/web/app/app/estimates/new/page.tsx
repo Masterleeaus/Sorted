@@ -1,0 +1,371 @@
+import { redirect } from "next/navigation";
+import { getSession } from "@/lib/auth/session";
+import { canCreateEstimates } from "@/lib/auth/permissions";
+import { resolveDepositPolicy } from "@ai-fsm/domain";
+import { query, queryOne } from "@/lib/db";
+import { Breadcrumbs, Card, PageContainer, PageHeader, HubSubnav } from "@/components/ui";
+import { WORK_HUB_LINKS } from "@/lib/navigation/hubs";
+import { EstimateEntryShell } from "./EstimateEntryShell";
+import { buildWalkthroughScopeNotes } from "@/lib/estimates/walkthrough-prefill";
+import { loadAssessmentSummary } from "@/lib/estimates/assessment-summary-loader";
+import { buildJobTmBriefing } from "@/lib/estimates/job-tm-briefing";
+import { splitQuotePricingQuery } from "@/lib/estimates/commercial-pricing";
+
+export const dynamic = "force-dynamic";
+
+interface Client {
+  id: string;
+  name: string;
+  [key: string]: unknown;
+}
+
+interface Job {
+  id: string;
+  title: string;
+  client_id: string;
+  [key: string]: unknown;
+}
+
+interface Property {
+  id: string;
+  address: string;
+  client_id: string;
+  [key: string]: unknown;
+}
+
+interface WalkthroughContext extends Record<string, unknown> {
+  id: string;
+  scheduled_start: string;
+  tech_notes: string | null;
+  job_id: string | null;
+  job_title: string | null;
+  client_name: string | null;
+  property_address: string | null;
+  assessment_photo_count: number;
+  before_photo_count: number;
+  part_count: number;
+}
+
+interface BookingRequestRow extends Record<string, unknown> {
+  id: string;
+  service_description: string;
+  service_category: string;
+  property_id: string | null;
+  routing_path: string | null;
+  referral_source: string | null;
+  review_notes: string | null;
+}
+
+interface PageProps {
+  searchParams: Promise<{
+    client_id?: string;
+    job_id?: string;
+    property_id?: string;
+    vault_item_id?: string;
+    from_visit?: string;
+    pricing_mode?: string;
+    /** Entry mode shortcut: quick | detailed | ai | tm */
+    mode?: "quick" | "detailed" | "ai" | "tm";
+    /** When "1", T&M path auto-runs generate after loading job notes */
+    auto_generate?: string;
+    booking_request_id?: string;
+    from_assessment?: string;
+    visit_id?: string;
+  }>;
+}
+
+export default async function NewEstimatePage({ searchParams }: PageProps) {
+  const session = await getSession();
+  if (!session) redirect("/login");
+  if (!canCreateEstimates(session.role)) redirect("/app/estimates");
+
+  const {
+    client_id,
+    job_id,
+    property_id,
+    vault_item_id,
+    from_visit,
+    pricing_mode,
+    mode,
+    auto_generate,
+    booking_request_id,
+    from_assessment,
+    visit_id,
+  } = await searchParams;
+  const quotePricing = splitQuotePricingQuery(pricing_mode);
+
+  // TASK-018 slice 2: when opened from an assessment, recover the canonical
+  // summary from persistence so a refresh / deep-link (no sessionStorage) still
+  // carries the assessment context into estimate/materials.
+  const serverAssessmentContext =
+    from_assessment === "1" && visit_id
+      ? await loadAssessmentSummary(session, visit_id)
+      : null;
+
+  const [clients, jobs, properties, accountRow] = await Promise.all([
+    query<Client>(
+      `SELECT id, name FROM clients WHERE account_id = $1 ORDER BY name ASC`,
+      [session.accountId]
+    ),
+    query<Job>(
+      `SELECT id, title, client_id FROM jobs WHERE account_id = $1 AND status NOT IN ('completed','cancelled','invoiced') ORDER BY title ASC`,
+      [session.accountId]
+    ),
+    query<Property>(
+      `SELECT id, address, client_id FROM properties WHERE account_id = $1 ORDER BY address ASC`,
+      [session.accountId]
+    ),
+    queryOne<{ settings: { deposit_percent?: number; deposit_terms?: string } | null }>(
+      `SELECT settings FROM accounts WHERE id = $1`,
+      [session.accountId]
+    ),
+  ]);
+
+  // The standard deposit set in Settings is the default for new estimates.
+  const defaultDepositPercent = resolveDepositPolicy(accountRow?.settings).percent;
+
+  // Fetch vault item context for pre-populating estimate notes
+  let vaultItemContext: { name: string; category: string; location: string | null } | null = null;
+  if (vault_item_id) {
+    const rows = await query<{ name: string; category: string; location: string | null }>(
+      `SELECT name, category, location FROM property_vault_items WHERE id = $1 AND account_id = $2`,
+      [vault_item_id, session.accountId]
+    );
+    vaultItemContext = rows[0] ?? null;
+  }
+
+  // Fetch the source booking request (if any) to pre-populate the notes field.
+  let bookingRequestContext: BookingRequestRow | null = null;
+  if (booking_request_id) {
+    const rows = await query<BookingRequestRow>(
+      `SELECT id, service_description, service_category,
+              property_id, routing_path, referral_source, review_notes
+       FROM booking_requests
+       WHERE id = $1 AND account_id = $2`,
+      [booking_request_id, session.accountId]
+    );
+    bookingRequestContext = rows[0] ?? null;
+  }
+
+  // Soft guard: assessment path without a completed assessment packet
+  let assessmentPathWarning: string | null = null;
+  if (job_id && from_assessment !== "1") {
+    const pathRows = await query<{
+      routing_path: string | null;
+      open_site: string;
+      completed_assessment: string;
+    }>(
+      `SELECT
+         (SELECT br.routing_path FROM booking_requests br
+          WHERE br.job_id = $1 AND br.account_id = $2
+          ORDER BY br.created_at DESC LIMIT 1) AS routing_path,
+         (SELECT COUNT(*)::text FROM visits v
+          WHERE v.job_id = $1 AND v.account_id = $2 AND v.visit_type = 'site_visit'
+            AND v.status NOT IN ('cancelled')) AS open_site,
+         (SELECT COUNT(*)::text FROM visits v
+          JOIN site_visit_assessments sva ON sva.visit_id = v.id
+          WHERE v.job_id = $1 AND v.account_id = $2 AND v.visit_type = 'site_visit'
+            AND sva.completed_at IS NOT NULL) AS completed_assessment`,
+      [job_id, session.accountId],
+    );
+    const row = pathRows[0];
+    if (
+      row &&
+      (row.routing_path === "site_visit" || parseInt(row.open_site || "0", 10) > 0) &&
+      parseInt(row.completed_assessment || "0", 10) === 0
+    ) {
+      assessmentPathWarning =
+        "No completed assessment packet on this project. You can continue, but consider finishing the Assessment form first for better scope and pricing.";
+    }
+  }
+
+  let walkthroughContext: WalkthroughContext | null = null;
+  if (from_visit) {
+    walkthroughContext = await queryOne<WalkthroughContext>(
+      `SELECT v.id, v.scheduled_start, v.tech_notes,
+              v.job_id, j.title AS job_title,
+              c.name AS client_name,
+              p.address AS property_address,
+              (SELECT COUNT(*)::int FROM visit_media vm
+               WHERE vm.visit_id = v.id AND vm.account_id = v.account_id AND vm.category = 'assessment') AS assessment_photo_count,
+              (SELECT COUNT(*)::int FROM visit_media vm
+               WHERE vm.visit_id = v.id AND vm.account_id = v.account_id AND vm.category = 'before') AS before_photo_count,
+              (SELECT COUNT(*)::int FROM visit_parts vp
+               WHERE vp.visit_id = v.id AND vp.account_id = v.account_id) AS part_count
+       FROM visits v
+       LEFT JOIN jobs j ON j.id = v.job_id AND j.account_id = v.account_id
+       LEFT JOIN clients c ON c.id = j.client_id AND c.account_id = v.account_id
+       LEFT JOIN properties p ON p.id = j.property_id AND p.account_id = v.account_id
+       WHERE v.id = $1 AND v.account_id = $2 AND v.visit_type = 'site_visit'`,
+      [from_visit, session.accountId]
+    );
+  }
+
+  // Build the scope-notes prefill. Walkthrough evidence takes priority;
+  // fall back to a richer booking request summary.
+  let walkthroughPrefill = "";
+  if (bookingRequestContext && !walkthroughContext) {
+    const parts: string[] = [bookingRequestContext.service_description.trim()];
+    if (bookingRequestContext.review_notes?.trim()) {
+      parts.push(`Review notes: ${bookingRequestContext.review_notes.trim()}`);
+    }
+    if (bookingRequestContext.routing_path && bookingRequestContext.routing_path !== "pending") {
+      const routeLabel =
+        bookingRequestContext.routing_path === "site_visit"
+          ? "Assessment first"
+          : bookingRequestContext.routing_path === "book_work"
+            ? "Book work"
+            : "Remote estimate";
+      parts.push(`Routing: ${routeLabel}`);
+    }
+    walkthroughPrefill = parts.join("\n\n");
+  }
+  if (walkthroughContext) {
+    const partRows = await query<{ name: string; quantity: number | string }>(
+      `SELECT name, quantity FROM visit_parts
+       WHERE visit_id = $1 AND account_id = $2
+       ORDER BY created_at ASC`,
+      [walkthroughContext.id, session.accountId]
+    );
+    walkthroughPrefill = buildWalkthroughScopeNotes({
+      visitDate: typeof walkthroughContext.scheduled_start === "string"
+        ? walkthroughContext.scheduled_start
+        : null,
+      techNotes: walkthroughContext.tech_notes,
+      parts: partRows.map((p) => ({ name: p.name, quantity: Number(p.quantity) })),
+      assessmentPhotoCount: walkthroughContext.assessment_photo_count,
+      beforePhotoCount: walkthroughContext.before_photo_count,
+    });
+  }
+
+  // T&M one-click from job: assemble briefing from job + property + latest field notes
+  let initialTmBriefing = "";
+  if (mode === "tm" && job_id) {
+    const tmSource = await queryOne<{
+      title: string;
+      description: string | null;
+      intake_notes: string | null;
+      property_address: string | null;
+      property_city: string | null;
+      property_state: string | null;
+      field_notes: string | null;
+      request_description: string | null;
+      pricing_mode: "flat_rate" | "hourly_internal" | null;
+    }>(
+      `SELECT j.title,
+              j.description,
+              j.intake_notes,
+              p.address AS property_address,
+              p.city AS property_city,
+              p.state AS property_state,
+              (SELECT v.tech_notes FROM visits v
+                WHERE v.job_id = j.id AND v.account_id = j.account_id
+                  AND v.tech_notes IS NOT NULL AND TRIM(v.tech_notes) <> ''
+                ORDER BY v.updated_at DESC NULLS LAST, v.created_at DESC
+                LIMIT 1) AS field_notes,
+              (SELECT br.service_description FROM booking_requests br
+                WHERE br.job_id = j.id AND br.account_id = j.account_id
+                ORDER BY br.created_at DESC LIMIT 1) AS request_description,
+              (SELECT br.pricing_mode FROM booking_requests br
+                WHERE br.job_id = j.id AND br.account_id = j.account_id
+                ORDER BY br.created_at DESC LIMIT 1) AS pricing_mode
+       FROM jobs j
+       LEFT JOIN properties p ON p.id = j.property_id AND p.account_id = j.account_id
+       WHERE j.id = $1 AND j.account_id = $2`,
+      [job_id, session.accountId]
+    );
+    if (tmSource) {
+      initialTmBriefing = buildJobTmBriefing(tmSource);
+    }
+  }
+
+  return (
+    <PageContainer>
+      <Breadcrumbs
+        items={[
+          { href: "/app/estimates", label: "Quotes" },
+          { label: "New estimate" },
+        ]}
+      />
+      <PageHeader title="New Quote" backHref="/app/estimates" backLabel="Quotes" />
+      <HubSubnav hub="Work" links={WORK_HUB_LINKS} pathname="/app/estimates" />
+      <p style={{ margin: "0 0 var(--space-4)", color: "var(--fg-muted)", fontSize: "var(--text-sm)" }}>
+        Short steps — defaults from the client, property, and price book when available. Save draft anytime.
+      </p>
+      {assessmentPathWarning && (
+        <Card
+          style={{
+            marginBottom: "var(--space-4)",
+            borderColor: "var(--warning-border, #fde68a)",
+            background: "var(--warning-bg, #fffbeb)",
+          }}
+          data-testid="assessment-path-warning"
+        >
+          <p style={{ margin: 0, fontSize: "var(--text-sm)", fontWeight: 600 }}>Assessment path incomplete</p>
+          <p style={{ margin: "var(--space-1) 0 0", fontSize: "var(--text-sm)", color: "var(--fg-muted)" }}>
+            {assessmentPathWarning}
+          </p>
+          {job_id ? (
+            <p style={{ margin: "var(--space-2) 0 0" }}>
+              <a href={`/app/jobs/${job_id}`} style={{ fontSize: "var(--text-sm)", color: "var(--accent)" }}>
+                Open project →
+              </a>
+            </p>
+          ) : null}
+        </Card>
+      )}
+      {walkthroughContext && (
+        <Card style={{ marginBottom: "var(--space-4)" }} data-testid="walkthrough-estimate-context">
+          <div style={{ display: "flex", justifyContent: "space-between", gap: "var(--space-4)", flexWrap: "wrap" }}>
+            <div style={{ minWidth: 240, flex: "1 1 320px" }}>
+              <p style={{ margin: "0 0 var(--space-1)", fontSize: "var(--text-xs)", fontWeight: 700, color: "var(--fg-muted)", textTransform: "uppercase", letterSpacing: "0.08em" }}>
+                Walkthrough Evidence
+              </p>
+              <h2 style={{ margin: "0 0 var(--space-1)", fontSize: "var(--text-lg)" }}>
+                {walkthroughContext.job_title ?? "Site visit"}
+              </h2>
+              <p style={{ margin: 0, color: "var(--fg-muted)", fontSize: "var(--text-sm)" }}>
+                {walkthroughContext.client_name ?? "Client"}{walkthroughContext.property_address ? ` · ${walkthroughContext.property_address}` : ""}
+              </p>
+            </div>
+            <div style={{ display: "flex", gap: "var(--space-3)", flexWrap: "wrap", alignItems: "center" }}>
+              <div style={{ fontSize: "var(--text-sm)" }}><strong>{walkthroughContext.assessment_photo_count}</strong> assessment photos</div>
+              <div style={{ fontSize: "var(--text-sm)" }}><strong>{walkthroughContext.before_photo_count}</strong> before photos</div>
+              <div style={{ fontSize: "var(--text-sm)" }}><strong>{walkthroughContext.part_count}</strong> parts</div>
+            </div>
+          </div>
+          {walkthroughContext.tech_notes && (
+            <p style={{ margin: "var(--space-3) 0 0", color: "var(--fg-muted)", fontSize: "var(--text-sm)", whiteSpace: "pre-wrap" }}>
+              {walkthroughContext.tech_notes}
+            </p>
+          )}
+        </Card>
+      )}
+      <EstimateEntryShell
+        clients={clients}
+        jobs={jobs}
+        properties={properties}
+        initialClientId={client_id}
+        initialJobId={job_id}
+        initialPropertyId={property_id ?? bookingRequestContext?.property_id ?? undefined}
+        initialVaultItemId={vault_item_id}
+        vaultItemContext={vaultItemContext}
+        initialPricingMode={quotePricing.presentation}
+        commercialPricingMode={quotePricing.commercial}
+        initialMode={
+          mode === "quick" || mode === "detailed" || mode === "ai" || mode === "tm"
+            ? mode
+            : walkthroughContext
+              ? "quick"
+              : undefined
+        }
+        initialNotes={walkthroughPrefill || undefined}
+        bookingRequestId={bookingRequestContext?.id}
+        serverAssessmentContext={serverAssessmentContext}
+        initialTmBriefing={initialTmBriefing || undefined}
+        autoGenerateTm={auto_generate === "1" && Boolean(initialTmBriefing)}
+        defaultDepositPercent={defaultDepositPercent}
+      />
+    </PageContainer>
+  );
+}

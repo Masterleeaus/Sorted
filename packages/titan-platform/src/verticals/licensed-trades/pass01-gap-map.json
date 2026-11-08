@@ -1,0 +1,133 @@
+{
+  "schema": "titan.zero.vertical.licensed-trades.gap-map.v1",
+  "packet_id": "TZ-VERTICAL-LICENSED-TRADES-001",
+  "pass": 1,
+  "manager_merge": 62,
+  "company_boundary": "company_id",
+  "identity_grants_authority": false,
+  "production_behavior_changed": false,
+  "objective": "Compose plumbing, electrical and HVAC as first-class licensed-trade verticals over shared Titan domain owners without promoting quarantined browser adapters, inventing jurisdictional rules or allowing vertical selection/qualification metadata to grant authority.",
+  "reuse_plan": [
+    {
+      "source": "packages/domain/src/construction-profiles/plumbing.ts",
+      "disposition": "ADAPT",
+      "reason": "Retain phase/checklist, concealed-risk and hardware semantics, but treat current fixture-focused assumptions and embedded code references/prices as donor examples rather than universal policy."
+    },
+    {
+      "source": "packages/domain/src/construction-profiles/electrical.ts",
+      "disposition": "ADAPT",
+      "reason": "Retain phase/checklist, risk and evidence structure, but do not treat hard-coded NEC/high-ceiling examples as jurisdiction-neutral canonical compliance policy."
+    },
+    {
+      "source": "packages/titan-platform/src/ported/titan-plumbing-workforce.ts",
+      "disposition": "ADAPT",
+      "reason": "Rich plumbing specialist/job-type semantics already preserve company_id and licensed-work evidence, but the module is quarantined/browser-wrapped and must not become a second workforce runtime."
+    },
+    {
+      "source": "packages/titan-platform/src/ported/titan-electrical-workforce.ts",
+      "disposition": "ADAPT",
+      "reason": "Rich electrical specialist/job-type semantics already preserve licensed-worker/isolation evidence concepts, but the module is quarantined/browser-wrapped and must not become a second workforce runtime."
+    },
+    {
+      "source": "packages/titan-platform/src/verticals/cleaning/**",
+      "disposition": "REUSE_AS_REFERENCE_BLUEPRINT",
+      "reason": "Reuse the completed Cleaning pattern: vertical-specific projections compose over shared booking, scheduling, jobs, pricing, workforce, evidence and customer-care owners instead of forking them."
+    },
+    {
+      "source": "apps/web/lib/jobs/** and apps/web/lib/pricing/**",
+      "disposition": "REUSE_SHARED_OWNER",
+      "reason": "Licensed trades must supply metadata/projections into canonical Jobs/Pricing owners rather than persist competing business truth."
+    }
+  ],
+  "shared_primitives": [
+    "company_boundary",
+    "service_scope",
+    "risk_triage",
+    "qualification_requirement",
+    "safety_policy_reference",
+    "asset_context",
+    "evidence_requirement",
+    "pricing_projection",
+    "scheduling_requirement",
+    "recurrence_projection",
+    "customer_handoff"
+  ],
+  "shared_domain_owners_to_preserve": [
+    "crm/business records",
+    "booking",
+    "scheduling",
+    "workforce assignment",
+    "jobs",
+    "pricing/quotes",
+    "assets/inventory",
+    "recurrence/rebooking",
+    "customer-care"
+  ],
+  "gap_map": [
+    {
+      "id": "TRADE-GAP-001",
+      "severity": "HIGH",
+      "area": "HVAC donor parity",
+      "finding": "Merge62 contains first-class retained plumbing/electrical donors but no equivalent native HVAC construction profile or workforce adapter.",
+      "next_pass": "Build HVAC catalogue and primitives from shared field-service owners and reference-blueprint semantics rather than copying unrelated trade assumptions."
+    },
+    {
+      "id": "TRADE-GAP-002",
+      "severity": "HIGH",
+      "area": "jurisdiction and compliance policy",
+      "finding": "Existing construction profiles include specific code/pricing examples. Licensed-trade verticals need policy references/configuration and evidence hooks, not universal hard-coded regulatory claims.",
+      "handling": "Treat donor code references, prices and disclaimers as historical examples only; future native contracts must reference configured policy/jurisdiction sources."
+    },
+    {
+      "id": "TRADE-GAP-003",
+      "severity": "HIGH",
+      "area": "qualification and assignment",
+      "finding": "Retained workforces model licensed-worker requirements, but native verticals still need company-scoped qualification requirements as scheduling metadata resolved by the shared workforce/authority owners.",
+      "handling": "Qualification evidence constrains eligibility; it never grants authority or performs assignment."
+    },
+    {
+      "id": "TRADE-GAP-004",
+      "severity": "MEDIUM",
+      "area": "shared estimate language",
+      "finding": "Generic estimate flows still contain handyman/Dovetails assumptions that are unsuitable as licensed-trade canonical language.",
+      "examples": [
+        "apps/web/lib/estimates/task-decomposer.ts",
+        "apps/web/lib/estimates/materials-generator.ts",
+        "apps/web/lib/estimates/interview-agent.ts",
+        "apps/web/lib/estimates/ai-draft.ts"
+      ],
+      "handling": "Do not mass-edit shared owners from Pass 1; future licensed-trade projections provide trade context and collision-safe shared generalization can occur under the proper owner."
+    },
+    {
+      "id": "TRADE-GAP-005",
+      "severity": "MEDIUM",
+      "area": "service catalogue",
+      "finding": "No native licensed-trades catalogue currently unifies plumbing, electrical and HVAC fault, maintenance, installation, emergency and compliance-oriented job types."
+    },
+    {
+      "id": "TRADE-GAP-006",
+      "severity": "MEDIUM",
+      "area": "asset and maintenance lifecycle",
+      "finding": "Retained donors contain hot-water/electrical asset semantics, while HVAC and cross-trade service-history/recurrence need one vertical projection over shared assets and recurrence owners."
+    }
+  ],
+  "guardrails": {
+    "no_parallel_business_truth": true,
+    "no_parallel_workforce_runtime": true,
+    "no_automatic_assignment": true,
+    "no_automatic_execution": true,
+    "no_authority_from_vertical_selection": true,
+    "qualification_metadata_is_not_authority": true,
+    "no_unconfigured_regulatory_claims": true,
+    "preserve_existing_ui_style": true,
+    "device_first": true
+  },
+  "pass2_entry_criteria": [
+    "Reuse retained plumbing/electrical semantics before adding new fields.",
+    "Use company_id only.",
+    "Build plumbing, electrical and HVAC service catalogues as vertical configuration/projection over shared owners.",
+    "Keep licensing, qualification, safety and compliance requirements explicit metadata/evidence gates rather than authority grants.",
+    "Keep jurisdiction-specific rules behind configured policy references instead of hard-coding legal/compliance claims.",
+    "Use the Cleaning reference blueprint for composition and owner boundaries."
+  ]
+}

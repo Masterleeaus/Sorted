@@ -1,0 +1,73 @@
+import { NextResponse, type NextRequest } from "next/server";
+
+/**
+ * Next.js Edge Middleware — adds security response headers to every response.
+ *
+ * Runs at the Edge before route handlers. This is the canonical place for
+ * response-level security controls that apply globally.
+ */
+export function middleware(request: NextRequest) {
+  const requestHeaders = new Headers(request.headers);
+  requestHeaders.set("x-pathname", request.nextUrl.pathname);
+  const response = NextResponse.next({
+    request: { headers: requestHeaders },
+  });
+
+  // ── Security headers ──────────────────────────────────────────────
+  // Prevent clickjacking
+  response.headers.set("X-Frame-Options", "DENY");
+
+  // Prevent MIME-type sniffing
+  response.headers.set("X-Content-Type-Options", "nosniff");
+
+  // Referrer policy — send origin only on cross-origin. Job report share
+  // links (TASK-162) are bearer URLs: never leak them, never index them.
+  const shareReport = request.nextUrl.pathname.startsWith("/portal/reports/");
+  response.headers.set("Referrer-Policy", shareReport ? "no-referrer" : "strict-origin-when-cross-origin");
+  if (shareReport) response.headers.set("X-Robots-Tag", "noindex, nofollow");
+
+  // Permissions policy — disable unused browser features. Capture (TASK-115)
+  // needs the microphone on this origin; keep it off everywhere else.
+  const capturePage = request.nextUrl.pathname === "/app/capture";
+  response.headers.set(
+    "Permissions-Policy",
+    capturePage
+      ? "camera=(self), microphone=(self), geolocation=(), payment=()"
+      : "camera=(), microphone=(), geolocation=(), payment=()"
+  );
+
+  // Content-Security-Policy — restrictive baseline
+  // self for scripts/styles, inline styles allowed for Next.js
+  response.headers.set(
+    "Content-Security-Policy",
+    [
+      "default-src 'self'",
+      "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
+      "style-src 'self' 'unsafe-inline'",
+      // OpenStreetMap tiles for the day map (TASK-026) — external tile images.
+      "img-src 'self' data: https://*.tile.openstreetmap.org",
+      "font-src 'self'",
+      "connect-src 'self'",
+      "frame-ancestors 'none'",
+      "base-uri 'self'",
+      "form-action 'self'",
+    ].join("; ")
+  );
+
+  // Strict-Transport-Security — enforce HTTPS (respected by browsers after first visit)
+  response.headers.set(
+    "Strict-Transport-Security",
+    "max-age=31536000; includeSubDomains"
+  );
+
+  return response;
+}
+
+/**
+ * Match all routes except Next.js internals and static assets.
+ */
+export const config = {
+  matcher: [
+    "/((?!_next/static|_next/image|favicon\\.ico|robots\\.txt|sitemap\\.xml).*)",
+  ],
+};

@@ -1,0 +1,103 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Titan Booking Agent Settings v1",
+  "type": "object",
+  "required": [
+    "schema",
+    "company_id",
+    "lead_time_minutes",
+    "booking_window_days",
+    "buffer_before_minutes",
+    "buffer_after_minutes",
+    "duration_mode",
+    "customer_self_booking",
+    "approval_thresholds",
+    "reschedule_policy",
+    "cancel_policy"
+  ],
+  "properties": {
+    "schema": {
+      "const": "titan.booking.settings.v1"
+    },
+    "company_id": {
+      "type": "string",
+      "minLength": 2
+    },
+    "lead_time_minutes": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 10080
+    },
+    "booking_window_days": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 730
+    },
+    "buffer_before_minutes": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 1440
+    },
+    "buffer_after_minutes": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 1440
+    },
+    "duration_mode": {
+      "enum": [
+        "fixed",
+        "service",
+        "provider",
+        "variable"
+      ]
+    },
+    "fixed_duration_minutes": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "minimum": 1,
+      "maximum": 1440
+    },
+    "customer_self_booking": {
+      "type": "boolean"
+    },
+    "approval_thresholds": {
+      "type": "object",
+      "properties": {
+        "high_value_amount": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "after_hours": {
+          "type": "boolean"
+        },
+        "new_customer": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    },
+    "reschedule_policy": {
+      "enum": [
+        "customer_allowed",
+        "approval_required",
+        "staff_only"
+      ]
+    },
+    "cancel_policy": {
+      "enum": [
+        "customer_allowed",
+        "approval_required",
+        "staff_only"
+      ]
+    },
+    "grants_authority": {
+      "const": false
+    }
+  },
+  "additionalProperties": false
+}

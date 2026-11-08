@@ -1,0 +1,2660 @@
+{
+  "id": "titan.workforce-verticals",
+  "name": "Titan Workforce Verticals",
+  "version": "1.2.0",
+  "kind": "packaged",
+  "description": "Field and home service workforce vertical definitions. Shared workforce agents remain internal to Titan Workforce.",
+  "author": "Titan Zero",
+  "scope": {
+    "company_id": null
+  },
+  "permissions": [],
+  "contributes": {
+    "capabilities": [
+      {
+        "id": "workforce.verticals",
+        "title": "Workforce vertical registry"
+      },
+      {
+        "id": "workforce.vertical-routing",
+        "title": "Vertical-aware workforce routing"
+      }
+    ],
+    "intents": [
+      {
+        "id": "cleaning-vertical",
+        "patterns": [
+          "/\\b(clean|cleaner|cleaning|bond clean|end[- ]?of[- ]?lease|airbnb turnover)\\b/i"
+        ],
+        "route": "work",
+        "prepend": "Use the Cleaning workforce vertical module and preserve company_id scope.",
+        "priority": 40
+      },
+      {
+        "id": "plumbing-vertical",
+        "patterns": [
+          "/\\b(plumb|pipe|tap|toilet|drain|leak|hot water)\\b/i"
+        ],
+        "route": "work",
+        "prepend": "Use the Plumbing workforce vertical module and preserve company_id scope.",
+        "priority": 35
+      },
+      {
+        "id": "electrical-vertical",
+        "patterns": [
+          "/\\b(electric|switchboard|circuit|outlet|socket|no power|lighting)\\b/i"
+        ],
+        "route": "work",
+        "prepend": "Use the Electrical workforce vertical module and preserve company_id scope.",
+        "priority": 35
+      },
+      {
+        "id": "hvac-vertical",
+        "patterns": [
+          "/\\b(hvac|aircon|air conditioning|heating|cooling|ventilation)\\b/i"
+        ],
+        "route": "work",
+        "prepend": "Use the Hvac workforce vertical module and preserve company_id scope.",
+        "priority": 35
+      },
+      {
+        "id": "handyman-vertical",
+        "patterns": [
+          "/\\b(handyman|property maintenance|patch|mount|assemble|carpentry)\\b/i"
+        ],
+        "route": "work",
+        "prepend": "Use the Handyman workforce vertical module and preserve company_id scope.",
+        "priority": 35
+      },
+      {
+        "id": "landscaping-vertical",
+        "patterns": [
+          "/\\b(landscap|garden|lawn|mow|hedge|irrigation|mulch)\\b/i"
+        ],
+        "route": "work",
+        "prepend": "Use the Landscaping workforce vertical module and preserve company_id scope.",
+        "priority": 35
+      },
+      {
+        "id": "pest_control-vertical",
+        "patterns": [
+          "/\\b(pest|termite|rodent|cockroach|ant|spider)\\b/i"
+        ],
+        "route": "work",
+        "prepend": "Use the Pest Control workforce vertical module and preserve company_id scope.",
+        "priority": 35
+      },
+      {
+        "id": "locksmith-vertical",
+        "patterns": [
+          "/\\b(locksmith|lockout|rekey|door lock|access control)\\b/i"
+        ],
+        "route": "work",
+        "prepend": "Use the Locksmith workforce vertical module and preserve company_id scope.",
+        "priority": 35
+      },
+      {
+        "id": "roofing-vertical",
+        "patterns": [
+          "/\\b(roof|gutter|downpipe|flashing|roof leak)\\b/i"
+        ],
+        "route": "work",
+        "prepend": "Use the Roofing workforce vertical module and preserve company_id scope.",
+        "priority": 35
+      },
+      {
+        "id": "appliance_repair-vertical",
+        "patterns": [
+          "/\\b(appliance|washer|dryer|fridge|dishwasher|equipment repair)\\b/i"
+        ],
+        "route": "work",
+        "prepend": "Use the Appliance Repair workforce vertical module and preserve company_id scope.",
+        "priority": 35
+      }
+    ],
+    "commands": [
+      {
+        "id": "summary",
+        "title": "Vertical module summary",
+        "description": "Returns workforce vertical module counts."
+      }
+    ],
+    "links": [],
+    "feed": [],
+    "settings": [],
+    "verticals": [
+      {
+        "id": "cleaning",
+        "name": "Cleaning",
+        "icon": "\ud83e\uddf9",
+        "keywords": [
+          "clean",
+          "cleaner",
+          "cleaning",
+          "bond",
+          "end of lease",
+          "airbnb",
+          "turnover"
+        ],
+        "company_boundary": "company_id",
+        "source_of_truth": "module"
+      },
+      {
+        "id": "plumbing",
+        "name": "Plumbing",
+        "icon": "\ud83d\udd27",
+        "keywords": [
+          "plumb",
+          "pipe",
+          "tap",
+          "toilet",
+          "drain",
+          "leak",
+          "hot water"
+        ],
+        "company_boundary": "company_id",
+        "source_of_truth": "module"
+      },
+      {
+        "id": "electrical",
+        "name": "Electrical",
+        "icon": "\u26a1",
+        "keywords": [
+          "electric",
+          "power",
+          "switchboard",
+          "light",
+          "circuit",
+          "socket",
+          "outlet"
+        ],
+        "company_boundary": "company_id",
+        "source_of_truth": "module"
+      },
+      {
+        "id": "hvac",
+        "name": "HVAC",
+        "icon": "\u2744\ufe0f",
+        "keywords": [
+          "hvac",
+          "air conditioning",
+          "aircon",
+          "heating",
+          "cooling",
+          "ventilation"
+        ],
+        "company_boundary": "company_id",
+        "source_of_truth": "module"
+      },
+      {
+        "id": "handyman",
+        "name": "Handyman & Property Maintenance",
+        "icon": "\ud83e\ude9b",
+        "keywords": [
+          "handyman",
+          "maintenance",
+          "repair",
+          "property maintenance",
+          "patch",
+          "mount",
+          "assemble",
+          "carpentry"
+        ],
+        "company_boundary": "company_id",
+        "source_of_truth": "module"
+      },
+      {
+        "id": "landscaping",
+        "name": "Landscaping & Gardening",
+        "icon": "\ud83c\udf3f",
+        "keywords": [
+          "landscap",
+          "garden",
+          "lawn",
+          "mow",
+          "hedge",
+          "irrigation",
+          "tree",
+          "mulch",
+          "weeding"
+        ],
+        "company_boundary": "company_id",
+        "source_of_truth": "module"
+      },
+      {
+        "id": "pest_control",
+        "name": "Pest Control",
+        "icon": "\ud83d\udc1c",
+        "keywords": [
+          "pest",
+          "termite",
+          "rodent",
+          "cockroach",
+          "ant",
+          "spider",
+          "treatment",
+          "bait"
+        ],
+        "company_boundary": "company_id",
+        "source_of_truth": "module"
+      },
+      {
+        "id": "locksmith",
+        "name": "Locksmith & Security",
+        "icon": "\ud83d\udd10",
+        "keywords": [
+          "locksmith",
+          "lock",
+          "key",
+          "security",
+          "access control",
+          "rekey",
+          "safe"
+        ],
+        "company_boundary": "company_id",
+        "source_of_truth": "module"
+      },
+      {
+        "id": "roofing",
+        "name": "Roofing & Guttering",
+        "icon": "\ud83c\udfe0",
+        "keywords": [
+          "roof",
+          "gutter",
+          "downpipe",
+          "flashing",
+          "tile",
+          "roof leak"
+        ],
+        "company_boundary": "company_id",
+        "source_of_truth": "module"
+      },
+      {
+        "id": "appliance_repair",
+        "name": "Appliance & Equipment Repair",
+        "icon": "\ud83d\udd29",
+        "keywords": [
+          "appliance",
+          "equipment repair",
+          "washer",
+          "dryer",
+          "fridge",
+          "dishwasher",
+          "oven",
+          "machine repair",
+          "fault"
+        ],
+        "company_boundary": "company_id",
+        "source_of_truth": "module"
+      },
+      {
+        "id": "general_field_services",
+        "name": "General Field Services",
+        "icon": "\ud83d\udee0\ufe0f",
+        "keywords": [
+          "field service",
+          "home service",
+          "service business",
+          "technician",
+          "job site"
+        ],
+        "company_boundary": "company_id",
+        "source_of_truth": "module"
+      }
+    ],
+    "screens": [
+      {
+        "id": "verticals",
+        "title": "Workforce Verticals",
+        "description": "Installed field and home service workforce verticals.",
+        "icon": "workforce",
+        "blocks": [
+          {
+            "type": "text",
+            "title": "Architecture",
+            "text": "Vertical specialists are module-owned; shared workforce agents remain internal."
+          },
+          {
+            "type": "workers",
+            "title": "Vertical specialists"
+          },
+          {
+            "type": "projection",
+            "title": "Vertical runtime",
+            "projection": "summary"
+          }
+        ]
+      }
+    ],
+    "workers": [
+      {
+        "id": "titan.cleaning.scope_assessor",
+        "name": "Cleaning Scope Assessor",
+        "role": "Inspect customer details, photos and site information to define cleaning scope, exclusions, access needs and estimate inputs.",
+        "description": "Inspect customer details, photos and site information to define cleaning scope, exclusions, access needs and estimate inputs.",
+        "instructions": "Inspect customer details, photos and site information to define cleaning scope, exclusions, access needs and estimate inputs.",
+        "tools": [],
+        "workflow": null,
+        "channels": [
+          "chat",
+          "work"
+        ],
+        "autonomy": "governed",
+        "vertical": "cleaning",
+        "department": "sales",
+        "capabilities": [
+          "cleaning_scope",
+          "photo_scope",
+          "room_area_assessment",
+          "condition_notes",
+          "access_requirements",
+          "quote_inputs"
+        ],
+        "riskCeiling": "LOW",
+        "evidenceRequired": [
+          "customer_scope",
+          "site_or_photo_evidence"
+        ],
+        "approvalRequiredFor": []
+      },
+      {
+        "id": "titan.cleaning.quote_specialist",
+        "name": "Cleaning Quote Specialist",
+        "role": "Turn an approved cleaning scope into a transparent cleaning quote with inclusions, exclusions, options and assumptions.",
+        "description": "Turn an approved cleaning scope into a transparent cleaning quote with inclusions, exclusions, options and assumptions.",
+        "instructions": "Turn an approved cleaning scope into a transparent cleaning quote with inclusions, exclusions, options and assumptions.",
+        "tools": [],
+        "workflow": null,
+        "channels": [
+          "chat",
+          "work"
+        ],
+        "autonomy": "governed",
+        "vertical": "cleaning",
+        "department": "sales",
+        "capabilities": [
+          "cleaning_quote",
+          "labour_estimate",
+          "service_options",
+          "scope_assumptions",
+          "quote_followup"
+        ],
+        "riskCeiling": "LOW",
+        "evidenceRequired": [],
+        "approvalRequiredFor": [
+          "discount_outside_policy",
+          "price_override"
+        ]
+      },
+      {
+        "id": "titan.cleaning.crew_planner",
+        "name": "Cleaner Crew Planner",
+        "role": "Plan cleaner count, estimated labour, sequence, zones, skills, equipment and handoffs for a cleaning job.",
+        "description": "Plan cleaner count, estimated labour, sequence, zones, skills, equipment and handoffs for a cleaning job.",
+        "instructions": "Plan cleaner count, estimated labour, sequence, zones, skills, equipment and handoffs for a cleaning job.",
+        "tools": [],
+        "workflow": null,
+        "channels": [
+          "chat",
+          "work"
+        ],
+        "autonomy": "governed",
+        "vertical": "cleaning",
+        "department": "work",
+        "capabilities": [
+          "crew_planning",
+          "labour_planning",
+          "zone_assignment",
+          "equipment_plan",
+          "job_sequence",
+          "handoff_plan"
+        ],
+        "riskCeiling": "LOW",
+        "evidenceRequired": [],
+        "approvalRequiredFor": []
+      },
+      {
+        "id": "titan.cleaning.quality_inspector",
+        "name": "Cleaning Quality Inspector",
+        "role": "Review checklist and visual evidence for missed areas, quality defects, rework needs and completion readiness.",
+        "description": "Review checklist and visual evidence for missed areas, quality defects, rework needs and completion readiness.",
+        "instructions": "Review checklist and visual evidence for missed areas, quality defects, rework needs and completion readiness.",
+        "tools": [],
+        "workflow": null,
+        "channels": [
+          "chat",
+          "work"
+        ],
+        "autonomy": "governed",
+        "vertical": "cleaning",
+        "department": "work",
+        "capabilities": [
+          "cleaning_qc",
+          "photo_qa",
+          "missed_area_detection",
+          "checklist_verification",
+          "rework_request",
+          "completion_gate"
+        ],
+        "riskCeiling": "LOW",
+        "evidenceRequired": [
+          "checklist",
+          "before_after_photos"
+        ],
+        "approvalRequiredFor": []
+      },
+      {
+        "id": "titan.cleaning.bond_specialist",
+        "name": "Bond & End-of-Lease Specialist",
+        "role": "Coordinate end-of-lease and bond-clean scope, property-specific checklist, evidence and rework readiness.",
+        "description": "Coordinate end-of-lease and bond-clean scope, property-specific checklist, evidence and rework readiness.",
+        "instructions": "Coordinate end-of-lease and bond-clean scope, property-specific checklist, evidence and rework readiness.",
+        "tools": [],
+        "workflow": null,
+        "channels": [
+          "chat",
+          "work"
+        ],
+        "autonomy": "governed",
+        "vertical": "cleaning",
+        "department": "work",
+        "capabilities": [
+          "bond_clean",
+          "end_of_lease",
+          "property_checklist",
+          "oven_clean",
+          "window_clean",
+          "rework_readiness"
+        ],
+        "riskCeiling": "LOW",
+        "evidenceRequired": [
+          "property_scope",
+          "completion_photos"
+        ],
+        "approvalRequiredFor": []
+      },
+      {
+        "id": "titan.cleaning.airbnb_turnover",
+        "name": "Airbnb Turnover Coordinator",
+        "role": "Coordinate short-stay turnovers including time windows, linen, amenities, damage observations and guest-ready verification.",
+        "description": "Coordinate short-stay turnovers including time windows, linen, amenities, damage observations and guest-ready verification.",
+        "instructions": "Coordinate short-stay turnovers including time windows, linen, amenities, damage observations and guest-ready verification.",
+        "tools": [],
+        "workflow": null,
+        "channels": [
+          "chat",
+          "work"
+        ],
+        "autonomy": "governed",
+        "vertical": "cleaning",
+        "department": "work",
+        "capabilities": [
+          "airbnb_turnover",
+          "linen_turnover",
+          "amenities",
+          "guest_ready",
+          "damage_observation",
+          "turnover_timing"
+        ],
+        "riskCeiling": "LOW",
+        "evidenceRequired": [
+          "turnover_checklist",
+          "guest_ready_photos"
+        ],
+        "approvalRequiredFor": []
+      },
+      {
+        "id": "titan.cleaning.commercial_coordinator",
+        "name": "Commercial Cleaning Coordinator",
+        "role": "Coordinate recurring commercial sites, zones, service frequencies, access constraints, consumables and site standards.",
+        "description": "Coordinate recurring commercial sites, zones, service frequencies, access constraints, consumables and site standards.",
+        "instructions": "Coordinate recurring commercial sites, zones, service frequencies, access constraints, consumables and site standards.",
+        "tools": [],
+        "workflow": null,
+        "channels": [
+          "chat",
+          "work"
+        ],
+        "autonomy": "governed",
+        "vertical": "cleaning",
+        "department": "work",
+        "capabilities": [
+          "commercial_cleaning",
+          "site_zones",
+          "service_frequency",
+          "site_access",
+          "site_standards",
+          "consumables"
+        ],
+        "riskCeiling": "LOW",
+        "evidenceRequired": [],
+        "approvalRequiredFor": []
+      },
+      {
+        "id": "titan.cleaning.chemicals_sds",
+        "name": "Cleaning Chemicals & SDS Coordinator",
+        "role": "Keep chemical use aligned with product labels and current SDS information, including PPE, dilution, storage and incompatibility warnings.",
+        "description": "Keep chemical use aligned with product labels and current SDS information, including PPE, dilution, storage and incompatibility warnings.",
+        "instructions": "Keep chemical use aligned with product labels and current SDS information, including PPE, dilution, storage and incompatibility warnings.",
+        "tools": [],
+        "workflow": null,
+        "channels": [
+          "chat",
+          "work"
+        ],
+        "autonomy": "governed",
+        "vertical": "cleaning",
+        "department": "safety",
+        "capabilities": [
+          "sds",
+          "chemical_register",
+          "ppe",
+          "dilution_guidance",
+          "storage",
+          "chemical_compatibility",
+          "spill_response_reference"
+        ],
+        "riskCeiling": "MEDIUM",
+        "evidenceRequired": [
+          "product_identity",
+          "current_sds"
+        ],
+        "approvalRequiredFor": [
+          "new_chemical_use"
+        ]
+      },
+      {
+        "id": "titan.cleaning.consumables",
+        "name": "Cleaning Consumables Coordinator",
+        "role": "Forecast and replenish cleaning chemicals, cloths, liners, paper goods, amenities and other consumables using job demand and par levels.",
+        "description": "Forecast and replenish cleaning chemicals, cloths, liners, paper goods, amenities and other consumables using job demand and par levels.",
+        "instructions": "Forecast and replenish cleaning chemicals, cloths, liners, paper goods, amenities and other consumables using job demand and par levels.",
+        "tools": [],
+        "workflow": null,
+        "channels": [
+          "chat",
+          "work"
+        ],
+        "autonomy": "governed",
+        "vertical": "cleaning",
+        "department": "assets",
+        "capabilities": [
+          "consumable_forecast",
+          "par_levels",
+          "reorder",
+          "van_stock",
+          "chemical_stock",
+          "linen_stock"
+        ],
+        "riskCeiling": "LOW",
+        "evidenceRequired": [],
+        "approvalRequiredFor": []
+      },
+      {
+        "id": "titan.cleaning.recurring_optimizer",
+        "name": "Recurring Cleaning Optimiser",
+        "role": "Optimise recurring domestic or commercial cleaning frequency, task rotation, visit duration and service consistency from verified outcomes.",
+        "description": "Optimise recurring domestic or commercial cleaning frequency, task rotation, visit duration and service consistency from verified outcomes.",
+        "instructions": "Optimise recurring domestic or commercial cleaning frequency, task rotation, visit duration and service consistency from verified outcomes.",
+        "tools": [],
+        "workflow": null,
+        "channels": [
+          "chat",
+          "work"
+        ],
+        "autonomy": "governed",
+        "vertical": "cleaning",
+        "department": "work",
+        "capabilities": [
+          "recurring_cleaning",
+          "frequency_optimisation",
+          "task_rotation",
+          "duration_review",
+          "service_consistency"
+        ],
+        "riskCeiling": "LOW",
+        "evidenceRequired": [],
+        "approvalRequiredFor": []
+      },
+      {
+        "id": "titan.cleaning.keys_access",
+        "name": "Keys & Access Coordinator",
+        "role": "Manage bounded cleaning-site access instructions, key custody references, alarm/access handoffs and return confirmation without exposing secrets unnecessarily.",
+        "description": "Manage bounded cleaning-site access instructions, key custody references, alarm/access handoffs and return confirmation without exposing secrets unnecessarily.",
+        "instructions": "Manage bounded cleaning-site access instructions, key custody references, alarm/access handoffs and return confirmation without exposing secrets unnecessarily.",
+        "tools": [],
+        "workflow": null,
+        "channels": [
+          "chat",
+          "work"
+        ],
+        "autonomy": "governed",
+        "vertical": "cleaning",
+        "department": "operations",
+        "capabilities": [
+          "key_custody",
+          "site_access",
+          "alarm_handoff",
+          "access_window",
+          "key_return",
+          "access_exception"
+        ],
+        "riskCeiling": "MEDIUM",
+        "evidenceRequired": [
+          "access_authorisation"
+        ],
+        "approvalRequiredFor": []
+      },
+      {
+        "id": "titan.cleaning.service_recovery",
+        "name": "Cleaning Service Recovery Specialist",
+        "role": "Investigate cleaning complaints, compare promised scope to evidence, propose rework and coordinate customer recovery.",
+        "description": "Investigate cleaning complaints, compare promised scope to evidence, propose rework and coordinate customer recovery.",
+        "instructions": "Investigate cleaning complaints, compare promised scope to evidence, propose rework and coordinate customer recovery.",
+        "tools": [],
+        "workflow": null,
+        "channels": [
+          "chat",
+          "work"
+        ],
+        "autonomy": "governed",
+        "vertical": "cleaning",
+        "department": "customer",
+        "capabilities": [
+          "cleaning_complaint",
+          "scope_comparison",
+          "rework_plan",
+          "customer_recovery",
+          "quality_evidence"
+        ],
+        "riskCeiling": "LOW",
+        "evidenceRequired": [
+          "customer_issue",
+          "original_scope",
+          "completion_evidence"
+        ],
+        "approvalRequiredFor": []
+      },
+      {
+        "id": "titan.cleaning.deep_clean_specialist",
+        "name": "Deep Cleaning Specialist",
+        "role": "Plan high-detail deep cleaning, task sequencing, dwell-time dependencies and high-soil-area treatment using approved products and methods.",
+        "description": "Plan high-detail deep cleaning, task sequencing, dwell-time dependencies and high-soil-area treatment using approved products and methods.",
+        "instructions": "Plan high-detail deep cleaning, task sequencing, dwell-time dependencies and high-soil-area treatment using approved products and methods.",
+        "tools": [],
+        "workflow": null,
+        "channels": [
+          "chat",
+          "work"
+        ],
+        "autonomy": "governed",
+        "vertical": "cleaning",
+        "department": "work",
+        "capabilities": [
+          "deep_clean",
+          "detail_cleaning",
+          "high_soil_areas",
+          "task_sequence",
+          "product_constraints"
+        ],
+        "riskCeiling": "LOW",
+        "evidenceRequired": [],
+        "approvalRequiredFor": []
+      },
+      {
+        "id": "titan.cleaning.carpet_upholstery",
+        "name": "Carpet & Upholstery Coordinator",
+        "role": "Scope carpet and upholstery cleaning with material/condition notes, method constraints, drying considerations and evidence requirements.",
+        "description": "Scope carpet and upholstery cleaning with material/condition notes, method constraints, drying considerations and evidence requirements.",
+        "instructions": "Scope carpet and upholstery cleaning with material/condition notes, method constraints, drying considerations and evidence requirements.",
+        "tools": [],
+        "workflow": null,
+        "channels": [
+          "chat",
+          "work"
+        ],
+        "autonomy": "governed",
+        "vertical": "cleaning",
+        "department": "work",
+        "capabilities": [
+          "carpet_cleaning",
+          "upholstery_cleaning",
+          "material_condition",
+          "method_constraints",
+          "drying_plan"
+        ],
+        "riskCeiling": "LOW",
+        "evidenceRequired": [],
+        "approvalRequiredFor": []
+      },
+      {
+        "id": "titan.cleaning.linen_laundry",
+        "name": "Linen & Laundry Coordinator",
+        "role": "Coordinate linen counts, clean/dirty separation, laundry handoff, shortages, damage and replenishment for turnover services.",
+        "description": "Coordinate linen counts, clean/dirty separation, laundry handoff, shortages, damage and replenishment for turnover services.",
+        "instructions": "Coordinate linen counts, clean/dirty separation, laundry handoff, shortages, damage and replenishment for turnover services.",
+        "tools": [],
+        "workflow": null,
+        "channels": [
+          "chat",
+          "work"
+        ],
+        "autonomy": "governed",
+        "vertical": "cleaning",
+        "department": "assets",
+        "capabilities": [
+          "linen_inventory",
+          "laundry_handoff",
+          "shortage_detection",
+          "linen_damage",
+          "replenishment"
+        ],
+        "riskCeiling": "LOW",
+        "evidenceRequired": [],
+        "approvalRequiredFor": []
+      },
+      {
+        "id": "titan.cleaning.environmental_efficiency",
+        "name": "Cleaning Resource Efficiency Coordinator",
+        "role": "Measure and reduce avoidable water, chemical, energy, consumable and waste intensity without compromising cleaning outcomes or safety.",
+        "description": "Measure and reduce avoidable water, chemical, energy, consumable and waste intensity without compromising cleaning outcomes or safety.",
+        "instructions": "Measure and reduce avoidable water, chemical, energy, consumable and waste intensity without compromising cleaning outcomes or safety.",
+        "tools": [],
+        "workflow": null,
+        "channels": [
+          "chat",
+          "work"
+        ],
+        "autonomy": "governed",
+        "vertical": "cleaning",
+        "department": "environment",
+        "capabilities": [
+          "water_efficiency",
+          "chemical_efficiency",
+          "energy_efficiency",
+          "waste_reduction",
+          "resource_intensity",
+          "verified_outcomes"
+        ],
+        "riskCeiling": "LOW",
+        "evidenceRequired": [],
+        "approvalRequiredFor": []
+      },
+      {
+        "id": "titan.hvac.diagnostic",
+        "name": "HVAC Diagnostic Coordinator",
+        "role": "Triage heating, cooling and ventilation symptoms using model, environment and service-history evidence.",
+        "description": "Triage heating, cooling and ventilation symptoms using model, environment and service-history evidence.",
+        "instructions": "Triage heating, cooling and ventilation symptoms using model, environment and service-history evidence.",
+        "tools": [],
+        "workflow": null,
+        "channels": [
+          "chat",
+          "work"
+        ],
+        "autonomy": "governed",
+        "vertical": "hvac",
+        "department": "technical",
+        "capabilities": [
+          "hvac_diagnostic",
+          "heating",
+          "cooling",
+          "ventilation",
+          "service_history"
+        ],
+        "riskCeiling": "MEDIUM",
+        "evidenceRequired": [],
+        "approvalRequiredFor": []
+      },
+      {
+        "id": "titan.hvac.maintenance",
+        "name": "HVAC Maintenance Planner",
+        "role": "Plan preventive HVAC maintenance, filter/service intervals, asset history and recurring work.",
+        "description": "Plan preventive HVAC maintenance, filter/service intervals, asset history and recurring work.",
+        "instructions": "Plan preventive HVAC maintenance, filter/service intervals, asset history and recurring work.",
+        "tools": [],
+        "workflow": null,
+        "channels": [
+          "chat",
+          "work"
+        ],
+        "autonomy": "governed",
+        "vertical": "hvac",
+        "department": "work",
+        "capabilities": [
+          "hvac_maintenance",
+          "preventive_service",
+          "filters",
+          "asset_history",
+          "recurring_service"
+        ],
+        "riskCeiling": "LOW",
+        "evidenceRequired": [],
+        "approvalRequiredFor": []
+      },
+      {
+        "id": "titan.hvac.install_estimator",
+        "name": "HVAC Installation Estimator",
+        "role": "Coordinate installation scope, capacity inputs, site constraints, options and estimate assumptions.",
+        "description": "Coordinate installation scope, capacity inputs, site constraints, options and estimate assumptions.",
+        "instructions": "Coordinate installation scope, capacity inputs, site constraints, options and estimate assumptions.",
+        "tools": [],
+        "workflow": null,
+        "channels": [
+          "chat",
+          "work"
+        ],
+        "autonomy": "governed",
+        "vertical": "hvac",
+        "department": "sales",
+        "capabilities": [
+          "hvac_install",
+          "capacity_inputs",
+          "site_constraints",
+          "estimate_assumptions"
+        ],
+        "riskCeiling": "MEDIUM",
+        "evidenceRequired": [],
+        "approvalRequiredFor": []
+      },
+      {
+        "id": "titan.hvac.air_quality",
+        "name": "Indoor Air Quality Coordinator",
+        "role": "Coordinate ventilation, filtration and indoor-air-quality observations without making unsupported health claims.",
+        "description": "Coordinate ventilation, filtration and indoor-air-quality observations without making unsupported health claims.",
+        "instructions": "Coordinate ventilation, filtration and indoor-air-quality observations without making unsupported health claims.",
+        "tools": [],
+        "workflow": null,
+        "channels": [
+          "chat",
+          "work"
+        ],
+        "autonomy": "governed",
+        "vertical": "hvac",
+        "department": "work",
+        "capabilities": [
+          "indoor_air_quality",
+          "ventilation",
+          "filtration",
+          "observation"
+        ],
+        "riskCeiling": "LOW",
+        "evidenceRequired": [],
+        "approvalRequiredFor": []
+      },
+      {
+        "id": "titan.hvac.energy",
+        "name": "HVAC Energy Efficiency Coordinator",
+        "role": "Identify verifiable HVAC energy-efficiency opportunities while preserving comfort, safety and equipment constraints.",
+        "description": "Identify verifiable HVAC energy-efficiency opportunities while preserving comfort, safety and equipment constraints.",
+        "instructions": "Identify verifiable HVAC energy-efficiency opportunities while preserving comfort, safety and equipment constraints.",
+        "tools": [],
+        "workflow": null,
+        "channels": [
+          "chat",
+          "work"
+        ],
+        "autonomy": "governed",
+        "vertical": "hvac",
+        "department": "environment",
+        "capabilities": [
+          "hvac_efficiency",
+          "energy_use",
+          "setpoint_review",
+          "maintenance_efficiency"
+        ],
+        "riskCeiling": "LOW",
+        "evidenceRequired": [],
+        "approvalRequiredFor": []
+      },
+      {
+        "id": "titan.handyman.scope_assessor",
+        "name": "Property Maintenance Scope Assessor",
+        "role": "Turn photos, descriptions and site context into bounded handyman/property-maintenance scope and exclusions.",
+        "description": "Turn photos, descriptions and site context into bounded handyman/property-maintenance scope and exclusions.",
+        "instructions": "Turn photos, descriptions and site context into bounded handyman/property-maintenance scope and exclusions.",
+        "tools": [],
+        "workflow": null,
+        "channels": [
+          "chat",
+          "work"
+        ],
+        "autonomy": "governed",
+        "vertical": "handyman",
+        "department": "sales",
+        "capabilities": [
+          "maintenance_scope",
+          "photo_scope",
+          "repair_scope",
+          "exclusions",
+          "quote_inputs"
+        ],
+        "riskCeiling": "LOW",
+        "evidenceRequired": [],
+        "approvalRequiredFor": []
+      },
+      {
+        "id": "titan.handyman.maintenance_planner",
+        "name": "Property Maintenance Planner",
+        "role": "Plan recurring and one-off property maintenance tasks, priorities, dependencies and access.",
+        "description": "Plan recurring and one-off property maintenance tasks, priorities, dependencies and access.",
+        "instructions": "Plan recurring and one-off property maintenance tasks, priorities, dependencies and access.",
+        "tools": [],
+        "workflow": null,
+        "channels": [
+          "chat",
+          "work"
+        ],
+        "autonomy": "governed",
+        "vertical": "handyman",
+        "department": "work",
+        "capabilities": [
+          "maintenance_plan",
+          "priority",
+          "dependencies",
+          "access"
+        ],
+        "riskCeiling": "LOW",
+        "evidenceRequired": [],
+        "approvalRequiredFor": []
+      },
+      {
+        "id": "titan.handyman.materials",
+        "name": "Handyman Materials Coordinator",
+        "role": "Prepare materials, fasteners, consumables and tool requirements from approved scope.",
+        "description": "Prepare materials, fasteners, consumables and tool requirements from approved scope.",
+        "instructions": "Prepare materials, fasteners, consumables and tool requirements from approved scope.",
+        "tools": [],
+        "workflow": null,
+        "channels": [
+          "chat",
+          "work"
+        ],
+        "autonomy": "governed",
+        "vertical": "handyman",
+        "department": "assets",
+        "capabilities": [
+          "materials",
+          "fasteners",
+          "consumables",
+          "tool_plan"
+        ],
+        "riskCeiling": "LOW",
+        "evidenceRequired": [],
+        "approvalRequiredFor": []
+      },
+      {
+        "id": "titan.handyman.property_inspection",
+        "name": "Property Inspection Coordinator",
+        "role": "Capture condition observations, defects and maintenance opportunities with evidence and no invented authority.",
+        "description": "Capture condition observations, defects and maintenance opportunities with evidence and no invented authority.",
+        "instructions": "Capture condition observations, defects and maintenance opportunities with evidence and no invented authority.",
+        "tools": [],
+        "workflow": null,
+        "channels": [
+          "chat",
+          "work"
+        ],
+        "autonomy": "governed",
+        "vertical": "handyman",
+        "department": "work",
+        "capabilities": [
+          "property_inspection",
+          "condition_evidence",
+          "defect_log",
+          "maintenance_opportunity"
+        ],
+        "riskCeiling": "LOW",
+        "evidenceRequired": [],
+        "approvalRequiredFor": []
+      },
+      {
+        "id": "titan.handyman.variation",
+        "name": "Maintenance Variation Coordinator",
+        "role": "Document out-of-scope discoveries, evidence, price/time impact and approval before added work.",
+        "description": "Document out-of-scope discoveries, evidence, price/time impact and approval before added work.",
+        "instructions": "Document out-of-scope discoveries, evidence, price/time impact and approval before added work.",
+        "tools": [],
+        "workflow": null,
+        "channels": [
+          "chat",
+          "work"
+        ],
+        "autonomy": "governed",
+        "vertical": "handyman",
+        "department": "customer",
+        "capabilities": [
+          "variation",
+          "scope_change",
+          "evidence",
+          "approval"
+        ],
+        "riskCeiling": "MEDIUM",
+        "evidenceRequired": [],
+        "approvalRequiredFor": []
+      },
+      {
+        "id": "titan.landscaping.site_assessor",
+        "name": "Landscaping Site Assessor",
+        "role": "Assess site condition, access, dimensions, existing vegetation and service requirements.",
+        "description": "Assess site condition, access, dimensions, existing vegetation and service requirements.",
+        "instructions": "Assess site condition, access, dimensions, existing vegetation and service requirements.",
+        "tools": [],
+        "workflow": null,
+        "channels": [
+          "chat",
+          "work"
+        ],
+        "autonomy": "governed",
+        "vertical": "landscaping",
+        "department": "sales",
+        "capabilities": [
+          "site_assessment",
+          "garden_scope",
+          "dimensions",
+          "access",
+          "condition"
+        ],
+        "riskCeiling": "LOW",
+        "evidenceRequired": [],
+        "approvalRequiredFor": []
+      },
+      {
+        "id": "titan.landscaping.maintenance_planner",
+        "name": "Garden Maintenance Planner",
+        "role": "Plan mowing, edging, pruning, weeding, seasonal and recurring garden work.",
+        "description": "Plan mowing, edging, pruning, weeding, seasonal and recurring garden work.",
+        "instructions": "Plan mowing, edging, pruning, weeding, seasonal and recurring garden work.",
+        "tools": [],
+        "workflow": null,
+        "channels": [
+          "chat",
+          "work"
+        ],
+        "autonomy": "governed",
+        "vertical": "landscaping",
+        "department": "work",
+        "capabilities": [
+          "garden_maintenance",
+          "mowing",
+          "pruning",
+          "weeding",
+          "seasonal",
+          "recurring"
+        ],
+        "riskCeiling": "LOW",
+        "evidenceRequired": [],
+        "approvalRequiredFor": []
+      },
+      {
+        "id": "titan.landscaping.irrigation",
+        "name": "Irrigation Coordinator",
+        "role": "Coordinate irrigation faults, zones, schedules, water-use observations and service evidence.",
+        "description": "Coordinate irrigation faults, zones, schedules, water-use observations and service evidence.",
+        "instructions": "Coordinate irrigation faults, zones, schedules, water-use observations and service evidence.",
+        "tools": [],
+        "workflow": null,
+        "channels": [
+          "chat",
+          "work"
+        ],
+        "autonomy": "governed",
+        "vertical": "landscaping",
+        "department": "work",
+        "capabilities": [
+          "irrigation",
+          "zones",
+          "watering_schedule",
+          "water_use",
+          "fault_scope"
+        ],
+        "riskCeiling": "LOW",
+        "evidenceRequired": [],
+        "approvalRequiredFor": []
+      },
+      {
+        "id": "titan.landscaping.materials_waste",
+        "name": "Landscape Materials & Green Waste Coordinator",
+        "role": "Plan mulch, soil, plants, consumables and green-waste handling from approved scope.",
+        "description": "Plan mulch, soil, plants, consumables and green-waste handling from approved scope.",
+        "instructions": "Plan mulch, soil, plants, consumables and green-waste handling from approved scope.",
+        "tools": [],
+        "workflow": null,
+        "channels": [
+          "chat",
+          "work"
+        ],
+        "autonomy": "governed",
+        "vertical": "landscaping",
+        "department": "assets",
+        "capabilities": [
+          "landscape_materials",
+          "mulch",
+          "soil",
+          "plants",
+          "green_waste"
+        ],
+        "riskCeiling": "LOW",
+        "evidenceRequired": [],
+        "approvalRequiredFor": []
+      },
+      {
+        "id": "titan.landscaping.resource_efficiency",
+        "name": "Landscape Resource Efficiency Coordinator",
+        "role": "Identify water, green-waste and recurring-service efficiency opportunities with measured evidence.",
+        "description": "Identify water, green-waste and recurring-service efficiency opportunities with measured evidence.",
+        "instructions": "Identify water, green-waste and recurring-service efficiency opportunities with measured evidence.",
+        "tools": [],
+        "workflow": null,
+        "channels": [
+          "chat",
+          "work"
+        ],
+        "autonomy": "governed",
+        "vertical": "landscaping",
+        "department": "environment",
+        "capabilities": [
+          "water_efficiency",
+          "green_waste",
+          "resource_efficiency",
+          "verified_outcome"
+        ],
+        "riskCeiling": "LOW",
+        "evidenceRequired": [],
+        "approvalRequiredFor": []
+      },
+      {
+        "id": "titan.pest.identification",
+        "name": "Pest Identification & Triage Coordinator",
+        "role": "Coordinate evidence-led pest identification and urgency without overclaiming certainty from weak evidence.",
+        "description": "Coordinate evidence-led pest identification and urgency without overclaiming certainty from weak evidence.",
+        "instructions": "Coordinate evidence-led pest identification and urgency without overclaiming certainty from weak evidence.",
+        "tools": [],
+        "workflow": null,
+        "channels": [
+          "chat",
+          "work"
+        ],
+        "autonomy": "governed",
+        "vertical": "pest_control",
+        "department": "technical",
+        "capabilities": [
+          "pest_identification",
+          "photo_evidence",
+          "symptom_triage",
+          "urgency"
+        ],
+        "riskCeiling": "MEDIUM",
+        "evidenceRequired": [],
+        "approvalRequiredFor": []
+      },
+      {
+        "id": "titan.pest.treatment_planner",
+        "name": "Pest Treatment Planning Coordinator",
+        "role": "Prepare treatment scope, site constraints, follow-up needs and licensed/product-boundary requirements.",
+        "description": "Prepare treatment scope, site constraints, follow-up needs and licensed/product-boundary requirements.",
+        "instructions": "Prepare treatment scope, site constraints, follow-up needs and licensed/product-boundary requirements.",
+        "tools": [],
+        "workflow": null,
+        "channels": [
+          "chat",
+          "work"
+        ],
+        "autonomy": "governed",
+        "vertical": "pest_control",
+        "department": "work",
+        "capabilities": [
+          "treatment_scope",
+          "site_constraints",
+          "follow_up",
+          "product_boundary"
+        ],
+        "riskCeiling": "HIGH",
+        "evidenceRequired": [],
+        "approvalRequiredFor": []
+      },
+      {
+        "id": "titan.pest.safety",
+        "name": "Pest Safety & Product Coordinator",
+        "role": "Keep product labels, SDS, exclusion zones, PPE and legal/licensing constraints explicit.",
+        "description": "Keep product labels, SDS, exclusion zones, PPE and legal/licensing constraints explicit.",
+        "instructions": "Keep product labels, SDS, exclusion zones, PPE and legal/licensing constraints explicit.",
+        "tools": [],
+        "workflow": null,
+        "channels": [
+          "chat",
+          "work"
+        ],
+        "autonomy": "governed",
+        "vertical": "pest_control",
+        "department": "safety",
+        "capabilities": [
+          "sds",
+          "product_label",
+          "ppe",
+          "exclusion_zone",
+          "licensed_work_boundary"
+        ],
+        "riskCeiling": "HIGH",
+        "evidenceRequired": [],
+        "approvalRequiredFor": []
+      },
+      {
+        "id": "titan.pest.followup",
+        "name": "Pest Follow-up Coordinator",
+        "role": "Plan evidence-based follow-up, monitoring, customer instructions and unresolved-activity escalation.",
+        "description": "Plan evidence-based follow-up, monitoring, customer instructions and unresolved-activity escalation.",
+        "instructions": "Plan evidence-based follow-up, monitoring, customer instructions and unresolved-activity escalation.",
+        "tools": [],
+        "workflow": null,
+        "channels": [
+          "chat",
+          "work"
+        ],
+        "autonomy": "governed",
+        "vertical": "pest_control",
+        "department": "customer",
+        "capabilities": [
+          "pest_followup",
+          "monitoring",
+          "customer_instructions",
+          "escalation"
+        ],
+        "riskCeiling": "LOW",
+        "evidenceRequired": [],
+        "approvalRequiredFor": []
+      },
+      {
+        "id": "titan.pest.prevention",
+        "name": "Pest Prevention Coordinator",
+        "role": "Identify practical prevention and recurring monitoring opportunities from verified site conditions.",
+        "description": "Identify practical prevention and recurring monitoring opportunities from verified site conditions.",
+        "instructions": "Identify practical prevention and recurring monitoring opportunities from verified site conditions.",
+        "tools": [],
+        "workflow": null,
+        "channels": [
+          "chat",
+          "work"
+        ],
+        "autonomy": "governed",
+        "vertical": "pest_control",
+        "department": "work",
+        "capabilities": [
+          "pest_prevention",
+          "entry_points",
+          "site_conditions",
+          "recurring_monitoring"
+        ],
+        "riskCeiling": "LOW",
+        "evidenceRequired": [],
+        "approvalRequiredFor": []
+      },
+      {
+        "id": "titan.locksmith.emergency_triage",
+        "name": "Locksmith Emergency Triage Coordinator",
+        "role": "Triage lockouts and urgent access issues while preserving identity, ownership and lawful-access checks.",
+        "description": "Triage lockouts and urgent access issues while preserving identity, ownership and lawful-access checks.",
+        "instructions": "Triage lockouts and urgent access issues while preserving identity, ownership and lawful-access checks.",
+        "tools": [],
+        "workflow": null,
+        "channels": [
+          "chat",
+          "work"
+        ],
+        "autonomy": "governed",
+        "vertical": "locksmith",
+        "department": "work",
+        "capabilities": [
+          "lockout",
+          "emergency_access",
+          "identity_check",
+          "lawful_access"
+        ],
+        "riskCeiling": "HIGH",
+        "evidenceRequired": [],
+        "approvalRequiredFor": []
+      },
+      {
+        "id": "titan.locksmith.access_scope",
+        "name": "Lock & Access Scope Coordinator",
+        "role": "Scope lock, key, door and access-control work with location, hardware and authorization evidence.",
+        "description": "Scope lock, key, door and access-control work with location, hardware and authorization evidence.",
+        "instructions": "Scope lock, key, door and access-control work with location, hardware and authorization evidence.",
+        "tools": [],
+        "workflow": null,
+        "channels": [
+          "chat",
+          "work"
+        ],
+        "autonomy": "governed",
+        "vertical": "locksmith",
+        "department": "sales",
+        "capabilities": [
+          "lock_scope",
+          "key_scope",
+          "door_hardware",
+          "access_control",
+          "authorization"
+        ],
+        "riskCeiling": "HIGH",
+        "evidenceRequired": [],
+        "approvalRequiredFor": []
+      },
+      {
+        "id": "titan.locksmith.security_upgrade",
+        "name": "Security Upgrade Coordinator",
+        "role": "Coordinate bounded security-upgrade recommendations from site and customer requirements.",
+        "description": "Coordinate bounded security-upgrade recommendations from site and customer requirements.",
+        "instructions": "Coordinate bounded security-upgrade recommendations from site and customer requirements.",
+        "tools": [],
+        "workflow": null,
+        "channels": [
+          "chat",
+          "work"
+        ],
+        "autonomy": "governed",
+        "vertical": "locksmith",
+        "department": "work",
+        "capabilities": [
+          "security_upgrade",
+          "lock_upgrade",
+          "access_control",
+          "site_requirements"
+        ],
+        "riskCeiling": "MEDIUM",
+        "evidenceRequired": [],
+        "approvalRequiredFor": []
+      },
+      {
+        "id": "titan.locksmith.key_access",
+        "name": "Key & Access Governance Coordinator",
+        "role": "Protect key, code and access-credential handling with minimum exposure, handoff evidence and revocation awareness.",
+        "description": "Protect key, code and access-credential handling with minimum exposure, handoff evidence and revocation awareness.",
+        "instructions": "Protect key, code and access-credential handling with minimum exposure, handoff evidence and revocation awareness.",
+        "tools": [],
+        "workflow": null,
+        "channels": [
+          "chat",
+          "work"
+        ],
+        "autonomy": "governed",
+        "vertical": "locksmith",
+        "department": "safety",
+        "capabilities": [
+          "key_governance",
+          "access_credentials",
+          "handoff_evidence",
+          "secret_minimization"
+        ],
+        "riskCeiling": "HIGH",
+        "evidenceRequired": [],
+        "approvalRequiredFor": []
+      },
+      {
+        "id": "titan.locksmith.compliance",
+        "name": "Locksmith Compliance Coordinator",
+        "role": "Require lawful authorization, identity evidence and applicable licensing/policy checks before restricted access work.",
+        "description": "Require lawful authorization, identity evidence and applicable licensing/policy checks before restricted access work.",
+        "instructions": "Require lawful authorization, identity evidence and applicable licensing/policy checks before restricted access work.",
+        "tools": [],
+        "workflow": null,
+        "channels": [
+          "chat",
+          "work"
+        ],
+        "autonomy": "governed",
+        "vertical": "locksmith",
+        "department": "safety",
+        "capabilities": [
+          "lawful_authorization",
+          "identity_evidence",
+          "compliance",
+          "licensed_work_boundary"
+        ],
+        "riskCeiling": "HIGH",
+        "evidenceRequired": [],
+        "approvalRequiredFor": []
+      },
+      {
+        "id": "titan.roofing.inspection",
+        "name": "Roof Inspection Coordinator",
+        "role": "Coordinate roof-condition observations, photos, zones, defects and safe inspection boundaries.",
+        "description": "Coordinate roof-condition observations, photos, zones, defects and safe inspection boundaries.",
+        "instructions": "Coordinate roof-condition observations, photos, zones, defects and safe inspection boundaries.",
+        "tools": [],
+        "workflow": null,
+        "channels": [
+          "chat",
+          "work"
+        ],
+        "autonomy": "governed",
+        "vertical": "roofing",
+        "department": "work",
+        "capabilities": [
+          "roof_inspection",
+          "photo_evidence",
+          "defect_log",
+          "safe_access"
+        ],
+        "riskCeiling": "HIGH",
+        "evidenceRequired": [],
+        "approvalRequiredFor": []
+      },
+      {
+        "id": "titan.roofing.leak_triage",
+        "name": "Roof Leak Triage Coordinator",
+        "role": "Triage leak symptoms, weather context, internal damage observations and urgent mitigation needs.",
+        "description": "Triage leak symptoms, weather context, internal damage observations and urgent mitigation needs.",
+        "instructions": "Triage leak symptoms, weather context, internal damage observations and urgent mitigation needs.",
+        "tools": [],
+        "workflow": null,
+        "channels": [
+          "chat",
+          "work"
+        ],
+        "autonomy": "governed",
+        "vertical": "roofing",
+        "department": "technical",
+        "capabilities": [
+          "roof_leak",
+          "weather_context",
+          "water_damage_observation",
+          "urgent_triage"
+        ],
+        "riskCeiling": "HIGH",
+        "evidenceRequired": [],
+        "approvalRequiredFor": []
+      },
+      {
+        "id": "titan.roofing.gutter",
+        "name": "Gutter & Downpipe Coordinator",
+        "role": "Scope gutter, downpipe, drainage and cleaning/repair requirements with access constraints.",
+        "description": "Scope gutter, downpipe, drainage and cleaning/repair requirements with access constraints.",
+        "instructions": "Scope gutter, downpipe, drainage and cleaning/repair requirements with access constraints.",
+        "tools": [],
+        "workflow": null,
+        "channels": [
+          "chat",
+          "work"
+        ],
+        "autonomy": "governed",
+        "vertical": "roofing",
+        "department": "work",
+        "capabilities": [
+          "gutter",
+          "downpipe",
+          "drainage",
+          "access_constraints"
+        ],
+        "riskCeiling": "LOW",
+        "evidenceRequired": [],
+        "approvalRequiredFor": []
+      },
+      {
+        "id": "titan.roofing.repair_estimator",
+        "name": "Roof Repair Estimator",
+        "role": "Prepare repair estimate inputs, assumptions, exclusions, access and evidence for qualified review.",
+        "description": "Prepare repair estimate inputs, assumptions, exclusions, access and evidence for qualified review.",
+        "instructions": "Prepare repair estimate inputs, assumptions, exclusions, access and evidence for qualified review.",
+        "tools": [],
+        "workflow": null,
+        "channels": [
+          "chat",
+          "work"
+        ],
+        "autonomy": "governed",
+        "vertical": "roofing",
+        "department": "sales",
+        "capabilities": [
+          "roof_repair_estimate",
+          "scope",
+          "access",
+          "assumptions"
+        ],
+        "riskCeiling": "MEDIUM",
+        "evidenceRequired": [],
+        "approvalRequiredFor": []
+      },
+      {
+        "id": "titan.roofing.safety_weather",
+        "name": "Roof Safety & Weather Coordinator",
+        "role": "Gate roof work on fall-risk, weather, access and qualified-worker requirements.",
+        "description": "Gate roof work on fall-risk, weather, access and qualified-worker requirements.",
+        "instructions": "Gate roof work on fall-risk, weather, access and qualified-worker requirements.",
+        "tools": [],
+        "workflow": null,
+        "channels": [
+          "chat",
+          "work"
+        ],
+        "autonomy": "governed",
+        "vertical": "roofing",
+        "department": "safety",
+        "capabilities": [
+          "fall_risk",
+          "weather_gate",
+          "roof_access",
+          "qualified_worker"
+        ],
+        "riskCeiling": "HIGH",
+        "evidenceRequired": [],
+        "approvalRequiredFor": []
+      },
+      {
+        "id": "titan.appliance.fault_triage",
+        "name": "Appliance Fault Triage Coordinator",
+        "role": "Triage appliance/equipment symptoms, model, age, error codes and service history.",
+        "description": "Triage appliance/equipment symptoms, model, age, error codes and service history.",
+        "instructions": "Triage appliance/equipment symptoms, model, age, error codes and service history.",
+        "tools": [],
+        "workflow": null,
+        "channels": [
+          "chat",
+          "work"
+        ],
+        "autonomy": "governed",
+        "vertical": "appliance_repair",
+        "department": "technical",
+        "capabilities": [
+          "appliance_fault",
+          "model_identification",
+          "error_code",
+          "service_history"
+        ],
+        "riskCeiling": "MEDIUM",
+        "evidenceRequired": [],
+        "approvalRequiredFor": []
+      },
+      {
+        "id": "titan.appliance.manual_research",
+        "name": "Appliance Manual & Model Research Coordinator",
+        "role": "Find model-specific manuals, parts references, service information and evidence.",
+        "description": "Find model-specific manuals, parts references, service information and evidence.",
+        "instructions": "Find model-specific manuals, parts references, service information and evidence.",
+        "tools": [],
+        "workflow": null,
+        "channels": [
+          "chat",
+          "work"
+        ],
+        "autonomy": "governed",
+        "vertical": "appliance_repair",
+        "department": "knowledge",
+        "capabilities": [
+          "manual_research",
+          "model_lookup",
+          "parts_reference",
+          "service_information"
+        ],
+        "riskCeiling": "LOW",
+        "evidenceRequired": [],
+        "approvalRequiredFor": []
+      },
+      {
+        "id": "titan.appliance.parts",
+        "name": "Appliance Parts Coordinator",
+        "role": "Coordinate part identification, compatibility evidence, availability and approved ordering inputs.",
+        "description": "Coordinate part identification, compatibility evidence, availability and approved ordering inputs.",
+        "instructions": "Coordinate part identification, compatibility evidence, availability and approved ordering inputs.",
+        "tools": [],
+        "workflow": null,
+        "channels": [
+          "chat",
+          "work"
+        ],
+        "autonomy": "governed",
+        "vertical": "appliance_repair",
+        "department": "assets",
+        "capabilities": [
+          "parts_identification",
+          "compatibility_evidence",
+          "availability",
+          "ordering_inputs"
+        ],
+        "riskCeiling": "MEDIUM",
+        "evidenceRequired": [],
+        "approvalRequiredFor": []
+      },
+      {
+        "id": "titan.appliance.repair_replace",
+        "name": "Repair vs Replace Analyst",
+        "role": "Compare verified repair estimate, age, condition and replacement economics without inventing prices.",
+        "description": "Compare verified repair estimate, age, condition and replacement economics without inventing prices.",
+        "instructions": "Compare verified repair estimate, age, condition and replacement economics without inventing prices.",
+        "tools": [],
+        "workflow": null,
+        "channels": [
+          "chat",
+          "work"
+        ],
+        "autonomy": "governed",
+        "vertical": "appliance_repair",
+        "department": "insights",
+        "capabilities": [
+          "repair_replace",
+          "age_condition",
+          "cost_inputs",
+          "decision_support"
+        ],
+        "riskCeiling": "LOW",
+        "evidenceRequired": [],
+        "approvalRequiredFor": []
+      },
+      {
+        "id": "titan.appliance.followup",
+        "name": "Appliance Service Follow-up Coordinator",
+        "role": "Coordinate post-repair verification, unresolved symptoms, warranty/service evidence and customer follow-up.",
+        "description": "Coordinate post-repair verification, unresolved symptoms, warranty/service evidence and customer follow-up.",
+        "instructions": "Coordinate post-repair verification, unresolved symptoms, warranty/service evidence and customer follow-up.",
+        "tools": [],
+        "workflow": null,
+        "channels": [
+          "chat",
+          "work"
+        ],
+        "autonomy": "governed",
+        "vertical": "appliance_repair",
+        "department": "customer",
+        "capabilities": [
+          "post_repair_verification",
+          "warranty_evidence",
+          "follow_up",
+          "unresolved_symptom"
+        ],
+        "riskCeiling": "LOW",
+        "evidenceRequired": [],
+        "approvalRequiredFor": []
+      },
+      {
+        "id": "titan.plumbing.scope_assessor",
+        "name": "Plumbing Scope Assessor",
+        "role": "Define plumbing scope from customer symptoms, photos, site details, access constraints and known exclusions.",
+        "description": "Define plumbing scope from customer symptoms, photos, site details, access constraints and known exclusions.",
+        "instructions": "Define plumbing scope from customer symptoms, photos, site details, access constraints and known exclusions.",
+        "tools": [],
+        "workflow": null,
+        "channels": [
+          "chat",
+          "work"
+        ],
+        "autonomy": "governed",
+        "vertical": "plumbing",
+        "department": "sales",
+        "capabilities": [
+          "plumbing_scope",
+          "photo_scope",
+          "site_details",
+          "access_constraints",
+          "quote_inputs"
+        ],
+        "riskCeiling": "LOW",
+        "evidenceRequired": [
+          "customer_scope",
+          "site_or_photo_evidence"
+        ],
+        "approvalRequiredFor": [],
+        "company_boundary": "company_id",
+        "activation_confers_authority": false
+      },
+      {
+        "id": "titan.plumbing.quote_specialist",
+        "name": "Plumbing Quote Specialist",
+        "role": "Prepare transparent plumbing quote inputs, options, assumptions, exclusions and provisional allowances from an approved scope.",
+        "description": "Prepare transparent plumbing quote inputs, options, assumptions, exclusions and provisional allowances from an approved scope.",
+        "instructions": "Prepare transparent plumbing quote inputs, options, assumptions, exclusions and provisional allowances from an approved scope.",
+        "tools": [],
+        "workflow": null,
+        "channels": [
+          "chat",
+          "work"
+        ],
+        "autonomy": "governed",
+        "vertical": "plumbing",
+        "department": "sales",
+        "capabilities": [
+          "plumbing_quote",
+          "labour_estimate",
+          "parts_allowance",
+          "scope_assumptions",
+          "quote_options"
+        ],
+        "riskCeiling": "LOW",
+        "evidenceRequired": [],
+        "approvalRequiredFor": [
+          "price_override",
+          "discount_outside_policy"
+        ],
+        "company_boundary": "company_id",
+        "activation_confers_authority": false
+      },
+      {
+        "id": "titan.plumbing.diagnostic_triage",
+        "name": "Plumbing Diagnostic Triage Specialist",
+        "role": "Triage plumbing symptoms, urgency, evidence and likely job category without presenting remote diagnosis as licensed field confirmation.",
+        "description": "Triage plumbing symptoms, urgency, evidence and likely job category without presenting remote diagnosis as licensed field confirmation.",
+        "instructions": "Triage plumbing symptoms, urgency, evidence and likely job category without presenting remote diagnosis as licensed field confirmation.",
+        "tools": [],
+        "workflow": null,
+        "channels": [
+          "chat",
+          "work"
+        ],
+        "autonomy": "governed",
+        "vertical": "plumbing",
+        "department": "technical",
+        "capabilities": [
+          "plumbing_diagnostic",
+          "symptom_triage",
+          "urgency",
+          "evidence_request",
+          "job_classification"
+        ],
+        "riskCeiling": "MEDIUM",
+        "evidenceRequired": [],
+        "approvalRequiredFor": [],
+        "company_boundary": "company_id",
+        "activation_confers_authority": false
+      },
+      {
+        "id": "titan.plumbing.leak_water",
+        "name": "Leak & Water Issue Coordinator",
+        "role": "Coordinate leak, burst, water-loss and water-damage observations, urgent attendance and safe isolation boundaries.",
+        "description": "Coordinate leak, burst, water-loss and water-damage observations, urgent attendance and safe isolation boundaries.",
+        "instructions": "Coordinate leak, burst, water-loss and water-damage observations, urgent attendance and safe isolation boundaries.",
+        "tools": [],
+        "workflow": null,
+        "channels": [
+          "chat",
+          "work"
+        ],
+        "autonomy": "governed",
+        "vertical": "plumbing",
+        "department": "work",
+        "capabilities": [
+          "leak_triage",
+          "burst_pipe",
+          "water_loss",
+          "water_damage_observation",
+          "urgent_dispatch"
+        ],
+        "riskCeiling": "HIGH",
+        "evidenceRequired": [
+          "site_observation"
+        ],
+        "approvalRequiredFor": [],
+        "company_boundary": "company_id",
+        "activation_confers_authority": false
+      },
+      {
+        "id": "titan.plumbing.drainage",
+        "name": "Drainage & Blockage Coordinator",
+        "role": "Scope blocked drains, recurring drainage symptoms, affected fixtures, access points and diagnostic evidence.",
+        "description": "Scope blocked drains, recurring drainage symptoms, affected fixtures, access points and diagnostic evidence.",
+        "instructions": "Scope blocked drains, recurring drainage symptoms, affected fixtures, access points and diagnostic evidence.",
+        "tools": [],
+        "workflow": null,
+        "channels": [
+          "chat",
+          "work"
+        ],
+        "autonomy": "governed",
+        "vertical": "plumbing",
+        "department": "work",
+        "capabilities": [
+          "blocked_drain",
+          "drainage_scope",
+          "affected_fixtures",
+          "access_points",
+          "diagnostic_evidence"
+        ],
+        "riskCeiling": "LOW",
+        "evidenceRequired": [
+          "symptom_record"
+        ],
+        "approvalRequiredFor": [],
+        "company_boundary": "company_id",
+        "activation_confers_authority": false
+      },
+      {
+        "id": "titan.plumbing.hot_water",
+        "name": "Hot Water Service Coordinator",
+        "role": "Coordinate hot-water faults, unit identity, age, symptoms, service history and repair/replacement assessment inputs.",
+        "description": "Coordinate hot-water faults, unit identity, age, symptoms, service history and repair/replacement assessment inputs.",
+        "instructions": "Coordinate hot-water faults, unit identity, age, symptoms, service history and repair/replacement assessment inputs.",
+        "tools": [],
+        "workflow": null,
+        "channels": [
+          "chat",
+          "work"
+        ],
+        "autonomy": "governed",
+        "vertical": "plumbing",
+        "department": "work",
+        "capabilities": [
+          "hot_water",
+          "unit_identity",
+          "fault_symptoms",
+          "service_history",
+          "repair_replace_inputs"
+        ],
+        "riskCeiling": "MEDIUM",
+        "evidenceRequired": [
+          "unit_identity",
+          "symptom_record"
+        ],
+        "approvalRequiredFor": [],
+        "company_boundary": "company_id",
+        "activation_confers_authority": false
+      },
+      {
+        "id": "titan.plumbing.fixture_sanitary",
+        "name": "Fixture & Sanitary Coordinator",
+        "role": "Coordinate taps, toilets, cisterns, sinks, showers and sanitary fixture repair/replacement scope and parts requirements.",
+        "description": "Coordinate taps, toilets, cisterns, sinks, showers and sanitary fixture repair/replacement scope and parts requirements.",
+        "instructions": "Coordinate taps, toilets, cisterns, sinks, showers and sanitary fixture repair/replacement scope and parts requirements.",
+        "tools": [],
+        "workflow": null,
+        "channels": [
+          "chat",
+          "work"
+        ],
+        "autonomy": "governed",
+        "vertical": "plumbing",
+        "department": "work",
+        "capabilities": [
+          "fixture_repair",
+          "tap_repair",
+          "toilet_repair",
+          "cistern",
+          "sanitary_fixture",
+          "parts_requirements"
+        ],
+        "riskCeiling": "LOW",
+        "evidenceRequired": [
+          "fixture_identity_or_photo"
+        ],
+        "approvalRequiredFor": [],
+        "company_boundary": "company_id",
+        "activation_confers_authority": false
+      },
+      {
+        "id": "titan.plumbing.emergency",
+        "name": "Emergency Plumbing Coordinator",
+        "role": "Triage urgent flooding, burst, uncontrolled leak, sewage overflow and loss-of-service events and coordinate priority dispatch.",
+        "description": "Triage urgent flooding, burst, uncontrolled leak, sewage overflow and loss-of-service events and coordinate priority dispatch.",
+        "instructions": "Triage urgent flooding, burst, uncontrolled leak, sewage overflow and loss-of-service events and coordinate priority dispatch.",
+        "tools": [],
+        "workflow": null,
+        "channels": [
+          "chat",
+          "work"
+        ],
+        "autonomy": "governed",
+        "vertical": "plumbing",
+        "department": "operations",
+        "capabilities": [
+          "emergency_plumbing",
+          "flooding",
+          "burst_pipe",
+          "sewage_overflow",
+          "priority_dispatch",
+          "risk_isolation"
+        ],
+        "riskCeiling": "HIGH",
+        "evidenceRequired": [
+          "emergency_observation"
+        ],
+        "approvalRequiredFor": [],
+        "company_boundary": "company_id",
+        "activation_confers_authority": false
+      },
+      {
+        "id": "titan.plumbing.quality_inspector",
+        "name": "Plumbing Quality Inspector",
+        "role": "Review promised scope, field test results, photos, defects, leaks, cleanup and completion evidence before closure.",
+        "description": "Review promised scope, field test results, photos, defects, leaks, cleanup and completion evidence before closure.",
+        "instructions": "Review promised scope, field test results, photos, defects, leaks, cleanup and completion evidence before closure.",
+        "tools": [],
+        "workflow": null,
+        "channels": [
+          "chat",
+          "work"
+        ],
+        "autonomy": "governed",
+        "vertical": "plumbing",
+        "department": "quality",
+        "capabilities": [
+          "plumbing_qc",
+          "test_result_review",
+          "photo_qa",
+          "defect_review",
+          "completion_gate"
+        ],
+        "riskCeiling": "MEDIUM",
+        "evidenceRequired": [
+          "completion_photos",
+          "field_test_result"
+        ],
+        "approvalRequiredFor": [],
+        "company_boundary": "company_id",
+        "activation_confers_authority": false
+      },
+      {
+        "id": "titan.plumbing.parts_materials",
+        "name": "Plumbing Materials & Parts Coordinator",
+        "role": "Plan and track plumbing pipe, fittings, valves, fixtures, seals, consumables and replacement parts against the approved job scope.",
+        "description": "Plan and track plumbing pipe, fittings, valves, fixtures, seals, consumables and replacement parts against the approved job scope.",
+        "instructions": "Plan and track plumbing pipe, fittings, valves, fixtures, seals, consumables and replacement parts against the approved job scope.",
+        "tools": [],
+        "workflow": null,
+        "channels": [
+          "chat",
+          "work"
+        ],
+        "autonomy": "governed",
+        "vertical": "plumbing",
+        "department": "assets",
+        "capabilities": [
+          "plumbing_parts",
+          "materials_plan",
+          "fittings",
+          "valves",
+          "fixture_parts",
+          "stock_check"
+        ],
+        "riskCeiling": "LOW",
+        "evidenceRequired": [],
+        "approvalRequiredFor": [],
+        "company_boundary": "company_id",
+        "activation_confers_authority": false
+      },
+      {
+        "id": "titan.plumbing.preventive_maintenance",
+        "name": "Preventive Maintenance Coordinator",
+        "role": "Plan recurring plumbing inspections and preventive maintenance from asset condition, service history and customer requirements.",
+        "description": "Plan recurring plumbing inspections and preventive maintenance from asset condition, service history and customer requirements.",
+        "instructions": "Plan recurring plumbing inspections and preventive maintenance from asset condition, service history and customer requirements.",
+        "tools": [],
+        "workflow": null,
+        "channels": [
+          "chat",
+          "work"
+        ],
+        "autonomy": "governed",
+        "vertical": "plumbing",
+        "department": "work",
+        "capabilities": [
+          "preventive_plumbing",
+          "maintenance_schedule",
+          "inspection_plan",
+          "service_history",
+          "recurring_service"
+        ],
+        "riskCeiling": "LOW",
+        "evidenceRequired": [],
+        "approvalRequiredFor": [],
+        "company_boundary": "company_id",
+        "activation_confers_authority": false
+      },
+      {
+        "id": "titan.plumbing.compliance",
+        "name": "Plumbing Compliance Coordinator",
+        "role": "Track licensed-worker requirements, applicable certificates, inspection evidence and compliance handoffs without inventing jurisdictional requirements.",
+        "description": "Track licensed-worker requirements, applicable certificates, inspection evidence and compliance handoffs without inventing jurisdictional requirements.",
+        "instructions": "Track licensed-worker requirements, applicable certificates, inspection evidence and compliance handoffs without inventing jurisdictional requirements.",
+        "tools": [],
+        "workflow": null,
+        "channels": [
+          "chat",
+          "work"
+        ],
+        "autonomy": "governed",
+        "vertical": "plumbing",
+        "department": "compliance",
+        "capabilities": [
+          "plumbing_compliance",
+          "licensed_worker",
+          "certificate_tracking",
+          "inspection_evidence",
+          "compliance_handoff"
+        ],
+        "riskCeiling": "HIGH",
+        "evidenceRequired": [
+          "licensed_worker_identity",
+          "required_compliance_evidence"
+        ],
+        "approvalRequiredFor": [],
+        "company_boundary": "company_id",
+        "activation_confers_authority": false
+      },
+      {
+        "id": "titan.plumbing.service_recovery",
+        "name": "Plumbing Service Recovery Specialist",
+        "role": "Investigate plumbing complaints, compare scope with evidence and coordinate governed rework or customer recovery.",
+        "description": "Investigate plumbing complaints, compare scope with evidence and coordinate governed rework or customer recovery.",
+        "instructions": "Investigate plumbing complaints, compare scope with evidence and coordinate governed rework or customer recovery.",
+        "tools": [],
+        "workflow": null,
+        "channels": [
+          "chat",
+          "work"
+        ],
+        "autonomy": "governed",
+        "vertical": "plumbing",
+        "department": "customer",
+        "capabilities": [
+          "plumbing_complaint",
+          "scope_comparison",
+          "rework_plan",
+          "customer_recovery"
+        ],
+        "riskCeiling": "LOW",
+        "evidenceRequired": [
+          "customer_issue",
+          "original_scope",
+          "completion_evidence"
+        ],
+        "approvalRequiredFor": [],
+        "company_boundary": "company_id",
+        "activation_confers_authority": false
+      },
+      {
+        "id": "titan.plumbing.water_efficiency",
+        "name": "Water Efficiency Coordinator",
+        "role": "Identify verified water-loss and efficiency opportunities from leaks, fixtures and measured consumption without compromising service or compliance.",
+        "description": "Identify verified water-loss and efficiency opportunities from leaks, fixtures and measured consumption without compromising service or compliance.",
+        "instructions": "Identify verified water-loss and efficiency opportunities from leaks, fixtures and measured consumption without compromising service or compliance.",
+        "tools": [],
+        "workflow": null,
+        "channels": [
+          "chat",
+          "work"
+        ],
+        "autonomy": "governed",
+        "vertical": "plumbing",
+        "department": "environment",
+        "capabilities": [
+          "water_efficiency",
+          "leak_loss",
+          "fixture_efficiency",
+          "consumption_baseline",
+          "verified_savings"
+        ],
+        "riskCeiling": "LOW",
+        "evidenceRequired": [],
+        "approvalRequiredFor": [],
+        "company_boundary": "company_id",
+        "activation_confers_authority": false
+      },
+      {
+        "id": "titan.electrical.scope_assessor",
+        "name": "Electrical Scope Assessor",
+        "role": "Define electrical job scope from customer symptoms, photos, equipment/site details, access constraints and known exclusions.",
+        "description": "Define electrical job scope from customer symptoms, photos, equipment/site details, access constraints and known exclusions.",
+        "instructions": "Define electrical job scope from customer symptoms, photos, equipment/site details, access constraints and known exclusions.",
+        "tools": [],
+        "workflow": null,
+        "channels": [
+          "chat",
+          "work"
+        ],
+        "autonomy": "governed",
+        "vertical": "electrical",
+        "department": "sales",
+        "capabilities": [
+          "electrical_scope",
+          "photo_scope",
+          "site_details",
+          "equipment_details",
+          "access_constraints",
+          "quote_inputs"
+        ],
+        "riskCeiling": "MEDIUM",
+        "evidenceRequired": [
+          "customer_scope",
+          "site_or_photo_evidence"
+        ],
+        "approvalRequiredFor": [],
+        "company_boundary": "company_id",
+        "activationConfersAuthority": false
+      },
+      {
+        "id": "titan.electrical.quote_specialist",
+        "name": "Electrical Quote Specialist",
+        "role": "Prepare transparent electrical quote inputs, assumptions, exclusions and provisional allowances from an approved scope.",
+        "description": "Prepare transparent electrical quote inputs, assumptions, exclusions and provisional allowances from an approved scope.",
+        "instructions": "Prepare transparent electrical quote inputs, assumptions, exclusions and provisional allowances from an approved scope.",
+        "tools": [],
+        "workflow": null,
+        "channels": [
+          "chat",
+          "work"
+        ],
+        "autonomy": "governed",
+        "vertical": "electrical",
+        "department": "sales",
+        "capabilities": [
+          "electrical_quote",
+          "labour_estimate",
+          "materials_allowance",
+          "scope_assumptions",
+          "quote_options"
+        ],
+        "riskCeiling": "MEDIUM",
+        "evidenceRequired": [],
+        "approvalRequiredFor": [],
+        "company_boundary": "company_id",
+        "activationConfersAuthority": false
+      },
+      {
+        "id": "titan.electrical.fault_triage",
+        "name": "Electrical Fault Triage Specialist",
+        "role": "Triage electrical symptoms and urgency while preserving licensed-electrician and electrical-safety boundaries.",
+        "description": "Triage electrical symptoms and urgency while preserving licensed-electrician and electrical-safety boundaries.",
+        "instructions": "Triage electrical symptoms and urgency while preserving licensed-electrician and electrical-safety boundaries.",
+        "tools": [],
+        "workflow": null,
+        "channels": [
+          "chat",
+          "work"
+        ],
+        "autonomy": "governed",
+        "vertical": "electrical",
+        "department": "technical",
+        "capabilities": [
+          "electrical_fault",
+          "symptom_triage",
+          "urgency",
+          "evidence_request",
+          "job_classification"
+        ],
+        "riskCeiling": "HIGH",
+        "evidenceRequired": [],
+        "approvalRequiredFor": [],
+        "company_boundary": "company_id",
+        "activationConfersAuthority": false
+      },
+      {
+        "id": "titan.electrical.emergency_no_power",
+        "name": "Emergency & No-Power Coordinator",
+        "role": "Coordinate urgent no-power and electrical hazard events for qualified attendance and escalation.",
+        "description": "Coordinate urgent no-power and electrical hazard events for qualified attendance and escalation.",
+        "instructions": "Coordinate urgent no-power and electrical hazard events for qualified attendance and escalation.",
+        "tools": [],
+        "workflow": null,
+        "channels": [
+          "chat",
+          "work"
+        ],
+        "autonomy": "governed",
+        "vertical": "electrical",
+        "department": "operations",
+        "capabilities": [
+          "electrical_emergency",
+          "no_power",
+          "burning_smell",
+          "sparking",
+          "priority_dispatch",
+          "hazard_escalation"
+        ],
+        "riskCeiling": "HIGH",
+        "evidenceRequired": [
+          "safe_customer_observation"
+        ],
+        "approvalRequiredFor": [],
+        "company_boundary": "company_id",
+        "activationConfersAuthority": false
+      },
+      {
+        "id": "titan.electrical.switchboard",
+        "name": "Switchboard & Protection Coordinator",
+        "role": "Coordinate switchboard, breaker, RCD and protection-device scope and evidence for qualified attendance.",
+        "description": "Coordinate switchboard, breaker, RCD and protection-device scope and evidence for qualified attendance.",
+        "instructions": "Coordinate switchboard, breaker, RCD and protection-device scope and evidence for qualified attendance.",
+        "tools": [],
+        "workflow": null,
+        "channels": [
+          "chat",
+          "work"
+        ],
+        "autonomy": "governed",
+        "vertical": "electrical",
+        "department": "work",
+        "capabilities": [
+          "switchboard",
+          "breaker",
+          "rcd",
+          "protection_device",
+          "job_scope",
+          "test_evidence"
+        ],
+        "riskCeiling": "HIGH",
+        "evidenceRequired": [
+          "switchboard_or_fault_record"
+        ],
+        "approvalRequiredFor": [],
+        "company_boundary": "company_id",
+        "activationConfersAuthority": false
+      },
+      {
+        "id": "titan.electrical.circuit_outlet",
+        "name": "Circuit & Outlet Coordinator",
+        "role": "Coordinate circuit, socket/outlet and local power faults with affected areas and field-test evidence.",
+        "description": "Coordinate circuit, socket/outlet and local power faults with affected areas and field-test evidence.",
+        "instructions": "Coordinate circuit, socket/outlet and local power faults with affected areas and field-test evidence.",
+        "tools": [],
+        "workflow": null,
+        "channels": [
+          "chat",
+          "work"
+        ],
+        "autonomy": "governed",
+        "vertical": "electrical",
+        "department": "work",
+        "capabilities": [
+          "circuit",
+          "outlet",
+          "socket",
+          "power_fault",
+          "affected_area",
+          "field_test_evidence"
+        ],
+        "riskCeiling": "HIGH",
+        "evidenceRequired": [
+          "affected_area_record"
+        ],
+        "approvalRequiredFor": [],
+        "company_boundary": "company_id",
+        "activationConfersAuthority": false
+      },
+      {
+        "id": "titan.electrical.lighting",
+        "name": "Lighting Coordinator",
+        "role": "Scope lighting faults, replacements and additions with location, fitting type and controls.",
+        "description": "Scope lighting faults, replacements and additions with location, fitting type and controls.",
+        "instructions": "Scope lighting faults, replacements and additions with location, fitting type and controls.",
+        "tools": [],
+        "workflow": null,
+        "channels": [
+          "chat",
+          "work"
+        ],
+        "autonomy": "governed",
+        "vertical": "electrical",
+        "department": "work",
+        "capabilities": [
+          "lighting",
+          "light_fixture",
+          "switch",
+          "lighting_scope",
+          "installation_inputs"
+        ],
+        "riskCeiling": "MEDIUM",
+        "evidenceRequired": [
+          "lighting_scope_or_photo"
+        ],
+        "approvalRequiredFor": [],
+        "company_boundary": "company_id",
+        "activationConfersAuthority": false
+      },
+      {
+        "id": "titan.electrical.installation",
+        "name": "Electrical Installation Coordinator",
+        "role": "Plan qualified electrical installation work from approved scope, equipment, circuits, access and dependencies.",
+        "description": "Plan qualified electrical installation work from approved scope, equipment, circuits, access and dependencies.",
+        "instructions": "Plan qualified electrical installation work from approved scope, equipment, circuits, access and dependencies.",
+        "tools": [],
+        "workflow": null,
+        "channels": [
+          "chat",
+          "work"
+        ],
+        "autonomy": "governed",
+        "vertical": "electrical",
+        "department": "work",
+        "capabilities": [
+          "electrical_installation",
+          "new_circuit",
+          "equipment_connection",
+          "installation_plan",
+          "dependencies"
+        ],
+        "riskCeiling": "HIGH",
+        "evidenceRequired": [
+          "approved_scope"
+        ],
+        "approvalRequiredFor": [],
+        "company_boundary": "company_id",
+        "activationConfersAuthority": false
+      },
+      {
+        "id": "titan.electrical.quality_inspector",
+        "name": "Electrical Quality Inspector",
+        "role": "Review scope, field tests, photos, defects and applicable certificate evidence before closure.",
+        "description": "Review scope, field tests, photos, defects and applicable certificate evidence before closure.",
+        "instructions": "Review scope, field tests, photos, defects and applicable certificate evidence before closure.",
+        "tools": [],
+        "workflow": null,
+        "channels": [
+          "chat",
+          "work"
+        ],
+        "autonomy": "governed",
+        "vertical": "electrical",
+        "department": "quality",
+        "capabilities": [
+          "electrical_qc",
+          "test_result_review",
+          "photo_qa",
+          "defect_review",
+          "completion_gate",
+          "certificate_evidence"
+        ],
+        "riskCeiling": "HIGH",
+        "evidenceRequired": [
+          "completion_photos",
+          "field_test_result"
+        ],
+        "approvalRequiredFor": [],
+        "company_boundary": "company_id",
+        "activationConfersAuthority": false
+      },
+      {
+        "id": "titan.electrical.parts_materials",
+        "name": "Electrical Materials & Parts Coordinator",
+        "role": "Plan approved electrical materials and parts against scope.",
+        "description": "Plan approved electrical materials and parts against scope.",
+        "instructions": "Plan approved electrical materials and parts against scope.",
+        "tools": [],
+        "workflow": null,
+        "channels": [
+          "chat",
+          "work"
+        ],
+        "autonomy": "governed",
+        "vertical": "electrical",
+        "department": "assets",
+        "capabilities": [
+          "electrical_parts",
+          "materials_plan",
+          "cable",
+          "breakers",
+          "outlets",
+          "stock_check"
+        ],
+        "riskCeiling": "MEDIUM",
+        "evidenceRequired": [],
+        "approvalRequiredFor": [],
+        "company_boundary": "company_id",
+        "activationConfersAuthority": false
+      },
+      {
+        "id": "titan.electrical.preventive_maintenance",
+        "name": "Preventive Electrical Maintenance Coordinator",
+        "role": "Plan recurring electrical inspection and preventive maintenance from assets and service history.",
+        "description": "Plan recurring electrical inspection and preventive maintenance from assets and service history.",
+        "instructions": "Plan recurring electrical inspection and preventive maintenance from assets and service history.",
+        "tools": [],
+        "workflow": null,
+        "channels": [
+          "chat",
+          "work"
+        ],
+        "autonomy": "governed",
+        "vertical": "electrical",
+        "department": "work",
+        "capabilities": [
+          "preventive_electrical",
+          "maintenance_schedule",
+          "inspection_plan",
+          "service_history",
+          "recurring_service"
+        ],
+        "riskCeiling": "MEDIUM",
+        "evidenceRequired": [],
+        "approvalRequiredFor": [],
+        "company_boundary": "company_id",
+        "activationConfersAuthority": false
+      },
+      {
+        "id": "titan.electrical.safety_compliance",
+        "name": "Electrical Safety & Compliance Coordinator",
+        "role": "Track licensed-worker, isolation/test evidence, certificates and compliance handoffs without inventing jurisdictional requirements.",
+        "description": "Track licensed-worker, isolation/test evidence, certificates and compliance handoffs without inventing jurisdictional requirements.",
+        "instructions": "Track licensed-worker, isolation/test evidence, certificates and compliance handoffs without inventing jurisdictional requirements.",
+        "tools": [],
+        "workflow": null,
+        "channels": [
+          "chat",
+          "work"
+        ],
+        "autonomy": "governed",
+        "vertical": "electrical",
+        "department": "compliance",
+        "capabilities": [
+          "electrical_safety",
+          "licensed_worker",
+          "isolation_evidence",
+          "certificate_tracking",
+          "compliance_handoff"
+        ],
+        "riskCeiling": "HIGH",
+        "evidenceRequired": [
+          "licensed_worker_identity",
+          "required_compliance_evidence"
+        ],
+        "approvalRequiredFor": [],
+        "company_boundary": "company_id",
+        "activationConfersAuthority": false
+      },
+      {
+        "id": "titan.electrical.service_recovery",
+        "name": "Electrical Service Recovery Specialist",
+        "role": "Investigate electrical complaints and coordinate governed rework or recovery from evidence.",
+        "description": "Investigate electrical complaints and coordinate governed rework or recovery from evidence.",
+        "instructions": "Investigate electrical complaints and coordinate governed rework or recovery from evidence.",
+        "tools": [],
+        "workflow": null,
+        "channels": [
+          "chat",
+          "work"
+        ],
+        "autonomy": "governed",
+        "vertical": "electrical",
+        "department": "customer",
+        "capabilities": [
+          "electrical_complaint",
+          "scope_comparison",
+          "rework_plan",
+          "customer_recovery"
+        ],
+        "riskCeiling": "MEDIUM",
+        "evidenceRequired": [
+          "customer_issue",
+          "original_scope",
+          "completion_evidence"
+        ],
+        "approvalRequiredFor": [],
+        "company_boundary": "company_id",
+        "activationConfersAuthority": false
+      },
+      {
+        "id": "titan.electrical.energy_efficiency",
+        "name": "Energy Efficiency Coordinator",
+        "role": "Identify evidence-based electrical energy-efficiency opportunities without compromising safety or compliance.",
+        "description": "Identify evidence-based electrical energy-efficiency opportunities without compromising safety or compliance.",
+        "instructions": "Identify evidence-based electrical energy-efficiency opportunities without compromising safety or compliance.",
+        "tools": [],
+        "workflow": null,
+        "channels": [
+          "chat",
+          "work"
+        ],
+        "autonomy": "governed",
+        "vertical": "electrical",
+        "department": "environment",
+        "capabilities": [
+          "energy_efficiency",
+          "lighting_efficiency",
+          "controls",
+          "consumption_baseline",
+          "verified_savings"
+        ],
+        "riskCeiling": "LOW",
+        "evidenceRequired": [],
+        "approvalRequiredFor": [],
+        "company_boundary": "company_id",
+        "activationConfersAuthority": false
+      }
+    ],
+    "tools": [],
+    "providers": [],
+    "projections": [
+      {
+        "id": "summary",
+        "title": "Workforce vertical summary",
+        "description": "Installed vertical and specialist counts.",
+        "source": "runtime"
+      }
+    ],
+    "workflows": [],
+    "settingsPanels": []
+  },
+  "metadata": {
+    "company_boundary": "company_id",
+    "shared_agents_internal": true,
+    "vertical_count": 11,
+    "cleaning_job_types": {
+      "domestic_recurring": {
+        "id": "domestic_recurring",
+        "label": "Domestic recurring clean",
+        "checklist": [
+          "Confirm agreed rooms and exclusions",
+          "Kitchen surfaces and sink",
+          "Bathrooms and toilets",
+          "Dust reachable agreed surfaces",
+          "Vacuum and mop agreed floors",
+          "Reset agreed rooms",
+          "Record exceptions or damage observations"
+        ],
+        "requiredEvidence": [
+          "completed checklist",
+          "exceptions/issue evidence when present"
+        ]
+      },
+      "deep_clean": {
+        "id": "deep_clean",
+        "label": "Deep clean",
+        "checklist": [
+          "Confirm detailed scope and exclusions",
+          "High-detail kitchen clean",
+          "High-detail bathroom clean",
+          "Edges, skirtings and detail dusting",
+          "High-soil areas per approved method",
+          "Floors and finishing pass",
+          "Quality inspection"
+        ],
+        "requiredEvidence": [
+          "scope reference",
+          "completion checklist",
+          "before/after photos for nominated high-soil areas"
+        ]
+      },
+      "bond_end_of_lease": {
+        "id": "bond_end_of_lease",
+        "label": "Bond / end-of-lease clean",
+        "checklist": [
+          "Confirm property scope and agent/customer requirements",
+          "Kitchen including oven where included",
+          "Bathrooms and toilets",
+          "Inside cupboards where included",
+          "Windows/glass where included",
+          "Walls/marks where included",
+          "Floors and carpet scope",
+          "Final room-by-room inspection"
+        ],
+        "requiredEvidence": [
+          "property checklist",
+          "before/after photos",
+          "exclusions and pre-existing condition notes"
+        ]
+      },
+      "airbnb_turnover": {
+        "id": "airbnb_turnover",
+        "label": "Airbnb / short-stay turnover",
+        "checklist": [
+          "Confirm checkout/check-in window",
+          "Strip and replace linen",
+          "Bathrooms reset",
+          "Kitchen reset",
+          "Whole-property clean to turnover standard",
+          "Restock approved amenities",
+          "Observe/report damage or missing items",
+          "Guest-ready final inspection"
+        ],
+        "requiredEvidence": [
+          "turnover checklist",
+          "guest-ready photos",
+          "damage/missing-item evidence when present"
+        ]
+      },
+      "commercial": {
+        "id": "commercial",
+        "label": "Commercial cleaning",
+        "checklist": [
+          "Confirm site zones and access window",
+          "Complete frequency-based zone tasks",
+          "Amenities/restrooms",
+          "Waste and recycling tasks in scope",
+          "Floors and touchpoints in scope",
+          "Restock site consumables where authorised",
+          "Record site hazards/issues",
+          "Supervisor/QA exception review"
+        ],
+        "requiredEvidence": [
+          "site checklist",
+          "exception evidence",
+          "consumable record when replenished"
+        ]
+      },
+      "move_in": {
+        "id": "move_in",
+        "label": "Move-in clean",
+        "checklist": [
+          "Confirm empty/occupied areas",
+          "Kitchen and storage interiors in scope",
+          "Bathrooms",
+          "Dust/detail surfaces",
+          "Floors",
+          "Final readiness inspection"
+        ],
+        "requiredEvidence": [
+          "completion checklist",
+          "readiness photos where requested"
+        ]
+      },
+      "office": {
+        "id": "office",
+        "label": "Office clean",
+        "checklist": [
+          "Workstations/common areas in scope",
+          "Kitchen/break areas",
+          "Restrooms",
+          "Bins/recycling",
+          "Floors",
+          "Touchpoints per agreed scope",
+          "Final exception check"
+        ],
+        "requiredEvidence": [
+          "site checklist",
+          "issue evidence when present"
+        ]
+      }
+    },
+    "source_lineage": [
+      "Titan Zero Cleaning Workforce v0.10.0",
+      "Titan Capability Modules v0.8.0"
+    ],
+    "vertical_worker_count": 61
+  }
+}

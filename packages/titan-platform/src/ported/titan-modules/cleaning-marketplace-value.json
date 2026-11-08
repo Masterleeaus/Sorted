@@ -1,0 +1,41 @@
+{
+  "schema": "titan-cleaning-marketplace-value/v1",
+  "version": "2026.09.07-pass11",
+  "policy": {
+    "company_scoped": true,
+    "company_boundary": "company_id",
+    "advisory_only": true,
+    "company_supplied_actuals_only": true,
+    "no_invented_prices": true,
+    "no_invented_usage": true,
+    "no_invented_value": true,
+    "no_invented_roi": true,
+    "authority_effect": false
+  },
+  "thresholds": {
+    "minimum_recent_uses_for_established_adoption": 3,
+    "minimum_recent_evidence_for_proven_value": 1
+  },
+  "tracked_fields": [
+    "use_count_30d",
+    "evidence_count_30d",
+    "monthly_recurring_cost",
+    "recorded_benefit_value_30d",
+    "last_used_at",
+    "notes"
+  ],
+  "derived_rules": {
+    "unused_spend": "monthly_recurring_cost > 0 AND use_count_30d = 0",
+    "low_adoption": "use_count_30d is supplied AND below the configured adoption threshold",
+    "recorded_net_value_30d": "recorded_benefit_value_30d - monthly_recurring_cost only when both are explicitly supplied",
+    "proven_value": "positive recorded net value AND adoption threshold met AND evidence threshold met",
+    "duplication_risk": "potential structural overlap only; it is not proof that either product is redundant"
+  },
+  "authority": {
+    "grants_authority": false,
+    "approves_spend": false,
+    "cancels_products": false,
+    "removes_workers": false,
+    "changes_rollout": false
+  }
+}

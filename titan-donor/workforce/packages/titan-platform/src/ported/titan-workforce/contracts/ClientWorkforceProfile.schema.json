@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": [
+    "workforce_profile_id",
+    "company_id",
+    "business_profile",
+    "activated_roles",
+    "provider_bindings",
+    "autonomy_policy_refs",
+    "approval_policy_refs"
+  ],
+  "properties": {
+    "workforce_profile_id": {
+      "type": "string"
+    },
+    "company_id": {
+      "type": "string"
+    },
+    "business_profile": {
+      "type": "object"
+    },
+    "activated_roles": {
+      "type": "array"
+    },
+    "provider_bindings": {
+      "type": "array"
+    },
+    "autonomy_policy_refs": {
+      "type": "array"
+    },
+    "approval_policy_refs": {
+      "type": "array"
+    },
+    "titan_god_mode_present": {
+      "const": false
+    }
+  }
+}

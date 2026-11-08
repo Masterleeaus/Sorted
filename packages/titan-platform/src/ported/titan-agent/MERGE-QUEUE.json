@@ -1,0 +1,23 @@
+{
+  "schema": "titan-merge-queue/v1",
+  "items": [
+    {
+      "delta_id": "v0.18.2-p0-003-platform-manager-lifecycle-convergence",
+      "agent": "titan-zero-module-runtime-agent",
+      "parent_sha256": "b355dfcc9c7c3c676fdd8c76d889962f84b14cd014bba44fb251543089f7cdf7",
+      "delta_sha256": null,
+      "dependencies": [
+        "manager-canonical-v0.18.1"
+      ],
+      "touches": [
+        "manifest.json",
+        "titan-modules/**",
+        "modules.js",
+        "tests/**",
+        "titan-agent/**"
+      ],
+      "status": "ready_for_manager_inspection_after_package_proof",
+      "priority": 100
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "schema": "titan-zero-change-impact/v1",
+  "packet_id": "TZ-FINISH-004",
+  "pass": 8,
+  "risk": "MEDIUM",
+  "hotspots": [
+    "titan-shell.js"
+  ],
+  "authority_effect": "NONE: routing remains advisory; downstream policy/permissions/autonomy/risk/entitlements remain authoritative.",
+  "tenant_effect": "company_id only; no tenant_id or tenant_company_id emitted.",
+  "protected_runtime_modified": false,
+  "live_browser_required_for_final_acceptance": true
+}

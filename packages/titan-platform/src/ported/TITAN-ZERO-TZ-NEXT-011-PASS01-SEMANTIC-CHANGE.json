@@ -1,0 +1,36 @@
+{
+  "schema": "titan.zero.semantic-change/v1",
+  "packet_id": "TZ-NEXT-011",
+  "pass": 1,
+  "changes": [
+    {
+      "path": "titan-runtime/feed/feed-source-ownership.mjs",
+      "kind": "add",
+      "meaning": "Introduces one explicit ownership map for event records, notification lifecycle, decision ranking, visible Feed read/presentation state and Inbox external-message lifecycle."
+    },
+    {
+      "path": "titan-intelligence/decision/unified-decision-feed.js",
+      "kind": "edit",
+      "meaning": "Existing Decision Feed now publishes explicit decision_feed source ownership and remains read-only/non-authoritative; version 1.6.0\u21921.6.1."
+    },
+    {
+      "path": "titan-workforce/notifications/workforce-notification-escalation-runtime.mjs",
+      "kind": "edit",
+      "meaning": "Existing Workforce notification entrypoint now publishes explicit notification_lifecycle ownership without changing escalation behavior."
+    },
+    {
+      "path": "titan-runtime/feed/tests/feed-source-ownership.test.mjs",
+      "kind": "add",
+      "meaning": "Verifies exactly one owner per lifecycle concern, company_id-only behavior, no authority grant and rejection of legacy tenant keys."
+    },
+    {
+      "path": "TITAN-ZERO-TZ-NEXT-011-PASS01-FEED-CENSUS.json",
+      "kind": "add",
+      "meaning": "Records the verified producer census and gaps for Pass 1."
+    }
+  ],
+  "authority_effect": false,
+  "company_boundary": "company_id only",
+  "ui_replacement": false,
+  "event_loss_intended": false
+}

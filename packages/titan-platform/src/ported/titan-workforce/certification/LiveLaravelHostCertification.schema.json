@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "titan.workforce.live-laravel-host-certification.v1",
+  "title": "Titan Workforce Live Laravel Host Certification",
+  "type": "object",
+  "required": ["schema","company_id","certification_id","source_commissioning_gate_set_id","state","host","probes","readiness","declares_live","authority_granted","execution_permitted","grants_authority"],
+  "properties": {
+    "schema": {"const":"titan.workforce.live-laravel-host-certification.v1"},
+    "company_id": {"type":"string","minLength":2,"maxLength":128},
+    "certification_id": {"type":"string","minLength":1,"maxLength":240},
+    "source_commissioning_gate_set_id": {"type":"string"},
+    "state": {"enum":["HOST_NOT_CONFIGURED","CERTIFICATION_READY","BLOCKED","LIVE_HOST_CERTIFIED"]},
+    "host": {"type":"object","required":["configured","transport_secure"],"properties":{"endpoint":{"type":["string","null"]},"configured":{"type":"boolean"},"transport_secure":{"type":"boolean"},"fingerprint":{"type":["string","null"]}}},
+    "probes": {"type":"array","minItems":7,"items":{"type":"object","required":["probe_id","company_id","state","evidence_refs","live_observed","synthetic","certifying"],"properties":{"probe_id":{"type":"string"},"company_id":{"type":"string"},"state":{"enum":["PASSED","FAILED","BLOCKED","NOT_RUN"]},"evidence_refs":{"type":"array","items":{"type":"string"}},"live_observed":{"type":"boolean"},"synthetic":{"type":"boolean"},"certifying":{"type":"boolean"}}}},
+    "readiness": {"type":"object","required":["live_host_certified","passed_probes","required_probes","blockers"]},
+    "declares_live": {"const":false},
+    "automatic_go_live": {"const":false},
+    "automatic_mutation": {"const":false},
+    "automatic_effect_replay": {"const":false},
+    "automatic_authority_change": {"const":false},
+    "authority_granted": {"const":false},
+    "execution_permitted": {"const":false},
+    "grants_authority": {"const":false}
+  }
+}

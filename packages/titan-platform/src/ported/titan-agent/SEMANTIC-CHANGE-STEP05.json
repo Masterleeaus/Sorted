@@ -1,0 +1,39 @@
+{
+  "pass": "step-05",
+  "agent": "gpt-5.6-sol-step05-module-runtime-v2",
+  "capabilities_added": [
+    "module.runtime.compatibility",
+    "module.runtime.lifecycle-timeout",
+    "module.runtime.quarantine",
+    "module.runtime.recover"
+  ],
+  "capabilities_modified": [
+    "module.discovery",
+    "module.activation",
+    "module.diagnostics"
+  ],
+  "contracts_added": [
+    "TitanModuleRuntimeV2"
+  ],
+  "contracts_modified": [],
+  "schemas_added": [],
+  "schemas_modified": [
+    "titan-modules/schema.json"
+  ],
+  "routes_added": [],
+  "storage_changes": [],
+  "migrations_added": [],
+  "permissions_added": [],
+  "authority_changes": [],
+  "offline_changes": [],
+  "breaking_changes": [],
+  "tests_added": [
+    "tests/module_runtime_v2.test.mjs",
+    "tests/module_runtime_v2_host.test.mjs"
+  ],
+  "bugs_fixed": [
+    "activation quarantine state is not overwritten by generic error state"
+  ],
+  "ui_removed": [],
+  "ui_replaced": []
+}

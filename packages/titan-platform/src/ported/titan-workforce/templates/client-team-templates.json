@@ -1,0 +1,66 @@
+{
+  "templates": [
+    {
+      "template_id": "client.solo.field_service",
+      "name": "Solo Field Service Core",
+      "business_tier": "SOLO",
+      "roles": [
+        "titan.customer.receptionist",
+        "titan.customer.booking_coordinator",
+        "titan.work.scheduler",
+        "titan.work.job_coordinator",
+        "titan.money.billing_coordinator",
+        "titan.environment.resource_efficiency_coordinator"
+      ],
+      "notes": "Lean multi-hat team; providers and authority gates still determine available actions."
+    },
+    {
+      "template_id": "client.small.service_business",
+      "name": "Small Service Business",
+      "business_tier": "SMALL",
+      "roles": [
+        "titan.manager.operations",
+        "titan.customer.receptionist",
+        "titan.sales.sales_coordinator",
+        "titan.sales.quote_coordinator",
+        "titan.work.scheduler",
+        "titan.work.dispatcher",
+        "titan.work.job_coordinator",
+        "titan.customer.customer_service_coordinator",
+        "titan.money.billing_coordinator",
+        "titan.people.roster_coordinator",
+        "titan.environment.resource_efficiency_coordinator",
+        "titan.environment.environmental_compliance_coordinator"
+      ],
+      "notes": "Adds dedicated customer, cash, people and environmental functions."
+    },
+    {
+      "template_id": "client.growing.managed_service",
+      "name": "Growing Managed Service Business",
+      "business_tier": "GROWING",
+      "roles": [
+        "titan.manager.operations",
+        "titan.manager.customer_service",
+        "titan.manager.sales",
+        "titan.manager.finance",
+        "titan.manager.workforce",
+        "titan.manager.automation",
+        "titan.manager.compliance_governance",
+        "titan.environment.environmental_performance_manager"
+      ],
+      "notes": "Manager spine; specialists are selected from domain workload and vertical needs."
+    },
+    {
+      "template_id": "client.environment_high_materiality",
+      "name": "Environment-Intensive Overlay",
+      "business_tier": "SMALL",
+      "roles": [
+        "titan.environment.environmental_performance_manager",
+        "titan.environment.resource_efficiency_coordinator",
+        "titan.environment.environmental_compliance_coordinator",
+        "titan.environment.waste_materials_coordinator"
+      ],
+      "notes": "Overlay for businesses with material energy/water/waste/chemical/resource impacts."
+    }
+  ]
+}

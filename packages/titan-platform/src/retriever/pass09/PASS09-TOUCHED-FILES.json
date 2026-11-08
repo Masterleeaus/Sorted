@@ -1,0 +1,21 @@
+{
+  "schema": "titan-zero-pass-touched-files/v1",
+  "pass": 9,
+  "modified": [
+    "packages/titan-platform/src/ported/compatibility/monica/background-runtime-boundary.ts",
+    "packages/titan-platform/tests/retriever-native-pass05-donor-reachability.test.mjs"
+  ],
+  "added": [
+    "packages/titan-platform/tests/retriever-native-pass09-donor-removal.test.mjs",
+    "packages/titan-platform/src/retriever/pass09/DELETE-MANIFEST.json",
+    "packages/titan-platform/src/retriever/pass09/PASS09-VERIFICATION.json",
+    "packages/titan-platform/src/retriever/pass09/PASS09-SEMANTIC-CHANGE.json",
+    "packages/titan-platform/src/retriever/pass09/PASS09-CHANGE-IMPACT.json",
+    "packages/titan-platform/src/retriever/pass09/PASS09-HANDOFF.json"
+  ],
+  "deleted": [
+    "packages/titan-platform/src/ported/retriever-background.iife.ts",
+    "packages/titan-platform/src/ported/side-panel/titan-retriever-bridge.ts",
+    "packages/titan-platform/src/ported/titan-runtime/adapters/retriever-adapter.ts"
+  ]
+}

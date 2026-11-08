@@ -1,0 +1,25 @@
+{
+  "id": "bolt",
+  "theme": {
+    "name": "bolt",
+    "extends": "default",
+    "asset-path": "themes/bolt",
+    "dashboard": {
+      "sidebarEnabledPages": [
+        "dashboard.user.index",
+        "dashboard.user.openai.list",
+        "dashboard.user.openai.documents.all",
+        "dashboard.user.openai.documents.single"
+      ],
+      "googleFonts": {
+        "Onest": [
+          "400",
+          "500",
+          "600"
+        ]
+      }
+    },
+    "description": "bolt \u2014 TG: @heew_support",
+    "support_telegram": "heew_support"
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "schema": "titan-zero-semantic-change/v1",
+  "packet": "TZ-NEXT-011",
+  "pass": 9,
+  "changes": [
+    "Added high-volume Feed/Inbox/decision/delivery/presentation regression suite.",
+    "Made Feed delivery lease acquisition atomic using business database readwrite transaction.",
+    "Verified cross-company isolation and cross-surface lifecycle separation under burst load."
+  ],
+  "authority_effect": false,
+  "company_boundary": "company_id"
+}

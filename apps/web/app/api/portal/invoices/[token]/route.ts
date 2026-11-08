@@ -1,0 +1,232 @@
+import { NextRequest, NextResponse } from "next/server";
+import { isPortalPreview, PREVIEW_READ_ONLY_MESSAGE } from "@/lib/portal/session";
+import { SPONSORED_DOCUMENT_JOIN, SPONSORED_DOCUMENT_SELECT } from "@/lib/invoices/sponsored";
+import { queryOne, query, getPool } from "@/lib/db";
+import { loadSquareSettings, createSquarePaymentLink } from "@/lib/integrations/square-payments";
+import { requestedDepositCents, type InvoiceDepositType } from "@/lib/invoices/deposit";
+import { amountDueCents } from "@/lib/invoices/payments";
+import { logger } from "@/lib/logger";
+
+export const dynamic = "force-dynamic";
+
+interface InvoiceRow extends Record<string, unknown> {
+  id: string;
+  account_id: string;
+  client_id: string;
+  job_id: string | null;
+  created_by: string;
+  status: string;
+  invoice_number: string;
+  subtotal_cents: number;
+  tax_cents: number;
+  total_cents: number;
+  paid_cents: number;
+  deposit_cents: number | null;
+  deposit_type: string | null;
+  deposit_percentage: number | null;
+  deposit_fixed_cents: number | null;
+  notes: string | null;
+  due_date: string | null;
+  sent_at: string | null;
+  paid_at: string | null;
+  square_payment_link_url: string | null;
+  client_name: string;
+  property_address: string | null;
+  property_city: string | null;
+  property_state: string | null;
+  property_zip: string | null;
+  account_name: string;
+  account_settings: Record<string, unknown>;
+}
+
+interface LineItemRow extends Record<string, unknown> {
+  id: string;
+  description: string;
+  quantity: string;
+  unit_price_cents: number;
+  total_cents: number;
+  sort_order: number;
+}
+
+export async function GET(
+  _request: NextRequest,
+  { params }: { params: Promise<{ token: string }> }
+) {
+  const { token } = await params;
+
+  const invoice = await queryOne<InvoiceRow>(
+    `SELECT
+       i.id, i.status, i.invoice_number, i.subtotal_cents, i.tax_cents,
+       i.total_cents, i.paid_cents, i.deposit_cents, i.notes, i.due_date,
+       i.sent_at, i.paid_at, i.square_payment_link_url,
+       c.name AS client_name,
+       p.address AS property_address, p.city AS property_city,
+       p.state AS property_state, p.zip AS property_zip,
+       a.name AS account_name, a.settings AS account_settings,
+       ${SPONSORED_DOCUMENT_SELECT}
+     FROM invoices i
+     JOIN clients c ON c.id = i.client_id
+     JOIN accounts a ON a.id = i.account_id
+     ${SPONSORED_DOCUMENT_JOIN}
+     LEFT JOIN properties p ON p.id = i.property_id
+     WHERE i.share_token = $1`,
+    [token]
+  );
+
+  if (!invoice) {
+    return NextResponse.json({ error: "Not found" }, { status: 404 });
+  }
+
+  const lineItems = await query<LineItemRow>(
+    `SELECT id, description, quantity, unit_price_cents, total_cents, sort_order
+     FROM invoice_line_items
+     WHERE invoice_id = $1 AND visible_to_customer = true
+     ORDER BY sort_order`,
+    [invoice.id]
+  );
+
+  return NextResponse.json({ invoice, lineItems });
+}
+
+// POST — return a Square-hosted checkout link for the outstanding balance so the
+// client can pay by card. Reuses an existing link if one is already on the
+// invoice; otherwise creates one and records a PENDING payment. The Square
+// webhook marks the invoice paid when the customer completes checkout.
+export async function POST(
+  request: NextRequest,
+  { params }: { params: Promise<{ token: string }> }
+) {
+  const { token } = await params;
+
+  const invoice = await queryOne<InvoiceRow>(
+    `SELECT i.id, i.account_id, i.status, i.invoice_number, i.total_cents,
+            i.paid_cents, i.deposit_cents, i.job_id, i.client_id, i.created_by,
+            i.deposit_type, i.deposit_percentage, i.deposit_fixed_cents,
+            i.square_payment_link_url
+     FROM invoices i
+     WHERE i.share_token = $1`,
+    [token]
+  );
+
+  if (!invoice) return NextResponse.json({ error: "Not found" }, { status: 404 });
+  if (await isPortalPreview(invoice.client_id)) {
+    return NextResponse.json({ error: PREVIEW_READ_ONLY_MESSAGE }, { status: 403 });
+  }
+  if (invoice.status === "paid" || invoice.status === "void") {
+    return NextResponse.json({ error: "Invoice is not payable" }, { status: 422 });
+  }
+
+  const balance = amountDueCents(
+    invoice.total_cents,
+    invoice.paid_cents,
+    invoice.deposit_cents ?? 0,
+  );
+  if (balance <= 0) {
+    return NextResponse.json({ error: "Nothing left to pay" }, { status: 422 });
+  }
+
+  // First-payment model: while a deposit is still owed, the online payment
+  // charges the deposit-due-now, not the full balance. Once the deposit is
+  // covered, it charges the remaining balance (after deposit credit).
+  const depositDueNow = Math.max(
+    0,
+    requestedDepositCents(
+      {
+        depositType: (invoice.deposit_type ?? "none") as InvoiceDepositType,
+        depositPercentage: invoice.deposit_percentage,
+        depositFixedCents: invoice.deposit_fixed_cents,
+      },
+      invoice.total_cents,
+    ) - invoice.paid_cents,
+  );
+  const chargeCents = depositDueNow > 0 ? depositDueNow : balance;
+  const chargeKind: "deposit" | "progress" = depositDueNow > 0 ? "deposit" : "progress";
+  const chargeLabel = depositDueNow > 0 ? "Deposit" : "Balance";
+
+  const pool = getPool();
+  const client = await pool.connect();
+  try {
+    // Reuse a pending Square link only when its amount matches the current
+    // collectible balance. Stale links (created before deposit-credit math)
+    // would charge the uncredited total.
+    if (invoice.square_payment_link_url) {
+      const pending = await client.query<{ amount_cents: number }>(
+        `SELECT amount_cents FROM payments
+         WHERE invoice_id = $1 AND status = 'pending' AND method = 'square'
+         ORDER BY created_at DESC LIMIT 1`,
+        [invoice.id],
+      );
+      const pendingAmount = pending.rows[0]?.amount_cents;
+      if (pendingAmount === chargeCents) {
+        return NextResponse.json({ url: invoice.square_payment_link_url });
+      }
+      // Drop mismatched pending row + link so we recreate below.
+      await client.query(
+        `DELETE FROM payments
+         WHERE invoice_id = $1 AND status = 'pending' AND method = 'square'`,
+        [invoice.id],
+      );
+      await client.query(
+        `UPDATE invoices
+         SET square_order_id = NULL, square_checkout_id = NULL, square_payment_link_url = NULL
+         WHERE id = $1`,
+        [invoice.id],
+      );
+    }
+
+    const settings = await loadSquareSettings(client, invoice.account_id as string);
+    if (
+      !settings ||
+      !settings.enabled ||
+      !settings.secrets.accessToken ||
+      !settings.config.locationId
+    ) {
+      return NextResponse.json(
+        { error: "Online payment is not available for this invoice." },
+        { status: 422 }
+      );
+    }
+
+    const link = await createSquarePaymentLink(settings, {
+      name: `${invoice.invoice_number} — ${chargeLabel}`,
+      amountCents: chargeCents,
+      idempotencyKey: `portal:${invoice.id}:${chargeKind}:${chargeCents}`,
+    });
+
+    await client.query("BEGIN");
+    await client.query(
+      `UPDATE invoices
+       SET square_order_id = $2, square_checkout_id = $3, square_payment_link_url = $4
+       WHERE id = $1`,
+      [invoice.id, link.orderId, link.paymentLinkId, link.url]
+    );
+    await client.query(
+      `INSERT INTO payments
+         (account_id, invoice_id, job_id, customer_id, amount_cents, method,
+          payment_type, status, external_provider, external_checkout_url, created_by)
+       VALUES ($1, $2, $3, $4, $5, 'square', $6, 'pending', 'square', $7, $8)`,
+      [
+        invoice.account_id,
+        invoice.id,
+        invoice.job_id,
+        invoice.client_id,
+        chargeCents,
+        chargeKind,
+        link.url,
+        invoice.created_by,
+      ]
+    );
+    await client.query("COMMIT");
+
+    return NextResponse.json({ url: link.url });
+  } catch (err) {
+    await client.query("ROLLBACK").catch(() => {});
+    logger.error("Portal Square link creation failed", err);
+    return NextResponse.json(
+      { error: "Could not start payment. Please try again." },
+      { status: 500 }
+    );
+  } finally {
+    client.release();
+  }
+}

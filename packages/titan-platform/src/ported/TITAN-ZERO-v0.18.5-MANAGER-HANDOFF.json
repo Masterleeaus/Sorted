@@ -1,0 +1,18 @@
+{
+  "schema": "titan-zero-manager-handoff/v1",
+  "status": "READY_FOR_FINAL_MANAGER_CERTIFICATION",
+  "task_ids": [
+    "TZ-P1-007"
+  ],
+  "parent_artifact": "Titan-Zero-v0.18.4-Manager-Canonical-Monica-Background-Boundary-CUMULATIVE.zip",
+  "parent_sha256": "6470135fa5a465a2de969f05ed965c176018ba78d55bf4105018fa41a6874a78",
+  "target_release_label": "0.18.5",
+  "manager_action": "Verify exact cumulative + true delta, reconstruct byte-identically, then certify canonical and mark P1-007 DONE.",
+  "convergence_class": "SEMANTIC_REBASE donor -> clean forward port onto v0.18.4",
+  "source_verification": "96 Python + 45 Node test files + 164 syntax + 268 JSON PASS",
+  "draft_reconstruction": "1024/1024 byte-identical; 26/26 payload hashes PASS",
+  "permissions_changed": false,
+  "ui_changed": false,
+  "files_deleted": 0,
+  "recommended_manager_action": "Serialize exact final cumulative + true delta, verify exact final reconstruction, then mark P1-007 DONE and promote v0.18.5 canonical."
+}

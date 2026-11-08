@@ -1,0 +1,21 @@
+{
+  "schema": "titan.zero.workforce.pass05.v1",
+  "pass": 5,
+  "title": "Authenticated Actor + Company Boundary Hardening",
+  "company_boundary": "company_id",
+  "implementation": {
+    "existing_gateway_client_reused": true,
+    "new_parallel_runtime": false,
+    "v2_receipt_requires_authenticated_actor_proof": true,
+    "v2_receipt_requires_authorized_company_proof": true,
+    "explicit_actor_mismatch_fails_closed": true,
+    "cross_company_authorized_scope_fails_closed": true,
+    "projection_cannot_widen_company_scope": true,
+    "legacy_v1_receipts": "migration-compatible but auth context remains explicitly unverified"
+  },
+  "authority": {
+    "identity_grants_authority": false,
+    "chrome_ui_grants_authority": false,
+    "laravel_workforce_remains_durable_authority": true
+  }
+}

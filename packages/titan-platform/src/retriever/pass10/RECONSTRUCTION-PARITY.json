@@ -1,0 +1,188 @@
+{
+  "schema": "titan-zero-retriever-pass10-reconstruction-parity/v1",
+  "result": "EXACT_MATCH",
+  "files": [
+    {
+      "path": "packages/titan-platform/src/ported/compatibility/monica/background-runtime-boundary.ts",
+      "working_sha256": "570b23b5eb02c308cac6c3efeb7ebb253ce18d520440cd01d85418fa0e4488f1",
+      "reconstructed_sha256": "570b23b5eb02c308cac6c3efeb7ebb253ce18d520440cd01d85418fa0e4488f1",
+      "match": true
+    },
+    {
+      "path": "packages/titan-platform/src/retriever/contracts.ts",
+      "working_sha256": "943ac5b6763a2c0d108a2c94337e5a6899d7ff061fda33ad54017976cc79ae25",
+      "reconstructed_sha256": "943ac5b6763a2c0d108a2c94337e5a6899d7ff061fda33ad54017976cc79ae25",
+      "match": true
+    },
+    {
+      "path": "packages/titan-platform/src/retriever/donor-policy.ts",
+      "working_sha256": "10ae63962f6632b089fb77bc471d206af6b8d66017704ae23ba8c507faff0370",
+      "reconstructed_sha256": "10ae63962f6632b089fb77bc471d206af6b8d66017704ae23ba8c507faff0370",
+      "match": true
+    },
+    {
+      "path": "packages/titan-platform/src/retriever/executor.ts",
+      "working_sha256": "456b20a9e6918915bca4c2a798b373369509642dcc135c30b776483d94c8c51b",
+      "reconstructed_sha256": "456b20a9e6918915bca4c2a798b373369509642dcc135c30b776483d94c8c51b",
+      "match": true
+    },
+    {
+      "path": "packages/titan-platform/src/retriever/index.ts",
+      "working_sha256": "e946973870134324d48f6285950ef5c0e54e8ebdd5159064cc9ef892485350a2",
+      "reconstructed_sha256": "e946973870134324d48f6285950ef5c0e54e8ebdd5159064cc9ef892485350a2",
+      "match": true
+    },
+    {
+      "path": "packages/titan-platform/src/retriever/lifecycle.ts",
+      "working_sha256": "e3be121bafe8290852bfae871fddeda1efcd8bd2788684e942e9f7d180e4e544",
+      "reconstructed_sha256": "e3be121bafe8290852bfae871fddeda1efcd8bd2788684e942e9f7d180e4e544",
+      "match": true
+    },
+    {
+      "path": "packages/titan-platform/src/retriever/pass01/PASS01-SCAN.md",
+      "working_sha256": "a4db5dc744585f6442b68b4c67ce16e53f23ab5ccdb5ac0c89d72f5070f56e20",
+      "reconstructed_sha256": "a4db5dc744585f6442b68b4c67ce16e53f23ab5ccdb5ac0c89d72f5070f56e20",
+      "match": true
+    },
+    {
+      "path": "packages/titan-platform/src/retriever/pass01/REMAINING-DEPENDENCY-MAP.json",
+      "working_sha256": "3b09b5d8c65a5a7a18918f213c668879fe39ee23a2f2a5da47d153bfa7fb33c4",
+      "reconstructed_sha256": "3b09b5d8c65a5a7a18918f213c668879fe39ee23a2f2a5da47d153bfa7fb33c4",
+      "match": true
+    },
+    {
+      "path": "packages/titan-platform/src/retriever/pass07/DONOR-RETIREMENT-LEDGER.json",
+      "working_sha256": "07ef094707fabc29ee739a5408cb11434417309a8208421288d3678132b74d47",
+      "reconstructed_sha256": "07ef094707fabc29ee739a5408cb11434417309a8208421288d3678132b74d47",
+      "match": true
+    },
+    {
+      "path": "packages/titan-platform/src/retriever/pass08/DONOR-RETIREMENT-LEDGER-CERTIFIED.json",
+      "working_sha256": "880e7b487a6ed6bcd55c2e0daf97171fdc3866b63682df562ca746bf4aff8613",
+      "reconstructed_sha256": "880e7b487a6ed6bcd55c2e0daf97171fdc3866b63682df562ca746bf4aff8613",
+      "match": true
+    },
+    {
+      "path": "packages/titan-platform/src/retriever/pass08/PASS08-REGRESSION-CERTIFICATION.json",
+      "working_sha256": "43930689ef64e12f542d76dcd6ac549c27080e8f2c38493fbc3f39a69edbedf2",
+      "reconstructed_sha256": "43930689ef64e12f542d76dcd6ac549c27080e8f2c38493fbc3f39a69edbedf2",
+      "match": true
+    },
+    {
+      "path": "packages/titan-platform/src/retriever/pass09/DELETE-MANIFEST.json",
+      "working_sha256": "3244c2b5380a2871b85bbb0a1c8c152fe3671ffe2b9bf20c295f99349f7049a6",
+      "reconstructed_sha256": "3244c2b5380a2871b85bbb0a1c8c152fe3671ffe2b9bf20c295f99349f7049a6",
+      "match": true
+    },
+    {
+      "path": "packages/titan-platform/src/retriever/pass09/PASS09-CHANGE-IMPACT.json",
+      "working_sha256": "8882a5c49225df46303801f44d250234ee5e0fb61c4ff53d6c52d755018b28cf",
+      "reconstructed_sha256": "8882a5c49225df46303801f44d250234ee5e0fb61c4ff53d6c52d755018b28cf",
+      "match": true
+    },
+    {
+      "path": "packages/titan-platform/src/retriever/pass09/PASS09-HANDOFF.json",
+      "working_sha256": "19300e97e49a8ac06aba57ac40dd967a96c5df2aeb7299788ab69972eb386e9d",
+      "reconstructed_sha256": "19300e97e49a8ac06aba57ac40dd967a96c5df2aeb7299788ab69972eb386e9d",
+      "match": true
+    },
+    {
+      "path": "packages/titan-platform/src/retriever/pass09/PASS09-SEMANTIC-CHANGE.json",
+      "working_sha256": "2052d1980f976735ffd29568996691885f88bf5e3dee01b2e29315107a4694c0",
+      "reconstructed_sha256": "2052d1980f976735ffd29568996691885f88bf5e3dee01b2e29315107a4694c0",
+      "match": true
+    },
+    {
+      "path": "packages/titan-platform/src/retriever/pass09/PASS09-TOUCHED-FILES.json",
+      "working_sha256": "a5d8ba80fc1ad2a1741224d325a6750d7ea5373b31f0e0129f1990963035c624",
+      "reconstructed_sha256": "a5d8ba80fc1ad2a1741224d325a6750d7ea5373b31f0e0129f1990963035c624",
+      "match": true
+    },
+    {
+      "path": "packages/titan-platform/src/retriever/pass09/PASS09-VERIFICATION.json",
+      "working_sha256": "b38c13b0cebb9cebf745c84b5c807edb331256545cd32bf13ec9f17160a853b6",
+      "reconstructed_sha256": "b38c13b0cebb9cebf745c84b5c807edb331256545cd32bf13ec9f17160a853b6",
+      "match": true
+    },
+    {
+      "path": "packages/titan-platform/src/retriever/recovery.ts",
+      "working_sha256": "6c4275bfa21c119db664f15be03e7c7bb350bc566894bc2300cf10442c30dac2",
+      "reconstructed_sha256": "6c4275bfa21c119db664f15be03e7c7bb350bc566894bc2300cf10442c30dac2",
+      "match": true
+    },
+    {
+      "path": "packages/titan-platform/src/retriever/semantic-retirement.ts",
+      "working_sha256": "bf36c1057f730e221262492ce5bce7f034b7c8734c5fcae542506b44f5cdcca8",
+      "reconstructed_sha256": "bf36c1057f730e221262492ce5bce7f034b7c8734c5fcae542506b44f5cdcca8",
+      "match": true
+    },
+    {
+      "path": "packages/titan-platform/src/retriever/surface-bridge.ts",
+      "working_sha256": "d8e4cd4ee353e2c2a48100c6723f7495e5c33875d1f2940511ba7b2d8808dda2",
+      "reconstructed_sha256": "d8e4cd4ee353e2c2a48100c6723f7495e5c33875d1f2940511ba7b2d8808dda2",
+      "match": true
+    },
+    {
+      "path": "packages/titan-platform/tests/retriever-native-pass02.test.mjs",
+      "working_sha256": "5f4edaa99c78d3a7c315c9cb5f4f636b6e0f1700c6a553ed99c8d47c9c797cc6",
+      "reconstructed_sha256": "5f4edaa99c78d3a7c315c9cb5f4f636b6e0f1700c6a553ed99c8d47c9c797cc6",
+      "match": true
+    },
+    {
+      "path": "packages/titan-platform/tests/retriever-native-pass03-lifecycle.test.mjs",
+      "working_sha256": "612df5ae9013b07fe73af9aea0a69308bbd3aff513363c70618c46d1bd50088a",
+      "reconstructed_sha256": "612df5ae9013b07fe73af9aea0a69308bbd3aff513363c70618c46d1bd50088a",
+      "match": true
+    },
+    {
+      "path": "packages/titan-platform/tests/retriever-native-pass04-surface-bridge.test.mjs",
+      "working_sha256": "86a5cfe791f5f34ed078c869d457a0e1a658a0b60a1f369e1104d17aeafffe84",
+      "reconstructed_sha256": "86a5cfe791f5f34ed078c869d457a0e1a658a0b60a1f369e1104d17aeafffe84",
+      "match": true
+    },
+    {
+      "path": "packages/titan-platform/tests/retriever-native-pass05-donor-reachability.test.mjs",
+      "working_sha256": "7b628b5f8f505e59259d60d7fdf545d2a18515bc989a37a3a8708fddf5ddeed2",
+      "reconstructed_sha256": "7b628b5f8f505e59259d60d7fdf545d2a18515bc989a37a3a8708fddf5ddeed2",
+      "match": true
+    },
+    {
+      "path": "packages/titan-platform/tests/retriever-native-pass06-recovery.test.mjs",
+      "working_sha256": "7a26458bb1e1751f4bf81f7cf55e879a036998d03a6a4dbc8ca130b481d4a677",
+      "reconstructed_sha256": "7a26458bb1e1751f4bf81f7cf55e879a036998d03a6a4dbc8ca130b481d4a677",
+      "match": true
+    },
+    {
+      "path": "packages/titan-platform/tests/retriever-native-pass07-retirement-ledger.test.mjs",
+      "working_sha256": "5c7675c09789713c90d7dc5502f7d19cb95fb9d5ef385cf2d719330d1c5217a5",
+      "reconstructed_sha256": "5c7675c09789713c90d7dc5502f7d19cb95fb9d5ef385cf2d719330d1c5217a5",
+      "match": true
+    },
+    {
+      "path": "packages/titan-platform/tests/retriever-native-pass08-regression-certification.test.mjs",
+      "working_sha256": "acf3529041a84157694fe1d690139dd25ab84b1bfa44a746e64e3b5a474f09ae",
+      "reconstructed_sha256": "acf3529041a84157694fe1d690139dd25ab84b1bfa44a746e64e3b5a474f09ae",
+      "match": true
+    },
+    {
+      "path": "packages/titan-platform/tests/retriever-native-pass09-donor-removal.test.mjs",
+      "working_sha256": "764ac351a1909423cceb18fb0dac0737a955deab460633301378e635cc7126a4",
+      "reconstructed_sha256": "764ac351a1909423cceb18fb0dac0737a955deab460633301378e635cc7126a4",
+      "match": true
+    }
+  ],
+  "deletions": [
+    {
+      "path": "packages/titan-platform/src/ported/retriever-background.iife.ts",
+      "reconstructed_absent": true
+    },
+    {
+      "path": "packages/titan-platform/src/ported/side-panel/titan-retriever-bridge.ts",
+      "reconstructed_absent": true
+    },
+    {
+      "path": "packages/titan-platform/src/ported/titan-runtime/adapters/retriever-adapter.ts",
+      "reconstructed_absent": true
+    }
+  ]
+}

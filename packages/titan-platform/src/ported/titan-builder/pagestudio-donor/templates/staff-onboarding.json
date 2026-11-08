@@ -1,0 +1,14 @@
+{
+  "template": {
+    "id": "staff-onboarding",
+    "version": "0.1.0",
+    "name": "Staff Onboarding",
+    "status": "draft",
+    "category": "workforce",
+    "entry_wizard": "staff_onboarding_v1",
+    "capabilities": ["workforce.staff.onboard", "training.assign"],
+    "channels": ["chat", "mobile", "tablet", "desktop"],
+    "governance": {"authority": "human_approval", "offline": true},
+    "metadata": {"blocked_by": ["entry_wizard", "owning_provider_capabilities"], "verticals": ["field_services", "home_services", "cleaning"]}
+  }
+}

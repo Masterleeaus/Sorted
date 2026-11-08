@@ -1,0 +1,12 @@
+{
+  "schema": "titan-zero-builder-handoff/v2",
+  "workspace": "Builder 3",
+  "packet_id": "TZ-FINISH-RETRIEVER-NATIVE-001",
+  "pass": 5,
+  "status": "PASS_COMPLETE_CONTINUE",
+  "semantic_delta": "Zero live standalone donor references/imports remain; only deliberately retained non-live ported provenance imports remain.",
+  "change_impact": "Donor execution is regression-gated off the live standalone runtime; physical provenance deletion remains deferred.",
+  "recommended_convergence_class": "ADDITIVE_EXCLUSIVE_HOTSPOT_RETIREMENT_GATE",
+  "next_pass": 6,
+  "next_action": "Pass 6: implement restart/reconnect/stale-session recovery for native Retriever execution paths while keeping company_id isolation, idempotency and external authority fail-closed."
+}

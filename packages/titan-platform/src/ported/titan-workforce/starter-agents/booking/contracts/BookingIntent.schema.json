@@ -1,0 +1,89 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Titan Booking Intent v1",
+  "type": "object",
+  "required": [
+    "schema",
+    "intent_id",
+    "customer_id",
+    "service_id",
+    "site_id",
+    "state",
+    "company_id",
+    "correlation_id",
+    "idempotency_key",
+    "grants_authority",
+    "direct_mutation"
+  ],
+  "properties": {
+    "schema": {
+      "const": "titan.booking.intent.v1"
+    },
+    "company_id": {
+      "type": "string",
+      "minLength": 2
+    },
+    "correlation_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "idempotency_key": {
+      "type": "string",
+      "minLength": 1
+    },
+    "worker_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "grants_authority": {
+      "const": false
+    },
+    "direct_mutation": {
+      "const": false
+    },
+    "intent_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "customer_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "service_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "site_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "quote_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "requested_window": {
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "state": {
+      "enum": [
+        "received",
+        "qualified",
+        "availability_pending",
+        "slots_offered",
+        "proposal_held",
+        "confirmation_pending",
+        "confirmed",
+        "conflict",
+        "expired",
+        "cancelled",
+        "failed"
+      ]
+    }
+  },
+  "additionalProperties": true
+}

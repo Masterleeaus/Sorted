@@ -1,0 +1,40 @@
+{
+  "schema": "titan-zero-offline-operation-identity-contract/v1",
+  "packet_id": "TZ-FINISH-OFFLINE-RESILIENCE-001",
+  "pass": 2,
+  "identity": {
+    "company_boundary": "company_id",
+    "required": [
+      "operation_id",
+      "idempotency_key",
+      "mutation_kind",
+      "target",
+      "payload_fingerprint"
+    ],
+    "payload_fingerprint": "stable deterministic fingerprint",
+    "duplicate_same_identity": "RETURN_EXISTING_RECEIPT",
+    "same_key_changed_intent": "CONFLICT_IDEMPOTENCY_KEY_REUSED",
+    "same_operation_changed_key": "CONFLICT_OPERATION_ID_REUSED"
+  },
+  "receipt_lifecycle": [
+    "prepared",
+    "queued",
+    "submitted",
+    "acknowledged",
+    "committed",
+    "failed",
+    "cancelled"
+  ],
+  "terminal_states": [
+    "committed",
+    "acknowledged",
+    "failed",
+    "cancelled"
+  ],
+  "authority": {
+    "identity_grants_authority": false,
+    "execution_authority": false,
+    "automatic_effect_replay": false,
+    "effect_replay_allowed": false
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "schema": "titan-zero-agent-handoff/v1",
+  "pass": 10,
+  "status": "FINAL_CERTIFIED_MANAGER_READY",
+  "parent": "Titan-Zero-CLEANING-GROWTH-MARKETPLACE-PASS9-CUMULATIVE.zip",
+  "manager_forward_port_target": {
+    "artifact": "Titan-Zero-CANONICAL-MASTER-2026-09-07-MERGE-29-REPAIR06-CONVERGED.zip",
+    "sha256": "3e5520d2495c2a5edde310d12d2b82de399e9277248c1fdfb5cd85df5df9d70b",
+    "files": 2245,
+    "merge": 29,
+    "status": "DEVELOPMENT_CANONICAL_REPAIR06_CONVERGED"
+  },
+  "manager_byte_rebase_claimed": false,
+  "merge_instruction": "Apply the Pass10 true delta plus the retained Cleaning Marketplace lineage semantics onto Manager Merge29 by actual path/content comparison. Preserve all Manager29 files and Repair06 launch/injection fixes. Do not replace Manager29 with the Marketplace cumulative.",
+  "production_gates": {
+    "unpacked_chrome": "NOT_CERTIFIED",
+    "live_laravel": "NOT_CERTIFIED"
+  }
+}

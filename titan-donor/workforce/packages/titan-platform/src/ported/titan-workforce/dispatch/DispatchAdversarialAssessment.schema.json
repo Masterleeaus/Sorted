@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "titan.workforce.dispatch.adversarial-assessment.v1",
+  "type": "object",
+  "required": ["schema","company_id","state","findings","requires_human_review","automatic_dispatch","automatic_reassignment","direct_mutation","execution_permitted","grants_authority"],
+  "properties": {
+    "schema": {"const": "titan.workforce.dispatch.adversarial-assessment.v1"},
+    "company_id": {"type": "string", "minLength": 1, "maxLength": 128},
+    "state": {"enum": ["CLEAR","REVIEW_REQUIRED","BLOCKED_CONFLICTING_EVIDENCE"]},
+    "findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["finding_id","type","severity","work_item_id","recommended_next_step"],
+        "properties": {
+          "finding_id": {"type": "string"},
+          "type": {"enum": ["URGENT_UNASSIGNED","MULTIPLE_ACTIVE_ASSIGNMENTS","CANCELLED_WITH_ACTIVE_ASSIGNMENT","REASSIGNMENT_RACE","DUPLICATE_EVENT","CONFLICTING_EVENT","STALE_JOB_REVISION","FUTURE_JOB_REVISION","WORKER_OVERLAP_EVIDENCE"]},
+          "severity": {"enum": ["LOW","MEDIUM","HIGH","CRITICAL"]},
+          "work_item_id": {"type": ["string","null"]},
+          "recommended_next_step": {"type": "string"}
+        },
+        "additionalProperties": true
+      }
+    },
+    "requires_human_review": {"type":"boolean"},
+    "automatic_dispatch": {"const":false},
+    "automatic_reassignment": {"const":false},
+    "direct_mutation": {"const":false},
+    "execution_permitted": {"const":false},
+    "grants_authority": {"const":false}
+  },
+  "additionalProperties": true
+}

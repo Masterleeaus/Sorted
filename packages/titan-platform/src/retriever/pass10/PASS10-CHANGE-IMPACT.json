@@ -1,0 +1,7 @@
+{
+  "schema": "titan-zero-retriever-finish-pass10-change-impact/v1",
+  "packet_id": "TZ-FINISH-RETRIEVER-NATIVE-001",
+  "pass": 10,
+  "impact": "Adds final reconstruction/parity/certification evidence only. No new runtime behavior or shared exports changed.",
+  "rollback": "Manager may reject convergence without altering Merge52 canonical; cumulative Builder delta remains independently reversible."
+}

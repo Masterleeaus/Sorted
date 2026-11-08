@@ -1,0 +1,15 @@
+{
+  "schema": "titan.zero.workforce.pass/v1",
+  "pass": 24,
+  "title": "Learning + Improvement Proposals",
+  "status": "IMPLEMENTED",
+  "company_boundary": "company_id only",
+  "proposal_only": true,
+  "automatic_retraining": false,
+  "automatic_production_change": false,
+  "automatic_workflow_change": false,
+  "automatic_staffing_change": false,
+  "authority_granted": false,
+  "execution_permitted": false,
+  "grants_authority": false
+}

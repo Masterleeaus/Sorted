@@ -1,0 +1,21 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema",
+  "$id":"titan.workforce.dispatch.settings-policy.v1",
+  "type":"object",
+  "required":["schema","company_id","exception_thresholds","same_day_changes","travel","manual_confirmation_required","automatic_assignment","automatic_reassignment","automatic_customer_contact","settings_can_grant_authority","execution_permitted","grants_authority"],
+  "properties":{
+    "schema":{"const":"titan.workforce.dispatch.settings-policy.v1"},
+    "company_id":{"type":"string","minLength":2},
+    "exception_thresholds":{"type":"object"},
+    "same_day_changes":{"type":"object"},
+    "travel":{"type":"object"},
+    "manual_confirmation_required":{"const":true},
+    "automatic_assignment":{"const":false},
+    "automatic_reassignment":{"const":false},
+    "automatic_customer_contact":{"const":false},
+    "settings_can_grant_authority":{"const":false},
+    "execution_permitted":{"const":false},
+    "grants_authority":{"const":false}
+  },
+  "additionalProperties":true
+}

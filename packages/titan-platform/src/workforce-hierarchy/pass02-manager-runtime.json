@@ -1,0 +1,26 @@
+{
+  "schema": "titan-zero-workforce-hierarchy-pass02/v1",
+  "packet_id": "TZ-WF-HIERARCHY-001",
+  "pass": 2,
+  "title": "Workforce Manager runtime identity, scope, policy and objective ownership",
+  "manager_baseline": 52,
+  "runtime_schema": "titan.workforce.manager-runtime.v1",
+  "objective_schema": "titan.workforce.manager-objective.v1",
+  "authority_invariants": {
+    "identity_confers_authority": false,
+    "manager_role_confers_authority": false,
+    "objective_ownership_confers_authority": false,
+    "policy_decision_confers_execution_authority": false,
+    "execution_requires_authority_evaluation": true,
+    "execution_requires_capability_resolution": true
+  },
+  "scope": [
+    "company-wide objective ownership",
+    "supervisor coordination",
+    "policy evaluation",
+    "diagnostic summary"
+  ],
+  "execution_boundary": "existing workforce command gateway and business operations routes remain authoritative",
+  "direct_tool_execution": false,
+  "grants_authority": false
+}

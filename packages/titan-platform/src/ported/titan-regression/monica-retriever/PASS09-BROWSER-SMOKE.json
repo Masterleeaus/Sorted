@@ -1,0 +1,18 @@
+{
+  "schema": "titan-zero-live-browser-smoke/v1",
+  "packet_id": "TZ-WP-004",
+  "pass": 9,
+  "browser": "Chromium 144 Debian",
+  "attempted": true,
+  "mode": "unpacked extension under Xvfb",
+  "status": "BLOCKED_ENVIRONMENT",
+  "observations": [
+    "Chromium process launched under a virtual X display.",
+    "The requested unpacked Titan Zero extension was not registered in the generated profile extension settings.",
+    "Only Chromium built-in Web Store/PDF component extensions appeared in Preferences.",
+    "The requested remote-debugging endpoint was not reachable in the Xvfb launch.",
+    "No product runtime failure is inferred from this environment behavior."
+  ],
+  "claimed_pass": false,
+  "required_final_gate": true
+}

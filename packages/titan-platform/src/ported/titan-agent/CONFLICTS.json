@@ -1,0 +1,141 @@
+{
+  "schema": "titan-conflicts/v1",
+  "conflicts": [
+    {
+      "conflict_id": "indexeddb-vs-legacy-dual-authority",
+      "agents": [
+        "business-v0.14.4-indexeddb",
+        "v0.6.8-native-storage-authority-loop"
+      ],
+      "paths": [
+        "titan-local/storage/**",
+        "chrome.storage.local compatibility keys"
+      ],
+      "issue": "Older native-storage lineage repairs compatibility copies and can create dual local authorities; newer business donor makes IndexedDB authoritative for business records.",
+      "resolution": "Use IndexedDB as local_primary business authority. Retain chrome.storage.local only for explicit compatibility fallback/read-through; do not auto-dual-write canonical business records.",
+      "safe_to_merge": true,
+      "regression_tests": [
+        "tests/business_database.test.mjs",
+        "tests/test_business_database_integration.py"
+      ]
+    },
+    {
+      "conflict_id": "v016-newer-but-narrower",
+      "agents": [
+        "v0.14-rich-baseline",
+        "v0.16-step06"
+      ],
+      "paths": [
+        "titan-modules/**",
+        "module-view.*",
+        "tests/**"
+      ],
+      "issue": "v0.16 has newer Runtime v2/install work but omits v0.14 signed marketplace, governance grants, lifecycle history and module-view assets.",
+      "resolution": "Use v0.14 as parent and selectively port Runtime v2/install/electrical changes; retain all v0.14 capabilities.",
+      "safe_to_merge": true,
+      "regression_tests": [
+        "tests/module_marketplace.test.mjs",
+        "tests/governance_grants.test.mjs",
+        "tests/module_lifecycle_history.test.mjs",
+        "tests/module_runtime_v2.test.mjs"
+      ]
+    },
+    {
+      "conflict_id": "business-ui-authority",
+      "agents": [
+        "v0.14-rich-baseline",
+        "business-pass3",
+        "theme-v0.14.3"
+      ],
+      "paths": [
+        "main.html",
+        "sidePanel.html",
+        "modules.html",
+        "modules.js"
+      ],
+      "issue": "Business/theme donors would replace existing UI/surface authority.",
+      "resolution": "Preserve v0.14 UI/style; integrate company/workforce controls additively into existing elements and scripts.",
+      "safe_to_merge": true,
+      "regression_tests": [
+        "tests/test_main_surface_authority.py",
+        "tests/module_manager_ui.test.mjs",
+        "tests/client_workforce_controls.test.mjs"
+      ]
+    },
+    {
+      "conflict_id": "surface-main-vs-sidepanel",
+      "agents": [
+        "v0.11-base",
+        "v0.11.1-architecture",
+        "v0.12-workforce"
+      ],
+      "paths": [
+        "manifest.json",
+        "main.html",
+        "sidePanel.html"
+      ],
+      "issue": "Branches disagreed on canonical side-panel surface and some donor shells omitted Business workspace functionality.",
+      "resolution": "main.html is canonical; sidePanel.html is maintained as an exact compatibility mirror; richer v0.11 Business workspace retained.",
+      "safe_to_merge": true,
+      "regression_tests": [
+        "tests/test_main_surface_authority.py",
+        "tests/test_v11_convergence.py"
+      ]
+    },
+    {
+      "conflict_id": "module-contribution-overwrite",
+      "agents": [
+        "v0.11-base",
+        "v0.12-workforce",
+        "v0.13-device-first"
+      ],
+      "paths": [
+        "titan-modules/module-registry.mjs",
+        "titan-modules/schema.json"
+      ],
+      "issue": "Parallel branches introduced authority/events/dependencies, queries, and workforce vertical metadata that could overwrite each other.",
+      "resolution": "Contribution families are unioned and validated independently; no newest-file-wins replacement.",
+      "safe_to_merge": true,
+      "regression_tests": [
+        "tests/module_union_convergence.test.mjs"
+      ]
+    },
+    {
+      "conflict_id": "outcome-protocol-duality",
+      "agents": [
+        "v0.11-base",
+        "v0.12-workforce"
+      ],
+      "paths": [
+        "titan-shell.js",
+        "background-bootstrap.js"
+      ],
+      "issue": "v0.12 used TITAN_RETRIEVER_EXECUTE while v0.11 used richer TITAN_EXECUTE_OUTCOME business envelope.",
+      "resolution": "TITAN_EXECUTE_OUTCOME remains canonical; TITAN_RETRIEVER_EXECUTE is compatibility-only at the embedded bridge.",
+      "safe_to_merge": true,
+      "regression_tests": [
+        "tests/test_outcome_chat_bridge.py"
+      ]
+    },
+    {
+      "conflict_id": "p0-003-module-lifecycle-authority-convergence",
+      "agents": [
+        "manager-canonical-v0.18.1",
+        "titan-zero-module-runtime-agent"
+      ],
+      "paths": [
+        "titan-modules/**",
+        "modules.js"
+      ],
+      "issue": "Runtime v2, signed marketplace, installer, Company Module Manager and bundle lifecycle previously exposed overlapping lifecycle surfaces.",
+      "resolution": "Candidate unifies lifecycle mutations behind trusted Platform Manager sender policy with auditable reversible company/bundle state while preserving signed marketplace/governance/runtime contracts.",
+      "safe_to_merge": "pending_manager_independent_verification",
+      "regression_tests": [
+        "tests/module_platform_manager_lifecycle.test.mjs",
+        "tests/module_platform_manager_host_behavior.test.mjs",
+        "tests/module_company_lifecycle.test.mjs",
+        "tests/module_lifecycle_host_convergence.test.mjs"
+      ]
+    }
+  ]
+}

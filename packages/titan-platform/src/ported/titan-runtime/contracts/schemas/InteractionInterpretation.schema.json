@@ -1,0 +1,78 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "titan://contracts/InteractionInterpretation/v1",
+  "title": "InteractionInterpretation",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "schema_version",
+    "company_id",
+    "context",
+    "normalized",
+    "intent",
+    "goals",
+    "entities",
+    "preferences",
+    "ambiguities",
+    "capability_requirements",
+    "needs_clarification",
+    "authority_neutral",
+    "execution_authority"
+  ],
+  "properties": {
+    "schema": {
+      "const": "titan.interaction.interpretation.v1"
+    },
+    "schema_version": {
+      "const": "1.0"
+    },
+    "company_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "context": {
+      "type": "object"
+    },
+    "normalized": {
+      "type": "string"
+    },
+    "intent": {
+      "type": "object",
+      "required": [
+        "name",
+        "confidence"
+      ]
+    },
+    "goals": {
+      "type": "array"
+    },
+    "entities": {
+      "type": "array"
+    },
+    "preferences": {
+      "type": "object"
+    },
+    "ambiguities": {
+      "type": "array"
+    },
+    "capability_requirements": {
+      "type": "array"
+    },
+    "delegation": {
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "needs_clarification": {
+      "type": "boolean"
+    },
+    "authority_neutral": {
+      "const": true
+    },
+    "execution_authority": {
+      "const": false
+    }
+  }
+}

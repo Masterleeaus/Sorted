@@ -1,0 +1,59 @@
+{
+  "schema": "titan-zero-offline-reuse-provenance/v1",
+  "packet_id": "TZ-FINISH-OFFLINE-RESILIENCE-001",
+  "pass": 5,
+  "dispositions": [
+    {
+      "source": "ported/titan-offline/restart-checkpoint.ts",
+      "status": "ADAPTED",
+      "semantics": [
+        "durable checkpoint lifecycle",
+        "explicit recovery",
+        "no automatic effect replay"
+      ]
+    },
+    {
+      "source": "ported/titan-offline/recovery-state-machine.ts",
+      "status": "ADAPTED",
+      "semantics": [
+        "recovery_required",
+        "resumed",
+        "completed terminal fencing"
+      ]
+    },
+    {
+      "source": "ported/titan-offline/continuation-guard.ts",
+      "status": "ADAPTED",
+      "semantics": [
+        "deterministic continuation token",
+        "idempotency binding",
+        "single claim"
+      ]
+    },
+    {
+      "source": "ported/titan-offline/service-worker-lifecycle.ts",
+      "status": "ADAPTED",
+      "semantics": [
+        "before suspend evidence",
+        "after start recovery required"
+      ]
+    },
+    {
+      "source": "ported/titan-offline/restart-evidence-ledger.ts",
+      "status": "ADAPTED",
+      "semantics": [
+        "durable restart receipts",
+        "authority neutral evidence"
+      ]
+    },
+    {
+      "source": "storage/repository.ts",
+      "status": "REUSED_DEPENDENCY",
+      "semantics": [
+        "transactional durable company-scoped persistence"
+      ]
+    }
+  ],
+  "rewrite_avoided": true,
+  "parallel_storage_authority_created": false
+}

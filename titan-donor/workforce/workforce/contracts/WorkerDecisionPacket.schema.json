@@ -1,0 +1,83 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": [
+    "packet_id",
+    "company_id",
+    "domain",
+    "subject",
+    "observation",
+    "significance",
+    "evidence",
+    "evidence_state",
+    "explanation",
+    "recommended_actions",
+    "expected_effect",
+    "risk",
+    "urgency",
+    "authority_required",
+    "source_provider",
+    "source_revision",
+    "generated_at",
+    "expires_at"
+  ],
+  "properties": {
+    "packet_id": {
+      "type": "string"
+    },
+    "company_id": {
+      "type": "string"
+    },
+    "domain": {
+      "type": "string"
+    },
+    "subject": {
+      "type": "object"
+    },
+    "observation": {
+      "type": "string"
+    },
+    "significance": {
+      "type": "string"
+    },
+    "evidence": {
+      "type": "array"
+    },
+    "evidence_state": {
+      "type": "string"
+    },
+    "explanation": {
+      "type": "object"
+    },
+    "recommended_actions": {
+      "type": "array"
+    },
+    "expected_effect": {
+      "type": "object"
+    },
+    "risk": {
+      "type": "string"
+    },
+    "urgency": {
+      "type": "string"
+    },
+    "authority_required": {
+      "type": "object"
+    },
+    "source_provider": {
+      "type": "string"
+    },
+    "source_revision": {
+      "type": "string"
+    },
+    "generated_at": {
+      "type": "string"
+    },
+    "expires_at": {
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  }
+}

@@ -1,0 +1,1199 @@
+{
+  "schema": "titan.workforce.atomic-worker-tool-bindings.v1",
+  "company_boundary": "company_id",
+  "source_tool_registry": "titan-tools/TOOL-REGISTRY.json",
+  "source_hierarchy": "titan-workforce/hierarchy/workforce-organizational-graph.json",
+  "worker_count": 62,
+  "rules": {
+    "reuse_existing_tools": true,
+    "worker_identity_grants_authority": false,
+    "binding_grants_authority": false,
+    "protected_effect_requires_approval": true,
+    "protected_effect_requires_idempotency": true,
+    "protected_effect_requires_receipt": true,
+    "workers_can_delegate": false
+  },
+  "bindings": [
+    {
+      "worker_id": "titan.worker.accept_quote_agent",
+      "worker_name": "Accept Quote Agent",
+      "atomic_action": "Accept Quote",
+      "tool_ids": [
+        "pdf_generate_fill",
+        "browser_actions"
+      ],
+      "primary_tool_id": "pdf_generate_fill",
+      "authority_class": "PROTECTED_EXECUTION",
+      "requires_approval": true,
+      "requires_company_id": true,
+      "requires_idempotency_key": true,
+      "requires_execution_receipt": true,
+      "provider_resolution": "existing_titan_tool_registry",
+      "company_boundary": "company_id",
+      "identity_grants_authority": false,
+      "binding_grants_authority": false,
+      "worker_can_delegate": false
+    },
+    {
+      "worker_id": "titan.worker.allocate_equipment_agent",
+      "worker_name": "Allocate Equipment Agent",
+      "atomic_action": "Allocate Equipment",
+      "tool_ids": [
+        "sheets"
+      ],
+      "primary_tool_id": "sheets",
+      "authority_class": "PROTECTED_EXECUTION",
+      "requires_approval": true,
+      "requires_company_id": true,
+      "requires_idempotency_key": true,
+      "requires_execution_receipt": true,
+      "provider_resolution": "existing_titan_tool_registry",
+      "company_boundary": "company_id",
+      "identity_grants_authority": false,
+      "binding_grants_authority": false,
+      "worker_can_delegate": false
+    },
+    {
+      "worker_id": "titan.worker.apply_customer_tag_agent",
+      "worker_name": "Apply Customer Tag Agent",
+      "atomic_action": "Apply Customer Tag",
+      "tool_ids": [
+        "custom_tools"
+      ],
+      "primary_tool_id": "custom_tools",
+      "authority_class": "PROTECTED_EXECUTION",
+      "requires_approval": true,
+      "requires_company_id": true,
+      "requires_idempotency_key": true,
+      "requires_execution_receipt": true,
+      "provider_resolution": "existing_titan_tool_registry",
+      "company_boundary": "company_id",
+      "identity_grants_authority": false,
+      "binding_grants_authority": false,
+      "worker_can_delegate": false
+    },
+    {
+      "worker_id": "titan.worker.archive_conversation_agent",
+      "worker_name": "Archive Conversation Agent",
+      "atomic_action": "Archive Conversation",
+      "tool_ids": [
+        "attachments"
+      ],
+      "primary_tool_id": "attachments",
+      "authority_class": "PROTECTED_EXECUTION",
+      "requires_approval": true,
+      "requires_company_id": true,
+      "requires_idempotency_key": true,
+      "requires_execution_receipt": true,
+      "provider_resolution": "existing_titan_tool_registry",
+      "company_boundary": "company_id",
+      "identity_grants_authority": false,
+      "binding_grants_authority": false,
+      "worker_can_delegate": false
+    },
+    {
+      "worker_id": "titan.worker.assign_cleaner_agent",
+      "worker_name": "Assign Cleaner Agent",
+      "atomic_action": "Assign Cleaner",
+      "tool_ids": [
+        "custom_tools"
+      ],
+      "primary_tool_id": "custom_tools",
+      "authority_class": "PROTECTED_EXECUTION",
+      "requires_approval": true,
+      "requires_company_id": true,
+      "requires_idempotency_key": true,
+      "requires_execution_receipt": true,
+      "provider_resolution": "existing_titan_tool_registry",
+      "company_boundary": "company_id",
+      "identity_grants_authority": false,
+      "binding_grants_authority": false,
+      "worker_can_delegate": false
+    },
+    {
+      "worker_id": "titan.worker.automated_reschedule_agent",
+      "worker_name": "Automated Reschedule Agent",
+      "atomic_action": "Automated Reschedule",
+      "tool_ids": [
+        "schedules"
+      ],
+      "primary_tool_id": "schedules",
+      "authority_class": "PROTECTED_EXECUTION",
+      "requires_approval": true,
+      "requires_company_id": true,
+      "requires_idempotency_key": true,
+      "requires_execution_receipt": true,
+      "provider_resolution": "existing_titan_tool_registry",
+      "company_boundary": "company_id",
+      "identity_grants_authority": false,
+      "binding_grants_authority": false,
+      "worker_can_delegate": false
+    },
+    {
+      "worker_id": "titan.worker.book_job_agent",
+      "worker_name": "Book Job Agent",
+      "atomic_action": "Book Job",
+      "tool_ids": [
+        "custom_tools"
+      ],
+      "primary_tool_id": "custom_tools",
+      "authority_class": "PROTECTED_EXECUTION",
+      "requires_approval": true,
+      "requires_company_id": true,
+      "requires_idempotency_key": true,
+      "requires_execution_receipt": true,
+      "provider_resolution": "existing_titan_tool_registry",
+      "company_boundary": "company_id",
+      "identity_grants_authority": false,
+      "binding_grants_authority": false,
+      "worker_can_delegate": false
+    },
+    {
+      "worker_id": "titan.worker.bulk_operations_agent",
+      "worker_name": "Bulk Operations Agent",
+      "atomic_action": "Bulk Operations",
+      "tool_ids": [
+        "custom_tools"
+      ],
+      "primary_tool_id": "custom_tools",
+      "authority_class": "PROTECTED_EXECUTION",
+      "requires_approval": true,
+      "requires_company_id": true,
+      "requires_idempotency_key": true,
+      "requires_execution_receipt": true,
+      "provider_resolution": "existing_titan_tool_registry",
+      "company_boundary": "company_id",
+      "identity_grants_authority": false,
+      "binding_grants_authority": false,
+      "worker_can_delegate": false
+    },
+    {
+      "worker_id": "titan.worker.cancel_job_agent",
+      "worker_name": "Cancel Job Agent",
+      "atomic_action": "Cancel Job",
+      "tool_ids": [
+        "custom_tools"
+      ],
+      "primary_tool_id": "custom_tools",
+      "authority_class": "PROTECTED_EXECUTION",
+      "requires_approval": true,
+      "requires_company_id": true,
+      "requires_idempotency_key": true,
+      "requires_execution_receipt": true,
+      "provider_resolution": "existing_titan_tool_registry",
+      "company_boundary": "company_id",
+      "identity_grants_authority": false,
+      "binding_grants_authority": false,
+      "worker_can_delegate": false
+    },
+    {
+      "worker_id": "titan.worker.compliance_audit_agent",
+      "worker_name": "Compliance Audit Agent",
+      "atomic_action": "Compliance Audit",
+      "tool_ids": [
+        "structured_data"
+      ],
+      "primary_tool_id": "structured_data",
+      "authority_class": "READ_OR_ANALYSIS",
+      "requires_approval": false,
+      "requires_company_id": true,
+      "requires_idempotency_key": false,
+      "requires_execution_receipt": false,
+      "provider_resolution": "existing_titan_tool_registry",
+      "company_boundary": "company_id",
+      "identity_grants_authority": false,
+      "binding_grants_authority": false,
+      "worker_can_delegate": false
+    },
+    {
+      "worker_id": "titan.worker.conversation_summary_agent",
+      "worker_name": "Conversation Summary Agent",
+      "atomic_action": "Conversation Summary",
+      "tool_ids": [
+        "multi_tool"
+      ],
+      "primary_tool_id": "multi_tool",
+      "authority_class": "PROTECTED_EXECUTION",
+      "requires_approval": true,
+      "requires_company_id": true,
+      "requires_idempotency_key": true,
+      "requires_execution_receipt": true,
+      "provider_resolution": "existing_titan_tool_registry",
+      "company_boundary": "company_id",
+      "identity_grants_authority": false,
+      "binding_grants_authority": false,
+      "worker_can_delegate": false
+    },
+    {
+      "worker_id": "titan.worker.cost_analysis_agent",
+      "worker_name": "Cost Analysis Agent",
+      "atomic_action": "Cost Analysis",
+      "tool_ids": [
+        "multi_tool"
+      ],
+      "primary_tool_id": "multi_tool",
+      "authority_class": "PROTECTED_EXECUTION",
+      "requires_approval": true,
+      "requires_company_id": true,
+      "requires_idempotency_key": true,
+      "requires_execution_receipt": true,
+      "provider_resolution": "existing_titan_tool_registry",
+      "company_boundary": "company_id",
+      "identity_grants_authority": false,
+      "binding_grants_authority": false,
+      "worker_can_delegate": false
+    },
+    {
+      "worker_id": "titan.worker.create_customer_agent",
+      "worker_name": "Create Customer Agent",
+      "atomic_action": "Create Customer",
+      "tool_ids": [
+        "custom_tools"
+      ],
+      "primary_tool_id": "custom_tools",
+      "authority_class": "PROTECTED_EXECUTION",
+      "requires_approval": true,
+      "requires_company_id": true,
+      "requires_idempotency_key": true,
+      "requires_execution_receipt": true,
+      "provider_resolution": "existing_titan_tool_registry",
+      "company_boundary": "company_id",
+      "identity_grants_authority": false,
+      "binding_grants_authority": false,
+      "worker_can_delegate": false
+    },
+    {
+      "worker_id": "titan.worker.create_follow_up_agent",
+      "worker_name": "Create Follow Up Agent",
+      "atomic_action": "Create Follow Up",
+      "tool_ids": [
+        "schedules"
+      ],
+      "primary_tool_id": "schedules",
+      "authority_class": "PROTECTED_EXECUTION",
+      "requires_approval": true,
+      "requires_company_id": true,
+      "requires_idempotency_key": true,
+      "requires_execution_receipt": true,
+      "provider_resolution": "existing_titan_tool_registry",
+      "company_boundary": "company_id",
+      "identity_grants_authority": false,
+      "binding_grants_authority": false,
+      "worker_can_delegate": false
+    },
+    {
+      "worker_id": "titan.worker.create_invoice_agent",
+      "worker_name": "Create Invoice Agent",
+      "atomic_action": "Create Invoice",
+      "tool_ids": [
+        "pdf_generate_fill"
+      ],
+      "primary_tool_id": "pdf_generate_fill",
+      "authority_class": "PROTECTED_EXECUTION",
+      "requires_approval": true,
+      "requires_company_id": true,
+      "requires_idempotency_key": true,
+      "requires_execution_receipt": true,
+      "provider_resolution": "existing_titan_tool_registry",
+      "company_boundary": "company_id",
+      "identity_grants_authority": false,
+      "binding_grants_authority": false,
+      "worker_can_delegate": false
+    },
+    {
+      "worker_id": "titan.worker.create_lead_agent",
+      "worker_name": "Create Lead Agent",
+      "atomic_action": "Create Lead",
+      "tool_ids": [
+        "custom_tools"
+      ],
+      "primary_tool_id": "custom_tools",
+      "authority_class": "PROTECTED_EXECUTION",
+      "requires_approval": true,
+      "requires_company_id": true,
+      "requires_idempotency_key": true,
+      "requires_execution_receipt": true,
+      "provider_resolution": "existing_titan_tool_registry",
+      "company_boundary": "company_id",
+      "identity_grants_authority": false,
+      "binding_grants_authority": false,
+      "worker_can_delegate": false
+    },
+    {
+      "worker_id": "titan.worker.create_purchase_order_agent",
+      "worker_name": "Create Purchase Order Agent",
+      "atomic_action": "Create Purchase Order",
+      "tool_ids": [
+        "sheets"
+      ],
+      "primary_tool_id": "sheets",
+      "authority_class": "PROTECTED_EXECUTION",
+      "requires_approval": true,
+      "requires_company_id": true,
+      "requires_idempotency_key": true,
+      "requires_execution_receipt": true,
+      "provider_resolution": "existing_titan_tool_registry",
+      "company_boundary": "company_id",
+      "identity_grants_authority": false,
+      "binding_grants_authority": false,
+      "worker_can_delegate": false
+    },
+    {
+      "worker_id": "titan.worker.create_quote_agent",
+      "worker_name": "Create Quote Agent",
+      "atomic_action": "Create Quote",
+      "tool_ids": [
+        "pdf_generate_fill"
+      ],
+      "primary_tool_id": "pdf_generate_fill",
+      "authority_class": "PROTECTED_EXECUTION",
+      "requires_approval": true,
+      "requires_company_id": true,
+      "requires_idempotency_key": true,
+      "requires_execution_receipt": true,
+      "provider_resolution": "existing_titan_tool_registry",
+      "company_boundary": "company_id",
+      "identity_grants_authority": false,
+      "binding_grants_authority": false,
+      "worker_can_delegate": false
+    },
+    {
+      "worker_id": "titan.worker.create_recurring_job_agent",
+      "worker_name": "Create Recurring Job Agent",
+      "atomic_action": "Create Recurring Job",
+      "tool_ids": [
+        "schedules"
+      ],
+      "primary_tool_id": "schedules",
+      "authority_class": "PROTECTED_EXECUTION",
+      "requires_approval": true,
+      "requires_company_id": true,
+      "requires_idempotency_key": true,
+      "requires_execution_receipt": true,
+      "provider_resolution": "existing_titan_tool_registry",
+      "company_boundary": "company_id",
+      "identity_grants_authority": false,
+      "binding_grants_authority": false,
+      "worker_can_delegate": false
+    },
+    {
+      "worker_id": "titan.worker.customer_loyalty_agent",
+      "worker_name": "Customer Loyalty Agent",
+      "atomic_action": "Customer Loyalty",
+      "tool_ids": [
+        "custom_tools"
+      ],
+      "primary_tool_id": "custom_tools",
+      "authority_class": "PROTECTED_EXECUTION",
+      "requires_approval": true,
+      "requires_company_id": true,
+      "requires_idempotency_key": true,
+      "requires_execution_receipt": true,
+      "provider_resolution": "existing_titan_tool_registry",
+      "company_boundary": "company_id",
+      "identity_grants_authority": false,
+      "binding_grants_authority": false,
+      "worker_can_delegate": false
+    },
+    {
+      "worker_id": "titan.worker.customer_notification_agent",
+      "worker_name": "Customer Notification Agent",
+      "atomic_action": "Customer Notification",
+      "tool_ids": [
+        "browser_actions"
+      ],
+      "primary_tool_id": "browser_actions",
+      "authority_class": "PROTECTED_EXECUTION",
+      "requires_approval": true,
+      "requires_company_id": true,
+      "requires_idempotency_key": true,
+      "requires_execution_receipt": true,
+      "provider_resolution": "existing_titan_tool_registry",
+      "company_boundary": "company_id",
+      "identity_grants_authority": false,
+      "binding_grants_authority": false,
+      "worker_can_delegate": false
+    },
+    {
+      "worker_id": "titan.worker.dispatch_optimization_agent",
+      "worker_name": "Dispatch Optimization Agent",
+      "atomic_action": "Dispatch Optimization",
+      "tool_ids": [
+        "multi_tool"
+      ],
+      "primary_tool_id": "multi_tool",
+      "authority_class": "PROTECTED_EXECUTION",
+      "requires_approval": true,
+      "requires_company_id": true,
+      "requires_idempotency_key": true,
+      "requires_execution_receipt": true,
+      "provider_resolution": "existing_titan_tool_registry",
+      "company_boundary": "company_id",
+      "identity_grants_authority": false,
+      "binding_grants_authority": false,
+      "worker_can_delegate": false
+    },
+    {
+      "worker_id": "titan.worker.edit_image_agent",
+      "worker_name": "Edit Image Agent",
+      "atomic_action": "Edit Image",
+      "tool_ids": [
+        "image_edit"
+      ],
+      "primary_tool_id": "image_edit",
+      "authority_class": "PROTECTED_EXECUTION",
+      "requires_approval": true,
+      "requires_company_id": true,
+      "requires_idempotency_key": true,
+      "requires_execution_receipt": true,
+      "provider_resolution": "existing_titan_tool_registry",
+      "company_boundary": "company_id",
+      "identity_grants_authority": false,
+      "binding_grants_authority": false,
+      "worker_can_delegate": false
+    },
+    {
+      "worker_id": "titan.worker.emergency_service_agent",
+      "worker_name": "Emergency Service Agent",
+      "atomic_action": "Emergency Service",
+      "tool_ids": [
+        "custom_tools"
+      ],
+      "primary_tool_id": "custom_tools",
+      "authority_class": "PROTECTED_EXECUTION",
+      "requires_approval": true,
+      "requires_company_id": true,
+      "requires_idempotency_key": true,
+      "requires_execution_receipt": true,
+      "provider_resolution": "existing_titan_tool_registry",
+      "company_boundary": "company_id",
+      "identity_grants_authority": false,
+      "binding_grants_authority": false,
+      "worker_can_delegate": false
+    },
+    {
+      "worker_id": "titan.worker.feedback_analysis_agent",
+      "worker_name": "Feedback Analysis Agent",
+      "atomic_action": "Feedback Analysis",
+      "tool_ids": [
+        "multi_tool"
+      ],
+      "primary_tool_id": "multi_tool",
+      "authority_class": "PROTECTED_EXECUTION",
+      "requires_approval": true,
+      "requires_company_id": true,
+      "requires_idempotency_key": true,
+      "requires_execution_receipt": true,
+      "provider_resolution": "existing_titan_tool_registry",
+      "company_boundary": "company_id",
+      "identity_grants_authority": false,
+      "binding_grants_authority": false,
+      "worker_can_delegate": false
+    },
+    {
+      "worker_id": "titan.worker.field_service_documentation_agent",
+      "worker_name": "Field Service Documentation Agent",
+      "atomic_action": "Field Service Documentation",
+      "tool_ids": [
+        "docs_slides_web"
+      ],
+      "primary_tool_id": "docs_slides_web",
+      "authority_class": "PROTECTED_EXECUTION",
+      "requires_approval": true,
+      "requires_company_id": true,
+      "requires_idempotency_key": true,
+      "requires_execution_receipt": true,
+      "provider_resolution": "existing_titan_tool_registry",
+      "company_boundary": "company_id",
+      "identity_grants_authority": false,
+      "binding_grants_authority": false,
+      "worker_can_delegate": false
+    },
+    {
+      "worker_id": "titan.worker.generate_blog_draft_agent",
+      "worker_name": "Generate Blog Draft Agent",
+      "atomic_action": "Generate Blog Draft",
+      "tool_ids": [
+        "write"
+      ],
+      "primary_tool_id": "write",
+      "authority_class": "PROTECTED_EXECUTION",
+      "requires_approval": true,
+      "requires_company_id": true,
+      "requires_idempotency_key": true,
+      "requires_execution_receipt": true,
+      "provider_resolution": "existing_titan_tool_registry",
+      "company_boundary": "company_id",
+      "identity_grants_authority": false,
+      "binding_grants_authority": false,
+      "worker_can_delegate": false
+    },
+    {
+      "worker_id": "titan.worker.generate_marketing_image_agent",
+      "worker_name": "Generate Marketing Image Agent",
+      "atomic_action": "Generate Marketing Image",
+      "tool_ids": [
+        "image_generate"
+      ],
+      "primary_tool_id": "image_generate",
+      "authority_class": "PROTECTED_EXECUTION",
+      "requires_approval": true,
+      "requires_company_id": true,
+      "requires_idempotency_key": true,
+      "requires_execution_receipt": true,
+      "provider_resolution": "existing_titan_tool_registry",
+      "company_boundary": "company_id",
+      "identity_grants_authority": false,
+      "binding_grants_authority": false,
+      "worker_can_delegate": false
+    },
+    {
+      "worker_id": "titan.worker.generate_photo_shoot_agent",
+      "worker_name": "Generate Photo Shoot Agent",
+      "atomic_action": "Generate Photo Shoot",
+      "tool_ids": [
+        "image_generate"
+      ],
+      "primary_tool_id": "image_generate",
+      "authority_class": "PROTECTED_EXECUTION",
+      "requires_approval": true,
+      "requires_company_id": true,
+      "requires_idempotency_key": true,
+      "requires_execution_receipt": true,
+      "provider_resolution": "existing_titan_tool_registry",
+      "company_boundary": "company_id",
+      "identity_grants_authority": false,
+      "binding_grants_authority": false,
+      "worker_can_delegate": false
+    },
+    {
+      "worker_id": "titan.worker.generate_product_shot_agent",
+      "worker_name": "Generate Product Shot Agent",
+      "atomic_action": "Generate Product Shot",
+      "tool_ids": [
+        "image_generate"
+      ],
+      "primary_tool_id": "image_generate",
+      "authority_class": "PROTECTED_EXECUTION",
+      "requires_approval": true,
+      "requires_company_id": true,
+      "requires_idempotency_key": true,
+      "requires_execution_receipt": true,
+      "provider_resolution": "existing_titan_tool_registry",
+      "company_boundary": "company_id",
+      "identity_grants_authority": false,
+      "binding_grants_authority": false,
+      "worker_can_delegate": false
+    },
+    {
+      "worker_id": "titan.worker.intelligent_lead_scoring_agent",
+      "worker_name": "Intelligent Lead Scoring Agent",
+      "atomic_action": "Intelligent Lead Scoring",
+      "tool_ids": [
+        "structured_data"
+      ],
+      "primary_tool_id": "structured_data",
+      "authority_class": "READ_OR_ANALYSIS",
+      "requires_approval": false,
+      "requires_company_id": true,
+      "requires_idempotency_key": false,
+      "requires_execution_receipt": false,
+      "provider_resolution": "existing_titan_tool_registry",
+      "company_boundary": "company_id",
+      "identity_grants_authority": false,
+      "binding_grants_authority": false,
+      "worker_can_delegate": false
+    },
+    {
+      "worker_id": "titan.worker.job_estimation_agent",
+      "worker_name": "Job Estimation Agent",
+      "atomic_action": "Job Estimation",
+      "tool_ids": [
+        "multi_tool"
+      ],
+      "primary_tool_id": "multi_tool",
+      "authority_class": "PROTECTED_EXECUTION",
+      "requires_approval": true,
+      "requires_company_id": true,
+      "requires_idempotency_key": true,
+      "requires_execution_receipt": true,
+      "provider_resolution": "existing_titan_tool_registry",
+      "company_boundary": "company_id",
+      "identity_grants_authority": false,
+      "binding_grants_authority": false,
+      "worker_can_delegate": false
+    },
+    {
+      "worker_id": "titan.worker.maintenance_scheduler_agent",
+      "worker_name": "Maintenance Scheduler Agent",
+      "atomic_action": "Maintenance Scheduler",
+      "tool_ids": [
+        "schedules"
+      ],
+      "primary_tool_id": "schedules",
+      "authority_class": "PROTECTED_EXECUTION",
+      "requires_approval": true,
+      "requires_company_id": true,
+      "requires_idempotency_key": true,
+      "requires_execution_receipt": true,
+      "provider_resolution": "existing_titan_tool_registry",
+      "company_boundary": "company_id",
+      "identity_grants_authority": false,
+      "binding_grants_authority": false,
+      "worker_can_delegate": false
+    },
+    {
+      "worker_id": "titan.worker.mark_job_complete_agent",
+      "worker_name": "Mark Job Complete Agent",
+      "atomic_action": "Mark Job Complete",
+      "tool_ids": [
+        "custom_tools"
+      ],
+      "primary_tool_id": "custom_tools",
+      "authority_class": "PROTECTED_EXECUTION",
+      "requires_approval": true,
+      "requires_company_id": true,
+      "requires_idempotency_key": true,
+      "requires_execution_receipt": true,
+      "provider_resolution": "existing_titan_tool_registry",
+      "company_boundary": "company_id",
+      "identity_grants_authority": false,
+      "binding_grants_authority": false,
+      "worker_can_delegate": false
+    },
+    {
+      "worker_id": "titan.worker.notify_cleaner_agent",
+      "worker_name": "Notify Cleaner Agent",
+      "atomic_action": "Notify Cleaner",
+      "tool_ids": [
+        "browser_actions"
+      ],
+      "primary_tool_id": "browser_actions",
+      "authority_class": "PROTECTED_EXECUTION",
+      "requires_approval": true,
+      "requires_company_id": true,
+      "requires_idempotency_key": true,
+      "requires_execution_receipt": true,
+      "provider_resolution": "existing_titan_tool_registry",
+      "company_boundary": "company_id",
+      "identity_grants_authority": false,
+      "binding_grants_authority": false,
+      "worker_can_delegate": false
+    },
+    {
+      "worker_id": "titan.worker.optimise_route_agent",
+      "worker_name": "Optimise Route Agent",
+      "atomic_action": "Optimise Route",
+      "tool_ids": [
+        "multi_tool"
+      ],
+      "primary_tool_id": "multi_tool",
+      "authority_class": "PROTECTED_EXECUTION",
+      "requires_approval": true,
+      "requires_company_id": true,
+      "requires_idempotency_key": true,
+      "requires_execution_receipt": true,
+      "provider_resolution": "existing_titan_tool_registry",
+      "company_boundary": "company_id",
+      "identity_grants_authority": false,
+      "binding_grants_authority": false,
+      "worker_can_delegate": false
+    },
+    {
+      "worker_id": "titan.worker.pause_recurring_service_agent",
+      "worker_name": "Pause Recurring Service Agent",
+      "atomic_action": "Pause Recurring Service",
+      "tool_ids": [
+        "schedules"
+      ],
+      "primary_tool_id": "schedules",
+      "authority_class": "PROTECTED_EXECUTION",
+      "requires_approval": true,
+      "requires_company_id": true,
+      "requires_idempotency_key": true,
+      "requires_execution_receipt": true,
+      "provider_resolution": "existing_titan_tool_registry",
+      "company_boundary": "company_id",
+      "identity_grants_authority": false,
+      "binding_grants_authority": false,
+      "worker_can_delegate": false
+    },
+    {
+      "worker_id": "titan.worker.performance_metrics_agent",
+      "worker_name": "Performance Metrics Agent",
+      "atomic_action": "Performance Metrics",
+      "tool_ids": [
+        "structured_data"
+      ],
+      "primary_tool_id": "structured_data",
+      "authority_class": "READ_OR_ANALYSIS",
+      "requires_approval": false,
+      "requires_company_id": true,
+      "requires_idempotency_key": false,
+      "requires_execution_receipt": false,
+      "provider_resolution": "existing_titan_tool_registry",
+      "company_boundary": "company_id",
+      "identity_grants_authority": false,
+      "binding_grants_authority": false,
+      "worker_can_delegate": false
+    },
+    {
+      "worker_id": "titan.worker.predictive_maintenance_agent",
+      "worker_name": "Predictive Maintenance Agent",
+      "atomic_action": "Predictive Maintenance",
+      "tool_ids": [
+        "multi_tool"
+      ],
+      "primary_tool_id": "multi_tool",
+      "authority_class": "PROTECTED_EXECUTION",
+      "requires_approval": true,
+      "requires_company_id": true,
+      "requires_idempotency_key": true,
+      "requires_execution_receipt": true,
+      "provider_resolution": "existing_titan_tool_registry",
+      "company_boundary": "company_id",
+      "identity_grants_authority": false,
+      "binding_grants_authority": false,
+      "worker_can_delegate": false
+    },
+    {
+      "worker_id": "titan.worker.pricing_optimization_agent",
+      "worker_name": "Pricing Optimization Agent",
+      "atomic_action": "Pricing Optimization",
+      "tool_ids": [
+        "multi_tool"
+      ],
+      "primary_tool_id": "multi_tool",
+      "authority_class": "PROTECTED_EXECUTION",
+      "requires_approval": true,
+      "requires_company_id": true,
+      "requires_idempotency_key": true,
+      "requires_execution_receipt": true,
+      "provider_resolution": "existing_titan_tool_registry",
+      "company_boundary": "company_id",
+      "identity_grants_authority": false,
+      "binding_grants_authority": false,
+      "worker_can_delegate": false
+    },
+    {
+      "worker_id": "titan.worker.publish_blog_post_agent",
+      "worker_name": "Publish Blog Post Agent",
+      "atomic_action": "Publish Blog Post",
+      "tool_ids": [
+        "browser_actions"
+      ],
+      "primary_tool_id": "browser_actions",
+      "authority_class": "PROTECTED_EXECUTION",
+      "requires_approval": true,
+      "requires_company_id": true,
+      "requires_idempotency_key": true,
+      "requires_execution_receipt": true,
+      "provider_resolution": "existing_titan_tool_registry",
+      "company_boundary": "company_id",
+      "identity_grants_authority": false,
+      "binding_grants_authority": false,
+      "worker_can_delegate": false
+    },
+    {
+      "worker_id": "titan.worker.publish_social_post_agent",
+      "worker_name": "Publish Social Post Agent",
+      "atomic_action": "Publish Social Post",
+      "tool_ids": [
+        "browser_actions"
+      ],
+      "primary_tool_id": "browser_actions",
+      "authority_class": "PROTECTED_EXECUTION",
+      "requires_approval": true,
+      "requires_company_id": true,
+      "requires_idempotency_key": true,
+      "requires_execution_receipt": true,
+      "provider_resolution": "existing_titan_tool_registry",
+      "company_boundary": "company_id",
+      "identity_grants_authority": false,
+      "binding_grants_authority": false,
+      "worker_can_delegate": false
+    },
+    {
+      "worker_id": "titan.worker.reassign_cleaner_agent",
+      "worker_name": "Reassign Cleaner Agent",
+      "atomic_action": "Reassign Cleaner",
+      "tool_ids": [
+        "custom_tools"
+      ],
+      "primary_tool_id": "custom_tools",
+      "authority_class": "PROTECTED_EXECUTION",
+      "requires_approval": true,
+      "requires_company_id": true,
+      "requires_idempotency_key": true,
+      "requires_execution_receipt": true,
+      "provider_resolution": "existing_titan_tool_registry",
+      "company_boundary": "company_id",
+      "identity_grants_authority": false,
+      "binding_grants_authority": false,
+      "worker_can_delegate": false
+    },
+    {
+      "worker_id": "titan.worker.record_incident_agent",
+      "worker_name": "Record Incident Agent",
+      "atomic_action": "Record Incident",
+      "tool_ids": [
+        "docs_slides_web"
+      ],
+      "primary_tool_id": "docs_slides_web",
+      "authority_class": "PROTECTED_EXECUTION",
+      "requires_approval": true,
+      "requires_company_id": true,
+      "requires_idempotency_key": true,
+      "requires_execution_receipt": true,
+      "provider_resolution": "existing_titan_tool_registry",
+      "company_boundary": "company_id",
+      "identity_grants_authority": false,
+      "binding_grants_authority": false,
+      "worker_can_delegate": false
+    },
+    {
+      "worker_id": "titan.worker.record_inspection_agent",
+      "worker_name": "Record Inspection Agent",
+      "atomic_action": "Record Inspection",
+      "tool_ids": [
+        "docs_slides_web"
+      ],
+      "primary_tool_id": "docs_slides_web",
+      "authority_class": "PROTECTED_EXECUTION",
+      "requires_approval": true,
+      "requires_company_id": true,
+      "requires_idempotency_key": true,
+      "requires_execution_receipt": true,
+      "provider_resolution": "existing_titan_tool_registry",
+      "company_boundary": "company_id",
+      "identity_grants_authority": false,
+      "binding_grants_authority": false,
+      "worker_can_delegate": false
+    },
+    {
+      "worker_id": "titan.worker.record_payment_agent",
+      "worker_name": "Record Payment Agent",
+      "atomic_action": "Record Payment",
+      "tool_ids": [
+        "sheets"
+      ],
+      "primary_tool_id": "sheets",
+      "authority_class": "PROTECTED_EXECUTION",
+      "requires_approval": true,
+      "requires_company_id": true,
+      "requires_idempotency_key": true,
+      "requires_execution_receipt": true,
+      "provider_resolution": "existing_titan_tool_registry",
+      "company_boundary": "company_id",
+      "identity_grants_authority": false,
+      "binding_grants_authority": false,
+      "worker_can_delegate": false
+    },
+    {
+      "worker_id": "titan.worker.request_review_agent",
+      "worker_name": "Request Review Agent",
+      "atomic_action": "Request Review",
+      "tool_ids": [
+        "browser_actions"
+      ],
+      "primary_tool_id": "browser_actions",
+      "authority_class": "PROTECTED_EXECUTION",
+      "requires_approval": true,
+      "requires_company_id": true,
+      "requires_idempotency_key": true,
+      "requires_execution_receipt": true,
+      "provider_resolution": "existing_titan_tool_registry",
+      "company_boundary": "company_id",
+      "identity_grants_authority": false,
+      "binding_grants_authority": false,
+      "worker_can_delegate": false
+    },
+    {
+      "worker_id": "titan.worker.reschedule_job_agent",
+      "worker_name": "Reschedule Job Agent",
+      "atomic_action": "Reschedule Job",
+      "tool_ids": [
+        "schedules"
+      ],
+      "primary_tool_id": "schedules",
+      "authority_class": "PROTECTED_EXECUTION",
+      "requires_approval": true,
+      "requires_company_id": true,
+      "requires_idempotency_key": true,
+      "requires_execution_receipt": true,
+      "provider_resolution": "existing_titan_tool_registry",
+      "company_boundary": "company_id",
+      "identity_grants_authority": false,
+      "binding_grants_authority": false,
+      "worker_can_delegate": false
+    },
+    {
+      "worker_id": "titan.worker.resource_allocation_agent",
+      "worker_name": "Resource Allocation Agent",
+      "atomic_action": "Resource Allocation",
+      "tool_ids": [
+        "sheets"
+      ],
+      "primary_tool_id": "sheets",
+      "authority_class": "PROTECTED_EXECUTION",
+      "requires_approval": true,
+      "requires_company_id": true,
+      "requires_idempotency_key": true,
+      "requires_execution_receipt": true,
+      "provider_resolution": "existing_titan_tool_registry",
+      "company_boundary": "company_id",
+      "identity_grants_authority": false,
+      "binding_grants_authority": false,
+      "worker_can_delegate": false
+    },
+    {
+      "worker_id": "titan.worker.schedule_social_post_agent",
+      "worker_name": "Schedule Social Post Agent",
+      "atomic_action": "Schedule Social Post",
+      "tool_ids": [
+        "schedules"
+      ],
+      "primary_tool_id": "schedules",
+      "authority_class": "PROTECTED_EXECUTION",
+      "requires_approval": true,
+      "requires_company_id": true,
+      "requires_idempotency_key": true,
+      "requires_execution_receipt": true,
+      "provider_resolution": "existing_titan_tool_registry",
+      "company_boundary": "company_id",
+      "identity_grants_authority": false,
+      "binding_grants_authority": false,
+      "worker_can_delegate": false
+    },
+    {
+      "worker_id": "titan.worker.send_customer_message_agent",
+      "worker_name": "Send Customer Message Agent",
+      "atomic_action": "Send Customer Message",
+      "tool_ids": [
+        "browser_actions"
+      ],
+      "primary_tool_id": "browser_actions",
+      "authority_class": "PROTECTED_EXECUTION",
+      "requires_approval": true,
+      "requires_company_id": true,
+      "requires_idempotency_key": true,
+      "requires_execution_receipt": true,
+      "provider_resolution": "existing_titan_tool_registry",
+      "company_boundary": "company_id",
+      "identity_grants_authority": false,
+      "binding_grants_authority": false,
+      "worker_can_delegate": false
+    },
+    {
+      "worker_id": "titan.worker.send_invoice_agent",
+      "worker_name": "Send Invoice Agent",
+      "atomic_action": "Send Invoice",
+      "tool_ids": [
+        "pdf_generate_fill",
+        "browser_actions"
+      ],
+      "primary_tool_id": "pdf_generate_fill",
+      "authority_class": "PROTECTED_EXECUTION",
+      "requires_approval": true,
+      "requires_company_id": true,
+      "requires_idempotency_key": true,
+      "requires_execution_receipt": true,
+      "provider_resolution": "existing_titan_tool_registry",
+      "company_boundary": "company_id",
+      "identity_grants_authority": false,
+      "binding_grants_authority": false,
+      "worker_can_delegate": false
+    },
+    {
+      "worker_id": "titan.worker.send_payment_reminder_agent",
+      "worker_name": "Send Payment Reminder Agent",
+      "atomic_action": "Send Payment Reminder",
+      "tool_ids": [
+        "sheets"
+      ],
+      "primary_tool_id": "sheets",
+      "authority_class": "PROTECTED_EXECUTION",
+      "requires_approval": true,
+      "requires_company_id": true,
+      "requires_idempotency_key": true,
+      "requires_execution_receipt": true,
+      "provider_resolution": "existing_titan_tool_registry",
+      "company_boundary": "company_id",
+      "identity_grants_authority": false,
+      "binding_grants_authority": false,
+      "worker_can_delegate": false
+    },
+    {
+      "worker_id": "titan.worker.send_quote_agent",
+      "worker_name": "Send Quote Agent",
+      "atomic_action": "Send Quote",
+      "tool_ids": [
+        "pdf_generate_fill",
+        "browser_actions"
+      ],
+      "primary_tool_id": "pdf_generate_fill",
+      "authority_class": "PROTECTED_EXECUTION",
+      "requires_approval": true,
+      "requires_company_id": true,
+      "requires_idempotency_key": true,
+      "requires_execution_receipt": true,
+      "provider_resolution": "existing_titan_tool_registry",
+      "company_boundary": "company_id",
+      "identity_grants_authority": false,
+      "binding_grants_authority": false,
+      "worker_can_delegate": false
+    },
+    {
+      "worker_id": "titan.worker.service_checklist_agent",
+      "worker_name": "Service Checklist Agent",
+      "atomic_action": "Service Checklist",
+      "tool_ids": [
+        "docs_slides_web"
+      ],
+      "primary_tool_id": "docs_slides_web",
+      "authority_class": "PROTECTED_EXECUTION",
+      "requires_approval": true,
+      "requires_company_id": true,
+      "requires_idempotency_key": true,
+      "requires_execution_receipt": true,
+      "provider_resolution": "existing_titan_tool_registry",
+      "company_boundary": "company_id",
+      "identity_grants_authority": false,
+      "binding_grants_authority": false,
+      "worker_can_delegate": false
+    },
+    {
+      "worker_id": "titan.worker.service_quality_predictor_agent",
+      "worker_name": "Service Quality Predictor Agent",
+      "atomic_action": "Service Quality Predictor",
+      "tool_ids": [
+        "multi_tool"
+      ],
+      "primary_tool_id": "multi_tool",
+      "authority_class": "PROTECTED_EXECUTION",
+      "requires_approval": true,
+      "requires_company_id": true,
+      "requires_idempotency_key": true,
+      "requires_execution_receipt": true,
+      "provider_resolution": "existing_titan_tool_registry",
+      "company_boundary": "company_id",
+      "identity_grants_authority": false,
+      "binding_grants_authority": false,
+      "worker_can_delegate": false
+    },
+    {
+      "worker_id": "titan.worker.technician_certification_agent",
+      "worker_name": "Technician Certification Agent",
+      "atomic_action": "Technician Certification",
+      "tool_ids": [
+        "docs_slides_web"
+      ],
+      "primary_tool_id": "docs_slides_web",
+      "authority_class": "PROTECTED_EXECUTION",
+      "requires_approval": true,
+      "requires_company_id": true,
+      "requires_idempotency_key": true,
+      "requires_execution_receipt": true,
+      "provider_resolution": "existing_titan_tool_registry",
+      "company_boundary": "company_id",
+      "identity_grants_authority": false,
+      "binding_grants_authority": false,
+      "worker_can_delegate": false
+    },
+    {
+      "worker_id": "titan.worker.technician_payroll_agent",
+      "worker_name": "Technician Payroll Agent",
+      "atomic_action": "Technician Payroll",
+      "tool_ids": [
+        "sheets"
+      ],
+      "primary_tool_id": "sheets",
+      "authority_class": "PROTECTED_EXECUTION",
+      "requires_approval": true,
+      "requires_company_id": true,
+      "requires_idempotency_key": true,
+      "requires_execution_receipt": true,
+      "provider_resolution": "existing_titan_tool_registry",
+      "company_boundary": "company_id",
+      "identity_grants_authority": false,
+      "binding_grants_authority": false,
+      "worker_can_delegate": false
+    },
+    {
+      "worker_id": "titan.worker.update_customer_agent",
+      "worker_name": "Update Customer Agent",
+      "atomic_action": "Update Customer",
+      "tool_ids": [
+        "custom_tools"
+      ],
+      "primary_tool_id": "custom_tools",
+      "authority_class": "PROTECTED_EXECUTION",
+      "requires_approval": true,
+      "requires_company_id": true,
+      "requires_idempotency_key": true,
+      "requires_execution_receipt": true,
+      "provider_resolution": "existing_titan_tool_registry",
+      "company_boundary": "company_id",
+      "identity_grants_authority": false,
+      "binding_grants_authority": false,
+      "worker_can_delegate": false
+    },
+    {
+      "worker_id": "titan.worker.update_stock_agent",
+      "worker_name": "Update Stock Agent",
+      "atomic_action": "Update Stock",
+      "tool_ids": [
+        "sheets"
+      ],
+      "primary_tool_id": "sheets",
+      "authority_class": "PROTECTED_EXECUTION",
+      "requires_approval": true,
+      "requires_company_id": true,
+      "requires_idempotency_key": true,
+      "requires_execution_receipt": true,
+      "provider_resolution": "existing_titan_tool_registry",
+      "company_boundary": "company_id",
+      "identity_grants_authority": false,
+      "binding_grants_authority": false,
+      "worker_can_delegate": false
+    },
+    {
+      "worker_id": "titan.worker.upload_job_evidence_agent",
+      "worker_name": "Upload Job Evidence Agent",
+      "atomic_action": "Upload Job Evidence",
+      "tool_ids": [
+        "attachments"
+      ],
+      "primary_tool_id": "attachments",
+      "authority_class": "PROTECTED_EXECUTION",
+      "requires_approval": true,
+      "requires_company_id": true,
+      "requires_idempotency_key": true,
+      "requires_execution_receipt": true,
+      "provider_resolution": "existing_titan_tool_registry",
+      "company_boundary": "company_id",
+      "identity_grants_authority": false,
+      "binding_grants_authority": false,
+      "worker_can_delegate": false
+    },
+    {
+      "worker_id": "titan.worker.workforce_availability_agent",
+      "worker_name": "Workforce Availability Agent",
+      "atomic_action": "Workforce Availability",
+      "tool_ids": [
+        "structured_data"
+      ],
+      "primary_tool_id": "structured_data",
+      "authority_class": "READ_OR_ANALYSIS",
+      "requires_approval": false,
+      "requires_company_id": true,
+      "requires_idempotency_key": false,
+      "requires_execution_receipt": false,
+      "provider_resolution": "existing_titan_tool_registry",
+      "company_boundary": "company_id",
+      "identity_grants_authority": false,
+      "binding_grants_authority": false,
+      "worker_can_delegate": false
+    }
+  ]
+}

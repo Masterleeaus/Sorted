@@ -1,0 +1,32 @@
+{
+  "template": {
+    "id": "job-variation-approval",
+    "version": "1.0.0",
+    "name": "Job Variation Approval",
+    "status": "ready",
+    "category": "field_services",
+    "entry_wizard": "job_variation_approval_v1",
+    "capabilities": [
+      "crm.work_order.update"
+    ],
+    "channels": [
+      "chat",
+      "mobile",
+      "tablet",
+      "desktop",
+      "voice"
+    ],
+    "governance": {
+      "authority": "customer_approval_for_cost_impact",
+      "offline": true
+    },
+    "metadata": {
+      "verticals": [
+        "field_services",
+        "home_services",
+        "cleaning"
+      ],
+      "pack": "commerce_multi_vertical_2026_08"
+    }
+  }
+}

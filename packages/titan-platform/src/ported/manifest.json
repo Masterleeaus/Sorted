@@ -1,0 +1,175 @@
+{
+  "manifest_version": 3,
+  "name": "Titan Zero — Signed Marketplace + Runtime v2 + Business Database",
+  "description": "Titan Zero unified business operating workspace preserving the existing UI, signed module marketplace, governance and workforce while adding Runtime v2 isolation, transactional module installation, per-company module management and a company-scoped IndexedDB business database.",
+  "version": "0.18.2",
+  "permissions": [
+    "storage",
+    "scripting",
+    "sidePanel",
+    "contextMenus",
+    "activeTab",
+    "alarms",
+    "tabGroups",
+    "notifications",
+    "offscreen",
+    "clipboardRead",
+    "webNavigation",
+    "webRequest"
+  ],
+  "optional_permissions": [
+    "cookies"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "background": {
+    "service_worker": "background-bootstrap.js",
+    "type": "module"
+  },
+  "side_panel": {
+    "default_path": "sidePanel.html"
+  },
+  "action": {
+    "default_title": "Open Titan Zero",
+    "default_popup": "titan-popup.html",
+    "default_icon": {
+      "16": "icon-16.png",
+      "32": "icon-32.png",
+      "48": "icon-48.png",
+      "128": "icon-128.png"
+    }
+  },
+  "icons": {
+    "16": "icon-16.png",
+    "32": "icon-32.png",
+    "48": "icon-48.png",
+    "128": "icon-128.png"
+  },
+  "content_scripts": [
+    {
+      "all_frames": true,
+      "js": [
+        "content/all.iife.js"
+      ],
+      "match_about_blank": true,
+      "match_origin_as_fallback": true,
+      "matches": [
+        "http://*/*",
+        "https://*/*",
+        "<all_urls>"
+      ],
+      "run_at": "document_start"
+    },
+    {
+      "all_frames": true,
+      "js": [
+        "content-main/all.iife.js"
+      ],
+      "match_about_blank": true,
+      "match_origin_as_fallback": true,
+      "matches": [
+        "http://*/*",
+        "https://*/*",
+        "<all_urls>"
+      ],
+      "run_at": "document_start",
+      "world": "MAIN"
+    },
+    {
+      "all_frames": true,
+      "js": [
+        "titan-zero-chat-content.compat.js"
+      ],
+      "css": [
+        "titan-zero-chat-content.compat.css"
+      ],
+      "match_about_blank": true,
+      "match_origin_as_fallback": true,
+      "matches": [
+        "http://*/*",
+        "https://*/*",
+        "<all_urls>"
+      ],
+      "run_at": "document_start"
+    },
+    {
+      "js": [
+        "titan-diagnostics-content.js",
+        "titan-launcher-overlay.js"
+      ],
+      "css": [
+        "titan-launcher-overlay.css"
+      ],
+      "matches": [
+        "<all_urls>"
+      ],
+      "run_at": "document_end"
+    }
+  ],
+  "sandbox": {
+    "pages": [
+      "sandbox/index.html",
+      "dynamic-content/index.html"
+    ]
+  },
+  "content_security_policy": {
+    "sandbox": "sandbox allow-scripts allow-forms allow-popups allow-modals; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; child-src 'self';"
+  },
+  "web_accessible_resources": [
+    {
+      "matches": [
+        "<all_urls>"
+      ],
+      "resources": [
+        "*.js",
+        "*.mjs",
+        "*.css",
+        "*.svg",
+        "*.png",
+        "*.webp",
+        "static/*",
+        "chatTab.html",
+        "side-panel/*",
+        "side-panel/assets/*",
+        "main.html",
+        "module-view.html",
+        "module-view.js",
+        "module-view.css",
+        "modules.html",
+        "modules.js",
+        "modules.css",
+        "titan-modules/*",
+        "workforce/*",
+        "workforce/contracts/*",
+        "workforce/donor/*"
+      ]
+    }
+  ],
+  "options_ui": {
+    "page": "monicaOptions.html",
+    "open_in_tab": true
+  },
+  "commands": {
+    "_execute_action": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+Y",
+        "mac": "MacCtrl+Shift+Y"
+      }
+    },
+    "run-monica-on-new-tab": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+M",
+        "mac": "MacCtrl+Shift+M"
+      },
+      "description": "Open Titan AI in a new tab"
+    },
+    "open-titan-retriever": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+R",
+        "mac": "MacCtrl+Shift+R"
+      },
+      "description": "Open Titan Work workspace"
+    }
+  }
+}

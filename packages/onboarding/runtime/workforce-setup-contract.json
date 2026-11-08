@@ -1,0 +1,17 @@
+{
+  "schema":"titan.onboarding.workforce-setup-contract/v1",
+  "company_boundary":"company_id",
+  "source_catalogue":"titan-workforce/catalogue/installed-client-workforce-master.json",
+  "configuration_only":true,
+  "role_activation_permitted":false,
+  "worker_creation_permitted":false,
+  "scheduling_execution_permitted":false,
+  "escalation_execution_permitted":false,
+  "identity_not_authority":true,
+  "grants_authority":false,
+  "fields":{
+    "role_selections":"existing canonical role_definition_id references plus target worker counts",
+    "availability":"timezone + weekly planning windows; does not create schedule instances",
+    "escalation_defaults":"severity + enabled target role references + optional response target; does not create or acknowledge escalations"
+  }
+}

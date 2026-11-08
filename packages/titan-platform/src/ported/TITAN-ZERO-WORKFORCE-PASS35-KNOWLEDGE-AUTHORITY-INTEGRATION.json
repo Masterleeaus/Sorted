@@ -1,0 +1,19 @@
+{
+  "schema": "titan.workforce.pass-manifest/v1",
+  "pass": 35,
+  "title": "Knowledge Authority Integration",
+  "company_boundary": "company_id",
+  "knowledge_contract": "titan.workforce.knowledge-authority.v1",
+  "changes": [
+    "shared/public versus company-private knowledge separation",
+    "provenance and version requirements",
+    "freshness and contradiction gates",
+    "jurisdiction and vertical applicability",
+    "knowledge-use decision and receipt",
+    "knowledge never grants authority"
+  ],
+  "automatic_authority_change": false,
+  "authority_granted": false,
+  "execution_permitted": false,
+  "grants_authority": false
+}

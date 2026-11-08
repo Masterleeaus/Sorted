@@ -1,0 +1,45 @@
+{
+  "schema": "titan-zero-semantic-change/v1",
+  "program": "SETTINGS-CONTROL-PLANE",
+  "pass": 2,
+  "status": "COMPLETE",
+  "title": "Canonical Settings Registry",
+  "base_artifact": "Titan-Zero-SETTINGS-CONTROL-PLANE-Pass01-CUMULATIVE.zip",
+  "preservation": {
+    "existing_ui_replaced": false,
+    "existing_runtime_behavior_changed": false,
+    "company_boundary": "company_id",
+    "identity_grants_authority": false
+  },
+  "changes": [
+    {
+      "file": "titan-settings/control-plane/settings-registry.json",
+      "kind": "add",
+      "summary": "Adds canonical metadata registry seeded from 29 existing verified settings controls."
+    },
+    {
+      "file": "titan-settings/control-plane/settings-registry.schema.json",
+      "kind": "add",
+      "summary": "Adds machine-readable registry contract for metadata, scope, ownership, sensitivity and restart requirements."
+    },
+    {
+      "file": "tests/settings-control-plane/pass02_canonical_settings_registry.test.mjs",
+      "kind": "add",
+      "summary": "Validates registry publication, metadata completeness, duplicate-key prevention and credential exclusion."
+    },
+    {
+      "file": "docs/superpowers/plans/2026-09-06-titan-zero-settings-control-plane.md",
+      "kind": "modify",
+      "summary": "Marks Pass 2 tasks complete."
+    }
+  ],
+  "registry": {
+    "settings": 29,
+    "sha256": "a59164e99a98c6028c2480075d67c44abe956138f4365a3c648a16e31341d355",
+    "schema_sha256": "dcc5c3027873b817574c2a7631721bc9daef081305f98fac9d3ec960dbe7d4ae"
+  },
+  "next_pass": {
+    "pass": 3,
+    "title": "Scope Architecture"
+  }
+}

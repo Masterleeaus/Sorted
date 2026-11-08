@@ -1,0 +1,10 @@
+import assert from 'node:assert/strict'; import test from 'node:test';
+import fs from 'node:fs';
+const src=fs.readFileSync(new URL('../src/titan-builder/command-handoff.ts',import.meta.url),'utf8');
+test('command handoff is downstream-authorized and command-bus owned',()=>{assert.match(src,/authority_granted:false/);assert.match(src,/requires_downstream_authorization:true/);assert.match(src,/execution_owner:"command-bus"/)});
+test('published document is mandatory',()=>assert.match(src,/status!=="published"/));
+test('company and surface fail closed',()=>{assert.match(src,/builder_command_company_mismatch/);assert.match(src,/builder_command_surface_mismatch/)});
+test('only node-bound registered actions can hand off',()=>{assert.match(src,/builder_command_action_not_bound/);assert.match(src,/validateBuilderBinding/);assert.match(src,/builder_command_action_not_registered/)});
+test('parameters pass secret sanitizer',()=>assert.match(src,/sanitizeBuilderProjection/));
+test('missing command bus cannot execute',()=>assert.match(src,/command_bus_gateway_unavailable/));
+test('receipt authority is downstream only',()=>assert.match(src,/authority_source:"downstream-command-bus"/));

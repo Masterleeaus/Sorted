@@ -1,0 +1,20 @@
+{
+  "schema": "titan-zero-settings-control-plane-semantic-change/v1",
+  "pass": 7,
+  "status": "COMPLETE",
+  "created_utc": "2026-09-06T14:03:28.752937Z",
+  "parent": "Titan-Zero-SETTINGS-CONTROL-PLANE-Pass06-CUMULATIVE.zip",
+  "summary": "Adds AI cost-routing Settings projections over the existing cost-sovereign workforce intelligence router, defaulting Titan-managed usage to never and retaining runtime entitlement, budget, approval and authority gates.",
+  "company_boundary": "company_id",
+  "identity_grants_authority": false,
+  "settings_grant_execution_authority": false,
+  "automatic_titan_spend": false,
+  "changes": [
+    "register aiCostRoutingPreferences",
+    "register aiTitanManagedUsagePolicy",
+    "add canonical cost routing projection and preference plan",
+    "block metered Titan from free-mode preference plan",
+    "retain existing workforce intelligence routing runtime as execution policy owner"
+  ],
+  "next_pass": 8
+}

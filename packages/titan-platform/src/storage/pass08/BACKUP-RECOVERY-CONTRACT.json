@@ -1,0 +1,39 @@
+{
+  "schema": "titan-zero-storage-backup-recovery-contract/v1",
+  "packet_id": "TZ-FINISH-STORAGE-DATA-AUTHORITY-001",
+  "pass": 8,
+  "export": {
+    "company_scoped": true,
+    "records": "logical operational records only",
+    "deterministic_sort": true,
+    "checksum_algorithm": "fnv1a32-stable-json",
+    "authority_neutral": true
+  },
+  "validation": {
+    "schema_required": true,
+    "company_id_required": true,
+    "cross_company": "FAIL_CLOSED",
+    "legacy_tenant_alias": "FAIL_CLOSED",
+    "record_count_mismatch": "FAIL_CLOSED",
+    "duplicate_locator": "FAIL_CLOSED",
+    "checksum_mismatch": "FAIL_CLOSED",
+    "validation_before_write": true
+  },
+  "restore": {
+    "modes": [
+      "replace",
+      "merge"
+    ],
+    "dry_run": true,
+    "transaction_required": true,
+    "replace_checksum_verified_before_commit": true,
+    "replace_record_count_verified_before_commit": true,
+    "write_failure": "ROLLBACK_ALL",
+    "post_commit_verification": true
+  },
+  "authority": {
+    "company_boundary": "company_id",
+    "identity_grants_authority": false,
+    "execution_authority": false
+  }
+}

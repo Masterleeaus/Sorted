@@ -1,0 +1,14 @@
+{
+  "schema": "titan-zero-settings-control-plane-handoff/v1",
+  "pass": 8,
+  "status": "IN_PROGRESS_CONTINUE",
+  "completed": "AI Budget Controls",
+  "manager_baseline": "Merge20",
+  "next_pass": 9,
+  "next_title": "Model Selection Policy",
+  "notes": [
+    "Use company-scoped aiBudgetControls; do not move spend/reservation counters into Settings.",
+    "Model preferences in Pass9 must keep runtime provider availability/fallback as authority.",
+    "Rescan Manager baseline again before Pass9."
+  ]
+}

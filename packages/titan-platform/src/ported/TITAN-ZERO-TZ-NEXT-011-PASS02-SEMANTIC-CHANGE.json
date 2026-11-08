@@ -1,0 +1,14 @@
+{
+  "schema": "titan-zero-semantic-change/v1",
+  "packet_id": "TZ-NEXT-011",
+  "pass": 2,
+  "title": "Canonical Feed severity and urgency mapping",
+  "changes": [
+    "Added one shared feed severity contract with deterministic aliases, rank, attention class, presentation class and interrupt intent.",
+    "Unified Decision Feed now derives risk, urgency and significance sort ranks through the shared severity contract while retaining legacy level fields.",
+    "Workforce notification wrapper now accepts canonical severity inputs, adapts them to the proven Pass 39 urgency runtime, and enriches outputs with canonical severity envelopes.",
+    "No notification, Feed, decision or severity signal grants authority or execution permission."
+  ],
+  "company_boundary": "company_id only",
+  "authority_effect": false
+}

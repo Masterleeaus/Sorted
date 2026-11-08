@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "titan.workforce.dispatch.queue.v1",
+  "type": "object",
+  "required": ["schema", "company_id", "queue_revision", "items", "summary", "grants_authority"],
+  "properties": {
+    "schema": {"const": "titan.workforce.dispatch.queue.v1"},
+    "company_id": {"type": "string", "minLength": 2, "maxLength": 128},
+    "queue_revision": {"type": "integer", "minimum": 0},
+    "generated_at": {"type": ["string", "null"]},
+    "items": {"type": "array", "items": {"type": "object"}},
+    "summary": {"type": "object"},
+    "projection_only": {"const": true},
+    "automatic_dispatch": {"const": false},
+    "automatic_reassignment": {"const": false},
+    "execution_permitted": {"const": false},
+    "identity_confers_authority": {"const": false},
+    "grants_authority": {"const": false}
+  },
+  "additionalProperties": true
+}

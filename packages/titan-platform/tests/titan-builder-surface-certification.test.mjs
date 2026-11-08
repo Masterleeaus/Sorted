@@ -1,0 +1,13 @@
+import test from 'node:test'; import assert from 'node:assert/strict'; import fs from 'node:fs';
+const src=fs.readFileSync(new URL('../src/titan-builder/surface-certification.ts',import.meta.url),'utf8');
+const index=fs.readFileSync(new URL('../src/titan-builder/index.ts',import.meta.url),'utf8');
+test('certification supports only canonical zero go hub resolution',()=>{assert.match(src,/resolveBuilderSurface\(expected\.surface\)/);assert.match(src,/resolveBuilderSurface\(document\.surface\)/);});
+test('company boundary fails closed',()=>{assert.match(src,/document\.company_id!==expected\.company_id/);assert.match(src,/builder_surface_company_mismatch/);});
+test('surface drift fails closed',()=>assert.match(src,/builder_surface_mismatch/));
+test('surface data sources are allowlisted',()=>{assert.match(src,/builderDataSourceOptions\(surface\)/);assert.match(src,/surface_data_source_denied/);});
+test('surface actions are allowlisted',()=>{assert.match(src,/builderActionOptions\(surface\)/);assert.match(src,/surface_action_denied/);});
+test('responsive mobile tablet desktop contract is mandatory',()=>{assert.match(src,/\["mobile","tablet","desktop"\]/);assert.match(src,/responsive_contract_missing/);});
+test('chat-first workspace remains bounded to three primary cards',()=>{assert.match(src,/visibleRoot\.length>3/);assert.match(src,/too_many_primary_cards/);assert.match(src,/max_primary_cards:3/);});
+test('certification grants no authority',()=>assert.match(src,/authority_granted:false/));
+test('failed certification cannot be asserted as safe',()=>{assert.match(src,/builder_surface_not_certified/);assert.match(src,/if\(!result\.certified\)throw/);});
+test('certification API is exported',()=>assert.match(index,/certifyBuilderSurface, assertBuilderSurfaceCertified/));

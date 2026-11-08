@@ -1,0 +1,28 @@
+{
+  "schema": "titan-zero-manager-support-handoff/v1",
+  "agent_id": "gpt-5.6-sol-manager-support-business-state",
+  "status": "SUPPORT_READY_FOR_MANAGER_INSPECTION",
+  "supports_task_ids": ["TZ-P0-002"],
+  "observed_manager_claim": "TZ-CLAIM-MANAGER-V018-CONVERGENCE",
+  "parent_artifact": "Titan-Zero-v0.18.0-Business-Database-Runtime-Convergence-CUMULATIVE.zip",
+  "parent_sha256": "3b37f806849c6ce387e0f51369173dbb4b84658e063f35aa590b043d89712373",
+  "donor_artifact": "Titan-Zero-v0.6.9-Business-State-Authority-CUMULATIVE.zip",
+  "donor_sha256": "2708becba720ba084648cc037d2361dce21bb8d0e3bd5e626e9b56fee08c163a",
+  "new_files_only": true,
+  "production_hotspots_modified": [],
+  "capabilities_provided": [
+    "indexeddb_backed_activity_outcome_authority_adapter",
+    "monotonic_domain_revisions",
+    "expected_revision_conflict_detection",
+    "idempotency_payload_reuse_conflicts",
+    "durable_commit_and_conflict_receipts",
+    "company_domain_scoped_clear_and_snapshot"
+  ],
+  "manager_wiring_required": [
+    "background/runtime facade",
+    "activity feed commit-before-compatibility ordering",
+    "outcome history commit-before-compatibility ordering",
+    "company-scoped diagnostics exposure"
+  ],
+  "recommended_manager_action": "Inspect and selectively merge manager-support/business-state-authority/authority.mjs plus its tests after resolving the active exclusive storage/bootstrap/shell claim. Do not copy the v0.6.9 chrome.storage.local authority implementation."
+}

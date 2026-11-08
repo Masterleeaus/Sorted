@@ -1,0 +1,106 @@
+{
+  "schema": "titan-zero-retriever-donor-retirement-ledger/v1",
+  "packet_id": "TZ-FINISH-RETRIEVER-NATIVE-001",
+  "pass": 7,
+  "manager_base": {
+    "merge": 52,
+    "artifact": "Titan-Zero-CANONICAL-2026-09-13-MERGE52-QUOTE-AGENT-CONVERGED.zip",
+    "sha256": "ea6c219d40ffbddcbb68e9c9ed741c93568fe12be2e4f09dd69af0b528366d92"
+  },
+  "evidence_model": "semantic_contracts",
+  "retirement_authority": "SEMANTIC_CONTRACTS_AND_REACHABILITY",
+  "protected_hash_policy": "PROVENANCE_ONLY_NOT_AUTHORIZATION",
+  "byte_hash_authority": false,
+  "historical_hashes_preserved_for_provenance": true,
+  "protected_hash_provenance": {
+    "source": "packages/titan-platform/src/ported/titan-regression/monica-retriever/PROTECTED-RUNTIME-HASHES.json",
+    "retriever_background": {
+      "path": "retriever-background.iife.js",
+      "sha256": "080267be826d81fc9ff1061b24fc2ee92cff37fe4d08dfe5d6d5eba2f2d14ce9",
+      "source": "retriever-runtime-chrome-instanceid-compat-repair-02"
+    },
+    "source_sha256": "c678fecd1f0521374b22fa27b172129cc216cd3101aa82f1624b9a4e12cde20c"
+  },
+  "semantic_contracts": {
+    "native_protocol": {
+      "required": "titan.retriever.native",
+      "status": "PASS"
+    },
+    "native_version": {
+      "required": "1.0",
+      "status": "PASS"
+    },
+    "capabilities": {
+      "required": [
+        "work_submission",
+        "progress_observation",
+        "result_delivery",
+        "cancellation"
+      ],
+      "status": "PASS"
+    },
+    "lifecycle": {
+      "required": [
+        "work_submission",
+        "progress_observation",
+        "result_delivery",
+        "timeout",
+        "cancellation"
+      ],
+      "status": "PASS"
+    },
+    "surfaces": {
+      "required": [
+        "chat",
+        "workflow",
+        "side-panel-compatible"
+      ],
+      "status": "PASS"
+    },
+    "recovery": {
+      "required": [
+        "checkpoint",
+        "restore",
+        "restart",
+        "reconnect",
+        "stale_session"
+      ],
+      "status": "PASS"
+    },
+    "company_boundary": {
+      "required": "company_id",
+      "status": "PASS"
+    },
+    "identity_grants_authority": {
+      "required": false,
+      "status": "PASS"
+    }
+  },
+  "reachability": {
+    "live_non_ported_donor_references": [],
+    "live_executable_donor_imports": [],
+    "ported_provenance_imports": [
+      {
+        "path": "packages/titan-platform/src/ported/background-bootstrap.ts",
+        "target": "./compatibility/monica/background-runtime-boundary.js"
+      },
+      {
+        "path": "packages/titan-platform/src/ported/compatibility/monica/background-runtime-boundary.ts",
+        "target": "../../retriever-background.iife.js"
+      }
+    ],
+    "live_reference_count": 0,
+    "live_import_count": 0,
+    "ported_provenance_import_count": 2,
+    "status": "PASS"
+  },
+  "semantic_contracts_satisfied": true,
+  "pass8_regressions_complete": false,
+  "physical_removal_allowed": false,
+  "files_removed": [],
+  "next_gate": "PASS8_REGRESSION_CERTIFICATION",
+  "pass9_requirement": "Physical donor deletion remains prohibited until Pass 8 regressions pass and Pass 9 zero-reference + rollback gates independently pass.",
+  "company_boundary": "company_id",
+  "identity_grants_authority": false,
+  "execution_authority": false
+}

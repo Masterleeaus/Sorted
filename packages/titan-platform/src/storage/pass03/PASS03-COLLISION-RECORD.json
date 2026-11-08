@@ -1,0 +1,9 @@
+{
+  "schema": "titan-zero-storage-finish-pass03-collision/v1",
+  "packet_id": "TZ-FINISH-STORAGE-DATA-AUTHORITY-001",
+  "pass": 3,
+  "exclusive_hotspot": "packages/titan-platform/src/storage/**",
+  "shared_files_modified": [],
+  "apps_web_db_files_modified": [],
+  "result": "NO_COLLISION"
+}

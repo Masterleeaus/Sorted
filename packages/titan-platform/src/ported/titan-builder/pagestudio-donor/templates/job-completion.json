@@ -1,0 +1,30 @@
+{
+  "template": {
+    "id": "job-completion",
+    "version": "1.0.0",
+    "name": "Job Completion",
+    "status": "ready",
+    "category": "operations",
+    "entry_wizard": "complete_job_v1",
+    "capabilities": [
+      "crm.work_order.complete"
+    ],
+    "channels": [
+      "chat",
+      "mobile",
+      "tablet",
+      "voice"
+    ],
+    "governance": {
+      "authority": "delegated_with_scope",
+      "offline": true
+    },
+    "metadata": {
+      "verticals": [
+        "field_services",
+        "home_services",
+        "cleaning"
+      ]
+    }
+  }
+}

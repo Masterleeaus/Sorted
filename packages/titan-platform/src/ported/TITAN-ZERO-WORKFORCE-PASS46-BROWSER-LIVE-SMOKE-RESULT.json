@@ -1,0 +1,33 @@
+{
+  "schema": "titan.workforce.browser-live-smoke-observation.v1",
+  "observed_at": "2026-09-05T12:12:40.838Z",
+  "browser": {
+    "process_started": true,
+    "name": "Chromium",
+    "version": "Chrome/144.0.7559.96",
+    "evidence_refs": [
+      "browser:chromium-process",
+      "browser:devtools-version"
+    ]
+  },
+  "extension": {
+    "target_observed": false,
+    "service_worker_observed": false,
+    "evidence_refs": []
+  },
+  "ui": {
+    "rich_startup_rendered": false,
+    "workforce_launcher_reached": false,
+    "evidence_refs": []
+  },
+  "runtime": {
+    "message_round_trip": false,
+    "evidence_refs": []
+  },
+  "limitations": [
+    "Chromium headless exposed DevTools but did not load the unpacked extension; no live extension target was observed. Run against an extension-enabled interactive Chromium target for full certification."
+  ],
+  "authority_granted": false,
+  "execution_permitted": false,
+  "grants_authority": false
+}

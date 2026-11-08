@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": [
+    "proposal_id",
+    "company_id",
+    "role_definition_id",
+    "reason",
+    "evidence_refs",
+    "required_provider_capabilities",
+    "approval_required"
+  ],
+  "properties": {
+    "proposal_id": {
+      "type": "string"
+    },
+    "company_id": {
+      "type": "string"
+    },
+    "role_definition_id": {
+      "type": "string"
+    },
+    "reason": {
+      "type": "string"
+    },
+    "evidence_refs": {
+      "type": "array"
+    },
+    "required_provider_capabilities": {
+      "type": "array"
+    },
+    "approval_required": {
+      "type": "boolean"
+    },
+    "auto_activate": {
+      "const": false
+    }
+  }
+}

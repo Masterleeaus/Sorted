@@ -1,0 +1,21 @@
+{
+  "schema": "titan-zero-settings-resolution-contract/v1",
+  "version": 1,
+  "pass": 4,
+  "status": "IMPLEMENTED",
+  "company_boundary": "company_id",
+  "forbidden_company_boundary_aliases": ["tenant_id", "tenant_company_id"],
+  "application_order": ["default", "global", "company", "user", "device", "session"],
+  "canonical_persistence_scope_source": "settings-registry.json#settings[].scope",
+  "resolution_layers_are_overlays_not_authority": true,
+  "identity_grants_authority": false,
+  "cross_company_layers_rejected": true,
+  "mismatched_user_device_session_dimensions_rejected": true,
+  "value_validation_source": "settings-registry.json",
+  "provenance_fields": ["scope", "value", "storage_key", "company_id", "grants_authority"],
+  "notes": [
+    "The registry scope remains the canonical persistence target for each setting.",
+    "Resolution overlays may supply an effective value but never change subsystem ownership or grant authority.",
+    "Every non-global applied layer must match the requested company_id; user/device/session layers must also match their own dimension."
+  ]
+}

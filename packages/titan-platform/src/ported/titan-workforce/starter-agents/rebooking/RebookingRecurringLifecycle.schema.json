@@ -1,0 +1,27 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema",
+  "$id":"titan.workforce.starter.rebooking-recurring-lifecycle.v1",
+  "type":"object",
+  "required":["schema","lifecycle_id","company_id","customer_id","service_id","schedule_id","action","state","current_state","target_state","canonical_engine","execution_permitted","grants_authority"],
+  "properties":{
+    "schema":{"const":"titan.workforce.starter.rebooking-recurring-lifecycle.v1"},
+    "lifecycle_id":{"type":"string","minLength":1},
+    "company_id":{"type":"string","minLength":1},
+    "customer_id":{"type":"string","minLength":1},
+    "service_id":{"type":"string","minLength":1},
+    "schedule_id":{"type":"string","minLength":1},
+    "action":{"enum":["GENERATE_NEXT","SKIP","PAUSE","RESUME","CANCEL"]},
+    "state":{"enum":["READY_FOR_CANONICAL_HANDOFF","REVIEW","NOOP_IDEMPOTENT"]},
+    "current_state":{"enum":["ACTIVE","PAUSED","CANCELLED"]},
+    "target_state":{"enum":["ACTIVE","PAUSED","CANCELLED"]},
+    "canonical_engine":{"const":"titan.workforce.schedule-recurrence.v1"},
+    "execution_permitted":{"const":false},
+    "grants_authority":{"const":false},
+    "identity_is_authority":{"const":false},
+    "mutates_schedule":{"const":false},
+    "creates_schedule":{"const":false},
+    "creates_job":{"const":false},
+    "creates_booking":{"const":false}
+  },
+  "additionalProperties":true
+}

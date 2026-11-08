@@ -1,0 +1,27 @@
+{
+  "schema": "titan-zero-workforce-scheduling-capacity-pass09-adversarial/v1",
+  "packet_id": "TZ-NEXT-004",
+  "pass": 9,
+  "manager_merge": 46,
+  "scenario_profile": {
+    "workers": 40,
+    "jobs": 120,
+    "accepted_restart_replays": 100
+  },
+  "scenarios": [
+    "high-volume clear proposal review",
+    "bulk same-worker double-booking",
+    "travel evidence missing vs impossible travel",
+    "oversized crew/equipment shortage",
+    "accepted assignment restart idempotency",
+    "cross-company evidence contamination"
+  ],
+  "focused_tests": "6/6 PASS",
+  "combined_reconstructed_tests": "47/47 PASS",
+  "inherited_pass08_certification": "61/61 PASS",
+  "authority_change": false,
+  "automatic_assignment": false,
+  "automatic_reassignment": false,
+  "accepted_state_manufactured": false,
+  "next_pass": "Certify workforce scheduling/capacity behavior and reconstruction; publish and STOP."
+}

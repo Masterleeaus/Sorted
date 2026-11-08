@@ -1,0 +1,15 @@
+{
+  "schema": "titan.inventory.contract-index/v1",
+  "company_boundary": "company_id",
+  "identity_is_not_authority": true,
+  "contracts": {
+    "asset": "titan-inventory/contracts/Asset.schema.json",
+    "consumable": "titan-inventory/contracts/Consumable.schema.json",
+    "stock_location": "titan-inventory/contracts/StockLocation.schema.json"
+  },
+  "lifecycle_notes": {
+    "asset": "equipment identity and assignment state only; does not grant job or business authority",
+    "consumable": "catalogue/stock identity only; reorder or presence never grants purchase authority",
+    "stock_location": "physical/logical stock scope only; location membership never grants authority"
+  }
+}

@@ -1,0 +1,4 @@
+// @ts-nocheck
+// Ported from Titan Zero extension (portable-core): titan-runtime/browser/contextual-task-intent.mjs
+const req=(v,n)=>{const s=String(v??'').trim();if(!s)throw new Error(`${n}-required`);return s};
+export function createContextualTaskIntent(raw={},{company_id}={}){const cid=req(raw.company_id??company_id,'company_id');if(company_id&&cid!==company_id)throw new Error('cross-company-task-intent');return Object.freeze({schema:'titan.contextual-task-intent.v1',company_id:cid,intent_id:req(raw.intent_id??`task-intent:${Date.now()}`,'intent_id'),task:Object.freeze({title:req(raw.title,'title'),description:String(raw.description??''),assignee_id:raw.assignee_id??null,due_at:raw.due_at??null}),context:Object.freeze({url:String(raw.url??''),tab_id:raw.tab_id==null?null:String(raw.tab_id),evidence_refs:Object.freeze([...(raw.evidence_refs||[])])}),requested_effect:'create_task',requires_authority_gate:true,authority:[],executed:false});}

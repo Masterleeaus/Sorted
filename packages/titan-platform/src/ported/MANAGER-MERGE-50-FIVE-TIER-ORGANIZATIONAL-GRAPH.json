@@ -1,0 +1,15 @@
+{
+  "schema": "titan.manager.merge-candidate.v1",
+  "candidate": "MERGE-50",
+  "title": "Five-Tier Workforce Organizational Graph",
+  "base": "MERGE-49-FIVE-TIER-WORKFORCE-FOUNDATION",
+  "changes": [
+    "Rename top hierarchy tier to Orchestrators",
+    "Classify all 119 catalogue roles as Manager/Supervisor/Specialist",
+    "Attach 62 recovered atomic Workers",
+    "Fix Scheduling orchestrator affinity to titan.work.scheduler",
+    "Fix Invoicing orchestrator affinity to titan.money.billing_coordinator",
+    "Add organizational graph runtime resolver and tests"
+  ],
+  "authority": "candidate_only_manager_baseline_not_modified"
+}

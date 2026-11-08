@@ -1,0 +1,17 @@
+{
+  "schema": "titan.workforce.pass-manifest/v1",
+  "pass": 39,
+  "title": "Notification / Escalation Runtime",
+  "company_boundary": "company_id",
+  "adds": [
+    "titan.workforce.notification-escalation.v1"
+  ],
+  "rules": {
+    "notification_is_not_command": true,
+    "acknowledgement_is_not_authority": true,
+    "escalation_is_not_authority": true,
+    "bounded_escalation": true,
+    "dedupe_cooldown": true,
+    "automatic_authority_change": false
+  }
+}

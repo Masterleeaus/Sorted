@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": [
+    "worker_id",
+    "company_id",
+    "role_definition_id",
+    "status",
+    "provider_bindings",
+    "effective_authority_ref"
+  ],
+  "properties": {
+    "worker_id": {
+      "type": "string"
+    },
+    "company_id": {
+      "type": "string"
+    },
+    "role_definition_id": {
+      "type": "string"
+    },
+    "status": {
+      "enum": [
+        "proposed",
+        "active",
+        "paused",
+        "retired"
+      ]
+    },
+    "provider_bindings": {
+      "type": "array"
+    },
+    "effective_authority_ref": {
+      "type": "string"
+    },
+    "may_self_promote": {
+      "const": false
+    },
+    "may_self_hire": {
+      "const": false
+    }
+  }
+}

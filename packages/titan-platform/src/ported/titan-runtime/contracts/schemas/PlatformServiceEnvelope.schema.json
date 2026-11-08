@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Titan Platform Service Envelope",
+  "type": "object",
+  "required": [
+    "company_id",
+    "actor",
+    "capability",
+    "trace_id",
+    "correlation_id",
+    "idempotency_key",
+    "payload"
+  ],
+  "properties": {
+    "company_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "actor": {
+      "type": "object"
+    },
+    "capability": {
+      "type": "string",
+      "minLength": 1
+    },
+    "trace_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "correlation_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "idempotency_key": {
+      "type": "string",
+      "minLength": 1
+    },
+    "payload": {},
+    "legacy_tenant_input": {
+      "description": "Compatibility input only; never independent authority.",
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "additionalProperties": true
+}

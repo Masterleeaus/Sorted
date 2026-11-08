@@ -1,0 +1,30 @@
+{
+  "template": {
+    "id": "abandoned-checkout-recovery",
+    "version": "1.0.0",
+    "name": "Abandoned Checkout Recovery",
+    "status": "draft",
+    "category": "commerce",
+    "entry_wizard": "abandoned_checkout_recovery_v1",
+    "capabilities": [
+      "commerce.checkout.recover"
+    ],
+    "channels": [
+      "chat",
+      "mobile",
+      "tablet",
+      "desktop",
+      "voice"
+    ],
+    "governance": {
+      "authority": "requires_messaging_and_consent_integration",
+      "offline": false
+    },
+    "metadata": {
+      "verticals": [
+        "ecommerce"
+      ],
+      "pack": "commerce_multi_vertical_2026_08"
+    }
+  }
+}

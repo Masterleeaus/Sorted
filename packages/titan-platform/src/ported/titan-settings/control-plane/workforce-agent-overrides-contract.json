@@ -1,0 +1,27 @@
+{
+  "schema": "titan-zero-workforce-agent-overrides-contract/v1",
+  "pass": 15,
+  "company_boundary": "company_id",
+  "setting_key": "workforceAgentOverrides",
+  "scope": "company",
+  "owner": "workforce_runtime",
+  "identity_sources": [
+    "titan-workforce/contracts/ClientWorkerInstance.schema.json",
+    "titan-workforce/graph/workforce-graph.mjs",
+    "titan-workforce/catalogue/installed-client-workforce-master.json"
+  ],
+  "precedence": ["company_defaults", "role_override", "worker_override"],
+  "risk_ceiling_levels": ["LOW", "MEDIUM", "HIGH", "EXTREME"],
+  "override_is_contractive_only": true,
+  "mandatory_invariants": {
+    "supervisor_handover_evidence_required": true,
+    "investigation_finding_evidence_required": true,
+    "handover_transfers_authority": false,
+    "staffing_proposal_only": true,
+    "automatic_reassignment": false,
+    "automatic_mission_activation": false,
+    "role_or_worker_identity_grants_authority": false,
+    "settings_grants_authority": false,
+    "settings_executes": false
+  }
+}

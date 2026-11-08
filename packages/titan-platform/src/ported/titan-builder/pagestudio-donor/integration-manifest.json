@@ -1,0 +1,23 @@
+{
+  "schema": "titan.builder.pagestudio-donor.v1",
+  "donor": "PageStudio",
+  "company_boundary": "company_id",
+  "authority_neutral": true,
+  "activation_confers_authority": false,
+  "retained": {
+    "templates": 38,
+    "themes": 8,
+    "components": 6,
+    "wizard_catalog": true,
+    "output_schemas": true,
+    "publish_version_rollback_patterns": true
+  },
+  "rejected_runtime": [
+    "Laravel routes/controllers/migrations",
+    "server-side billing/auth/tenancy",
+    "Blade application shells",
+    "duplicate chatbot/CRM/InteractionEngine runtimes",
+    "donor branding and installation/update code"
+  ],
+  "reason": "Titan Zero remains sole Chrome runtime; only portable builder/presentation contracts are retained."
+}

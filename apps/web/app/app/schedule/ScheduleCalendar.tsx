@@ -1,0 +1,800 @@
+"use client";
+
+import { useState, useEffect, useRef, useCallback } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import type { Route } from "next";
+import { QuickBookModal } from "./QuickBookModal";
+import { ScheduleViewToggle } from "./ScheduleViewToggle";
+import { formatBusinessTime } from "@/lib/time/business-tz";
+
+export interface VisitRow {
+  id: string;
+  scheduled_start: string;
+  scheduled_end: string;
+  status: string;
+  job_title: string;
+  client_name: string | null;
+  property_address: string | null;
+  tech_name: string | null;
+  assigned_user_id: string | null;
+  [key: string]: unknown;
+}
+
+export type ViewMode = "week" | "month" | "year" | "list";
+
+interface Props {
+  visits: VisitRow[];
+  view: ViewMode;
+  rangeStart: string; // YYYY-MM-DD
+  isAdmin: boolean;
+}
+
+const STATUS_COLOR: Record<string, string> = {
+  scheduled: "#2563eb",
+  arrived: "#d97706",
+  in_progress: "#16a34a",
+  completed: "#6b7280",
+  cancelled: "#dc2626",
+};
+
+const DAY_LABELS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+const MONTH_NAMES = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+
+// ── Helpers ──────────────────────────────────────────────────────────────────
+
+function toDateStr(d: Date): string {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+
+function addDays(d: Date, n: number): Date {
+  const r = new Date(d);
+  r.setDate(r.getDate() + n);
+  return r;
+}
+
+function getWeekStartFromStr(dateStr: string): Date {
+  const d = new Date(dateStr + "T00:00:00");
+  const dow = d.getDay();
+  const diff = dow === 0 ? -6 : 1 - dow;
+  d.setDate(d.getDate() + diff);
+  return d;
+}
+
+function formatTimeRange(start: string, end: string): string {
+  return `${formatBusinessTime(start)} – ${formatBusinessTime(end)}`;
+}
+
+function computeNewSchedule(origStart: string, origEnd: string, targetDate: string) {
+  const s = new Date(origStart);
+  const durationMs = new Date(origEnd).getTime() - s.getTime();
+  const [y, m, d] = targetDate.split("-").map(Number);
+  const newStart = new Date(y, m - 1, d, s.getHours(), s.getMinutes(), 0, 0);
+  return {
+    start: newStart.toISOString(),
+    end: new Date(newStart.getTime() + durationMs).toISOString(),
+  };
+}
+
+function groupByDate(visits: VisitRow[]): Map<string, VisitRow[]> {
+  const map = new Map<string, VisitRow[]>();
+  for (const v of visits) {
+    const key = toDateStr(new Date(v.scheduled_start));
+    const arr = map.get(key) ?? [];
+    arr.push(v);
+    map.set(key, arr);
+  }
+  return map;
+}
+
+function getMonthGrid(year: number, month: number): (Date | null)[][] {
+  const firstDay = new Date(year, month - 1, 1);
+  const startPad = (firstDay.getDay() + 6) % 7;
+  const daysInMonth = new Date(year, month, 0).getDate();
+  const cells: (Date | null)[] = [
+    ...Array<null>(startPad).fill(null),
+    ...Array.from({ length: daysInMonth }, (_, i) => new Date(year, month - 1, i + 1)),
+  ];
+  while (cells.length % 7 !== 0) cells.push(null);
+  const rows: (Date | null)[][] = [];
+  for (let i = 0; i < cells.length; i += 7) rows.push(cells.slice(i, i + 7));
+  return rows;
+}
+
+function weekUrl(date: Date) { return `/app/schedule?view=week&week=${toDateStr(date)}`; }
+function monthUrl(year: number, month: number) { return `/app/schedule?view=month&month=${year}-${String(month).padStart(2, "0")}`; }
+function yearUrl(year: number) { return `/app/schedule?view=year&year=${year}`; }
+
+// ── Sub-components ────────────────────────────────────────────────────────────
+
+interface VisitCardProps {
+  visit: VisitRow;
+  isAdmin: boolean;
+  isDragging: boolean;
+  compact?: boolean;
+  onDragStart: (e: React.DragEvent, visit: VisitRow) => void;
+  onDragEnd: () => void;
+}
+
+function VisitCard({ visit, isAdmin, isDragging, compact = false, onDragStart, onDragEnd }: VisitCardProps) {
+  const color = STATUS_COLOR[visit.status] ?? "#6b7280";
+  return (
+    <a
+      href={`/app/visits/${visit.id}`}
+      draggable={isAdmin}
+      onDragStart={(e) => onDragStart(e, visit)}
+      onDragEnd={onDragEnd}
+      style={{
+        textDecoration: "none",
+        display: "block",
+        background: "#fff",
+        border: `1px solid ${color}`,
+        borderRadius: 6,
+        padding: compact ? "2px 6px" : "var(--space-3)",
+        cursor: isAdmin ? "grab" : "pointer",
+        opacity: isDragging ? 0.4 : 1,
+        transition: "opacity 0.15s, transform 0.1s",
+      }}
+      className="p7-card-hover"
+    >
+      <div style={{ fontSize: "var(--text-xs)", color, fontWeight: 700 }}>
+        {formatTimeRange(visit.scheduled_start, visit.scheduled_end)}
+      </div>
+      <div style={{ fontSize: compact ? "var(--text-xs)" : "var(--text-sm)", fontWeight: 700, color: "var(--fg)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", marginTop: 2 }}>
+        {visit.client_name ? `${visit.client_name} · ${visit.job_title}` : visit.job_title}
+      </div>
+      {!compact && visit.property_address && (
+        <div style={{ fontSize: "var(--text-xs)", color: "var(--fg)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", marginTop: 2 }}>
+          {visit.property_address}
+        </div>
+      )}
+      {!compact && visit.tech_name && (
+        <div style={{ fontSize: "var(--text-xs)", color: "var(--fg-muted)", marginTop: 2 }}>
+          Tech: {visit.tech_name}
+        </div>
+      )}
+    </a>
+  );
+}
+
+interface DayCellProps {
+  dateStr: string;
+  isDropTarget: boolean;
+  isDragging: boolean;
+  children: React.ReactNode;
+  style?: React.CSSProperties;
+  onDragOver: (e: React.DragEvent, dateStr: string) => void;
+  onDragLeave: () => void;
+  onDrop: (e: React.DragEvent, dateStr: string) => void;
+}
+
+function DayCell({ dateStr, isDropTarget, isDragging, children, style, onDragOver, onDragLeave, onDrop }: DayCellProps) {
+  return (
+    <div
+      onDragOver={(e) => onDragOver(e, dateStr)}
+      onDragLeave={onDragLeave}
+      onDrop={(e) => onDrop(e, dateStr)}
+      style={{
+        ...style,
+        outline: isDropTarget && isDragging ? "2px dashed var(--accent)" : undefined,
+        outlineOffset: isDropTarget && isDragging ? -2 : undefined,
+        background: isDropTarget && isDragging ? "rgba(37,99,235,0.05)" : (style?.background as string | undefined),
+        transition: "background 0.1s",
+        borderRadius: style?.borderRadius ?? 6,
+      }}
+    >
+      {children}
+    </div>
+  );
+}
+
+// ── Main component ────────────────────────────────────────────────────────────
+
+export function ScheduleCalendar({ visits, view, rangeStart, isAdmin }: Props) {
+  const router = useRouter();
+  const [localVisits, setLocalVisits] = useState<VisitRow[]>(visits);
+  const [draggingId, setDraggingId] = useState<string | null>(null);
+  const [dropTarget, setDropTarget] = useState<string | null>(null);
+  const [dropError, setDropError] = useState<string | null>(null);
+  const [pendingMove, setPendingMove] = useState<{
+    visitId: string;
+    newStart: string;
+    newEnd: string;
+    message: string;
+  } | null>(null);
+  const [quickBookDate, setQuickBookDate] = useState<string | null>(null);
+  const [selectedDate, setSelectedDate] = useState<string>(toDateStr(new Date()));
+  const visitsRef = useRef(visits);
+
+  useEffect(() => {
+    visitsRef.current = visits;
+    setLocalVisits(visits);
+  }, [visits]);
+
+  const todayStr = toDateStr(new Date());
+  const rangeDate = new Date(rangeStart + "T00:00:00");
+
+  // Sync selectedDate with rangeStart when visible range updates
+  useEffect(() => {
+    const today = new Date();
+    const todayS = toDateStr(today);
+    
+    if (view === "month") {
+      const currentYear = rangeDate.getFullYear();
+      const currentMonth = rangeDate.getMonth() + 1;
+      if (today.getFullYear() === currentYear && today.getMonth() + 1 === currentMonth) {
+        setSelectedDate(todayS);
+      } else {
+        setSelectedDate(rangeStart);
+      }
+    } else {
+      setSelectedDate(rangeStart);
+    }
+  }, [rangeStart, view]);
+
+  // ── Navigation ──────────────────────────────────────────────────────────────
+  let prevUrl: string, nextUrl: string, todayUrl: string, rangeLabel: string;
+  let currentYear: number, currentMonth: number;
+
+  if (view === "week") {
+    const ws = getWeekStartFromStr(rangeStart);
+    prevUrl = weekUrl(addDays(ws, -7));
+    nextUrl = weekUrl(addDays(ws, 7));
+    todayUrl = weekUrl(getWeekStartFromStr(todayStr));
+    rangeLabel = `${ws.toLocaleDateString("en-US", { month: "short", day: "numeric" })} – ${addDays(ws, 6).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}`;
+    currentYear = ws.getFullYear();
+    currentMonth = ws.getMonth() + 1;
+  } else if (view === "month") {
+    currentYear = rangeDate.getFullYear();
+    currentMonth = rangeDate.getMonth() + 1;
+    const pm = currentMonth === 1 ? [currentYear - 1, 12] : [currentYear, currentMonth - 1];
+    const nm = currentMonth === 12 ? [currentYear + 1, 1] : [currentYear, currentMonth + 1];
+    prevUrl = monthUrl(pm[0], pm[1]);
+    nextUrl = monthUrl(nm[0], nm[1]);
+    todayUrl = monthUrl(new Date().getFullYear(), new Date().getMonth() + 1);
+    rangeLabel = rangeDate.toLocaleDateString("en-US", { month: "long", year: "numeric" });
+  } else {
+    currentYear = rangeDate.getFullYear();
+    currentMonth = 1;
+    prevUrl = yearUrl(currentYear - 1);
+    nextUrl = yearUrl(currentYear + 1);
+    todayUrl = yearUrl(new Date().getFullYear());
+    rangeLabel = String(currentYear);
+  }
+
+  const isCurrent =
+    view === "week" ? toDateStr(getWeekStartFromStr(rangeStart)) === toDateStr(getWeekStartFromStr(todayStr))
+    : view === "month" ? currentYear === new Date().getFullYear() && currentMonth === new Date().getMonth() + 1
+    : currentYear === new Date().getFullYear();
+
+  const toWeekUrl = view === "month" ? weekUrl(getWeekStartFromStr(rangeStart))
+    : view === "year" ? weekUrl(getWeekStartFromStr(todayStr))
+    : weekUrl(getWeekStartFromStr(rangeStart));
+
+  const toMonthUrl = view === "week" ? monthUrl(rangeDate.getFullYear(), rangeDate.getMonth() + 1)
+    : view === "year" ? monthUrl(currentYear, new Date().getMonth() + 1)
+    : monthUrl(currentYear, currentMonth);
+
+  const toYearUrl = yearUrl(currentYear);
+
+  // ── Drag handlers ───────────────────────────────────────────────────────────
+  const handleDragStart = useCallback((e: React.DragEvent, visit: VisitRow) => {
+    e.dataTransfer.effectAllowed = "move";
+    e.dataTransfer.setData("visitId", visit.id);
+    e.dataTransfer.setData("startISO", visit.scheduled_start);
+    e.dataTransfer.setData("endISO", visit.scheduled_end);
+    setDraggingId(visit.id);
+    setDropError(null);
+  }, []);
+
+  const handleDragEnd = useCallback(() => {
+    setDraggingId(null);
+    setDropTarget(null);
+  }, []);
+
+  const handleDragOver = useCallback((e: React.DragEvent, dateStr: string) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+    setDropTarget(dateStr);
+  }, []);
+
+  const handleDragLeave = useCallback(() => {
+    setDropTarget(null);
+  }, []);
+
+  const saveMove = useCallback(async (visitId: string, newStart: string, newEnd: string, allowOverlap: boolean) => {
+    try {
+      const res = await fetch(`/api/v1/visits/${visitId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          scheduled_start: newStart,
+          scheduled_end: newEnd,
+          ...(allowOverlap ? { allow_overlap: true } : {}),
+        }),
+      });
+      const data = await res.json().catch(() => ({})) as { error?: { code?: string; message?: string } };
+      if (res.status === 409 && data.error?.code === "SCHEDULE_CONFLICT") {
+        setPendingMove({
+          visitId,
+          newStart,
+          newEnd,
+          message: data.error.message ?? "That time overlaps another visit.",
+        });
+        setLocalVisits(visitsRef.current);
+        return;
+      }
+      if (!res.ok) {
+        setDropError(data.error?.message ?? "Failed to reschedule");
+        setLocalVisits(visitsRef.current);
+        return;
+      }
+      setPendingMove(null);
+      setLocalVisits((prev) => prev.map((v) => (
+        v.id === visitId ? { ...v, scheduled_start: newStart, scheduled_end: newEnd } : v
+      )));
+      router.refresh();
+    } catch {
+      setDropError("Network error — reschedule failed");
+      setLocalVisits(visitsRef.current);
+    }
+  }, [router]);
+
+  const handleDrop = useCallback(async (e: React.DragEvent, targetDateStr: string) => {
+    e.preventDefault();
+    const visitId = e.dataTransfer.getData("visitId");
+    const origStart = e.dataTransfer.getData("startISO");
+    const origEnd = e.dataTransfer.getData("endISO");
+    setDraggingId(null);
+    setDropTarget(null);
+    if (!visitId || !origStart || !origEnd) return;
+    if (toDateStr(new Date(origStart)) === targetDateStr) return;
+    const { start: newStart, end: newEnd } = computeNewSchedule(origStart, origEnd, targetDateStr);
+    setDropError(null);
+    await saveMove(visitId, newStart, newEnd, false);
+  }, [saveMove]);
+
+  const byDate = groupByDate(localVisits);
+
+  // ── Week view ───────────────────────────────────────────────────────────────
+  function renderWeekView() {
+    const ws = getWeekStartFromStr(rangeStart);
+    return (
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(7, minmax(0, 1fr))", gap: "var(--space-2)", overflowX: "auto" }}>
+        {DAY_LABELS.map((label, i) => {
+          const dayDate = addDays(ws, i);
+          const dayStr = toDateStr(dayDate);
+          const isToday = dayStr === todayStr;
+          const dayVisits = byDate.get(dayStr) ?? [];
+          return (
+            <DayCell key={label} dateStr={dayStr} isDropTarget={dropTarget === dayStr} isDragging={draggingId !== null} style={{ minWidth: 120 }} onDragOver={handleDragOver} onDragLeave={handleDragLeave} onDrop={handleDrop}>
+              <div style={{ padding: "var(--space-2)", marginBottom: "var(--space-2)", borderRadius: 6, background: isToday ? "var(--accent)" : "var(--bg-muted, #f4f4f5)", textAlign: "center" }}>
+                <div style={{ fontSize: "var(--text-xs)", fontWeight: 700, color: isToday ? "#fff" : "var(--fg-muted)", textTransform: "uppercase", letterSpacing: "0.05em" }}>{label}</div>
+                <div style={{ fontSize: "var(--text-sm)", fontWeight: 600, color: isToday ? "#fff" : "var(--fg)", marginTop: 2 }}>{dayDate.getDate()}</div>
+              </div>
+              <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-2)" }}>
+                {dayVisits.map(v => <VisitCard key={v.id} visit={v} isAdmin={isAdmin} isDragging={draggingId === v.id} onDragStart={handleDragStart} onDragEnd={handleDragEnd} />)}
+                {isAdmin && (
+                  <button type="button" onClick={() => setQuickBookDate(dayStr)} style={{ height: dayVisits.length === 0 ? 40 : 28, borderRadius: 6, border: "1px dashed var(--border)", background: "none", cursor: "pointer", color: "var(--fg-muted)", fontSize: "var(--text-xs)", opacity: 0.6, transition: "opacity 0.1s" }} onMouseEnter={e => (e.currentTarget.style.opacity = "1")} onMouseLeave={e => (e.currentTarget.style.opacity = "0.6")}>
+                    + Book
+                  </button>
+                )}
+                {!isAdmin && dayVisits.length === 0 && <div style={{ height: 40, borderRadius: 6, border: "1px dashed var(--border)", opacity: 0.4 }} />}
+              </div>
+            </DayCell>
+          );
+        })}
+      </div>
+    );
+  }
+
+  function renderWeekViewMobile() {
+    const ws = getWeekStartFromStr(rangeStart);
+    return (
+      <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-3)" }}>
+        {DAY_LABELS.map((label, i) => {
+          const dayDate = addDays(ws, i);
+          const dayStr = toDateStr(dayDate);
+          const isToday = dayStr === todayStr;
+          const dayVisits = byDate.get(dayStr) ?? [];
+          
+          return (
+            <div
+              key={label}
+              style={{
+                background: "var(--bg-card)",
+                border: isToday ? "1px solid var(--accent)" : "1px solid var(--border)",
+                borderRadius: "var(--radius-lg)",
+                padding: "var(--space-3)",
+                boxShadow: isToday ? "var(--shadow-sm)" : "var(--shadow-xs)",
+              }}
+            >
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "var(--space-2)" }}>
+                <div style={{ display: "flex", alignItems: "baseline", gap: "var(--space-2)" }}>
+                  <span style={{ fontSize: "var(--text-sm)", fontWeight: 700, color: isToday ? "var(--accent)" : "var(--fg)" }}>
+                    {dayDate.toLocaleDateString("en-US", { weekday: "short" })}
+                  </span>
+                  <span style={{ fontSize: "var(--text-xs)", color: "var(--fg-muted)" }}>
+                    {dayDate.toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+                  </span>
+                </div>
+                <div style={{ display: "flex", gap: "var(--space-2)", alignItems: "center" }}>
+                  <span style={{ fontSize: "var(--text-xs)", background: "var(--bg-subtle)", padding: "2px 8px", borderRadius: "var(--radius-full)", color: "var(--fg-muted)" }}>
+                    {dayVisits.length} visit{dayVisits.length !== 1 ? "s" : ""}
+                  </span>
+                  {isAdmin && (
+                    <button
+                      type="button"
+                      className="p7-btn p7-btn-ghost p7-btn-sm"
+                      style={{ padding: "2px 8px", minHeight: 24 }}
+                      onClick={() => setQuickBookDate(dayStr)}
+                    >
+                      + Book
+                    </button>
+                  )}
+                </div>
+              </div>
+              
+              <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-2)" }}>
+                {dayVisits.map(v => (
+                  <VisitCard
+                    key={v.id}
+                    visit={v}
+                    isAdmin={isAdmin}
+                    isDragging={draggingId === v.id}
+                    onDragStart={handleDragStart}
+                    onDragEnd={handleDragEnd}
+                  />
+                ))}
+                {dayVisits.length === 0 && (
+                  <div style={{ fontSize: "var(--text-xs)", color: "var(--fg-muted)", fontStyle: "italic", padding: "4px 0" }}>
+                    No visits scheduled
+                  </div>
+                )}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    );
+  }
+
+  // ── Month view ──────────────────────────────────────────────────────────────
+  function renderMonthView() {
+    const year = rangeDate.getFullYear();
+    const month = rangeDate.getMonth() + 1;
+    const grid = getMonthGrid(year, month);
+    return (
+      <div>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(7, minmax(0, 1fr))", gap: "var(--space-1)", marginBottom: "var(--space-1)" }}>
+          {DAY_LABELS.map(l => (
+            <div key={l} style={{ textAlign: "center", fontSize: "var(--text-xs)", fontWeight: 700, color: "var(--fg-muted)", textTransform: "uppercase", letterSpacing: "0.05em", padding: "var(--space-1) 0" }}>{l}</div>
+          ))}
+        </div>
+        {grid.map((row, ri) => (
+          <div key={ri} style={{ display: "grid", gridTemplateColumns: "repeat(7, minmax(0, 1fr))", gap: "var(--space-1)", marginBottom: "var(--space-1)" }}>
+            {row.map((day, ci) => {
+              if (!day) return <div key={ci} style={{ minHeight: 90, border: "1px solid transparent" }} />;
+              const dayStr = toDateStr(day);
+              const isToday = dayStr === todayStr;
+              const dayVisits = byDate.get(dayStr) ?? [];
+              return (
+                <DayCell key={ci} dateStr={dayStr} isDropTarget={dropTarget === dayStr} isDragging={draggingId !== null} style={{ minHeight: 90, border: `1px solid var(--border)`, borderRadius: 6, padding: "var(--space-1)", background: isToday ? "rgba(37,99,235,0.04)" : "#fff", cursor: isAdmin ? "default" : undefined }} onDragOver={handleDragOver} onDragLeave={handleDragLeave} onDrop={handleDrop}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 3 }}>
+                    <div style={{ fontSize: "var(--text-xs)", fontWeight: isToday ? 700 : 500, color: isToday ? "var(--accent)" : "var(--fg)" }}>{day.getDate()}</div>
+                    {isAdmin && (
+                      <button type="button" onClick={() => setQuickBookDate(dayStr)} style={{ background: "none", border: "none", cursor: "pointer", color: "var(--fg-muted)", fontSize: 14, lineHeight: 1, padding: "0 2px", opacity: 0.5 }} onMouseEnter={e => (e.currentTarget.style.opacity = "1")} onMouseLeave={e => (e.currentTarget.style.opacity = "0.5")} title="Quick book">+</button>
+                    )}
+                  </div>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+                    {dayVisits.slice(0, 3).map(v => <VisitCard key={v.id} visit={v} isAdmin={isAdmin} isDragging={draggingId === v.id} compact onDragStart={handleDragStart} onDragEnd={handleDragEnd} />)}
+                    {dayVisits.length > 3 && (
+                      <div style={{ fontSize: "var(--text-xs)", color: "var(--fg-muted)", paddingLeft: 4 }}>+{dayVisits.length - 3} more</div>
+                    )}
+                  </div>
+                </DayCell>
+              );
+            })}
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  function renderMonthViewMobile() {
+    const year = rangeDate.getFullYear();
+    const month = rangeDate.getMonth() + 1;
+    const grid = getMonthGrid(year, month);
+    
+    // Format selectedDate for header display
+    const selectedDateObj = new Date(selectedDate + "T00:00:00");
+    const formattedSelected = isNaN(selectedDateObj.getTime()) 
+      ? selectedDate 
+      : selectedDateObj.toLocaleDateString("en-US", { weekday: "long", month: "short", day: "numeric" });
+      
+    const dayVisits = byDate.get(selectedDate) ?? [];
+    
+    return (
+      <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-3)" }}>
+        {/* Compact Dot Grid */}
+        <div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: "var(--space-1)", marginBottom: "var(--space-1)" }}>
+            {["M","T","W","T","F","S","S"].map((l, i) => (
+              <div key={i} style={{ textAlign: "center", fontSize: 10, fontWeight: 700, color: "var(--fg-muted)", padding: "4px 0" }}>{l}</div>
+            ))}
+          </div>
+          {grid.map((row, ri) => (
+            <div key={ri} style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: "var(--space-1)", marginBottom: "var(--space-1)" }}>
+              {row.map((day, ci) => {
+                if (!day) return <div key={ci} style={{ minHeight: 48 }} />;
+                const dayStr = toDateStr(day);
+                const isToday = dayStr === todayStr;
+                const isSelected = dayStr === selectedDate;
+                const hasVisits = (byDate.get(dayStr) ?? []).length > 0;
+                
+                return (
+                  <button
+                    key={ci}
+                    type="button"
+                    onClick={() => setSelectedDate(dayStr)}
+                    className={`mobile-day-cell ${isSelected ? "selected" : ""} ${isToday ? "today" : ""}`}
+                    style={{
+                      border: isToday ? "1px solid var(--accent)" : "1px solid var(--border)",
+                      color: isSelected ? "var(--accent)" : "var(--fg)"
+                    }}
+                  >
+                    <span style={{ fontSize: 13, fontWeight: isToday || isSelected ? 700 : 500 }}>
+                      {day.getDate()}
+                    </span>
+                    {hasVisits && <span className="mobile-day-dot" />}
+                  </button>
+                );
+              })}
+            </div>
+          ))}
+        </div>
+        
+        {/* Agenda Section for Selected Date */}
+        <div className="mobile-visit-list">
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "var(--space-3)", borderBottom: "1px solid var(--border)", paddingBottom: "var(--space-2)" }}>
+            <h4 style={{ margin: 0, fontSize: "var(--text-sm)", fontWeight: 700 }}>
+              {formattedSelected}
+            </h4>
+            {isAdmin && (
+              <button
+                type="button"
+                className="p7-btn p7-btn-secondary p7-btn-sm"
+                style={{ minHeight: 28 }}
+                onClick={() => setQuickBookDate(selectedDate)}
+              >
+                + Book
+              </button>
+            )}
+          </div>
+          
+          <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-2)" }}>
+            {dayVisits.map(v => (
+              <VisitCard
+                key={v.id}
+                visit={v}
+                isAdmin={isAdmin}
+                isDragging={draggingId === v.id}
+                onDragStart={handleDragStart}
+                onDragEnd={handleDragEnd}
+              />
+            ))}
+            {dayVisits.length === 0 && (
+              <div style={{ textAlign: "center", padding: "var(--space-4)", color: "var(--fg-muted)", fontSize: "var(--text-sm)", fontStyle: "italic" }}>
+                No visits scheduled for this day
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ── Year view ───────────────────────────────────────────────────────────────
+  function renderYearView() {
+    const year = rangeDate.getFullYear();
+    return (
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: "var(--space-4)" }}>
+        {Array.from({ length: 12 }, (_, i) => i + 1).map(m => {
+          const grid = getMonthGrid(year, m);
+          const now = new Date();
+          const isCurrentMonth = year === now.getFullYear() && m === now.getMonth() + 1;
+          let monthTotal = 0;
+          for (let d = 1; d <= new Date(year, m, 0).getDate(); d++) {
+            monthTotal += byDate.get(toDateStr(new Date(year, m - 1, d)))?.length ?? 0;
+          }
+          return (
+            <div key={m} style={{ border: "1px solid var(--border)", borderRadius: 8, padding: "var(--space-3)", background: isCurrentMonth ? "rgba(37,99,235,0.02)" : "#fff" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: "var(--space-2)" }}>
+                <button type="button" onClick={() => router.push(monthUrl(year, m) as Route)} style={{ fontSize: "var(--text-sm)", fontWeight: 700, color: isCurrentMonth ? "var(--accent)" : "var(--fg)", background: "none", border: "none", padding: 0, cursor: "pointer" }}>
+                  {MONTH_NAMES[m - 1]}
+                </button>
+                {monthTotal > 0 && (
+                  <span style={{ fontSize: "var(--text-xs)", color: "var(--fg-muted)" }}>{monthTotal} visit{monthTotal !== 1 ? "s" : ""}</span>
+                )}
+              </div>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 1, marginBottom: 2 }}>
+                {["M","T","W","T","F","S","S"].map((d, i) => (
+                  <div key={i} style={{ textAlign: "center", fontSize: 9, color: "var(--fg-muted)", fontWeight: 600 }}>{d}</div>
+                ))}
+              </div>
+              {grid.map((row, ri) => (
+                <div key={ri} style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 1, marginBottom: 1 }}>
+                  {row.map((day, ci) => {
+                    if (!day) return <div key={ci} />;
+                    const dayStr = toDateStr(day);
+                    const count = byDate.get(dayStr)?.length ?? 0;
+                    const isToday = dayStr === todayStr;
+                    const bg = isToday ? "var(--accent)" : count >= 4 ? "rgba(37,99,235,0.65)" : count >= 2 ? "rgba(37,99,235,0.38)" : count === 1 ? "rgba(37,99,235,0.18)" : "transparent";
+                    const fg = isToday || count >= 4 ? "#fff" : "var(--fg)";
+                    return (
+                      <button key={ci} type="button" title={count > 0 ? `${count} visit${count !== 1 ? "s" : ""}` : undefined} onClick={() => router.push(weekUrl(getWeekStartFromStr(dayStr)) as Route)} style={{ background: bg, borderRadius: 3, border: "none", cursor: "pointer", padding: 0, aspectRatio: "1", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 9, color: fg, fontWeight: isToday ? 700 : 400, minHeight: 18 }}>
+                        {day.getDate()}
+                      </button>
+                    );
+                  })}
+                </div>
+              ))}
+            </div>
+          );
+        })}
+      </div>
+    );
+  }
+
+  // ── Render ──────────────────────────────────────────────────────────────────
+  return (
+    <div>
+      <style>{`
+        .desktop-only {
+          display: block;
+        }
+        .mobile-only {
+          display: none;
+        }
+        .mobile-flex {
+          display: none;
+        }
+        @media (max-width: 768px) {
+          .desktop-only {
+            display: none !important;
+          }
+          .mobile-only {
+            display: block !important;
+          }
+          .mobile-flex {
+            display: flex !important;
+          }
+        }
+        /* Style for mobile calendar day dots */
+        .mobile-day-cell {
+          aspect-ratio: 1;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          border: 1px solid var(--border);
+          background: var(--bg-card);
+          border-radius: var(--radius-md);
+          cursor: pointer;
+          position: relative;
+          padding: 2px;
+          min-height: 48px;
+        }
+        .mobile-day-cell.selected {
+          border-color: var(--accent) !important;
+          background: var(--accent-subtle) !important;
+        }
+        .mobile-day-cell.today {
+          font-weight: 700;
+          color: var(--accent);
+          border-color: var(--accent);
+        }
+        .mobile-day-dot {
+          width: 5px;
+          height: 5px;
+          border-radius: var(--radius-full);
+          background: var(--accent);
+          position: absolute;
+          bottom: 4px;
+        }
+        .mobile-visit-list {
+          margin-top: var(--space-4);
+          background: var(--bg-subtle);
+          border: 1px solid var(--border);
+          border-radius: var(--radius-lg);
+          padding: var(--space-4);
+        }
+      `}</style>
+
+      {/* View toggle + navigation */}
+      <div style={{ display: "flex", alignItems: "center", gap: "var(--space-3)", marginBottom: "var(--space-4)", flexWrap: "wrap", justifyContent: "space-between" }}>
+        <ScheduleViewToggle
+          current={view}
+          isAdmin={isAdmin}
+          weekUrl={toWeekUrl}
+          monthUrl={toMonthUrl}
+          yearUrl={toYearUrl}
+        />
+
+        <div style={{ display: "flex", alignItems: "center", gap: "var(--space-2)" }}>
+          <button type="button" className="p7-btn p7-btn-secondary" style={{ padding: "0 var(--space-3)" }} onClick={() => router.push(prevUrl as Route)} aria-label="Previous period">←</button>
+          <span style={{ fontWeight: 600, color: "var(--fg)", minWidth: view === "year" ? 54 : view === "month" ? 130 : 180, textAlign: "center", fontSize: "var(--text-sm)" }}>{rangeLabel}</span>
+          <button type="button" className="p7-btn p7-btn-secondary" style={{ padding: "0 var(--space-3)" }} onClick={() => router.push(nextUrl as Route)} aria-label="Next period">→</button>
+          {!isCurrent && (
+            <button type="button" className="p7-btn p7-btn-ghost" style={{ color: "var(--accent)" }} onClick={() => router.push(todayUrl as Route)}>Today</button>
+          )}
+        </div>
+      </div>
+
+      {pendingMove && (
+        <div role="alert" data-testid="schedule-conflict" style={{ marginBottom: "var(--space-3)", padding: "var(--space-3)", background: "rgba(217,119,6,0.12)", borderRadius: 6 }}>
+          <strong>Schedule conflict</strong>
+          <p style={{ margin: "var(--space-1) 0 var(--space-2)" }}>{pendingMove.message}</p>
+          <div style={{ display: "flex", gap: "var(--space-2)", flexWrap: "wrap" }}>
+            <button type="button" className="p7-btn p7-btn-secondary" onClick={() => setPendingMove(null)}>
+              Choose another time
+            </button>
+            <button
+              type="button"
+              className="p7-btn p7-btn-primary"
+              onClick={() => saveMove(pendingMove.visitId, pendingMove.newStart, pendingMove.newEnd, true)}
+            >
+              Move anyway
+            </button>
+          </div>
+        </div>
+      )}
+
+      {dropError && (
+        <div style={{ marginBottom: "var(--space-3)", padding: "var(--space-2) var(--space-3)", background: "rgba(220,38,38,0.1)", borderRadius: 6, color: "#dc2626", fontSize: "var(--text-sm)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <span>{dropError}</span>
+          <button type="button" onClick={() => setDropError(null)} style={{ background: "none", border: "none", cursor: "pointer", color: "#dc2626", fontSize: "var(--text-base)", lineHeight: 1 }}>×</button>
+        </div>
+      )}
+
+      {/* Week View */}
+      {view === "week" && (
+        <>
+          <div className="desktop-only">{renderWeekView()}</div>
+          <div className="mobile-only">{renderWeekViewMobile()}</div>
+        </>
+      )}
+
+      {/* Month View */}
+      {view === "month" && (
+        <>
+          <div className="desktop-only">{renderMonthView()}</div>
+          <div className="mobile-only">{renderMonthViewMobile()}</div>
+        </>
+      )}
+
+      {/* Year View */}
+      {view === "year" && renderYearView()}
+
+      {localVisits.length === 0 && view !== "year" && (
+        <div style={{ marginTop: "var(--space-8)", textAlign: "center", color: "var(--fg-muted)", fontSize: "var(--text-sm)" }}>
+          No visits scheduled for this {view}.{" "}
+          <Link href={(isAdmin ? "/app/schedule?view=list" : "/app/visits") as Route} style={{ color: "var(--accent)" }}>View all visits →</Link>
+        </div>
+      )}
+
+      {isAdmin && view !== "year" && draggingId === null && (
+        <p className="desktop-only" style={{ marginTop: "var(--space-3)", fontSize: "var(--text-xs)", color: "var(--fg-muted)", textAlign: "center" }}>
+          Drag visits to reschedule · Click + to quick book
+        </p>
+      )}
+
+      {quickBookDate && (
+        <QuickBookModal
+          initialDate={quickBookDate}
+          onClose={() => setQuickBookDate(null)}
+        />
+      )}
+    </div>
+  );
+}

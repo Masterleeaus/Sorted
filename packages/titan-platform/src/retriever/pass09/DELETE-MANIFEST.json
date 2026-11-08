@@ -1,0 +1,49 @@
+{
+  "schema": "titan-zero-delta-delete-manifest/v1",
+  "packet_id": "TZ-FINISH-RETRIEVER-NATIVE-001",
+  "pass": 9,
+  "apply_mode": "MANAGER_CONVERGENCE_DELETE",
+  "base_merge": 52,
+  "preconditions": {
+    "pass8_regression_certification": "PASS",
+    "live_donor_reference_count": 0,
+    "live_donor_import_count": 0,
+    "rollback_sources_verified": true,
+    "company_boundary": "company_id",
+    "identity_grants_authority": false
+  },
+  "deletions": [
+    {
+      "path": "packages/titan-platform/src/ported/retriever-background.iife.ts",
+      "removed_sha256": "738013dfb093b5a00bc57cbcc41a781ed78d650362029dbe75de8851ef9b084e",
+      "rollback_path": "packages/titan-zero-migration-source/complete-extension-source-census/browser-adapter-required/retriever-background.iife.js",
+      "rollback_sha256": "080267be826d81fc9ff1061b24fc2ee92cff37fe4d08dfe5d6d5eba2f2d14ce9",
+      "reason": "Native Retriever execution/lifecycle/surface/recovery parity certified; no live imports/references remain."
+    },
+    {
+      "path": "packages/titan-platform/src/ported/side-panel/titan-retriever-bridge.ts",
+      "removed_sha256": "7781e924a64f71359a2ac6c1c91f75158160e86eeace9c326de8091f3b776662",
+      "rollback_path": "packages/titan-zero-migration-source/complete-extension-source-census/browser-adapter-required/side-panel/titan-retriever-bridge.js",
+      "rollback_sha256": "9d23a44e1322053c8b5d4383fb412c1739ca4dd1469db334ee69769d380fb24f",
+      "reason": "DOM/Chrome Retriever bridge is quarantined and superseded by native surface bridge; zero live consumers."
+    },
+    {
+      "path": "packages/titan-platform/src/ported/titan-runtime/adapters/retriever-adapter.ts",
+      "removed_sha256": "f74e8f91c9eb8639c46f6200bf64660a7e70640f99aa85f743b5148a5ced0478",
+      "rollback_path": "packages/titan-zero-migration-source/portable-core/titan-runtime/adapters/retriever-adapter.mjs",
+      "rollback_sha256": "0d239e49dde155e12fc9f95fd13430a3bca1aeb798d67648203c30e52315b25b",
+      "reason": "Compatibility transport TITAN_EXECUTE_OUTCOME is superseded by typed native Retriever executor; zero live consumers."
+    }
+  ],
+  "shared_file_edits": [
+    {
+      "path": "packages/titan-platform/src/ported/compatibility/monica/background-runtime-boundary.ts",
+      "change": "Removed Retriever donor import only; retained Monica/chat compatibility boundary."
+    }
+  ],
+  "do_not_delete": [
+    "packages/titan-platform/src/ported/background-bootstrap.ts",
+    "packages/titan-platform/src/ported/compatibility/monica/background-runtime-boundary.ts"
+  ],
+  "rollback_policy": "Restore from listed migration provenance path and re-run Pass8/Pass9 tests before reactivation."
+}

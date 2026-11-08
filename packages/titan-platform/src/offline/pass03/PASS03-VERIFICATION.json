@@ -1,0 +1,24 @@
+{
+  "schema": "titan-zero-offline-pass03-verification/v1",
+  "workspace": "Builder 3",
+  "packet_id": "TZ-FINISH-OFFLINE-RESILIENCE-001",
+  "pass": 3,
+  "status": "PASS_COMPLETE_CONTINUE",
+  "checks": {
+    "typecheck": "PASS",
+    "fresh_compile": "PASS",
+    "full_titan_platform_suite": "88/88 PASS",
+    "durable_company_queue": "PASS",
+    "duplicate_enqueue": "IDEMPOTENT",
+    "bounded_backpressure": "FAIL_CLOSED",
+    "bounded_exponential_retry": "PASS",
+    "retry_exhaustion": "DEAD_LETTER",
+    "ambiguous_effect": "DEAD_LETTER_IMMEDIATE",
+    "poison_item_does_not_block_queue": "PASS",
+    "cross_company": "FAIL_CLOSED",
+    "legacy_alias": "FAIL_CLOSED",
+    "identity_grants_authority": false,
+    "execution_authority": false
+  },
+  "next_gate": "Pass 4: snapshot/pull/apply/revision synchronization and conflict resolution."
+}

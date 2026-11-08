@@ -1,0 +1,36 @@
+{
+  "schema": "titan-agent-intents/v1",
+  "intents": [
+    {
+      "agent": "titan-zero-module-runtime-agent",
+      "goal": "Resolve TZ-P0-003 module lifecycle conflict by converging Runtime v2, transactional installer, signed marketplace, governance grants, Company Module Manager, bundle lifecycle and rollback under one trusted Platform Manager boundary without replacing UI.",
+      "expected_files": [
+        "manifest.json",
+        "titan-modules/**",
+        "modules.js",
+        "tests/**",
+        "titan-agent/**"
+      ],
+      "expected_contracts": [
+        "company_id",
+        "TitanModuleV1",
+        "titan-module-package/v1",
+        "titan.module-platform-manager-lifecycle/v1",
+        "governance_grant"
+      ],
+      "dependencies": [
+        "Titan-Zero-v0.18.1-Manager-Canonical-Convergence-CUMULATIVE.zip",
+        "Titan-Zero-v0.15.0-Step05-Module-Runtime-v2-DELTA.zip",
+        "Titan-Zero-v0.16.0-Step06-Module-Installation-System-DELTA.zip"
+      ],
+      "possible_shared_hotspots": [
+        "manifest.json",
+        "titan-modules/**",
+        "modules.js",
+        "titan-agent/**"
+      ],
+      "breaking_change_expected": false,
+      "ui_replacement_expected": false
+    }
+  ]
+}

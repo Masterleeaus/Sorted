@@ -1,0 +1,23 @@
+{
+  "schema": "titan-zero-donor-integration/v1",
+  "donor": "base extensions - VITAL COMPONENT SOURCE.zip",
+  "source_sha256": "3eecc8c2a33ff2b99c8aee891124ade98224057a8d94e201210c0333b0b7bf6f",
+  "retained_extension_inventory": 19,
+  "implementation": "clean-room pattern reimplementation",
+  "company_boundary": "company_id",
+  "authority_neutral": true,
+  "integrated_capabilities": [
+    "browser.capability_packs",
+    "browser.cross_tab_sessions",
+    "knowledge.page_evidence",
+    "work.contextual_task_intent",
+    "interaction.prompt_quality_proposal",
+    "commerce.commercial_decision_intelligence"
+  ],
+  "excluded": [
+    "raw/minified proprietary donor code",
+    "donor tenant/auth authority",
+    "duplicate browser shells/side panels",
+    "billing/branding/provider secrets"
+  ]
+}

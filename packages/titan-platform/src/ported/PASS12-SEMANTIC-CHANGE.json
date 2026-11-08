@@ -1,0 +1,17 @@
+{
+  "schema": "titan-zero-semantic-change/v1",
+  "pass": 12,
+  "summary": "Adds evidence-only renewal/replacement review over Pass11 active Marketplace components.",
+  "manager_merge_target": 29,
+  "forward_port_only": true,
+  "preserve_manager29_repair06": true,
+  "runtime_files": [
+    "cleaning-marketplace-renewal.js",
+    "titan-modules/cleaning-marketplace-renewal.json"
+  ],
+  "ui_files": [
+    "modules.html",
+    "modules.css"
+  ],
+  "authority_change": false
+}

@@ -1,0 +1,20 @@
+{
+  "schema": "titan-zero-agent-handoff/v1",
+  "programme": "cleaning-growth-marketplace",
+  "completed_pass": 5,
+  "next_pass": 6,
+  "checkpoint": true,
+  "manager_baseline": {
+    "manager_merge": 27,
+    "artifact": "Titan-Zero-CANONICAL-MASTER-2026-09-07-MERGE-27-AGENT3-RUNTIME-REPAIRS-CONVERGED.zip",
+    "sha256": "aa20b791ec2f9352eeb9506b041b07b59702ef7915463ae72ae29437c977d4a0",
+    "files": 2081
+  },
+  "next_title": "Launch economics and controlled trial readiness without invented revenue or automatic actions",
+  "status": "PASS5_CHECKPOINT_READY_FOR_CONTINUATION",
+  "notes": [
+    "Use this Pass5 cumulative as the retained marketplace lineage parent unless a fresh Manager baseline can be byte-rebased first.",
+    "Rescan Agent Mesh before Pass6.",
+    "Do not enter shared Tools/Knowledge contribution wiring while TZ-NEXT-010 is dependency-gated."
+  ]
+}

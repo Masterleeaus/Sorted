@@ -1,0 +1,23 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema",
+  "$id":"titan.workforce.dispatch.recommendation.v1",
+  "title":"Titan Zero Dispatch Recommendation",
+  "type":"object",
+  "required":["schema","dispatch_recommendation_id","company_id","work_item_id","state","candidates","selected_candidate","requires_approval","automatic_assignment","execution_permitted","grants_authority"],
+  "properties":{
+    "schema":{"const":"titan.workforce.dispatch.recommendation.v1"},
+    "dispatch_recommendation_id":{"type":"string","minLength":1},
+    "company_id":{"type":"string","minLength":2},
+    "work_item_id":{"type":"string","minLength":1},
+    "state":{"enum":["RECOMMENDED","NO_ELIGIBLE_CANDIDATE","NOT_DISPATCHABLE"]},
+    "candidates":{"type":"array"},
+    "selected_candidate":{"type":["object","null"]},
+    "requires_approval":{"const":true},
+    "automatic_assignment":{"const":false},
+    "automatic_reassignment":{"const":false},
+    "execution_permitted":{"const":false},
+    "identity_confers_authority":{"const":false},
+    "grants_authority":{"const":false}
+  },
+  "additionalProperties":true
+}

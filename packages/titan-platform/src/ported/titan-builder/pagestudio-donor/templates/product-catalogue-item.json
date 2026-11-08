@@ -1,0 +1,32 @@
+{
+  "template": {
+    "id": "product-catalogue-item",
+    "version": "1.0.0",
+    "name": "Product Catalogue Item",
+    "status": "ready",
+    "category": "commerce",
+    "entry_wizard": "product_catalogue_item_v1",
+    "capabilities": [
+      "commerce.products.upsert"
+    ],
+    "channels": [
+      "chat",
+      "mobile",
+      "tablet",
+      "desktop",
+      "voice"
+    ],
+    "governance": {
+      "authority": "human_review_when_required",
+      "offline": true
+    },
+    "metadata": {
+      "verticals": [
+        "ecommerce",
+        "retail",
+        "wholesale"
+      ],
+      "pack": "commerce_multi_vertical_2026_08"
+    }
+  }
+}

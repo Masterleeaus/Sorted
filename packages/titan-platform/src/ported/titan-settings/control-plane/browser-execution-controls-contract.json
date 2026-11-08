@@ -1,0 +1,14 @@
+{
+  "schema":"titan-zero-browser-execution-controls-contract/v1",
+  "company_boundary":"company_id",
+  "owner":"browser_execution",
+  "device_settings":["closeTabsAfterExecution","consecutiveScrollDelay","extractionSpeed","maxParallelTabs","networkToolExecutionMode","pageLoadDelay","remoteBrowserToolsConfig"],
+  "bounds":{"maxParallelTabs":[1,20],"pageLoadDelay":[0,60000],"consecutiveScrollDelay":[0,60000]},
+  "extraction_speeds":["fast","balanced","thorough"],
+  "rules":[
+    "company policy may contract device browser settings but may not expand runtime capability",
+    "network execution modes are validated against runtime-provided allowed modes; Settings does not invent a closed enum",
+    "remote browser requires company permission plus runtime availability plus external-execution permission",
+    "Settings does not execute browser actions, grant authority, bypass tool permissions, approval, entitlement, cost, or runtime safety"
+  ]
+}

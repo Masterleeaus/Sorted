@@ -1,0 +1,150 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "titan.workforce.gateway.contract.v2",
+  "title": "Titan Workforce Gateway Contract v2",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "contract_schema",
+    "request_id",
+    "company_id",
+    "actor_id",
+    "source_surface",
+    "target_domain",
+    "intent",
+    "operation",
+    "mode",
+    "trace_id",
+    "correlation_id",
+    "causation_id",
+    "idempotency_key",
+    "evidence_refs",
+    "auth_context",
+    "requested_at",
+    "grants_authority"
+  ],
+  "properties": {
+    "schema": {
+      "const": "titan.workforce.gateway.request.v2"
+    },
+    "contract_schema": {
+      "const": "titan.workforce.gateway.contract.v2"
+    },
+    "request_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "company_id": {
+      "type": "string",
+      "minLength": 2,
+      "maxLength": 128,
+      "pattern": "^[A-Za-z0-9._:-]+$"
+    },
+    "actor_id": {
+      "type": "string",
+      "minLength": 2
+    },
+    "source_surface": {
+      "const": "titan_zero"
+    },
+    "target_domain": {
+      "const": "client_workforce"
+    },
+    "intent": {
+      "type": "string",
+      "minLength": 1
+    },
+    "operation": {
+      "type": "string",
+      "minLength": 1
+    },
+    "mode": {
+      "enum": [
+        "read",
+        "propose"
+      ]
+    },
+    "trace_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "correlation_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "causation_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "idempotency_key": {
+      "type": "string",
+      "minLength": 1
+    },
+    "mission_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "handover_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "evidence_refs": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "requested_at": {
+      "type": "string"
+    },
+    "grants_authority": {
+      "const": false
+    },
+    "payload": {},
+    "backend_lineage_expectation": {
+      "type": "object"
+    },
+    "deployment_lineage_expectation": {
+      "type": "object"
+    },
+    "auth_context": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema",
+        "requested_actor_id",
+        "requested_company_id",
+        "binding_mode",
+        "grants_authority"
+      ],
+      "properties": {
+        "schema": {
+          "const": "titan.workforce.gateway.auth-context.v1"
+        },
+        "requested_actor_id": {
+          "type": "string",
+          "minLength": 2
+        },
+        "requested_company_id": {
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 128
+        },
+        "binding_mode": {
+          "enum": [
+            "server_authenticated_actor",
+            "explicit_actor"
+          ]
+        },
+        "grants_authority": {
+          "const": false
+        }
+      }
+    }
+  }
+}

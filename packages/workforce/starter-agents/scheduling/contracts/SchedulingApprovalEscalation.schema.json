@@ -1,0 +1,22 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema",
+  "$id":"titan.scheduling.approval-escalation.v1",
+  "type":"object",
+  "required":["schema","company_id","schedule_intent_id","work_item_id","operation_id","action_id","risk_level","status","target_surface","approval_required","approval_satisfied","authority_evaluation_satisfied","requires_canonical_authority_evaluator","requires_command_bus","projection_only","automatic_assignment","automatic_reschedule","direct_mutation","execution_permitted","authority_granted","grants_authority"],
+  "properties":{
+    "schema":{"const":"titan.scheduling.approval-escalation.v1"},
+    "company_id":{"type":"string","minLength":1},
+    "status":{"enum":["REQUIREMENTS_REVIEW_REQUIRED","AUTHORITY_EVALUATION_REQUIRED","READY_FOR_GOVERNED_SUBMISSION","APPROVAL_REQUIRED","EVIDENCE_REQUIRED","ESCALATION_REQUIRED","DENIED","AUTHORITY_UNAVAILABLE","RECOVERY_REQUIRED"]},
+    "target_surface":{"enum":["decision_feed","approval_queue","human_review"]},
+    "requires_canonical_authority_evaluator":{"const":true},
+    "requires_command_bus":{"const":true},
+    "projection_only":{"const":true},
+    "automatic_assignment":{"const":false},
+    "automatic_reschedule":{"const":false},
+    "direct_mutation":{"const":false},
+    "execution_permitted":{"const":false},
+    "authority_granted":{"const":false},
+    "grants_authority":{"const":false}
+  },
+  "additionalProperties":true
+}

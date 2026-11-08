@@ -1,0 +1,61 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "titan.workforce.gateway.realtime-sync.v1",
+  "title": "Titan Workforce realtime projection event",
+  "type": "object",
+  "required": [
+    "company_id",
+    "grants_authority"
+  ],
+  "properties": {
+    "schema": {
+      "const": "titan.workforce.gateway.realtime.projection.v1"
+    },
+    "company_id": {
+      "type": "string",
+      "minLength": 2,
+      "maxLength": 128
+    },
+    "component": {
+      "enum": [
+        "status",
+        "workforce_profile",
+        "roster",
+        "assignments",
+        "approvals",
+        "approval_waits",
+        "escalations",
+        "handover",
+        "change_requests"
+      ]
+    },
+    "revision": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "minimum": 0
+    },
+    "cursor": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "maxLength": 240
+    },
+    "data": {},
+    "projection": {
+      "type": "object"
+    },
+    "target_surface": {
+      "enum": [
+        "titan_zero",
+        null
+      ]
+    },
+    "grants_authority": {
+      "const": false
+    }
+  },
+  "additionalProperties": true
+}

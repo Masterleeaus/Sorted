@@ -1,0 +1,12 @@
+{
+  "schema":"titan-zero-chrome-repair-rebase/v1",
+  "repair":7,
+  "agent":"convergence-agent-1",
+  "parent":{"manager_merge":29,"artifact":"Titan-Zero-CANONICAL-MASTER-2026-09-07-MERGE-29-REPAIR06-CONVERGED.zip","sha256":"3e5520d2495c2a5edde310d12d2b82de399e9277248c1fdfb5cd85df5df9d70b","files":2245},
+  "classification":"SEMANTIC_REBASE_ON_CURRENT_MANAGER_CANONICAL",
+  "repairs":["isolate retained donor content runtime from Titan side-panel startup","make Titan sole owner of public run-monica-on-new-tab launch command"],
+  "inherited_from_manager29":["Repair06 explicit launch view precedence","Repair06 explicit AI target precedence"],
+  "company_boundary":"company_id only",
+  "identity_grants_authority":false,
+  "rendered_unpacked_chrome":"NOT_CERTIFIED"
+}

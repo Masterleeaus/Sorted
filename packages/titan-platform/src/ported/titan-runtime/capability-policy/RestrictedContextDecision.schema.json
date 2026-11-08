@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "titan.zero.restricted-context-decision.v1",
+  "type": "object",
+  "required": ["schema", "company_id", "target", "target_class", "allowed", "reason", "authority_neutral", "permission_confers_authority", "fallback_escalation_permitted", "cross_company_access_permitted"],
+  "properties": {
+    "schema": { "const": "titan.zero.restricted-context-decision.v1" },
+    "company_id": { "type": "string", "minLength": 1 },
+    "target": { "type": "string" },
+    "target_class": { "enum": ["RESTRICTED_SITE", "PAYMENT_PAGE", "AUTHENTICATION_PAGE", "BROWSER_RESTRICTED", "UNCLASSIFIED_TARGET", "GENERAL_WEB"] },
+    "allowed": { "type": "boolean" },
+    "reason": { "type": "string", "minLength": 1 },
+    "authority_neutral": { "const": true },
+    "permission_confers_authority": { "const": false },
+    "fallback_escalation_permitted": { "const": false },
+    "cross_company_access_permitted": { "const": false }
+  },
+  "additionalProperties": true
+}

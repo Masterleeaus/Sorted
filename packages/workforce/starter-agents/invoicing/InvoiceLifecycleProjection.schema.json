@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "titan.workforce.starter.invoicing.lifecycle-projection.v1",
+  "title": "Titan Starter Invoicing Agent Lifecycle Projection",
+  "type": "object",
+  "required": ["schema", "company_id", "worker", "accepted", "authority"],
+  "properties": {
+    "schema": {"const": "titan.workforce.starter.invoicing.lifecycle-projection.v1"},
+    "company_id": {"type": "string", "minLength": 1},
+    "worker": {"const": "Invoicing Agent"},
+    "accepted": {"type": "boolean"},
+    "source": {"type": "object"},
+    "projection": {"type": "object"},
+    "financial_refs": {"type": "object"},
+    "commercial_context": {"type": "object"},
+    "blockers": {"type": "array", "items": {"type": "string"}},
+    "authority": {
+      "type": "object",
+      "required": ["grants_authority", "execution_permitted"],
+      "properties": {
+        "grants_authority": {"const": false},
+        "execution_permitted": {"const": false}
+      }
+    }
+  },
+  "additionalProperties": true
+}

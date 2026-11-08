@@ -1,0 +1,210 @@
+{
+  "schema": "titan-zero-chrome-load-evidence-map/v1",
+  "packet_id": "TZ-FIX-LOAD-STABILITY-001",
+  "pass": 1,
+  "manager_base": {
+    "merge": 39,
+    "artifact": "Titan-Zero-CANONICAL-MASTER-2026-09-08-MERGE-39-CHROME-REPAIR10-CONVERGED.zip",
+    "sha256": "c5c5bc321913dfd9f2d56847c43fa9cad3652907be94f163cbeacef9672c23c7",
+    "files": 2844
+  },
+  "startup_entrypoints": {
+    "service_worker": "background-bootstrap.js",
+    "side_panel": "sidePanel.html",
+    "toolbar_popup": "titan-popup.html",
+    "page_rehydration": "titan-runtime/page-context-rehydration.mjs"
+  },
+  "historical_failures": [
+    {
+      "id": "LOAD-001",
+      "symptom": "startup TypeError when chrome.instanceID is unavailable",
+      "repair": 2,
+      "state": "CODE_FIXED",
+      "evidence": [
+        "CHROME-LOAD-REPAIR-02-CHANGELOG.md"
+      ]
+    },
+    {
+      "id": "LOAD-002",
+      "symptom": "donor Monica surfaces exposed as primary Titan startup UI",
+      "repair": 3,
+      "state": "CODE_FIXED",
+      "evidence": [
+        "CHROME-LOAD-REPAIR-03-CHANGELOG.md",
+        "manifest.json"
+      ]
+    },
+    {
+      "id": "LOAD-003",
+      "symptom": "unsafe query embedded in chrome.runtime.getURL launcher paths and donor fallback routing",
+      "repair": 5,
+      "state": "CODE_FIXED",
+      "evidence": [
+        "CHROME-LOAD-REPAIR-05-CHANGELOG.md",
+        "tests/chrome_load_repair05_routing_resilience.test.mjs"
+      ]
+    },
+    {
+      "id": "LOAD-004",
+      "symptom": "persisted workspace state overrides explicit URL launch state",
+      "repair": 6,
+      "state": "CODE_FIXED",
+      "evidence": [
+        "CHROME-LOAD-REPAIR-06-CHANGELOG.md",
+        "tests/chrome_load_repair06_launch_state_precedence.test.mjs"
+      ]
+    },
+    {
+      "id": "LOAD-005",
+      "symptom": "heavy retained compatibility runtime executes on Titan shell startup / donor command owns public launch",
+      "repair": 7,
+      "state": "CODE_FIXED",
+      "evidence": [
+        "CHROME-LOAD-REPAIR-07-CHANGELOG.md"
+      ]
+    },
+    {
+      "id": "LOAD-006",
+      "symptom": "already-open tabs retain stale launcher DOM after extension reload/update",
+      "repair": 8,
+      "state": "CODE_FIXED",
+      "evidence": [
+        "CHROME-LOAD-REPAIR-08-CHANGELOG.md",
+        "tests/chrome_load_repair08_reload_recovery.test.mjs",
+        "tests/chrome_load_repair08_service_worker_rehydrate.test.mjs"
+      ]
+    },
+    {
+      "id": "LOAD-007",
+      "symptom": "retained compatibility install/update handler can duplicate public content reinjection/onboarding",
+      "repair": 9,
+      "state": "CODE_FIXED",
+      "evidence": [
+        "tests/chrome_load_repair09_update_reinjection.test.mjs"
+      ]
+    },
+    {
+      "id": "LOAD-008",
+      "symptom": "transient tab injection failure leaves launcher unrecovered",
+      "repair": 10,
+      "state": "CODE_FIXED_WITH_BOUNDED_RETRY",
+      "evidence": [
+        "CHROME-LOAD-REPAIR-10-MANAGER39-CONVERGENCE.json",
+        "tests/chrome_load_repair10_rehydration_retry.test.mjs"
+      ]
+    }
+  ],
+  "current_risks": [
+    {
+      "id": "RISK-001",
+      "severity": "HIGH",
+      "state": "OPEN_FOR_PASS2",
+      "summary": "Service-worker bootstrap import ordering has code-level coverage but no explicit startup-order assertion across module host, storage, native runtime, workforce runtime, rehydration, compatibility boundary and observability."
+    },
+    {
+      "id": "RISK-002",
+      "severity": "HIGH",
+      "state": "ASSERTED_PASS3",
+      "summary": "Manifest MAIN/ISOLATED content-script registration, world separation, and duplicate-injection protections are covered by Pass3 regression assertions; no new injection mechanism introduced."
+    },
+    {
+      "id": "RISK-003",
+      "severity": "MEDIUM",
+      "state": "OPEN_FOR_PASS6",
+      "summary": "Page rehydration self-activation intentionally swallows top-level rejection; failed startup cannot currently be correlated through startup diagnostics from this module alone."
+    },
+    {
+      "id": "RISK-004",
+      "severity": "MEDIUM",
+      "state": "OPEN_FOR_PASS8",
+      "summary": "background-bootstrap.js remains exactly 8033 bytes against the inherited 8192-byte startup budget, leaving 159 bytes headroom."
+    },
+    {
+      "id": "RISK-005",
+      "severity": "HIGH",
+      "state": "UNVERIFIED_ENVIRONMENT",
+      "summary": "Manager Merge39 explicitly reports live unpacked Chrome as NOT_CERTIFIED; code-level verification cannot substitute for rendered extension startup evidence."
+    }
+  ],
+  "collision_map": [
+    {
+      "path": "background-bootstrap.js",
+      "this_packet": "EXCLUSIVE",
+      "other_lane": "titan-zero-observability-agent",
+      "other_lane_claim": "SHARED",
+      "decision": "NO_EDIT_PASS1; coordinate before future shared-hotspot modification"
+    },
+    {
+      "path": "manifest.json",
+      "this_packet": "SHARED",
+      "decision": "NO_EDIT_PASS1"
+    },
+    {
+      "path": "titan-runtime/**",
+      "this_packet": "SHARED",
+      "decision": "ONLY packet-exclusive page-context-rehydration path may be edited without additional collision review"
+    },
+    {
+      "path": "titan-modules/**",
+      "this_packet": "SHARED",
+      "decision": "NO_EDIT_PASS1"
+    },
+    {
+      "path": "titan-workforce/**",
+      "this_packet": "SHARED",
+      "decision": "NO_EDIT_PASS1"
+    }
+  ],
+  "pass1_decision": {
+    "production_behavior_changed": false,
+    "reason": "Pass 1 is evidence mapping; existing Chrome Load Repairs 02-10 are retained and no speculative shared-hotspot mutation is justified before startup ordering audit.",
+    "next_pass": "Trace service-worker bootstrap and initialization ordering with startup assertions."
+  },
+  "authority": {
+    "changed": false,
+    "identity_grants_authority": false
+  },
+  "company_boundary": {
+    "changed": false,
+    "canonical": "company_id"
+  },
+  "pass02_startup_order": {
+    "status": "ASSERTED",
+    "contract": "diagnostics/startup/startup-order-contract.mjs",
+    "test": "tests/chrome_load_pass02_startup_order.test.mjs",
+    "canonical_order": [
+      "./titan-modules/module-host.mjs",
+      "./titan-local/storage/bootstrap.mjs",
+      "./runtime/native-runtime-background.mjs",
+      "./runtime/workforce-runtime-background.mjs",
+      "./titan-runtime/page-context-rehydration.mjs"
+    ],
+    "storage_dependencies": [
+      "runtime/native-runtime-background.mjs",
+      "runtime/workforce-runtime-background.mjs"
+    ],
+    "background_bootstrap_modified": false,
+    "reason": "Preserve shared bootstrap hotspot; assert the existing canonical order and storage dependency instead of rewriting it."
+  },
+  "pass03_content_script_injection": {
+    "status": "ASSERTED",
+    "test": "tests/chrome_load_pass03_content_script_injection.test.mjs",
+    "manifest_contract": {
+      "isolated_retriever": "content/all.iife.js",
+      "main_retriever": "content-main/all.iife.js",
+      "compat_isolated": "titan-zero-chat-content.compat.js",
+      "launcher_and_diagnostics": [
+        "titan-diagnostics-content.js",
+        "titan-launcher-overlay.js"
+      ]
+    },
+    "world_guards": {
+      "main_initialization": "__RTRVR_MAIN_WORLD_INITIALIZED__",
+      "main_bridge": "__RTRVR_MAIN_WORLD_LOCAL_BRIDGE_INSTALLED__",
+      "launcher_owner": "data-titan-zero-launcher"
+    },
+    "bulk_reinjection_prohibited": true,
+    "shared_manifest_modified": false,
+    "reason": "Preserve current manifest and compatibility behavior; codify existing MAIN/ISOLATED separation and duplicate guards rather than adding parallel content injection."
+  }
+}

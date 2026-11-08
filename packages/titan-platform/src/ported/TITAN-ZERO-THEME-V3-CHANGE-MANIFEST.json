@@ -1,0 +1,19 @@
+{
+  "pass": "extension-wide-theme-v3",
+  "date": "2026-09-05",
+  "default_palette": {
+    "background": "#05070b",
+    "primary": "#2563eb",
+    "secondary": "#64748b",
+    "tertiary": "#ec4899"
+  },
+  "changes": [
+    "extension-wide shared theme contract",
+    "persisted four-colour editor",
+    "Titan options becomes Chrome options page",
+    "Monica/chat/module compatibility surfaces themed",
+    "Retriever consumes live Titan theme tokens",
+    "hamburger Theme & Colours entry"
+  ],
+  "preservation": "Existing donor runtimes and CSS retained; theme is applied through override/token layers."
+}

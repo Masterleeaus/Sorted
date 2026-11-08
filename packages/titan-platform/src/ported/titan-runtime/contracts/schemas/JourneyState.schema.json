@@ -1,0 +1,61 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "titan://contracts/JourneyState/v1",
+  "title": "JourneyState",
+  "type": "object",
+  "required": [
+    "schema",
+    "company_id",
+    "surface",
+    "journey_id",
+    "wizard_ids",
+    "status",
+    "authority_neutral"
+  ],
+  "properties": {
+    "schema": {
+      "const": "titan.interaction.journey-state.v1"
+    },
+    "company_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "surface": {
+      "enum": [
+        "zero",
+        "go",
+        "hub"
+      ]
+    },
+    "journey_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "name": {
+      "type": "string"
+    },
+    "wizard_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "current_wizard_id": {},
+    "current_step": {
+      "type": "number",
+      "minimum": 0
+    },
+    "prerequisites": {
+      "type": "array"
+    },
+    "requirements": {
+      "type": "array"
+    },
+    "status": {
+      "type": "string"
+    },
+    "authority_neutral": {
+      "const": true
+    }
+  }
+}

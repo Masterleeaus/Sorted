@@ -1,0 +1,31 @@
+{
+  "schema": "titan-zero-retriever-finish-pass08-verification/v1",
+  "workspace": "Builder 3",
+  "packet_id": "TZ-FINISH-RETRIEVER-NATIVE-001",
+  "pass": 8,
+  "status": "PASS_COMPLETE_CONTINUE",
+  "manager_baseline": {
+    "merge": 52,
+    "sha256": "ea6c219d40ffbddcbb68e9c9ed741c93568fe12be2e4f09dd69af0b528366d92"
+  },
+  "checks": {
+    "focused_retriever": "40/40 PASS",
+    "titan_platform_suite": "48/48 PASS",
+    "titan_platform_typecheck": "PASS",
+    "company_isolation": "PASS_FAIL_CLOSED",
+    "authority_neutrality": "PASS",
+    "restart_checkpoint_roundtrip": "PASS",
+    "idempotency_after_restart": "PASS",
+    "fresh_authority_after_restart": "REQUIRED_AND_VERIFIED",
+    "compatibility_major_mismatch": "PASS_FAIL_CLOSED",
+    "unsupported_capability": "PASS_FAIL_CLOSED",
+    "live_donor_references": 0,
+    "live_donor_imports": 0,
+    "ported_provenance_imports": 2,
+    "pass9_eligibility": true,
+    "physical_deletion_performed": false,
+    "company_boundary": "company_id",
+    "identity_grants_authority": false
+  },
+  "next_gate": "Pass 9: re-run zero-live-reference and rollback gates against the cumulative Merge52 Retriever lane, then remove only proven-dead donor runtime files; preserve required provenance outside live production reachability."
+}

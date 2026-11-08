@@ -1,0 +1,14 @@
+{
+  "schema": "titan.zero.workforce.ui-production.v1",
+  "pass": 43,
+  "title": "Workforce UI Production",
+  "startup_surface": "retained-rich-monica-derived-shell",
+  "workforce_surface": "existing-sidePanel-workforce-view",
+  "integration": "rich-shell-workforce-command-centre",
+  "replaces_existing_ui": false,
+  "duplicates_navigation": false,
+  "company_boundary": "company_id",
+  "authority_effect": false,
+  "production_features": ["rich-shell-launcher","workforce-nav-intercept","full-height-command-centre","popup-full-page-fallback","escape-close","responsive-header","governance-status-strip"],
+  "notes": "The rich startup shell opens the existing governed Workforce workspace; no separate workforce product or authority path is created."
+}

@@ -1,0 +1,7 @@
+{
+  "schema": "titan-zero-retriever-finish-pass07-change-impact/v1",
+  "packet_id": "TZ-FINISH-RETRIEVER-NATIVE-001",
+  "pass": 7,
+  "impact": "Adds semantic retirement evaluator, regression tests, and authoritative retirement ledger. No donor file is removed and no shared public-export file is modified.",
+  "rollback": "Remove semantic-retirement.ts, its index export, Pass7 test/evidence and retirement ledger."
+}

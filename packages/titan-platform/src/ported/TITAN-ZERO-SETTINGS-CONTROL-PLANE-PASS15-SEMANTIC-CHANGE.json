@@ -1,0 +1,15 @@
+{
+  "schema": "titan-zero-settings-control-plane-semantic-change/v1",
+  "pass": 15,
+  "title": "Workforce Agent Overrides",
+  "changes": [
+    "Added company-scoped role and worker override projection using canonical role_definition_id and worker_id identities.",
+    "Established deterministic precedence: company defaults, then role override, then worker override.",
+    "Made agent overrides contractive only for acknowledgement deadlines, evidence, coordination, staffing, mission-team safeguards and role risk ceilings.",
+    "Preserved canonical Workforce graph/catalogue ownership and required runtime authority/risk re-evaluation.",
+    "Rejected legacy tenant aliases, cross-company resolution and unknown workers."
+  ],
+  "authority_effect": "none",
+  "execution_effect": "none",
+  "next_pass": 16
+}

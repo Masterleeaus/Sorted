@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "titan.workforce.schedule-recurrence.v1",
+  "type": "object",
+  "required": [
+    "schema",
+    "company_id",
+    "schedules",
+    "policy"
+  ],
+  "properties": {
+    "schema": {
+      "const": "titan.workforce.schedule-recurrence.v1"
+    },
+    "company_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    },
+    "schedules": {
+      "type": "array"
+    },
+    "policy": {
+      "type": "object"
+    },
+    "automatic_execution": {
+      "const": false
+    },
+    "authority_granted": {
+      "const": false
+    },
+    "execution_permitted": {
+      "const": false
+    },
+    "grants_authority": {
+      "const": false
+    }
+  }
+}

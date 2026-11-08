@@ -1,0 +1,22 @@
+{
+  "id": "social-media-agent-dashboard",
+  "theme": {
+    "name": "social-media-agent-dashboard",
+    "extends": "default",
+    "asset-path": "themes/social-media-agent-dashboard",
+    "dashboard": {
+      "googleFonts": {
+        "Inter+Tight": [
+          "500"
+        ],
+        "Inter": [
+          "400",
+          "500",
+          "600"
+        ]
+      }
+    },
+    "description": "social-media-agent-dashboard \u2014 TG: @heew_support",
+    "support_telegram": "heew_support"
+  }
+}

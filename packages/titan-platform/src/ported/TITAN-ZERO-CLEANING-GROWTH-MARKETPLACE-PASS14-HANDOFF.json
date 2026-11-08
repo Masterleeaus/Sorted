@@ -1,0 +1,11 @@
+{
+  "schema": "titan-zero-handoff/v1",
+  "pass": 14,
+  "status": "READY_FOR_MANAGER_MERGE",
+  "parent": "Titan-Zero-CLEANING-GROWTH-MARKETPLACE-PASS13-CUMULATIVE.zip",
+  "manager_forward_port_target": 30,
+  "feature": "Governed Marketplace Action Queue",
+  "merge_order": "after Cleaning Growth Marketplace Pass13",
+  "company_boundary": "company_id",
+  "authority": "review tracking only; no underlying action execution"
+}

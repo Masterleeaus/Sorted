@@ -1,0 +1,16 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema",
+  "$id":"titan.workforce.gateway.projection-cursor-binding.v1",
+  "type":"object",
+  "additionalProperties":false,
+  "required":["company_id","projection_revision","projection_cursor","sync_generation","sync_started_at_ms","component_cursors","grants_authority"],
+  "properties":{
+    "company_id":{"type":"string","minLength":2,"maxLength":128,"pattern":"^[A-Za-z0-9._:-]+$"},
+    "projection_revision":{"type":"integer","minimum":0},
+    "projection_cursor":{"type":["string","null"],"maxLength":240},
+    "sync_generation":{"type":"integer","minimum":0},
+    "sync_started_at_ms":{"type":"integer","minimum":0},
+    "component_cursors":{"type":"object"},
+    "grants_authority":{"const":false}
+  }
+}

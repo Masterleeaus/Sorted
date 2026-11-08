@@ -1,0 +1,46 @@
+{
+  "schema": "titan-semantic-change/v1",
+  "project": "titan-zero",
+  "release_label": "0.18.5",
+  "task_ids": ["TZ-P1-007"],
+  "parent_artifact": "Titan-Zero-v0.18.4-Manager-Canonical-Monica-Background-Boundary-CUMULATIVE.zip",
+  "parent_sha256": "6470135fa5a465a2de969f05ed965c176018ba78d55bf4105018fa41a6874a78",
+  "capabilities_added": [
+    "verified_titan_autonomy_snapshot_contract",
+    "offline_contraction_only_authority",
+    "worker_authority_evaluator",
+    "protected_action_gate",
+    "evidence_gate",
+    "scoped_approval_expiry_gate",
+    "trusted_auto_handshake_enforcement",
+    "predictive_prepare_non_mutating_gate",
+    "command_bus_execution_envelope",
+    "authoritative_execution_receipt_validation",
+    "post_action_verification_validation"
+  ],
+  "capabilities_modified": [
+    "workforce_runtime_adds_authority_evaluate_command_prepare_receipt_verify_messages"
+  ],
+  "capabilities_retained": [
+    "p0_003_module_runtime_installer_marketplace",
+    "p2_011_contribution_registries",
+    "p2_008_monica_background_compatibility_boundary",
+    "indexeddb_business_authority",
+    "client_workforce_controls",
+    "multi_actor_investigation",
+    "header_v2_theme_runtime",
+    "retriever_compatibility"
+  ],
+  "authority_changes": [
+    "worker identity role activation module activation model power and marketplace signature never grant execution authority",
+    "verified effective authority is owned by Titan Autonomy",
+    "local and offline conditions may only contract or suspend authority",
+    "protected execution requires permission entitlement policy governance assurance risk evidence approval and autonomy gates",
+    "consequential mutation is proposal-only until transported through Titan Command Bus and confirmed by authoritative receipt"
+  ],
+  "storage_changes": [],
+  "permissions_changed": [],
+  "ui_changed": false,
+  "breaking_changes": [],
+  "files_deleted": 0
+}

@@ -1,0 +1,35 @@
+{
+  "schema": "titan-zero-workforce-pass/v1",
+  "pass": 14,
+  "title": "Failure Classification + Bounded Retry",
+  "status": "IMPLEMENTED_CANDIDATE",
+  "base": {
+    "release": "0.19.0",
+    "artifact": "Titan-Zero-v0.19.0-Manager-Consolidated-CUMULATIVE.zip",
+    "convergence_class": "SEMANTIC_REBASE"
+  },
+  "failure_categories": [
+    "network",
+    "authentication",
+    "policy",
+    "conflict",
+    "dependency",
+    "storage",
+    "permanent"
+  ],
+  "policy": "existing titan-offline/conflict-retry-policy.mjs",
+  "read_retry": {
+    "automatic": true,
+    "max_gateway_attempts": 3,
+    "bounded_exponential_backoff": true
+  },
+  "protected_effects": {
+    "automatic_effect_replay": false,
+    "ambiguous_delivery": "manual_review_required",
+    "idempotency_key_preserved": true,
+    "fresh_authority_still_required": true
+  },
+  "observability": "manager TITAN_OBSERVABILITY first; titanDiagnosticLog compatibility fallback only",
+  "company_boundary": "company_id",
+  "deletions": 0
+}

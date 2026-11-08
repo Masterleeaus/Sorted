@@ -1,0 +1,36 @@
+{
+  "schema": "titan.reliability.failure-injection-matrix.v1",
+  "packet_id": "TZ-FINISH-005",
+  "pass": 7,
+  "authority_neutral": true,
+  "automatic_effect_replay": false,
+  "scenarios": [
+    {
+      "kind": "service_worker_restart",
+      "expected": "recovery_required",
+      "requires_explicit_resume": true,
+      "automatic_effect_replay": false
+    },
+    {
+      "kind": "storage_unavailable",
+      "operation_class": "authority_sensitive",
+      "expected": "fail_closed"
+    },
+    {
+      "kind": "local_bridge_unavailable",
+      "operation_class": "authority_sensitive",
+      "expected": "fail_closed"
+    },
+    {
+      "kind": "network_unavailable",
+      "operation_class": "durable_write",
+      "condition": "idempotent && offline_queue_available",
+      "expected": "queue_durable_offline"
+    },
+    {
+      "kind": "browser_surface_disconnect",
+      "operation_class": "authority_sensitive",
+      "expected": "fail_closed"
+    }
+  ]
+}

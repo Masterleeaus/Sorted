@@ -1,0 +1,273 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Titan Zero</title>
+<link rel="stylesheet" href="./titan-zero-chat-content.compat.css" />
+<link rel="stylesheet" href="./titan-shell.css" />
+<link rel="stylesheet" href="./titan-workforce.css" />
+<link rel="stylesheet" href="./titan-theme.css" />
+</head>
+<body data-titan-view="chat">
+<main id="titan-main-page" aria-label="Titan Zero workspace">
+<header id="titan-topbar" data-titan-header-version="2">
+  <div class="titan-brand"><span class="titan-mark">T0</span><div><strong>Titan Zero</strong><small>Device-first business OS</small></div></div>
+  <div class="titan-header-controls">
+    <button id="titan-menu-toggle" class="header-tool titan-menu-toggle" type="button" aria-haspopup="menu" aria-expanded="false">☰</button>
+    <a id="titan-modules-open" class="header-tool" title="Manage Titan modules" href="modules.html" target="_blank">Modules</a>
+    <a id="titan-diagnostics-open" class="header-tool" title="Open full diagnostics" href="diagnostics.html" target="_blank">Diagnostics</a>
+    <button id="titan-theme-toggle" class="titan-theme-toggle" type="button" data-titan-theme-control aria-label="Theme: System. Click to change theme."><span data-theme-icon>◐</span><span data-theme-label>System</span></button>
+  </div>
+  <nav class="titan-tabs" role="tablist" aria-label="Titan Zero workspace navigation">
+    <button class="titan-tab active" data-view="chat" role="tab" aria-selected="true" tabindex="0" aria-controls="titan-chat-view">Chat</button>
+    <button class="titan-tab" data-view="business" role="tab" aria-selected="false" tabindex="-1" aria-controls="titan-business-view">Business</button>
+    <button class="titan-tab" data-view="feed" role="tab" aria-selected="false" tabindex="-1" aria-controls="titan-feed-view">Feed</button>
+    <button class="titan-tab" data-view="workforce" role="tab" aria-selected="false" tabindex="-1" aria-controls="titan-workforce-view">Workforce</button>
+  </nav>
+  <div id="titan-hamburger-menu" class="titan-hamburger-menu" role="menu" hidden>
+    <strong>Titan & retained AI pages</strong>
+    <button data-menu-view="chat" role="menuitem">Titan Zero Runtime</button>
+    <button data-menu-view="business" role="menuitem">Business</button>
+    <button data-menu-view="feed" role="menuitem">Feed</button>
+    <button data-menu-view="workforce" role="menuitem">Workforce</button>
+    <a href="modules.html" target="_blank" role="menuitem">Add-ons / Module Marketplace</a>
+    <a href="monicaOptions.html" target="_blank" role="menuitem">Settings</a>
+    <span class="menu-divider"></span>
+    <a href="chatTab.html" target="_blank" role="menuitem">Titan AI — Full Chat & Tools</a>
+    <a href="monicaPopup.html" target="_blank" role="menuitem">Titan AI — Tools Popup</a>
+    <a href="monicaOptions.html" target="_blank" role="menuitem">Titan AI — Settings</a>
+    <a href="side-panel/index.html" target="_blank" role="menuitem">Retriever AI — Original Full Runtime</a>
+    <a href="titan-zero-chat-runtime.html" target="_blank" role="menuitem">Titan Chat Compatibility Runtime</a>
+    <span class="menu-divider"></span>
+    <a href="diagnostics.html" target="_blank" role="menuitem">Diagnostics</a>
+  </div>
+</header>
+
+<section id="titan-chat-view" class="titan-view active titan-runtime-view">
+  <div class="runtime-head"><div><strong>Titan Zero Runtime</strong><span>Natural-language browser agent powered by the retained Retriever execution runtime</span></div><a href="side-panel/index.html" target="_blank" rel="noopener">Open full page</a></div>
+  <div id="titan-active-context" hidden><span></span><button id="titan-clear-context" aria-label="Clear context">×</button></div>
+  <div id="titan-work-context" hidden></div>
+  <iframe id="titan-work-frame" src="side-panel/index.html" title="Titan Zero natural-language execution runtime"></iframe>
+  <div id="titan-work-fallback" hidden><strong>Titan runtime is taking longer than expected.</strong><span>Open diagnostics to inspect Retriever runtime state.</span><button id="titan-work-reload">Reload runtime</button></div>
+  <div id="root" class="titan-compat-root" hidden aria-hidden="true"></div>
+</section>
+
+<section id="titan-ai-view" class="titan-view" aria-label="Titan AI full conversation surface">
+  <div class="titan-ai-surface-head">
+    <div><strong>Titan AI Workspace</strong><span>Conversation · Workforce Agents · Explore · Create · History · models · tools</span></div>
+    <a href="chatTab.html" target="_blank" rel="noopener">Open full page</a>
+  </div>
+  <nav id="titan-ai-workspace-nav" class="titan-ai-workspace-nav" aria-label="Titan AI workspace sections">
+    <button type="button" class="active" data-ai-target="Chat" aria-pressed="true">Chat</button>
+    <button type="button" data-ai-target="WorkforceAgents" aria-pressed="false">Workforce Agents</button>
+    <button type="button" data-ai-target="Explore" aria-pressed="false">Explore</button>
+    <button type="button" data-ai-target="Create" aria-pressed="false">Create</button>
+    <button type="button" data-ai-target="History" aria-pressed="false">History</button>
+    <button type="button" data-ai-target="Models" aria-pressed="false">Models</button>
+    <button type="button" data-ai-target="Tools" aria-pressed="false">Tools</button>
+  </nav>
+  <div id="titan-ai-workspace-status" class="titan-ai-workspace-status" role="status" aria-live="polite">Full retained conversation workspace ready</div>
+  <iframe id="titan-ai-frame" data-src="chatTab.html" title="Titan AI full conversation, Workforce Agents, explore, create, history, model and tools workspace"></iframe>
+</section>
+
+<section id="titan-business-view" class="titan-view">
+  <div class="business-scroll">
+    <div class="business-head">
+      <div><span class="eyebrow">Owner control</span><strong id="titan-business-title">My Business</strong><small id="titan-business-boundary">Company boundary loading…</small></div>
+      <div class="business-head-actions"><button id="titan-business-fullscreen">Open full screen</button><button id="titan-business-refresh">Refresh</button></div>
+    </div>
+
+    <div id="titan-business-kpis" class="business-kpis" aria-label="Business operating indicators">
+      <div class="business-kpi"><span>Open outcomes</span><strong id="titan-kpi-open">0</strong><small>Agent work not yet complete</small></div>
+      <div class="business-kpi"><span>Needs attention</span><strong id="titan-kpi-attention">0</strong><small>Failed or attention states</small></div>
+      <div class="business-kpi"><span>Unread updates</span><strong id="titan-kpi-unread">0</strong><small>Operational feed items</small></div>
+      <div class="business-kpi"><span>Work runtime</span><strong id="titan-kpi-work">Unknown</strong><small>Embedded work surface state</small></div>
+    </div>
+
+    <section class="business-panel">
+      <div class="business-section-head"><div><strong>Run the business</strong><small>One command can investigate, prepare or execute through Titan Work.</small></div></div>
+      <div class="business-command-grid">
+        <button data-business-command="Review my business operating state and tell me what needs my attention first. Use the available business context and explain the next best actions."><span>✦</span><b>Owner briefing</b><small>Priorities, risks and next actions</small></button>
+        <button data-business-command="Find overdue leads or customer follow-ups in the available systems and prepare the highest-value follow-up actions. Do not send anything irreversible without required approval."><span>↗</span><b>Follow up leads</b><small>Recover stalled opportunities</small></button>
+        <button data-business-command="Check available business records for completed work that may be uninvoiced, unpaid, underbilled, or missing follow-up. Summarise evidence and propose governed actions."><span>$</span><b>Revenue leakage</b><small>Find missed billing and payment work</small></button>
+        <button data-business-command="Review the current page and available business context for operational, customer, compliance, cost, revenue, environmental, or security risks. Rank findings by impact and confidence."><span>◎</span><b>Inspect current page</b><small>Turn browser context into business insight</small></button>
+        <button data-business-command="Prepare today's business work queue from the available systems. Group urgent customer work, approvals, finance tasks, staff or workflow issues, and opportunities into a concise ordered plan."><span>☰</span><b>Build today’s queue</b><small>Convert signals into ordered work</small></button>
+        <button data-business-command="Audit the available business workflows and browser-accessible systems for repetitive manual work that Titan Zero could safely automate. Return candidates, expected benefit, risk, and required approvals."><span>↻</span><b>Find automation</b><small>Identify safe work to delegate</small></button>
+      </div>
+    </section>
+
+    <section class="business-panel identity-panel">
+      <div class="business-section-head"><div><strong>Business identity</strong><small>`company_id` is the canonical boundary used by Titan-owned state and agent context.</small></div></div>
+      <label>Business name<input id="titan-company-name" type="text" maxlength="120" autocomplete="organization" placeholder="My Business" /></label>
+      <label>Company ID<input id="titan-company-id" type="text" maxlength="128" spellcheck="false" placeholder="company-…" /></label>
+      <div class="identity-actions"><button id="titan-save-business-profile">Save business identity</button><span id="titan-business-profile-status" role="status"></span></div>
+    </section>
+
+    <section class="business-panel">
+      <div class="business-section-head"><div><strong>Operational queue</strong><small>Operational queue · demo seed data is shown until real Titan activity exists.</small></div><button id="titan-open-feed">Open feed</button></div>
+      <div id="titan-business-queue" class="business-queue"></div>
+    </section>
+  </div>
+</section>
+
+<section id="titan-feed-view" class="titan-view">
+  <div class="feed-head"><div><strong>Right now</strong><span>Persisted notifications, decisions and agent work</span></div><button id="titan-feed-refresh">Refresh</button></div>
+  <div class="feed-filters"><button class="active" data-filter="all">All</button><button data-filter="unread">Unread</button><button data-filter="approval">Approvals</button><button data-filter="workflow">Workflows</button></div>
+  <div id="titan-feed-list" class="titan-feed-list" role="list"></div>
+</section>
+
+<section id="titan-workforce-view" class="titan-view">
+  <div class="workforce-head"><div><strong>AI Workforce</strong><span>Managers, active work, notifications, escalations and installed specialists</span></div><button id="titan-workforce-fullscreen">Open full screen</button></div>
+  <div class="workforce-activity-strip" aria-live="polite"><article><span>Active now</span><strong id="titan-wf-active-now" data-live="0">—</strong><small>workers handling live outcomes</small></article><article><span>Managers</span><strong id="titan-wf-managers" data-live="0">—</strong><small>Chief of Staff + supervisors</small></article><article><span>Notifications</span><strong id="titan-wf-notifications" data-live="0">—</strong><small>workforce updates requiring review</small></article><article><span>Escalations</span><strong id="titan-wf-escalation-demo" data-live="0">—</strong><small>manager-attention items</small></article></div>
+  <section id="titan-wf-command-dashboard" class="workforce-command-dashboard" aria-label="Unified workforce command dashboard">
+    <div class="workforce-command-head"><div><strong>Workforce command centre</strong><span>Live company-scoped operating picture from the existing Workforce runtime.</span></div><span id="titan-wf-command-health" class="workforce-health-pill" data-state="review">Review</span></div>
+    <div class="workforce-command-grid">
+      <article><span>Mission teams</span><strong id="titan-wf-command-teams">0</strong><small id="titan-wf-command-teams-detail">No active mission teams</small></article>
+      <article><span>Capacity</span><strong id="titan-wf-command-capacity">—</strong><small id="titan-wf-command-capacity-detail">Capacity data not loaded</small></article>
+      <article><span>Staffing</span><strong id="titan-wf-command-staffing">0</strong><small id="titan-wf-command-staffing-detail">No staffing recommendations</small></article>
+      <article><span>Schedules due</span><strong id="titan-wf-command-schedules">0</strong><small id="titan-wf-command-schedules-detail">No due schedules</small></article>
+      <article><span>Risk</span><strong id="titan-wf-command-risk">0</strong><small id="titan-wf-command-risk-detail">No high-priority risk loaded</small></article>
+      <article><span>Workforce mix</span><strong id="titan-wf-command-mix">—</strong><small id="titan-wf-command-mix-detail">Human + AI view not loaded</small></article>
+    </div>
+    <div class="workforce-command-lanes">
+      <div><strong>Needs management</strong><span id="titan-wf-command-needs">No manager-attention items.</span></div>
+      <div><strong>Operational pulse</strong><span id="titan-wf-command-pulse">Waiting for Workforce projection.</span></div>
+      <div><strong>Deployment readiness</strong><span id="titan-wf-command-deployment">No deployment assessment loaded.</span></div>
+    </div>
+  </section>
+  <section id="titan-wf-chief-command" class="workforce-chief-command" aria-label="Chief of Staff command centre">
+    <div class="workforce-chief-head"><div><strong>Chief of Staff command centre</strong><span>Company-scoped coordination intelligence from the existing Chief of Staff, supervision, staffing and Workforce Graph runtimes.</span></div><span id="titan-wf-chief-state" class="workforce-chief-state" data-state="review">Review</span></div>
+    <div class="workforce-chief-summary" aria-live="polite">
+      <article><span>Responsibility gaps</span><strong id="titan-wf-chief-gaps">0</strong><small>work or teams without a clear coordination owner</small></article>
+      <article><span>Ownership overlaps</span><strong id="titan-wf-chief-overlaps">0</strong><small>work with multiple supervisory owners</small></article>
+      <article><span>Open escalations</span><strong id="titan-wf-chief-escalations">0</strong><small>consolidated from existing supervisors</small></article>
+      <article><span>Staffing pressure</span><strong id="titan-wf-chief-staffing">0</strong><small>rebalance candidates + unfilled staffing gaps</small></article>
+    </div>
+    <div class="workforce-chief-columns">
+      <section><div class="workforce-chief-column-head"><strong>Priority coordination</strong><span id="titan-wf-chief-priority-count">0 priorities</span></div><div id="titan-wf-chief-priorities" class="workforce-chief-list"><div class="workforce-chief-empty">No Chief of Staff priorities loaded.</div></div></section>
+      <section><div class="workforce-chief-column-head"><strong>Governed recommendations</strong><span id="titan-wf-chief-recommendation-count">0 recommendations</span></div><div id="titan-wf-chief-recommendations" class="workforce-chief-list"><div class="workforce-chief-empty">No coordination recommendations loaded.</div></div></section>
+    </div>
+    <div class="workforce-chief-foot"><span id="titan-wf-chief-coverage">Waiting for Chief of Staff coordination.</span><strong>Coordination only · proposals require normal authority checks</strong></div>
+  </section>
+  <section id="titan-wf-organization-view" class="workforce-organization-view" aria-label="Human and Advanced Intelligence organization view">
+    <div class="workforce-organization-head">
+      <div><strong>One company workforce</strong><span>Humans and Advanced Intelligence workers share the operational graph while identity and authority remain separate.</span></div>
+      <div class="workforce-organization-filters" role="group" aria-label="Filter workforce by identity">
+        <button type="button" class="active" data-workforce-identity-filter="all">All</button>
+        <button type="button" data-workforce-identity-filter="human">Human</button>
+        <button type="button" data-workforce-identity-filter="advanced_intelligence">Advanced Intelligence</button>
+      </div>
+    </div>
+    <div class="workforce-organization-summary" aria-live="polite">
+      <article><span>Total</span><strong id="titan-wf-org-total">0</strong></article>
+      <article><span>Human</span><strong id="titan-wf-org-human">0</strong></article>
+      <article><span>Advanced Intelligence</span><strong id="titan-wf-org-ai">0</strong></article>
+      <article><span>Mixed teams</span><strong id="titan-wf-org-mixed">0</strong></article>
+    </div>
+    <div class="workforce-identity-legend"><span data-kind="human">Human identity</span><span data-kind="advanced-intelligence">Advanced Intelligence identity</span><span data-kind="authority">Authority evaluated separately</span></div>
+    <div class="workforce-hierarchy-toolbar" role="group" aria-label="Organization hierarchy controls"><span id="titan-wf-hierarchy-path">Chief of Staff → supervisors → teams → workers</span><button type="button" data-workforce-hierarchy-action="expand">Expand all</button><button type="button" data-workforce-hierarchy-action="collapse">Collapse all</button></div>
+    <div id="titan-wf-organization-tree" class="workforce-organization-tree" data-hierarchy-source="canonical-workforce-graph"><div class="workforce-organization-empty">Waiting for the unified Workforce snapshot.</div></div>
+  </section>
+  <section class="workforce-manager-panel"><div><strong>Management layer</strong><span>Chief of Staff coordinates supervisors; supervisors route work, approvals and escalations.</span></div><div class="manager-chips"><span>Chief of Staff · coordinating</span><span>Operations Supervisor · active</span><span>Assurance Challenger · reviewing</span></div></section>
+  <div class="service-workforce-controls"><label for="titan-service-vertical">Service workforce</label><select id="titan-service-vertical" aria-label="Service workforce vertical"></select><span id="titan-service-roster-count"></span></div>
+  <div id="titan-workforce-active" class="workforce-active"><span>Auto-routing is active. Titan selects the best worker for each outcome.</span><button id="titan-workforce-auto">Use auto-routing</button></div>
+
+  <div id="titan-client-workforce-controls" class="workforce-controls" aria-label="Client workforce controls">
+    <div class="workforce-control-summary">
+      <div><span>Observed roles</span><strong id="titan-wf-summary-observed">0</strong></div>
+      <div><span>Activation proposals</span><strong id="titan-wf-summary-proposals">0</strong></div>
+      <div><span>Open assignments</span><strong id="titan-wf-summary-assignments">0</strong></div>
+      <div><span>Waiting approvals</span><strong id="titan-wf-summary-approvals">0</strong></div>
+      <div><span>Escalations</span><strong id="titan-wf-summary-escalations">0</strong></div>
+    </div>
+    <section id="titan-wf-deployment-console" class="workforce-control-panel workforce-deployment-console" aria-label="Deployment and commissioning console">
+      <div class="workforce-control-head"><div><strong>Deployment console</strong><small>Installation, commissioning, live-host certification, upgrade safety and rollback readiness for this company. Status and preparation only — this console never grants execution authority.</small></div><div class="workforce-deployment-actions"><button id="titan-wf-deployment-refresh" type="button">Refresh</button><button id="titan-wf-deployment-probe" type="button">Probe live host</button></div></div>
+      <div class="workforce-deployment-summary" role="status" aria-live="polite">
+        <article data-deploy-stage="plan"><span>Installation plan</span><strong id="titan-wf-deploy-plan">Not prepared</strong><small id="titan-wf-deploy-plan-detail">Discovery must be complete first.</small></article>
+        <article data-deploy-stage="gates"><span>Commissioning</span><strong id="titan-wf-deploy-gates">Not evaluated</strong><small id="titan-wf-deploy-gates-detail">Evidence-backed gates required before go-live review.</small></article>
+        <article data-deploy-stage="host"><span>Laravel host</span><strong id="titan-wf-deploy-host">Not certified</strong><small id="titan-wf-deploy-host-detail">Live probes have not certified the configured host.</small></article>
+        <article data-deploy-stage="browser"><span>Browser live smoke</span><strong id="titan-wf-deploy-browser">Not certified</strong><small id="titan-wf-deploy-browser-detail">Requires an observed extension-enabled Chromium target; package checks alone do not count.</small></article>
+        <article data-deploy-stage="upgrade"><span>Upgrade safety</span><strong id="titan-wf-deploy-upgrade">No checkpoint</strong><small id="titan-wf-deploy-upgrade-detail">Migration state will appear when a governed upgrade is prepared.</small></article>
+        <article data-deploy-stage="e2e"><span>End-to-end certification</span><strong id="titan-wf-deploy-e2e">Not certified</strong><small id="titan-wf-deploy-e2e-detail">Checks UI → runtime → authority → Laravel → receipts without fabricating live-host evidence.</small></article>
+        <article data-deploy-stage="rollback"><span>Rollback / uninstall</span><strong id="titan-wf-deploy-rollback">Not prepared</strong><small id="titan-wf-deploy-rollback-detail">Reversibility must preserve evidence, audit and authority history.</small></article>
+      </div>
+      <div id="titan-wf-deployment-blockers" class="workforce-deployment-blockers"><span>No deployment assessment loaded yet.</span></div>
+      <div class="workforce-deployment-foot"><span>company_id scoped</span><span>no automatic install</span><span>no automatic migration</span><span>no automatic go-live</span><span>no automatic uninstall</span></div>
+    </section>
+
+    <section class="workforce-control-panel">
+      <div class="workforce-control-head"><div><strong>System workforce controls</strong><small>Prepare governed changes for this company. Controls do not grant authority or auto-activate roles.</small></div><button id="titan-wf-refresh">Refresh</button></div>
+      <div class="workforce-control-toolbar">
+        <label>Team template<select id="titan-wf-template"><option value="">Choose a client team…</option></select></label>
+        <button id="titan-wf-propose-template">Propose team</button>
+        <label class="workforce-role-search">Find role<input id="titan-wf-role-search" type="search" placeholder="Search installed roles" autocomplete="off" /></label>
+        <select id="titan-wf-role-filter" aria-label="Role filter"><option value="all">All roles</option><option value="observed">Observed</option><option value="proposed">Proposed</option></select>
+      </div>
+      <div id="titan-wf-role-list" class="workforce-role-list"></div>
+    </section>
+    <section class="workforce-control-panel">
+      <div class="workforce-control-head"><div><strong>Work coordination</strong><small>Assignments, approval waits and escalations projected from the workforce manager for this company.</small></div></div>
+      <div id="titan-wf-control-queue" class="workforce-control-queue"><div class="workforce-control-empty">No workforce manager activity has been projected yet.</div></div>
+    </section>
+  </div>
+  <div id="titan-workforce-grid" class="workforce-grid"></div>
+</section>
+
+<section id="titan-agent-view" class="titan-view titan-legacy-hidden" aria-label="Titan Agent execution surface">
+  <div class="agent-label">
+    <div><strong>Titan Agent</strong><span>Titan Work execution runtime · tools · workflows · browser actions</span></div>
+    <a href="side-panel/index.html" target="_blank" rel="noopener">Open full page</a>
+  </div>
+  <div id="titan-agent-task-console" class="agent-task-console" aria-label="Titan Work task console">
+    <div class="agent-task-compose">
+      <label for="titan-agent-task-input"><strong>Run a Titan Work task</strong><span>Browse, extract, retrieve or use an existing capability. Execution remains company-scoped and governed.</span></label>
+      <div class="agent-task-modes" role="group" aria-label="Titan Work task mode"><button type="button" data-retriever-mode="browse" aria-pressed="true">Browse</button><button type="button" data-retriever-mode="extract" aria-pressed="false">Extract</button><button type="button" data-retriever-mode="retrieve" aria-pressed="false">Retrieve</button></div>
+      <div class="agent-task-entry"><textarea id="titan-agent-task-input" rows="2" placeholder="Describe the browsing, extraction or retrieval outcome…"></textarea><button id="titan-agent-task-run" type="button">Run task</button></div>
+    </div>
+    <div id="titan-agent-task-state" class="agent-task-state" data-state="ready">
+      <div><span class="agent-state-dot" aria-hidden="true"></span><strong id="titan-agent-task-state-label">Ready</strong><small id="titan-agent-task-meta">No task running</small></div>
+      <div class="agent-task-actions"><button id="titan-agent-task-cancel" type="button" disabled>Cancel</button><button id="titan-agent-task-retry" type="button" disabled>Retry</button></div>
+    </div>
+    <details id="titan-agent-evidence"><summary>Task evidence <span id="titan-agent-evidence-count">0</span></summary><div id="titan-agent-evidence-list" class="agent-evidence-list"><div class="agent-evidence-empty">Progress, results and failures will appear here with task provenance.</div></div></details>
+  </div>
+  <div id="titan-agent-capabilities" class="agent-capabilities" aria-label="Titan Work capability launchers">
+    <div class="agent-capability-head"><strong>Titan Work capabilities</strong><span>Existing runtime tools — launch into Agent without bypassing approvals or authority.</span></div>
+    <div id="titan-agent-capability-grid" class="agent-capability-grid"></div>
+  </div>
+  <iframe id="titan-agent-frame" data-src="side-panel/index.html" title="Titan Work browse, extract, retrieve and execution surface"></iframe>
+  <div id="titan-agent-fallback" hidden><strong>Agent runtime is taking longer than expected.</strong><span>The existing Work bridge remains available. Open Diagnostics to inspect Titan Work runtime state.</span><button id="titan-agent-reload">Reload Agent</button></div>
+</section>
+
+<section id="titan-work-view" class="titan-view titan-legacy-hidden">
+  <div class="work-label"><div><strong>Titan Work</strong><span>Tasks · workflows · browser actions</span></div><span id="titan-work-status">Loading work surface…</span></div>
+  <div id="titan-work-context-legacy" hidden></div>
+  <iframe id="titan-work-frame-legacy" data-src="side-panel/index.html" title="Legacy Titan Work execution surface"></iframe>
+  <div id="titan-work-fallback-legacy" hidden><strong>Work surface is taking longer than expected.</strong><span>Open diagnostics to check permissions and embedded runtime state.</span><button id="titan-work-reload-legacy">Reload Work</button></div>
+</section>
+
+<aside id="titan-detail-drawer" aria-hidden="true">
+  <div class="drawer-head"><button id="titan-drawer-close" aria-label="Close">×</button><span id="titan-drawer-kind">Update</span></div>
+  <div class="drawer-body"><h2 id="titan-drawer-title"></h2><p id="titan-drawer-summary"></p><div id="titan-drawer-meta"></div></div>
+  <div class="drawer-actions"><button id="titan-ask-about">Ask Titan about this</button><button id="titan-open-work">Open in Work</button></div>
+</aside>
+
+<aside id="titan-diagnostics-panel" aria-hidden="true">
+  <div class="drawer-head"><button id="titan-diagnostics-close">×</button><span>Diagnostics</span></div>
+  <div class="diag-body"><div id="titan-diagnostics-results"></div><button id="titan-reset-workspace">Clear local activity</button></div>
+</aside>
+
+<script src="./titan-theme.js"></script>
+<script src="./titan-workforce-verticals-client.js"></script>
+<script src="./titan-cleaning-workforce.js"></script>
+<script src="./titan-plumbing-workforce.js"></script>
+<script src="./titan-electrical-workforce.js"></script>
+<script src="./titan-client-workforce.js"></script>
+<script src="./titan-workforce.js"></script>
+<script src="./titan-client-workforce-controls.js"></script>
+<script src="./titan-shell.js"></script>
+<script src="./titan-navigation-registry.js"></script>
+</main>
+<script src="./titan-permission-consent-hooks.js"></script>
+</body>
+</html>

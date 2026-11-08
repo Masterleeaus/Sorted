@@ -1,0 +1,9 @@
+{
+  "schema": "titan-zero-handoff/v1",
+  "packet_id": "TZ-FINISH-002",
+  "pass": 5,
+  "status": "PASS",
+  "next_pass": 6,
+  "next_title": "Add cross-company negative tests across Retriever/workforce/modules/offline/Laravel.",
+  "checkpoint": "Pass5 reconstructed cumulative published; Manager canonical authority unchanged."
+}

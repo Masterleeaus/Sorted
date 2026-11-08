@@ -1,0 +1,20 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema",
+  "$id":"titan.workforce.mission-team.v1",
+  "type":"object",
+  "required":["schema","company_id","mission_team_id","mission_id","state","members","objectives","work_item_ids","grants_authority"],
+  "properties":{
+    "schema":{"const":"titan.workforce.mission-team.v1"},
+    "company_id":{"type":"string","minLength":2},
+    "mission_team_id":{"type":"string","minLength":1},
+    "mission_id":{"type":"string","minLength":1},
+    "state":{"enum":["DRAFT","FORMING","ACTIVE","HANDOVER","COMPLETED","DISSOLVED","FAILED"]},
+    "coordinator_worker_id":{"type":["string","null"]},
+    "supervisor_worker_id":{"type":["string","null"]},
+    "members":{"type":"array"},
+    "objectives":{"type":"array"},
+    "work_item_ids":{"type":"array"},
+    "grants_authority":{"const":false},
+    "authority_effect":{"const":false}
+  }
+}

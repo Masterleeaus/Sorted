@@ -1,0 +1,33 @@
+{
+  "template": {
+    "id": "inventory-adjustment",
+    "version": "1.0.0",
+    "name": "Inventory Adjustment",
+    "status": "ready",
+    "category": "inventory",
+    "entry_wizard": "inventory_adjustment_v1",
+    "capabilities": [
+      "inventory.adjustments.record"
+    ],
+    "channels": [
+      "chat",
+      "mobile",
+      "tablet",
+      "desktop",
+      "voice"
+    ],
+    "governance": {
+      "authority": "human_approval_for_negative_adjustments",
+      "offline": true
+    },
+    "metadata": {
+      "verticals": [
+        "ecommerce",
+        "retail",
+        "wholesale",
+        "field_services"
+      ],
+      "pack": "commerce_multi_vertical_2026_08"
+    }
+  }
+}

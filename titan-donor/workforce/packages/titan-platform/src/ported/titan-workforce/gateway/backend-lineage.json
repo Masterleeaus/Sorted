@@ -1,0 +1,70 @@
+{
+  "schema": "titan.workforce.gateway.backend-lineage.v1",
+  "version": 1,
+  "status": "UNRESOLVED_PARENT_IDENTITY",
+  "created_at": "2026-09-05T04:49:00+10:00",
+  "purpose": "Prevent Titan Zero from substituting another Workforce product for the exact Laravel Workforce gateway parent while lineage recovery is incomplete.",
+  "gateway_artifact": {
+    "artifact": "Titan-Workforce-Laravel-Gateway-Connection-Pass01-CUMULATIVE.zip",
+    "sha256": "13b7fbdf89ef65a7348bd36e50ff368d9a42177f92bc566e5aad3b0e572aa6f1",
+    "files": 963
+  },
+  "declared_parent": {
+    "label": "Titan-Workforce Step10",
+    "sha256": "f8de3ed1bf3350d0524079b5825c76ec27d8761d56eae2a1f60f708a4ec7cda9",
+    "identity": "UNRESOLVED"
+  },
+  "known_distinct_products": [
+    {
+      "product": "Titan Workforce Management",
+      "current_master": "Titan Workforce Management Master Step 45.zip",
+      "substitution_allowed": false
+    },
+    {
+      "product": "Titan Workforce Manager",
+      "current_master": "Titan Workforce Manager Master Step 30.zip",
+      "substitution_allowed": false
+    },
+    {
+      "product": "Titan Installation Workforce",
+      "current_master": "Titan Installation Workforce Master Step 27.zip",
+      "substitution_allowed": false
+    },
+    {
+      "product": "Titan Installed Client Workforce",
+      "current_master": "Titan Installed Client Workforce Master Step 28.zip",
+      "substitution_allowed": false
+    },
+    {
+      "product": "Titan Investigation Workforce",
+      "current_master": "Titan Investigation Workforce Master Step 25.zip",
+      "substitution_allowed": false
+    },
+    {
+      "product": "Titan Solution Engineering Workforce",
+      "current_master": "Titan Solution Engineering Workforce Master Step 26.zip",
+      "substitution_allowed": false
+    },
+    {
+      "product": "Titan AI Workforce",
+      "candidate_master": "Titan AI Workforce Master v0.97.0-alpha.83.zip",
+      "substitution_allowed": false
+    }
+  ],
+  "rules": [
+    "company_id is the sole canonical company boundary",
+    "Laravel Workforce remains durable Workforce authority",
+    "product-name or step-number similarity is insufficient lineage evidence",
+    "do not promote a different Workforce product as the declared Step10 parent",
+    "hash match is required before parent identity can be marked resolved",
+    "Chrome/UI/runtime lineage metadata grants no authority"
+  ],
+  "runtime_policy": {
+    "request_carries_exact_gateway_and_parent_hash_expectation": true,
+    "host_lineage_proof_optional_for_compatibility": true,
+    "mismatching_proof_rejected": true,
+    "absent_proof_status": "UNVERIFIED_HOST_LINEAGE",
+    "grants_authority": false
+  },
+  "next_resolution_action": "Recover an artifact with SHA-256 f8de3ed1bf3350d0524079b5825c76ec27d8761d56eae2a1f60f708a4ec7cda9 or independently prove an exact reconstruction/ancestry match."
+}

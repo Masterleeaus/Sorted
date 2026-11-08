@@ -1,0 +1,153 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "titan.workforce.worker-memory.v1",
+  "title": "Workforce Worker Memory Snapshot",
+  "type": "object",
+  "required": [
+    "schema",
+    "company_id",
+    "worker_id",
+    "snapshot_id",
+    "memories",
+    "readiness",
+    "memory_is_not_truth",
+    "memory_is_not_authority"
+  ],
+  "properties": {
+    "schema": {
+      "const": "titan.workforce.worker-memory.v1"
+    },
+    "company_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    },
+    "worker_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 180
+    },
+    "snapshot_id": {
+      "type": "string"
+    },
+    "memories": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "memory_id",
+          "company_id",
+          "worker_id",
+          "provenance_refs",
+          "confidence",
+          "relevance",
+          "status",
+          "recall_eligible",
+          "memory_is_not_truth",
+          "grants_authority"
+        ],
+        "properties": {
+          "memory_id": {
+            "type": "string"
+          },
+          "company_id": {
+            "type": "string"
+          },
+          "worker_id": {
+            "type": "string"
+          },
+          "memory_kind": {
+            "type": "string"
+          },
+          "summary": {
+            "type": "string"
+          },
+          "provenance_refs": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "confidence": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "minimum": 0,
+            "maximum": 1
+          },
+          "relevance": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "minimum": 0,
+            "maximum": 1
+          },
+          "privacy_classification": {
+            "enum": [
+              "PUBLIC",
+              "INTERNAL",
+              "CONFIDENTIAL",
+              "RESTRICTED"
+            ]
+          },
+          "purpose_tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "status": {
+            "enum": [
+              "ACTIVE",
+              "EXPIRED",
+              "SUPERSEDED",
+              "DISPUTED",
+              "REVOKED"
+            ]
+          },
+          "supersedes_memory_id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "superseded_by_memory_id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "recall_eligible": {
+            "type": "boolean"
+          },
+          "memory_is_not_truth": {
+            "const": true
+          },
+          "grants_authority": {
+            "const": false
+          }
+        }
+      }
+    },
+    "readiness": {
+      "type": "object"
+    },
+    "memory_is_not_truth": {
+      "const": true
+    },
+    "memory_is_not_authority": {
+      "const": true
+    },
+    "authority_granted": {
+      "const": false
+    },
+    "execution_permitted": {
+      "const": false
+    },
+    "grants_authority": {
+      "const": false
+    }
+  }
+}

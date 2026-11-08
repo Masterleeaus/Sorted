@@ -1,0 +1,30 @@
+{
+  "schema": "titan.zero.cleaning-operations-pass03.v1",
+  "packet_id": "TZ-NEXT-002",
+  "pass": 3,
+  "manager_base": {
+    "merge": 41,
+    "artifact": "Titan-Zero-CANONICAL-MASTER-2026-09-08-MERGE-41-LOAD-STABILITY-CONVERGED.zip",
+    "sha256": "dfbd39a0475de73dc00bc1dee82c3969194a45db0ae8fc1fc0a92651641addd2"
+  },
+  "repair": "accepted quote -> existing Sales booking handoff/service_booking -> confirmed booking -> Scheduling proposal",
+  "reused": [
+    "titan-workforce/starter-agents/sales/runtime/sales-structured-handoff.mjs",
+    "titan-business-services/workflows/service_booking.json",
+    "titan-workforce/starter-agents/scheduling/scheduling-adapters.mjs"
+  ],
+  "guards": [
+    "accepted quote required",
+    "authoritative duplicate booking check with source_ref required",
+    "company_id only",
+    "legacy tenant keys rejected",
+    "confirmed booking required before scheduling handoff",
+    "proposal only; no assignment/execution authority"
+  ],
+  "targeted_pass02_plus_pass03": "10/10 PASS",
+  "pass01_inventory_rerun": "NOT_RUN_IN_DELTA_ONLY_OVERLAY_CANONICAL_DEPENDENCIES_ABSENT",
+  "canonical_full_zip_materialized": false,
+  "authority_granted": false,
+  "company_boundary": "company_id",
+  "next_pass": 4
+}

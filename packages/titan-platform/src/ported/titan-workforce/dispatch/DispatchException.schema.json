@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "titan.workforce.dispatch.exception.v1",
+  "title": "Titan Workforce Dispatch Exception",
+  "type": "object",
+  "required": ["schema","dispatch_exception_id","company_id","work_item_id","exception_type","severity","state","requires_human_review","automatic_reassignment","execution_permitted","grants_authority"],
+  "properties": {
+    "schema": {"const":"titan.workforce.dispatch.exception.v1"},
+    "dispatch_exception_id": {"type":"string","minLength":1},
+    "company_id": {"type":"string","minLength":2},
+    "work_item_id": {"type":"string","minLength":1},
+    "assignment_id": {"type":["string","null"]},
+    "worker_id": {"type":["string","null"]},
+    "exception_type": {"enum":["LATE","NO_SHOW","OVERRUN","UNASSIGNED"]},
+    "severity": {"enum":["LOW","MEDIUM","HIGH","CRITICAL"]},
+    "state": {"const":"OPEN"},
+    "observed_at_ms": {"type":"number"},
+    "threshold_ms": {"type":"number"},
+    "elapsed_ms": {"type":"number","minimum":0},
+    "evidence": {"type":"object"},
+    "recommended_next_step": {"type":"string"},
+    "requires_human_review": {"const":true},
+    "automatic_reassignment": {"const":false},
+    "automatic_status_change": {"const":false},
+    "direct_mutation": {"const":false},
+    "execution_permitted": {"const":false},
+    "identity_confers_authority": {"const":false},
+    "grants_authority": {"const":false}
+  },
+  "additionalProperties": true
+}

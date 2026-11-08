@@ -1,0 +1,360 @@
+{
+  "schema": "titan.base-extensions-donor-catalog.v1",
+  "source_archive": "base extensions - VITAL COMPONENT SOURCE.zip",
+  "source_sha256": "3eecc8c2a33ff2b99c8aee891124ade98224057a8d94e201210c0333b0b7bf6f",
+  "extension_count": 19,
+  "company_boundary": "company_id",
+  "authority_policy": "donor patterns are authority-neutral; no donor auth/tenant model is imported",
+  "redistribution_policy": "No proprietary/minified donor implementation code is included; Titan modules are clean-room pattern reimplementations.",
+  "extensions": [
+    {
+      "name": "dassi: AI Agent for Chrome \u2014 Browser Automation",
+      "version": "0.62.1",
+      "description": "AI agent for your browser. Automates tasks on any site\u2014reads pages, fills forms, completes work. For Claude, GPT, Gemini & DeepSeek",
+      "source_path": "extensions/bjcngahpcjeililljmfegmlanlpgibdi/0.62.1_0",
+      "useful_patterns": [
+        "downloads_exports",
+        "cross_tab_memory",
+        "task_overlay",
+        "price_intelligence",
+        "webmcp_tools",
+        "enterprise_connectors",
+        "provider_routing",
+        "identity_auth",
+        "offscreen",
+        "tab_orchestration"
+      ],
+      "file_count": 42
+    },
+    {
+      "name": "Google Docs Offline",
+      "version": "1.109.1",
+      "description": "Edit, create, and view your documents, spreadsheets, and presentations \u2014 all without internet access.",
+      "source_path": "extensions/ghbmnnjooekpmoecnnnilnnbdlolhkhi/1.109.1_0",
+      "useful_patterns": [
+        "offscreen",
+        "cross_tab_memory",
+        "task_overlay",
+        "identity_auth",
+        "price_intelligence",
+        "tab_orchestration"
+      ],
+      "file_count": 90
+    },
+    {
+      "name": "Agent OS - AI Browser Automation & Smart Assistant for Web Tasks",
+      "version": "3.2.0",
+      "description": "AI-powered browser automation agent. Auto-fill forms, scrape data, automate workflows with intelligent task planning & execution.",
+      "source_path": "extensions/okngcalljddikhljpfhgmikklmmmdkkd/3.2.0_0",
+      "useful_patterns": [
+        "task_overlay",
+        "cross_tab_memory",
+        "downloads_exports",
+        "knowledge_capture",
+        "browser_automation",
+        "identity_auth",
+        "provider_routing",
+        "tab_orchestration",
+        "price_intelligence",
+        "webmcp_tools"
+      ],
+      "file_count": 25
+    },
+    {
+      "name": "Autocorrect Misspelled Words & Text Snippets: KeyCorrect",
+      "version": "6.5.4",
+      "description": "AutoCorrect & Text Expander: Instantly Fix Misspelled Words, Spelling Mistakes & Weird Typos",
+      "source_path": "extensions/ppmhjnpgbdlpeoeboaldplmffgkijjji/6.5.4_0",
+      "useful_patterns": [
+        "identity_auth",
+        "cross_tab_memory",
+        "task_overlay",
+        "price_intelligence",
+        "downloads_exports",
+        "knowledge_capture",
+        "enterprise_connectors",
+        "voice",
+        "webmcp_tools",
+        "provider_routing"
+      ],
+      "file_count": 58
+    },
+    {
+      "name": "Prompt Optimizer - SecondBrain",
+      "version": "2.3.12",
+      "description": "Prompt Optimizer: Stop Rewriting. Optimize prompts in one click across major AI chatbots.",
+      "source_path": "extensionsnew/aajjgdpofhhcjmjoombjdfepplndhgcp/2.3.12_0",
+      "useful_patterns": [
+        "cross_tab_memory",
+        "identity_auth",
+        "knowledge_capture",
+        "provider_routing",
+        "tab_orchestration",
+        "downloads_exports",
+        "task_overlay",
+        "prompt_optimization",
+        "price_intelligence",
+        "webmcp_tools"
+      ],
+      "file_count": 39
+    },
+    {
+      "name": "Superpower for ChatGPT",
+      "version": "8.3.7",
+      "description": "Folders & Subfolders, Search, Export/Delete, Prompts, Minimap, Gallery, Highlights, Tree Map, Queue, Notes & References for ChatGPT",
+      "source_path": "extensionsnew/amhmeenmapldpjdedekalnfifgnpfnkc/8.3.7_0",
+      "useful_patterns": [
+        "cross_tab_memory",
+        "downloads_exports",
+        "knowledge_capture",
+        "voice",
+        "identity_auth",
+        "price_intelligence",
+        "webmcp_tools",
+        "task_overlay",
+        "tab_orchestration",
+        "prompt_optimization"
+      ],
+      "file_count": 107
+    },
+    {
+      "name": "Glean",
+      "version": "1.2026.811.14",
+      "description": "Unlocks your company's knowledge and enables powerful work AI for everyone.",
+      "source_path": "extensionsnew/cfpdompphcacgpjfbonkdokgjhgabpij/1.2026.811.14_0",
+      "useful_patterns": [
+        "identity_auth",
+        "cross_tab_memory",
+        "enterprise_connectors",
+        "knowledge_capture",
+        "webmcp_tools",
+        "downloads_exports",
+        "task_overlay",
+        "voice",
+        "tab_orchestration",
+        "browser_automation"
+      ],
+      "file_count": 30
+    },
+    {
+      "name": "VertiTab \u2013 Vertical Tab Manager | Sessions, AI Groups & Bookmark Sync",
+      "version": "3.7.12",
+      "description": "Manage all your tabs & bookmarks from a sidebar. Tree view, workspaces, one-click save & restore, organize everything across devices",
+      "source_path": "extensionsnew/chejfhdknideagdnddjpgamkchefjhoi/3.7.12_0",
+      "useful_patterns": [
+        "cross_tab_memory",
+        "knowledge_capture",
+        "tab_orchestration",
+        "downloads_exports",
+        "identity_auth",
+        "provider_routing",
+        "webmcp_tools",
+        "task_overlay",
+        "price_intelligence",
+        "offscreen"
+      ],
+      "file_count": 110
+    },
+    {
+      "name": "Starizon AI: AI Agent for Auto Browse & Automation",
+      "version": "4.2.0",
+      "description": "AI Agent for Auto Browse & Automation",
+      "source_path": "extensionsnew/cnidodnbcjondpfpoapckiajkhnhelej/4.2.0_0",
+      "useful_patterns": [
+        "task_overlay",
+        "downloads_exports",
+        "knowledge_capture",
+        "provider_routing",
+        "identity_auth",
+        "price_intelligence",
+        "cross_tab_memory",
+        "offscreen",
+        "webmcp_tools",
+        "voice"
+      ],
+      "file_count": 254
+    },
+    {
+      "name": "Team Monitor",
+      "version": "1.4.7",
+      "description": "Real-time Jira worklog and team activity monitor with advanced analytics and status notifications.",
+      "source_path": "extensionsnew/djddaahkegfheakacfbgfahkndpjgnjo/1.4.7_0",
+      "useful_patterns": [
+        "task_overlay",
+        "identity_auth",
+        "downloads_exports",
+        "enterprise_connectors",
+        "cross_tab_memory",
+        "price_intelligence",
+        "tab_orchestration",
+        "knowledge_capture",
+        "webmcp_tools",
+        "offscreen"
+      ],
+      "file_count": 30
+    },
+    {
+      "name": "MetaPrompt - AI Prompt Engineer & Optimizer for ChatGPT & Claude",
+      "version": "1.4",
+      "description": "Transform unclear questions into expert prompts. Get better AI responses from ChatGPT and Claude with one click.",
+      "source_path": "extensionsnew/glkfhecdpcmaclfkhkibmoijipnnjkbf/1.4_0",
+      "useful_patterns": [
+        "identity_auth",
+        "task_overlay",
+        "offscreen",
+        "cross_tab_memory",
+        "prompt_optimization",
+        "price_intelligence",
+        "tab_orchestration"
+      ],
+      "file_count": 13
+    },
+    {
+      "name": "Kortex Notebook: Best Gemini NotebookLM Toolkit",
+      "version": "2.3.3",
+      "description": "Transform NotebookLM into your ultimate knowledge hub. Save prompts, export chats, and organize all your interactions seamlessly.",
+      "source_path": "extensionsnew/hdapplggdhndkblofffknpmnnnnbncbn/2.3.3_0",
+      "useful_patterns": [
+        "price_intelligence",
+        "identity_auth",
+        "downloads_exports",
+        "cross_tab_memory",
+        "provider_routing",
+        "task_overlay",
+        "knowledge_capture",
+        "tab_orchestration",
+        "browser_automation",
+        "webmcp_tools"
+      ],
+      "file_count": 81
+    },
+    {
+      "name": "Hunter - Email Finder Extension",
+      "version": "3.1.4",
+      "description": "Find email addresses from anywhere on the web, with just one click.",
+      "source_path": "extensionsnew/hgmhmanijnjhaffoampdlllchpolkdnj/3.1.4_0",
+      "useful_patterns": [
+        "downloads_exports",
+        "identity_auth",
+        "cross_tab_memory",
+        "tab_orchestration",
+        "task_overlay",
+        "knowledge_capture",
+        "price_intelligence",
+        "browser_automation"
+      ],
+      "file_count": 56
+    },
+    {
+      "name": "Email Finder by ContactOut \u2013 Email Lookup Tool",
+      "version": "5.18.3",
+      "description": "Find emails for 75% of Linkedin or ANY website. Save profiles to CRM. Chatgpt comments & email writer. Trusted by 76% of Fortune500.",
+      "source_path": "extensionsnew/jjdemeiffadmmjhkbbpglgnlgeafomjo/5.18.3_0",
+      "useful_patterns": [
+        "cross_tab_memory",
+        "downloads_exports",
+        "enterprise_connectors",
+        "task_overlay",
+        "tab_orchestration",
+        "identity_auth",
+        "knowledge_capture",
+        "browser_automation",
+        "price_intelligence",
+        "webmcp_tools"
+      ],
+      "file_count": 40
+    },
+    {
+      "name": "JasprAi: AI Web Agent & Automation",
+      "version": "0.1.13",
+      "description": "Automate web tasks with AI! JasprAi is an open-source browser extension that lets you extract data, fill forms, and more.",
+      "source_path": "jasprai/cbbppfehbfdgaknlknglapibeogalihd/0.1.13_0",
+      "useful_patterns": [
+        "cross_tab_memory",
+        "task_overlay",
+        "knowledge_capture",
+        "provider_routing",
+        "identity_auth",
+        "webmcp_tools",
+        "downloads_exports",
+        "voice",
+        "tab_orchestration",
+        "browser_automation"
+      ],
+      "file_count": 31
+    },
+    {
+      "name": "Monica: All-In-One AI Assist & Smartest  AI Agent",
+      "version": "9.0.22",
+      "description": "One stop AI Assistant with GPT, Claude, Gemini: Chat, Write, Translate, Search, Summarize, image generator, video generation",
+      "source_path": "monica_ai/ofpnmcalabcbjgholdjcjblkibolbppb/9.0.22_0",
+      "useful_patterns": [
+        "task_overlay",
+        "provider_routing",
+        "offscreen",
+        "downloads_exports",
+        "knowledge_capture",
+        "cross_tab_memory",
+        "price_intelligence",
+        "webmcp_tools",
+        "enterprise_connectors",
+        "voice"
+      ],
+      "file_count": 565
+    },
+    {
+      "name": "Woable: Connect Tasks and Workspace with Web apps",
+      "version": "1.0.5",
+      "description": "Connect your tasks with the tools you work with. Create, assign, and track tasks directly on any web app without switching tabs.",
+      "source_path": "nextone/akmlhgdifmmdgaegpohijcehnbecddpk/1.0.5_0",
+      "useful_patterns": [
+        "task_overlay",
+        "identity_auth",
+        "cross_tab_memory",
+        "tab_orchestration",
+        "browser_automation",
+        "price_intelligence",
+        "webmcp_tools"
+      ],
+      "file_count": 10
+    },
+    {
+      "name": "TIWA - Task Intelligent Web Agent",
+      "version": "2.0.0",
+      "description": "AI-powered web automation assistant with memory and cross-tab operations",
+      "source_path": "nextt/jfjcgknhldchbiaananijdldfjbahiel/2.0.0_0",
+      "useful_patterns": [
+        "voice",
+        "identity_auth",
+        "cross_tab_memory",
+        "knowledge_capture",
+        "tab_orchestration",
+        "task_overlay",
+        "downloads_exports",
+        "webmcp_tools",
+        "price_intelligence",
+        "browser_automation"
+      ],
+      "file_count": 15
+    },
+    {
+      "name": "Commercial Decision & Market Intelligence Engine (donor build)",
+      "version": "1.10.37",
+      "description": "Broad commercial-object intelligence donor: recognition, extraction, seller/offer discovery, resale valuation, price tracking, cart/checkout/order understanding, collections/preferences, sustainability metadata and commercial search.",
+      "source_path": "pricecomparere/ehoknmhmadiboejdbinglmbnlghnbldc/1.10.37_0",
+      "useful_patterns": [
+        "price_intelligence",
+        "cross_tab_memory",
+        "identity_auth",
+        "task_overlay",
+        "tab_orchestration",
+        "downloads_exports",
+        "webmcp_tools",
+        "offscreen",
+        "browser_automation",
+        "voice"
+      ],
+      "file_count": 67
+    }
+  ]
+}

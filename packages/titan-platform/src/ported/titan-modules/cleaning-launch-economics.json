@@ -1,0 +1,21 @@
+{
+  "schema": "titan-cleaning-launch-economics/v1",
+  "version": "2026.09.07-pass6",
+  "policy": "Commercial launch readiness is advisory and company-scoped. All monetary assumptions must be explicitly supplied by the company. Titan may calculate arithmetic from those inputs but must not invent revenue, costs, prices, demand, budgets or spending authority.",
+  "default_currency": "AUD",
+  "fields": [
+    "setup_cost",
+    "pilot_cost",
+    "monthly_fixed_cost",
+    "expected_job_revenue",
+    "expected_job_variable_cost",
+    "expected_jobs_per_month",
+    "launch_budget_cap"
+  ],
+  "rules": {
+    "break_even": "ceil((setup_cost + pilot_cost + monthly_fixed_cost) / (expected_job_revenue - expected_job_variable_cost)) when all required inputs are explicitly supplied and contribution margin is positive",
+    "budget_warning": "known launch investment exceeds explicitly supplied launch_budget_cap",
+    "no_invented_values": true,
+    "authority_effect": false
+  }
+}

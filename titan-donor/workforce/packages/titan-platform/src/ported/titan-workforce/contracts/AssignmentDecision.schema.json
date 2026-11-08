@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": [
+    "assignment_id",
+    "company_id",
+    "work_item_id",
+    "worker_id",
+    "eligibility_checks",
+    "ranking_factors",
+    "decision_state"
+  ],
+  "properties": {
+    "assignment_id": {
+      "type": "string"
+    },
+    "company_id": {
+      "type": "string"
+    },
+    "work_item_id": {
+      "type": "string"
+    },
+    "worker_id": {
+      "type": "string"
+    },
+    "eligibility_checks": {
+      "type": "array"
+    },
+    "ranking_factors": {
+      "type": "object"
+    },
+    "decision_state": {
+      "enum": [
+        "proposed",
+        "assigned",
+        "rejected",
+        "expired"
+      ]
+    },
+    "grants_authority": {
+      "const": false
+    }
+  }
+}

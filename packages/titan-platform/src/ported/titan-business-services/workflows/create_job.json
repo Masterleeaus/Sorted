@@ -1,0 +1,137 @@
+{
+  "wizard": {
+    "id": "create_job_v1",
+    "version": "1.0.0",
+    "name": "Create Job",
+    "capability": "crm.work_order.create",
+    "permissions": {
+      "required_roles": [
+        "dispatcher",
+        "operations",
+        "admin",
+        "owner",
+        "manager"
+      ]
+    },
+    "metadata": {
+      "category": "jobs",
+      "interfaces": [
+        "chat",
+        "mobile",
+        "tablet",
+        "desktop",
+        "voice"
+      ],
+      "surfaces": [
+        "command"
+      ]
+    },
+    "offline": {
+      "enabled": true,
+      "sync_priority": "high",
+      "conflict_handling": "prompt_user"
+    },
+    "steps": [
+      {
+        "id": "customer_service",
+        "title": "Customer and service",
+        "fields": [
+          {
+            "id": "customer_id",
+            "label": "Customer",
+            "type": "text",
+            "required": true
+          },
+          {
+            "id": "service_id",
+            "label": "Service",
+            "type": "text",
+            "required": true
+          }
+        ]
+      },
+      {
+        "id": "location",
+        "title": "Job location",
+        "fields": [
+          {
+            "id": "property_id",
+            "label": "Property",
+            "type": "text",
+            "required": false
+          },
+          {
+            "id": "address",
+            "label": "Address",
+            "type": "text",
+            "required": true
+          },
+          {
+            "id": "access_instructions",
+            "label": "Access instructions",
+            "type": "text",
+            "required": false,
+            "max": 500
+          }
+        ]
+      },
+      {
+        "id": "schedule",
+        "title": "Schedule",
+        "fields": [
+          {
+            "id": "scheduled_start",
+            "label": "Start",
+            "type": "text",
+            "required": true
+          },
+          {
+            "id": "scheduled_end",
+            "label": "End",
+            "type": "text",
+            "required": true
+          },
+          {
+            "id": "worker_ids",
+            "label": "Workers",
+            "type": "array",
+            "required": true
+          }
+        ]
+      },
+      {
+        "id": "operations",
+        "title": "Operational details",
+        "fields": [
+          {
+            "id": "checklist_id",
+            "label": "Checklist",
+            "type": "text",
+            "required": false
+          },
+          {
+            "id": "price",
+            "label": "Price",
+            "type": "number",
+            "required": true,
+            "min": 0
+          },
+          {
+            "id": "notes",
+            "label": "Notes",
+            "type": "text",
+            "required": false,
+            "max": 1000
+          }
+        ]
+      }
+    ]
+  },
+  "_titan_provenance": {
+    "source_product": "Titan Interaction Engine",
+    "source_version": "10.12.0",
+    "source_path": "resources/wizards/create_job.json",
+    "company_boundary": "company_id",
+    "copied_without_domain_authority": true
+  }
+}

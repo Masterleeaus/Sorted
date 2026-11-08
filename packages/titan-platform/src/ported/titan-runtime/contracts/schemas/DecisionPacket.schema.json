@@ -1,0 +1,78 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "DecisionPacket",
+  "type": "object",
+  "required": [
+    "packet_id",
+    "company_id",
+    "domain",
+    "subject",
+    "observation",
+    "evidence",
+    "evidence_state",
+    "recommended_actions",
+    "risk",
+    "urgency",
+    "source_provider",
+    "source_revision",
+    "generated_at",
+    "authority_neutral",
+    "execution_authority",
+    "recommendation_is_authority"
+  ],
+  "properties": {
+    "packet_id": {
+      "type": "string"
+    },
+    "company_id": {
+      "type": "string"
+    },
+    "domain": {
+      "enum": [
+        "money",
+        "trust",
+        "assurance",
+        "recovery"
+      ]
+    },
+    "subject": {},
+    "observation": {},
+    "significance": {},
+    "evidence": {
+      "type": "array"
+    },
+    "evidence_state": {},
+    "explanation": {},
+    "recommended_actions": {
+      "type": "array"
+    },
+    "expected_effect": {},
+    "risk": {},
+    "urgency": {},
+    "authority_required": {},
+    "source_provider": {
+      "type": "string"
+    },
+    "source_revision": {
+      "type": "string"
+    },
+    "generated_at": {
+      "type": "string"
+    },
+    "expires_at": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "authority_neutral": {
+      "const": true
+    },
+    "execution_authority": {
+      "const": false
+    },
+    "recommendation_is_authority": {
+      "const": false
+    }
+  }
+}

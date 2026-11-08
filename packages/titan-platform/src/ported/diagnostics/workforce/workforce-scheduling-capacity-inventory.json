@@ -1,0 +1,62 @@
+{
+  "schema": "titan-zero-workforce-scheduling-capacity-inventory/v1",
+  "packet_id": "TZ-NEXT-004",
+  "pass": 1,
+  "manager_baseline": {
+    "merge": 42,
+    "artifact": "Titan-Zero-CANONICAL-MASTER-2026-09-09-MERGE-42-PERMISSION-HARDENING-CONVERGED.zip",
+    "sha256": "1c4b6f471ba16f44d7b27db546ba41db18032ce9967b1d725dc0926cd73cc930",
+    "files": 3023
+  },
+  "inventory": {
+    "schedule_recurrence": [
+      "titan-workforce/scheduling/workforce-schedule-recurrence-runtime.mjs",
+      "titan-workforce/scheduling/WorkforceScheduleRecurrence.schema.json"
+    ],
+    "capacity": [
+      "titan-workforce/capacity/workload-capacity-runtime.mjs",
+      "titan-workforce/capacity/WorkloadCapacitySnapshot.schema.json"
+    ],
+    "assignment": [
+      "titan-workforce/contracts/AssignmentDecision.schema.json",
+      "workforce/contracts/WorkerHandoffPacket.schema.json"
+    ],
+    "authority": [
+      "titan-runtime/authority/company-boundary.mjs",
+      "titan-runtime/authority/execution-boundary.mjs"
+    ],
+    "settings": [
+      "titan-settings/control-plane/workforce-agent-overrides.mjs",
+      "titan-settings/control-plane/workforce-global-defaults.mjs"
+    ],
+    "scheduling_agent": [
+      "existing proposal/reschedule adapters",
+      "availability/capability/time-window matcher",
+      "conflict classification",
+      "alternative-window scoring",
+      "double-booking/unavailability/travel-overlap detection",
+      "authority-neutral replay envelopes"
+    ],
+    "ui_projection": {
+      "startup_surface": "chatTab.html rich shell retained",
+      "workforce_surface": "sidePanel.html Workforce view",
+      "replacement_required": false,
+      "duplicate_navigation_required": false
+    }
+  },
+  "existing_invariants": [
+    "company_id is the sole company boundary",
+    "identity and proposals do not grant execution authority",
+    "capacity snapshots recommend only and never auto-reassign",
+    "scheduling matching is proposal-only",
+    "travel time is never guessed without evidence",
+    "accepted assignment replay does not reconstruct authority",
+    "existing Workforce UI must be preserved"
+  ],
+  "gaps_for_next_pass": [
+    "verify one canonical worker availability/capacity state seam across recurrence, roster and assignments",
+    "identify stale or duplicate availability representations before repair",
+    "preserve existing assignment authority while improving state normalization"
+  ],
+  "production_runtime_changed": false
+}

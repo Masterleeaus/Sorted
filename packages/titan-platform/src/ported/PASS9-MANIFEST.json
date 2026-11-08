@@ -1,0 +1,26 @@
+{
+  "schema": "titan-zero-pass-manifest/v1",
+  "packet_id": "TZ-TOOLS-ABSORB-001",
+  "pass": 9,
+  "title": "Functional parity verification",
+  "parent": {
+    "artifact": "Manager Merge21 + Pass08 TRUE delta",
+    "canonical_sha256": "bf39506c0f3c849b1496d77c6dd9b079cf5ab999746c1e9cfb64b10be38fbe5c",
+    "base_files": 2047
+  },
+  "changes": {
+    "added": [
+      "tests/tz_tools_absorb_pass09_parity.test.mjs",
+      "titan-tools/TOOL-PARITY-LEDGER.json"
+    ],
+    "modified": [
+      "background-bootstrap.js",
+      "titan-tools/README.md",
+      "titan-tools/TOOL-LAUNCH-MAP.json",
+      "titan-tools/tool-launch-model.mjs"
+    ],
+    "deleted": []
+  },
+  "target_files": 2049,
+  "rendered_chrome": "NOT_RUN_NOT_CLAIMED"
+}

@@ -1,0 +1,35 @@
+{
+  "schema": "titan-conversation-retriever-handoff-contract/v1",
+  "company_boundary": "company_id",
+  "legacy_tenant_keys_are_authority": false,
+  "handoff_schema": "titan-conversation-retriever-handoff/v1",
+  "result_schema": "titan-conversation-retriever-result/v1",
+  "required_handoff_fields": [
+    "operation_id",
+    "correlation_id",
+    "idempotency_key",
+    "company_id",
+    "source",
+    "context",
+    "approval",
+    "authority",
+    "worker_route",
+    "return_channel"
+  ],
+  "authority": {
+    "handoff_grants_execution_authority": false,
+    "approval_mode": "policy-governed",
+    "approval_state_at_handoff": "not_granted_by_handoff",
+    "downstream_evaluator": "Titan capability + policy + permissions + autonomy + risk + approvals + entitlements"
+  },
+  "transport": {
+    "execution_message": "TITAN_EXECUTE_OUTCOME",
+    "accepted_message": "TITAN_OUTCOME_ACCEPTED",
+    "progress_message": "TITAN_OUTCOME_PROGRESS",
+    "result_message": "TITAN_OUTCOME_RESULT",
+    "error_message": "TITAN_OUTCOME_ERROR",
+    "conversation_return_event": "titan:conversation-execution-result",
+    "conversation_return_message": "TITAN_CONVERSATION_EXECUTION_RESULT"
+  },
+  "protected_retriever_bridge_modified": false
+}

@@ -1,0 +1,35 @@
+{
+  "schema": "titan-zero-offline-reuse-provenance/v1",
+  "packet_id": "TZ-FINISH-OFFLINE-RESILIENCE-001",
+  "pass": 7,
+  "dispositions": [
+    {
+      "source": "ported/*/assets/upload-bytes-store-Bc_5AyUo.ts",
+      "status": "SEMANTICS_ADAPTED",
+      "semantics": [
+        "bounded upload size",
+        "chunk sizing",
+        "resumable byte-store concept"
+      ],
+      "note": "Old global-memory byte store not adopted as authority."
+    },
+    {
+      "source": "ported/*/assets/file-upload-utils*.ts",
+      "status": "BROWSER_ADAPTER_QUARANTINED",
+      "semantics": [
+        "upload orchestration donor only"
+      ],
+      "note": "DOM/browser upload runtime not exported to standalone native core."
+    },
+    {
+      "source": "Pass3 mutation queue + canonical repository",
+      "status": "COMPOSED",
+      "semantics": [
+        "durable company-scoped metadata progression",
+        "restart-safe persistence"
+      ]
+    }
+  ],
+  "rewrite_avoided": true,
+  "parallel_blob_authority_created": false
+}

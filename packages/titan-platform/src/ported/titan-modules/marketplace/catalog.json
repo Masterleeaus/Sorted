@@ -1,0 +1,24 @@
+{
+  "schema": "titan-marketplace/v1",
+  "version": "2026.09",
+  "items": [
+    {
+      "id": "titan.marketplace.starter",
+      "name": "Titan Verified Starter",
+      "version": "1.0.0",
+      "package_type": "module",
+      "publisher_id": "titan.zero.official",
+      "description": "Signed declarative starter module for verifying the Titan package install path.",
+      "package": "titan-modules/marketplace/packages/verified-starter.package.json"
+    },
+    {
+      "id": "titan.bundle.cleaning-workforce",
+      "name": "Cleaning Workforce Pack",
+      "version": "1.0.0",
+      "package_type": "bundle",
+      "publisher_id": "titan.zero.official",
+      "description": "Signed cleaning workforce team pack with its declared capability modules.",
+      "package": "titan-modules/marketplace/packages/cleaning-workforce.package.json"
+    }
+  ]
+}

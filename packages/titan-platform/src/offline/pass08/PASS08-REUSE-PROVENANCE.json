@@ -1,0 +1,41 @@
+{
+  "schema": "titan-zero-offline-reuse-provenance/v1",
+  "packet_id": "TZ-FINISH-OFFLINE-RESILIENCE-001",
+  "pass": 8,
+  "dispositions": [
+    {
+      "source": "ported/titan-offline/conflict-retry-policy.ts",
+      "status": "SEMANTICS_REUSED",
+      "semantics": [
+        "transient/ambiguous/conflict classification",
+        "no automatic replay"
+      ]
+    },
+    {
+      "source": "offline/mutation-queue.ts",
+      "status": "COMPOSED",
+      "semantics": [
+        "idempotent duplicate handling",
+        "bounded durable recovery"
+      ]
+    },
+    {
+      "source": "offline/sync.ts",
+      "status": "COMPOSED",
+      "semantics": [
+        "generation monotonicity",
+        "explicit conflict handling"
+      ]
+    },
+    {
+      "source": "offline/field-evidence-sync.ts",
+      "status": "COMPOSED",
+      "semantics": [
+        "ordered resumable progression",
+        "duplicate chunk safety"
+      ]
+    }
+  ],
+  "rewrite_avoided": true,
+  "parallel_storage_authority_created": false
+}

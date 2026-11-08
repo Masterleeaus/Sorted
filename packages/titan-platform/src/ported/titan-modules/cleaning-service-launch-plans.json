@@ -1,0 +1,59 @@
+{
+  "schema": "titan-cleaning-service-launch-plans/v1",
+  "version": "2026.09.07-pass4",
+  "policy": "Launch planning is advisory and company-scoped. Automatic gates may read known marketplace/workforce coverage and evidence, but manual business, training, compliance, pilot and job-completion gates require explicit company confirmation. No launch-plan state grants authority, publishes a service, purchases products or executes work.",
+  "stages": [
+    {"id":"opportunity_detected","name":"Opportunity detected","description":"At least one matching company growth signal exists.","gate":"automatic"},
+    {"id":"capability_review","name":"Capability review","description":"Titan has compared the service against known Marketplace and Workforce coverage.","gate":"automatic"},
+    {"id":"prerequisites_ready","name":"Prerequisites ready","description":"Known required Marketplace products and Workforce specialists are covered.","gate":"automatic"},
+    {"id":"training_compliance_ready","name":"Training & compliance ready","description":"Required service-specific training/compliance checks have been explicitly confirmed.","gate":"manual"},
+    {"id":"pilot_ready","name":"Pilot ready","description":"Pilot scope, QA method and operating process have been confirmed.","gate":"manual"},
+    {"id":"ready_to_sell","name":"Ready to sell","description":"Coverage, compliance/training, quote/scope and delivery standards are confirmed. This is planning readiness only; it does not publish or sell anything.","gate":"manual"},
+    {"id":"first_job_scheduled","name":"First job scheduled","description":"A first-job reference has been explicitly recorded.","gate":"manual"},
+    {"id":"first_job_completed","name":"First job completed","description":"The company has explicitly confirmed completion of the first job.","gate":"manual"}
+  ],
+  "service_requirements": {
+    "commercial": [
+      {"id":"scope_standard","label":"Commercial scope-of-work standard reviewed","category":"business"},
+      {"id":"qa_standard","label":"Commercial QA and inspection standard confirmed","category":"quality"},
+      {"id":"site_safety","label":"Site-specific safety process reviewed","category":"safety"}
+    ],
+    "airbnb": [
+      {"id":"turnover_standard","label":"Turnover timing and reset standard confirmed","category":"operations"},
+      {"id":"access_process","label":"Keys/access handover process reviewed","category":"security"},
+      {"id":"linen_process","label":"Linen/laundry process confirmed","category":"operations"}
+    ],
+    "endlease": [
+      {"id":"scope_standard","label":"End-of-lease inclusions/exclusions reviewed","category":"business"},
+      {"id":"condition_evidence","label":"Condition/photo evidence standard confirmed","category":"quality"},
+      {"id":"damage_boundary","label":"Existing-damage escalation boundary reviewed","category":"risk"}
+    ],
+    "healthcare": [
+      {"id":"infection_training","label":"Infection-control training verified","category":"training"},
+      {"id":"chemical_sds","label":"Chemical/SDS requirements reviewed","category":"compliance"},
+      {"id":"jurisdiction_review","label":"Applicable healthcare cleaning requirements reviewed for this jurisdiction","category":"compliance"},
+      {"id":"evidence_standard","label":"Hygiene verification/evidence standard confirmed","category":"quality"}
+    ],
+    "education": [
+      {"id":"infection_training","label":"Infection-control cleaning process reviewed","category":"training"},
+      {"id":"child_safety","label":"Child-safe chemical/access process reviewed","category":"safety"},
+      {"id":"jurisdiction_review","label":"Applicable school/childcare cleaning requirements reviewed for this jurisdiction","category":"compliance"}
+    ],
+    "strata": [
+      {"id":"common_area_scope","label":"Common-area service standard confirmed","category":"business"},
+      {"id":"access_process","label":"Building access/key process reviewed","category":"security"},
+      {"id":"periodic_schedule","label":"Periodic floor/common-area schedule confirmed","category":"operations"}
+    ],
+    "construction": [
+      {"id":"site_safety","label":"Construction-site safety process reviewed","category":"safety"},
+      {"id":"handover_standard","label":"Builder handover/evidence standard confirmed","category":"quality"},
+      {"id":"hazard_boundary","label":"Hazardous-material and specialist-trade boundaries confirmed","category":"risk"}
+    ],
+    "food": [
+      {"id":"food_sanitation_training","label":"Food-premises sanitation process/training verified","category":"training"},
+      {"id":"chemical_sds","label":"Chemical/SDS requirements reviewed","category":"compliance"},
+      {"id":"jurisdiction_review","label":"Applicable food-premises cleaning requirements reviewed for this jurisdiction","category":"compliance"},
+      {"id":"verification_standard","label":"Hygiene verification/evidence standard confirmed","category":"quality"}
+    ]
+  }
+}

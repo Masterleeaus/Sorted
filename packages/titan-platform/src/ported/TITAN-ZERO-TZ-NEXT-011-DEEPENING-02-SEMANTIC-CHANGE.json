@@ -1,0 +1,15 @@
+{
+  "schema": "titan-zero-semantic-change/v1",
+  "lane": "TZ-NEXT-011",
+  "deepening": "DEEPENING-02",
+  "title": "Bound restart recovery horizon and quarantine stale delivery records",
+  "changes": [
+    "Add configurable recovery_max_age_ms with seven-day default and bounded range",
+    "Exclude stale failed/expired lease records from retry candidates",
+    "Preserve stale record diagnostics through quarantine summaries and requires_review",
+    "Keep explicit resume only for recent eligible records",
+    "No automatic effect replay and no authority change"
+  ],
+  "company_boundary": "company_id only",
+  "identity_not_authority": true
+}

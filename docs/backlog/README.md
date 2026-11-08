@@ -1,0 +1,380 @@
+# Dovetails FSM — Product Backlog
+
+This is the **active product backlog** for Dovetails FSM. It exists so future
+work is tracked intentionally in the repo instead of being scattered across
+chat sessions.
+
+This backlog was created as an initial pass from recent planning discussions.
+The tasks here did **not** previously exist as a tracked list — this is the
+first time they are written down in one place.
+
+## Working rule
+
+**No new work may be started unless it maps to an existing task here, or a new
+task is added to this backlog first.** If nothing fits, add a `Proposed` task
+(correct epic, the standard headings below) before writing code. Adding the task
+can be the first step of the same effort, but the task must exist before the
+work.
+
+A task closes when its acceptance criteria are met — it then moves to
+`docs/archive/backlog-done/`.
+Do not keep a task open because new ideas surfaced during the build; new ideas
+become new tasks, which earn their place only after the shipped feature proves
+its value in use.
+
+## Design principles
+
+These cross-cutting rules guide how tasks here are scoped and built. They are
+working guidance, not yet canonical product direction — promote to
+`docs/canonical/` if they prove durable.
+
+Screen and workflow changes follow
+[`docs/working/ux-implementation-direction.md`](../working/ux-implementation-direction.md).
+A task that changes UX should cite the rule or audit section it implements.
+Do not rebuild working plumbing to match a simpler interface.
+
+### Mobile First Field Rule
+
+> Any action performed more than ~5 times per day should be executable in one
+> tap whenever possible.
+
+Dovetails is run from a phone in the field. Reduce typing, reduce modal dialogs,
+reduce navigation; increase one-tap actions. When this rule and "software
+purity" disagree, field reality wins. TASK-021 (Quick Activity Switching),
+TASK-022 (Smart Start Day), and the prevention-over-correction framing of
+TASK-019 all derive directly from this principle.
+
+### Favor references over ownership
+
+> An aggregate that groups records should hold **references** to them, never a
+> second copy of the data.
+
+Each fact has exactly one source of truth: time is `activity_entries`, mileage is
+`vehicle_sessions`, materials are `visit_parts`, photos are `visit_media`,
+presence is `presence_intervals`. A Visit is a production-session *folder* — it
+references those records (activity IDs, vehicle-session IDs, material IDs, photo
+IDs, checklist IDs); it does not own or duplicate them. Before adding a column or
+a table, ask whether an existing source already holds the fact and a reference
+will do. This is the rule the `visit_time_logs` retirement (TASK-061…065) makes
+concrete, and the discipline that keeps "one operational record feeds every
+function" true as the model grows. When tempted by "I just need one more table,"
+this rule is the check.
+
+## How this relates to the canonical docs
+
+- **`docs/canonical/ROADMAP.md` remains the product-direction source of truth.**
+  When the backlog and the canonical roadmap disagree about scope or direction,
+  the canonical roadmap wins.
+- Backlog items are **implementation candidates**, not architectural authority.
+  A task being listed here does not commit the product to building it.
+- Product-scope changes still follow the rules in `CLAUDE.md`: canonical docs
+  are updated first or in the same change.
+
+### Phase mapping (required)
+
+Every task must include a `Phase:` field matching `docs/canonical/ROADMAP.md`:
+
+```text
+Phase: 0 | 1 | 2 | 3 | 4 | cross-cutting
+```
+
+- Tasks **without** a ROADMAP phase are invalid. Add the phase to ROADMAP before creating the task.
+- When backlog and ROADMAP disagree on scope, **ROADMAP wins**.
+- Backlog is an execution queue, not product strategy.
+
+## Structure
+
+- `README.md` — this file.
+- `EPIC-001-operations-and-mileage.md` — the Operations Engine: *how the engine works* (Business Day, Payroll, Activity, Current State, Day Close, time truth).
+- `EPIC-002-estimating-and-assessments.md`
+- `EPIC-003-property-intelligence.md`
+- `EPIC-004-billing-and-profitability.md`
+- `EPIC-005-platform-and-delivery.md`
+- `EPIC-006-role-based-workspaces.md`
+- `EPIC-007-location-intelligence.md` — **Field Execution**: *how a technician experiences the field* (Location Intelligence is one subsystem inside it).
+- `EPIC-008-production-intelligence.md` — deliberate stub (PI-002, PI-006 only).
+- `docs/archive/backlog-done/` — completed tasks, archived out of the active epics.
+
+Each epic file lists its **active** tasks in full and links to its **completed**
+tasks in `docs/archive/backlog-done/`.
+
+## Task index
+
+Next available ID: **TASK-174**. TASK-167 through TASK-172 are held by the customer home record work and are not in this index yet.
+
+Wave 0b 2026-08-05 closed 079/080; Wave 0a 2026-08-05 closed false In Progress: 046, 053, 068, 071, 078.
+Truth pass 2026-08-05: fixed ID collisions (ledger/T&M/terms had reused 081–083),
+closed shipped work (buy list, attention, job ledger, materials catalog, T&M
+invoice, document terms, nested hubs), and wrote TASK-018 residual checklist.
+Renumbered collisions: Job Ledger → **084**, T&M final invoice → **089**,
+estimate/invoice terms → **090**. Original 081–083 keep hubs / buy list /
+attention.
+Code-audit 2026-08-06: closed TASK-069 (live Square prod pay), TASK-054 (day close),
+TASK-076 (stop anchor). Left PARTIAL: 052 payroll residual, 049 inbox, 066 visit rollup.
+Wave finish 2026-08-05: In Progress emptied — TASK-056, TASK-018, TASK-017 shipped;
+truth-pass also archived TASK-023 and TASK-050 (epic already Done, README lagged).
+Validation closeout 2026-09-09: archived shipped TASK-052, 112, 127–131 after fresh `pnpm gate`; live/manual tasks remain open.
+Truth pass 2026-08-17: archived shipped 104/105/106/107 (#599–#602) and 095
+(script + 2026-08-08 run). Ticked TASK-094 merged-to-main. TASK-103 seed AC
+closed in tests; owner-flow AC still open.
+
+| ID | Title | Epic | Status |
+| --- | --- | --- | --- |
+| TASK-131 | Audit hardening — framework security patch | 005 | Done |
+| TASK-132 | [Audit hardening: CI, database roles, project loading](TASK-132-audit-hardening.md) | 005 | In Progress |
+| TASK-133 | [Job closeout on Complete (parent)](TASK-133-job-closeout-on-complete.md) | 007 | Proposed |
+| TASK-134 | [Complete fork — done vs coming back](TASK-134-complete-done-or-return.md) | 007 | Proposed |
+| TASK-135 | [Coming back — day log, next visit, first-up](TASK-135-return-day-log-next-visit.md) | 007 | Proposed |
+| TASK-136 | [Done — complete project and draft the invoice](TASK-136-done-invoice-from-complete.md) | 004 | Proposed |
+| TASK-137 | [Next-person briefing on the next visit](TASK-137-next-person-briefing.md) | 007 | Proposed |
+| TASK-138 | [Night leftovers after job closeout](TASK-138-night-closeout-leftovers.md) | 007 | Proposed |
+| TASK-139 | [Paid invoice closes the job](TASK-139-paid-invoice-closes-job.md) | 004 | In Progress |
+| TASK-140 | [Mileage page — claim vs GPS hops](TASK-140-mileage-claim-vs-gps.md) | 001 | In Progress |
+| TASK-141 | [Tag miles from Complete](TASK-141-tag-miles-from-complete.md) | 001 | In Progress |
+| TASK-142 | [Untagged claim miles leftover](TASK-142-untagged-miles-leftover.md) | 001 | In Progress |
+| TASK-143 | [Overview is the leak list](TASK-143-overview-leak-list.md) | 006 | In Progress |
+| TASK-144 | [Receipt destinations](TASK-144-receipt-destinations.md) | 004 | In Progress |
+| TASK-145 | [Night stop interview](TASK-145-night-stop-interview.md) | 007 | In Progress |
+| TASK-146 | [RLS enforcement on the web tier](TASK-146-rls-web-tier-enforcement.md) | 005 | In Progress |
+| TASK-147 | [GPS blip coalescing — one dwell, one stop](TASK-147-gps-blip-coalescing.md) | 007 | Done |
+| TASK-148 | [Geofence-anchored stops + home fence](TASK-148-geofence-anchored-stops.md) | 007 | Done |
+| TASK-149 | [Park (Bluetooth disconnect) → confirm location](TASK-149-park-arrival-prompt.md) | 007 | Done |
+| TASK-150 | [Hold the stop until Bluetooth / zone / different property](TASK-150-hold-until-vehicle.md) | 007 | In Progress |
+| TASK-151 | [Per-person labor cost + estimated-vs-actual on job detail](TASK-151-per-person-labor-actuals.md) | 004 | Done |
+| TASK-152 | [Job materials → invoice line items — clean labels, classification, order](TASK-152-job-materials-line-items.md) | 004 | In Progress |
+| TASK-153 | [Final invoice credits prior invoices + approved change orders reach the bill](TASK-153-final-invoice-credits-and-change-orders.md) | 004 | Proposed |
+| TASK-154 | [Reopen and edit a partially paid invoice](../archive/backlog-done/TASK-154-edit-partially-paid-invoice.md) | 004 | Done |
+| TASK-155 | [Send via Square Invoice (card or ACH), payment link kept](TASK-155-send-via-square-invoice.md) | 004 | Proposed |
+| TASK-156 | [Track Square processing fees per payment and job](TASK-156-square-processing-fee-tracking.md) | 004 | Proposed |
+| TASK-157 | [Invoice work summary by area + customer itemized receipts link](TASK-157-invoice-work-summary-itemized-receipts.md) | 004 | In Progress |
+| TASK-158 | [Realtor-sponsored property work](TASK-158-realtor-sponsored-properties.md) | 003 | Proposed |
+| TASK-159 | [Sponsored work for any realtor in one form](TASK-159-sponsored-work-any-realtor.md) | 003 | In progress |
+| TASK-160 | [Admin portal preview is read-only](TASK-160-portal-preview-read-only.md) | 003 | In progress |
+| TASK-161 | [Portal self-service — request service, edit info, lifetime spend, print invoices](TASK-161-portal-self-service.md) | 003 | Proposed |
+| TASK-162 | [Job Reports — publish finished work to the customer](TASK-162-job-reports.md) | 003 | Proposed |
+| TASK-163 | [Past-jobs publish queue + unpublished reminder](TASK-163-job-report-backlog-queue.md) | 003 | Proposed |
+| TASK-164 | [Portal answers what we did, what's in your home, what's next](TASK-164-portal-three-questions.md) | 003 | Proposed |
+| TASK-165 | [Home Record report (one-page house history)](TASK-165-home-record-report.md) | 003 | Proposed |
+| TASK-166 | [Realtor portal — work you paid for, by address, and "bill me" requests](TASK-166-realtor-portal.md) | 003 | Proposed |
+| TASK-173 | [UX implementation direction](TASK-173-ux-implementation-direction.md) | cross-cutting | In Progress |
+| TASK-001 | Vehicle Mileage Sessions | 001 | Done |
+| TASK-002 | Vehicle Session Recovery | 001 | Done |
+| TASK-003 | Wrong Vehicle Correction | 001 | Done |
+| TASK-004 | Daily Operations Log | 001 | Done |
+| TASK-005 | Activity Tracking | 001 | Done |
+| TASK-006 | Assessment → Materials Generator Context | 002 | Done |
+| TASK-007 | Assessment → Estimate Context | 002 | Done |
+| TASK-008 | Room-Based Estimate Templates | 002 | Proposed |
+| TASK-009 | Estimate Versioning | 002 | Proposed |
+| TASK-010 | Property Timeline | 003 | Done |
+| TASK-011 | Property Opportunities | 003 | Deferred |
+| TASK-012 | Property Health Records | 003 | Deferred |
+| TASK-013 | Maintenance Plan Fit Scoring | 003 | Deferred |
+| TASK-014 | Invoice Generation from Visits | 004 | Done |
+| TASK-015 | Payment Tracking | 004 | Done |
+| TASK-016 | Job Profitability | 004 | Done |
+| TASK-017 | Lead Source / Referral ROI | 004 | Done |
+| TASK-018 | Assessment Summary Engine | 002 | Done |
+| TASK-019 | Activity Timeline Correction | 001 | Done |
+| TASK-020 | PWA Installability | 005 | Done |
+| TASK-021 | Quick Activity Switching | 001 | Done |
+| TASK-022 | Smart Start Day | 001 | Done |
+| TASK-023 | Daily Command Center UX Modernization | 001 | Done |
+| TASK-024 | Passive Location-Based Activity Capture | 007 | Done |
+| TASK-025 | Bluetooth-Triggered Vehicle-Aware Auto-Mileage | 007 | Done |
+| TASK-026 | Day Map (stops + drive routes) | 007 | Done |
+| TASK-027 | Hybrid Tracking (manual mileage, auto time) | 007 | Done |
+| TASK-028 | Owner ↔ field role split (reconciled) | 006 | Done |
+| TASK-029 | Owner ↔ field role split (reconciled) | 006 | Done |
+| TASK-030 | Owner ↔ field role split (reconciled) | 006 | Done |
+| TASK-031 | Owner ↔ field role split (reconciled) | 006 | Done |
+| TASK-032 | Owner ↔ field role split (reconciled) | 006 | Done |
+| TASK-033 | Read-Only Business MCP Server | 005 | Done |
+| TASK-034 | MCP Non-Superuser RLS Verification | 005 | Cancelled (MCP deleted TASK-109) |
+| TASK-035 | MCP Write Tools v1 (operations writes) | 001 | Cancelled (MCP deleted TASK-109) |
+| TASK-036 | PR Gatekeeper MCP Server | 005 | Deferred |
+| TASK-038 | Surface consolidation (one daily home) | 006 | Done |
+| TASK-039 | Job & estimate numbering | 005 | Done |
+| TASK-040 | False-drive detection | 007 | Done |
+| TASK-041 | Customer-property geofences | 007 | Done |
+| TASK-042 | Property matching engine + confidence | 007 | Done |
+| TASK-043 | visit_candidates table + creation from stops | 007 | Done |
+| TASK-044 | Visit review card + classification → ledger | 007 | Done |
+| TASK-045 | "I'm at customer site" manual override | 007 | Done |
+| TASK-046 | Workday & privacy controls | 007 | Done |
+| TASK-047 | Work Item Library (PI-002) | 008 | Deferred |
+| TASK-048 | Confidence Engine (PI-006) | 008 | Deferred |
+| TASK-049 | Operational Inbox (single review surface) | 007 | Proposed |
+| TASK-050 | Link mileage ↔ travel-time + capture-method | 001 | Done |
+| TASK-051 | Business Day aggregate (decouple day close) | 001 | Done |
+| TASK-052 | Payroll clock + payroll policies | 001 | Done |
+| TASK-053 | Activity + Assignment model | 001 | Done |
+| TASK-054 | Day Close checklist + Reopen | 001 | Done |
+| TASK-055 | Operational Intelligence (profitability→automation) | 008 | Proposed |
+| TASK-056 | Current Operations State (live state machine) | 001 | Done |
+| TASK-057 | Site Presence | 007 | Proposed |
+| TASK-058 | Workspace mode auto-by-device + Settings override | 006 | Done |
+| TASK-059 | My Day start-surface consolidation | 001 | Done |
+| TASK-060 | Invoice discounts (negative adjustment lines) | 004 | Done |
+| TASK-061 | Backfill legacy visit time into activity_entries | 001 | Done |
+| TASK-062 | Invoice labor parity test | 001 | Done |
+| TASK-063 | Swap invoice labor readers to activity_entries | 001 | Done |
+| TASK-064 | Remove visit_time_logs writer | 001 | Done |
+| TASK-065 | Retire visit_time_logs table | 001 | Done |
+| TASK-066 | Visit Production Rollup (Visit Summary page) | 007 | Proposed |
+| TASK-067 | Visit Timeline | 007 | Done |
+| TASK-068 | Payment Provider Model & Enriched Recorder | 004 | Done |
+| TASK-069 | Square Card Payments | 004 | Done |
+| TASK-071 | Set a deposit on any invoice (Square-style single invoice) | 004 | Done |
+| TASK-072 | Per-task time capture via AI Daily Recap | 008 | Done |
+| TASK-073 | AI task decomposition | 008 | Done |
+| TASK-074 | My Work — "Next action" + stale-state prompts | 006 | Proposed |
+| TASK-075 | Field workflow — fewer taps job → materials → invoice → closeout | 006 | Proposed |
+| TASK-076 | Stop anchor stability — radius hysteresis on capture | 007 | Done |
+| TASK-077 | Auto-start the job on arrival at a scheduled customer (opt-in) | 007 | Deferred |
+| TASK-078 | Invoices tied to an open job are due on completion | 004 | Done |
+| TASK-079 | Visit-candidate consolidation + Day Review de-noise | 007 | Done |
+| TASK-080 | Real GPS mileage — dense drive trail + honest cross-check | 007 | Done |
+| TASK-081 | Nested hubs UX system (Home / Work / People / Money) | 006 | Done |
+| TASK-082 | Job-owned materials buy list (estimate seed) | 002 | Done |
+| TASK-083 | Attention Phase 2 — estimates badge, email, prune, filters | 005 | Done |
+| TASK-084 | Job Ledger — estimate vs actual on the project page | 004 | Done |
+| TASK-085 | Materials catalog schema (avg, count, SKU unique) | 004 | Done |
+| TASK-086 | Learn materials catalog from receipt line items | 004 | Done |
+| TASK-087 | Materials catalog UI + SKU search | 004 | Done |
+| TASK-088 | Store purchase history import (Home Depot + Lowe's) | 004 | Done |
+| TASK-089 | T&M final invoice from actuals + mobile deliver | 004 | Done |
+| TASK-090 | Separate estimate vs invoice document terms in Settings | 004 | Done |
+| TASK-091 | Hybrid mileage verification pack (odo + GPS + export) | 001 | Done |
+| TASK-093 | Vehicle & Trailer Cost-of-Ownership | 001 | Done |
+| TASK-094 | Materials Estimate Trust & Calibration (Approach D) | 002 | In Progress |
+| TASK-095 | Estimate vs Actual Benchmark & Calibration Runner (PI-011) | 008 | Done |
+| TASK-096 | Financial Truth Card & Actionable Advisory Guardrails | 002 | Done |
+| TASK-097 | Trade Construction Knowledge Engine | 002 | Done |
+| TASK-098 | 3-Layer Hybrid Estimating Engine | 002 | Cancelled (scaffold deleted PR #603) |
+| TASK-099 | Reconcile TASK-094 delta capture with TASK-098 benchmark calibration | 002 | Deferred |
+| TASK-100 | Fix T&M vs Fixed comparison card (hours-overrun modeling, shared rate constant) | 002 | Proposed |
+| TASK-101 | Standalone & direct quick materials generator (uncouple materials from estimates) | 002 | Done |
+| TASK-102 | Quick materials — assessment context + save-to-job (follow-up to TASK-101) | 002 | Proposed |
+| TASK-103 | Door hardware (1007) deterministic materials takeoff → buy list | 002 | In Progress |
+| TASK-104 | Discoverable vehicle tracking | 006 | Done |
+| TASK-105 | Vehicle fuel history, MPG, and receipt view | 001 | Done |
+| TASK-106 | False-stop detection (5-minute dwell floor) | 007 | Done |
+| TASK-107 | AI Day Draft (GPS + jobs + receipts → one confirm) | 007 | Done |
+| TASK-108 | Ponytail first cut — delete unused hybrid-pricing, vocabulary, log stubs | 002 | Done |
+| TASK-109 | Ponytail second cut — MCP, dead APIs, unused paint helpers | 005 | Done |
+| TASK-110 | Delete Daily Recap (Day Draft is the evening close) | 007 | Done |
+| TASK-111 | Keep attention notification panel on-screen (desktop) | 006 | Done |
+| TASK-112 | Job materials builder templates (Build from tasks) | 002 | Done |
+| TASK-113 | Fuel receipt attaches to the logged-in vehicle | 001 | Done |
+| TASK-114 | Fuel receipt odometer from that day + number sanity check | 001 | Done |
+| TASK-115 | Promise Capture Pilot | 005 | In Progress |
+| TASK-116 | Field-ops Web Push (start-day, home arrival, My Work prompt) | 005 | In Progress |
+| TASK-118 | Native Web Push notifications | 005 | Done |
+| TASK-119 | Quick-job billing seam — time → invoice for quick-booked jobs | 004 | Done |
+| TASK-120 | Big-job billing — deposit gate + progress (thirds) billing | 004 | Done |
+| TASK-121 | Unified job materials & spend view | 004 | Done |
+| TASK-122 | Backup hardening — uploads + encrypted .env alongside DB dump | 005 | In Progress |
+| TASK-124 | De-jargon naming — "Needs attention" + consistent "My Day" | 006 | Done |
+| TASK-125 | Nav restructure — Jobs→Projects, drop Work Orders from nav | 006 | Done |
+| TASK-123 | Agent accessibility — invariants doc + dev/test stack script | 005 | Done |
+| TASK-126 | Phone job shortcuts go to the matching job surface | 006 | Done |
+| TASK-127 | Pricing reconciliation — retire stray hardcoded labor rates | 004 | Done |
+| TASK-128 | CI guard against new duplicate migration numbers | 005 | Done |
+| TASK-129 | One daily home leftover fold — Needs attention + today's timeline on My Day | 006 | Done |
+| TASK-130 | Findability — lightweight "what can I do here?" command search | 006 | Done |
+
+## Status legend
+
+| Status | Meaning |
+| --- | --- |
+| `Proposed` | Idea captured; not yet committed or scoped for build. |
+| `Ready` | Scoped and ready to pick up. |
+| `In Progress` | Actively being built. |
+| `Done` | Shipped. Lives in `docs/archive/backlog-done/`. |
+| `Deferred` | Intentionally on hold. |
+| `Cancelled` | Will not be built. Leave a one-line reason; do not keep dead scaffold. |
+
+## Handling completed work
+
+When a task is finished, set its status to `Done` and move its file into
+`docs/archive/backlog-done/`. Leave a one-line link to it under the epic's
+"Completed" section so the epic still reads as a coherent history.
+
+**Task IDs are permanent and must never be reused, even after moving tasks to
+done.** A retired or deleted task keeps its number; new work always takes the
+next unused `TASK-XXX`.
+
+## Task format
+
+```
+# TASK-XXX: Title
+
+Status:
+Proposed | Ready | In Progress | Done | Deferred
+
+Phase:
+0 | 1 | 2 | 3 | 4 | cross-cutting
+
+Problem:
+What pain this solves.
+
+Business Value:
+Why it matters for Dovetails.
+
+Scope:
+- item
+
+Out of Scope:
+- item
+
+Acceptance Criteria:
+- [ ] criteria
+
+Notes:
+Any relevant implementation notes.
+```
+
+## Proposed / Strategic concepts (not yet committed)
+
+These were discussed but are **not implemented** and are **not** in the canonical
+roadmap. They are held per the roadmap's "Out of Scope" guidance until the core
+workflow phases are stable. They are recorded so the ideas are not lost, not to
+signal a commitment to build:
+
+- **Business Ledger** — a unified financial ledger across the business. No epic
+  or task yet; strategic note only.
+- **Opportunity Tracking** — captured here as `TASK-011 Property Opportunities`.
+- **Property Intelligence** — the whole of `EPIC-003`; treat as strategic.
+
+### Production Intelligence — strategic concepts (not committed)
+
+Direction is canonical (`docs/canonical/PRODUCTION_INTELLIGENCE.md`): Dovetails
+models **the work first**, and pricing is one projection of it. The model's
+*foundation* is **TASK-018** (the de facto PI-001), and **EPIC-008** is a
+deliberate stub holding only the two next pieces scoped so far — `TASK-047 Work
+Item Library` (PI-002) and `TASK-048 Confidence Engine` (PI-006). Both are
+`Proposed` (not yet committed for build); they are simply the only PI ideas
+promoted from concept to task.
+
+The remaining Production Intelligence ideas are recorded here so the thinking is
+not lost. They are **explicitly not committed backlog work** and earn task status
+only after TASK-018 proves the model in real use:
+
+- **PI-003 Production Profiles** — reusable production characteristics (rate,
+  crew, skill, dependencies) for a work item or job shape.
+- **PI-004 Pricing Intelligence Charter** — pricing as canonical business rules
+  the system references, derived from the production model. First draft (from a
+  pricing-evidence analysis of real estimates/invoices) exists at
+  `docs/working/PRICING_INTELLIGENCE_CHARTER_DRAFT.md`; evidence at
+  [PRICING_AUDIT_REPORT_2026.md](../generated/PRICING_AUDIT_REPORT_2026.md).
+  Still not committed work.
+- **PI-005 Production Knowledge Base** — immutable business baselines (e.g.
+  "Bathroom Refresh v2", travel policy, visit fee).
+- **PI-007 Historical Production Learning** — completed work orders feed back to
+  improve future estimates of similar work.
+- **PI-008 Production Analytics** — reporting over the production model.
+- **PI-009 AI Production Advisor** — assistive guidance built on the model.
+- **PI-010 Estimate Explanation Engine** — human-readable "why this estimate".
+- **PI-011 Production Benchmark Dashboard** — estimate-vs-actual benchmarking.
+- **PI-012 Production Rule Editor** — owner-editable production/business rules.

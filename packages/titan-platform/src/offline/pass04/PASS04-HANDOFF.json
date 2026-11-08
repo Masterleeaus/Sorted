@@ -1,0 +1,12 @@
+{
+  "schema": "titan-zero-builder-handoff/v2",
+  "workspace": "Builder 3",
+  "packet_id": "TZ-FINISH-OFFLINE-RESILIENCE-001",
+  "pass": 4,
+  "status": "PASS_COMPLETE_CONTINUE",
+  "semantic_delta": "Native offline snapshot/pull/apply revision synchronization is now local-primary, restart-durable and conflict-explicit.",
+  "recommended_convergence_class": "ADDITIVE_OFFLINE_REVISION_SYNC",
+  "dependency": "TZ-FINISH-STORAGE-DATA-AUTHORITY-001",
+  "next_pass": 5,
+  "next_action": "Pass 5: harden app/service-worker restart recovery and interrupted-work continuation."
+}

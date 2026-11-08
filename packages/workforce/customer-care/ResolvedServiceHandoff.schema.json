@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "titan.workforce.customer-care.resolved-service-handoff.v1",
+  "title": "Titan Zero Customer Care Resolved Service Handoff",
+  "type": "object",
+  "required": [
+    "schema", "company_id", "handoff_id", "source_case_id", "customer_id",
+    "target", "reason", "source_refs", "evidence_refs", "dedupe_key",
+    "source_records_authoritative", "overwrite_source_records",
+    "authority_granted", "execution_permitted"
+  ],
+  "properties": {
+    "schema": {"const": "titan.workforce.customer-care.resolved-service-handoff.v1"},
+    "company_id": {"type": "string", "minLength": 1},
+    "handoff_id": {"type": "string", "minLength": 1},
+    "source_case_id": {"type": "string", "minLength": 1},
+    "customer_id": {"type": "string", "minLength": 1},
+    "job_id": {"type": ["string", "null"]},
+    "location_id": {"type": ["string", "null"]},
+    "invoice_id": {"type": ["string", "null"]},
+    "target": {"enum": ["jobs", "rebooking", "sales"]},
+    "reason": {"type": "string", "minLength": 1},
+    "source_refs": {"type": "object"},
+    "evidence_refs": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+    "dedupe_key": {"type": "string", "minLength": 1},
+    "source_records_authoritative": {"const": true},
+    "overwrite_source_records": {"const": false},
+    "direct_mutation": {"const": false},
+    "authority_granted": {"const": false},
+    "execution_permitted": {"const": false}
+  },
+  "additionalProperties": true
+}

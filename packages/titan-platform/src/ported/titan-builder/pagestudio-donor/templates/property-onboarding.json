@@ -1,0 +1,32 @@
+{
+  "template": {
+    "id": "property-onboarding",
+    "version": "1.0.0",
+    "name": "Property Onboarding",
+    "status": "ready",
+    "category": "property",
+    "entry_wizard": "property_onboarding_v1",
+    "capabilities": [
+      "property.assets.onboard"
+    ],
+    "channels": [
+      "chat",
+      "mobile",
+      "tablet",
+      "desktop",
+      "voice"
+    ],
+    "governance": {
+      "authority": "human_review_when_required",
+      "offline": true
+    },
+    "metadata": {
+      "verticals": [
+        "property_management",
+        "facilities",
+        "real_estate"
+      ],
+      "pack": "commerce_multi_vertical_2026_08"
+    }
+  }
+}

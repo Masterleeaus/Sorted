@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "titan.workforce.customer-care.inventory.v1",
+  "title": "Titan Customer Care Surface Inventory",
+  "type": "object",
+  "required": ["schema", "company_boundary", "authority_rule", "ownership", "existing_surfaces", "pass1_gaps"],
+  "properties": {
+    "schema": {"const": "titan.workforce.customer-care.inventory.v1"},
+    "company_boundary": {"const": "company_id"},
+    "authority_rule": {"const": "identity_does_not_grant_authority"},
+    "ownership": {"type": "object"},
+    "existing_surfaces": {"type": "object"},
+    "pass1_gaps": {"type": "array", "items": {"type": "string"}}
+  },
+  "additionalProperties": false
+}

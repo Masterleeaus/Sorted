@@ -1,0 +1,99 @@
+{
+  "schema": "titan-work-claims/v1",
+  "claims": [
+    {
+      "agent": "titan-zero-module-runtime-agent",
+      "scope": [
+        "manifest.json",
+        "titan-modules/**",
+        "modules.js",
+        "tests/**",
+        "titan-agent/**"
+      ],
+      "mode": "exclusive",
+      "purpose": "TZ-P0-003 governed Platform Manager lifecycle convergence",
+      "base_sha256": "b355dfcc9c7c3c676fdd8c76d889962f84b14cd014bba44fb251543089f7cdf7",
+      "status": "source_verified_pending_package_proof"
+    },
+    {
+      "agent": "titan-zero-runtime-workforce-agent",
+      "scope": [
+        "manifest.json",
+        "background-bootstrap.js",
+        "titan-workforce.js",
+        "titan-workforce/**",
+        "runtime/**",
+        "tests/**",
+        "titan-agent/**"
+      ],
+      "mode": "exclusive",
+      "purpose": "TZ-P0-001 native runtime + workforce convergence / Monica retirement compatibility seam",
+      "base_sha256": "3b37f806849c6ce387e0f51369173dbb4b84658e063f35aa590b043d89712373",
+      "status": "inherited_parent_state"
+    },
+    {
+      "agent": "gpt-5.6-sol-convergence-v018",
+      "scope": [
+        "titan-local/storage/**",
+        "background-bootstrap.js",
+        "manifest.json",
+        "titan-agent/**"
+      ],
+      "mode": "exclusive",
+      "purpose": "IndexedDB business database convergence",
+      "base_sha256": "872b59c0758b69e9780270adff52d1b24b5b14788c7f3a2d9a31a16e953226d2",
+      "status": "released",
+      "released_at": "2026-09-05T01:08:00+10:00"
+    },
+    {
+      "agent": "gpt-5.6-sol-convergence-v017",
+      "scope": [
+        "titan-modules/**",
+        "titan-workforce/**",
+        "modules.js",
+        "modules.html",
+        "main.html",
+        "sidePanel.html",
+        "titan-agent/**"
+      ],
+      "mode": "exclusive",
+      "purpose": "Rich-lineage Runtime v2/install/company-manager/workforce convergence",
+      "base_sha256": "872b59c0758b69e9780270adff52d1b24b5b14788c7f3a2d9a31a16e953226d2",
+      "status": "released",
+      "released_at": "2026-09-05T00:38:00+10:00"
+    },
+    {
+      "agent": "gpt-5.6-sol-convergence-v014",
+      "scope": [
+        "titan-modules/**",
+        "titan-local/**",
+        "titan-business-services/**",
+        "titan-workforce/**",
+        "titan-agent/**"
+      ],
+      "mode": "exclusive",
+      "purpose": "Converged module/package/device-first runtime and coordination layer",
+      "base_sha256": "18fc9f46f5daf77db64c9d4d6305e4f90ef708eee7fdd38a103ebc0591036e17",
+      "status": "released",
+      "released_at": "2026-09-04T21:42:00+10:00"
+    },
+    {
+      "agent": "gpt-5.6-sol-convergence-v014",
+      "scope": [
+        "manifest.json",
+        "main.html",
+        "sidePanel.html",
+        "modules.js",
+        "modules.html",
+        "module-view.js",
+        "module-view.html",
+        "module-view.css"
+      ],
+      "mode": "shared",
+      "purpose": "Surface and module-manager integration; preserve parallel valid contributions semantically",
+      "base_sha256": "18fc9f46f5daf77db64c9d4d6305e4f90ef708eee7fdd38a103ebc0591036e17",
+      "status": "released",
+      "released_at": "2026-09-04T21:42:00+10:00"
+    }
+  ]
+}

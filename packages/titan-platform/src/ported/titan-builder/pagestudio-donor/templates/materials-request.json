@@ -1,0 +1,32 @@
+{
+  "template": {
+    "id": "materials-request",
+    "version": "1.0.0",
+    "name": "Materials Request",
+    "status": "ready",
+    "category": "construction",
+    "entry_wizard": "materials_request_v1",
+    "capabilities": [
+      "crm.work_order.material.add"
+    ],
+    "channels": [
+      "chat",
+      "mobile",
+      "tablet",
+      "desktop",
+      "voice"
+    ],
+    "governance": {
+      "authority": "human_review_when_required",
+      "offline": true
+    },
+    "metadata": {
+      "verticals": [
+        "trades",
+        "construction",
+        "field_services"
+      ],
+      "pack": "commerce_multi_vertical_2026_08"
+    }
+  }
+}

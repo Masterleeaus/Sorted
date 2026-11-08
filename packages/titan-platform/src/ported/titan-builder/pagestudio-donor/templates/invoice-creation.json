@@ -1,0 +1,31 @@
+{
+  "template": {
+    "id": "invoice-creation",
+    "version": "1.0.0",
+    "name": "Invoice Creation",
+    "status": "ready",
+    "category": "finance",
+    "entry_wizard": "create_invoice_v1",
+    "capabilities": [
+      "crm.invoice.create"
+    ],
+    "channels": [
+      "chat",
+      "mobile",
+      "tablet",
+      "desktop",
+      "voice"
+    ],
+    "governance": {
+      "authority": "approval_required",
+      "offline": true
+    },
+    "metadata": {
+      "verticals": [
+        "field_services",
+        "home_services",
+        "cleaning"
+      ]
+    }
+  }
+}

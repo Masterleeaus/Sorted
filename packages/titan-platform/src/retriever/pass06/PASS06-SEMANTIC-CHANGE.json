@@ -1,0 +1,8 @@
+{
+  "schema": "titan-zero-retriever-finish-pass06-semantic-change/v1",
+  "packet_id": "TZ-FINISH-RETRIEVER-NATIVE-001",
+  "pass": 6,
+  "semantic_delta": "Adds native device-first lifecycle checkpoints, restart restore, stale/reconnect session classification, epoch advancement and reconnect plans that always fail closed on authority.",
+  "production_behavior_change": "Native Retriever work can survive runtime restart/reconnect without restoring or inventing execution authority.",
+  "donor_runtime_required": false
+}

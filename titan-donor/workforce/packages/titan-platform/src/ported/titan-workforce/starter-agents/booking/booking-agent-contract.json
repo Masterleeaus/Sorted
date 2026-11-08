@@ -1,0 +1,40 @@
+{
+  "schema": "titan.booking.agent-contract.v1",
+  "worker": "Booking Agent",
+  "company_boundary": "company_id",
+  "activation_confers_authority": false,
+  "mission": "Convert qualified intent or accepted quote into a verified booking through canonical Titan capabilities.",
+  "reads": [
+    "CRM customer/site/service/quote context",
+    "Bookings lifecycle",
+    "Titan scheduling/availability"
+  ],
+  "proposes": [
+    "booking intent",
+    "slot proposal",
+    "hold",
+    "confirmation request"
+  ],
+  "executes_via": [
+    "crm.appointment.create",
+    "governed Titan capability/Command Bus adapters"
+  ],
+  "never_owns": [
+    "customer truth",
+    "quote truth",
+    "job/work-order truth",
+    "calendar provider truth",
+    "authority decisions"
+  ],
+  "handoffs": [
+    "Scheduling",
+    "Jobs"
+  ],
+  "required_context": [
+    "company_id",
+    "worker_id",
+    "actor_user_id",
+    "correlation_id",
+    "idempotency_key"
+  ]
+}

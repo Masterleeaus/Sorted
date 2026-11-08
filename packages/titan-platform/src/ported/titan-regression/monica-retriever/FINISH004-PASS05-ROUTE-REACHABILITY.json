@@ -1,0 +1,337 @@
+{
+  "schema": "titan-zero-finish004-pass05-route-reachability/v1",
+  "packet_id": "TZ-FINISH-004",
+  "pass": 5,
+  "status": "PASS",
+  "live_browser": "NOT_CLAIMED",
+  "note": "Static/integration reachability only. Theme acceptance is Passes 6-7; live visual/function parity is Pass 9.",
+  "gates": [
+    {
+      "id": "launch_file:chatTab.html",
+      "ok": true,
+      "detail": "chatTab.html exists"
+    },
+    {
+      "id": "launch_file:main.html",
+      "ok": true,
+      "detail": "main.html exists"
+    },
+    {
+      "id": "launch_file:monicaOptions.html",
+      "ok": true,
+      "detail": "monicaOptions.html exists"
+    },
+    {
+      "id": "launch_file:monicaPopup.html",
+      "ok": true,
+      "detail": "monicaPopup.html exists"
+    },
+    {
+      "id": "launch_file:sidePanel.html",
+      "ok": true,
+      "detail": "sidePanel.html exists"
+    },
+    {
+      "id": "launch_file:titan-popup.html",
+      "ok": true,
+      "detail": "titan-popup.html exists"
+    },
+    {
+      "id": "launch_file:titan-zero-options.html",
+      "ok": true,
+      "detail": "titan-zero-options.html exists"
+    },
+    {
+      "id": "side_panel_manifest_route",
+      "ok": true,
+      "detail": "side_panel=sidePanel.html"
+    },
+    {
+      "id": "side_panel_view:chat",
+      "ok": true,
+      "detail": "Titan chat view retained"
+    },
+    {
+      "id": "side_panel_view:ai",
+      "ok": true,
+      "detail": "Titan ai view retained"
+    },
+    {
+      "id": "side_panel_view:business",
+      "ok": true,
+      "detail": "Titan business view retained"
+    },
+    {
+      "id": "side_panel_view:feed",
+      "ok": true,
+      "detail": "Titan feed view retained"
+    },
+    {
+      "id": "side_panel_view:workforce",
+      "ok": true,
+      "detail": "Titan workforce view retained"
+    },
+    {
+      "id": "side_panel_view:agent",
+      "ok": true,
+      "detail": "Titan agent view retained"
+    },
+    {
+      "id": "side_panel_view:work",
+      "ok": true,
+      "detail": "Titan work view retained"
+    },
+    {
+      "id": "conversation_chat_iframe",
+      "ok": true,
+      "detail": "Chat route reaches retained chatTab.html"
+    },
+    {
+      "id": "conversation_target:Chat",
+      "ok": true,
+      "detail": "Chat launcher visible inside Titan AI workspace"
+    },
+    {
+      "id": "conversation_target:Bots",
+      "ok": true,
+      "detail": "Bots launcher visible inside Titan AI workspace"
+    },
+    {
+      "id": "conversation_target:Explore",
+      "ok": true,
+      "detail": "Explore launcher visible inside Titan AI workspace"
+    },
+    {
+      "id": "conversation_target:Create",
+      "ok": true,
+      "detail": "Create launcher visible inside Titan AI workspace"
+    },
+    {
+      "id": "conversation_target:History",
+      "ok": true,
+      "detail": "History launcher visible inside Titan AI workspace"
+    },
+    {
+      "id": "conversation_target:Models",
+      "ok": true,
+      "detail": "Models launcher visible inside Titan AI workspace"
+    },
+    {
+      "id": "conversation_target:Tools",
+      "ok": true,
+      "detail": "Tools launcher visible inside Titan AI workspace"
+    },
+    {
+      "id": "retained_conversation_runtime",
+      "ok": true,
+      "detail": "chatTab loads retained Monica conversation runtime"
+    },
+    {
+      "id": "toolbar_popup_manifest_route",
+      "ok": true,
+      "detail": "popup=titan-popup.html"
+    },
+    {
+      "id": "popup_ai_target:Chat",
+      "ok": true,
+      "detail": "Chat reachable from toolbar popup"
+    },
+    {
+      "id": "popup_ai_target:Bots",
+      "ok": true,
+      "detail": "Bots reachable from toolbar popup"
+    },
+    {
+      "id": "popup_ai_target:Explore",
+      "ok": true,
+      "detail": "Explore reachable from toolbar popup"
+    },
+    {
+      "id": "popup_ai_target:Create",
+      "ok": true,
+      "detail": "Create reachable from toolbar popup"
+    },
+    {
+      "id": "popup_ai_target:History",
+      "ok": true,
+      "detail": "History reachable from toolbar popup"
+    },
+    {
+      "id": "popup_ai_target:Models",
+      "ok": true,
+      "detail": "Models reachable from toolbar popup"
+    },
+    {
+      "id": "popup_ai_target:Tools",
+      "ok": true,
+      "detail": "Tools reachable from toolbar popup"
+    },
+    {
+      "id": "popup_retriever",
+      "ok": true,
+      "detail": "Retriever reachable from toolbar popup"
+    },
+    {
+      "id": "popup_preserved_ai_tools",
+      "ok": true,
+      "detail": "Preserved donor AI Tools popup remains reachable"
+    },
+    {
+      "id": "options_manifest_route",
+      "ok": true,
+      "detail": "options=monicaOptions.html"
+    },
+    {
+      "id": "protected_options_root",
+      "ok": true,
+      "detail": "Protected donor options app root retained"
+    },
+    {
+      "id": "titan_options_launcher:ai",
+      "ok": true,
+      "detail": "ai reachable from Titan launch settings"
+    },
+    {
+      "id": "titan_options_launcher:retriever",
+      "ok": true,
+      "detail": "retriever reachable from Titan launch settings"
+    },
+    {
+      "id": "titan_options_launcher:donor-options",
+      "ok": true,
+      "detail": "donor-options reachable from Titan launch settings"
+    },
+    {
+      "id": "titan_options_launcher:diagnostics",
+      "ok": true,
+      "detail": "diagnostics reachable from Titan launch settings"
+    },
+    {
+      "id": "command_execute_action",
+      "ok": true,
+      "detail": "Toolbar action command retained"
+    },
+    {
+      "id": "command_monica_compat",
+      "ok": true,
+      "detail": "Monica-compatible AI command retained"
+    },
+    {
+      "id": "command_retriever",
+      "ok": true,
+      "detail": "Retriever keyboard command reachable"
+    },
+    {
+      "id": "original_content_overlay",
+      "ok": true,
+      "detail": "Original retained content overlay is manifest registered"
+    },
+    {
+      "id": "titan_launcher_overlay",
+      "ok": true,
+      "detail": "Titan floating launcher is manifest registered"
+    },
+    {
+      "id": "floating_launcher:AI Workspace",
+      "ok": true,
+      "detail": "AI Workspace reachable from webpage launcher"
+    },
+    {
+      "id": "floating_launcher:Retriever",
+      "ok": true,
+      "detail": "Retriever reachable from webpage launcher"
+    },
+    {
+      "id": "floating_launcher:AI Tools popup",
+      "ok": true,
+      "detail": "AI Tools popup reachable from webpage launcher"
+    },
+    {
+      "id": "floating_launcher:Settings",
+      "ok": true,
+      "detail": "Settings reachable from webpage launcher"
+    },
+    {
+      "id": "context_or_message:titan-zero-open-ai",
+      "ok": true,
+      "detail": "titan-zero-open-ai registered in background launcher bridge"
+    },
+    {
+      "id": "context_or_message:titan-zero-open-retriever",
+      "ok": true,
+      "detail": "titan-zero-open-retriever registered in background launcher bridge"
+    },
+    {
+      "id": "context_or_message:titan-zero-ask-selection",
+      "ok": true,
+      "detail": "titan-zero-ask-selection registered in background launcher bridge"
+    },
+    {
+      "id": "context_or_message:TITAN_LAUNCHER",
+      "ok": true,
+      "detail": "TITAN_LAUNCHER registered in background launcher bridge"
+    },
+    {
+      "id": "retriever_agent_view",
+      "ok": true,
+      "detail": "Titan Agent route reaches Retriever side panel"
+    },
+    {
+      "id": "retriever_ui:Browse",
+      "ok": true,
+      "detail": "Retriever Browse UI reachable"
+    },
+    {
+      "id": "retriever_ui:Extract",
+      "ok": true,
+      "detail": "Retriever Extract UI reachable"
+    },
+    {
+      "id": "retriever_ui:Retrieve",
+      "ok": true,
+      "detail": "Retriever Retrieve UI reachable"
+    },
+    {
+      "id": "retriever_ui:Cancel",
+      "ok": true,
+      "detail": "Retriever Cancel UI reachable"
+    },
+    {
+      "id": "retriever_ui:Retry",
+      "ok": true,
+      "detail": "Retriever Retry UI reachable"
+    },
+    {
+      "id": "retriever_ui:Evidence",
+      "ok": true,
+      "detail": "Retriever evidence UI reachable"
+    },
+    {
+      "id": "retriever_bridge",
+      "ok": true,
+      "detail": "Retained Retriever bridge exists"
+    },
+    {
+      "id": "retriever_background",
+      "ok": true,
+      "detail": "Retained Retriever background runtime exists"
+    },
+    {
+      "id": "retriever_catalog",
+      "ok": true,
+      "detail": "Retriever capability catalog exists"
+    },
+    {
+      "id": "theme_css_static_route",
+      "ok": true,
+      "detail": "Shared Titan theme stylesheet is statically loaded"
+    },
+    {
+      "id": "theme_js_static_route",
+      "ok": true,
+      "detail": "Titan theme runtime is statically loaded"
+    }
+  ],
+  "total": 65,
+  "passed": 65
+}

@@ -1,0 +1,30 @@
+{
+  "schema":"titan-zero-ui-runtime-parity-matrix/v1",
+  "packet_id":"TZ-WP-004",
+  "pass":5,
+  "status":"STATIC_PARITY_VERIFIED",
+  "surfaces":[
+    {"surface":"Titan shell","entry":"sidePanel.html","status":"PASS","preserves":["AI","Chat","Business","Feed","Workforce","Work"]},
+    {"surface":"Full AI conversation/home/tools","entry":"chatTab.html","status":"PASS","runtime":"content.css + content.js compatibility aliases"},
+    {"surface":"Toolbar popup","entry":"titan-popup.html -> monicaPopup.html","status":"PASS"},
+    {"surface":"Options","entry":"monicaOptions.html + titan-zero-options.html alias","status":"PASS"},
+    {"surface":"Webpage assistant overlay","entry":"manifest content_scripts: content.css + content.js","status":"PASS"},
+    {"surface":"Retriever side panel","entry":"side-panel/index.html","status":"PASS"},
+    {"surface":"Retriever offscreen","entry":"offscreen/index.html","status":"PASS"}
+  ],
+  "feature_families":[
+    {"family":"writing","status":"PASS_STATIC"},
+    {"family":"reading","status":"PASS_STATIC"},
+    {"family":"translate","status":"PASS_STATIC"},
+    {"family":"summarize","status":"PASS_STATIC"},
+    {"family":"search","status":"PASS_STATIC"},
+    {"family":"ChatPDF / document assistance","status":"PASS_STATIC"},
+    {"family":"YouTube assistance","status":"PASS_STATIC"},
+    {"family":"text selection","status":"PASS_STATIC"},
+    {"family":"Retriever browser/workflow surface","status":"PASS_STATIC"}
+  ],
+  "localization":{"monica_locale_packs":55,"titan_locale_packs":55,"coverage":"MATCH","difference_policy":"Titan locale files preserve donor keys and intentionally Titanize the extension name only"},
+  "fonts":{"external_font_files":0,"status":"PASS","note":"No missing external font resource references detected in active HTML/CSS runtime"},
+  "runtime_resource_repair":{"added":"titan-zero-options.html","reason":"Titan compatibility bundles referenced this concrete chrome.runtime.getURL resource but the file was absent"},
+  "live_browser_visual_parity":"DEFERRED_TO_PASS_9_10_FINAL_GATE"
+}

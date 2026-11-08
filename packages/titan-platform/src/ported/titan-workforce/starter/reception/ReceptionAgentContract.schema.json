@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "titan.zero.starter-workforce.reception.contract.v1",
+  "title": "Titan Zero Reception Agent Contract",
+  "type": "object",
+  "required": [
+    "schema",
+    "company_id",
+    "role_definition_id",
+    "worker_kind",
+    "company_boundary",
+    "identity_grants_authority",
+    "capabilities",
+    "handoff_targets",
+    "canonical_dependencies"
+  ],
+  "properties": {
+    "schema": {"const": "titan.zero.starter-workforce.reception.contract.v1"},
+    "company_id": {"type": "string", "minLength": 2, "maxLength": 128},
+    "role_definition_id": {"const": "titan.customer.receptionist"},
+    "worker_kind": {"const": "existing_workforce_role"},
+    "company_boundary": {"const": "company_id"},
+    "identity_grants_authority": {"const": false},
+    "activation_confers_authority": {"const": false},
+    "capabilities": {
+      "type": "array",
+      "items": {"type": "string"},
+      "uniqueItems": true
+    },
+    "handoff_targets": {
+      "type": "array",
+      "items": {"enum": ["sales", "booking", "customer_care"]},
+      "uniqueItems": true
+    },
+    "canonical_dependencies": {
+      "type": "object",
+      "required": ["customer_intake", "booking", "quote", "handoff", "authority", "company_boundary", "settings"],
+      "additionalProperties": {"type": "string"}
+    }
+  },
+  "additionalProperties": true
+}

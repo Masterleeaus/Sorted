@@ -1,0 +1,7 @@
+{
+  "schema": "titan-zero-retriever-finish-pass08-semantic-change/v1",
+  "packet_id": "TZ-FINISH-RETRIEVER-NATIVE-001",
+  "pass": 8,
+  "semantic_delta": "Certifies the Merge52 native Retriever stack across company isolation, authority neutrality, restart/recovery, terminal lifecycle semantics, compatibility fail-closed behavior and donor reachability.",
+  "production_behavior_change": "No new runtime behavior; this pass is a regression certification gate that unlocks Pass9 removal eligibility only."
+}

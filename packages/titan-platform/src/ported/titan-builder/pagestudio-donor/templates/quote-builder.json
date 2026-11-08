@@ -1,0 +1,31 @@
+{
+  "template": {
+    "id": "quote-builder",
+    "version": "1.0.0",
+    "name": "Quote Builder",
+    "status": "ready",
+    "category": "sales",
+    "entry_wizard": "create_quote_v1",
+    "capabilities": [
+      "crm.quote.create"
+    ],
+    "channels": [
+      "chat",
+      "mobile",
+      "tablet",
+      "desktop",
+      "voice"
+    ],
+    "governance": {
+      "authority": "approval_required",
+      "offline": true
+    },
+    "metadata": {
+      "verticals": [
+        "field_services",
+        "home_services",
+        "cleaning"
+      ]
+    }
+  }
+}

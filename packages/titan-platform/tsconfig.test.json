@@ -1,0 +1,12 @@
+{
+  "extends": "./tsconfig.json",
+  "include": [
+    "src/brand-publication.ts",
+    "src/interface-runtime.ts",
+    "src/ported/titan-capabilities/capability-registry.ts",
+    "src/distribution-catalog.ts",
+    "src/mission-authority-policy.ts",
+    "src/workforce-trust/trust-cycle.ts",
+    "src/workforce-trust/unlock-gates.ts"
+  ]
+}

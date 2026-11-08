@@ -1,0 +1,345 @@
+import { NextResponse } from "next/server";
+import { z } from "zod";
+import { withAuth, withRole } from "@/lib/auth/middleware";
+import { withExpenseContext } from "@/lib/expenses/db";
+import { appendAuditLog } from "@/lib/db/audit";
+import { logger } from "@/lib/logger";
+import { expenseCategorySchema, EXPENSE_COMMERCIAL_TAGS } from "@ai-fsm/domain";
+import { getPathId } from "@/lib/route-utils";
+import { attachFuelExpenseToVehicle } from "@/lib/expenses/attach-fuel-expense";
+import { gallonsFromParsedReceipt, isFuelExpenseCategory } from "@/lib/expenses/fuel-from-receipt";
+
+export const dynamic = "force-dynamic";
+
+// === Get Expense (GET /api/v1/expenses/[id]) ===
+
+export const GET = withAuth(async (request, session) => {
+  const id = getPathId(request.nextUrl.pathname);
+
+  try {
+    const data = await withExpenseContext(session, async (client) => {
+      const result = await client.query(
+        `SELECT e.id, e.vendor_name, e.category, e.amount_cents,
+                e.expense_date, e.job_id, e.client_id, e.property_id,
+                e.notes, e.receipt_url, e.created_by, e.created_at, e.updated_at,
+                j.title AS job_title, c.name AS client_name
+         FROM expenses e
+         LEFT JOIN jobs j ON j.id = e.job_id
+         LEFT JOIN clients c ON c.id = e.client_id
+         WHERE e.id = $1 AND e.account_id = $2`,
+        [id, session.accountId]
+      );
+
+      return result.rowCount === 0 ? null : result.rows[0];
+    });
+
+    if (!data) {
+      return NextResponse.json(
+        {
+          error: {
+            code: "NOT_FOUND",
+            message: "Expense not found",
+            traceId: session.traceId,
+          },
+        },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json({ data });
+  } catch (error) {
+    logger.error("GET /api/v1/expenses/[id] error", error, {
+      traceId: session.traceId,
+    });
+    return NextResponse.json(
+      {
+        error: {
+          code: "INTERNAL_ERROR",
+          message: "Failed to fetch expense",
+          traceId: session.traceId,
+        },
+      },
+      { status: 500 }
+    );
+  }
+});
+
+// === Update Expense (PATCH /api/v1/expenses/[id]) ===
+
+const commercialTagSchema = z.enum(EXPENSE_COMMERCIAL_TAGS);
+
+const updateExpenseSchema = z.object({
+  vendor_name: z.string().min(1).max(200).optional(),
+  category: expenseCategorySchema.optional(),
+  amount_cents: z.number().int().positive().optional(),
+  expense_date: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/)
+    .optional(),
+  job_id: z.string().uuid().nullable().optional(),
+  client_id: z.string().uuid().nullable().optional(),
+  notes: z.string().max(2000).nullable().optional(),
+  commercial_tag: commercialTagSchema.nullable().optional(),
+  vehicle_id: z.string().uuid().nullable().optional(),
+  gallons: z.number().positive().max(500).nullable().optional(),
+  odometer: z.number().int().positive().nullable().optional(),
+  /** false = receipt not billed to the client (TASK-157). */
+  billable: z.boolean().optional(),
+});
+
+export const PATCH = withRole(["owner", "admin"], async (request, session) => {
+  const id = getPathId(request.nextUrl.pathname);
+
+  let body: unknown;
+  try {
+    body = await request.json();
+  } catch {
+    return NextResponse.json(
+      {
+        error: {
+          code: "VALIDATION_ERROR",
+          message: "Invalid JSON body",
+          traceId: session.traceId,
+        },
+      },
+      { status: 400 }
+    );
+  }
+
+  const parseResult = updateExpenseSchema.safeParse(body);
+  if (!parseResult.success) {
+    return NextResponse.json(
+      {
+        error: {
+          code: "VALIDATION_ERROR",
+          message: "Invalid request body",
+          details: { issues: parseResult.error.issues },
+          traceId: session.traceId,
+        },
+      },
+      { status: 400 }
+    );
+  }
+
+  const updates = parseResult.data;
+
+  if (Object.keys(updates).length === 0) {
+    return NextResponse.json(
+      {
+        error: {
+          code: "VALIDATION_ERROR",
+          message: "No fields to update",
+          traceId: session.traceId,
+        },
+      },
+      { status: 400 }
+    );
+  }
+
+  try {
+    await withExpenseContext(session, async (client) => {
+      const existing = await client.query<{
+        id: string;
+        vendor_name: string;
+        category: string;
+        expense_date: string;
+        notes: string | null;
+        amount_cents: number;
+        billable: boolean;
+      }>(
+        `SELECT id, vendor_name, category, expense_date::text AS expense_date, notes, amount_cents, billable
+           FROM expenses WHERE id = $1 AND account_id = $2`,
+        [id, session.accountId]
+      );
+
+      if (existing.rowCount === 0) {
+        throw Object.assign(new Error("Expense not found"), {
+          code: "NOT_FOUND",
+        });
+      }
+
+      // Once invoiced, the billable flag is locked like the receipt's items:
+      // flipping it would drop the receipt from the client's itemized page
+      // while the invoice still bills it (TASK-157).
+      if (updates.billable !== undefined && updates.billable !== existing.rows[0].billable) {
+        const billed = await client.query(
+          `SELECT 1 FROM invoice_line_items WHERE source_expense_id = $1 LIMIT 1`,
+          [id],
+        );
+        if ((billed.rowCount ?? 0) > 0) {
+          throw Object.assign(
+            new Error("This receipt is already on an invoice — edit the invoice instead"),
+            { code: "ALREADY_BILLED" },
+          );
+        }
+      }
+
+      const setClauses: string[] = [];
+      const params: unknown[] = [];
+      let idx = 1;
+
+      const allowed = [
+        "vendor_name",
+        "category",
+        "amount_cents",
+        "job_id",
+        "client_id",
+        "notes",
+        "commercial_tag",
+        "billable",
+      ] as const;
+
+      for (const key of allowed) {
+        if (key in updates) {
+          setClauses.push(`${key} = $${idx++}`);
+          params.push(updates[key] ?? null);
+        }
+      }
+
+      // expense_date needs ::date cast
+      if ("expense_date" in updates && updates.expense_date !== undefined) {
+        setClauses.push(`expense_date = $${idx++}::date`);
+        params.push(updates.expense_date);
+      }
+
+      setClauses.push(`updated_at = now()`);
+      params.push(id, session.accountId);
+
+      await client.query(
+        `UPDATE expenses SET ${setClauses.join(", ")}
+         WHERE id = $${idx} AND account_id = $${idx + 1}`,
+        params
+      );
+
+      const nextCategory = updates.category ?? existing.rows[0].category;
+      const nextNotes = updates.notes !== undefined ? updates.notes : existing.rows[0].notes;
+      const nextDate = (updates.expense_date ?? existing.rows[0].expense_date).slice(0, 10);
+      if (isFuelExpenseCategory(nextCategory)) {
+        await attachFuelExpenseToVehicle(client, {
+          accountId: session.accountId,
+          userId: session.userId,
+          expenseId: id,
+          category: nextCategory,
+          expenseDate: nextDate,
+          notes: nextNotes,
+          gallons:
+            updates.gallons ??
+            gallonsFromParsedReceipt({
+              category: nextCategory,
+              notes: nextNotes,
+              amountCents: updates.amount_cents ?? existing.rows[0].amount_cents,
+            }),
+          amountCents: updates.amount_cents ?? existing.rows[0].amount_cents,
+          odometer: updates.odometer ?? null,
+          vehicleId: updates.vehicle_id ?? null,
+        });
+      }
+
+      await appendAuditLog(client, {
+        account_id: session.accountId,
+        entity_type: "expense",
+        entity_id: id,
+        action: "update",
+        actor_id: session.userId,
+        trace_id: session.traceId,
+        old_value: { vendor_name: existing.rows[0].vendor_name },
+        new_value: updates,
+      });
+    });
+
+    return NextResponse.json({ updated: true });
+  } catch (error) {
+    const err = error as Error & { code?: string };
+    if (err.code === "NOT_FOUND") {
+      return NextResponse.json(
+        {
+          error: {
+            code: "NOT_FOUND",
+            message: "Expense not found",
+            traceId: session.traceId,
+          },
+        },
+        { status: 404 }
+      );
+    }
+    if (err.code === "ALREADY_BILLED") {
+      return NextResponse.json(
+        { error: { code: "ALREADY_BILLED", message: err.message, traceId: session.traceId } },
+        { status: 409 }
+      );
+    }
+    logger.error("PATCH /api/v1/expenses/[id] error", error, {
+      traceId: session.traceId,
+    });
+    return NextResponse.json(
+      {
+        error: {
+          code: "INTERNAL_ERROR",
+          message: "Failed to update expense",
+          traceId: session.traceId,
+        },
+      },
+      { status: 500 }
+    );
+  }
+});
+
+// === Delete Expense (DELETE /api/v1/expenses/[id]) ===
+
+export const DELETE = withRole(["owner", "admin"], async (request, session) => {
+  const id = getPathId(request.nextUrl.pathname);
+
+  try {
+    await withExpenseContext(session, async (client) => {
+      const existing = await client.query<{ id: string; vendor_name: string }>(
+        `SELECT id, vendor_name FROM expenses WHERE id = $1 AND account_id = $2`,
+        [id, session.accountId]
+      );
+
+      if (existing.rowCount === 0) {
+        throw Object.assign(new Error("Expense not found"), { code: "NOT_FOUND" });
+      }
+
+      await client.query(`DELETE FROM expenses WHERE id = $1 AND account_id = $2`, [id, session.accountId]);
+
+      await appendAuditLog(client, {
+        account_id: session.accountId,
+        entity_type: "expense",
+        entity_id: id,
+        action: "delete",
+        actor_id: session.userId,
+        trace_id: session.traceId,
+        old_value: { vendor_name: existing.rows[0].vendor_name },
+      });
+    });
+
+    return NextResponse.json({ deleted: true });
+  } catch (error) {
+    const err = error as Error & { code?: string };
+    if (err.code === "NOT_FOUND") {
+      return NextResponse.json(
+        {
+          error: {
+            code: "NOT_FOUND",
+            message: "Expense not found",
+            traceId: session.traceId,
+          },
+        },
+        { status: 404 }
+      );
+    }
+    logger.error("DELETE /api/v1/expenses/[id] error", error, {
+      traceId: session.traceId,
+    });
+    return NextResponse.json(
+      {
+        error: {
+          code: "INTERNAL_ERROR",
+          message: "Failed to delete expense",
+          traceId: session.traceId,
+        },
+      },
+      { status: 500 }
+    );
+  }
+});

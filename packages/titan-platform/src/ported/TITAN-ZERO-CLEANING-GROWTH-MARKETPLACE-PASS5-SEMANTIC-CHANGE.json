@@ -1,0 +1,13 @@
+{
+  "schema": "titan-zero-semantic-change/v1",
+  "pass": 5,
+  "title": "Cleaning launch portfolio checkpoint",
+  "changes": [
+    "Adds portfolio aggregation over existing planner/opportunity APIs",
+    "Extends launch plan with owner and bounded milestone history",
+    "Adds deterministic overdue/stalled/risk classification",
+    "Adds first-job conversion summary and launch portfolio filters"
+  ],
+  "authority": "advisory only; grants_authority=false; publishes_service=false; executes_work=false",
+  "company_boundary": "company_id only"
+}

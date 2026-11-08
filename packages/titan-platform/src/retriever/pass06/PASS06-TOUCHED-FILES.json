@@ -1,0 +1,15 @@
+{
+  "schema": "titan-zero-pass-touched-files/v1",
+  "pass": 6,
+  "files": [
+    "packages/titan-platform/src/retriever/lifecycle.ts",
+    "packages/titan-platform/src/retriever/recovery.ts",
+    "packages/titan-platform/src/retriever/index.ts",
+    "packages/titan-platform/tests/retriever-native-pass06-recovery.test.mjs",
+    "packages/titan-platform/src/retriever/pass06/PASS06-VERIFICATION.json",
+    "packages/titan-platform/src/retriever/pass06/PASS06-SEMANTIC-CHANGE.json",
+    "packages/titan-platform/src/retriever/pass06/PASS06-CHANGE-IMPACT.json",
+    "packages/titan-platform/src/retriever/pass06/PASS06-COLLISION-RECORD.json",
+    "packages/titan-platform/src/retriever/pass06/PASS06-HANDOFF.json"
+  ]
+}

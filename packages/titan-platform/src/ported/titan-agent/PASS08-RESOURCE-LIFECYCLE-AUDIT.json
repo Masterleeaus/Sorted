@@ -1,0 +1,118 @@
+{
+  "protocol": "titan.reliability.resource-lifecycle-audit.v1",
+  "targets": [
+    {
+      "file": "background-bootstrap.js",
+      "bytes": 5036,
+      "listener": 4,
+      "domListener": 2,
+      "removeListener": 0,
+      "interval": 0,
+      "clearInterval": 0,
+      "timeout": 0,
+      "clearTimeout": 0,
+      "alarmCreate": 0,
+      "portConnect": 0,
+      "portDisconnect": 0
+    },
+    {
+      "file": "runtime/native-runtime-background.mjs",
+      "bytes": 7731,
+      "listener": 2,
+      "domListener": 0,
+      "removeListener": 0,
+      "interval": 0,
+      "clearInterval": 0,
+      "timeout": 0,
+      "clearTimeout": 0,
+      "alarmCreate": 0,
+      "portConnect": 0,
+      "portDisconnect": 0
+    },
+    {
+      "file": "runtime/workforce-runtime-background.mjs",
+      "bytes": 48389,
+      "listener": 1,
+      "domListener": 0,
+      "removeListener": 0,
+      "interval": 0,
+      "clearInterval": 0,
+      "timeout": 0,
+      "clearTimeout": 0,
+      "alarmCreate": 0,
+      "portConnect": 0,
+      "portDisconnect": 0
+    },
+    {
+      "file": "titan-shell.js",
+      "bytes": 65564,
+      "listener": 0,
+      "domListener": 51,
+      "removeListener": 0,
+      "interval": 1,
+      "clearInterval": 1,
+      "timeout": 9,
+      "clearTimeout": 3,
+      "alarmCreate": 0,
+      "portConnect": 0,
+      "portDisconnect": 0
+    },
+    {
+      "file": "titan-intelligence/overseer.mjs",
+      "bytes": 9617,
+      "listener": 4,
+      "domListener": 0,
+      "removeListener": 0,
+      "interval": 0,
+      "clearInterval": 0,
+      "timeout": 0,
+      "clearTimeout": 0,
+      "alarmCreate": 1,
+      "portConnect": 0,
+      "portDisconnect": 0
+    },
+    {
+      "file": "titan-intelligence/providers/ollama-local-provider.js",
+      "bytes": 7415,
+      "listener": 4,
+      "domListener": 0,
+      "removeListener": 0,
+      "interval": 0,
+      "clearInterval": 0,
+      "timeout": 2,
+      "clearTimeout": 2,
+      "alarmCreate": 1,
+      "portConnect": 0,
+      "portDisconnect": 0
+    },
+    {
+      "file": "titan-offline/service-worker-lifecycle.mjs",
+      "bytes": 2429,
+      "listener": 0,
+      "domListener": 0,
+      "removeListener": 0,
+      "interval": 0,
+      "clearInterval": 0,
+      "timeout": 0,
+      "clearTimeout": 0,
+      "alarmCreate": 0,
+      "portConnect": 0,
+      "portDisconnect": 0
+    }
+  ],
+  "alarm_files": [
+    "titan-intelligence/overseer.mjs",
+    "titan-intelligence/providers/ollama-local-provider.js"
+  ],
+  "findings": [],
+  "checks": {
+    "shell_interval_has_clear": true,
+    "no_unpaired_port_connect": true,
+    "alarm_name_collision_static": "not_detected_by_selected_sources",
+    "service_worker_top_level_listener_model": "one_registration_per_worker_lifetime"
+  },
+  "pass": true,
+  "live_browser_claimed": false,
+  "grants_authority": false,
+  "authority_effect": false
+}

@@ -1,0 +1,23 @@
+{
+  "schema": "titan-zero-settings-control-plane-semantic-change/v1",
+  "pass": 4,
+  "title": "Settings Resolution Engine",
+  "status": "PASS",
+  "parent": "Titan-Zero-SETTINGS-CONTROL-PLANE-Pass03-CUMULATIVE.zip",
+  "manager_baseline": "Titan-Zero-CANONICAL-MASTER-2026-09-06-MERGE-19-SETTINGS-CONVERGED.zip",
+  "changes": [
+    "Added deterministic default -> global -> company -> user -> device -> session settings resolution.",
+    "Added per-layer provenance including canonical scoped storage key and company_id evidence.",
+    "Added strict cross-company and user/device/session dimension mismatch rejection.",
+    "Added canonical registry type and enum validation for default and override values.",
+    "Preserved Pass 3 registry scope as the canonical persistence target; Pass 4 overlays do not redefine ownership or authority.",
+    "Updated the persistent 30-pass roadmap to record Pass 4 completion."
+  ],
+  "invariants": {
+    "company_boundary": "company_id",
+    "identity_grants_authority": false,
+    "settings_grant_authority": false,
+    "existing_rich_settings_ui_replaced": false,
+    "credentials_added_to_generic_settings": false
+  }
+}

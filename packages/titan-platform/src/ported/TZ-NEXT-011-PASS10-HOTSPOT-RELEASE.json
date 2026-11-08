@@ -1,0 +1,12 @@
+{
+  "schema": "titan-zero-hotspot-release/v1",
+  "packet_id": "TZ-NEXT-011",
+  "agent_id": "notification-feed-agent",
+  "released_utc": "2026-09-07T11:08:34Z",
+  "released_scope": [
+    "feed runtime contracts",
+    "notification/feed/inbox coherence lane"
+  ],
+  "exclusive_hotspots_released": true,
+  "pending_shared_rebase_is_manager_owned": true
+}

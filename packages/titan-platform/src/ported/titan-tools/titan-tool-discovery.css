@@ -1,0 +1,19 @@
+#titan-tool-discovery { box-sizing:border-box; margin:16px auto 24px; max-width:1120px; padding:18px; border:1px solid rgba(127,127,127,.22); border-radius:18px; background:var(--titan-surface,rgba(255,255,255,.86)); backdrop-filter:blur(12px); color:inherit; font-family:inherit; }
+#titan-tool-discovery * { box-sizing:border-box; }
+.titan-tools-head { display:flex; justify-content:space-between; gap:16px; align-items:flex-end; flex-wrap:wrap; }
+.titan-tools-head h2 { margin:0; font-size:20px; }
+.titan-tools-head p { margin:4px 0 0; opacity:.72; font-size:13px; }
+.titan-tools-search { min-width:260px; flex:1; max-width:460px; border:1px solid rgba(127,127,127,.3); background:rgba(127,127,127,.08); color:inherit; border-radius:12px; padding:10px 12px; font:inherit; }
+.titan-tools-tabs,.titan-tools-categories { display:flex; gap:8px; flex-wrap:wrap; margin-top:14px; }
+.titan-tools-tabs button,.titan-tools-categories button { border:1px solid rgba(127,127,127,.26); background:transparent; color:inherit; border-radius:999px; padding:7px 11px; font:inherit; font-size:12px; cursor:pointer; }
+.titan-tools-tabs button[aria-pressed="true"],.titan-tools-categories button[aria-pressed="true"] { background:rgba(127,127,127,.16); font-weight:700; }
+.titan-tools-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:12px; margin-top:16px; }
+.titan-tool-card { position:relative; border:1px solid rgba(127,127,127,.22); background:rgba(127,127,127,.06); border-radius:14px; padding:14px; min-height:132px; display:flex; flex-direction:column; gap:8px; }
+.titan-tool-card h3 { margin:0; font-size:14px; padding-right:28px; }
+.titan-tool-card p { margin:0; opacity:.72; font-size:12px; line-height:1.4; flex:1; }
+.titan-tool-meta { font-size:11px; opacity:.62; }
+.titan-tool-open { border:0; border-radius:10px; padding:8px 10px; cursor:pointer; font:inherit; font-size:12px; font-weight:700; }
+.titan-tool-fav { position:absolute; top:9px; right:9px; border:0; background:transparent; color:inherit; cursor:pointer; font-size:19px; line-height:1; opacity:.72; }
+.titan-tool-fav[aria-pressed="true"] { opacity:1; }
+.titan-tools-empty { grid-column:1/-1; padding:22px; text-align:center; opacity:.65; }
+@media (prefers-reduced-motion:no-preference){ .titan-tool-card { transition:transform .12s ease; } .titan-tool-card:hover { transform:translateY(-1px); } }

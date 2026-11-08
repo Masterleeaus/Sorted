@@ -1,0 +1,34 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "titan.workforce.dispatch.proposal.v1",
+  "type": "object",
+  "additionalProperties": true,
+  "required": [
+    "schema",
+    "dispatch_proposal_id",
+    "company_id",
+    "work_item_id",
+    "state",
+    "required_capabilities",
+    "candidates",
+    "selected_candidate",
+    "requires_approval",
+    "execution_permitted",
+    "grants_authority"
+  ],
+  "properties": {
+    "schema": {"const": "titan.workforce.dispatch.proposal.v1"},
+    "dispatch_proposal_id": {"type": "string", "minLength": 1},
+    "company_id": {"type": "string", "minLength": 2, "maxLength": 128},
+    "work_item_id": {"type": "string", "minLength": 1},
+    "state": {"enum": ["PROPOSED", "NO_ELIGIBLE_CANDIDATE", "REVIEW_REQUIRED"]},
+    "required_capabilities": {"type": "array", "items": {"type": "string"}},
+    "candidates": {"type": "array"},
+    "selected_candidate": {"type": ["object", "null"]},
+    "requires_approval": {"const": true},
+    "automatic_assignment": {"const": false},
+    "execution_permitted": {"const": false},
+    "identity_confers_authority": {"const": false},
+    "grants_authority": {"const": false}
+  }
+}

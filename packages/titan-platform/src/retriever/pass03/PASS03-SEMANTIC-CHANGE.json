@@ -1,0 +1,8 @@
+{
+  "schema": "titan-zero-retriever-finish-pass03-semantic-change/v1",
+  "packet_id": "TZ-FINISH-RETRIEVER-NATIVE-001",
+  "pass": 3,
+  "semantic_delta": "Adds a company-scoped Retriever-native lifecycle coordinator that routes submission, progress, completion, timeout and cancellation through the Pass2 typed native executor.",
+  "production_behavior_change": "Native lifecycle capability now exists as a standalone runtime primitive; no UI route is switched until Pass4.",
+  "donor_runtime_required": false
+}

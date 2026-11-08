@@ -1,0 +1,24 @@
+{
+  "schema": "titan-zero-post-finish-reliability-hardening/v1",
+  "source": "TZ-FINISH-005 Pass10 FINAL CUMULATIVE",
+  "scope": "supplementary hardening outside the closed 10-pass Manager packet",
+  "passes": [
+    {"id":"SUPP-01","title":"Company-scoped circuit breaker","status":"PASS"},
+    {"id":"SUPP-02","title":"Conservative startup recovery planner","status":"PASS"},
+    {"id":"SUPP-03","title":"Failure-storm soak harness","status":"PASS"},
+    {"id":"SUPP-04","title":"Operational health integration","status":"PASS"}
+  ],
+  "invariants": [
+    "company_id_only",
+    "ai_identity_not_authority",
+    "no_automatic_effect_replay",
+    "no_authority_grant",
+    "preserve_existing_ui_and_runtime"
+  ],
+  "verification": {
+    "node_tests": "224/224 PASS",
+    "python_tests": "102/102 PASS",
+    "focused_new_tests": "8/8 PASS",
+    "live_unpacked_chrome": "NOT_CLAIMED"
+  }
+}

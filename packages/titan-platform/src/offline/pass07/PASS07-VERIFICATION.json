@@ -1,0 +1,28 @@
+{
+  "schema": "titan-zero-offline-pass07-verification/v1",
+  "workspace": "Builder 3",
+  "packet_id": "TZ-FINISH-OFFLINE-RESILIENCE-001",
+  "pass": 7,
+  "status": "PASS_COMPLETE_CONTINUE",
+  "checks": {
+    "typecheck": "PASS",
+    "fresh_compile": "PASS",
+    "full_titan_platform_suite": "129/129 PASS",
+    "metadata_queue_durable": "PASS",
+    "media_bytes_not_persisted_in_metadata_queue": "PASS",
+    "duplicate_enqueue": "IDEMPOTENT",
+    "changed_identity": "FAIL_CLOSED",
+    "max_media_size": "FAIL_CLOSED",
+    "ordered_chunk_progress": "PASS",
+    "duplicate_chunk": "IDEMPOTENT",
+    "out_of_order_chunk": "FAIL_CLOSED",
+    "restart_resume_progress": "PASS",
+    "upload_id_continuity": "PASS",
+    "completion_requires_full_bytes": "PASS",
+    "completion_checksum_binding": "PASS",
+    "cross_company": "FAIL_CLOSED",
+    "legacy_alias": "FAIL_CLOSED",
+    "identity_grants_authority": false
+  },
+  "next_gate": "Pass 8: network transition, duplicate delivery, clock skew and partial-sync resilience."
+}

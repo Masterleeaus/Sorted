@@ -1,0 +1,112 @@
+{
+  "schema": "titan-retriever-capability-catalog/v1",
+  "source_runtime": "side-panel/assets/index-C8c-GDqp.js",
+  "authority_note": "Catalog exposes existing Retriever helpers only; it grants no authority. Execution remains subject to Titan company_id, approvals, permissions and runtime policy.",
+  "capabilities": [
+    {
+      "id": "browser_actions",
+      "label": "Browser actions",
+      "helpers": [
+        "act",
+        "getPageTree",
+        "pageAction",
+        "listTabs"
+      ],
+      "prompt": "Use Retriever browser actions on the current browser context. Inspect the page first, explain the intended actions, and execute only actions allowed by current approvals and authority."
+    },
+    {
+      "id": "crawl_extract",
+      "label": "Crawl & extract",
+      "helpers": [
+        "crawl",
+        "extract",
+        "scrape"
+      ],
+      "prompt": "Use Retriever crawl and extraction tools to gather structured evidence from the requested pages. Preserve source context and return a concise structured result."
+    },
+    {
+      "id": "structured_data",
+      "label": "Structured data",
+      "helpers": [
+        "discoverNetworkData",
+        "processText",
+        "enrich",
+        "webSearch"
+      ],
+      "prompt": "Use Retriever structured-data tools to discover, normalize and enrich the requested information. Keep evidence and provenance with the result."
+    },
+    {
+      "id": "sheets",
+      "label": "Sheets",
+      "helpers": [
+        "createSheet",
+        "appendRow",
+        "appendColumn",
+        "readSheet",
+        "updateRange",
+        "sheetsWorkflow",
+        "inferSheetData",
+        "createSheetFromData"
+      ],
+      "prompt": "Use Retriever Sheets tools for the requested spreadsheet outcome. Inspect existing data before modifying it and preserve current user data."
+    },
+    {
+      "id": "pdf",
+      "label": "PDF",
+      "helpers": [
+        "pdfGenerator",
+        "pdfFiller"
+      ],
+      "prompt": "Use Retriever PDF tools to generate or fill the requested PDF. Preserve supplied content and return the created artifact or completion evidence."
+    },
+    {
+      "id": "docs_slides_web",
+      "label": "Docs, Slides & webpages",
+      "helpers": [
+        "googleDocGenerator",
+        "googleSlidesGenerator",
+        "webpageGenerator"
+      ],
+      "prompt": "Use Retriever document-generation tools to create the requested Google Doc, Slides deck, or webpage from the provided outcome and context."
+    },
+    {
+      "id": "custom_tools",
+      "label": "Custom tools",
+      "helpers": [
+        "createTool",
+        "customToolGenerator",
+        "readSkill",
+        "saveSkill",
+        "listSkills",
+        "editSkill"
+      ],
+      "prompt": "Use Retriever custom-tool and skill capabilities to prepare the requested reusable tool or skill. Do not persist or publish irreversible changes without required approval."
+    },
+    {
+      "id": "multi_tool",
+      "label": "Multi-tool execution",
+      "helpers": [
+        "executeMultipleTools"
+      ],
+      "prompt": "Use Retriever multi-tool execution to complete the requested outcome as a coordinated sequence. Keep steps bounded, observable and recoverable."
+    },
+    {
+      "id": "schedules",
+      "label": "Schedules",
+      "helpers": [
+        "schedule",
+        "checkScheduleResults"
+      ],
+      "prompt": "Use Retriever scheduling capabilities for the requested future workflow. Confirm the schedule and scope before creating any persistent automation."
+    },
+    {
+      "id": "triggers",
+      "label": "Triggers",
+      "helpers": [
+        "trigger",
+        "checkTriggerResults"
+      ],
+      "prompt": "Use Retriever trigger capabilities for the requested event-driven workflow. Confirm the trigger condition, scope and governed action before persistence."
+    }
+  ]
+}

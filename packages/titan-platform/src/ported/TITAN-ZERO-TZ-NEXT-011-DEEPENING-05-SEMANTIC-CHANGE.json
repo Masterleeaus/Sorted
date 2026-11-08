@@ -1,0 +1,15 @@
+{
+  "authority_effect": false,
+  "automatic_effect_replay": false,
+  "changes": [
+    "Successful prior delivery outside replay window starts a new delivery epoch.",
+    "New delivery epoch resets attempt_count to 1 and clears prior failure/backoff state.",
+    "Retries within the same epoch still increment attempt_count and obey max_attempts.",
+    "delivery_epoch is persisted for diagnostics and fencing history."
+  ],
+  "company_boundary": "company_id only",
+  "deepening": "DEEPENING-05",
+  "packet_id": "TZ-NEXT-011",
+  "schema": "titan-zero-semantic-change/v1",
+  "title": "Reset retry accounting at successful delivery epoch boundaries"
+}

@@ -1,0 +1,17 @@
+{
+  "schema": "titan-zero-workforce-pass/v1",
+  "pass": 40,
+  "title": "Schedule / Recurrence Engine",
+  "company_boundary": "company_id",
+  "runtime_schema": "titan.workforce.schedule-recurrence.v1",
+  "authority_neutral": true,
+  "automatic_execution": false,
+  "features": [
+    "timezone-aware schedule metadata",
+    "ONCE/HOURLY/DAILY/WEEKLY/MONTHLY recurrence",
+    "bounded catch-up",
+    "idempotent instance keys",
+    "duplicate instance suppression",
+    "fresh authority required before protected execution"
+  ]
+}

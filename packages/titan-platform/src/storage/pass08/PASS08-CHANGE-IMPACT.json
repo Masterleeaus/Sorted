@@ -1,0 +1,11 @@
+{
+  "schema": "titan-zero-storage-finish-pass08-change-impact/v1",
+  "packet_id": "TZ-FINISH-STORAGE-DATA-AUTHORITY-001",
+  "pass": 8,
+  "modified_files": [
+    "packages/titan-platform/src/storage/backup-recovery.ts",
+    "packages/titan-platform/src/storage/index.ts",
+    "packages/titan-platform/tests/storage-native-pass08-backup-recovery.test.mjs"
+  ],
+  "impact": "Adds backup/recovery above the existing canonical repository only. No new database, schema, migration or execution authority is introduced."
+}

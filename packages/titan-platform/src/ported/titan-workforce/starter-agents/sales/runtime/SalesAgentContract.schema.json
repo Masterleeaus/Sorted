@@ -1,0 +1,91 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "titan-zero://starter-workforce/sales/SalesAgentContract.schema.json",
+  "title": "Titan Zero Starter Sales Agent Contract",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema", "company_id", "lead_ref", "qualification_state", "qualification",
+    "scoring_inputs", "allowed_actions", "recommendation", "handoff", "settings",
+    "metrics", "authority_neutral", "execution_authority"
+  ],
+  "properties": {
+    "schema": {"const": "titan-zero-starter-sales-agent-contract/v1"},
+    "company_id": {"type": "string", "minLength": 1},
+    "lead_ref": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["lead_id"],
+      "properties": {
+        "lead_id": {"type": "string", "minLength": 1},
+        "opportunity_id": {"type": ["string", "null"]},
+        "customer_id": {"type": ["string", "null"]},
+        "correlation_id": {"type": ["string", "null"]},
+        "journey_id": {"type": ["string", "null"]}
+      }
+    },
+    "qualification_state": {
+      "enum": ["captured", "qualifying", "qualified", "nurture", "disqualified", "handoff_ready", "converted", "escalated"]
+    },
+    "qualification": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["service_fit", "location_fit", "urgency", "timing", "contactability", "missing_information"],
+      "properties": {
+        "service_fit": {"enum": ["unknown", "supported", "unsupported", "needs_review"]},
+        "location_fit": {"enum": ["unknown", "in_territory", "out_of_territory", "needs_review"]},
+        "urgency": {"enum": ["unknown", "low", "normal", "high", "urgent"]},
+        "timing": {"enum": ["unknown", "flexible", "date_known", "window_known", "immediate"]},
+        "contactability": {"enum": ["unknown", "contactable", "limited", "opted_out", "invalid"]},
+        "missing_information": {"type": "array", "items": {"type": "string"}, "uniqueItems": true}
+      }
+    },
+    "scoring_inputs": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["service_fit", "location_fit", "urgency", "timing_clarity", "contactability", "engagement", "value_signal"],
+      "properties": {
+        "service_fit": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
+        "location_fit": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
+        "urgency": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
+        "timing_clarity": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
+        "contactability": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
+        "engagement": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
+        "value_signal": {"type": ["number", "null"], "minimum": 0, "maximum": 1}
+      }
+    },
+    "allowed_actions": {
+      "type": "array",
+      "items": {"enum": ["ask_more", "recommend_quote_handoff", "recommend_booking_handoff", "nurture", "recommend_decline", "escalate", "human_sales_review", "no_action"]},
+      "uniqueItems": true
+    },
+    "recommendation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["action", "confidence", "reasons", "authority_neutral", "execution_authority"],
+      "properties": {
+        "action": {"enum": ["ask_more", "recommend_quote_handoff", "recommend_booking_handoff", "nurture", "recommend_decline", "escalate", "human_sales_review", "no_action"]},
+        "confidence": {"type": "number", "minimum": 0, "maximum": 1},
+        "reasons": {"type": "array", "items": {"type": "string"}, "minItems": 1},
+        "authority_neutral": {"const": true},
+        "execution_authority": {"const": false}
+      }
+    },
+    "handoff": {
+      "type": ["object", "null"],
+      "additionalProperties": false,
+      "required": ["target", "correlation_id", "journey_id", "idempotency_key", "reason"],
+      "properties": {
+        "target": {"enum": ["quote", "booking", "reception", "customer_care", "human_sales"]},
+        "correlation_id": {"type": "string", "minLength": 1},
+        "journey_id": {"type": ["string", "null"]},
+        "idempotency_key": {"type": "string", "minLength": 1},
+        "reason": {"type": "string", "minLength": 1}
+      }
+    },
+    "settings": {"type": "object"},
+    "metrics": {"type": "object"},
+    "authority_neutral": {"const": true},
+    "execution_authority": {"const": false}
+  }
+}

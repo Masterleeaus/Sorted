@@ -1,0 +1,17 @@
+{
+  "schema": "titan.settings.mcp-external-tool-governance.contract.v1",
+  "setting_key": "mcpExternalToolGovernance",
+  "scope": "company",
+  "owner": "external_tools",
+  "canonical_company_boundary": "company_id",
+  "device_compatibility_keys": ["mcpExecutionsEnabled", "requireMcpConfirmation", "remoteBrowserToolsConfig"],
+  "secret_keys_excluded": ["mcpApiKey", "mcpApiKeyId"],
+  "rules": [
+    "company policy may disable MCP or external tools and may require additional confirmation",
+    "device settings may not override a company disable",
+    "runtime-required confirmation may not be disabled by Settings",
+    "connector connection state and secrets remain runtime/credential-vault owned",
+    "tool permissions, entitlement, cost and authority remain independent gates",
+    "Settings never executes MCP, connects a service, or grants authority"
+  ]
+}

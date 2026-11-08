@@ -1,0 +1,23 @@
+{
+  "schema": "titan-zero-semantic-change/v1",
+  "integration_pass": "4A",
+  "title": "Titan Zero AI Settings Action Bridge",
+  "summary": "Connects Titan Zero natural-language interaction to canonical Settings change/read/list capabilities, validates against the Settings registry, enforces company_id scope, gates policy projections through explicit authorization, applies through owner-aware adapters, verifies readback, and returns rollback-capable receipts.",
+  "runtime_behavior_changed": true,
+  "preserved": [
+    "rich Settings UI",
+    "Theme & Colours authority",
+    "existing subsystem ownership",
+    "company_id boundary",
+    "AI identity != authority",
+    "Pass 1-4 Settings control-plane contracts"
+  ],
+  "added_capabilities": [
+    "settings.change",
+    "settings.read",
+    "settings.list"
+  ],
+  "no_secret_generic_writes": true,
+  "original_30_pass_roadmap_renumbered": false,
+  "next_original_pass": "Pass 5 \u2014 Settings Change Ledger"
+}

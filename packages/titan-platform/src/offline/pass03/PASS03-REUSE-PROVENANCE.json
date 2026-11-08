@@ -1,0 +1,42 @@
+{
+  "schema": "titan-zero-offline-reuse-provenance/v1",
+  "packet_id": "TZ-FINISH-OFFLINE-RESILIENCE-001",
+  "pass": 3,
+  "dispositions": [
+    {
+      "source": "ported/titan-reliability/bounded-work-queue.ts",
+      "status": "ADAPTED",
+      "semantics": [
+        "bounded capacity",
+        "backpressure",
+        "queue does not grant authority"
+      ]
+    },
+    {
+      "source": "ported/titan-reliability/retry-budget.ts",
+      "status": "ADAPTED",
+      "semantics": [
+        "bounded retries",
+        "retry exhaustion"
+      ]
+    },
+    {
+      "source": "ported/titan-offline/conflict-retry-policy.ts",
+      "status": "ADAPTED",
+      "semantics": [
+        "transient vs ambiguous vs blocked failure classes",
+        "bounded backoff",
+        "manual-review poison isolation"
+      ]
+    },
+    {
+      "source": "storage/repository.ts",
+      "status": "REUSED_DEPENDENCY",
+      "semantics": [
+        "durable company-scoped transactional persistence"
+      ]
+    }
+  ],
+  "rewrite_avoided": true,
+  "parallel_storage_authority_created": false
+}

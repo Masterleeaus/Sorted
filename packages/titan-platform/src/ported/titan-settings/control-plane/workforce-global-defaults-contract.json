@@ -1,0 +1,33 @@
+{
+  "schema": "titan-zero-workforce-global-defaults-contract/v1",
+  "pass": 14,
+  "status": "IMPLEMENTED",
+  "company_boundary": "company_id",
+  "forbidden_company_boundary_aliases": [
+    "tenant_id",
+    "tenant_company_id"
+  ],
+  "canonical_setting": "workforceGlobalDefaults",
+  "canonical_scope": "company",
+  "owner": "workforce_runtime",
+  "settings_can_grant_authority": false,
+  "settings_can_execute": false,
+  "runtime_defaults": {
+    "notifications": {
+      "max_delivery_attempts": 3,
+      "max_escalation_depth": 2,
+      "cooldown_ms": 300000
+    },
+    "supervisor_handover_evidence_required": true,
+    "performance_prefers_evidence_backed_records": true,
+    "dynamic_staffing_proposal_only": true,
+    "automatic_reassignment": false,
+    "mission_team_membership_confers_authority": false
+  },
+  "policy": [
+    "Settings projects company defaults into Workforce-owned runtimes.",
+    "Mandatory evidence and authority-neutral handover rules cannot be weakened.",
+    "Dynamic staffing remains proposal-only and mission teams do not auto-activate.",
+    "Notification defaults may set acknowledgement timing and bounded retry/escalation inputs but never dispatch or escalate automatically."
+  ]
+}

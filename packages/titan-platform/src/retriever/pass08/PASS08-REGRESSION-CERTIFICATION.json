@@ -1,0 +1,51 @@
+{
+  "schema": "titan-zero-retriever-pass08-regression-certification/v1",
+  "packet_id": "TZ-FINISH-RETRIEVER-NATIVE-001",
+  "pass": 8,
+  "manager_base": {
+    "merge": 52,
+    "sha256": "ea6c219d40ffbddcbb68e9c9ed741c93568fe12be2e4f09dd69af0b528366d92"
+  },
+  "status": "PASS",
+  "matrix": {
+    "company_isolation": {
+      "cross_company_read": "PASS_FAIL_CLOSED",
+      "cross_company_mutation": "PASS_FAIL_CLOSED",
+      "cross_company_restore": "PASS_FAIL_CLOSED",
+      "cross_company_recovery": "PASS_FAIL_CLOSED"
+    },
+    "authority_neutrality": {
+      "identity_only_retry": "PASS_REJECTED",
+      "checkpoint_authority_restored": false,
+      "recovery_authority_restored": false,
+      "reconnect_auto_execute": false
+    },
+    "restart_offline_model": {
+      "checkpoint_roundtrip": "PASS",
+      "idempotency_preserved": "PASS",
+      "fresh_authority_after_restart": "PASS_REQUIRED",
+      "terminal_semantics_after_restart": "PASS"
+    },
+    "compatibility": {
+      "incompatible_major": "PASS_FAIL_CLOSED",
+      "unsupported_capability": "PASS_FAIL_CLOSED",
+      "native_protocol": "PASS"
+    },
+    "donor_reachability": {
+      "live_reference_count": 0,
+      "live_import_count": 0,
+      "ported_provenance_import_count": 2,
+      "status": "PASS"
+    }
+  },
+  "tests": {
+    "focused_retriever": "40/40 PASS",
+    "titan_platform_suite": "48/48 PASS",
+    "typecheck": "PASS"
+  },
+  "pass9_eligibility": true,
+  "physical_deletion_performed": false,
+  "next_gate": "PASS9_ZERO_REFERENCE_AND_ROLLBACK_GATE",
+  "company_boundary": "company_id",
+  "identity_grants_authority": false
+}

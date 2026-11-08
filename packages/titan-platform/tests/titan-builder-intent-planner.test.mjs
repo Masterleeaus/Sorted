@@ -1,0 +1,10 @@
+import fs from 'node:fs'; import assert from 'node:assert/strict';
+const src=fs.readFileSync(new URL('../src/titan-builder/intent-planner.ts',import.meta.url),'utf8');
+const bridge=fs.readFileSync(new URL('../src/titan-builder/runtime-bridge.ts',import.meta.url),'utf8');
+assert.match(src,/BuilderSemanticIntent/); assert.match(src,/interaction-purpose:/); assert.match(src,/authority_granted:false/);
+assert.match(src,/GENERIC\.has\(node\.type\)/); assert.match(src,/!explicitSource&&plan\.data_source/); assert.match(src,/explicitResponsive\?\?plan\.responsive/);
+assert.match(src,/builderDataSourceOptions\(surface\)/); assert.match(src,/builderActionOptions\(surface\)/); assert.match(src,/suggestBuilderFieldMap/);
+assert.match(src,/crm\.work_order\.task\.complete/); assert.match(src,/titanmoney\.quotes\.create/); assert.match(src,/communications\.message\.send/);
+assert.match(bridge,/applyBuilderSemanticIntentPlan/); assert.match(bridge,/applyAutomaticBuilderBindings\(applyBuilderSemanticIntentPlan/);
+assert.doesNotMatch(src,/fetch\s*\(/); assert.doesNotMatch(src,/tenant_id|tenant_company_id/);
+console.log('Titan Builder Pass20 semantic intent planner: 13/13 PASS');

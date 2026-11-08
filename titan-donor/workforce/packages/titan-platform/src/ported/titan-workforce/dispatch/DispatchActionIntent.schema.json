@@ -1,0 +1,27 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema",
+  "$id":"titan.workforce.dispatch.action-intent.v1",
+  "title":"Titan Zero Dispatch Action Intent",
+  "type":"object",
+  "required":["schema","dispatch_action_intent_id","company_id","action","work_item_id","target_worker_id","state","workcore_action_key","requires_confirmation","requires_fresh_authority_evaluation","direct_mutation","execution_permitted","grants_authority"],
+  "properties":{
+    "schema":{"const":"titan.workforce.dispatch.action-intent.v1"},
+    "dispatch_action_intent_id":{"type":"string","minLength":1},
+    "company_id":{"type":"string","minLength":2},
+    "action":{"enum":["ASSIGN","REASSIGN"]},
+    "work_item_id":{"type":"string","minLength":1},
+    "assignment_id":{"type":["string","null"]},
+    "current_worker_id":{"type":["string","null"]},
+    "target_worker_id":{"type":"string","minLength":1},
+    "state":{"enum":["AWAITING_CONFIRMATION","READY_FOR_GOVERNED_SUBMISSION","BLOCKED"]},
+    "workcore_action_key":{"enum":["workcore.dispatch.assign","workcore.dispatch.reassign"]},
+    "required_permission":{"enum":["business.dispatch.assign","business.dispatch.reassign"]},
+    "requires_confirmation":{"const":true},
+    "requires_fresh_authority_evaluation":{"const":true},
+    "direct_mutation":{"const":false},
+    "execution_permitted":{"const":false},
+    "identity_confers_authority":{"const":false},
+    "grants_authority":{"const":false}
+  },
+  "additionalProperties":true
+}

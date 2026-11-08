@@ -1,0 +1,23 @@
+{
+  "authority": "unchanged",
+  "company_boundary": "unchanged company_id only",
+  "manager_merge": 39,
+  "parent_merge": 38,
+  "schema": "titan-zero-manager-forward-port/v1",
+  "semantics": [
+    "forward-port Repair09 retained compatibility install/update isolation",
+    "retry only failed launcher rehydration tab ids",
+    "bounded retry budget of two later wake cycles",
+    "preserve successful tabs without reinjection",
+    "refresh three stale Python assertions to current compatibility boundaries"
+  ],
+  "source": "Chrome Load Repair10 semantic reimplementation from verified live evidence",
+  "verification": {
+    "changed_syntax": "PASS",
+    "focused_node": "170/170 PASS",
+    "json": "1212/1212 PASS",
+    "live_chrome": "NOT_CERTIFIED",
+    "python": "102/102 PASS",
+    "whole_tree_node": "TIMED_OUT_AFTER_370_REPORTED_PASS_NO_ASSERTION_FAILURE_OBSERVED"
+  }
+}

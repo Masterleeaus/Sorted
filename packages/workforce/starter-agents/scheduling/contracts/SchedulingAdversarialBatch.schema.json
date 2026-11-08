@@ -1,0 +1,20 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema",
+  "$id":"titan.scheduling.adversarial-batch.v1",
+  "type":"object",
+  "required":["schema","company_id","batch_id","total_input_jobs","unique_jobs","duplicate_work_items","recommendations","execution_permitted","grants_authority"],
+  "properties":{
+    "schema":{"const":"titan.scheduling.adversarial-batch.v1"},
+    "company_id":{"type":"string","minLength":1},
+    "batch_id":{"type":"string","minLength":1},
+    "total_input_jobs":{"type":"integer","minimum":0},
+    "unique_jobs":{"type":"integer","minimum":0},
+    "duplicate_work_items":{"type":"array","items":{"type":"string"}},
+    "recommendations":{"type":"array"},
+    "automatic_assignment":{"const":false},
+    "direct_mutation":{"const":false},
+    "execution_permitted":{"const":false},
+    "grants_authority":{"const":false}
+  },
+  "additionalProperties":true
+}

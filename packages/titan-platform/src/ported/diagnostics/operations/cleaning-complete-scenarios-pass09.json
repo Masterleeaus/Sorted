@@ -1,0 +1,85 @@
+{
+  "schema": "titan-zero-cleaning-scenario-certification/v1",
+  "packet_id": "TZ-NEXT-002",
+  "pass": 9,
+  "manager_merge": 42,
+  "result": "PASS",
+  "production_runtime_changed": false,
+  "scenarios": [
+    {
+      "id": "happy_path",
+      "surfaces": [
+        "customer",
+        "owner",
+        "workforce"
+      ],
+      "result": "PASS",
+      "asserts": [
+        "accepted quote continuity",
+        "work-order proposal only",
+        "customer-confirmed site instructions",
+        "before/after evidence",
+        "user-only payment reconciliation"
+      ]
+    },
+    {
+      "id": "evidence_failure",
+      "surfaces": [
+        "workforce",
+        "owner",
+        "customer"
+      ],
+      "result": "PASS",
+      "asserts": [
+        "missing after evidence blocks completion",
+        "blocked completion prevents invoice progression"
+      ]
+    },
+    {
+      "id": "duplicate_suppression",
+      "surfaces": [
+        "customer",
+        "owner"
+      ],
+      "result": "PASS",
+      "asserts": [
+        "existing booking suppresses duplicate booking",
+        "existing invoice suppresses duplicate invoice"
+      ]
+    },
+    {
+      "id": "lifecycle_change",
+      "surfaces": [
+        "customer",
+        "owner",
+        "workforce"
+      ],
+      "result": "PASS",
+      "asserts": [
+        "reschedule proposal only",
+        "cancellation human review",
+        "rework authority review"
+      ]
+    },
+    {
+      "id": "company_isolation",
+      "surfaces": [
+        "owner",
+        "workforce"
+      ],
+      "result": "PASS",
+      "asserts": [
+        "cross-company dispatch rejected",
+        "cross-company site context rejected"
+      ]
+    }
+  ],
+  "verification": {
+    "pass09": "5/5 PASS",
+    "pass08_plus_pass09": "13/13 PASS",
+    "temporary_dependency_stubs": "excluded from package"
+  },
+  "authority_change": false,
+  "company_boundary": "company_id only",
+  "next_pass": 10
+}

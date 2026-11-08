@@ -1,0 +1,13 @@
+import test from 'node:test'; import assert from 'node:assert/strict';
+import {normalizeBrowserCapabilityPack,contributionFromBrowserPack} from '../browser/capability-pack.mjs';
+import {createBrowserSessionRegistry} from '../browser/session-registry.mjs';
+import {capturePageEvidence} from '../knowledge/page-evidence.mjs';
+import {createContextualTaskIntent} from '../browser/contextual-task-intent.mjs';
+import {proposePromptQuality} from '../prompt/quality-layer.mjs';
+import {evaluateCommercialCandidates} from '../commerce/commercial-intelligence.mjs';
+test('browser capability packs stay company scoped and authority neutral',()=>{const p=normalizeBrowserCapabilityPack({company_id:'c1',id:'web-tools',capabilities:['inspect','extract']},{company_id:'c1'});assert.equal(p.activation_confers_authority,false);const c=contributionFromBrowserPack(p);assert.deepEqual(c.authority??[],[]);assert.throws(()=>normalizeBrowserCapabilityPack({company_id:'c2',id:'x'},{company_id:'c1'}));assert.throws(()=>normalizeBrowserCapabilityPack({company_id:'c1',id:'x',tenant_id:'legacy'}));});
+test('cross-tab session registry preserves URL lineage and rejects cross company',()=>{const r=createBrowserSessionRegistry({company_id:'c1'});const s=r.upsert({session_id:'s1',tabs:[{tab_id:1,url:'https://example.com'}]});assert.equal(s.tabs[0].url,'https://example.com');assert.throws(()=>r.upsert({company_id:'c2',session_id:'s2'}));});
+test('page evidence is provenance-first and authority neutral',()=>{const e=capturePageEvidence({company_id:'c1',evidence_id:'e1',url:'https://example.com',readable_text:'facts'},{company_id:'c1'});assert.equal(e.provenance.capture_method,'browser');assert.equal(e.authority_neutral,true);});
+test('contextual task overlay creates an intent, not an effect',()=>{const x=createContextualTaskIntent({company_id:'c1',title:'Follow up',url:'https://crm.example'},{company_id:'c1'});assert.equal(x.executed,false);assert.equal(x.requires_authority_gate,true);});
+test('prompt quality layer never auto replaces governed text',()=>{const q=proposePromptQuality({company_id:'c1',text:'Exact step',proposed_text:'Edited',exact_execution_text:true},{company_id:'c1'});assert.equal(q.original_text,'Exact step');assert.equal(q.can_auto_replace,false);});
+test('commercial intelligence recommends without purchase authority',()=>{const r=evaluateCommercialCandidates([{company_id:'c1',candidate_id:'a',price:100,shipping:10,resale_value:30},{company_id:'c1',candidate_id:'b',price:90,shipping:0,resale_value:10}],{company_id:'c1'});assert.equal(r.purchase_authorized,false);assert.equal(r.requires_financial_authority_gate,true);assert.equal(r.candidates.length,2);});

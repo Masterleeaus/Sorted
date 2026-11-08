@@ -1,0 +1,13 @@
+{
+  "schema": "titan-zero-change-impact/v1",
+  "packet_id": "TZ-FINISH-002",
+  "pass": 5,
+  "ui_change": false,
+  "permissions_change": false,
+  "storage_schema_change": false,
+  "runtime_change": true,
+  "shared_hotspots_modified": [],
+  "authority_hotspots": [
+    "titan-runtime/authority/**"
+  ]
+}

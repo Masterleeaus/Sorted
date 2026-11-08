@@ -1,0 +1,281 @@
+# Decision Log (ADR Lite)
+
+Append-only log of technical decisions made by AI agents.
+
+## Entry Template
+
+### ADR-<number>: <short title>
+- Date (UTC):
+- Agent:
+- Task ID:
+- Context:
+- Decision:
+- Alternatives considered:
+- Consequences:
+- Rollback plan:
+
+---
+
+### ADR-001: Monorepo with Next.js + PostgreSQL + Worker baseline
+- Date (UTC): 2026-02-16
+- Agent: codex
+- Task ID: scaffold-init
+- Context: Need low-cost MVP with Pi4 target and minimal ops complexity.
+- Decision: Use TypeScript monorepo with Next.js web app, PostgreSQL, Redis, and Node worker.
+- Alternatives considered: split repos; Python API + separate frontend; managed BaaS.
+- Consequences: simple local dev and deployment flow, but requires custom auth/data-layer implementation.
+- Rollback plan: pivot to split services after phase 1 if monorepo causes scale bottlenecks.
+
+### ADR-002: Domain model frozen with properties table and money-in-cents
+- Date (UTC): 2026-02-16
+- Agent: agent-orchestrator (Claude Code)
+- Task ID: P0-T1
+- Context: Need to freeze the canonical data model before P1 implementation begins. Source repos use different patterns: Dovelite has `homes` table, Myprogram has `properties`. Myprogram stores money as integer cents; Dovelite uses decimal `price_per_visit`.
+- Decision: Adopt Myprogram's entity structure (properties, estimate/invoice line items, audit_log) and money-in-cents pattern. Use `users.role` column (not a separate memberships junction table) for MVP simplicity. Add `cancelled` to job status (present in visit but was missing from job).
+- Alternatives considered: (1) Myprogram's memberships junction for user-account-role — rejected for MVP as overkill for single-account use case; (2) Dovelite's `homes` naming — rejected in favor of industry-standard `properties`.
+- Consequences: Simpler user model but will need migration if multi-account per user is needed later. Cents-based money avoids floating point issues.
+- Rollback plan: Add memberships junction table in P4 if multi-account requirement emerges.
+
+### ADR-003: API versioned under /api/v1 with typed error model
+- Date (UTC): 2026-02-16
+- Agent: agent-orchestrator (Claude Code)
+- Task ID: P0-T2
+- Context: Need to freeze API contract. Neither source repo uses versioned APIs. Myprogram uses edge functions with `{ error: string }` responses. Dovelite uses Next.js API routes with ad-hoc error handling.
+- Decision: Version all routes under `/api/v1/`. Use structured error model `{ error: { code, message, details?, traceId } }` for consistent client handling. Explicit transition endpoints (`POST /:id/transition`) instead of PATCH for status changes.
+- Alternatives considered: (1) Unversioned routes — rejected for future compatibility; (2) PATCH for status transitions — rejected because transitions have side effects (e.g., auto-set timestamps) that go beyond field updates.
+- Consequences: Slightly more verbose routing but clear separation between CRUD and workflow actions.
+- Rollback plan: Routes can be aliased if v1 prefix proves unnecessary.
+
+### ADR-004: Test strategy with Vitest + Playwright + RLS abuse tests
+- Date (UTC): 2026-02-16
+- Agent: agent-orchestrator (Claude Code)
+- Task ID: P0-T3
+- Context: Need test tooling decisions. Dovelite uses Playwright with single-worker E2E and QA seed scripts. Myprogram documents RLS abuse testing in RLS_POLICY_MATRIX.md but has no automated tests.
+- Decision: Use Vitest for unit/integration (fast, native ESM), Playwright for E2E (proven in Dovelite), and dedicated RLS abuse test suite (from Myprogram's security model). Two test accounts with deterministic UUIDs for cross-tenant testing.
+- Alternatives considered: (1) Jest — rejected (slower, worse ESM support); (2) Cypress for E2E — rejected (heavier, less aligned with existing patterns).
+- Consequences: Three test layers with clear separation. RLS abuse tests are a novel addition not present in either source.
+- Rollback plan: N/A — test tooling is low-risk to change.
+
+### ADR-005: JWT session cookies with jose library
+- Date (UTC): 2026-02-16
+- Agent: agent-a (Backend+Security Specialist)
+- Task ID: P1-T1
+- Context: Need auth/session implementation. Source repos use different approaches: Dovelite uses Supabase Auth with RLS; Myprogram uses edge functions with JWT. Neither fits ai-fsm's custom PostgreSQL requirement.
+- Decision: Implement custom JWT-based sessions using `jose` library (Edge Runtime compatible). Store session in HTTP-only cookie with 7-day expiry. Use `bcryptjs` for password hashing. Role stored in JWT payload for quick access control checks.
+- Alternatives considered: (1) Supabase Auth — rejected due to external dependency and RLS coupling; (2) NextAuth.js — rejected for lock-in and unnecessary OAuth complexity; (3) iron-session — rejected as jose is lighter and standards-compliant.
+- Consequences: Full control over auth flow but responsible for all security considerations. Password hashing strength dependent on bcryptjs config (10 rounds chosen for Pi4 performance).
+- Rollback plan: Can migrate to Supabase Auth later by keeping user IDs consistent and syncing password hashes.
+
+### ADR-007: x-trace-id header for request-level correlation
+- Date (UTC): 2026-02-17
+- Agent: agent-orchestrator (Claude Code)
+- Task ID: P1-T3
+- Context: traceId was generated fresh per-function call in requireAuth and requireRole, producing two different UUIDs per request. audit_log had no correlation column, making it impossible to link an audit row back to the originating HTTP request.
+- Decision: Extract trace ID once per request from x-trace-id or x-request-id header (or generate a UUID if absent). Thread it through AuthSession so all downstream operations (error responses, audit writes) share the same ID. Add trace_id UUID column + index to audit_log.
+- Alternatives considered: (1) OpenTelemetry — rejected as overkill for MVP; (2) structured logging only (no DB column) — rejected because audit queries need trace correlation.
+- Consequences: Every API error response and every audit_log row carry the same traceId for a given request. Callers (load balancer, client) can inject their own trace ID via header.
+- Rollback plan: Column is nullable — existing rows unaffected. Remove column via migration if approach changes.
+
+### ADR-008: P5-T1 Security hardening posture
+- Date (UTC): 2026-02-19
+- Agent: agent-orchestrator (Claude Code)
+- Task ID: P5-T1
+- Context: PRs #34–#41 merged. Pre-production audit identified: (1) no rate limiting on login, enabling brute-force; (2) AUTH_SECRET validated at min(1) char allowing weak secrets; (3) no HTTP security response headers; (4) password complexity unenforced at API layer.
+- Decision:
+  1. **Rate limiting**: In-process sliding-window Map store. Login: 5 req / 15 min per IP. Responds 429 with Retry-After header. Chosen over Redis client to avoid new dependency; appropriate for single-process Pi4 standalone deployment. Redis-backed upgrade path documented.
+  2. **Env hardening**: AUTH_SECRET raised to min 32 chars (matches JWT best-practice for HS256 keys). Error messages include `[startup]` prefix and enumerate every failing field with a fix hint.
+  3. **Security response headers**: Next.js Edge middleware injects `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, `Referrer-Policy`, `Permissions-Policy`, `Content-Security-Policy` (frame-ancestors none), `Strict-Transport-Security`. Applied to all routes except static assets.
+  4. **Password min length**: Login schema raised from min(1) to min(8). Enforced at API boundary with structured error (VALIDATION_ERROR).
+- Alternatives considered:
+  - Redis sorted-set rate limiter — deferred: no redis client installed; adds dependency; single process makes in-process equally effective.
+  - NextAuth / Helmet npm packages — rejected: Next.js middleware header injection requires no additional package; NextAuth adds unnecessary complexity.
+  - SameSite=Strict cookie — retained as lax: strict breaks same-site navigations; lax + HttpOnly + Secure is correct posture for cookie-based JWT.
+  - CSRF tokens — not added: all state-changing endpoints are JSON-only API routes; SameSite=lax + Content-Type enforcement blocks CSRF on modern browsers; explicit CSRF tokens can be added if form-based submissions are introduced.
+- Consequences: Login brute-force limited. Weak secrets rejected at startup. Browser-level frame injection and MIME sniffing blocked. CSP baseline established (will need tightening if external CDN assets are introduced).
+- Rollback plan: Revert middleware.ts to remove headers (zero DB/migration impact). Rate limiter is in-process and stateless — removing it requires no cleanup.
+
+### ADR-006: Build timeout with Next.js 15 static generation
+- Date (UTC): 2026-02-16
+- Agent: agent-a (Backend+Security Specialist)
+- Task ID: P1-T1
+- Context: Next.js 15 build times out during static page generation when components use `cookies()` from `next/headers`. Build hangs at "Collecting page data..." step.
+- Decision: Mark all pages and API routes using cookies as `dynamic = "force-dynamic"`. Add graceful env placeholder for build-time when DATABASE_URL is not set. Document as known CI limitation — build passes locally.
+- Alternatives considered: (1) Mock cookies during build — rejected as fragile; (2) Remove cookies() from server components — rejected as breaks auth flow; (3) Skip build in CI — rejected as needs verification.
+- Consequences: No static optimization for auth pages (acceptable trade-off). Need to monitor build times on Pi4 target.
+- Rollback plan: Next.js may fix in future release; can also switch to fully dynamic rendering with `export const dynamicParams = false`.
+
+
+---
+
+### ADR-010: UX destructive action pattern — window.confirm over modal dialog
+- Date (UTC): 2026-02-19T04:00:00Z
+- Agent: agent-orchestrator
+- Task ID: P5-T5
+- Context: Delete buttons for jobs and estimates existed as plain HTML form POSTs. These were broken (route only exports DELETE handler, not POST), and had no confirmation step — a single misclick would permanently destroy data.
+- Decision: Extract delete buttons into "use client" components that call window.confirm before issuing a fetch DELETE to the API. No new dialog/modal library added.
+- Alternatives considered:
+  - Custom modal dialog component: adds UI complexity and CSS scope; overkill for two delete actions at current stage.
+  - shadcn/ui AlertDialog or similar: introduces a component library dependency; incompatible with Pi4 bundle-size goal of minimal JS.
+  - window.confirm: zero dependency, accessible (browser-native), appropriate for internal admin tooling at MVP stage.
+- Consequences: Confirmation is a native browser dialog — consistent styling guaranteed. UX may feel slightly outdated vs custom modal; acceptable for operator-facing internal tool.
+- Rollback plan: Replace window.confirm call with a custom inline confirm state (useState boolean) if design requirements change; logic change is isolated to the two client components.
+
+### ADR-011: Auto-dismiss success messages via useEffect+setTimeout
+- Date (UTC): 2026-02-19T04:00:00Z
+- Agent: agent-orchestrator
+- Task ID: P5-T5
+- Context: Success messages in notes forms and transition forms persisted indefinitely after save, cluttering the UI. Financial payment success needs slightly longer visibility.
+- Decision: Use useEffect to schedule clearTimeout-based auto-dismiss at 3s for general success messages and 5s for payment confirmations. Timer is cleared on component unmount to prevent state updates on unmounted components.
+- Alternatives considered:
+  - Toast notification library (react-hot-toast, sonner): adds a dependency, requires provider in layout; out of scope for Pi4 target.
+  - Inline CSS animation (opacity fade-out): purely cosmetic — doesn't remove from DOM; screen readers would still announce stale text.
+- Consequences: Zero new dependencies. Success messages self-clear. Cleanup via clearTimeout prevents memory/state leak.
+- Rollback plan: Remove useEffect block to revert to persistent success message; trivial one-line deletion per component.
+
+### ADR-012: Release-readiness doc consolidation — single authoritative path per deliverable
+- Date (UTC): 2026-02-19T06:00:00Z
+- Agent: agent-orchestrator
+- Task ID: P5-T6
+- Context: Three new required deliverables (PROD_READINESS_CHECKLIST.md, DEPLOYMENT_RUNBOOK.md, INCIDENT_RESPONSE.md) needed to consolidate five pre-existing partial docs (BACKUP_RUNBOOK.md, INCIDENT_RESPONSE_RUNBOOK.md, PI4_DEPLOYMENT.md, CI_GOVERNANCE.md, TEST_MATRIX.md) without creating conflicting guidance.
+- Decision:
+  1. INCIDENT_RESPONSE.md supersedes INCIDENT_RESPONSE_RUNBOOK.md. The older file is retained as historical reference but is no longer the canonical doc. A notice was added to INCIDENT_RESPONSE.md to make this clear.
+  2. DEPLOYMENT_RUNBOOK.md consolidates PI4_DEPLOYMENT.md (which was a minimal stub) into a full runbook. PI4_DEPLOYMENT.md is retained for discoverability but DEPLOYMENT_RUNBOOK.md is authoritative.
+  3. BACKUP_RUNBOOK.md remains the canonical backup reference; DEPLOYMENT_RUNBOOK.md and PROD_READINESS_CHECKLIST.md cross-reference it rather than duplicating content.
+  4. CI_GOVERNANCE.md and TEST_MATRIX.md remain as standalone canonical references for their respective domains; PROD_READINESS_CHECKLIST.md references them.
+- Alternatives considered:
+  - Delete the old files: rejected — preserves historical context and avoids breaking any existing cross-references.
+  - Merge everything into one mega-runbook: rejected — too large for a single operator to navigate under pressure during an incident.
+- Consequences: Clear single authoritative path per deliverable. Operators should update the three new files going forward; old files are read-only references.
+- Rollback plan: N/A (documentation only — no code or schema changed).
+
+### ADR-013: Promote garonhome.local to primary deployment target; demote Pi to secondary/legacy
+- Date (UTC): 2026-03-02T00:00:00Z
+- Agent: deploy-sre
+- Task ID: infra/garonhome-primary (ad-hoc)
+- Context: Deployment was bootstrapped Pi-first (ADR-001 MVP target). garonhome.local (x86, `/opt/business/ai-fsm`) is now operational with a proper compose file, setup script, backup/restore scripts, Nginx Proxy Manager integration, and idempotent migration tracking (PR #79). The Pi remains running but the x86 host is the better long-term target (no ARM build constraints, no SD card wear, no memory limits, better network throughput).
+- Decision: garonhome.local is the primary deployment target for all future releases. DEPLOYMENT_RUNBOOK.md is restructured garonhome-first. docs/agents/deploy-sre.md and docs/skills/ai-fsm-garonhome-deploy.md are updated to reflect this. Pi docs are retained but marked secondary/legacy.
+- Alternatives considered:
+  - Keep Pi as primary: rejected — x86 is operationally superior and the host is already running; Pi SD card write wear is a long-term reliability risk.
+  - Decommission Pi entirely: rejected — Pi is still useful as a secondary/test target and its compose file + runbook have value as reference documentation.
+- Consequences: garonhome.local is now the SOLE production deployment target. Pi4-specific docs and compose.pi.yml have been removed. All AI agents and release instructions default to garonhome.local.
+- Rollback plan: Documentation-only change. Reversing means updating the same files. No code, schema, or infra was modified.
+
+---
+
+- Timestamp (UTC): 2026-02-19T21:27:09Z
+- Decision ID: DRILL-2026-02-19
+- Type: Restore Drill Evidence
+- Environment: Raspberry Pi 4 (Ubuntu Server 24.04), compose profile `infra/compose.pi.yml`
+- Operator: nick
+- Backup used: `/home/nick/backups/ai_fsm_20260219_162051.dump`
+- Procedure: stop `web/worker` -> terminate DB sessions -> drop/recreate `ai_fsm` DB -> `pg_restore` -> start services -> verify health and row counts
+- Health result:
+  - `GET /api/health` => `{"status":"ok","service":"web","checks":{"db":"ok"},"ts":"2026-02-19T21:27:09.880Z"}`
+- Row counts (pre vs post):
+  - users: 4 -> 4
+  - jobs: 0 -> 0
+  - visits: 0 -> 0
+  - estimates: 0 -> 0
+  - invoices: 0 -> 0
+  - payments: 0 -> 0
+- Outcome: PASS
+- Notes:
+  - Initial attempt failed with `DROP DATABASE cannot run inside a transaction block`; corrected by issuing terminate/drop/create as separate `psql -c` commands.
+
+
+
+### ADR-014: Revenue bucketed by invoice created_at month
+
+- Date: 2026-03-03
+- Context: Profitability dashboard (P8-T5) needed a canonical bucketing field for monthly revenue.
+- Decision: Use `to_char(created_at, 'YYYY-MM')` as the bucketing field for invoices in the profitability report (not paid_at or due_date).
+- Rationale: created_at is always set, never null. paid_at is null for unpaid invoices; due_date is set by users and unreliable for aggregation. created_at gives a stable, deterministic monthly view.
+- Tradeoffs: Paid-at bucketing is sometimes preferred for cash-basis accounting. Can be added as a filter option in a follow-up.
+
+### ADR-015: Job profitability revenue uses all-time invoices, not month-scoped
+
+- Date: 2026-03-03
+- Context: Profitability dashboard job-level table joins jobs with invoices and mileage.
+- Decision: Invoice revenue for each job is aggregated across all time (no month filter on invoices join). Mileage is filtered to the selected month.
+- Rationale: Jobs often span multiple months. An invoice created in month N reflects work from a job started in month N-1. Restricting invoices to the month would show $0 revenue for jobs billed in a different month, making the table misleading.
+- Tradeoffs: Asymmetry between revenue (all-time) and mileage (month-scoped) is documented in the UI with a footnote.
+
+### ADR-016: period_month stored as TEXT CHECK (YYYY-MM), not DATE
+
+- Date: 2026-03-04
+- Context: period_closes table (P8-T6) needed a column type for the calendar month being closed.
+- Decision: Use TEXT with a CHECK constraint (`period_month ~ '^\d{4}-(0[1-9]|1[0-2])$'`), not a DATE column.
+- Rationale: A month is not a point-in-time; using DATE (e.g. 2026-03-01) requires choosing a day and handling timezone offsets. TEXT 'YYYY-MM' is self-documenting, matches URL params directly, and avoids ambiguity. CHECK constraint enforces format at the DB level.
+- Tradeoffs: Slightly less flexible for date arithmetic, but month-boundary queries are always done as `$month-01::date` in SQL, which is explicit and unambiguous.
+
+### ADR-017: CSV export streams directly from API response — no server-side file storage
+
+- Date: 2026-03-04
+- Context: P8-T6 needed to deliver CSV exports to the operator browser.
+- Decision: The `/api/v1/reports/month-end-export` route queries the DB, formats the CSV in memory, and returns it as a streaming response with `Content-Disposition: attachment`.
+- Rationale: Self-hosted deployment (Raspberry Pi / garonhome) has no object storage. In-memory export is simple, stateless, and sufficient for the data volumes expected (hundreds of rows per month). No temp files to clean up.
+- Tradeoffs: Large exports (thousands of rows) would hold the connection open. Acceptable for current scale; can switch to streaming row-by-row if needed.
+
+### ADR-018: Closed-month flag is advisory — server does not block mutations on closed months
+
+- Date: 2026-03-04
+- Context: P8-T6 needed to decide whether closing a period should prevent further data changes.
+- Decision: The period_closes record is a flag only. The API, DB triggers, and RLS policies do NOT block inserts/updates/deletes on expenses, invoices, or payments for a closed month.
+- Rationale: Operator-responsibility model — the close record signals "reviewed and exported" without adding enforcement complexity. Blocking mutations would require cross-table trigger logic, complicating migrations and future feature work.
+- Tradeoffs: An operator could inadvertently modify closed-period data. The UI shows a "closed" banner as a warning. Can be hardened with DB-level blocks in a future sprint if needed.
+
+### ADR-019: Reopen is owner-only; close is admin+
+
+- Date: 2026-03-04
+- Context: P8-T6 needed role gates for period close and reopen actions.
+- Decision: Closing a period requires admin or owner role. Reopening requires owner role only.
+- Rationale: Closing is a routine bookkeeping step (any admin can do it). Reopening is a higher-risk reversal — it implies overriding a completed review — and should require the account owner's explicit action.
+- Tradeoffs: A multi-admin shop where the owner is unavailable would need to request the owner reopen. Acceptable given the advisory nature of the close record.
+
+### ADR-020: Paperless-ngx uses integer document IDs; stored as INTEGER in document_links
+
+- Date: 2026-03-04
+- Context: P9-T1 needed to store a reference to a Paperless document. Paperless uses sequential integer primary keys, not UUIDs.
+- Decision: `paperless_doc_id` in `document_links` is an INTEGER column, not UUID.
+- Rationale: Matching Paperless's actual ID type avoids unnecessary casting, simplifies join semantics if needed, and makes it immediately clear to developers that this is a Paperless-native ID.
+- Tradeoffs: If a future document system uses UUIDs, a schema change would be needed. This is acceptable — the table is specific to the Paperless integration.
+
+### ADR-021: Paperless is a supporting service — ai-fsm is the source of truth
+
+- Date: 2026-03-04
+- Context: P9-T1 integrates Paperless-ngx for document/receipt storage alongside ai-fsm financial records.
+- Decision: ai-fsm owns the `document_links` table. Paperless stores documents only. No business logic, status, or financial data lives in Paperless. If Paperless is unavailable, ai-fsm continues to operate normally; the document panel degrades gracefully (no Paperless search, cached link metadata still shown).
+- Rationale: Self-hosted deployment resilience — Paperless may be on a different host or restart independently. Core FSM workflows (jobs, visits, invoices, expenses) must not depend on Paperless availability.
+- Tradeoffs: Document metadata (title, filename) cached at link-creation time may become stale if the document is renamed in Paperless. Acceptable for the current use case (receipt filing). A future sync job could refresh cached metadata.
+
+### ADR-022: Checklist items seeded lazily on first GET, not at visit creation
+
+- Date: 2026-03-05
+- Context: P10-T1 adds a 28-item walkthrough checklist to every visit, stored in `visit_checklist_items`. The question is when to create these rows: at visit creation or on first read.
+- Decision: Lazy seeding — the GET `/api/v1/visits/[id]/checklist` route checks COUNT and inserts the full template if 0 rows exist (`ON CONFLICT (visit_id, item_key) DO NOTHING`). Visit creation is unchanged.
+- Rationale: (1) Historical visits (created before migration 011) would have no rows if we only seeded at creation. Lazy seeding handles them transparently. (2) Avoids adding checklist logic to the visit creation path, keeping that mutation simple and reducing cross-concern coupling. (3) ON CONFLICT DO NOTHING makes repeated seeding safe across retries or race conditions.
+- Tradeoffs: The first GET for any visit is slightly slower (COUNT + INSERT). With 28 items in one multi-row INSERT this is one extra round-trip, acceptable at human-interactive latency.
+
+### DRILL-2026-04-26b: Rollback rehearsal (P5-T4)
+- Date: 2026-04-26T16:30:00Z
+- Trigger: Simulated bad deploy — health route hardcoded `status: "degraded"`
+- Steps:
+  1. Tagged known-good image: `docker tag ai-fsm-web:latest ai-fsm-web:v1.0.0`
+  2. Injected bad change, rebuilt and deployed — confirmed degraded health response
+  3. Rolled back: `docker tag ai-fsm-web:v1.0.0 ai-fsm-web:latest && docker compose up -d web`
+  4. Health confirmed ok: `{"status":"ok","service":"web","checks":{"db":"ok"}}`
+  5. Reverted source change, rebuilt clean, re-tagged v1.0.0
+- Rollback duration: ~2 minutes (image swap, no rebuild needed)
+- Outcome: PASS — rollback procedure works; tagged images are the recovery mechanism
+- Notes: Rollback requires tagged image to exist before bad deploy. Tag before every significant deploy. Port exec workaround required on garonhome (host port 3000 occupied by Open WebUI).
+
+
+
+### DRILL-2026-04-26: Backup restore validation
+- Date: 2026-04-26T13:33:00Z
+- Backup file: ai_fsm_20260426T133200Z.dump
+- Restore duration: ~1 minute
+- Row counts (pre and post): users=1, jobs=2, visits=2, estimates=0, invoices=0
+- Health check: ok ({"status":"ok","service":"web","checks":{"db":"ok"}})
+- Login smoke test: skipped (no seed password on garonhome)
+- Notes: Port 3000 is occupied by Open WebUI on the host; health check must be run from inside the web container (`docker exec ai-fsm-web-1 wget -qO- http://localhost:3000/api/health`). Restore script's final wget fails because web port is not exposed to host — this is expected on garonhome. All containers healthy post-restore.

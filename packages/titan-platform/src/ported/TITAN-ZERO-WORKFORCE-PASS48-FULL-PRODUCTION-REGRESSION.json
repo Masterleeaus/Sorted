@@ -1,0 +1,27 @@
+{
+  "schema": "titan.zero.workforce.pass48.full-production-regression.v1",
+  "pass": 48,
+  "title": "Full Production Regression & Exact Reconstruction",
+  "manager_baseline": "MERGE-18",
+  "company_boundary": "company_id only",
+  "requirements": {
+    "full_node_regression": true,
+    "full_python_regression": true,
+    "protected_runtime_integrity": true,
+    "rich_startup_reachability": true,
+    "workforce_surface_reachability": true,
+    "authority_and_offline_invariants": true,
+    "cross_version_rollback_invariants": true,
+    "browser_and_live_laravel_blockers_must_not_be_faked": true,
+    "exact_reconstruction_required": true
+  },
+  "authority": {
+    "ui_grants_authority": false,
+    "rollback_grants_authority": false,
+    "offline_may_expand_authority": false,
+    "automatic_execution": false,
+    "authority_granted": false,
+    "execution_permitted": false,
+    "grants_authority": false
+  }
+}

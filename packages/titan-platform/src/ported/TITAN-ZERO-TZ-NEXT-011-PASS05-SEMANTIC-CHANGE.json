@@ -1,0 +1,13 @@
+{
+  "schema": "titan-zero-semantic-change/v1",
+  "packet_id": "TZ-NEXT-011",
+  "pass": 5,
+  "changes": [
+    "Added deterministic Feed/Inbox deduplication contract.",
+    "Exact duplicate IDs collapse without discarding occurrence evidence.",
+    "Related repeats collapse only when company, surface, kind, causal group, normalized content and time window align.",
+    "Highest severity is retained while all source event/message/notification IDs and occurrence counts remain reconstructable."
+  ],
+  "company_boundary": "company_id only",
+  "authority_effect": "none"
+}

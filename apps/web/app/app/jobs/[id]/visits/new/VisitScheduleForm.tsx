@@ -1,0 +1,593 @@
+"use client";
+
+import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
+import {
+  Button,
+  Card,
+  LinkButton,
+  ScheduleFields,
+  Select,
+} from "@/components/ui";
+import type { ScheduleValue } from "@/components/ui";
+import { scheduleToISOPair } from "@/components/ui";
+import { reviewScheduleDay } from "@/lib/jobs/schedule-guard";
+import { easternWallToUtc, formatBusinessDate, formatBusinessTime } from "@/lib/time/business-tz";
+import { VISIT_TYPES, VISIT_TYPE_LABELS, type VisitType } from "@ai-fsm/domain";
+import { coveringTechFieldHint, coveringTechFieldLabel } from "@/lib/visits/covering-tech";
+
+interface User {
+  id: string;
+  full_name: string;
+  role: string;
+}
+
+interface FormErrors {
+  schedule_date?: string;
+  schedule_time?: string;
+  multi_days?: string;
+}
+
+interface WorkOrderOption {
+  id: string;
+  title: string;
+  status?: string;
+}
+
+interface VisitScheduleFormProps {
+  jobId: string;
+  users: User[];
+  canAssign: boolean;
+  jobCategory?: string | null;
+  bookingRequestId?: string;
+  workOrders?: WorkOrderOption[];
+  initialWorkOrderId?: string | null;
+  initialMultiDay?: boolean;
+  /** Prefer site_visit (assessment) or standard (work day). */
+  initialVisitType?: VisitType | null;
+  /** assessment | book_work — drives duration defaults and labels. */
+  intent?: "assessment" | "book_work" | null;
+  /** Prefill from job page "Add a day" (YYYY-MM-DD). */
+  initialDate?: string | null;
+  /** Prefill start time HH:MM. */
+  initialStartTime?: string | null;
+  /** Prefill duration minutes. */
+  initialDuration?: number | null;
+  /** Prefill assignee. */
+  initialAssignedUserId?: string | null;
+}
+
+function formatDayLabel(dateStr: string, startTime: string, durationMin: number): string {
+  const start = easternWallToUtc(dateStr, startTime);
+  const end = new Date(start.getTime() + durationMin * 60_000);
+  const day = formatBusinessDate(start, { weekday: "short", year: undefined });
+  return `${day} · ${formatBusinessTime(start)} – ${formatBusinessTime(end)}`;
+}
+
+function defaultVisitType(
+  jobCategory: string | null | undefined,
+  initialVisitType: VisitType | null | undefined,
+  intent: "assessment" | "book_work" | null | undefined,
+): VisitType {
+  if (initialVisitType && (VISIT_TYPES as readonly string[]).includes(initialVisitType)) {
+    return initialVisitType;
+  }
+  if (intent === "assessment") return "site_visit";
+  if (intent === "book_work") return "standard";
+  if (jobCategory === "realtor_baseline") return "realtor_baseline";
+  return "standard";
+}
+
+export function VisitScheduleForm({
+  jobId,
+  users,
+  canAssign,
+  jobCategory,
+  bookingRequestId,
+  workOrders = [],
+  initialWorkOrderId = null,
+  initialMultiDay = false,
+  initialVisitType = null,
+  intent = null,
+  initialDate = null,
+  initialStartTime = null,
+  initialDuration = null,
+  initialAssignedUserId = null,
+}: VisitScheduleFormProps) {
+  const router = useRouter();
+  const [pending, setPending] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [errors, setErrors] = useState<FormErrors>({});
+  const [scheduleWarning, setScheduleWarning] = useState("");
+  const [multiDay, setMultiDay] = useState(initialMultiDay);
+  const [extraDates, setExtraDates] = useState<string[]>([]);
+  const [extraDateInput, setExtraDateInput] = useState("");
+
+  const resolvedType = defaultVisitType(jobCategory, initialVisitType, intent);
+  const defaultDuration =
+    initialDuration && initialDuration > 0
+      ? initialDuration
+      : multiDay || initialMultiDay || resolvedType === "standard" || resolvedType === "punch_list"
+        ? 480
+        : resolvedType === "site_visit"
+          ? 120
+          : 60;
+
+  const [schedule, setSchedule] = useState<ScheduleValue>({
+    date: initialDate ?? "",
+    startTime:
+      initialStartTime ??
+      (resolvedType === "site_visit" ? "09:00" : "08:00"),
+    duration: defaultDuration,
+  });
+  const [assignedUserId, setAssignedUserId] = useState(initialAssignedUserId ?? "");
+  const [visitType, setVisitType] = useState<VisitType>(resolvedType);
+  const lockedWo = !!initialWorkOrderId;
+  const [workOrderId, setWorkOrderId] = useState(
+    initialWorkOrderId ?? (workOrders.length === 1 ? workOrders[0].id : ""),
+  );
+  const [openTasks, setOpenTasks] = useState<
+    Array<{ id: string; label: string; required: boolean; status?: string }>
+  >([]);
+  const [selectedTaskIds, setSelectedTaskIds] = useState<string[]>([]);
+  const [tasksLoading, setTasksLoading] = useState(false);
+  const needsWorkOrder =
+    visitType === "standard" || visitType === "punch_list";
+
+  useEffect(() => {
+    if (!workOrderId || !needsWorkOrder) {
+      setOpenTasks([]);
+      setSelectedTaskIds([]);
+      return;
+    }
+    let cancelled = false;
+    setTasksLoading(true);
+    fetch(`/api/v1/work-orders/${workOrderId}/open-tasks`)
+      .then((r) => r.json())
+      .then((j) => {
+        if (cancelled) return;
+        const list = (j.data?.tasks ?? []) as Array<{
+          id: string;
+          label: string;
+          required: boolean;
+          status?: string;
+        }>;
+        // Done tasks are never returned by the API; keep client guard anyway.
+        const selectable = list.filter((t) => t.status !== "done");
+        setOpenTasks(selectable);
+        // Default: select required open tasks (not already partial-only if preferred).
+        setSelectedTaskIds(selectable.filter((t) => t.required).map((t) => t.id));
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setOpenTasks([]);
+          setSelectedTaskIds([]);
+        }
+      })
+      .finally(() => {
+        if (!cancelled) setTasksLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [workOrderId, needsWorkOrder]);
+
+  function toggleTask(id: string) {
+    setSelectedTaskIds((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
+    );
+  }
+
+  const allDates = useMemo(() => {
+    const set = new Set<string>();
+    if (schedule.date) set.add(schedule.date);
+    for (const d of extraDates) set.add(d);
+    return Array.from(set).sort();
+  }, [schedule.date, extraDates]);
+
+  const previewDays = useMemo(() => {
+    if (!schedule.startTime || allDates.length === 0) return [];
+    return allDates.map((date) => ({
+      date,
+      label: formatDayLabel(date, schedule.startTime, schedule.duration),
+      ...scheduleToISOPair({ date, startTime: schedule.startTime, duration: schedule.duration }),
+    }));
+  }, [allDates, schedule.startTime, schedule.duration]);
+
+  function validate(): boolean {
+    const errs: FormErrors = {};
+    if (multiDay) {
+      if (allDates.length === 0) errs.multi_days = "Add at least one date";
+      if (!schedule.startTime) errs.schedule_time = "Start time is required";
+    } else {
+      if (!schedule.date) errs.schedule_date = "Date is required";
+      if (!schedule.startTime) errs.schedule_time = "Start time is required";
+    }
+    setErrors(errs);
+    return Object.keys(errs).length === 0;
+  }
+
+  function addExtraDate() {
+    if (!extraDateInput) return;
+    if (extraDates.includes(extraDateInput) || extraDateInput === schedule.date) {
+      setExtraDateInput("");
+      return;
+    }
+    setExtraDates((prev) => [...prev, extraDateInput].sort());
+    setExtraDateInput("");
+  }
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setError(null);
+
+    if (!validate()) return;
+
+    setPending(true);
+
+    try {
+      if (needsWorkOrder && !workOrderId) {
+        setError("Select a work order for this visit");
+        setPending(false);
+        return;
+      }
+
+      if (multiDay) {
+        const days = previewDays
+          .filter((d) => d.start && d.end)
+          .map((d) => ({ scheduled_start: d.start!, scheduled_end: d.end! }));
+
+        if (days.length === 0) {
+          setError("Add valid dates to schedule");
+          setPending(false);
+          return;
+        }
+
+        const res = await fetch(`/api/v1/jobs/${jobId}/visits/bulk`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            assigned_user_id: assignedUserId || undefined,
+            visit_type: visitType,
+            ...(needsWorkOrder && workOrderId ? { work_order_id: workOrderId } : {}),
+            ...(selectedTaskIds.length ? { task_ids: selectedTaskIds } : {}),
+            days,
+          }),
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          setError(data.error?.message || "Failed to schedule visits");
+          setPending(false);
+          return;
+        }
+        // Prefer work order page when we came from / booked under a WO
+        if (workOrderId) {
+          router.push(`/app/work-orders/${workOrderId}`);
+        } else {
+          router.push(`/app/jobs/${jobId}`);
+        }
+        return;
+      }
+
+      const { start, end } = scheduleToISOPair(schedule);
+      const body = {
+        scheduled_start: start!,
+        scheduled_end: end!,
+        assigned_user_id: assignedUserId || undefined,
+        booking_request_id: bookingRequestId,
+        visit_type: visitType,
+        ...(needsWorkOrder && workOrderId ? { work_order_id: workOrderId } : {}),
+        ...(selectedTaskIds.length ? { task_ids: selectedTaskIds } : {}),
+      };
+
+      const res = await fetch(`/api/v1/jobs/${jobId}/visits`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        if (data.error?.details) {
+          const fieldErrors: FormErrors = {};
+          for (const [key, vals] of Object.entries(data.error.details)) {
+            fieldErrors[key as keyof FormErrors] = (vals as string[])[0];
+          }
+          setErrors(fieldErrors);
+        } else {
+          setError(data.error?.message || "Failed to schedule visit");
+        }
+        setPending(false);
+        return;
+      }
+
+      const visitId = data.data.id;
+      router.push(`/app/visits/${visitId}`);
+    } catch {
+      setError("An unexpected error occurred");
+      setPending(false);
+    }
+  }
+
+  const techUsers = users.filter(
+    (u) => u.role === "tech" || u.role === "admin" || u.role === "owner"
+  );
+
+  const woOptions = workOrders.map((wo) => ({
+    value: wo.id,
+    label: wo.status && wo.status !== "ready" && wo.status !== "scheduled"
+      ? `${wo.title} (${wo.status})`
+      : wo.title,
+  }));
+
+  // Ensure locked WO appears even if not in list (edge case)
+  if (lockedWo && initialWorkOrderId && !woOptions.some((o) => o.value === initialWorkOrderId)) {
+    woOptions.unshift({ value: initialWorkOrderId, label: "Selected work order" });
+  }
+
+  return (
+    <form onSubmit={handleSubmit} className="p7-form-stack" data-testid="visit-schedule-form">
+      {error && (
+        <Card className="p7-card-danger" padding="sm" role="alert">
+          <p style={{ margin: 0 }}>{error}</p>
+        </Card>
+      )}
+
+      <label
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: 8,
+          fontSize: "var(--text-sm)",
+          fontWeight: 600,
+          cursor: "pointer",
+        }}
+      >
+        <input
+          type="checkbox"
+          checked={multiDay}
+          data-testid="multi-day-toggle"
+          onChange={(e) => {
+            const on = e.target.checked;
+            setMultiDay(on);
+            if (on && schedule.duration < 240) {
+              setSchedule((s) => ({ ...s, duration: 480 }));
+            }
+          }}
+        />
+        Schedule multiple days (same hours each day)
+      </label>
+
+      {!multiDay ? (
+        <div className="p7-form-grid p7-form-grid-2">
+          <ScheduleFields
+            value={schedule}
+            onChange={(s) => {
+              setSchedule(s);
+              setScheduleWarning(reviewScheduleDay(s.date, jobCategory ?? null).warning ?? "");
+            }}
+            required
+            disabled={pending}
+            dateError={errors.schedule_date}
+            timeError={errors.schedule_time}
+          />
+        </div>
+      ) : (
+        <div className="p7-form-stack" style={{ gap: "var(--space-3)" }}>
+          <div className="p7-form-grid p7-form-grid-2">
+            <ScheduleFields
+              value={schedule}
+              onChange={(s) => {
+                setSchedule(s);
+                if (s.date) {
+                  setScheduleWarning(reviewScheduleDay(s.date, jobCategory ?? null).warning ?? "");
+                }
+              }}
+              required
+              disabled={pending}
+              dateError={errors.schedule_date}
+              timeError={errors.schedule_time}
+            />
+          </div>
+          <p className="muted" style={{ margin: 0, fontSize: "var(--text-xs)" }}>
+            First day is set above. Add more dates with the same start time and duration.
+          </p>
+          <div style={{ display: "flex", gap: 8, alignItems: "flex-end", flexWrap: "wrap" }}>
+            <div>
+              <label htmlFor="extra_date" style={{ fontSize: "var(--text-xs)", fontWeight: 600, display: "block", marginBottom: 4 }}>
+                Add another day
+              </label>
+              <input
+                id="extra_date"
+                type="date"
+                value={extraDateInput}
+                onChange={(e) => setExtraDateInput(e.target.value)}
+                disabled={pending}
+                data-testid="multi-day-add-date"
+                style={{ padding: "8px 10px", borderRadius: 6, border: "1px solid var(--border)" }}
+              />
+            </div>
+            <Button type="button" variant="secondary" onClick={addExtraDate} disabled={pending || !extraDateInput}>
+              Add day
+            </Button>
+          </div>
+          {errors.multi_days && (
+            <p className="error-inline" style={{ margin: 0 }}>{errors.multi_days}</p>
+          )}
+          {previewDays.length > 0 && (
+            <div
+              data-testid="multi-day-preview"
+              style={{
+                border: "1px solid var(--border)",
+                borderRadius: 8,
+                padding: "10px 12px",
+                background: "var(--bg-subtle, #fafaf9)",
+              }}
+            >
+              <div style={{ fontSize: "var(--text-xs)", fontWeight: 700, marginBottom: 6 }}>
+                Creates {previewDays.length} visit{previewDays.length === 1 ? "" : "s"}
+              </div>
+              <ul style={{ margin: 0, paddingLeft: 18, fontSize: "var(--text-sm)" }}>
+                {previewDays.map((d) => (
+                  <li key={d.date} style={{ marginBottom: 4 }}>
+                    {d.label}
+                    {d.date !== schedule.date && (
+                      <button
+                        type="button"
+                        onClick={() => setExtraDates((prev) => prev.filter((x) => x !== d.date))}
+                        style={{
+                          marginLeft: 8,
+                          border: "none",
+                          background: "transparent",
+                          color: "var(--fg-muted)",
+                          cursor: "pointer",
+                          fontSize: 12,
+                        }}
+                      >
+                        remove
+                      </button>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </div>
+      )}
+
+      {scheduleWarning && (
+        <p className="warning-inline" data-testid="schedule-day-warning">{scheduleWarning}</p>
+      )}
+
+      <Select
+        id="visit_type"
+        label="Visit Type"
+        value={visitType}
+        onChange={(e) => setVisitType(e.target.value as VisitType)}
+        disabled={pending}
+        options={VISIT_TYPES.map((t) => ({ value: t, label: VISIT_TYPE_LABELS[t] }))}
+        hint={visitType === "realtor_baseline" ? "Seeds a pre-listing inspection checklist." : undefined}
+      />
+
+      {needsWorkOrder && (
+        workOrders.length > 0 || lockedWo ? (
+          <Select
+            id="work_order_id"
+            label="Work Order"
+            value={workOrderId}
+            onChange={(e) => setWorkOrderId(e.target.value)}
+            disabled={pending || lockedWo}
+            required
+            options={woOptions}
+            placeholder="Select work order"
+            hint={
+              lockedWo
+                ? "Linked from this work order. Field days (visits) will attach here."
+                : "Standard field work must attach to a work order under this project."
+            }
+          />
+        ) : (
+          <Card className="p7-card-warning" padding="sm" data-testid="no-work-order-hint">
+            <p style={{ margin: 0, fontSize: "var(--text-sm)" }}>
+              No work order on this project yet. Create a work order first, then schedule field days under it.
+            </p>
+          </Card>
+        )
+      )}
+
+      {needsWorkOrder && workOrderId && (
+        <div data-testid="day-tasks-picker">
+          <p style={{ margin: "0 0 6px", fontWeight: 600, fontSize: "var(--text-sm)" }}>
+            Tasks for this day
+          </p>
+          <p style={{ margin: "0 0 var(--space-2)", fontSize: "var(--text-xs)", color: "var(--fg-muted)" }}>
+            Pick what you plan to finish today. Completing them marks progress on the project.
+          </p>
+          {tasksLoading ? (
+            <p className="muted" style={{ fontSize: "var(--text-sm)" }}>Loading tasks…</p>
+          ) : openTasks.length === 0 ? (
+            <p className="muted" style={{ fontSize: "var(--text-sm)" }}>
+              No open tasks on this work order. Break down the estimate first, or add tasks on the work order.
+            </p>
+          ) : (
+            <ul style={{ listStyle: "none", margin: 0, padding: 0 }}>
+              {openTasks.map((t) => (
+                <li key={t.id} style={{ padding: "4px 0" }}>
+                  <label
+                    style={{
+                      display: "flex",
+                      gap: 8,
+                      alignItems: "flex-start",
+                      cursor: "pointer",
+                      fontSize: "var(--text-sm)",
+                    }}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={selectedTaskIds.includes(t.id)}
+                      onChange={() => toggleTask(t.id)}
+                      disabled={pending}
+                    />
+                    <span>
+                      {t.label}
+                      {!t.required && (
+                        <span style={{ color: "var(--fg-muted)" }}> (optional)</span>
+                      )}
+                      {t.status === "partial" && (
+                        <span style={{ color: "var(--warning, #b45309)" }}> — started</span>
+                      )}
+                    </span>
+                  </label>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      )}
+
+      {canAssign && (
+        <Select
+          id="assigned_user_id"
+          label={coveringTechFieldLabel()}
+          value={assignedUserId}
+          onChange={(e) => setAssignedUserId(e.target.value)}
+          disabled={pending}
+          hint={
+            users.length === 0
+              ? "No users available. Create users first."
+              : coveringTechFieldHint()
+          }
+          options={techUsers.map((u) => ({
+            value: u.id,
+            label: `${u.full_name} (${u.role})`,
+          }))}
+          placeholder="Unassigned"
+        />
+      )}
+
+      <div className="p7-form-actions">
+        <LinkButton
+          href={workOrderId ? `/app/work-orders/${workOrderId}` : `/app/jobs/${jobId}`}
+          variant="secondary"
+        >
+          Cancel
+        </LinkButton>
+        <Button
+          type="submit"
+          disabled={pending || (needsWorkOrder && !workOrderId)}
+          loading={pending}
+          data-testid="schedule-visit-submit"
+        >
+          {pending
+            ? "Scheduling…"
+            : multiDay
+              ? `Schedule ${Math.max(allDates.length, 1)} Day${allDates.length === 1 ? "" : "s"}`
+              : intent === "book_work" || visitType === "standard"
+                ? "Add Day to Schedule"
+                : "Schedule Visit"}
+        </Button>
+      </div>
+    </form>
+  );
+}

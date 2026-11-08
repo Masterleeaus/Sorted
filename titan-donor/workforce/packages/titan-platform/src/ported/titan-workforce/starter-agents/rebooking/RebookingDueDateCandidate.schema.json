@@ -1,0 +1,21 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema",
+  "$id":"titan.workforce.starter.rebooking-due-date-candidate.v1",
+  "type":"object",
+  "required":["schema","company_id","customer_id","service_id","opportunity_id","state","timezone","creates_schedule","creates_booking","execution_permitted","grants_authority"],
+  "properties":{
+    "schema":{"const":"titan.workforce.starter.rebooking-due-date-candidate.v1"},
+    "company_id":{"type":"string","minLength":1},
+    "customer_id":{"type":"string","minLength":1},
+    "service_id":{"type":"string","minLength":1},
+    "opportunity_id":{"type":"string","minLength":1},
+    "state":{"enum":["CANDIDATE","NEEDS_REVIEW"]},
+    "timezone":{"type":"string","minLength":1},
+    "due_date":{"type":["string","null"]},
+    "creates_schedule":{"const":false},
+    "creates_booking":{"const":false},
+    "execution_permitted":{"const":false},
+    "grants_authority":{"const":false}
+  },
+  "additionalProperties":true
+}

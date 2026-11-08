@@ -1,0 +1,60 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "titan://contracts/CapabilityContribution/v1",
+  "title": "CapabilityContribution",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "capability",
+    "provider_id",
+    "company_id",
+    "operations",
+    "authority_neutral"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0"
+    },
+    "capability": {
+      "type": "string",
+      "minLength": 1
+    },
+    "provider_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "company_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "operations": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "uniqueItems": true
+    },
+    "offline": {
+      "type": "boolean",
+      "default": false
+    },
+    "authority_neutral": {
+      "const": true
+    },
+    "risk_class": {
+      "enum": [
+        "none",
+        "low",
+        "medium",
+        "high",
+        "critical"
+      ]
+    },
+    "metadata": {
+      "type": "object"
+    }
+  }
+}

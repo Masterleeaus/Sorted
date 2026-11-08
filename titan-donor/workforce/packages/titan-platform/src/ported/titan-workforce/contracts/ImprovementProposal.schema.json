@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": [
+    "proposal_id",
+    "company_id",
+    "proposal_type",
+    "evidence_refs",
+    "expected_effect",
+    "approval_required"
+  ],
+  "properties": {
+    "proposal_id": {
+      "type": "string"
+    },
+    "company_id": {
+      "type": "string"
+    },
+    "proposal_type": {
+      "type": "string"
+    },
+    "evidence_refs": {
+      "type": "array"
+    },
+    "expected_effect": {},
+    "approval_required": {
+      "type": "boolean"
+    },
+    "auto_apply": {
+      "const": false
+    }
+  }
+}

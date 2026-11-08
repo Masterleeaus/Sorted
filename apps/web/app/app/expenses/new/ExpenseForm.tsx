@@ -1,0 +1,567 @@
+"use client";
+
+import { useState, useRef } from "react";
+import { useRouter } from "next/navigation";
+import type { Route } from "next";
+import { Input, Select, Textarea, Button } from "@/components/ui";
+import { EXPENSE_CATEGORIES, EXPENSE_CATEGORY_LABELS, formatJobPickerLabel } from "@ai-fsm/domain";
+import { parseDollarsToCents } from "@/lib/expenses/math";
+import { currentMonthKey } from "@/lib/expenses/ui";
+import { buildPoMatchText, suggestJobFromPoText } from "@/lib/expenses/match-job-po";
+import {
+  isFuelExpenseCategory,
+  parseGallonsFromFuelText,
+  reviewFuelReceipt,
+} from "@/lib/expenses/fuel-from-receipt";
+
+interface Props {
+  jobs: { id: string; title: string; job_number?: string | null; client_id?: string | null }[];
+  clients: { id: string; name: string }[];
+  vehicles?: { id: string; nickname: string }[];
+  activeVehicleId?: string | null;
+  defaultJobId?: string;
+  defaultClientId?: string;
+  mode?: "standard" | "run";
+}
+
+type OpenSessionResponse = { data: { id: string } | null };
+
+export function ExpenseForm({
+  jobs,
+  clients,
+  vehicles = [],
+  activeVehicleId = null,
+  defaultJobId,
+  defaultClientId,
+  mode = "standard",
+}: Props) {
+  const router = useRouter();
+  const isMaterialRun = mode === "run";
+
+  const todayLocal = new Date();
+  const defaultDate = `${todayLocal.getFullYear()}-${String(todayLocal.getMonth() + 1).padStart(2, "0")}-${String(todayLocal.getDate()).padStart(2, "0")}`;
+
+  const [vendorName, setVendorName] = useState("");
+  const [category, setCategory] = useState(isMaterialRun ? "materials" : "");
+  const [amountStr, setAmountStr] = useState("");
+  const [expenseDate, setExpenseDate] = useState(defaultDate);
+  const [jobId, setJobId] = useState(defaultJobId ?? "");
+  const [clientId, setClientId] = useState(defaultClientId ?? "");
+  const [notes, setNotes] = useState("");
+  const [vehicleId, setVehicleId] = useState(activeVehicleId ?? "");
+  const [gallonsStr, setGallonsStr] = useState("");
+  const [odometerStr, setOdometerStr] = useState("");
+  const [pending, setPending] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+
+  // Receipt scanning
+  const [scanning, setScanning] = useState(false);
+  const [scanError, setScanError] = useState<string | null>(null);
+  const [selectedReceiptFile, setSelectedReceiptFile] = useState<File | null>(null);
+  const receiptInputRef = useRef<HTMLInputElement>(null);
+
+  // Activity ledger: a material run's time spans from opening this form to
+  // saving the expense — logged as a completed segment on save (run mode).
+  const formOpenedAtRef = useRef<string>(new Date().toISOString());
+
+  // Line items returned by the AI scan, saved after the expense is created.
+  const scannedLineItemsRef = useRef<
+    { name: string; quantity: number; unit_cost_cents: number; sku?: string | null }[]
+  >([]);
+  const scannedTxnIdRef = useRef<string | null>(null);
+
+  /** Banner after OCR matched a Supply PO to an open project. */
+  const [poMatchLabel, setPoMatchLabel] = useState<string | null>(null);
+
+  async function handleScanReceipt(file: File) {
+    setSelectedReceiptFile(file);
+    setScanning(true);
+    setScanError(null);
+    setPoMatchLabel(null);
+    scannedTxnIdRef.current = null;
+    try {
+      const formData = new FormData();
+      formData.append("receipt", file);
+      const res = await fetch("/api/v1/expenses/scan-receipt", { method: "POST", body: formData });
+      const data = await res.json();
+      if (!res.ok) {
+        setScanError(data.error?.message ?? "Scan failed — enter the receipt details manually. The photo will still be saved.");
+        return;
+      }
+      const {
+        vendor_name,
+        amount_cents,
+        expense_date,
+        category: cat,
+        notes: n,
+        line_items,
+        po_number,
+        transaction_id,
+        gallons,
+      } = data.data;
+      scannedLineItemsRef.current = Array.isArray(line_items) ? line_items : [];
+      scannedTxnIdRef.current =
+        typeof transaction_id === "string" && transaction_id.trim()
+          ? transaction_id.trim()
+          : null;
+      if (vendor_name) setVendorName(vendor_name);
+      if (amount_cents) setAmountStr((amount_cents / 100).toFixed(2));
+      if (expense_date) setExpenseDate(expense_date);
+      if (cat && !isMaterialRun) setCategory(cat);
+      let nextNotes = typeof n === "string" ? n : "";
+      if (po_number && typeof po_number === "string" && po_number.trim()) {
+        const poTag = po_number.trim();
+        if (!nextNotes.toUpperCase().includes(poTag.toUpperCase())) {
+          nextNotes = nextNotes ? `${nextNotes}\nPO ${poTag}` : `PO ${poTag}`;
+        }
+      }
+      if (nextNotes) setNotes(nextNotes);
+      const scannedGallons =
+        typeof gallons === "number"
+          ? gallons
+          : parseGallonsFromFuelText(typeof n === "string" ? n : nextNotes);
+      if (scannedGallons != null) setGallonsStr(String(scannedGallons));
+      if ((cat === "fuel" || cat === "vehicle_fuel") && !vehicleId && activeVehicleId) {
+        setVehicleId(activeVehicleId);
+      }
+
+      // Pre-select open job when Supply PO uniquely matches — never override an
+      // existing choice (deep-link defaultJobId or user pick before scan).
+      const haystack = buildPoMatchText({
+        po_number: typeof po_number === "string" ? po_number : null,
+        notes: nextNotes,
+        vendor_name: typeof vendor_name === "string" ? vendor_name : null,
+      });
+      const match = suggestJobFromPoText(haystack, jobs);
+      if (match) {
+        const job = jobs.find((j) => j.id === match.jobId);
+        const label = `Matched Supply PO ${match.supplyPo} → ${job?.title ?? match.jobNumber}`;
+        if (!jobId) {
+          setJobId(match.jobId);
+          if (job?.client_id) setClientId(job.client_id);
+          setPoMatchLabel(label);
+        } else if (jobId === match.jobId) {
+          setPoMatchLabel(label);
+        }
+      }
+    } catch {
+      setScanError("Network error — enter the receipt details manually. The photo will still be saved.");
+    } finally {
+      setScanning(false);
+      if (receiptInputRef.current) receiptInputRef.current.value = "";
+    }
+  }
+
+  function validate(): boolean {
+    const errs: Record<string, string> = {};
+    if (!vendorName.trim()) errs.vendor_name = "Vendor name is required.";
+    if (!category) errs.category = "Category is required.";
+    if (!amountStr.trim() || isNaN(parseFloat(amountStr)) || parseFloat(amountStr) <= 0) {
+      errs.amount = "Enter a valid amount greater than $0.";
+    }
+    if (!expenseDate) errs.expense_date = "Date is required.";
+    setFieldErrors(errs);
+    return Object.keys(errs).length === 0;
+  }
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!validate()) return;
+    setPending(true);
+    setError(null);
+
+    const amount_cents = parseDollarsToCents(amountStr);
+
+    try {
+      const res = await fetch("/api/v1/expenses", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          vendor_name: vendorName.trim(),
+          category,
+          amount_cents,
+          expense_date: expenseDate,
+          job_id: jobId || null,
+          client_id: clientId || null,
+          notes: notes.trim() || null,
+          vehicle_id: isFuelExpenseCategory(category) ? vehicleId || null : null,
+          gallons: isFuelExpenseCategory(category) && gallonsStr.trim()
+            ? Number(gallonsStr)
+            : null,
+          odometer: isFuelExpenseCategory(category) && odometerStr.trim()
+            ? parseInt(odometerStr, 10)
+            : null,
+          external_ref: scannedTxnIdRef.current,
+        }),
+      });
+
+      const data = (await res.json()) as { id?: string; error?: { message?: string } };
+
+      if (!res.ok) {
+        setError(data?.error?.message ?? "Failed to create expense.");
+        setPending(false);
+        return;
+      }
+
+      const expenseId = data.id;
+      if (expenseId && selectedReceiptFile) {
+        const upload = new FormData();
+        upload.append("file", selectedReceiptFile);
+        const receiptRes = await fetch(`/api/v1/expenses/${expenseId}/receipt`, {
+          method: "POST",
+          body: upload,
+        });
+        if (!receiptRes.ok) {
+          setError("Expense saved, but the receipt photo could not be uploaded. Open the expense and try again.");
+          setPending(false);
+          return;
+        }
+      }
+
+      if (expenseId && scannedLineItemsRef.current.length > 0) {
+        await fetch(`/api/v1/expenses/${expenseId}/line-items`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ line_items: scannedLineItemsRef.current }),
+        }).catch(() => null);
+      }
+
+      if (isMaterialRun) {
+        // Hard trigger: log the run as a completed time segment (form open → now).
+        if (expenseId) {
+          const startedAt = formOpenedAtRef.current;
+          const endedAt = new Date().toISOString();
+          if (new Date(endedAt) > new Date(startedAt)) {
+            await fetch("/api/v1/activities/log", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                activity_type: "material_run",
+                started_at: startedAt,
+                ended_at: endedAt,
+                entity_type: "expense",
+                entity_id: expenseId,
+                source: "auto_material_run",
+                note: vendorName.trim() || null,
+              }),
+            }).catch(() => null);
+          }
+        }
+
+        const openRes = await fetch("/api/v1/sessions/open");
+        const openJson = (await openRes.json().catch(() => ({ data: null }))) as OpenSessionResponse;
+        if (openRes.ok && openJson.data?.id) {
+          await fetch(`/api/v1/sessions/${openJson.data.id}/activities`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              entity_type: "supplier_run",
+              entity_id: null,
+              label: vendorName.trim() || "Material Run",
+            }),
+          }).catch(() => null);
+        }
+        router.push("/app" as Route);
+        router.refresh();
+        return;
+      }
+
+      router.push(`/app/expenses/${expenseId}` as Route);
+    } catch {
+      setError("Network error — please try again.");
+      setPending(false);
+    }
+  }
+
+  const currentMonth = currentMonthKey();
+
+  const categoryOptions = EXPENSE_CATEGORIES.map((c) => ({
+    value: c,
+    label: EXPENSE_CATEGORY_LABELS[c],
+  }));
+  const jobOptions = [
+    { value: "", label: isMaterialRun ? "No job — general stock" : "No open project" },
+    ...jobs.map((j) => ({
+      value: j.id,
+      label: formatJobPickerLabel(j.title, j.job_number),
+    })),
+  ];
+  const clientOptions = [
+    { value: "", label: "No client" },
+    ...clients.map((c) => ({ value: c.id, label: c.name })),
+  ];
+
+  return (
+    <form onSubmit={handleSubmit} className="p7-form-stack" style={{ maxWidth: "560px" }}>
+      {/* Receipt scan */}
+      <div
+        style={{
+          padding: "var(--space-4)",
+          background: "var(--bg-subtle, #f8f8f9)",
+          borderRadius: "var(--radius-md)",
+          border: "1px dashed var(--border)",
+        }}
+      >
+        <p style={{ margin: "0 0 var(--space-2)", fontSize: "var(--text-sm)", fontWeight: 600 }}>
+          {isMaterialRun ? "Material Run Receipt" : "Scan a Receipt"}
+        </p>
+        <p style={{ margin: "0 0 var(--space-3)", fontSize: "var(--text-xs)", color: "var(--fg-muted)" }}>
+          Take a photo or upload a receipt image to auto-fill the form below. The photo is saved after the expense is created.
+        </p>
+        <input
+          ref={receiptInputRef}
+          type="file"
+          accept="image/jpeg,image/png,image/webp"
+          style={{ display: "none" }}
+          onChange={(e) => {
+            const file = e.target.files?.[0];
+            if (file) handleScanReceipt(file);
+          }}
+        />
+        <button
+          type="button"
+          className="p7-btn p7-btn-secondary p7-btn-sm"
+          onClick={() => receiptInputRef.current?.click()}
+          disabled={scanning || pending}
+          data-testid="scan-receipt-btn"
+        >
+          {scanning ? "Scanning…" : "Choose Photo"}
+        </button>
+        {scanError && (
+          <p style={{ margin: "var(--space-2) 0 0", fontSize: "var(--text-xs)", color: "var(--color-error, red)" }} role="alert">
+            {scanError}
+          </p>
+        )}
+        {selectedReceiptFile && (
+          <p style={{ margin: "var(--space-2) 0 0", fontSize: "var(--text-xs)", color: "var(--fg-muted)" }}>
+            Photo ready: {selectedReceiptFile.name}
+          </p>
+        )}
+        {scanning && (
+          <p style={{ margin: "var(--space-2) 0 0", fontSize: "var(--text-xs)", color: "var(--fg-muted)" }}>
+            Reading receipt with AI…
+          </p>
+        )}
+      </div>
+
+      {error && (
+        <div className="p7-card-danger" role="alert">
+          {error}
+        </div>
+      )}
+
+      <Input
+        id="vendor_name"
+        label="Vendor / Payee"
+        value={vendorName}
+        onChange={(e) => setVendorName(e.target.value)}
+        placeholder="e.g. Home Depot, Shell Gas"
+        required
+        disabled={pending}
+        error={fieldErrors.vendor_name}
+      />
+
+      <div className="p7-form-grid-2">
+        <Select
+          id="category"
+          label="Category"
+          value={category}
+          onChange={(e) => {
+            const next = e.target.value;
+            setCategory(next);
+            if (isFuelExpenseCategory(next)) {
+              if (!vehicleId && activeVehicleId) setVehicleId(activeVehicleId);
+              if (!gallonsStr) {
+                const parsed = parseGallonsFromFuelText(notes);
+                if (parsed != null) setGallonsStr(String(parsed));
+              }
+            }
+          }}
+          options={categoryOptions}
+          placeholder="Select category…"
+          required
+          disabled={pending}
+          error={fieldErrors.category}
+        />
+
+        <Input
+          id="amount"
+          label="Amount ($)"
+          type="number"
+          inputMode="decimal"
+          min="0.01"
+          step="0.01"
+          value={amountStr}
+          onChange={(e) => setAmountStr(e.target.value)}
+          placeholder="0.00"
+          required
+          disabled={pending}
+          error={fieldErrors.amount}
+        />
+      </div>
+
+      <Input
+        id="expense_date"
+        label="Date"
+        type="date"
+        value={expenseDate}
+        onChange={(e) => setExpenseDate(e.target.value)}
+        required
+        disabled={pending}
+        error={fieldErrors.expense_date}
+        hint={`Expenses outside ${currentMonth} will not appear in this month's summary.`}
+      />
+
+      {isFuelExpenseCategory(category) && (
+        <div
+          style={{
+            display: "grid",
+            gap: "var(--space-3)",
+            padding: "var(--space-3)",
+            borderRadius: "var(--radius-md)",
+            border: "1px solid var(--border)",
+            background: "var(--bg-subtle, #f8f8f9)",
+          }}
+        >
+          <p style={{ margin: 0, fontSize: "var(--text-sm)", fontWeight: 600 }}>
+            {vehicleId
+              ? `This fill goes on ${vehicles.find((v) => v.id === vehicleId)?.nickname ?? "the truck"}.`
+              : "Pick the truck this fill belongs to."}
+          </p>
+          <div className="p7-form-grid-2">
+            <Select
+              id="vehicle_id"
+              label="Vehicle"
+              value={vehicleId}
+              onChange={(e) => setVehicleId(e.target.value)}
+              options={[
+                { value: "", label: vehicles.length ? "Select vehicle…" : "No trucks on file" },
+                ...vehicles.map((v) => ({ value: v.id, label: v.nickname })),
+              ]}
+              disabled={pending || vehicles.length === 0}
+              hint={activeVehicleId && vehicleId === activeVehicleId ? "Open session" : undefined}
+            />
+            <Input
+              id="gallons"
+              label="Gallons"
+              type="number"
+              inputMode="decimal"
+              min="0.001"
+              step="0.001"
+              value={gallonsStr}
+              onChange={(e) => setGallonsStr(e.target.value)}
+              placeholder="23.707"
+              disabled={pending}
+              hint="Needed for MPG. Pulled from the receipt when we can read it."
+            />
+          </div>
+          <Input
+            id="odometer"
+            label="Odometer (optional)"
+            inputMode="numeric"
+            value={odometerStr}
+            onChange={(e) => setOdometerStr(e.target.value)}
+            placeholder="Leave blank for that day's start mileage"
+            disabled={pending}
+            hint="Blank uses that day's vehicle start, or the previous day's close."
+          />
+          {(() => {
+            const review = reviewFuelReceipt({
+              gallons: gallonsStr.trim() ? Number(gallonsStr) : null,
+              amountCents: amountStr.trim() ? parseDollarsToCents(amountStr) : null,
+              notes,
+            });
+            if (review.warnings.length === 0) return null;
+            return (
+              <ul
+                role="status"
+                style={{
+                  margin: 0,
+                  paddingLeft: "1.2rem",
+                  color: "var(--color-warning, #b45309)",
+                  fontSize: "var(--text-sm)",
+                }}
+              >
+                {review.warnings.map((w) => (
+                  <li key={w}>{w}</li>
+                ))}
+                {review.impliedGallons != null ? (
+                  <li>Suggested gallons from the total: {review.impliedGallons}</li>
+                ) : null}
+              </ul>
+            );
+          })()}
+        </div>
+      )}
+
+      {poMatchLabel && (
+        <p
+          data-testid="supply-po-match-banner"
+          role="status"
+          style={{
+            margin: 0,
+            padding: "var(--space-3)",
+            borderRadius: "var(--radius)",
+            border: "1px solid var(--color-success, #16a34a)",
+            background: "var(--success-bg, #f0fdf4)",
+            fontSize: "var(--text-sm)",
+            fontWeight: 600,
+          }}
+        >
+          {poMatchLabel}
+        </p>
+      )}
+
+      {(jobs.length > 0 || isMaterialRun) && (
+        <Select
+          id="job_id"
+          label={isMaterialRun ? "Job" : "Link to Job (optional)"}
+          value={jobId}
+          onChange={(e) => {
+            setJobId(e.target.value);
+            setPoMatchLabel(null);
+          }}
+          options={jobOptions}
+          disabled={pending}
+          hint="Open projects only — in progress first, then scheduled / quoted. Use Supply PO (J260029) at the store for auto-match. Closed jobs are hidden."
+        />
+      )}
+
+      {clients.length > 0 && (
+        <Select
+          id="client_id"
+          label="Link to Client (optional)"
+          value={clientId}
+          onChange={(e) => setClientId(e.target.value)}
+          options={clientOptions}
+          disabled={pending}
+        />
+      )}
+
+      <Textarea
+        id="notes"
+        label="Notes (optional)"
+        value={notes}
+        onChange={(e) => setNotes(e.target.value)}
+        placeholder="Receipt details, purpose, etc."
+        disabled={pending}
+        rows={3}
+      />
+
+      <div className="p7-form-actions">
+        <Button type="submit" variant="primary" loading={pending} disabled={pending}>
+          {isMaterialRun ? "Save Material Run" : "Save Expense"}
+        </Button>
+        <Button
+          type="button"
+          variant="ghost"
+          disabled={pending}
+          onClick={() => router.push((isMaterialRun ? "/app" : "/app/expenses") as Route)}
+        >
+          Cancel
+        </Button>
+      </div>
+    </form>
+  );
+}

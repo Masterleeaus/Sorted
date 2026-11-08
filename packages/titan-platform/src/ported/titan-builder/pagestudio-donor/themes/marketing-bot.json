@@ -1,0 +1,22 @@
+{
+  "id": "marketing-bot",
+  "theme": {
+    "name": "marketing-bot",
+    "extends": "default",
+    "asset-path": "themes/marketing-bot",
+    "landingPage": {
+      "googleFonts": {
+        "Inter": [
+          "400",
+          "500",
+          "600"
+        ],
+        "Spline+Sans": [
+          "700"
+        ]
+      }
+    },
+    "description": "marketing-bot \u2014 TG: @heew_support",
+    "support_telegram": "heew_support"
+  }
+}

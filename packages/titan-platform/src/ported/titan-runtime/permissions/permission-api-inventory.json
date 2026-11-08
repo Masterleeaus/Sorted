@@ -1,0 +1,685 @@
+{
+  "schema": "titan-zero-permission-api-inventory/v1",
+  "packet_id": "TZ-FIX-PERMISSION-HARDENING-001",
+  "builder_workspace": "Builder 2",
+  "pass": 1,
+  "baseline": {
+    "artifact": "Titan-Zero-CANONICAL-MASTER-2026-09-08-MERGE-39-CHROME-REPAIR10-CONVERGED.zip",
+    "sha256": "c5c5bc321913dfd9f2d56847c43fa9cad3652907be94f163cbeacef9672c23c7",
+    "files": 2844
+  },
+  "manifest": {
+    "permissions": [
+      "storage",
+      "scripting",
+      "sidePanel",
+      "contextMenus",
+      "activeTab",
+      "alarms",
+      "tabGroups",
+      "notifications",
+      "offscreen",
+      "clipboardRead",
+      "webNavigation",
+      "webRequest"
+    ],
+    "optional_permissions": [
+      "cookies"
+    ],
+    "host_permissions": [
+      "<all_urls>"
+    ],
+    "optional_host_permissions": [],
+    "content_script_match_sets": [
+      [
+        "http://*/*",
+        "https://*/*",
+        "<all_urls>"
+      ],
+      [
+        "http://*/*",
+        "https://*/*",
+        "<all_urls>"
+      ],
+      [
+        "http://*/*",
+        "https://*/*",
+        "<all_urls>"
+      ],
+      [
+        "<all_urls>"
+      ]
+    ]
+  },
+  "chrome_api_namespaces": {
+    "action": {
+      "reference_count": 40,
+      "file_count": 8,
+      "production_file_count": 8,
+      "test_file_count": 0,
+      "members": {
+        "getBadgeBackgroundColor": 1,
+        "getBadgeText": 1,
+        "getTitle": 1,
+        "setBadgeBackgroundColor": 11,
+        "setBadgeText": 15,
+        "setBadgeTextColor": 7,
+        "setTitle": 4
+      },
+      "production_files": [
+        "content.js",
+        "monica-background.js",
+        "monica-content.js",
+        "monica-popup.js",
+        "retriever-background.iife.js",
+        "titan-zero-chat-background.compat.js",
+        "titan-zero-chat-content.compat.js",
+        "titan-zero-chat-runtime.compat.js"
+      ],
+      "test_files": []
+    },
+    "alarms": {
+      "reference_count": 39,
+      "file_count": 6,
+      "production_file_count": 6,
+      "test_file_count": 0,
+      "members": {
+        "clear": 14,
+        "create": 17,
+        "get": 1,
+        "getAll": 2,
+        "onAlarm": 5
+      },
+      "production_files": [
+        "offscreen/assets/index-B1QDSbwU.js",
+        "retriever-background.iife.js",
+        "side-panel/assets/index-BzklHw8Q.js",
+        "side-panel/assets/index-C8c-GDqp.js",
+        "titan-intelligence/overseer.mjs",
+        "titan-intelligence/providers/ollama-local-provider.js"
+      ],
+      "test_files": []
+    },
+    "commands": {
+      "reference_count": 1,
+      "file_count": 1,
+      "production_file_count": 1,
+      "test_file_count": 0,
+      "members": {
+        "onCommand": 1
+      },
+      "production_files": [
+        "retriever-background.iife.js"
+      ],
+      "test_files": []
+    },
+    "contextMenus": {
+      "reference_count": 5,
+      "file_count": 2,
+      "production_file_count": 2,
+      "test_file_count": 0,
+      "members": {
+        "create": 2,
+        "onClicked": 1,
+        "remove": 1,
+        "removeAll": 1
+      },
+      "production_files": [
+        "background-bootstrap.js",
+        "retriever-background.iife.js"
+      ],
+      "test_files": []
+    },
+    "cookies": {
+      "reference_count": 9,
+      "file_count": 4,
+      "production_file_count": 4,
+      "test_file_count": 0,
+      "members": {
+        "getAll": 9
+      },
+      "production_files": [
+        "offscreen/assets/index-B1QDSbwU.js",
+        "retriever-background.iife.js",
+        "side-panel/assets/index-BzklHw8Q.js",
+        "side-panel/assets/index-C8c-GDqp.js"
+      ],
+      "test_files": []
+    },
+    "gcm": {
+      "reference_count": 2,
+      "file_count": 1,
+      "production_file_count": 1,
+      "test_file_count": 0,
+      "members": {
+        "onMessage": 1,
+        "onMessagesDeleted": 1
+      },
+      "production_files": [
+        "retriever-background.iife.js"
+      ],
+      "test_files": []
+    },
+    "identity": {
+      "reference_count": 88,
+      "file_count": 7,
+      "production_file_count": 7,
+      "test_file_count": 0,
+      "members": {
+        "clearAllCachedAuthTokens": 7,
+        "getAuthToken": 35,
+        "getRedirectURL": 20,
+        "launchWebAuthFlow": 26
+      },
+      "production_files": [
+        "content/all.iife.js",
+        "offscreen/assets/auth-manager-pH2QX7Jc.js",
+        "offscreen/assets/index-B1QDSbwU.js",
+        "offscreen/assets/unifiedFunctionExecutor-4UtoSB3u.js",
+        "retriever-background.iife.js",
+        "side-panel/assets/auth-manager-CpMXLbRb.js",
+        "side-panel/assets/index-C8c-GDqp.js"
+      ],
+      "test_files": []
+    },
+    "instanceID": {
+      "reference_count": 10,
+      "file_count": 2,
+      "production_file_count": 1,
+      "test_file_count": 1,
+      "members": {
+        "deleteToken": 1,
+        "getID": 5,
+        "getToken": 3,
+        "onTokenRefresh": 1
+      },
+      "production_files": [
+        "retriever-background.iife.js"
+      ],
+      "test_files": [
+        "tests/retriever_instance_id_compat.test.mjs"
+      ]
+    },
+    "notifications": {
+      "reference_count": 16,
+      "file_count": 1,
+      "production_file_count": 1,
+      "test_file_count": 0,
+      "members": {
+        "clear": 3,
+        "create": 5,
+        "getPermissionLevel": 2,
+        "onButtonClicked": 2,
+        "onClicked": 4
+      },
+      "production_files": [
+        "retriever-background.iife.js"
+      ],
+      "test_files": []
+    },
+    "offscreen": {
+      "reference_count": 7,
+      "file_count": 1,
+      "production_file_count": 1,
+      "test_file_count": 0,
+      "members": {
+        "Reason": 3,
+        "closeDocument": 1,
+        "createDocument": 1,
+        "hasDocument": 2
+      },
+      "production_files": [
+        "retriever-background.iife.js"
+      ],
+      "test_files": []
+    },
+    "permissions": {
+      "reference_count": 20,
+      "file_count": 8,
+      "production_file_count": 8,
+      "test_file_count": 0,
+      "members": {
+        "contains": 10,
+        "getAll": 3,
+        "remove": 2,
+        "request": 5
+      },
+      "production_files": [
+        "diagnostics.js",
+        "monica-background.js",
+        "offscreen/assets/index-B1QDSbwU.js",
+        "retriever-background.iife.js",
+        "side-panel/assets/index-BzklHw8Q.js",
+        "side-panel/assets/index-C8c-GDqp.js",
+        "titan-shell.js",
+        "titan-zero-chat-background.compat.js"
+      ],
+      "test_files": []
+    },
+    "runtime": {
+      "reference_count": 752,
+      "file_count": 85,
+      "production_file_count": 84,
+      "test_file_count": 1,
+      "members": {
+        "ContextType": 2,
+        "connect": 17,
+        "getContexts": 2,
+        "getManifest": 37,
+        "getURL": 70,
+        "id": 12,
+        "lastError": 223,
+        "onConnect": 9,
+        "onInstalled": 6,
+        "onMessage": 137,
+        "onMessageExternal": 10,
+        "onStartup": 5,
+        "onSuspend": 3,
+        "openOptionsPage": 2,
+        "sendMessage": 217
+      },
+      "production_files": [
+        "background-bootstrap.js",
+        "cleaning-growth-marketplace.js",
+        "cleaning-growth-opportunity-intelligence.js",
+        "cleaning-growth-recommendations.js",
+        "cleaning-marketplace-action-queue.js",
+        "cleaning-marketplace-consolidation.js",
+        "cleaning-marketplace-renewal.js",
+        "cleaning-marketplace-value.js",
+        "cleaning-marketplace.js",
+        "cleaning-pilot-outcome-validation.js",
+        "cleaning-rollout-learning.js",
+        "cleaning-scale-readiness.js",
+        "cleaning-service-launch-economics.js",
+        "cleaning-service-launch-planner.js",
+        "cleaning-service-launch-portfolio.js",
+        "cleaning-software-marketplace.js",
+        "cleaning-workforce-marketplace.js",
+        "content-runtime/page-tool.iife.js",
+        "content.js",
+        "content/all.iife.js",
+        "diagnostics.js",
+        "microphone-permission/assets/index-B0effiU7.js",
+        "module-view.js",
+        "modules.js",
+        "monica-background.js",
+        "monica-content.js",
+        "monica-popup.js",
+        "offscreen/assets/auth-manager-pH2QX7Jc.js",
+        "offscreen/assets/file-upload-utils-Bn4gpMXH.js",
+        "offscreen/assets/index-4v886BK9.js",
+        "offscreen/assets/index-B1QDSbwU.js",
+        "offscreen/assets/index-BzYwgI7n.js",
+        "offscreen/assets/index-D08rqSxx.js",
+        "offscreen/assets/storageUtils-DkecF1NS.js",
+        "offscreen/ping-bootstrap.js",
+        "retriever-background.iife.js",
+        "runtime/native-runtime-background.mjs",
+        "runtime/workforce-runtime-background.mjs",
+        "side-panel/assets/auth-manager-CpMXLbRb.js",
+        "side-panel/assets/file-upload-utils-tcH63QNg.js",
+        "side-panel/assets/index-BzklHw8Q.js",
+        "side-panel/assets/index-C8c-GDqp.js",
+        "side-panel/assets/index-DmDSrWNU.js",
+        "side-panel/assets/index-DoGUjCY-.js",
+        "side-panel/assets/storageUtils-CrD87Pln.js",
+        "side-panel/assets/workflowSandboxPool-C43aNRZy.js",
+        "side-panel/titan-retriever-bridge.js",
+        "titan-client-workforce-controls.js",
+        "titan-diagnostics-content.js",
+        "titan-intelligence/decision/adapter-registry.js",
+        "titan-intelligence/decision/adaptive-risk-assessment.js",
+        "titan-intelligence/decision/adaptive-time-policy.js",
+        "titan-intelligence/decision/authority-requirement-engine.js",
+        "titan-intelligence/decision/cross-domain-relationship-graph.js",
+        "titan-intelligence/decision/decision-explanation-engine.js",
+        "titan-intelligence/decision/packet-dedup-supersession.js",
+        "titan-intelligence/decision/recommended-action.js",
+        "titan-intelligence/decision/rewindable-decision-history.js",
+        "titan-intelligence/decision/t0gm-decision-view.js",
+        "titan-intelligence/decision/trust-aware-decision-gate.js",
+        "titan-intelligence/decision/unified-decision-feed.js",
+        "titan-intelligence/financial-engine/decision-packet-convergence.js",
+        "titan-intelligence/overseer.mjs",
+        "titan-intelligence/providers/ollama-local-provider.js",
+        "titan-intelligence/shield/decision-packet-convergence.js",
+        "titan-intelligence/shield/remediation-preview.js",
+        "titan-intelligence/trust/evidence-quality-engine.js",
+        "titan-launcher-overlay.js",
+        "titan-local/storage/bootstrap.mjs",
+        "titan-modules/builtin/business-services/index.mjs",
+        "titan-modules/module-host.mjs",
+        "titan-observability/background.mjs",
+        "titan-options-bridge.js",
+        "titan-popup.js",
+        "titan-rich-shell.js",
+        "titan-settings-integrated.js",
+        "titan-shell.js",
+        "titan-tools/titan-tool-discovery-bridge.js",
+        "titan-workforce-agent-profile.js",
+        "titan-workforce-gateway-client.js",
+        "titan-workforce-verticals-client.js",
+        "titan-zero-chat-background.compat.js",
+        "titan-zero-chat-content.compat.js",
+        "titan-zero-chat-runtime.compat.js"
+      ],
+      "test_files": [
+        "tests/client_workforce_gateway_authority_autonomy_binding.test.mjs"
+      ]
+    },
+    "scripting": {
+      "reference_count": 81,
+      "file_count": 9,
+      "production_file_count": 9,
+      "test_file_count": 0,
+      "members": {
+        "executeScript": 81
+      },
+      "production_files": [
+        "monica-background.js",
+        "offscreen/assets/index-B1QDSbwU.js",
+        "offscreen/assets/index-D08rqSxx.js",
+        "offscreen/assets/unifiedFunctionExecutor-4UtoSB3u.js",
+        "retriever-background.iife.js",
+        "side-panel/assets/index-C8c-GDqp.js",
+        "side-panel/assets/index-DmDSrWNU.js",
+        "titan-shell.js",
+        "titan-zero-chat-background.compat.js"
+      ],
+      "test_files": []
+    },
+    "sidePanel": {
+      "reference_count": 43,
+      "file_count": 12,
+      "production_file_count": 12,
+      "test_file_count": 0,
+      "members": {
+        "getOptions": 3,
+        "open": 16,
+        "setOptions": 21,
+        "setPanelBehavior": 3
+      },
+      "production_files": [
+        "background-bootstrap.js",
+        "content.js",
+        "monica-background.js",
+        "monica-content.js",
+        "offscreen/assets/index-D08rqSxx.js",
+        "retriever-background.iife.js",
+        "side-panel/assets/index-DmDSrWNU.js",
+        "titan-options-bridge.js",
+        "titan-popup.js",
+        "titan-settings-integrated.js",
+        "titan-zero-chat-background.compat.js",
+        "titan-zero-chat-content.compat.js"
+      ],
+      "test_files": []
+    },
+    "storage": {
+      "reference_count": 319,
+      "file_count": 82,
+      "production_file_count": 80,
+      "test_file_count": 2,
+      "members": {
+        "local": 291,
+        "onChanged": 19,
+        "session": 9
+      },
+      "production_files": [
+        "background-bootstrap.js",
+        "cleaning-growth-marketplace.js",
+        "cleaning-growth-opportunity-intelligence.js",
+        "cleaning-growth-recommendations.js",
+        "cleaning-marketplace-action-queue.js",
+        "cleaning-marketplace-consolidation.js",
+        "cleaning-marketplace-renewal.js",
+        "cleaning-marketplace-value.js",
+        "cleaning-marketplace.js",
+        "cleaning-pilot-outcome-validation.js",
+        "cleaning-service-launch-economics.js",
+        "cleaning-service-launch-planner.js",
+        "cleaning-software-marketplace.js",
+        "cleaning-workforce-marketplace.js",
+        "content.js",
+        "content/all.iife.js",
+        "diagnostics.js",
+        "modules.js",
+        "monica-background.js",
+        "monica-content.js",
+        "offscreen/assets/auth-manager-pH2QX7Jc.js",
+        "offscreen/assets/index-B1QDSbwU.js",
+        "offscreen/assets/index-BzYwgI7n.js",
+        "offscreen/assets/index-D08rqSxx.js",
+        "offscreen/assets/llmConfigService-BZXHyOeL.js",
+        "offscreen/assets/storageUtils-DkecF1NS.js",
+        "offscreen/assets/unifiedFunctionExecutor-4UtoSB3u.js",
+        "retriever-background.iife.js",
+        "runtime/native-runtime-background.mjs",
+        "runtime/workforce-runtime-background.mjs",
+        "side-panel/assets/auth-manager-CpMXLbRb.js",
+        "side-panel/assets/index-C8c-GDqp.js",
+        "side-panel/assets/llmConfigService-FC6T5-i7.js",
+        "side-panel/assets/storageUtils-CrD87Pln.js",
+        "side-panel/titan-retriever-bridge.js",
+        "titan-cleaning-workforce.js",
+        "titan-client-workforce-controls.js",
+        "titan-client-workforce.js",
+        "titan-diagnostics-content.js",
+        "titan-electrical-workforce.js",
+        "titan-intelligence/core/storage.mjs",
+        "titan-intelligence/decision/adapter-registry.js",
+        "titan-intelligence/decision/adaptive-risk-assessment.js",
+        "titan-intelligence/decision/adaptive-time-policy.js",
+        "titan-intelligence/decision/authority-requirement-engine.js",
+        "titan-intelligence/decision/cross-domain-relationship-graph.js",
+        "titan-intelligence/decision/decision-explanation-engine.js",
+        "titan-intelligence/decision/packet-dedup-supersession.js",
+        "titan-intelligence/decision/recommended-action.js",
+        "titan-intelligence/decision/rewindable-decision-history.js",
+        "titan-intelligence/decision/t0gm-decision-view.js",
+        "titan-intelligence/decision/trust-aware-decision-gate.js",
+        "titan-intelligence/decision/unified-decision-feed.js",
+        "titan-intelligence/financial-engine/decision-packet-convergence.js",
+        "titan-intelligence/overseer.mjs",
+        "titan-intelligence/providers/ollama-local-provider.js",
+        "titan-intelligence/shield/decision-packet-convergence.js",
+        "titan-intelligence/shield/remediation-preview.js",
+        "titan-intelligence/trust/evidence-quality-engine.js",
+        "titan-launcher-overlay.js",
+        "titan-local/storage/bootstrap.mjs",
+        "titan-local/storage/legacy-storage-bridge.mjs",
+        "titan-local/storage/legacy-storage-migration.mjs",
+        "titan-modules/module-host.mjs",
+        "titan-observability/background.mjs",
+        "titan-options-bridge.js",
+        "titan-plumbing-workforce.js",
+        "titan-popup.js",
+        "titan-settings-integrated.js",
+        "titan-settings/control-plane/settings-storage-adapter.mjs",
+        "titan-shell.js",
+        "titan-tools/titan-tool-discovery-bridge.js",
+        "titan-workforce-agent-profile.js",
+        "titan-workforce-agents-persistence.js",
+        "titan-workforce-cleaning-catalogue.js",
+        "titan-workforce-gateway-client.js",
+        "titan-workforce-verticals-client.js",
+        "titan-workforce.js",
+        "titan-zero-chat-background.compat.js",
+        "titan-zero-chat-content.compat.js"
+      ],
+      "test_files": [
+        "tests/business_database.test.mjs",
+        "tests/tz_finish_003_migration_provenance.test.mjs"
+      ]
+    },
+    "tabGroups": {
+      "reference_count": 34,
+      "file_count": 6,
+      "production_file_count": 6,
+      "test_file_count": 0,
+      "members": {
+        "TAB_GROUP_ID_NONE": 6,
+        "get": 8,
+        "move": 2,
+        "query": 3,
+        "update": 15
+      },
+      "production_files": [
+        "monica-background.js",
+        "offscreen/assets/index-B1QDSbwU.js",
+        "offscreen/assets/unifiedFunctionExecutor-4UtoSB3u.js",
+        "retriever-background.iife.js",
+        "side-panel/assets/index-C8c-GDqp.js",
+        "titan-zero-chat-background.compat.js"
+      ],
+      "test_files": []
+    },
+    "tabs": {
+      "reference_count": 746,
+      "file_count": 21,
+      "production_file_count": 21,
+      "test_file_count": 0,
+      "members": {
+        "captureVisibleTab": 9,
+        "create": 89,
+        "get": 233,
+        "goBack": 12,
+        "goForward": 12,
+        "group": 27,
+        "move": 2,
+        "onActivated": 2,
+        "onCreated": 2,
+        "onRemoved": 26,
+        "onReplaced": 2,
+        "onUpdated": 44,
+        "query": 101,
+        "reload": 21,
+        "remove": 39,
+        "sendMessage": 37,
+        "ungroup": 13,
+        "update": 75
+      },
+      "production_files": [
+        "background-bootstrap.js",
+        "content.js",
+        "diagnostics.js",
+        "monica-background.js",
+        "monica-content.js",
+        "monica-popup.js",
+        "offscreen/assets/index-B1QDSbwU.js",
+        "offscreen/assets/index-D08rqSxx.js",
+        "offscreen/assets/unifiedFunctionExecutor-4UtoSB3u.js",
+        "retriever-background.iife.js",
+        "side-panel/assets/codePlanAgent-Bw8EfqoC.js",
+        "side-panel/assets/index-C8c-GDqp.js",
+        "side-panel/assets/index-DmDSrWNU.js",
+        "titan-options-bridge.js",
+        "titan-popup.js",
+        "titan-rich-shell.js",
+        "titan-settings-integrated.js",
+        "titan-shell.js",
+        "titan-zero-chat-background.compat.js",
+        "titan-zero-chat-content.compat.js",
+        "titan-zero-chat-runtime.compat.js"
+      ],
+      "test_files": []
+    },
+    "webNavigation": {
+      "reference_count": 9,
+      "file_count": 1,
+      "production_file_count": 1,
+      "test_file_count": 0,
+      "members": {
+        "getAllFrames": 1,
+        "onCommitted": 5,
+        "onCompleted": 3
+      },
+      "production_files": [
+        "retriever-background.iife.js"
+      ],
+      "test_files": []
+    },
+    "webRequest": {
+      "reference_count": 15,
+      "file_count": 1,
+      "production_file_count": 1,
+      "test_file_count": 0,
+      "members": {
+        "onBeforeRequest": 3,
+        "onBeforeSendHeaders": 3,
+        "onCompleted": 3,
+        "onErrorOccurred": 3,
+        "onHeadersReceived": 3
+      },
+      "production_files": [
+        "retriever-background.iife.js"
+      ],
+      "test_files": []
+    },
+    "windows": {
+      "reference_count": 101,
+      "file_count": 11,
+      "production_file_count": 11,
+      "test_file_count": 0,
+      "members": {
+        "WINDOW_ID_NONE": 1,
+        "create": 5,
+        "get": 18,
+        "getCurrent": 5,
+        "getLastFocused": 8,
+        "onFocusChanged": 2,
+        "onRemoved": 3,
+        "remove": 5,
+        "update": 54
+      },
+      "production_files": [
+        "monica-background.js",
+        "offscreen/assets/index-B1QDSbwU.js",
+        "offscreen/assets/index-D08rqSxx.js",
+        "offscreen/assets/unifiedFunctionExecutor-4UtoSB3u.js",
+        "retriever-background.iife.js",
+        "side-panel/assets/index-C8c-GDqp.js",
+        "side-panel/assets/index-DmDSrWNU.js",
+        "titan-options-bridge.js",
+        "titan-popup.js",
+        "titan-settings-integrated.js",
+        "titan-zero-chat-background.compat.js"
+      ],
+      "test_files": []
+    }
+  },
+  "non_chrome_permission_related_apis": {
+    "navigator.clipboard": {
+      "members": {
+        "read": 3,
+        "readText": 11,
+        "write": 16,
+        "writeText": 28
+      },
+      "files": [
+        "content-runtime/actions.iife.js",
+        "content.js",
+        "content/all.iife.js",
+        "diagnostics.js",
+        "monica-background.js",
+        "monica-content.js",
+        "monica-popup.js",
+        "offscreen/assets/index-BzYwgI7n.js",
+        "retriever-background.iife.js",
+        "side-panel/assets/index-C8c-GDqp.js",
+        "titan-zero-chat-background.compat.js",
+        "titan-zero-chat-content.compat.js",
+        "titan-zero-chat-runtime.compat.js"
+      ]
+    }
+  },
+  "scope_notes": [
+    "Static lexical inventory of chrome.<namespace>.<member> references across JavaScript/TypeScript/HTML files.",
+    "Production and test references are separated; classification of required/donor-only/unused is intentionally deferred to Pass 2.",
+    "No manifest permission is removed or added in Pass 1.",
+    "Runtime/action/tabs/windows API availability rules vary by method and are not inferred as permission necessity in this inventory."
+  ],
+  "authority_effect": "NONE",
+  "company_boundary_change": "NONE"
+}

@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "titan://contracts/PresentationIntent/v1",
+  "title": "PresentationIntent",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "presentation_id",
+    "company_id",
+    "surface",
+    "kind",
+    "payload",
+    "authority_neutral",
+    "execution_authority"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0"
+    },
+    "presentation_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "company_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "surface": {
+      "enum": [
+        "zero",
+        "go",
+        "hub"
+      ]
+    },
+    "kind": {
+      "type": "string",
+      "minLength": 1
+    },
+    "payload": {
+      "type": "object"
+    },
+    "actions": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "render_hints": {
+      "type": "object"
+    },
+    "authority_neutral": {
+      "const": true
+    },
+    "execution_authority": {
+      "const": false
+    }
+  }
+}

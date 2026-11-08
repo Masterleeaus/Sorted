@@ -1,0 +1,1 @@
+{"schema":"titan.workforce.pass18/v1","pass":18,"title":"Chief-of-Staff Coordination","company_boundary":"company_id only","coordination_schema":"titan.workforce.chief-of-staff.v1","authority_rules":{"chief_of_staff_identity_confers_authority":false,"recommendations_execute_automatically":false,"grants_authority":false},"parallel_authority_layer":false}

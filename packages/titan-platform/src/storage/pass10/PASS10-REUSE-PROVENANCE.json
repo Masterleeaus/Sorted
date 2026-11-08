@@ -1,0 +1,14 @@
+{
+  "schema": "titan-zero-storage-reuse-provenance/v1",
+  "packet_id": "TZ-FINISH-STORAGE-DATA-AUTHORITY-001",
+  "pass": 10,
+  "summary": {
+    "reuse_first": true,
+    "business_state_authority": "ADAPTED",
+    "migration_checkpoint_donor": "ADAPTED",
+    "offline_checkpoint_facade": "ADAPTED",
+    "storage_diagnostics": "ADAPTED",
+    "legacy_browser_business_authority": "REJECTED",
+    "parallel_database_authority": "NOT_CREATED"
+  }
+}

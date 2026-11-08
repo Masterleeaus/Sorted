@@ -1,0 +1,147 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "titan.inventory.stock-location.v1",
+  "title": "Titan Inventory Stock Location",
+  "type": "object",
+  "additionalProperties": true,
+  "required": [
+    "stock_location_id",
+    "company_id",
+    "location_type",
+    "name",
+    "lifecycle_state",
+    "provenance"
+  ],
+  "properties": {
+    "stock_location_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "company_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "location_type": {
+      "enum": [
+        "warehouse",
+        "vehicle",
+        "site",
+        "worker_kit",
+        "storage_room",
+        "other"
+      ]
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "lifecycle_state": {
+      "enum": [
+        "active",
+        "inactive",
+        "quarantined",
+        "closed"
+      ]
+    },
+    "worker_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "vehicle_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "site_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "provenance": {
+      "$ref": "#/$defs/provenance"
+    }
+  },
+  "$defs": {
+    "provenance": {
+      "type": "object",
+      "required": [
+        "source",
+        "recorded_at",
+        "idempotency_key"
+      ],
+      "properties": {
+        "source": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_ref": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "recorded_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "idempotency_key": {
+          "type": "string",
+          "minLength": 1
+        },
+        "trace_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "correlation_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "not": {
+        "required": [
+          "tenant_id"
+        ]
+      }
+    },
+    {
+      "not": {
+        "required": [
+          "tenant_company_id"
+        ]
+      }
+    },
+    {
+      "not": {
+        "required": [
+          "business_id"
+        ]
+      }
+    },
+    {
+      "not": {
+        "required": [
+          "account_id"
+        ]
+      }
+    },
+    {
+      "not": {
+        "required": [
+          "workspace_id"
+        ]
+      }
+    }
+  ]
+}

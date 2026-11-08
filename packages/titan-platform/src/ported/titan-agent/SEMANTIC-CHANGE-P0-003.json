@@ -1,0 +1,68 @@
+{
+  "schema": "titan-semantic-change/v1",
+  "pass": "v0.18.2-p0-003-platform-manager-lifecycle-convergence",
+  "task_ids": [
+    "TZ-P0-003"
+  ],
+  "capabilities_added": [
+    "trusted_platform_manager_sender_boundary",
+    "auditable_company_activation_rollback",
+    "transactional_bundle_suspend_resume_rollback",
+    "unified_platform_manager_lifecycle_receipts"
+  ],
+  "capabilities_retained": [
+    "manager_canonical_sidepanel_and_header_v2",
+    "native_runtime_compatibility_envelope",
+    "multi_actor_investigation_participation",
+    "indexeddb_business_database",
+    "client_workforce_controls",
+    "module_runtime_v2",
+    "transactional_module_installation",
+    "signed_module_packages",
+    "local_signed_marketplace",
+    "governance_authority_grants",
+    "company_module_manager",
+    "module_quarantine_recovery",
+    "device_first_local_module_sdk",
+    "cleaning_workforce",
+    "plumbing_workforce",
+    "electrical_workforce",
+    "vertical_workforce_contributions"
+  ],
+  "capabilities_modified": [
+    "module_host_lifecycle_dispatch",
+    "company_module_manager_lifecycle_audit",
+    "existing_module_history_ui_rollback_action"
+  ],
+  "contracts_added": [
+    "titan.module-platform-manager-lifecycle/v1"
+  ],
+  "storage_changes": [
+    "lifecycle history reuses existing module/company state stores; no new competing storage authority"
+  ],
+  "permissions_added": [],
+  "authority_changes": [
+    "module install, activation, bundle membership, recovery and signed-package validity grant no execution authority",
+    "Platform Manager lifecycle mutation requires trusted extension context",
+    "company_id remains sole company boundary"
+  ],
+  "offline_changes": [
+    "lifecycle audit and rollback remain local and deterministic with no new network dependency"
+  ],
+  "breaking_changes": [],
+  "ui_changes": [
+    "existing module history card gains rollback action using existing UI/style; no page/layout/style replacement"
+  ],
+  "tests_added": [
+    "module_company_lifecycle.test.mjs",
+    "module_lifecycle_host_convergence.test.mjs",
+    "module_platform_manager_host_behavior.test.mjs",
+    "module_platform_manager_lifecycle.test.mjs",
+    "test_p0_003_module_platform_manager.py"
+  ],
+  "bugs_fixed": [
+    "bundle suspend/resume now snapshots state for rollback",
+    "company activation can roll back to inherited activation",
+    "lifecycle mutation messages now reject untrusted web/content-script senders"
+  ]
+}

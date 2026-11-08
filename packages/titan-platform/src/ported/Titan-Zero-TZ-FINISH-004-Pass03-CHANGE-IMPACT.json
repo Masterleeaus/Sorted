@@ -1,0 +1,19 @@
+{
+  "schema": "titan-zero-change-impact/v1",
+  "packet_id": "TZ-FINISH-004",
+  "pass": 3,
+  "risk": "MEDIUM_UI_RUNTIME",
+  "runtime_files_modified": [
+    "sidePanel.html",
+    "titan-shell.js",
+    "titan-shell.css"
+  ],
+  "test_files_added": [
+    "titan-regression/monica-retriever/tests/finish004-pass03-retriever-lifecycle.test.mjs"
+  ],
+  "protected_files_modified": [],
+  "authority_change": "NONE",
+  "tenant_boundary_change": "NONE",
+  "variable_cost_change": "NONE",
+  "rollback": "Revert the three runtime files to Pass 2 state and remove the Pass 3 test."
+}

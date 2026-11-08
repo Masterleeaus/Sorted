@@ -1,0 +1,13 @@
+{
+  "schema": "titan-zero-retriever-finish-pass07-collision/v1",
+  "packet_id": "TZ-FINISH-RETRIEVER-NATIVE-001",
+  "pass": 7,
+  "observed_shared_collision": "SUP-M52-SHARED-EXPORT-COLLISION-001",
+  "collision_files": [
+    "packages/titan-platform/package.json",
+    "packages/titan-platform/src/index.ts"
+  ],
+  "builder3_action": "UNCHANGED",
+  "exclusive_hotspot_used": "packages/titan-platform/src/retriever/**",
+  "result": "NO_NEW_COLLISION"
+}

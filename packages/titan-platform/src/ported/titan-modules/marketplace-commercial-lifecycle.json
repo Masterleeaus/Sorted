@@ -1,0 +1,26 @@
+{
+  "schema": "titan-marketplace-commercial-lifecycle/v1",
+  "company_boundary": "company_id",
+  "purpose": "Converge software, workforce, growth and signed-module marketplace lifecycle state without treating legacy purchase/install flags as execution authority.",
+  "authoritative_install_path": "titan-modules/marketplace-runtime -> signed package verification -> module/bundle installer",
+  "legacy_states": "observational compatibility inputs only",
+  "authority": {
+    "identity_is_not_authority": true,
+    "explicit_approval_required_for_governed_install": true,
+    "grants_authority": false,
+    "approves_spend": false,
+    "renews_products": false,
+    "cancels_products": false
+  },
+  "commercial_evidence": [
+    "value",
+    "renewal",
+    "adoption",
+    "overlap",
+    "decision_owner"
+  ],
+  "migration": {
+    "installed_unverified_legacy": "surface for reconciliation; never silently bless as verified",
+    "company_id": "sole boundary; reject tenant/organisation aliases"
+  }
+}

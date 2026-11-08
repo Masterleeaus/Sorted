@@ -1,0 +1,17 @@
+{
+  "schema": "titan.workforce.hierarchy.pass07.escalation-approval.v1",
+  "packet_id": "TZ-WF-HIERARCHY-001",
+  "manager_base": 52,
+  "outcome": "Adjacent-tier escalation/de-escalation and approval gates across Worker, Agent, Supervisor and Manager",
+  "invariants": [
+    "company_id_only",
+    "escalation_moves_one_tier_up_at_a_time",
+    "deescalation_moves_one_tier_down_at_a_time",
+    "deescalation_requires_acknowledged_or_resolved_state",
+    "approval_is_bound_to_the_expected_ancestry_actor",
+    "worker_cannot_approve_hierarchy_gate",
+    "hierarchy_approval_does_not_grant_execution_authority",
+    "approved_chain_stops_at_existing_authority_and_capability_gate",
+    "business_ops_routes_remain_authoritative"
+  ]
+}

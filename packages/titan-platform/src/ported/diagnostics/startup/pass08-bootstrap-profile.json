@@ -1,0 +1,112 @@
+{
+  "schema": "titan.chrome-load.bootstrap-performance.v1",
+  "samples": [
+    {
+      "duration_ms": 33.214,
+      "heap_delta_bytes": 206608,
+      "candidate_tabs": 12,
+      "peak_concurrency": 4
+    },
+    {
+      "duration_ms": 31.022,
+      "heap_delta_bytes": 29504,
+      "candidate_tabs": 12,
+      "peak_concurrency": 4
+    },
+    {
+      "duration_ms": 31.138,
+      "heap_delta_bytes": 35496,
+      "candidate_tabs": 12,
+      "peak_concurrency": 4
+    },
+    {
+      "duration_ms": 31.087,
+      "heap_delta_bytes": 29144,
+      "candidate_tabs": 12,
+      "peak_concurrency": 4
+    },
+    {
+      "duration_ms": 31.361,
+      "heap_delta_bytes": 29664,
+      "candidate_tabs": 12,
+      "peak_concurrency": 4
+    },
+    {
+      "duration_ms": 31.003,
+      "heap_delta_bytes": 28856,
+      "candidate_tabs": 12,
+      "peak_concurrency": 4
+    },
+    {
+      "duration_ms": 30.947,
+      "heap_delta_bytes": 28664,
+      "candidate_tabs": 12,
+      "peak_concurrency": 4
+    },
+    {
+      "duration_ms": 29.972,
+      "heap_delta_bytes": -485560,
+      "candidate_tabs": 12,
+      "peak_concurrency": 4
+    },
+    {
+      "duration_ms": 31.207,
+      "heap_delta_bytes": 49848,
+      "candidate_tabs": 12,
+      "peak_concurrency": 4
+    },
+    {
+      "duration_ms": 31.303,
+      "heap_delta_bytes": 29816,
+      "candidate_tabs": 12,
+      "peak_concurrency": 4
+    },
+    {
+      "duration_ms": 31.025,
+      "heap_delta_bytes": 29600,
+      "candidate_tabs": 12,
+      "peak_concurrency": 4
+    },
+    {
+      "duration_ms": 31.218,
+      "heap_delta_bytes": 29504,
+      "candidate_tabs": 12,
+      "peak_concurrency": 4
+    },
+    {
+      "duration_ms": 30.908,
+      "heap_delta_bytes": 28984,
+      "candidate_tabs": 12,
+      "peak_concurrency": 4
+    },
+    {
+      "duration_ms": 31.083,
+      "heap_delta_bytes": 29032,
+      "candidate_tabs": 12,
+      "peak_concurrency": 4
+    },
+    {
+      "duration_ms": 31.012,
+      "heap_delta_bytes": 29032,
+      "candidate_tabs": 12,
+      "peak_concurrency": 4
+    }
+  ],
+  "sample_count": 15,
+  "p50_duration_ms": 31.083,
+  "p95_duration_ms": 33.214,
+  "p95_heap_delta_bytes": 206608,
+  "max_candidate_tabs": 12,
+  "max_peak_concurrency": 4,
+  "limits": {
+    "p95_duration_ms": 90,
+    "p95_heap_delta_bytes": 4194304
+  },
+  "ok": true,
+  "authority_effect": false,
+  "grants_authority": false,
+  "identity_not_authority": true,
+  "measured_environment": "node-mocked-chrome-api",
+  "serial_reference_ms": 120,
+  "concurrency_limit": 4
+}

@@ -1,0 +1,11 @@
+{
+  "schema": "titan-zero-settings-control-plane-semantic-change/v1",
+  "pass": 11,
+  "title": "Autonomy Settings Centre",
+  "summary": "Adds company-scoped autonomy preference caps over verified runtime authority. Settings can only contract authority, never raise or execute it.",
+  "added_runtime": [
+    "titan-settings/control-plane/autonomy-settings-centre.mjs"
+  ],
+  "authority_effect": "contraction_only",
+  "company_boundary": "company_id"
+}

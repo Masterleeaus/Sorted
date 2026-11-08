@@ -1,0 +1,13 @@
+{
+  "schema": "titan-zero-retriever-finish-pass09-collision/v1",
+  "packet_id": "TZ-FINISH-RETRIEVER-NATIVE-001",
+  "pass": 9,
+  "shared_file": "packages/titan-platform/src/ported/compatibility/monica/background-runtime-boundary.ts",
+  "edit": "Single-line Retriever donor import removal plus legacy runtime count correction; unrelated chat compatibility retained.",
+  "package_export_collision_files": [
+    "packages/titan-platform/package.json",
+    "packages/titan-platform/src/index.ts"
+  ],
+  "package_export_collision_action": "UNCHANGED",
+  "result": "COLLISION_SAFE_NARROW_EDIT"
+}

@@ -1,0 +1,16 @@
+import test from"node:test";import assert from"node:assert/strict";import{createChatState,createChatPersistencePolicy,createChatPersistenceRecord,createChatStorageAdapter,planChatStorageWrite,chooseChatStorageRoute}from"../src/ported/titan-runtime/interaction-engine/chat-state.js";
+const a=(id,kind)=>({adapter_id:id,kind,company_id:"co",surface:"go"}),state=createChatState({conversation_id:"c",company_id:"co",surface:"go"}),policy=createChatPersistencePolicy({company_id:"co",surface:"go"}),record=createChatPersistenceRecord(state,policy);
+test("device adapter authority free",()=>{const x=createChatStorageAdapter(a("local","device"));assert.equal(x.authority_granted,false);assert.equal(x.stores_business_authority,false)});
+test("edge adapter supported",()=>assert.equal(createChatStorageAdapter(a("edge","edge_node")).kind,"edge_node"));
+test("network adapter supported",()=>assert.equal(createChatStorageAdapter(a("nas","network")).kind,"network"));
+test("customer cloud abstraction supported",()=>assert.equal(createChatStorageAdapter(a("cloud","customer_cloud")).kind,"customer_cloud"));
+test("object storage abstraction supported",()=>assert.equal(createChatStorageAdapter(a("obj","object_storage")).kind,"object_storage"));
+test("secrets cannot live in adapter contract",()=>assert.throws(()=>createChatStorageAdapter({...a("x","object_storage"),token:"secret"}),/secrets-not-allowed/));
+test("offline route requires device",()=>assert.equal(chooseChatStorageRoute([a("edge","edge_node"),a("local","device")],false).adapter_id,"local"));
+test("offline without device fails",()=>assert.throws(()=>chooseChatStorageRoute([a("edge","edge_node")],false),/device-required-offline/));
+test("online remains device first",()=>assert.equal(chooseChatStorageRoute([a("edge","edge_node"),a("local","device")],true).adapter_id,"local"));
+test("write plan stores replica only",()=>{const x=planChatStorageWrite(record,a("local","device"));assert.equal(x.operation,"put_replica");assert.equal(x.authoritative_business_state,false)});
+test("cross company adapter rejected",()=>assert.throws(()=>planChatStorageWrite(record,{...a("x","device"),company_id:"other"}),/company-mismatch/));
+test("cross surface adapter rejected",()=>assert.throws(()=>planChatStorageWrite(record,{...a("x","device"),surface:"hub"}),/surface-mismatch/));
+test("legacy tenant adapter rejected",()=>assert.throws(()=>createChatStorageAdapter({...a("x","device"),tenant_id:"bad"}),/not an authority boundary/));
+test("storage cannot execute business action",()=>assert.equal(planChatStorageWrite(record,a("x","device")).may_execute_business_actions,false));

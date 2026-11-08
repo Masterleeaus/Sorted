@@ -1,0 +1,16 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema",
+  "$id":"titan.workforce.customer-care.review-request-eligibility.v1",
+  "title":"Customer Care Review Request Eligibility",
+  "type":"object",
+  "required":["schema","company_boundary","authority_rule","requires_verified_outcome","blocks_unresolved_dissatisfaction","output_is_proposal_only"],
+  "properties":{
+    "schema":{"const":"titan.workforce.customer-care.review-request-eligibility-contract.v1"},
+    "company_boundary":{"const":"company_id"},
+    "authority_rule":{"const":"identity_does_not_grant_authority"},
+    "requires_verified_outcome":{"const":true},
+    "blocks_unresolved_dissatisfaction":{"const":true},
+    "output_is_proposal_only":{"const":true}
+  },
+  "additionalProperties":true
+}

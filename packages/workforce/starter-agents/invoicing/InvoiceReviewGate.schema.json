@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "titan.workforce.starter.invoicing.review-gates.v1",
+  "title": "Titan Zero Invoicing Agent Review Gate",
+  "type": "object",
+  "required": ["schema", "company_id", "review_required", "review", "calculation", "authority"],
+  "properties": {
+    "schema": {"const": "titan.workforce.starter.invoicing.review-gates.v1"},
+    "company_id": {"type": "string", "minLength": 1},
+    "review_required": {"type": "boolean"},
+    "review": {
+      "type": "object",
+      "required": ["state", "reasons", "required_approval_scopes", "approval_is_external_authority"],
+      "properties": {
+        "state": {"enum": ["not_required", "pending", "approved", "rejected"]},
+        "reasons": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+        "required_approval_scopes": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+        "reviewer_ref": {"type": ["string", "null"]},
+        "decision_ref": {"type": ["string", "null"]},
+        "decision_reason": {"type": ["string", "null"]},
+        "approval_is_external_authority": {"const": true}
+      },
+      "additionalProperties": true
+    },
+    "calculation": {"type": "object"},
+    "authority": {
+      "type": "object",
+      "required": ["company_boundary", "identity_grants_authority", "authority_granted", "execution_permitted", "canonical_financial_mutation_permitted"],
+      "properties": {
+        "company_boundary": {"const": "company_id"},
+        "identity_grants_authority": {"const": false},
+        "authority_granted": {"const": false},
+        "grants_authority": {"const": false},
+        "execution_permitted": {"const": false},
+        "canonical_financial_mutation_permitted": {"const": false}
+      },
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": true
+}

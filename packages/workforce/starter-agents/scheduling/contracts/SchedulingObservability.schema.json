@@ -1,0 +1,28 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema",
+  "$id":"titan.scheduling.metrics.v1",
+  "title":"Titan Scheduling Observability Metrics",
+  "type":"object",
+  "required":["schema","company_id","total_events","batches","recommendations","review_required","observability_not_authority","authority_effect","grants_authority","direct_mutation","execution_permitted"],
+  "properties":{
+    "schema":{"const":"titan.scheduling.metrics.v1"},
+    "company_id":{"type":"string","minLength":1},
+    "total_events":{"type":"integer","minimum":0},
+    "batches":{"type":"integer","minimum":0},
+    "recommendations":{"type":"integer","minimum":0},
+    "ready":{"type":"integer","minimum":0},
+    "review_required":{"type":"integer","minimum":0},
+    "stale_revision":{"type":"integer","minimum":0},
+    "duplicate_replay":{"type":"integer","minimum":0},
+    "double_booking":{"type":"integer","minimum":0},
+    "insufficient_nonconflicting_workers":{"type":"integer","minimum":0},
+    "reason_counts":{"type":"object","additionalProperties":{"type":"integer","minimum":0}},
+    "counts":{"type":"object","additionalProperties":{"type":"integer","minimum":0}},
+    "observability_not_authority":{"const":true},
+    "authority_effect":{"const":false},
+    "grants_authority":{"const":false},
+    "direct_mutation":{"const":false},
+    "execution_permitted":{"const":false}
+  },
+  "additionalProperties":true
+}

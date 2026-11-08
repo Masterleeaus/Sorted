@@ -1,0 +1,301 @@
+import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
+import { withAuth, withRole } from "@/lib/auth/middleware";
+import { withInvoiceContext, generateInvoiceNumber } from "@/lib/invoices/db";
+import { appendAuditLog } from "@/lib/db/audit";
+import { logger } from "@/lib/logger";
+import { invoiceStatusSchema, resolveIssueDueDate } from "@ai-fsm/domain";
+import { manualInvoiceKind } from "@/lib/invoices/manual-kind";
+import { SPONSORED_PURPOSES, validateInvoiceContext } from "@/lib/invoices/sponsored";
+
+export const dynamic = "force-dynamic";
+
+const listQuerySchema = z.object({
+  status: invoiceStatusSchema.optional(),
+  client_id: z.string().uuid().optional(),
+  job_id: z.string().uuid().optional(),
+  page: z.coerce.number().int().positive().default(1),
+  limit: z.coerce.number().int().min(1).max(100).default(20),
+});
+
+export const GET = withAuth(async (request, session) => {
+  const { searchParams } = new URL(request.url);
+  const parseResult = listQuerySchema.safeParse({
+    status: searchParams.get("status") ?? undefined,
+    client_id: searchParams.get("client_id") ?? undefined,
+    job_id: searchParams.get("job_id") ?? undefined,
+    page: searchParams.get("page") ?? undefined,
+    limit: searchParams.get("limit") ?? undefined,
+  });
+
+  if (!parseResult.success) {
+    return NextResponse.json(
+      {
+        error: {
+          code: "VALIDATION_ERROR",
+          message: "Invalid query parameters",
+          details: { issues: parseResult.error.issues },
+          traceId: session.traceId,
+        },
+      },
+      { status: 400 }
+    );
+  }
+
+  const { status, client_id, job_id, page, limit } = parseResult.data;
+  const offset = (page - 1) * limit;
+
+  try {
+    const conditions: string[] = ["i.account_id = $1"];
+    const params: unknown[] = [session.accountId];
+    let idx = 2;
+
+    if (status) {
+      conditions.push(`i.status = $${idx++}`);
+      params.push(status);
+    }
+    if (client_id) {
+      conditions.push(`i.client_id = $${idx++}`);
+      params.push(client_id);
+    }
+    if (job_id) {
+      conditions.push(`i.job_id = $${idx++}`);
+      params.push(job_id);
+    }
+
+    const where = conditions.join(" AND ");
+
+    const countParams = [...params];
+    const total = await withInvoiceContext(session, async (client) => {
+      const r = await client.query<{ total: string }>(
+        `SELECT COUNT(*) AS total FROM invoices i WHERE ${where}`,
+        countParams
+      );
+      return parseInt(r.rows[0]?.total ?? "0", 10);
+    });
+
+    params.push(limit, offset);
+    const rows = await withInvoiceContext(session, async (client) => {
+      const r = await client.query(
+        `SELECT i.id, i.status, i.invoice_number,
+                i.subtotal_cents, i.tax_cents, i.total_cents, i.paid_cents,
+                i.due_date, i.sent_at, i.paid_at, i.estimate_id,
+                i.client_id, i.job_id, i.created_at, i.updated_at,
+                c.name AS client_name,
+                i.property_id, i.billing_context, i.sponsored_purpose,
+                i.beneficiary_property_contact_id, i.business_purpose, i.work_summary,
+                sp.address AS property_address,
+                COALESCE(spcc.name, spc.external_name) AS beneficiary_name
+         FROM invoices i
+         LEFT JOIN clients c ON c.id = i.client_id
+         LEFT JOIN properties sp ON sp.id = i.property_id AND sp.account_id = i.account_id
+         LEFT JOIN property_contacts spc
+           ON spc.id = i.beneficiary_property_contact_id AND spc.account_id = i.account_id
+         LEFT JOIN clients spcc ON spcc.id = spc.client_id AND spcc.account_id = i.account_id
+         WHERE ${where}
+         ORDER BY i.created_at DESC
+         LIMIT $${idx} OFFSET $${idx + 1}`,
+        params
+      );
+      return r.rows;
+    });
+
+    return NextResponse.json({
+      data: rows,
+      pagination: { page, limit, total },
+    });
+  } catch (error) {
+    logger.error("GET /api/v1/invoices error", error, { traceId: session.traceId });
+    return NextResponse.json(
+      {
+        error: {
+          code: "INTERNAL_ERROR",
+          message: "Failed to fetch invoices",
+          traceId: session.traceId,
+        },
+      },
+      { status: 500 }
+    );
+  }
+});
+
+// === Create Invoice (POST /api/v1/invoices) ===
+
+const lineItemInputSchema = z.object({
+  description: z.string().min(1),
+  quantity: z.number().positive(),
+  unit_price_cents: z.number().int().nonnegative(),
+  sort_order: z.number().int().default(0),
+});
+
+const createInvoiceSchema = z.object({
+  client_id: z.string().uuid(),
+  job_id: z.string().uuid().nullable().optional(),
+  property_id: z.string().uuid().nullable().optional(),
+  due_date: z.string().datetime().nullable().optional(),
+  notes: z.string().nullable().optional(),
+  billing_context: z.enum(["standard", "realtor_sponsored"]).default("standard"),
+  sponsored_purpose: z.enum(SPONSORED_PURPOSES).nullable().optional(),
+  beneficiary_property_contact_id: z.string().uuid().nullable().optional(),
+  business_purpose: z.string().trim().max(2000).nullable().optional(),
+  tax_rate: z.number().min(0).max(100).default(0),
+  line_items: z.array(lineItemInputSchema).min(1, "At least one line item is required"),
+});
+
+export const POST = withRole(["owner", "admin"], async (request, session) => {
+  let body: unknown;
+  try {
+    body = await request.json();
+  } catch {
+    return NextResponse.json(
+      { error: { code: "VALIDATION_ERROR", message: "Invalid JSON body", traceId: session.traceId } },
+      { status: 400 }
+    );
+  }
+
+  const parseResult = createInvoiceSchema.safeParse(body);
+  if (!parseResult.success) {
+    return NextResponse.json(
+      {
+        error: {
+          code: "VALIDATION_ERROR",
+          message: "Invalid request body",
+          details: { issues: parseResult.error.issues },
+          traceId: session.traceId,
+        },
+      },
+      { status: 400 }
+    );
+  }
+
+  const {
+    client_id, job_id, property_id, due_date, notes, tax_rate, line_items,
+    billing_context, sponsored_purpose, beneficiary_property_contact_id, business_purpose,
+  } = parseResult.data;
+
+  // Compute totals
+  const subtotal_cents = line_items.reduce(
+    (sum, item) => sum + Math.round(item.quantity * item.unit_price_cents),
+    0
+  );
+  const tax_cents = Math.round((subtotal_cents * tax_rate) / 100);
+  const total_cents = subtotal_cents + tax_cents;
+  const deposit_cents = 0;
+
+  try {
+    const invoice = await withInvoiceContext(session, async (client) => {
+      await validateInvoiceContext(client, session.accountId, {
+        payerClientId: client_id,
+        jobId: job_id,
+        propertyId: property_id,
+        billingContext: billing_context,
+        sponsoredPurpose: sponsored_purpose,
+        beneficiaryPropertyContactId: beneficiary_property_contact_id,
+        businessPurpose: business_purpose,
+      });
+
+      const invoiceNumber = await generateInvoiceNumber(client, session.accountId);
+      const invoiceKind = manualInvoiceKind(job_id);
+
+      // Payment terms: due upon completion (TASK-078). A standard invoice tied to
+      // an open job has no due date yet — it's filled when the job completes.
+      const jobStatus = job_id
+        ? (
+            await client.query<{ status: string }>(
+              `SELECT status FROM jobs WHERE id = $1 AND account_id = $2`,
+              [job_id, session.accountId],
+            )
+          ).rows[0]?.status ?? null
+        : null;
+      const resolvedDueDate = resolveIssueDueDate({
+        providedDueDate: due_date,
+        invoiceKind,
+        jobStatus,
+      });
+
+      const result = await client.query<{ id: string }>(
+        `INSERT INTO invoices
+           (account_id, client_id, job_id, property_id,
+            billing_context, sponsored_purpose, beneficiary_property_contact_id, business_purpose,
+            status, invoice_kind, invoice_number,
+            subtotal_cents, tax_cents, total_cents, paid_cents, deposit_cents,
+            notes, due_date, created_by)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, 'draft', $9, $10, $11, $12, $13, 0, $14, $15, $16, $17)
+         RETURNING id`,
+        [
+          session.accountId,
+          client_id,
+          job_id ?? null,
+          property_id ?? null,
+          billing_context,
+          sponsored_purpose ?? null,
+          beneficiary_property_contact_id ?? null,
+          business_purpose || null,
+          invoiceKind,
+          invoiceNumber,
+          subtotal_cents,
+          tax_cents,
+          total_cents,
+          deposit_cents,
+          notes ?? null,
+          resolvedDueDate,
+          session.userId,
+        ]
+      );
+      const invoiceId = result.rows[0].id;
+
+      for (let i = 0; i < line_items.length; i++) {
+        const item = line_items[i];
+        await client.query(
+          `INSERT INTO invoice_line_items
+             (invoice_id, description, quantity, unit_price_cents, total_cents, sort_order)
+           VALUES ($1, $2, $3, $4, $5, $6)`,
+          [
+            invoiceId,
+            item.description,
+            item.quantity,
+            item.unit_price_cents,
+            Math.round(item.quantity * item.unit_price_cents),
+            item.sort_order ?? i,
+          ]
+        );
+      }
+
+      await appendAuditLog(client, {
+        account_id: session.accountId,
+        entity_type: "invoice",
+        entity_id: invoiceId,
+        action: "insert",
+        actor_id: session.userId,
+        trace_id: session.traceId,
+        new_value: {
+          client_id, property_id, billing_context, sponsored_purpose,
+          beneficiary_property_contact_id, business_purpose, invoice_number: invoiceNumber, total_cents,
+        },
+      });
+
+      return invoiceId;
+    });
+
+    return NextResponse.json({ id: invoice }, { status: 201 });
+  } catch (error) {
+    const err = error as Error & { code?: string };
+    if (err.code === "NOT_FOUND") {
+      return NextResponse.json(
+        { error: { code: "NOT_FOUND", message: err.message, traceId: session.traceId } },
+        { status: 404 }
+      );
+    }
+    if (err.code === "VALIDATION_ERROR") {
+      return NextResponse.json(
+        { error: { code: "VALIDATION_ERROR", message: err.message, traceId: session.traceId } },
+        { status: 422 }
+      );
+    }
+    logger.error("POST /api/v1/invoices error", error, { traceId: session.traceId });
+    return NextResponse.json(
+      { error: { code: "INTERNAL_ERROR", message: "Failed to create invoice", traceId: session.traceId } },
+      { status: 500 }
+    );
+  }
+});

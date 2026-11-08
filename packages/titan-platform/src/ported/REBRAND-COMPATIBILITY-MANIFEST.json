@@ -1,0 +1,82 @@
+{
+  "report": "Titan Zero rebrand compatibility audit",
+  "target_version": "0.6.1",
+  "policy": "Titan-facing labels, filenames, identifiers, locale names and icons are rebranded. Donor-internal runtime symbols/domains/contracts remain only where renaming may break compatibility.",
+  "branded_filenames_remaining": [],
+  "residual_text_files": {
+    "titan-zero-chat-content.compat.css": {
+      "monica_tokens": 407,
+      "retriever_tokens": 0,
+      "category": "compiled_compatibility_runtime"
+    },
+    "README.md": {
+      "monica_tokens": 1,
+      "retriever_tokens": 1,
+      "category": "provenance_documentation"
+    },
+    "titan-zero-chat-background.compat.js": {
+      "monica_tokens": 3894,
+      "retriever_tokens": 0,
+      "category": "compiled_compatibility_runtime"
+    },
+    "titan-shell.js": {
+      "monica_tokens": 1,
+      "retriever_tokens": 2,
+      "category": "compatibility_text_scrubber"
+    },
+    "titan-zero-chat-content.compat.js": {
+      "monica_tokens": 2105,
+      "retriever_tokens": 0,
+      "category": "compiled_compatibility_runtime"
+    },
+    "titan-zero-work-background.compat.iife.js": {
+      "monica_tokens": 0,
+      "retriever_tokens": 11,
+      "category": "compiled_compatibility_runtime"
+    },
+    "titan-zero-chat-runtime.compat.css": {
+      "monica_tokens": 377,
+      "retriever_tokens": 0,
+      "category": "compiled_compatibility_runtime"
+    },
+    "titan-zero-chat-runtime.compat.js": {
+      "monica_tokens": 584,
+      "retriever_tokens": 0,
+      "category": "compiled_compatibility_runtime"
+    },
+    "static/youtube-injected-script.js": {
+      "monica_tokens": 1,
+      "retriever_tokens": 0,
+      "category": "embedded_donor_runtime_internal"
+    },
+    "tests/test_titan_zero_rebrand.py": {
+      "monica_tokens": 16,
+      "retriever_tokens": 11,
+      "category": "regression_guard"
+    },
+    "side-panel/assets/index-C8c-GDqp.js": {
+      "monica_tokens": 0,
+      "retriever_tokens": 12,
+      "category": "embedded_donor_runtime_internal"
+    },
+    "offscreen/assets/unifiedFunctionExecutor-4UtoSB3u.js": {
+      "monica_tokens": 0,
+      "retriever_tokens": 3,
+      "category": "embedded_donor_runtime_internal"
+    },
+    "offscreen/assets/index-B1QDSbwU.js": {
+      "monica_tokens": 0,
+      "retriever_tokens": 1,
+      "category": "embedded_donor_runtime_internal"
+    }
+  },
+  "unexpected_residual_files": [],
+  "summary": {
+    "residual_files": 13,
+    "compiled_or_embedded_runtime_files": 10,
+    "compatibility_scrubber_files": 1,
+    "regression_guard_files": 1,
+    "provenance_files": 1,
+    "unexpected_residual_files": 0
+  }
+}

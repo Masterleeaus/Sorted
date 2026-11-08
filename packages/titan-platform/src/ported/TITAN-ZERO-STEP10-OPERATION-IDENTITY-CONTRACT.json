@@ -1,0 +1,11 @@
+{
+  "schema": "titan-zero-offline-step10/v1",
+  "step": 10,
+  "name": "Operation Identity Contract",
+  "root_identity": ["company_id", "operation_id", "request_id", "correlation_id", "trace_id", "idempotency_key", "root_operation_id"],
+  "stages": ["interaction", "prime", "decision", "authority", "command_bus", "execution", "result", "rewind", "signal", "wisdom"],
+  "authority_neutral": true,
+  "identity_confers_authority": false,
+  "company_boundary": "company_id",
+  "legacy_tenant_authority": "rejected"
+}

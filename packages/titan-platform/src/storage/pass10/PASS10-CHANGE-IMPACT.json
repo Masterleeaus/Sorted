@@ -1,0 +1,8 @@
+{
+  "schema": "titan-zero-storage-finish-pass10-change-impact/v1",
+  "packet_id": "TZ-FINISH-STORAGE-DATA-AUTHORITY-001",
+  "pass": 10,
+  "production_code_modified_this_pass": false,
+  "evidence_only": true,
+  "manager_promotion_required": true
+}

@@ -1,0 +1,17 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema",
+  "$id":"titan.scheduling.conflict.v1",
+  "title":"SchedulingConflict",
+  "type":"object",
+  "additionalProperties":false,
+  "required":["schema","code","message","missing_capabilities","grants_authority","execution_permitted","automatic_assignment"],
+  "properties":{
+    "schema":{"const":"titan.scheduling.conflict.v1"},
+    "code":{"enum":["INVALID_WINDOW","NO_CAPACITY","MISSING_CAPABILITY","NO_TIME_WINDOW"]},
+    "message":{"type":"string","minLength":1},
+    "missing_capabilities":{"type":"array","items":{"type":"string"},"uniqueItems":true},
+    "grants_authority":{"const":false},
+    "execution_permitted":{"const":false},
+    "automatic_assignment":{"const":false}
+  }
+}

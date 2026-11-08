@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": [
+    "plan_id",
+    "company_id",
+    "material_aspects",
+    "baselines",
+    "metrics",
+    "targets",
+    "evidence_sources",
+    "improvement_actions"
+  ],
+  "properties": {
+    "plan_id": {
+      "type": "string"
+    },
+    "company_id": {
+      "type": "string"
+    },
+    "material_aspects": {
+      "type": "array"
+    },
+    "baselines": {
+      "type": "array"
+    },
+    "metrics": {
+      "type": "array"
+    },
+    "targets": {
+      "type": "array"
+    },
+    "evidence_sources": {
+      "type": "array"
+    },
+    "improvement_actions": {
+      "type": "array"
+    }
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "schema": "titan-zero-offline-pass04-change-impact/v1",
+  "packet_id": "TZ-FINISH-OFFLINE-RESILIENCE-001",
+  "pass": 4,
+  "modified_files": [
+    "packages/titan-platform/src/offline/sync.ts",
+    "packages/titan-platform/src/offline/index.ts",
+    "packages/titan-platform/tests/offline-native-pass04-sync.test.mjs"
+  ],
+  "impact": "Additive sync coordinator over the canonical storage reconciler; no new server authority or storage plane.",
+  "parallel_sync_authority_created": false
+}

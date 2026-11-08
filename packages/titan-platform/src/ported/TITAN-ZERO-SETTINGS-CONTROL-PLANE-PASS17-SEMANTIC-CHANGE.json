@@ -1,0 +1,16 @@
+{
+  "schema": "titan-zero-settings-control-plane-semantic-change/v1",
+  "pass": 17,
+  "title": "Notifications & Escalations",
+  "changes": [
+    "Added company-scoped notification/escalation policy projection composed over existing Workforce global defaults and notification runtime.",
+    "Added runtime-capability validation for requested notification channels while retaining IN_APP fallback for HIGH/CRITICAL when available.",
+    "Allowed acknowledgement timing, delivery attempts, escalation depth and dedupe cooldown to tighten but never loosen Pass14 company defaults.",
+    "Kept HIGH/CRITICAL escalation paths mandatory while allowing lower urgencies to opt into stricter acknowledgement/escalation requirements.",
+    "Kept recipient identities, live delivery state, dispatch and escalation transitions outside generic Settings; escalation remains governed and authority-neutral.",
+    "Forward-ported Settings lineage from Manager Merge27 without overwriting Yjs injection, Workforce dataset repair, protected runtime hashes or other newer Manager files."
+  ],
+  "authority_effect": "none",
+  "execution_effect": "none",
+  "next_pass": 18
+}

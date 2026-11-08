@@ -1,0 +1,80 @@
+{
+  "schema": "titan.zero.business.workflow.routing.v1",
+  "company_boundary": "company_id",
+  "source_product": "Titan Interaction Engine",
+  "source_version": "10.12.0",
+  "workflows": [
+    {
+      "service": "crm",
+      "id": "new_customer_v1",
+      "name": "New Customer",
+      "capability": "crm.customer.create",
+      "file": "new_customer.json",
+      "source_product": "Titan Interaction Engine",
+      "source_version": "10.12.0"
+    },
+    {
+      "service": "quotes",
+      "id": "create_quote_v1",
+      "name": "Create Quote",
+      "capability": "crm.quote.create",
+      "file": "create_quote.json",
+      "source_product": "Titan Interaction Engine",
+      "source_version": "10.12.0"
+    },
+    {
+      "service": "bookings",
+      "id": "service_booking_v1",
+      "name": "Service Booking",
+      "capability": "crm.appointment.create",
+      "file": "service_booking.json",
+      "source_product": "Titan Interaction Engine",
+      "source_version": "10.12.0"
+    },
+    {
+      "service": "jobs_work_orders",
+      "id": "create_job_v1",
+      "name": "Create Job",
+      "capability": "crm.work_order.create",
+      "file": "create_job.json",
+      "source_product": "Titan Interaction Engine",
+      "source_version": "10.12.0"
+    },
+    {
+      "service": "jobs_work_orders",
+      "id": "complete_job_v1",
+      "name": "Complete Job",
+      "capability": "crm.work_order.complete",
+      "file": "complete_job.json",
+      "source_product": "Titan Interaction Engine",
+      "source_version": "10.12.0"
+    },
+    {
+      "service": "jobs_work_orders",
+      "id": "job_variation_approval_v1",
+      "name": "Job Variation Approval",
+      "capability": "crm.work_order.update",
+      "file": "job_variation_approval.json",
+      "source_product": "Titan Interaction Engine",
+      "source_version": "10.12.0"
+    },
+    {
+      "service": "invoicing",
+      "id": "create_invoice_v1",
+      "name": "Create Invoice",
+      "capability": "crm.invoice.create",
+      "file": "create_invoice.json",
+      "source_product": "Titan Interaction Engine",
+      "source_version": "10.12.0"
+    },
+    {
+      "service": "payments",
+      "id": "payment-reconciliation",
+      "name": "Payment Reconciliation",
+      "capability": "finance.payment.reconcile",
+      "file": "payment_reconciliation.json",
+      "source_product": "Titan Interaction Engine",
+      "source_version": "10.12.0"
+    }
+  ]
+}

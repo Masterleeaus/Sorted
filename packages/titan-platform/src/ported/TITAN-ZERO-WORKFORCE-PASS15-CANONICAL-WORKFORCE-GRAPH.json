@@ -1,0 +1,50 @@
+{
+  "schema": "titan-zero-workforce-pass/v1",
+  "pass": 15,
+  "title": "Canonical Workforce Graph",
+  "status": "IMPLEMENTED_VERIFICATION_PENDING",
+  "manager_baseline": {
+    "release": "0.19.0",
+    "sha256": "75c1b8be235469cfa87e69bd423441d0c43c11c5a9231576ec96fac436071ecd"
+  },
+  "company_boundary": "company_id",
+  "durable_authority": "Laravel Workforce",
+  "graph_authority": false,
+  "graph_derived": true,
+  "graph_nodes": [
+    "worker",
+    "role",
+    "team",
+    "mission",
+    "assignment",
+    "work_item",
+    "capability",
+    "handover"
+  ],
+  "graph_edges": [
+    "HAS_ROLE",
+    "MEMBER_OF_TEAM",
+    "REPORTS_TO",
+    "PARTICIPATES_IN_MISSION",
+    "HAS_CAPABILITY",
+    "ASSIGNED_TO",
+    "ASSIGNMENT_FOR",
+    "PART_OF_MISSION",
+    "REQUIRES_CAPABILITY",
+    "HANDOVER_FOR_MISSION",
+    "INCLUDED_IN_HANDOVER"
+  ],
+  "integration": {
+    "background_runtime": "TITAN_WORKFORCE_GRAPH_BUILD",
+    "gateway_projection": true,
+    "partial_realtime_rebuild_after_merge": true,
+    "existing_ui_summary_only": true
+  },
+  "authority_rules": {
+    "identity_confers_authority": false,
+    "role_confers_authority": false,
+    "graph_confers_authority": false,
+    "grants_authority": false
+  },
+  "deletions": 0
+}

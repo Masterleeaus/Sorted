@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "titan.workforce.customer-care.post-job-satisfaction-trigger.v1",
+  "title": "Titan Zero Customer Care Post-Job Satisfaction Trigger Decision",
+  "type": "object",
+  "additionalProperties": true,
+  "required": ["schema", "company_id", "customer_id", "job_id", "source_event_id", "source_event_type", "dedupe_key", "purpose", "eligible", "status", "authority_granted", "execution_permitted"],
+  "properties": {
+    "schema": {"const": "titan.workforce.customer-care.trigger-decision.v1"},
+    "company_id": {"type": "string", "minLength": 1},
+    "customer_id": {"type": "string", "minLength": 1},
+    "job_id": {"type": "string", "minLength": 1},
+    "source_event_id": {"type": "string", "minLength": 1},
+    "source_event_type": {"enum": ["job.completed", "invoice.issued"]},
+    "dedupe_key": {"type": "string", "minLength": 1},
+    "purpose": {"const": "post_job_satisfaction"},
+    "eligible": {"type": "boolean"},
+    "status": {"enum": ["BLOCKED", "SUPPRESSED_DUPLICATE", "DEFERRED_QUIET_HOURS", "PROPOSE_OUTREACH"]},
+    "authority_granted": {"const": false},
+    "execution_permitted": {"const": false}
+  }
+}

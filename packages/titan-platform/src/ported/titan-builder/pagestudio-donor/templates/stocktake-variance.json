@@ -1,0 +1,32 @@
+{
+  "template": {
+    "id": "stocktake-variance",
+    "version": "1.0.0",
+    "name": "Stocktake and Variance",
+    "status": "ready",
+    "category": "inventory",
+    "entry_wizard": "stocktake_variance_v1",
+    "capabilities": [
+      "inventory.stocktakes.complete"
+    ],
+    "channels": [
+      "chat",
+      "mobile",
+      "tablet",
+      "desktop",
+      "voice"
+    ],
+    "governance": {
+      "authority": "human_approval_for_material_variance",
+      "offline": true
+    },
+    "metadata": {
+      "verticals": [
+        "ecommerce",
+        "retail",
+        "wholesale"
+      ],
+      "pack": "commerce_multi_vertical_2026_08"
+    }
+  }
+}

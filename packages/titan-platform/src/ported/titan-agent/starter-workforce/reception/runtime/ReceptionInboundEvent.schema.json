@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "titan.zero.reception.inbound-event.v1",
+  "title": "Titan Zero Reception Inbound Event",
+  "type": "object",
+  "required": ["schema","event_id","company_id","channel","direction","text","sender","authority_granted","side_effect_status"],
+  "properties": {
+    "schema": {"const":"titan.zero.reception.inbound-event/v1"},
+    "event_id": {"type":"string","minLength":1},
+    "company_id": {"type":"string","minLength":1},
+    "channel": {"enum":["chat","sms","whatsapp","messenger","email","webchat"]},
+    "direction": {"const":"inbound"},
+    "text": {"type":"string","minLength":1,"maxLength":12000},
+    "received_at": {"type":["string","null"]},
+    "external_thread_id": {"type":["string","null"]},
+    "external_message_id": {"type":["string","null"]},
+    "sender": {"type":"object"},
+    "source_adapter": {"type":"string"},
+    "authority_granted": {"const":false},
+    "side_effect_status": {"const":"none"}
+  },
+  "additionalProperties": false
+}

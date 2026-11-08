@@ -1,0 +1,20 @@
+{
+  "schema": "titan-zero-settings-control-plane-pass08-rebase/v1",
+  "pass": 8,
+  "manager_parent": {
+    "merge": "20",
+    "artifact": "Titan-Zero-CANONICAL-MASTER-2026-09-06-MERGE-20-WORKFORCE-NO-LOSS-CONVERGED.zip",
+    "sha256": "092a3b2a18bcfa695904bdc15159a1e764779f68409572cc8ff01f9ac8c4d009",
+    "files": 1956
+  },
+  "retained_settings_parent": {
+    "artifact": "Titan-Zero-SETTINGS-CONTROL-PLANE-Pass07-CUMULATIVE.zip",
+    "sha256": "304837872b4ca59ebd4ca9850983759377fca137c043cb6af0a4f819b6e1e61d",
+    "files": 1992
+  },
+  "rebase_method": "Start from Manager Merge20, add only Pass7 files absent from Merge20, retain Merge20 versions for every shared path.",
+  "rebased_parent_files": 2001,
+  "manager_shared_files_overwritten": 0,
+  "company_boundary": "company_id",
+  "identity_grants_authority": false
+}

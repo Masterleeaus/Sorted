@@ -1,0 +1,16 @@
+{
+  "schema":"titan.zero.jobs.evaluations.v1",
+  "worker":"Jobs Agent",
+  "company_boundary":"company_id",
+  "scenarios":[
+    {"id":"duplicate-job-create","expected":"REUSE_EXISTING"},
+    {"id":"offline-replay","expected":"ALREADY_APPLIED_OR_EXPLICIT_RETRY"},
+    {"id":"out-of-order-close","expected":"DENY"},
+    {"id":"incomplete-evidence","expected":"BLOCK_HANDOFF"},
+    {"id":"reassignment","expected":"AUTHORITY_GATED"},
+    {"id":"cancellation","expected":"MANAGER_REVIEW"},
+    {"id":"rework","expected":"RETURN_TO_STARTED"},
+    {"id":"cross-company-context","expected":"REJECT"},
+    {"id":"ai-worker-authority-spoof","expected":"REJECT_AUTHORITY_INFERENCE"}
+  ]
+}

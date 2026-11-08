@@ -1,0 +1,36 @@
+{
+  "schema": "titan-zero-semantic-change/v1",
+  "pass": 10,
+  "title": "Cleaning Growth Marketplace final certification and Manager handoff",
+  "runtime_behavior_change": false,
+  "company_boundary": "company_id only",
+  "retained_capabilities": [
+    "supply marketplace",
+    "software marketplace",
+    "cleaning workforce marketplace",
+    "growth catalog",
+    "recommendations",
+    "opportunity intelligence",
+    "launch planner",
+    "launch portfolio",
+    "launch economics",
+    "pilot validation",
+    "scale readiness",
+    "rollout learning"
+  ],
+  "authority": {
+    "grants_authority": false,
+    "approves_scaling": false,
+    "approves_spend": false,
+    "publishes_service": false,
+    "schedules_work": false,
+    "executes_work": false
+  },
+  "manager_forward_port_target": {
+    "artifact": "Titan-Zero-CANONICAL-MASTER-2026-09-07-MERGE-29-REPAIR06-CONVERGED.zip",
+    "sha256": "3e5520d2495c2a5edde310d12d2b82de399e9277248c1fdfb5cd85df5df9d70b",
+    "files": 2245,
+    "merge": 29,
+    "status": "DEVELOPMENT_CANONICAL_REPAIR06_CONVERGED"
+  }
+}

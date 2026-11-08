@@ -1,0 +1,10 @@
+import {strict as assert} from "node:assert";
+import {evaluateTrustCycle,evaluateUnlockEligibility,createAuthorityEvaluationRequest} from "../../src/workforce-trust/index.js";
+const cycle=()=>evaluateTrustCycle({company_id:"c1",agent_id:"a1",capability:"call",outcome_success:true,policy_compliant:true,human_correction:false,reversed:false});
+const cycles=[cycle(),cycle(),cycle(),cycle(),cycle()];
+const e=evaluateUnlockEligibility({company_id:"c1",agent_id:"a1",capability:"call",cycles,user_approved:true,worker_accepted:true},"proactive_specialist");
+assert.equal(e.eligible_for_authority_evaluation,true);assert.equal(e.authority_granted,false);assert.equal(e.execution_permitted,false);
+const p=evaluateUnlockEligibility({company_id:"c1",agent_id:"a1",capability:"call",cycles,user_approved:true,worker_accepted:true,manager_approved:true,governance_approved:true,assurance_approved:true},"predictive");
+assert.equal(Object.keys(p.gates).length,6);assert.equal(p.eligible_for_authority_evaluation,true);
+const r=createAuthorityEvaluationRequest({company_id:"c1",agent_id:"a1",capability:"call",cycles,user_approved:true,worker_accepted:true},"proactive_specialist");
+assert.equal(r.authority_owner,"titan-autonomy");assert.equal(r.authority_granted,false);

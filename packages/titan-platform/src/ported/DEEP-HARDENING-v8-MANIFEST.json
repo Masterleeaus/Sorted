@@ -1,0 +1,43 @@
+{
+  "packet": "TZ-FINISH-002",
+  "classification": "WORKING_CANDIDATE_NOT_CANONICAL",
+  "deep_pass_version": "v8",
+  "base": "Titan-Zero-TZ-FINISH-002-FURTHER-DEEP-HARDENED-v7-CUMULATIVE-CANDIDATE.zip",
+  "added": [
+    "tests/tz_finish_002_deep_execution_attempt_binding.test.mjs",
+    "tests/tz_finish_002_deep_lease_decision_binding.test.mjs",
+    "tests/tz_finish_002_deep_provenance_seal.test.mjs"
+  ],
+  "modified": [
+    "titan-runtime/authority/AuthorityDecisionProvenance.schema.json",
+    "titan-runtime/authority/AuthorityLeaseControl.schema.json",
+    "titan-runtime/authority/authority-lease.mjs",
+    "titan-runtime/authority/execution-boundary.mjs",
+    "titan-runtime/authority/index.mjs",
+    "titan-runtime/authority/lease-control.mjs",
+    "titan-runtime/authority/tests/authority-decision-lifecycle.test.mjs"
+  ],
+  "deleted": [],
+  "change_summary": [
+    "Canonical content seal for authority decision provenance with same-decision equivocation detection.",
+    "Authority lease controls bind to exact upstream decision_id and cannot cross decision streams.",
+    "Optional execution_attempt_id binds authoritative receipts and post-action verification to one execution attempt while allowing explicit retry reuse."
+  ],
+  "verification": {
+    "focused_authority_files": "30/30 PASS",
+    "node_test_files": "136/138 PASS",
+    "python": "102/102 PASS",
+    "known_failures": [
+      "titan-regression/monica-retriever/tests/pass09-full-parity-gate.test.mjs: protected_runtime_hashes",
+      "titan-regression/monica-retriever/tests/reachability-regression.test.mjs: protected_runtime_hashes"
+    ],
+    "live_unpacked_chrome": "NOT RUN / NOT CLAIMED"
+  },
+  "preservation": {
+    "ui_changed": false,
+    "manifest_changed": false,
+    "permissions_changed": false,
+    "company_id_only": true,
+    "identity_confers_authority": false
+  }
+}

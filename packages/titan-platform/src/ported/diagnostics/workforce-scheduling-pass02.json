@@ -1,0 +1,19 @@
+{
+  "schema": "titan-zero-workforce-scheduling-pass02/v1",
+  "packet_id": "TZ-NEXT-004",
+  "pass": 2,
+  "manager_merge": 42,
+  "summary": "Compose canonical workload-capacity measurement with explicit worker availability evidence into an authority-neutral scheduling projection.",
+  "existing_authorities_preserved": [
+    "titan-workforce/capacity/workload-capacity-runtime.mjs",
+    "TitanBusinessDatabase workload_capacity collection",
+    "existing workforce gateway and queue",
+    "AssignmentDecision / execution authority boundaries"
+  ],
+  "production_change": "additive composition projection only",
+  "company_boundary": "company_id only",
+  "identity_not_authority": true,
+  "automatic_assignment": false,
+  "automatic_reassignment": false,
+  "execution_permitted": false
+}

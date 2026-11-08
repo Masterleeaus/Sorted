@@ -1,0 +1,31 @@
+{
+  "schema": "titan-zero-storage-migration-compatibility/v1",
+  "packet_id": "TZ-FINISH-STORAGE-DATA-AUTHORITY-001",
+  "pass": 4,
+  "checkpoint": {
+    "scope": "company_id",
+    "written_after_up_success_only": true,
+    "completed_stage_skipped": true,
+    "failed_stage_checkpointed": false,
+    "failed_stage_retryable": true
+  },
+  "compatibility": {
+    "migration_id_stable": true,
+    "version_match_required": true,
+    "checksum_match_required": true,
+    "drift_behavior": "FAIL_CLOSED"
+  },
+  "rollback": {
+    "down_contract_required": true,
+    "checkpoint_removed_after_down_success_only": true,
+    "checkpoint_preserved_on_down_failure": true,
+    "rollback_receipt_persisted": true,
+    "company_scoped": true
+  },
+  "authority": {
+    "company_boundary": "company_id",
+    "identity_grants_authority": false,
+    "execution_authority": false
+  },
+  "migration_corpus_modified": false
+}

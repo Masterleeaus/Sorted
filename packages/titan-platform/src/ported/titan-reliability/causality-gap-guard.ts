@@ -1,0 +1,4 @@
+// @ts-nocheck
+// Ported from Titan Zero extension (portable-core): titan-reliability/causality-gap-guard.mjs
+const clean=v=>String(v??'').trim(); const freeze=Object.freeze;
+export function inspectCausalityGaps({company_id,events=[]}={}){const c=clean(company_id);if(!c)throw new Error('company_id-required');const seq=[];for(const e of events){if(clean(e?.company_id)&&clean(e.company_id)!==c)throw new Error('cross-company:event');const n=Number(e?.sequence);if(Number.isInteger(n)&&n>0)seq.push(n)}seq.sort((a,b)=>a-b);const miss=[];if(seq.length){for(let n=seq[0];n<=seq.at(-1);n++)if(!seq.includes(n))miss.push(n)}return freeze({schema:'titan.reliability.causality-gap.v1',company_id:c,missing_sequences:freeze(miss),safe_to_advance:miss.length===0,requires_explicit_resolution:miss.length>0,advisory_only:true,authority_effect:false,grants_authority:false,changes_permissions:false,changes_autonomy:false})}

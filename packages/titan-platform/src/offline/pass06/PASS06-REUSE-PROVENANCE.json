@@ -1,0 +1,35 @@
+{
+  "schema": "titan-zero-offline-reuse-provenance/v1",
+  "packet_id": "TZ-FINISH-OFFLINE-RESILIENCE-001",
+  "pass": 6,
+  "dispositions": [
+    {
+      "source": "ported/titan-runtime/authority/authority-evaluator.ts",
+      "status": "ADAPTED",
+      "semantics": [
+        "contraction-only authority",
+        "freshness/expiry gates",
+        "identity/role not authority",
+        "permission and entitlement checks"
+      ]
+    },
+    {
+      "source": "ported/titan-offline/restart-checkpoint.ts authority continuity",
+      "status": "ADAPTED",
+      "semantics": [
+        "fresh authority required after recovery",
+        "binding continuity",
+        "evaluated-at freshness"
+      ]
+    },
+    {
+      "source": "Pass5 restart recovery",
+      "status": "COMPOSED",
+      "semantics": [
+        "resume remains replay-neutral until authority gate separately succeeds"
+      ]
+    }
+  ],
+  "rewrite_avoided": true,
+  "parallel_authority_created": false
+}

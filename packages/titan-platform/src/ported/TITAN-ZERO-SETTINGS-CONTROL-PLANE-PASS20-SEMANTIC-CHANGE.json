@@ -1,0 +1,14 @@
+{
+  "schema": "titan-zero-settings-semantic-change/v1",
+  "pass": 20,
+  "setting": "browserExecutionControls",
+  "semantics": [
+    "company policy contracts device browser execution settings",
+    "maxParallelTabs capped 1..20",
+    "page/scroll delays bounded 0..60000ms",
+    "extraction speeds fast/balanced/thorough",
+    "network modes runtime-provided",
+    "remote browser requires company+runtime external execution gates",
+    "Settings grants no authority and executes no browser actions"
+  ]
+}

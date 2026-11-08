@@ -1,0 +1,16 @@
+{
+  "schema":"titan-cleaning-rollout-learning/v1",
+  "version":"2026.09.07-pass9",
+  "policy":"Company-scoped rollout evidence is advisory only. Recommendations never authorize spend, publishing, scheduling, workforce execution or expansion.",
+  "thresholds":{
+    "minimum_rollout_jobs_for_continue":3,
+    "minimum_rollout_jobs_for_broader_confidence":5,
+    "moderate_negative_contribution_drift_percent":10,
+    "severe_negative_contribution_drift_percent":25,
+    "maximum_recent_issue_rate_percent":20,
+    "recent_window":5
+  },
+  "quality_outcomes":["passed","minor_rework","rework_required","failed"],
+  "customer_outcomes":["satisfied","neutral","dissatisfied","complaint"],
+  "recommendations":["continue_rollout","slow_expansion","return_controlled_rollout","pause_investigate"]
+}

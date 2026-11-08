@@ -1,0 +1,15 @@
+{
+  "schema": "titan-zero-settings-control-plane-semantic-change/v1",
+  "pass": 14,
+  "title": "Workforce Global Defaults",
+  "changes": [
+    "Added company-scoped Workforce defaults projection.",
+    "Grounded notification delivery/escalation bounds in existing Workforce runtime defaults.",
+    "Preserved mandatory supervisor handover evidence and evidence-backed performance preference.",
+    "Preserved proposal-only dynamic staffing and authority-neutral mission teams.",
+    "Added governed acknowledgement deadline defaults without automatic dispatch/escalation."
+  ],
+  "authority_effect": "none",
+  "execution_effect": "none",
+  "next_pass": 15
+}

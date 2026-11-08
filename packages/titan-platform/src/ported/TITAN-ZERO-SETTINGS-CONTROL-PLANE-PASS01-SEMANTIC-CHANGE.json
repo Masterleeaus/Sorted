@@ -1,0 +1,15 @@
+{
+  "schema": "titan-zero-semantic-change/v1",
+  "pass": 1,
+  "summary": "Adds a fresh scan-derived Settings authority census and persists the approved 30-pass Settings control-plane roadmap inside the build. No production runtime behavior changed in Pass 1.",
+  "added": [
+    "docs/superpowers/plans/2026-09-06-titan-zero-settings-control-plane.md",
+    "titan-settings/control-plane/pass01-fresh-settings-authority-census.json",
+    "tests/settings-control-plane/pass01_fresh_settings_authority_census.test.mjs",
+    "TITAN-ZERO-SETTINGS-CONTROL-PLANE-PASS01-VERIFICATION.json",
+    "TITAN-ZERO-SETTINGS-CONTROL-PLANE-PASS01-SEMANTIC-CHANGE.json"
+  ],
+  "modified": [],
+  "deleted": [],
+  "next_pass": "Canonical Settings Registry"
+}

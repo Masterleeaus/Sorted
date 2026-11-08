@@ -1,0 +1,22 @@
+{
+  "schema": "titan-cleaning-marketplace-action-queue/v1",
+  "version": "2026.09.07-pass14",
+  "policy": {
+    "company_scoped": true,
+    "advisory_only": true,
+    "executes_underlying_action": false,
+    "cancels_products": false,
+    "renews_products": false,
+    "purchases_replacements": false,
+    "migrates_data": false,
+    "removes_workers": false,
+    "grants_authority": false
+  },
+  "statuses": ["open", "in_review", "waiting_evidence", "decision_recorded", "closed"],
+  "decisions": ["keep", "renew", "review_later", "replace_considered", "consolidate_considered", "no_change", "not_applicable"],
+  "priorities": ["normal", "attention", "urgent"],
+  "thresholds": {
+    "overdue_priority": "urgent",
+    "due_soon_days": 14
+  }
+}

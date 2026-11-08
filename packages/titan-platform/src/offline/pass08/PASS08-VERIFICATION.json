@@ -1,0 +1,25 @@
+{
+  "schema": "titan-zero-offline-pass08-verification/v1",
+  "workspace": "Builder 3",
+  "packet_id": "TZ-FINISH-OFFLINE-RESILIENCE-001",
+  "pass": 8,
+  "status": "PASS_COMPLETE_CONTINUE",
+  "checks": {
+    "typecheck": "PASS",
+    "fresh_compile": "PASS",
+    "full_titan_platform_suite": "139/139 PASS",
+    "network_epoch": "PASS",
+    "stale_observation_no_rollback": "PASS",
+    "clock_skew": "FAIL_CLOSED",
+    "duplicate_delivery_same_binding": "IDEMPOTENT",
+    "duplicate_delivery_changed_binding": "FAIL_CLOSED",
+    "partial_sync_ordering": "PASS",
+    "partial_sync_duplicate_part": "IDEMPOTENT",
+    "partial_sync_restart_resume": "PASS",
+    "partial_sync_generation_change": "FAIL_CLOSED",
+    "cross_company": "FAIL_CLOSED",
+    "legacy_alias": "FAIL_CLOSED",
+    "automatic_effect_replay": false
+  },
+  "next_gate": "Pass 9: extended offline/online cycling, restart, low-storage and multi-device conflict tests."
+}

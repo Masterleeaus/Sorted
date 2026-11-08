@@ -1,0 +1,27 @@
+{
+  "schema":"titan.settings.offline-synchronisation-settings-contract.v1",
+  "setting_key":"offlineSynchronisationSettings",
+  "scope":"company",
+  "owner":"offline_sync_runtime",
+  "runtime_owners":[
+    "titan-offline/restart-checkpoint.mjs",
+    "titan-offline/conflict-retry-policy.mjs",
+    "titan-offline/recovery-state-machine.mjs",
+    "titan-offline/continuation-guard.mjs",
+    "titan-workforce/gateway/MV3SyncRecovery.schema.json",
+    "titan-workforce/gateway/OfflineContractionBinding.schema.json"
+  ],
+  "real_sync_modes":["realtime","polling"],
+  "hard_rules":[
+    "company_id is the sole company boundary",
+    "checkpoint/revision/cursor/generation/retry counters are runtime state, not editable settings",
+    "tokens, authority decisions and commands are never persisted by Settings",
+    "offline identity and local state never raise authority",
+    "protected commands remain blocked offline",
+    "reconnect requires fresh authority for governed effects",
+    "restart recovery requires explicit resume",
+    "automatic effect replay remains false",
+    "conflict resolution remains manual review",
+    "Settings may tighten retry/sync policy but never bypass runtime safety"
+  ]
+}

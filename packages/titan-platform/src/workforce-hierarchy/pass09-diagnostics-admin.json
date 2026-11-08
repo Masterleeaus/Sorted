@@ -1,0 +1,13 @@
+{
+  "schema": "titan-zero-workforce-hierarchy-pass/v1",
+  "packet_id": "TZ-WF-HIERARCHY-001",
+  "pass": 9,
+  "title": "Hierarchy diagnostics and admin inspection",
+  "status": "implemented",
+  "mode": "read_only_projection",
+  "ui_policy": "preserve_existing_workforce_ui",
+  "authority": {
+    "diagnostics_confers_execution_authority": false,
+    "business_ops_route_remains_authoritative": true
+  }
+}

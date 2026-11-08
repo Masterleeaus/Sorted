@@ -1,0 +1,56 @@
+{
+  "schema": "titan-zero-storage-reuse-provenance/v1",
+  "packet_id": "TZ-FINISH-STORAGE-DATA-AUTHORITY-001",
+  "pass": 5,
+  "dispositions": [
+    {
+      "source": "packages/titan-platform/src/ported/titan-offline/checkpoint-storage.ts",
+      "status": "ADAPTED",
+      "reused_semantics": [
+        "company-bound checkpoint facade",
+        "cross-company rejection",
+        "legacy tenant alias rejection",
+        "authority neutrality",
+        "canonical repository backing"
+      ]
+    },
+    {
+      "source": "packages/titan-platform/src/ported/titan-local/storage/business-history-reconciliation.ts",
+      "status": "ADAPTED",
+      "reused_semantics": [
+        "preserve canonical/local state on conflict",
+        "company filtering",
+        "idempotent reconciliation posture"
+      ]
+    },
+    {
+      "source": "packages/titan-platform/src/ported/titan-local/storage/business-state-authority.ts",
+      "status": "ADAPTED",
+      "reused_semantics": [
+        "monotonic revision comparison",
+        "explicit conflict recording",
+        "no silent overwrite"
+      ]
+    },
+    {
+      "source": "SUP-REUSE-B3-STORAGE-003 / TZ-WP-003 Pass02",
+      "status": "REUSED",
+      "reused_semantics": [
+        "company-scoped checkpoint facade",
+        "no new IndexedDB schema",
+        "persistence authority-neutral"
+      ]
+    },
+    {
+      "source": "SUP-REUSE-B3-STORAGE-003 / TZ-FINISH-003 Pass09",
+      "status": "REUSED",
+      "reused_semantics": [
+        "canonical business storage remains authority",
+        "legacy browser storage compatibility-only",
+        "company_id sole boundary"
+      ]
+    }
+  ],
+  "parallel_storage_authority_created": false,
+  "unnecessary_schema_duplication": false
+}

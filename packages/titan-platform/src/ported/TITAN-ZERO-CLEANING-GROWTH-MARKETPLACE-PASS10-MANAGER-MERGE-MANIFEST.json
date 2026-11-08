@@ -1,0 +1,51 @@
+{
+  "schema": "titan-zero-manager-semantic-merge-package/v1",
+  "programme": "cleaning-growth-marketplace",
+  "passes": "1-10",
+  "source_checkpoint": "Titan-Zero-CLEANING-GROWTH-MARKETPLACE-PASS10-FINAL-CERTIFIED-CUMULATIVE.zip",
+  "target": {
+    "artifact": "Titan-Zero-CANONICAL-MASTER-2026-09-07-MERGE-29-REPAIR06-CONVERGED.zip",
+    "sha256": "3e5520d2495c2a5edde310d12d2b82de399e9277248c1fdfb5cd85df5df9d70b",
+    "files": 2245,
+    "merge": 29,
+    "status": "DEVELOPMENT_CANONICAL_REPAIR06_CONVERGED"
+  },
+  "strategy": "SEMANTIC_FORWARD_PORT_NOT_WHOLESALE_REPLACEMENT",
+  "preserve_target_semantics": [
+    "Merge29 Repair06 explicit launch view precedence",
+    "Merge29 Repair06 explicit AI target precedence",
+    "Merge29 Repair06 content-script injection order",
+    "all newer Manager runtime/UI/Tools/Settings/Workforce work"
+  ],
+  "core_cleaning_files": [
+    "modules.html",
+    "modules.css",
+    "cleaning-marketplace.js",
+    "cleaning-software-marketplace.js",
+    "cleaning-workforce-marketplace.js",
+    "cleaning-growth-marketplace.js",
+    "cleaning-growth-recommendations.js",
+    "cleaning-growth-opportunity-intelligence.js",
+    "cleaning-service-launch-planner.js",
+    "cleaning-service-launch-portfolio.js",
+    "cleaning-service-launch-economics.js",
+    "cleaning-pilot-outcome-validation.js",
+    "cleaning-scale-readiness.js",
+    "cleaning-rollout-learning.js",
+    "titan-cleaning-workforce-products.js",
+    "titan-cleaning-workforce.js"
+  ],
+  "config_prefixes": [
+    "titan-modules/cleaning-"
+  ],
+  "tests_prefixes": [
+    "tests/cleaning_",
+    "tests/test_cleaning_"
+  ],
+  "company_boundary": "company_id only",
+  "identity_grants_authority": false,
+  "production_certification_required_after_merge": [
+    "unpacked Chrome",
+    "live Laravel"
+  ]
+}

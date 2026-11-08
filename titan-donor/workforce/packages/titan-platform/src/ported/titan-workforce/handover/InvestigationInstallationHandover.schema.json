@@ -1,0 +1,15 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema",
+  "$id":"titan.workforce.investigation-installation-handover.v1",
+  "type":"object",
+  "required":["schema","company_id","handover_id","deployment_mission_id","findings","recommendations","unresolved_risks","required_capabilities","commissioning_gates","readiness","requires_governed_installation","automatic_provisioning","authority_granted","execution_permitted","grants_authority"],
+  "properties":{
+    "schema":{"const":"titan.workforce.investigation-installation-handover.v1"},
+    "company_id":{"type":"string","minLength":2},
+    "handover_id":{"type":"string","minLength":1},
+    "deployment_mission_id":{"type":"string","minLength":1},
+    "findings":{"type":"array"},"recommendations":{"type":"array"},"unresolved_risks":{"type":"array"},"required_capabilities":{"type":"array"},"commissioning_gates":{"type":"array"},
+    "readiness":{"type":"object","required":["state","ready_for_installation_review","blockers"]},
+    "requires_governed_installation":{"const":true},"automatic_provisioning":{"const":false},"automatic_capability_activation":{"const":false},"automatic_authority_change":{"const":false},"authority_granted":{"const":false},"execution_permitted":{"const":false},"grants_authority":{"const":false},"authority_effect":{"const":false}
+  },"additionalProperties":true
+}

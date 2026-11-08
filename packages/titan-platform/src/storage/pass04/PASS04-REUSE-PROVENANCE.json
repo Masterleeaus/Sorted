@@ -1,0 +1,37 @@
+{
+  "schema": "titan-zero-storage-reuse-provenance/v1",
+  "packet_id": "TZ-FINISH-STORAGE-DATA-AUTHORITY-001",
+  "pass": 4,
+  "dispositions": [
+    {
+      "source": "packages/titan-platform/src/ported/titan-local/storage/legacy-storage-migration.ts",
+      "status": "ADAPTED",
+      "reused_semantics": [
+        "per-company completion checkpoints",
+        "checkpoint only after success",
+        "skip completed stage before source/body execution",
+        "failed stage remains retryable"
+      ]
+    },
+    {
+      "source": "packages/titan-platform/src/ported/titan-local/storage/business-database.ts",
+      "status": "ADAPTED",
+      "reused_semantics": [
+        "migration id scoping",
+        "checkpoint version compatibility",
+        "company_id boundary"
+      ]
+    },
+    {
+      "source": "SUP-REUSE-B3-STORAGE-003 / TZ-FINISH-003 Pass05",
+      "status": "REUSED",
+      "reused_semantics": [
+        "idempotent migration checkpoints",
+        "retry failed stages",
+        "skip successful stages without reread"
+      ]
+    }
+  ],
+  "parallel_storage_authority_created": false,
+  "new_indexeddb_schema_created": false
+}

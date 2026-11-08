@@ -1,0 +1,40 @@
+{
+  "schema": "titan.workforce.hierarchy.inventory.v1",
+  "packet_id": "TZ-WF-HIERARCHY-001",
+  "pass": 1,
+  "manager_base": {
+    "merge": 52,
+    "artifact": "Titan-Zero-CANONICAL-2026-09-13-MERGE52-QUOTE-AGENT-CONVERGED.zip",
+    "sha256": "ea6c219d40ffbddcbb68e9c9ed741c93568fe12be2e4f09dd69af0b528366d92"
+  },
+  "canonical_contract": "titan.workforce.hierarchy.v1",
+  "tier_mapping": {
+    "manager": "business/domain objective owner and policy coordinator",
+    "supervisor": "bounded domain/team coordinator and escalation owner",
+    "agent": "standalone workforce agent or specialist role operating under governed authority",
+    "worker": "atomic execution unit with least-authority tool/capability access"
+  },
+  "existing_sources_reused": [
+    "packages/titan-platform/src/ported/titan-workforce/hierarchy/workforce-organizational-graph.ts",
+    "packages/titan-platform/src/ported/titan-workforce/hierarchy/delegation-routing-runtime.ts",
+    "packages/titan-platform/src/ported/titan-workforce/hierarchy/atomic-worker-tool-binding-runtime.ts",
+    "packages/titan-platform/src/ported/titan-workforce/scheduling/manager-supervisor-team-assignment-hierarchy.ts",
+    "packages/titan-platform/src/ported/titan-workforce/supervision/supervisor-workspace-projection.ts",
+    "packages/titan-platform/src/ported/TITAN-ZERO-WORKFORCE-PASS17-MANAGER-SUPERVISOR-RUNTIME.json",
+    "packages/titan-platform/src/ported/TITAN-ZERO-WORKFORCE-PASS19-DECISION-RIGHTS-ENGINE.json",
+    "packages/titan-platform/src/ported/MANAGER-MERGE-50-FIVE-TIER-ORGANIZATIONAL-GRAPH.json",
+    "apps/web/lib/titan/workforce-command-gateway.ts"
+  ],
+  "invariants": {
+    "company_boundary": "company_id",
+    "identity_confers_authority": false,
+    "hierarchy_confers_authority": false,
+    "delegation_confers_authority": false,
+    "decision_rights_confer_execution_authority": false,
+    "execution_requires_authority_evaluation": true,
+    "execution_requires_capability_resolution": true,
+    "business_ops_routes_remain_authoritative": true
+  },
+  "pass1_gap_closed": "One native standalone contract now describes the Manager -> Supervisor -> Agent -> Worker hierarchy while retaining existing graph, delegation, authority and command-gateway semantics.",
+  "production_authority_changed": false
+}

@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "titan.client.workforce.control-intent.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["intent_id", "schema", "company_id", "action", "target_ref", "state", "grants_authority", "auto_execute", "created_at"],
+  "properties": {
+    "intent_id": {"type": "string", "minLength": 1},
+    "schema": {"const": "titan.client.workforce.control-intent.v1"},
+    "company_id": {"type": "string", "minLength": 2, "maxLength": 128, "pattern": "^[A-Za-z0-9._:-]+$"},
+    "action": {"enum": ["propose_role_activation", "request_pause", "request_resume", "request_assignment_review"]},
+    "target_ref": {"type": "string", "minLength": 1},
+    "state": {"enum": ["prepared", "submitted", "accepted", "rejected", "superseded"]},
+    "grants_authority": {"const": false},
+    "auto_execute": {"const": false},
+    "created_at": {"type": "string"},
+    "role_name": {"type": "string"},
+    "label": {"type": "string"}
+  }
+}

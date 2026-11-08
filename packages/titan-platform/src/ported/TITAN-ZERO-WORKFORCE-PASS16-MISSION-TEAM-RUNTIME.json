@@ -1,0 +1,20 @@
+{
+  "schema": "titan-zero-workforce-pass/v1",
+  "pass": 16,
+  "title": "Mission-Team Runtime",
+  "status": "PASS_FULL_REGRESSION_PENDING_PACKAGE_RECONSTRUCTION",
+  "company_boundary": "company_id",
+  "durable_authority": "Laravel Workforce",
+  "team_membership_confers_authority": false,
+  "supervisor_confers_authority": false,
+  "coordinator_confers_authority": false,
+  "parallel_authority_layer": false,
+  "deleted_files": 0,
+  "verification": {
+    "python": "102/102 PASS",
+    "node_test_files": "61/61 PASS",
+    "focused_mission_team": "4/4 PASS",
+    "js_mjs_cjs_syntax": "228/228 PASS",
+    "json_parse": "320/320 PASS"
+  }
+}

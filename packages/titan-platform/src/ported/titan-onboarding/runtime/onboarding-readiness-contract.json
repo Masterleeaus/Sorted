@@ -1,0 +1,25 @@
+{
+  "schema": "titan.onboarding.readiness.contract.v1",
+  "company_boundary": "company_id",
+  "statuses": ["configured", "missing", "blocked", "optional"],
+  "overall_statuses": ["ready", "missing", "blocked"],
+  "required_areas": ["journey_state", "business_setup", "cleaning_services", "workforce_setup"],
+  "optional_areas": ["payments_communications", "import_data"],
+  "semantics": {
+    "configured": "A setup area has persisted configuration and passes readiness safety checks.",
+    "missing": "A required setup area has no persisted configuration yet.",
+    "blocked": "Configuration exists but is invalid, internally inconsistent, unreadable, cross-company, or violates an authority/execution safety boundary.",
+    "optional": "An optional setup area has not been configured and does not prevent operational readiness."
+  },
+  "safety": {
+    "read_only": true,
+    "derived": true,
+    "grants_authority": false,
+    "execution_permitted": false,
+    "automatic_execution": false,
+    "readiness_does_not_activate_workers": true,
+    "readiness_does_not_move_money": true,
+    "readiness_does_not_send_messages": true,
+    "readiness_does_not_apply_imports": true
+  }
+}

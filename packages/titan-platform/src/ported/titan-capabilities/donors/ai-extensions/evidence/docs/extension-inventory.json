@@ -1,0 +1,3033 @@
+[
+  {
+    "folder": "AIAgent",
+    "category": "agent-suite",
+    "manifest": {
+      "name": "AI Agent",
+      "type": "extension",
+      "version": "1.1",
+      "description": "Autonomous AI agent with multi-channel messaging, workflow automation, and user memory — TG: @heew_support",
+      "support_telegram": "heew_support"
+    },
+    "file_count": 169,
+    "bytes": 1352714,
+    "components": {
+      "other": 26,
+      "migrations": 20,
+      "connectors": 7,
+      "policies": 3,
+      "actions": 8,
+      "services": 7,
+      "triggers": 4,
+      "jobs": 1,
+      "models": 9,
+      "controllers": 11,
+      "commands": 2,
+      "views": 53,
+      "assets": 18
+    },
+    "route_count": 37,
+    "tables_created": [
+      "ext_ai_agent_avatars",
+      "ext_ai_agent_channels",
+      "ext_ai_agent_conversations",
+      "ext_ai_agent_knowledge_sources",
+      "ext_ai_agent_memories",
+      "ext_ai_agent_messages",
+      "ext_ai_agent_workflow_copilot_messages",
+      "ext_ai_agent_workflow_runs",
+      "ext_ai_agent_workflows"
+    ],
+    "dependencies_detected": [
+      "AIAgentGmail",
+      "AIAgentOutlook",
+      "AIAgentSlackChannel",
+      "AIAgentWhatsappChannel",
+      "AIImagePro",
+      "AISocialMedia",
+      "BlogPilot",
+      "Chatbot",
+      "CreativeSuite",
+      "MarketingBot",
+      "SocialMedia",
+      "SocialMediaAgent",
+      "ai-image-pro",
+      "ai-social-media",
+      "blogpilot",
+      "chatbot",
+      "creative-suite",
+      "marketing-bot",
+      "social-media-agent"
+    ],
+    "external_domains": [
+      "api.deepseek.com",
+      "api.openai.com",
+      "api.telegram.org",
+      "api.x.ai",
+      "console.cloud.google.com",
+      "example.com",
+      "graph.facebook.com",
+      "graph.microsoft.com",
+      "mail.google.com",
+      "portal.azure.com",
+      "t.me",
+      "www.googleapis.com",
+      "www.w3.org"
+    ],
+    "todo_count": 1,
+    "flagged_pattern_count": 0
+  },
+  {
+    "folder": "AIAgentGmail",
+    "category": "agent-suite",
+    "manifest": {
+      "name": "AI Agent: Gmail",
+      "type": "extension",
+      "version": "1.0",
+      "description": "Integrates Gmail with AIAgent: email reading, composing, and management via Google Gmail API. — TG: @heew_support",
+      "support_telegram": "heew_support"
+    },
+    "file_count": 33,
+    "bytes": 74017,
+    "components": {
+      "other": 7,
+      "migrations": 1,
+      "policies": 1,
+      "actions": 13,
+      "models": 1,
+      "controllers": 4,
+      "views": 2,
+      "connectors": 4
+    },
+    "route_count": 7,
+    "tables_created": [
+      "ext_ai_agent_connectors"
+    ],
+    "dependencies_detected": [
+      "AIAgent",
+      "AIAgentOutlook"
+    ],
+    "external_domains": [
+      "accounts.google.com",
+      "mail.google.com",
+      "oauth2.googleapis.com",
+      "t.me",
+      "www.googleapis.com"
+    ],
+    "todo_count": 0,
+    "flagged_pattern_count": 0
+  },
+  {
+    "folder": "AIAgentSlackChannel",
+    "category": "agent-suite",
+    "manifest": {
+      "name": "AI Agent: Slack Channel",
+      "type": "extension",
+      "version": "1.0",
+      "description": "Adds Slack channel support to AI Agent via Slack Web API. Requires the AI Agent extension. — TG: @heew_support",
+      "support_telegram": "heew_support"
+    },
+    "file_count": 7,
+    "bytes": 15698,
+    "components": {
+      "other": 5,
+      "connectors": 1,
+      "controllers": 1
+    },
+    "route_count": 1,
+    "tables_created": [],
+    "dependencies_detected": [
+      "AIAgent"
+    ],
+    "external_domains": [
+      "api.slack.com",
+      "ngrok.com",
+      "slack.com",
+      "t.me",
+      "your-domain.com"
+    ],
+    "todo_count": 0,
+    "flagged_pattern_count": 0
+  },
+  {
+    "folder": "AIAgentToolChatbot",
+    "category": "chatbot-suite",
+    "manifest": {
+      "name": "AI Agent Tool: Chatbot",
+      "type": "extension",
+      "version": "1.0",
+      "description": "Bridges AIAgent and Chatbot: enhanced reporting and Auto Tool Calling tools for chatbot and conversation management. — TG: @heew_support",
+      "support_telegram": "heew_support"
+    },
+    "file_count": 12,
+    "bytes": 34993,
+    "components": {
+      "other": 4,
+      "actions": 8
+    },
+    "route_count": 0,
+    "tables_created": [],
+    "dependencies_detected": [
+      "AIAgent",
+      "AIAgentToolMarketingBot",
+      "AIAgentToolSocialMediaAgent",
+      "Chatbot"
+    ],
+    "external_domains": [
+      "t.me"
+    ],
+    "todo_count": 0,
+    "flagged_pattern_count": 0
+  },
+  {
+    "folder": "AIAgentToolMarketingBot",
+    "category": "agent-suite",
+    "manifest": {
+      "name": "AI Agent Tool: Marketing Bot",
+      "type": "extension",
+      "version": "1.0",
+      "description": "Bridges AIAgent and MarketingBot: enhanced reporting and Auto Tool Calling tools for campaign and conversation management. — TG: @heew_support",
+      "support_telegram": "heew_support"
+    },
+    "file_count": 11,
+    "bytes": 31591,
+    "components": {
+      "other": 4,
+      "actions": 7
+    },
+    "route_count": 0,
+    "tables_created": [],
+    "dependencies_detected": [
+      "AIAgent",
+      "AIAgentToolSocialMediaAgent",
+      "MarketingBot"
+    ],
+    "external_domains": [
+      "t.me"
+    ],
+    "todo_count": 0,
+    "flagged_pattern_count": 0
+  },
+  {
+    "folder": "AIAgentToolSocialMediaAgent",
+    "category": "agent-suite",
+    "manifest": {
+      "name": "AI Agent Tool: Social Media Agent",
+      "type": "extension",
+      "version": "1.0",
+      "description": "Bridges AIAgent and SocialMediaAgent: enhanced reporting and Auto Tool Calling tools for social media management. — TG: @heew_support",
+      "support_telegram": "heew_support"
+    },
+    "file_count": 12,
+    "bytes": 33872,
+    "components": {
+      "other": 4,
+      "actions": 8
+    },
+    "route_count": 0,
+    "tables_created": [],
+    "dependencies_detected": [
+      "AIAgent",
+      "SocialMediaAgent"
+    ],
+    "external_domains": [
+      "t.me"
+    ],
+    "todo_count": 0,
+    "flagged_pattern_count": 0
+  },
+  {
+    "folder": "AIAgentWhatsappChannel",
+    "category": "agent-suite",
+    "manifest": {
+      "name": "AI Agent: WhatsApp Channel",
+      "type": "extension",
+      "version": "1.0",
+      "description": "Adds WhatsApp channel support to AI Agent via Meta Cloud API. Requires the AI Agent extension. — TG: @heew_support",
+      "support_telegram": "heew_support"
+    },
+    "file_count": 6,
+    "bytes": 13283,
+    "components": {
+      "other": 4,
+      "connectors": 1,
+      "controllers": 1
+    },
+    "route_count": 2,
+    "tables_created": [],
+    "dependencies_detected": [
+      "AIAgent"
+    ],
+    "external_domains": [
+      "graph.facebook.com",
+      "t.me"
+    ],
+    "todo_count": 0,
+    "flagged_pattern_count": 0
+  },
+  {
+    "folder": "AIChatPro",
+    "category": "core-chat",
+    "manifest": {
+      "name": "AIChatPro",
+      "type": "extension",
+      "version": "3.7",
+      "description": "AIChatPro extension for MagicAI — TG: @heew_support",
+      "support_telegram": "heew_support"
+    },
+    "file_count": 47,
+    "bytes": 328078,
+    "components": {
+      "other": 7,
+      "migrations": 7,
+      "connectors": 9,
+      "events": 1,
+      "listeners": 1,
+      "services": 1,
+      "jobs": 1,
+      "controllers": 4,
+      "policies": 1,
+      "models": 1,
+      "views": 14
+    },
+    "route_count": 14,
+    "tables_created": [
+      "ext_ai_chat_pro_connectors"
+    ],
+    "dependencies_detected": [
+      "AiChatProImageChat",
+      "AiChatProSmartImage",
+      "ai-chat-pro-deep-research",
+      "ai-chat-pro-entity-highlight",
+      "ai-chat-pro-file-chat",
+      "ai-chat-pro-image-chat",
+      "ai-chat-pro-smart-image",
+      "canvas",
+      "chat-pro-temp-chat",
+      "model-council",
+      "multi-model",
+      "openai-realtime-chat"
+    ],
+    "external_domains": [
+      "api.openai.com",
+      "google.serper.dev",
+      "t.me",
+      "www.w3.org"
+    ],
+    "todo_count": 1,
+    "flagged_pattern_count": 0
+  },
+  {
+    "folder": "AIChatProDeepResearch",
+    "category": "core-chat",
+    "manifest": {
+      "name": "AI Chat Pro Deep Research",
+      "type": "extension",
+      "version": "1.3",
+      "description": "Deep Research extension for AI Chat Pro using OpenAI and Gemini deep research APIs — TG: @heew_support",
+      "support_telegram": "heew_support"
+    },
+    "file_count": 18,
+    "bytes": 169911,
+    "components": {
+      "other": 4,
+      "migrations": 2,
+      "services": 3,
+      "models": 2,
+      "controllers": 2,
+      "views": 5
+    },
+    "route_count": 7,
+    "tables_created": [
+      "deep_research_sessions",
+      "dr_tiptap_contents"
+    ],
+    "dependencies_detected": [
+      "canvas"
+    ],
+    "external_domains": [
+      "generativelanguage.googleapis.com",
+      "t.me",
+      "www.google.com",
+      "www.w3.org"
+    ],
+    "todo_count": 1,
+    "flagged_pattern_count": 0
+  },
+  {
+    "folder": "AIChatProFileChat",
+    "category": "core-chat",
+    "manifest": {
+      "name": "AIChatProFileChat",
+      "type": "extension",
+      "version": "1.4",
+      "description": "AIChatProFileChat extension for MagicAI — TG: @heew_support",
+      "support_telegram": "heew_support"
+    },
+    "file_count": 9,
+    "bytes": 7822,
+    "components": {
+      "other": 6,
+      "services": 1,
+      "models": 1,
+      "views": 1
+    },
+    "route_count": 0,
+    "tables_created": [],
+    "dependencies_detected": [],
+    "external_domains": [
+      "t.me"
+    ],
+    "todo_count": 1,
+    "flagged_pattern_count": 0
+  },
+  {
+    "folder": "AIChatProFolders",
+    "category": "core-chat",
+    "manifest": {
+      "name": "AI Chat Pro Folders",
+      "type": "extension",
+      "version": "1.4",
+      "description": "AI Chat Pro Folders extension for MagicAI — TG: @heew_support",
+      "support_telegram": "heew_support"
+    },
+    "file_count": 12,
+    "bytes": 69352,
+    "components": {
+      "other": 6,
+      "migrations": 2,
+      "models": 2,
+      "controllers": 1,
+      "views": 1
+    },
+    "route_count": 6,
+    "tables_created": [
+      "ai_chat_pro_folders"
+    ],
+    "dependencies_detected": [
+      "ai-chat-pro-image-chat"
+    ],
+    "external_domains": [
+      "t.me"
+    ],
+    "todo_count": 1,
+    "flagged_pattern_count": 0
+  },
+  {
+    "folder": "AIChatProSkills",
+    "category": "core-chat",
+    "manifest": {
+      "name": "AI Chat Pro Skills",
+      "type": "extension",
+      "version": "1.1",
+      "description": "AI Chat Pro Skills extension for MagicAI - Add reusable AI skills to chat — TG: @heew_support",
+      "support_telegram": "heew_support"
+    },
+    "file_count": 23,
+    "bytes": 195811,
+    "components": {
+      "other": 8,
+      "migrations": 2,
+      "services": 2,
+      "models": 2,
+      "controllers": 3,
+      "views": 6
+    },
+    "route_count": 25,
+    "tables_created": [
+      "skills",
+      "user_skills"
+    ],
+    "dependencies_detected": [],
+    "external_domains": [
+      "api.github.com",
+      "github.com",
+      "github\\.com",
+      "raw.githubusercontent.com",
+      "t.me",
+      "www.w3.org"
+    ],
+    "todo_count": 1,
+    "flagged_pattern_count": 0
+  },
+  {
+    "folder": "AIImagePro",
+    "category": "creative-ai",
+    "manifest": {
+      "name": "AIImagePro",
+      "type": "extension",
+      "version": "1.8",
+      "description": "AIImagePro extension for magicai — TG: @heew_support",
+      "support_telegram": "heew_support"
+    },
+    "file_count": 151,
+    "bytes": 12628856,
+    "components": {
+      "other": 8,
+      "migrations": 7,
+      "services": 2,
+      "jobs": 2,
+      "models": 2,
+      "controllers": 2,
+      "assets": 97,
+      "views": 31
+    },
+    "route_count": 29,
+    "tables_created": [
+      "ai_image_pro",
+      "ai_image_pro_likes"
+    ],
+    "dependencies_detected": [
+      "AdvancedImage",
+      "AiChatProImageChat",
+      "FooterMenu",
+      "advanced-image",
+      "ai-chat-pro-image-chat",
+      "content-manager",
+      "creative-suite",
+      "flux-pro",
+      "footer-menu",
+      "ideogram",
+      "nano-banana",
+      "see-dream-v4",
+      "social-media"
+    ],
+    "external_domains": [
+      "...",
+      "api.together.xyz",
+      "t.me",
+      "www.w3.org"
+    ],
+    "todo_count": 6,
+    "flagged_pattern_count": 0
+  },
+  {
+    "folder": "AIPhotoshoot",
+    "category": "creative-ai",
+    "manifest": {
+      "name": "AIPhotoshoot",
+      "type": "extension",
+      "version": "1.2",
+      "description": "AIPhotoshoot extension for magicai — TG: @heew_support",
+      "support_telegram": "heew_support"
+    },
+    "file_count": 95,
+    "bytes": 2975322,
+    "components": {
+      "other": 8,
+      "migrations": 5,
+      "services": 4,
+      "jobs": 3,
+      "models": 3,
+      "controllers": 13,
+      "views": 15,
+      "assets": 44
+    },
+    "route_count": 32,
+    "tables_created": [
+      "ai_photo_studio_backgrounds",
+      "ai_photo_studio_products",
+      "ai_photo_studio_user_settings"
+    ],
+    "dependencies_detected": [
+      "AiChatProImageChat"
+    ],
+    "external_domains": [
+      "developers.openai.com",
+      "queue.fal.run",
+      "t.me",
+      "www.w3.org"
+    ],
+    "todo_count": 3,
+    "flagged_pattern_count": 0
+  },
+  {
+    "folder": "AIPlagiarism",
+    "category": "growth-ai",
+    "manifest": {
+      "name": "AI Plagiarism",
+      "type": "extension",
+      "version": "2.2",
+      "description": "AI Plagiarism extension for magicai — TG: @heew_support",
+      "support_telegram": "heew_support"
+    },
+    "file_count": 9,
+    "bytes": 61951,
+    "components": {
+      "other": 3,
+      "migrations": 1,
+      "services": 1,
+      "controllers": 1,
+      "views": 3
+    },
+    "route_count": 8,
+    "tables_created": [],
+    "dependencies_detected": [],
+    "external_domains": [
+      "plagiarismcheck.org",
+      "serper.dev",
+      "t.me",
+      "themeforest.net",
+      "unplazagrill.com",
+      "www.w3.org"
+    ],
+    "todo_count": 2,
+    "flagged_pattern_count": 0
+  },
+  {
+    "folder": "AIRealtimeImage",
+    "category": "creative-ai",
+    "manifest": {
+      "name": "AI Realtime Image",
+      "type": "extension",
+      "version": "1.14",
+      "description": "AI Realtime Image extension for magicai — TG: @heew_support",
+      "support_telegram": "heew_support"
+    },
+    "file_count": 27,
+    "bytes": 59120,
+    "components": {
+      "other": 7,
+      "migrations": 4,
+      "services": 1,
+      "models": 1,
+      "controllers": 2,
+      "assets": 2,
+      "views": 10
+    },
+    "route_count": 3,
+    "tables_created": [
+      "ai_realtime_images"
+    ],
+    "dependencies_detected": [],
+    "external_domains": [
+      "api.together.xyz",
+      "t.me",
+      "www.w3.org"
+    ],
+    "todo_count": 2,
+    "flagged_pattern_count": 0
+  },
+  {
+    "folder": "AISocialMedia",
+    "category": "growth-ai",
+    "manifest": {
+      "name": "AI Social Media",
+      "type": "extension",
+      "version": "4.12",
+      "description": "AI Social Media extension for magicai — TG: @heew_support",
+      "support_telegram": "heew_support"
+    },
+    "file_count": 71,
+    "bytes": 371736,
+    "components": {
+      "other": 10,
+      "migrations": 13,
+      "services": 6,
+      "jobs": 1,
+      "models": 6,
+      "controllers": 7,
+      "commands": 5,
+      "views": 19,
+      "assets": 4
+    },
+    "route_count": 29,
+    "tables_created": [
+      "automation_campaigns",
+      "automation_platforms",
+      "automations",
+      "linkedin_tokens",
+      "scheduled_posts",
+      "twitter_settings"
+    ],
+    "dependencies_detected": [],
+    "external_domains": [
+      "api.linkedin.com",
+      "api.openai.com",
+      "developer.x.com",
+      "developers.facebook.com",
+      "foliotek.github.io",
+      "graph.facebook.com",
+      "t.me",
+      "www.facebook.com",
+      "www.linkedin.com",
+      "www.w3.org"
+    ],
+    "todo_count": 3,
+    "flagged_pattern_count": 0
+  },
+  {
+    "folder": "AIVideoToVideo",
+    "category": "creative-ai",
+    "manifest": {
+      "name": "Video to Video",
+      "type": "extension",
+      "version": "1.6",
+      "description": "Video to Video extension for magicai — TG: @heew_support",
+      "support_telegram": "heew_support"
+    },
+    "file_count": 17,
+    "bytes": 70461,
+    "components": {
+      "other": 7,
+      "migrations": 2,
+      "services": 6,
+      "controllers": 1,
+      "views": 1
+    },
+    "route_count": 3,
+    "tables_created": [],
+    "dependencies_detected": [],
+    "external_domains": [
+      "queue.fal.run",
+      "t.me",
+      "www.w3.org"
+    ],
+    "todo_count": 1,
+    "flagged_pattern_count": 0
+  },
+  {
+    "folder": "AIVoiceIsolator",
+    "category": "creative-ai",
+    "manifest": {
+      "name": "AI Voice Isolator",
+      "type": "extension",
+      "version": "2.3",
+      "description": "AI Voice Isolator extension for magicai — TG: @heew_support",
+      "support_telegram": "heew_support"
+    },
+    "file_count": 4,
+    "bytes": 5147,
+    "components": {
+      "other": 3,
+      "views": 1
+    },
+    "route_count": 0,
+    "tables_created": [],
+    "dependencies_detected": [],
+    "external_domains": [
+      "t.me"
+    ],
+    "todo_count": 0,
+    "flagged_pattern_count": 0
+  },
+  {
+    "folder": "AIWebChat",
+    "category": "core-chat",
+    "manifest": {
+      "name": "AI Web Chat",
+      "type": "extension",
+      "version": "2.9",
+      "description": "AI Web Chat extension for magicai — TG: @heew_support",
+      "support_telegram": "heew_support"
+    },
+    "file_count": 18,
+    "bytes": 101254,
+    "components": {
+      "other": 6,
+      "migrations": 2,
+      "models": 1,
+      "controllers": 1,
+      "views": 6,
+      "assets": 2
+    },
+    "route_count": 4,
+    "tables_created": [],
+    "dependencies_detected": [],
+    "external_domains": [
+      "api.openai.com",
+      "api.perplexity.ai",
+      "google.serper.dev",
+      "t.me",
+      "www.w3.org"
+    ],
+    "todo_count": 0,
+    "flagged_pattern_count": 0
+  },
+  {
+    "folder": "AIWriterTemplates",
+    "category": "creative-ai",
+    "manifest": {
+      "name": "AI Writer Templates",
+      "type": "extension",
+      "version": "2.1",
+      "description": "AI Writer Templates extension for magicai — TG: @heew_support",
+      "support_telegram": "heew_support"
+    },
+    "file_count": 5,
+    "bytes": 113641,
+    "components": {
+      "other": 4,
+      "migrations": 1
+    },
+    "route_count": 0,
+    "tables_created": [],
+    "dependencies_detected": [],
+    "external_domains": [
+      "t.me",
+      "www.w3.org"
+    ],
+    "todo_count": 0,
+    "flagged_pattern_count": 0
+  },
+  {
+    "folder": "AdvancedImage",
+    "category": "creative-ai",
+    "manifest": {
+      "name": "Advanced Image",
+      "type": "extension",
+      "version": "2.14",
+      "description": "Advanced Image extension for magicai — TG: @heew_support",
+      "support_telegram": "heew_support"
+    },
+    "file_count": 47,
+    "bytes": 276552,
+    "components": {
+      "other": 6,
+      "migrations": 2,
+      "services": 10,
+      "controllers": 8,
+      "views": 21
+    },
+    "route_count": 13,
+    "tables_created": [],
+    "dependencies_detected": [
+      "ai-product-shot",
+      "ai-video-pro",
+      "ideogram",
+      "nano-banana",
+      "see-dream-v4"
+    ],
+    "external_domains": [
+      "...",
+      "api.freepik.com",
+      "api.novita.ai",
+      "betamagicai.liquid-themes.com",
+      "cdn.mos.cms.futurecdn.net",
+      "clipdrop-api.co",
+      "queue.fal.run",
+      "storage.googleapis.com",
+      "t.me",
+      "www.w3.org"
+    ],
+    "todo_count": 2,
+    "flagged_pattern_count": 0
+  },
+  {
+    "folder": "AiAvatar",
+    "category": "creative-ai",
+    "manifest": {
+      "name": "AI Avatar",
+      "type": "extension",
+      "version": "2.5",
+      "description": "AI Avatar extension for magicai — TG: @heew_support",
+      "support_telegram": "heew_support"
+    },
+    "file_count": 16,
+    "bytes": 42299,
+    "components": {
+      "other": 5,
+      "migrations": 1,
+      "services": 2,
+      "models": 1,
+      "controllers": 2,
+      "views": 5
+    },
+    "route_count": 4,
+    "tables_created": [
+      "user_synthesia"
+    ],
+    "dependencies_detected": [],
+    "external_domains": [
+      "api.synthesia.io",
+      "t.me",
+      "www.synthesia.io",
+      "www.w3.org"
+    ],
+    "todo_count": 0,
+    "flagged_pattern_count": 0
+  },
+  {
+    "folder": "AiCaptions",
+    "category": "creative-ai",
+    "manifest": {
+      "name": "AI Captions",
+      "type": "extension",
+      "version": "1.2",
+      "description": "AI Captions extension for magicai — automatically add stylized animated captions to videos via the Captions API. — TG: @heew_support",
+      "support_telegram": "heew_support"
+    },
+    "file_count": 27,
+    "bytes": 111149,
+    "components": {
+      "other": 8,
+      "migrations": 2,
+      "services": 2,
+      "jobs": 2,
+      "models": 1,
+      "controllers": 2,
+      "views": 10
+    },
+    "route_count": 9,
+    "tables_created": [
+      "ai_captions_videos"
+    ],
+    "dependencies_detected": [
+      "video-editor"
+    ],
+    "external_domains": [
+      "api.mirage.app",
+      "captions.ai",
+      "example.com",
+      "t.me"
+    ],
+    "todo_count": 0,
+    "flagged_pattern_count": 0
+  },
+  {
+    "folder": "AiChatProEntityHighlight",
+    "category": "core-chat",
+    "manifest": {
+      "name": "AI Chat Pro Entity Highlight",
+      "type": "extension",
+      "version": "1.3",
+      "description": "Clickable entity highlights in AI Chat Pro responses with side drawer details — TG: @heew_support",
+      "support_telegram": "heew_support"
+    },
+    "file_count": 16,
+    "bytes": 61785,
+    "components": {
+      "other": 6,
+      "migrations": 2,
+      "services": 2,
+      "models": 1,
+      "controllers": 2,
+      "views": 3
+    },
+    "route_count": 4,
+    "tables_created": [
+      "chat_entity_highlights"
+    ],
+    "dependencies_detected": [
+      "ai-chat-pro-entity-highlight"
+    ],
+    "external_domains": [
+      "api.openai.com",
+      "api.perplexity.ai",
+      "google.serper.dev",
+      "t.me"
+    ],
+    "todo_count": 0,
+    "flagged_pattern_count": 0
+  },
+  {
+    "folder": "AiChatProHighlightToAsk",
+    "category": "core-chat",
+    "manifest": {
+      "name": "AI Chat Pro Highlight to Ask",
+      "type": "extension",
+      "version": "1.1",
+      "description": "Highlight any text in AI Chat Pro to quickly ask follow-up questions about it — TG: @heew_support",
+      "support_telegram": "heew_support"
+    },
+    "file_count": 12,
+    "bytes": 16379,
+    "components": {
+      "other": 5,
+      "migrations": 2,
+      "services": 1,
+      "controllers": 1,
+      "views": 3
+    },
+    "route_count": 2,
+    "tables_created": [],
+    "dependencies_detected": [
+      "ai-chat-pro-highlight-to-ask"
+    ],
+    "external_domains": [
+      "t.me"
+    ],
+    "todo_count": 0,
+    "flagged_pattern_count": 0
+  },
+  {
+    "folder": "AiChatProSmartImage",
+    "category": "core-chat",
+    "manifest": {
+      "name": "AI Chat Pro Smart Image",
+      "type": "extension",
+      "version": "1.2",
+      "description": "AI Chat Pro Smart Image extension for MagicAI — TG: @heew_support",
+      "support_telegram": "heew_support"
+    },
+    "file_count": 13,
+    "bytes": 38353,
+    "components": {
+      "other": 4,
+      "migrations": 1,
+      "services": 2,
+      "models": 1,
+      "controllers": 2,
+      "views": 3
+    },
+    "route_count": 3,
+    "tables_created": [
+      "chat_smart_images"
+    ],
+    "dependencies_detected": [],
+    "external_domains": [
+      "api.perplexity.ai",
+      "google.serper.dev",
+      "t.me",
+      "www.w3.org"
+    ],
+    "todo_count": 1,
+    "flagged_pattern_count": 0
+  },
+  {
+    "folder": "AiMusic",
+    "category": "creative-ai",
+    "manifest": {
+      "name": "AI Music",
+      "type": "extension",
+      "version": "1.5",
+      "description": "AI Music extension for MagicAI — TG: @heew_support",
+      "support_telegram": "heew_support"
+    },
+    "file_count": 12,
+    "bytes": 28007,
+    "components": {
+      "other": 4,
+      "migrations": 1,
+      "services": 1,
+      "models": 1,
+      "controllers": 1,
+      "views": 4
+    },
+    "route_count": 2,
+    "tables_created": [
+      "user_music"
+    ],
+    "dependencies_detected": [],
+    "external_domains": [
+      "api.aimlapi.com",
+      "example.com",
+      "t.me",
+      "www.w3.org"
+    ],
+    "todo_count": 0,
+    "flagged_pattern_count": 0
+  },
+  {
+    "folder": "AiMusicPro",
+    "category": "creative-ai",
+    "manifest": {
+      "name": "AiMusicPro",
+      "type": "extension",
+      "version": "1.7",
+      "description": "AiMusicPro extension for magicai — TG: @heew_support",
+      "support_telegram": "heew_support"
+    },
+    "file_count": 16,
+    "bytes": 47653,
+    "components": {
+      "other": 6,
+      "migrations": 3,
+      "services": 1,
+      "models": 1,
+      "controllers": 2,
+      "views": 3
+    },
+    "route_count": 5,
+    "tables_created": [
+      "ai_music_pro"
+    ],
+    "dependencies_detected": [],
+    "external_domains": [
+      "t.me",
+      "www.w3.org"
+    ],
+    "todo_count": 1,
+    "flagged_pattern_count": 0
+  },
+  {
+    "folder": "AiPersona",
+    "category": "creative-ai",
+    "manifest": {
+      "name": "AI Persona",
+      "type": "extension",
+      "version": "2.9",
+      "description": "AI Persona extension for magicai — TG: @heew_support",
+      "support_telegram": "heew_support"
+    },
+    "file_count": 24,
+    "bytes": 204010,
+    "components": {
+      "other": 4,
+      "migrations": 6,
+      "services": 2,
+      "models": 2,
+      "controllers": 2,
+      "views": 8
+    },
+    "route_count": 11,
+    "tables_created": [
+      "ai_persona_avatars",
+      "user_heygen"
+    ],
+    "dependencies_detected": [],
+    "external_domains": [
+      "api.heygen.com",
+      "t.me",
+      "upload.heygen.com",
+      "www.heygen.com",
+      "www.w3.org"
+    ],
+    "todo_count": 0,
+    "flagged_pattern_count": 0
+  },
+  {
+    "folder": "AiPresentation",
+    "category": "creative-ai",
+    "manifest": {
+      "name": "AI Presentation",
+      "type": "extension",
+      "version": "1.4",
+      "description": "AI Presentation extension for MagicAI — TG: @heew_support",
+      "support_telegram": "heew_support"
+    },
+    "file_count": 28,
+    "bytes": 195827,
+    "components": {
+      "other": 6,
+      "migrations": 3,
+      "services": 2,
+      "models": 2,
+      "controllers": 2,
+      "assets": 1,
+      "views": 12
+    },
+    "route_count": 8,
+    "tables_created": [
+      "ai_presentations"
+    ],
+    "dependencies_detected": [],
+    "external_domains": [
+      "assets.api.gamma.app",
+      "cdn-staging.gamma.app",
+      "cdn.gamma.app",
+      "cdnjs.cloudflare.com",
+      "gamma.app",
+      "images.unsplash.com",
+      "imgproxy.gamma.app",
+      "public-api.gamma.app",
+      "t.me",
+      "www.w3.org"
+    ],
+    "todo_count": 1,
+    "flagged_pattern_count": 0
+  },
+  {
+    "folder": "AiVideoPro",
+    "category": "creative-ai",
+    "manifest": {
+      "name": "AI Avatar Pro",
+      "type": "extension",
+      "version": "3.6",
+      "description": "AI Avatar Pro extension for magicai — TG: @heew_support",
+      "support_telegram": "heew_support"
+    },
+    "file_count": 25,
+    "bytes": 270350,
+    "components": {
+      "other": 5,
+      "migrations": 6,
+      "services": 2,
+      "jobs": 1,
+      "models": 1,
+      "controllers": 1,
+      "views": 9
+    },
+    "route_count": 4,
+    "tables_created": [
+      "user_fall"
+    ],
+    "dependencies_detected": [
+      "SocialMedia",
+      "social-media"
+    ],
+    "external_domains": [
+      "api.openai.com",
+      "t.me",
+      "www.w3.org"
+    ],
+    "todo_count": 0,
+    "flagged_pattern_count": 0
+  },
+  {
+    "folder": "AiViralClips",
+    "category": "creative-ai",
+    "manifest": {
+      "name": "Example",
+      "type": "extension",
+      "version": "1.5",
+      "description": "Example extension for magicai — TG: @heew_support",
+      "support_telegram": "heew_support"
+    },
+    "file_count": 21,
+    "bytes": 81076,
+    "components": {
+      "other": 6,
+      "controllers": 4,
+      "views": 11
+    },
+    "route_count": 14,
+    "tables_created": [],
+    "dependencies_detected": [],
+    "external_domains": [
+      "klap.app",
+      "t.me",
+      "v3.fal.media",
+      "www.w3.org"
+    ],
+    "todo_count": 3,
+    "flagged_pattern_count": 0
+  },
+  {
+    "folder": "AzureOpenai",
+    "category": "model-providers",
+    "manifest": {
+      "name": "Example",
+      "type": "extension",
+      "version": "1.5",
+      "description": "Example extension for MagicAI — TG: @heew_support",
+      "support_telegram": "heew_support"
+    },
+    "file_count": 9,
+    "bytes": 21167,
+    "components": {
+      "other": 5,
+      "services": 1,
+      "models": 1,
+      "controllers": 1,
+      "views": 1
+    },
+    "route_count": 0,
+    "tables_created": [],
+    "dependencies_detected": [],
+    "external_domains": [
+      "docs.magicproject.ai",
+      "t.me"
+    ],
+    "todo_count": 1,
+    "flagged_pattern_count": 0
+  },
+  {
+    "folder": "AzureTTS",
+    "category": "model-providers",
+    "manifest": {
+      "name": "Azure TTS",
+      "type": "extension",
+      "version": "2.2",
+      "description": "Azure TTS extension for magicai — TG: @heew_support",
+      "support_telegram": "heew_support"
+    },
+    "file_count": 6,
+    "bytes": 6227,
+    "components": {
+      "other": 3,
+      "services": 1,
+      "views": 2
+    },
+    "route_count": 0,
+    "tables_created": [],
+    "dependencies_detected": [],
+    "external_domains": [
+      "t.me",
+      "www.w3.org"
+    ],
+    "todo_count": 0,
+    "flagged_pattern_count": 0
+  },
+  {
+    "folder": "BlogPilot",
+    "category": "growth-ai",
+    "manifest": {
+      "name": "BlogPilot",
+      "type": "extension",
+      "version": "1.4",
+      "description": "BlogPilot extension for magicai — TG: @heew_support",
+      "support_telegram": "heew_support"
+    },
+    "file_count": 74,
+    "bytes": 7021802,
+    "components": {
+      "other": 11,
+      "migrations": 2,
+      "policies": 1,
+      "services": 2,
+      "models": 2,
+      "controllers": 1,
+      "commands": 3,
+      "views": 37,
+      "assets": 15
+    },
+    "route_count": 21,
+    "tables_created": [
+      "ext_blogpilot",
+      "ext_blogpilot_posts"
+    ],
+    "dependencies_detected": [],
+    "external_domains": [
+      "api.openai.com",
+      "fal.run",
+      "t.me",
+      "twitter.com",
+      "wa.me",
+      "www.w3.org"
+    ],
+    "todo_count": 1,
+    "flagged_pattern_count": 1
+  },
+  {
+    "folder": "Canvas",
+    "category": "core-chat",
+    "manifest": {
+      "name": "AI Chat Pro canvas",
+      "type": "extension",
+      "version": "1.11",
+      "description": "AI Chat Pro canvas extension for magicai — TG: @heew_support",
+      "support_telegram": "heew_support"
+    },
+    "file_count": 10,
+    "bytes": 78387,
+    "components": {
+      "other": 4,
+      "controllers": 1,
+      "models": 1,
+      "views": 3,
+      "assets": 1
+    },
+    "route_count": 2,
+    "tables_created": [
+      "user_tiptap_contents"
+    ],
+    "dependencies_detected": [],
+    "external_domains": [
+      "t.me",
+      "www.w3.org"
+    ],
+    "todo_count": 1,
+    "flagged_pattern_count": 0
+  },
+  {
+    "folder": "ChatProTempChat",
+    "category": "core-chat",
+    "manifest": {
+      "name": "ChatProTempChat",
+      "type": "extension",
+      "version": "1.4",
+      "description": "ChatProTempChat extension for MagicAI — TG: @heew_support",
+      "support_telegram": "heew_support"
+    },
+    "file_count": 12,
+    "bytes": 9675,
+    "components": {
+      "other": 8,
+      "views": 4
+    },
+    "route_count": 0,
+    "tables_created": [],
+    "dependencies_detected": [],
+    "external_domains": [
+      "t.me",
+      "www.w3.org"
+    ],
+    "todo_count": 1,
+    "flagged_pattern_count": 0
+  },
+  {
+    "folder": "ChatSetting",
+    "category": "core-chat",
+    "manifest": {
+      "name": "Chat Setting",
+      "type": "extension",
+      "version": "3.3",
+      "description": "Chat Setting extension for magicai — TG: @heew_support",
+      "support_telegram": "heew_support"
+    },
+    "file_count": 24,
+    "bytes": 117453,
+    "components": {
+      "other": 3,
+      "controllers": 4,
+      "views": 17
+    },
+    "route_count": 8,
+    "tables_created": [],
+    "dependencies_detected": [],
+    "external_domains": [
+      "example.com",
+      "platform.openai.com",
+      "t.me",
+      "www.w3.org"
+    ],
+    "todo_count": 0,
+    "flagged_pattern_count": 0
+  },
+  {
+    "folder": "ChatShare",
+    "category": "core-chat",
+    "manifest": {
+      "name": "Chat share",
+      "type": "extension",
+      "version": "2.7",
+      "description": "Chat share extension for magicai — TG: @heew_support",
+      "support_telegram": "heew_support"
+    },
+    "file_count": 8,
+    "bytes": 40533,
+    "components": {
+      "other": 3,
+      "models": 1,
+      "controllers": 1,
+      "views": 3
+    },
+    "route_count": 2,
+    "tables_created": [],
+    "dependencies_detected": [],
+    "external_domains": [
+      "t.me",
+      "www.w3.org"
+    ],
+    "todo_count": 0,
+    "flagged_pattern_count": 0
+  },
+  {
+    "folder": "Chatbot",
+    "category": "chatbot-suite",
+    "manifest": {
+      "name": "Chatbot",
+      "type": "extension",
+      "version": "6.9.0-unified-ai-shell",
+      "description": "Unified Titan Zero chatbot with template-aware 14-app shell, offline WorkCore PWA, shared five-tier AI convergence, 28 Tier-2 assistants, expanded Tier-3 agents, governance, generative UI, staff inbox, team chat and business channels.",
+      "support_telegram": "heew_support"
+    },
+    "file_count": 1548,
+    "bytes": 5873858,
+    "components": {
+      "other": 910,
+      "tests": 51,
+      "migrations": 93,
+      "policies": 17,
+      "services": 64,
+      "generators": 5,
+      "models": 56,
+      "controllers": 60,
+      "actions": 89,
+      "events": 15,
+      "views": 158,
+      "assets": 28,
+      "commands": 2
+    },
+    "route_count": 201,
+    "tables_created": [
+      "ai_persona_avatars",
+      "company_skills",
+      "ext_chatbot_appointments",
+      "ext_chatbot_booking_reminders",
+      "ext_chatbot_calendars",
+      "ext_chatbot_canned_responses",
+      "ext_chatbot_carts",
+      "ext_chatbot_contact_identities",
+      "ext_chatbot_conversation_customer_tag",
+      "ext_chatbot_conversation_inbox_label",
+      "ext_chatbot_customer_tags",
+      "ext_chatbot_customers",
+      "ext_chatbot_feedback",
+      "ext_chatbot_inbox_labels",
+      "ext_chatbot_knowledge_base_articles",
+      "ext_chatbot_messaging_outbound",
+      "ext_chatbot_page_visits",
+      "ext_chatbot_registered_devices",
+      "ext_chatbot_sync_acknowledgements",
+      "ext_chatbot_sync_changes",
+      "ext_chatbot_sync_conflicts",
+      "ext_chatbot_sync_cursors",
+      "ext_chatbot_sync_operations",
+      "ext_chatbot_sync_sessions",
+      "ext_chatbot_sync_tombstones",
+      "ext_chatbot_team_conversation_participants",
+      "ext_chatbot_team_conversations",
+      "ext_chatbot_team_message_reads",
+      "ext_chatbot_team_messages",
+      "model_council_responses",
+      "skill_version_resources",
+      "skill_versions",
+      "skills",
+      "system_ai_chat_memories",
+      "titan_ai_action_receipts",
+      "titan_ai_approval_requests",
+      "titan_ai_governed_memories",
+      "titan_ai_governed_skills",
+      "titan_ai_persona_assignments",
+      "titan_ai_skill_evaluations",
+      "titan_ai_tool_permissions",
+      "titan_apps",
+      "tz_action_executions",
+      "tz_action_idempotency",
+      "tz_ai_agent_versions",
+      "tz_ai_agents",
+      "tz_ai_model_profiles",
+      "tz_ai_policy_versions",
+      "tz_ai_provider_profiles",
+      "tz_ai_runs",
+      "tz_ai_tool_runs",
+      "tz_ai_usage_ledger",
+      "tz_domain_events",
+      "user_chat_instructions",
+      "user_heygen",
+      "user_skills"
+    ],
+    "dependencies_detected": [
+      "AIAgent",
+      "AIAgentToolChatbot",
+      "AIAgentToolMarketingBot",
+      "AIAgentToolSocialMediaAgent",
+      "AIAgentWorkCore",
+      "AgentBooking",
+      "AgentMessaging",
+      "AiPersona",
+      "ChatbotAgent",
+      "ChatbotBooking",
+      "ChatbotCustomerTag",
+      "ChatbotEcommerce",
+      "ChatbotInstagram",
+      "ChatbotMessenger",
+      "ChatbotReview",
+      "ChatbotTelegram",
+      "ChatbotWhatsapp",
+      "CustomAgentFactory",
+      "CustomerTags",
+      "ModelCouncil",
+      "MultiModel",
+      "NanoBanana",
+      "OpenRouter",
+      "Reviews",
+      "SharedChat",
+      "SystemAIChat",
+      "SystemAIChatFileChat",
+      "SystemAIChatMemory",
+      "SystemAIChatSkills",
+      "TempChat",
+      "TitanAIGovernance",
+      "TitanQuattroTools",
+      "VoiceIsolator",
+      "ai-chat-pro",
+      "chatbot-agent",
+      "chatbot-booking",
+      "chatbot-customer-tag",
+      "chatbot-ecommerce",
+      "chatbot-instagram",
+      "chatbot-messenger",
+      "chatbot-review",
+      "chatbot-telegram",
+      "chatbot-whatsapp",
+      "customer-tags",
+      "model-council",
+      "multi-model",
+      "reviews"
+    ],
+    "external_domains": [
+      "127.0.0.1:11434",
+      "alpinejs.dev",
+      "api.anthropic.com",
+      "api.deepseek.com",
+      "api.github.com",
+      "api.heygen.com",
+      "api.openai.com",
+      "api.telegram.org",
+      "api.x.ai",
+      "app.cal.com",
+      "calendly.com",
+      "cdn.ably.com",
+      "example.com",
+      "example.invalid",
+      "facebook.com",
+      "generativelanguage.googleapis.com",
+      "github.com",
+      "github\\.com",
+      "graph.facebook.com",
+      "instagram.com",
+      "js.pusher.com",
+      "json-schema.org",
+      "localhost:11434",
+      "localhost:8000",
+      "maps.google.com",
+      "openrouter.ai",
+      "placehold.co",
+      "raw.githubusercontent.com",
+      "t.me",
+      "titan.test",
+      "titanzero.local",
+      "upload.heygen.com",
+      "wa.me",
+      "www.ably.io",
+      "www.apache.org",
+      "www.google.com",
+      "www.heygen.com",
+      "www.markdownguide.org",
+      "www.w3.org",
+      "www.youtube.com",
+      "your-domain.com",
+      "youtube.com"
+    ],
+    "todo_count": 9,
+    "flagged_pattern_count": 0
+  },
+  {
+    "folder": "ChatbotAgent",
+    "category": "chatbot-suite",
+    "manifest": {
+      "name": "Chatbot agent",
+      "type": "extension",
+      "version": "2.10",
+      "description": "Chatbot agent extension for magicai — TG: @heew_support",
+      "support_telegram": "heew_support"
+    },
+    "file_count": 30,
+    "bytes": 200487,
+    "components": {
+      "other": 6,
+      "events": 3,
+      "services": 3,
+      "controllers": 3,
+      "views": 14,
+      "assets": 1
+    },
+    "route_count": 20,
+    "tables_created": [],
+    "dependencies_detected": [
+      "Chatbot",
+      "ChatbotCustomerTag",
+      "ChatbotReview",
+      "ChatbotTelegram",
+      "ChatbotWhatsapp",
+      "chatbot-agent",
+      "chatbot-customer-tag",
+      "chatbot-instagram",
+      "chatbot-messenger",
+      "chatbot-review",
+      "chatbot-telegram",
+      "chatbot-whatsapp"
+    ],
+    "external_domains": [
+      "cdn.ably.com",
+      "js.pusher.com",
+      "t.me",
+      "www.ably.io",
+      "www.w3.org"
+    ],
+    "todo_count": 1,
+    "flagged_pattern_count": 0
+  },
+  {
+    "folder": "ChatbotBooking",
+    "category": "chatbot-suite",
+    "manifest": {
+      "name": "Booking for External Chatbot",
+      "type": "extension",
+      "version": "1.0.0",
+      "description": "Chatbot booking extension for magicai — TG: @heew_support",
+      "support_telegram": "heew_support"
+    },
+    "file_count": 11,
+    "bytes": 10411,
+    "components": {
+      "other": 5,
+      "models": 1,
+      "controllers": 1,
+      "views": 3,
+      "assets": 1
+    },
+    "route_count": 1,
+    "tables_created": [],
+    "dependencies_detected": [
+      "Chatbot",
+      "chatbot-booking"
+    ],
+    "external_domains": [
+      "calendly.com",
+      "t.me"
+    ],
+    "todo_count": 1,
+    "flagged_pattern_count": 0
+  },
+  {
+    "folder": "ChatbotCustomerTag",
+    "category": "chatbot-suite",
+    "manifest": {
+      "name": "ChatbotCustomerTag",
+      "type": "extension",
+      "version": "1.0.0",
+      "description": "Customer tag management tools for chatbot conversations — TG: @heew_support",
+      "support_telegram": "heew_support"
+    },
+    "file_count": 10,
+    "bytes": 24580,
+    "components": {
+      "other": 5,
+      "migrations": 2,
+      "models": 1,
+      "controllers": 1,
+      "views": 1
+    },
+    "route_count": 5,
+    "tables_created": [
+      "ext_chatbot_conversation_customer_tag",
+      "ext_chatbot_customer_tags"
+    ],
+    "dependencies_detected": [
+      "Chatbot"
+    ],
+    "external_domains": [
+      "t.me"
+    ],
+    "todo_count": 0,
+    "flagged_pattern_count": 0
+  },
+  {
+    "folder": "ChatbotEcommerce",
+    "category": "chatbot-suite",
+    "manifest": {
+      "name": "Ecommerce for External Chatbot",
+      "type": "extension",
+      "version": "1.0.0",
+      "description": "Chatbot ecommerce extension for magicai — TG: @heew_support",
+      "support_telegram": "heew_support"
+    },
+    "file_count": 17,
+    "bytes": 117161,
+    "components": {
+      "other": 8,
+      "migrations": 2,
+      "services": 1,
+      "models": 1,
+      "controllers": 2,
+      "views": 3
+    },
+    "route_count": 5,
+    "tables_created": [
+      "ext_chatbot_carts"
+    ],
+    "dependencies_detected": [
+      "Chatbot",
+      "ChatbotBooking"
+    ],
+    "external_domains": [
+      "api.liquid-themes.com",
+      "example.com",
+      "shop.com",
+      "t.me",
+      "www.w3.org",
+      "yourdomain.com",
+      "{$shopifyDomain",
+      "{$this-",
+      "{shop_domain"
+    ],
+    "todo_count": 2,
+    "flagged_pattern_count": 0
+  },
+  {
+    "folder": "ChatbotReview",
+    "category": "chatbot-suite",
+    "manifest": {
+      "name": "ChatbotReview",
+      "type": "extension",
+      "version": "1.0.0",
+      "description": "Adds review and feedback configuration to the Chatbot extension. — TG: @heew_support",
+      "support_telegram": "heew_support"
+    },
+    "file_count": 7,
+    "bytes": 13307,
+    "components": {
+      "other": 4,
+      "services": 1,
+      "views": 2
+    },
+    "route_count": 0,
+    "tables_created": [],
+    "dependencies_detected": [
+      "Chatbot"
+    ],
+    "external_domains": [
+      "t.me"
+    ],
+    "todo_count": 0,
+    "flagged_pattern_count": 0
+  },
+  {
+    "folder": "ChatbotVoice",
+    "category": "chatbot-suite",
+    "manifest": {
+      "name": "External Voice Chatbot",
+      "type": "extension",
+      "version": "2.3",
+      "description": "external voice chatbot extension for magicai — TG: @heew_support",
+      "support_telegram": "heew_support"
+    },
+    "file_count": 57,
+    "bytes": 219231,
+    "components": {
+      "other": 21,
+      "migrations": 5,
+      "services": 1,
+      "models": 5,
+      "controllers": 5,
+      "views": 15,
+      "assets": 5
+    },
+    "route_count": 16,
+    "tables_created": [
+      "ext_voice_chatbots",
+      "ext_voicechabot_conversations",
+      "ext_voicechatbot_histories",
+      "ext_voicechatbot_trains"
+    ],
+    "dependencies_detected": [],
+    "external_domains": [
+      "example.com",
+      "t.me",
+      "www.w3.org"
+    ],
+    "todo_count": 1,
+    "flagged_pattern_count": 0
+  },
+  {
+    "folder": "ChatbotVoiceCall",
+    "category": "chatbot-suite",
+    "manifest": {
+      "name": "Chatbot Voice Call",
+      "type": "extension",
+      "version": "1.1",
+      "description": "Voice call for chatbot — TG: @heew_support",
+      "support_telegram": "heew_support"
+    },
+    "file_count": 12,
+    "bytes": 56539,
+    "components": {
+      "other": 4,
+      "controllers": 2,
+      "views": 6
+    },
+    "route_count": 5,
+    "tables_created": [],
+    "dependencies_detected": [
+      "Chatbot"
+    ],
+    "external_domains": [
+      "api.openai.com",
+      "esm.sh",
+      "t.me",
+      "www.w3.org"
+    ],
+    "todo_count": 1,
+    "flagged_pattern_count": 0
+  },
+  {
+    "folder": "ContentManager",
+    "category": "growth-ai",
+    "manifest": {
+      "name": "ContentManager",
+      "type": "extension",
+      "version": "1.6",
+      "description": "ContentManager extension for magicai — TG: @heew_support",
+      "support_telegram": "heew_support"
+    },
+    "file_count": 10,
+    "bytes": 16073,
+    "components": {
+      "other": 6,
+      "models": 1,
+      "controllers": 1,
+      "views": 2
+    },
+    "route_count": 2,
+    "tables_created": [],
+    "dependencies_detected": [
+      "content-manager"
+    ],
+    "external_domains": [
+      "t.me"
+    ],
+    "todo_count": 1,
+    "flagged_pattern_count": 0
+  },
+  {
+    "folder": "CreativeSuite",
+    "category": "creative-ai",
+    "manifest": {
+      "name": "Creative Suite",
+      "type": "extension",
+      "version": "1.15",
+      "description": "Creative Suite extension for magicai — TG: @heew_support",
+      "support_telegram": "heew_support"
+    },
+    "file_count": 111,
+    "bytes": 10466231,
+    "components": {
+      "other": 8,
+      "migrations": 1,
+      "models": 1,
+      "controllers": 5,
+      "views": 30,
+      "assets": 66
+    },
+    "route_count": 11,
+    "tables_created": [
+      "ext_creative_suite_documents"
+    ],
+    "dependencies_detected": [
+      "creative-suite-ai-template",
+      "creative-suite-annotations"
+    ],
+    "external_domains": [
+      "t.me",
+      "www.w3.org"
+    ],
+    "todo_count": 2,
+    "flagged_pattern_count": 0
+  },
+  {
+    "folder": "CreativeSuiteAITemplate",
+    "category": "creative-ai",
+    "manifest": {
+      "name": "Creative Suite AI Template",
+      "type": "extension",
+      "version": "1.2",
+      "description": "AI-powered template generation for Creative Suite — TG: @heew_support",
+      "support_telegram": "heew_support"
+    },
+    "file_count": 10,
+    "bytes": 54037,
+    "components": {
+      "other": 5,
+      "jobs": 1,
+      "controllers": 1,
+      "views": 3
+    },
+    "route_count": 2,
+    "tables_created": [],
+    "dependencies_detected": [
+      "creative-suite",
+      "creative-suite-ai-template"
+    ],
+    "external_domains": [
+      "t.me",
+      "www.w3.org"
+    ],
+    "todo_count": 0,
+    "flagged_pattern_count": 0
+  },
+  {
+    "folder": "CreativeSuiteAnnotations",
+    "category": "creative-ai",
+    "manifest": {
+      "name": "Creative Suite Annotations",
+      "type": "extension",
+      "version": "1.1",
+      "description": "Annotation mode for Creative Suite — mark regions and submit targeted AI edits with a per-region prompt. — TG: @heew_support",
+      "support_telegram": "heew_support"
+    },
+    "file_count": 17,
+    "bytes": 143335,
+    "components": {
+      "other": 7,
+      "services": 2,
+      "jobs": 1,
+      "controllers": 2,
+      "views": 4,
+      "assets": 1
+    },
+    "route_count": 4,
+    "tables_created": [],
+    "dependencies_detected": [],
+    "external_domains": [
+      "api.anthropic.com",
+      "api.openai.com",
+      "api.x.ai",
+      "generativelanguage.googleapis.com",
+      "t.me",
+      "www.w3.org"
+    ],
+    "todo_count": 0,
+    "flagged_pattern_count": 0
+  },
+  {
+    "folder": "ElevenLabsVoiceChat",
+    "category": "core-chat",
+    "manifest": {
+      "name": "Elevenlabs Voice Chat",
+      "type": "extension",
+      "version": "1.7",
+      "description": "Elevenlabs voice chat extension for magicai — TG: @heew_support",
+      "support_telegram": "heew_support"
+    },
+    "file_count": 24,
+    "bytes": 85981,
+    "components": {
+      "other": 12,
+      "migrations": 2,
+      "services": 1,
+      "models": 2,
+      "controllers": 2,
+      "views": 5
+    },
+    "route_count": 9,
+    "tables_created": [
+      "voice_chat_bot_trains",
+      "voice_chat_bots"
+    ],
+    "dependencies_detected": [],
+    "external_domains": [
+      "example.com",
+      "t.me",
+      "www.w3.org"
+    ],
+    "todo_count": 0,
+    "flagged_pattern_count": 0
+  },
+  {
+    "folder": "FashionStudio",
+    "category": "creative-ai",
+    "manifest": {
+      "name": "FashionStudio",
+      "type": "extension",
+      "version": "1.7",
+      "description": "FashionStudio extension for magicai — TG: @heew_support",
+      "support_telegram": "heew_support"
+    },
+    "file_count": 109,
+    "bytes": 23563193,
+    "components": {
+      "other": 7,
+      "migrations": 9,
+      "services": 2,
+      "jobs": 2,
+      "models": 17,
+      "controllers": 14,
+      "views": 14,
+      "assets": 44
+    },
+    "route_count": 46,
+    "tables_created": [
+      "background",
+      "fashion_model",
+      "fashion_studio_user_settings",
+      "pose",
+      "wardrobe"
+    ],
+    "dependencies_detected": [
+      "ai-video-pro"
+    ],
+    "external_domains": [
+      "queue.fal.run",
+      "t.me",
+      "www.w3.org"
+    ],
+    "todo_count": 1,
+    "flagged_pattern_count": 0
+  },
+  {
+    "folder": "FluxPro",
+    "category": "model-providers",
+    "manifest": {
+      "name": "Flux pro",
+      "type": "extension",
+      "version": "2.5",
+      "description": "Flux pro extension for magicai — TG: @heew_support",
+      "support_telegram": "heew_support"
+    },
+    "file_count": 14,
+    "bytes": 34411,
+    "components": {
+      "other": 6,
+      "controllers": 1,
+      "views": 7
+    },
+    "route_count": 1,
+    "tables_created": [],
+    "dependencies_detected": [],
+    "external_domains": [
+      "t.me"
+    ],
+    "todo_count": 0,
+    "flagged_pattern_count": 0
+  },
+  {
+    "folder": "FocusMode",
+    "category": "core-chat",
+    "manifest": {
+      "name": "Focus Mode",
+      "type": "extension",
+      "version": "2.5",
+      "description": "Focus Mode extension for magicai — TG: @heew_support",
+      "support_telegram": "heew_support"
+    },
+    "file_count": 7,
+    "bytes": 4896,
+    "components": {
+      "other": 4,
+      "views": 3
+    },
+    "route_count": 0,
+    "tables_created": [],
+    "dependencies_detected": [],
+    "external_domains": [
+      "t.me"
+    ],
+    "todo_count": 0,
+    "flagged_pattern_count": 0
+  },
+  {
+    "folder": "InfluencerAvatar",
+    "category": "creative-ai",
+    "manifest": {
+      "name": "Influencer Avatar",
+      "type": "extension",
+      "version": "1.6",
+      "description": "Influencer Avatar extension for magicai — TG: @heew_support",
+      "support_telegram": "heew_support"
+    },
+    "file_count": 7,
+    "bytes": 26235,
+    "components": {
+      "other": 3,
+      "controllers": 1,
+      "views": 3
+    },
+    "route_count": 4,
+    "tables_created": [],
+    "dependencies_detected": [],
+    "external_domains": [
+      "t.me",
+      "www.w3.org"
+    ],
+    "todo_count": 2,
+    "flagged_pattern_count": 0
+  },
+  {
+    "folder": "MarketingBot",
+    "category": "agent-suite",
+    "manifest": {
+      "name": "Marketing bot",
+      "type": "extension",
+      "version": "3.0",
+      "description": "Marketing bot extension for magicai — TG: @heew_support",
+      "support_telegram": "heew_support"
+    },
+    "file_count": 177,
+    "bytes": 1097124,
+    "components": {
+      "other": 34,
+      "migrations": 24,
+      "policies": 6,
+      "services": 22,
+      "generators": 3,
+      "models": 16,
+      "controllers": 21,
+      "commands": 2,
+      "views": 39,
+      "assets": 10
+    },
+    "route_count": 28,
+    "tables_created": [
+      "ext_campaign_message_analytics",
+      "ext_contact_list_contact",
+      "ext_contact_list_segment",
+      "ext_contact_lists",
+      "ext_contacts",
+      "ext_marketing_bot_monthly_usage",
+      "ext_marketing_campaign_embeddings",
+      "ext_marketing_campaigns",
+      "ext_marketing_conversations",
+      "ext_marketing_message_histories",
+      "ext_segments",
+      "ext_telegram_bots",
+      "ext_telegram_contacts",
+      "ext_telegram_group_subscribers",
+      "ext_telegram_groups",
+      "ext_whatsapp_channels"
+    ],
+    "dependencies_detected": [
+      "Chatbot",
+      "chatbot-agent",
+      "chatbot-telegram",
+      "chatbot-whatsapp"
+    ],
+    "external_domains": [
+      "api.openai.com",
+      "api.telegram.org",
+      "cdn.ably.com",
+      "example.com",
+      "graph.facebook.com",
+      "js.pusher.com",
+      "t.me",
+      "www.w3.org"
+    ],
+    "todo_count": 5,
+    "flagged_pattern_count": 0
+  },
+  {
+    "folder": "Midjourney",
+    "category": "model-providers",
+    "manifest": {
+      "name": "Midjourney",
+      "type": "extension",
+      "version": "2.6",
+      "description": "Midjourney extension for magicai — TG: @heew_support",
+      "support_telegram": "heew_support"
+    },
+    "file_count": 11,
+    "bytes": 32358,
+    "components": {
+      "other": 3,
+      "services": 1,
+      "controllers": 3,
+      "views": 4
+    },
+    "route_count": 3,
+    "tables_created": [],
+    "dependencies_detected": [],
+    "external_domains": [
+      "api.piapi.ai",
+      "magicai.requestcatcher.com",
+      "t.me"
+    ],
+    "todo_count": 1,
+    "flagged_pattern_count": 0
+  },
+  {
+    "folder": "ModelCouncil",
+    "category": "model-providers",
+    "manifest": {
+      "name": "ModelCouncil",
+      "type": "extension",
+      "version": "1.5",
+      "description": "Model Council extension for MagicAI — TG: @heew_support",
+      "support_telegram": "heew_support"
+    },
+    "file_count": 12,
+    "bytes": 162085,
+    "components": {
+      "other": 5,
+      "migrations": 2,
+      "services": 1,
+      "models": 1,
+      "controllers": 1,
+      "views": 2
+    },
+    "route_count": 1,
+    "tables_created": [
+      "model_council_responses"
+    ],
+    "dependencies_detected": [
+      "ai-chat-pro",
+      "model-council",
+      "multi-model"
+    ],
+    "external_domains": [
+      "api.anthropic.com",
+      "api.deepseek.com",
+      "api.openai.com",
+      "api.x.ai",
+      "generativelanguage.googleapis.com",
+      "openrouter.ai",
+      "t.me"
+    ],
+    "todo_count": 0,
+    "flagged_pattern_count": 0
+  },
+  {
+    "folder": "MultiModel",
+    "category": "model-providers",
+    "manifest": {
+      "name": "MultiModel",
+      "type": "extension",
+      "version": "1.3",
+      "description": "MultiModel extension for MagicAI — TG: @heew_support",
+      "support_telegram": "heew_support"
+    },
+    "file_count": 11,
+    "bytes": 6767,
+    "components": {
+      "other": 6,
+      "migrations": 1,
+      "models": 1,
+      "controllers": 1,
+      "views": 2
+    },
+    "route_count": 1,
+    "tables_created": [],
+    "dependencies_detected": [],
+    "external_domains": [
+      "t.me"
+    ],
+    "todo_count": 1,
+    "flagged_pattern_count": 0
+  },
+  {
+    "folder": "NanoBanana",
+    "category": "model-providers",
+    "manifest": {
+      "name": "Nano Banana",
+      "type": "extension",
+      "version": "1.6",
+      "description": "Nano Banana extension for magicai — TG: @heew_support",
+      "support_telegram": "heew_support"
+    },
+    "file_count": 17,
+    "bytes": 49762,
+    "components": {
+      "other": 7,
+      "controllers": 1,
+      "views": 9
+    },
+    "route_count": 1,
+    "tables_created": [],
+    "dependencies_detected": [],
+    "external_domains": [
+      "t.me"
+    ],
+    "todo_count": 1,
+    "flagged_pattern_count": 0
+  },
+  {
+    "folder": "OpenAIRealtimeChat",
+    "category": "core-chat",
+    "manifest": {
+      "name": "OpenAI realtime chat",
+      "type": "extension",
+      "version": "1.10",
+      "description": "OpenAI realtime chat extension for magicai — TG: @heew_support",
+      "support_telegram": "heew_support"
+    },
+    "file_count": 7,
+    "bytes": 15079,
+    "components": {
+      "other": 3,
+      "migrations": 1,
+      "controllers": 1,
+      "views": 2
+    },
+    "route_count": 2,
+    "tables_created": [],
+    "dependencies_detected": [],
+    "external_domains": [
+      "api.openai.com",
+      "t.me",
+      "www.w3.org"
+    ],
+    "todo_count": 0,
+    "flagged_pattern_count": 0
+  },
+  {
+    "folder": "OpenRouter",
+    "category": "model-providers",
+    "manifest": {
+      "name": "Open Router",
+      "type": "extension",
+      "version": "1.2",
+      "description": "Open Router extension for magicai — TG: @heew_support",
+      "support_telegram": "heew_support"
+    },
+    "file_count": 15,
+    "bytes": 25607,
+    "components": {
+      "other": 8,
+      "services": 1,
+      "controllers": 2,
+      "views": 3,
+      "assets": 1
+    },
+    "route_count": 0,
+    "tables_created": [],
+    "dependencies_detected": [],
+    "external_domains": [
+      "openrouter.ai",
+      "t.me",
+      "www.w3.org"
+    ],
+    "todo_count": 3,
+    "flagged_pattern_count": 0
+  },
+  {
+    "folder": "Perplexity",
+    "category": "model-providers",
+    "manifest": {
+      "name": "Perplexity",
+      "type": "extension",
+      "version": "1.1",
+      "description": "Perplexity extension for magicai — TG: @heew_support",
+      "support_telegram": "heew_support"
+    },
+    "file_count": 6,
+    "bytes": 4907,
+    "components": {
+      "other": 3,
+      "controllers": 1,
+      "views": 2
+    },
+    "route_count": 2,
+    "tables_created": [],
+    "dependencies_detected": [],
+    "external_domains": [
+      "docs.perplexity.ai",
+      "t.me"
+    ],
+    "todo_count": 0,
+    "flagged_pattern_count": 0
+  },
+  {
+    "folder": "PhoneCallAgent",
+    "category": "agent-suite",
+    "manifest": {
+      "name": "Phone Call Agent",
+      "type": "extension",
+      "version": "1.0",
+      "description": "Inbound AI phone call agent using Twilio or ElevenLabs — TG: @heew_support",
+      "support_telegram": "heew_support"
+    },
+    "file_count": 83,
+    "bytes": 421715,
+    "components": {
+      "other": 34,
+      "migrations": 12,
+      "services": 5,
+      "models": 5,
+      "controllers": 6,
+      "commands": 2,
+      "views": 18,
+      "assets": 1
+    },
+    "route_count": 31,
+    "tables_created": [
+      "ext_phone_call_agent_call_tag_pivot",
+      "ext_phone_call_agent_call_tags",
+      "ext_phone_call_agent_calls",
+      "ext_phone_call_agent_trains",
+      "ext_phone_call_agent_transcripts",
+      "ext_phone_call_agents"
+    ],
+    "dependencies_detected": [],
+    "external_domains": [
+      "127.0.0.1:",
+      "127.0.0.1:8000",
+      "127.0.0.1:8090;",
+      "api.anthropic.com",
+      "api.cal.com",
+      "api.calendly.com",
+      "api.deepseek.com",
+      "api.elevenlabs.io",
+      "api.openai.com",
+      "app.cal.com",
+      "app.calendly.com",
+      "cal.com",
+      "calendly.com",
+      "console.twilio.com",
+      "elevenlabs.io",
+      "example.com",
+      "generativelanguage.googleapis.com",
+      "t.me",
+      "unpkg.com",
+      "www.twilio.com",
+      "www.w3.org"
+    ],
+    "todo_count": 2,
+    "flagged_pattern_count": 0
+  },
+  {
+    "folder": "ProductPhotography",
+    "category": "creative-ai",
+    "manifest": {
+      "name": "Product Photography",
+      "type": "extension",
+      "version": "2.6",
+      "description": "Product Photography extension for magicai — TG: @heew_support",
+      "support_telegram": "heew_support"
+    },
+    "file_count": 14,
+    "bytes": 43668,
+    "components": {
+      "other": 5,
+      "migrations": 2,
+      "services": 2,
+      "models": 1,
+      "controllers": 2,
+      "views": 2
+    },
+    "route_count": 3,
+    "tables_created": [
+      "pebblely"
+    ],
+    "dependencies_detected": [],
+    "external_domains": [
+      "api.pebblely.com",
+      "pebblely.com",
+      "t.me",
+      "www.w3.org"
+    ],
+    "todo_count": 0,
+    "flagged_pattern_count": 0
+  },
+  {
+    "folder": "SEOTool",
+    "category": "growth-ai",
+    "manifest": {
+      "name": "SEO tool",
+      "type": "extension",
+      "version": "3.6",
+      "description": "SEO tool extension for magicai — TG: @heew_support",
+      "support_telegram": "heew_support"
+    },
+    "file_count": 13,
+    "bytes": 82295,
+    "components": {
+      "other": 5,
+      "services": 2,
+      "models": 1,
+      "controllers": 1,
+      "views": 4
+    },
+    "route_count": 7,
+    "tables_created": [],
+    "dependencies_detected": [],
+    "external_domains": [
+      "cleantechnica.com",
+      "google.serper.dev",
+      "i.ytimg.com",
+      "insideevs.com",
+      "t.me",
+      "www.autonation.com",
+      "www.cinch.co.uk",
+      "www.iseecars.com",
+      "www.motortrend.com",
+      "www.quora.com",
+      "www.reddit.com",
+      "www.tesla.com",
+      "www.tomsguide.com",
+      "www.youtube.com"
+    ],
+    "todo_count": 0,
+    "flagged_pattern_count": 2
+  },
+  {
+    "folder": "SeeDreamV4",
+    "category": "model-providers",
+    "manifest": {
+      "name": "SeeDream4",
+      "type": "extension",
+      "version": "1.3",
+      "description": "SeeDream4 extension for magicai — TG: @heew_support",
+      "support_telegram": "heew_support"
+    },
+    "file_count": 12,
+    "bytes": 22344,
+    "components": {
+      "other": 8,
+      "controllers": 1,
+      "views": 3
+    },
+    "route_count": 1,
+    "tables_created": [],
+    "dependencies_detected": [],
+    "external_domains": [
+      "t.me"
+    ],
+    "todo_count": 0,
+    "flagged_pattern_count": 0
+  },
+  {
+    "folder": "SocialMedia",
+    "category": "growth-ai",
+    "manifest": {
+      "name": "AI Social Media Pro",
+      "type": "extension",
+      "version": "5.13",
+      "description": "AI Social Media Pro extension for magicai — TG: @heew_support",
+      "support_telegram": "heew_support"
+    },
+    "file_count": 143,
+    "bytes": 722644,
+    "components": {
+      "other": 19,
+      "migrations": 19,
+      "services": 15,
+      "models": 6,
+      "controllers": 20,
+      "commands": 8,
+      "views": 34,
+      "assets": 22
+    },
+    "route_count": 43,
+    "tables_created": [
+      "ext_social_media_analyses",
+      "ext_social_media_campaigns",
+      "ext_social_media_platforms",
+      "ext_social_media_post_daily_metrics",
+      "ext_social_media_posts",
+      "ext_social_media_shared_logs"
+    ],
+    "dependencies_detected": [
+      "SocialMediaAgent",
+      "SocialMediaAutomation",
+      "social-media-agent"
+    ],
+    "external_domains": [
+      "...",
+      "accounts.google.com",
+      "api.linkedin.com",
+      "api.x.com",
+      "cdn.jsdelivr.net",
+      "graph.facebook.com",
+      "linkedin.com",
+      "oauth2.googleapis.com",
+      "open.tiktokapis.com",
+      "queue.fal.run",
+      "t.me",
+      "tiktok.com",
+      "twitter.com",
+      "www.facebook.com",
+      "www.googleapis.com",
+      "www.instagram.com",
+      "www.linkedin.com",
+      "www.w3.org",
+      "www.youtube.com",
+      "x.com"
+    ],
+    "todo_count": 1,
+    "flagged_pattern_count": 0
+  },
+  {
+    "folder": "SocialMediaAgent",
+    "category": "agent-suite",
+    "manifest": {
+      "name": "Social Media Agent",
+      "type": "extension",
+      "version": "1.10",
+      "description": "Social Media Agent extension for magicai — TG: @heew_support",
+      "support_telegram": "heew_support"
+    },
+    "file_count": 117,
+    "bytes": 7599508,
+    "components": {
+      "other": 11,
+      "migrations": 9,
+      "policies": 1,
+      "services": 9,
+      "models": 2,
+      "controllers": 5,
+      "commands": 11,
+      "views": 54,
+      "assets": 15
+    },
+    "route_count": 40,
+    "tables_created": [
+      "ext_social_media_agent_posts",
+      "ext_social_media_agents"
+    ],
+    "dependencies_detected": [
+      "SocialMedia",
+      "ai-chat-pro",
+      "ai-chat-pro-deep-research",
+      "ai-chat-pro-file-chat",
+      "canvas",
+      "chat-pro-temp-chat",
+      "multi-model",
+      "openai-realtime-chat",
+      "social-media-agent"
+    ],
+    "external_domains": [
+      "api.openai.com",
+      "google.serper.dev",
+      "picsum.photos",
+      "queue.fal.run",
+      "t.me",
+      "via.placeholder.com",
+      "www.w3.org"
+    ],
+    "todo_count": 0,
+    "flagged_pattern_count": 1
+  },
+  {
+    "folder": "SocialMediaAutomation",
+    "category": "agent-suite",
+    "manifest": {
+      "name": "Social Media Automation",
+      "type": "extension",
+      "version": "1.1",
+      "description": "Comment & DM automation for social media platforms — TG: @heew_support",
+      "support_telegram": "heew_support"
+    },
+    "file_count": 64,
+    "bytes": 308332,
+    "components": {
+      "other": 19,
+      "migrations": 7,
+      "services": 3,
+      "models": 5,
+      "controllers": 3,
+      "commands": 2,
+      "views": 4,
+      "assets": 21
+    },
+    "route_count": 14,
+    "tables_created": [
+      "ext_sm_automation_actions",
+      "ext_sm_automation_logs",
+      "ext_sm_automation_replies",
+      "ext_sm_automations",
+      "ext_sm_pending_automations"
+    ],
+    "dependencies_detected": [
+      "SocialMedia"
+    ],
+    "external_domains": [
+      "api.linkedin.com",
+      "api.twitter.com",
+      "api.x.com",
+      "developer.twitter.com",
+      "developers.facebook.com",
+      "developers.tiktok.com",
+      "experiment.liquid-themes.com",
+      "experiment.liquid-themes.com`",
+      "graph.facebook.com",
+      "open.tiktokapis.com",
+      "t.me",
+      "www.w3.org"
+    ],
+    "todo_count": 0,
+    "flagged_pattern_count": 0
+  },
+  {
+    "folder": "TitanMapsIntelligence",
+    "category": "business-intelligence",
+    "manifest": {
+      "schema_version": "2.0",
+      "id": "titan-maps-intelligence",
+      "name": "Titan Maps Intelligence",
+      "description": "Provider-neutral business discovery, place intelligence, provider sourcing, candidate governance and WorkCore promotion for Titan Zero.",
+      "version": "1.0.0",
+      "type": "integration",
+      "provider": "App\\Extensions\\TitanMapsIntelligence\\TitanMapsIntelligenceServiceProvider",
+      "enabled_by_default": false,
+      "requires": {
+        "host": [
+          "identity",
+          "companies",
+          "memberships",
+          "permissions",
+          "active-company-context",
+          "queues",
+          "audit",
+          "titan-vault",
+          "extension-registry",
+          "capability-registry",
+          "private-export-store"
+        ],
+        "workcore": [
+          "crm",
+          "supply"
+        ]
+      },
+      "provides": [
+        "titan-maps-intelligence.search.businesses",
+        "titan-maps-intelligence.search.read",
+        "titan-maps-intelligence.search.cancel",
+        "titan-maps-intelligence.search.export",
+        "titan-maps-intelligence.candidates.list",
+        "titan-maps-intelligence.candidate.match",
+        "titan-maps-intelligence.candidate.classify",
+        "titan-maps-intelligence.candidate.approve",
+        "titan-maps-intelligence.candidate.reject",
+        "titan-maps-intelligence.candidate.promote",
+        "titan-maps-intelligence.territory.analyse",
+        "titan-maps-intelligence.usage.read"
+      ],
+      "permissions": [
+        "titan-maps-intelligence.search.create",
+        "titan-maps-intelligence.search.read",
+        "titan-maps-intelligence.search.cancel",
+        "titan-maps-intelligence.search.export",
+        "titan-maps-intelligence.candidate.read",
+        "titan-maps-intelligence.candidate.classify",
+        "titan-maps-intelligence.candidate.approve",
+        "titan-maps-intelligence.candidate.reject",
+        "titan-maps-intelligence.candidate.promote",
+        "titan-maps-intelligence.provider.manage",
+        "titan-maps-intelligence.territory.analyse",
+        "titan-maps-intelligence.usage.read",
+        "titan-maps-intelligence.raw-data.read"
+      ],
+      "settings": [
+        {
+          "key": "titan-maps-intelligence.enabled",
+          "type": "boolean",
+          "default": false,
+          "sensitive": false
+        },
+        {
+          "key": "titan-maps-intelligence.default-provider",
+          "type": "string",
+          "default": "google-places",
+          "sensitive": false
+        },
+        {
+          "key": "titan-maps-intelligence.google-credential-reference",
+          "type": "string",
+          "default": "",
+          "sensitive": false
+        },
+        {
+          "key": "titan-maps-intelligence.timeout-seconds",
+          "type": "integer",
+          "default": 10,
+          "sensitive": false
+        },
+        {
+          "key": "titan-maps-intelligence.retry-attempts",
+          "type": "integer",
+          "default": 2,
+          "sensitive": false
+        },
+        {
+          "key": "titan-maps-intelligence.maximum-results",
+          "type": "integer",
+          "default": 100,
+          "sensitive": false
+        }
+      ],
+      "ai": {
+        "tier": "quattro",
+        "capabilities": [
+          "titan-maps-intelligence.search.businesses",
+          "titan-maps-intelligence.search.read",
+          "titan-maps-intelligence.search.cancel",
+          "titan-maps-intelligence.search.export",
+          "titan-maps-intelligence.candidates.list",
+          "titan-maps-intelligence.candidate.match",
+          "titan-maps-intelligence.candidate.classify",
+          "titan-maps-intelligence.candidate.approve",
+          "titan-maps-intelligence.candidate.reject",
+          "titan-maps-intelligence.candidate.promote",
+          "titan-maps-intelligence.territory.analyse",
+          "titan-maps-intelligence.usage.read"
+        ]
+      }
+    },
+    "file_count": 152,
+    "bytes": 243585,
+    "components": {
+      "other": 143,
+      "controllers": 5,
+      "views": 4
+    },
+    "route_count": 15,
+    "tables_created": [],
+    "dependencies_detected": [],
+    "external_domains": [
+      "allowlisted.example",
+      "places.googleapis.com",
+      "places.googleapis.com`",
+      "schemas.openxmlformats.org"
+    ],
+    "todo_count": 0,
+    "flagged_pattern_count": 0
+  },
+  {
+    "folder": "UGCCreator",
+    "category": "creative-ai",
+    "manifest": {
+      "name": "UGCCreator",
+      "type": "extension",
+      "version": "1.2",
+      "description": "UGC Creator extension for magicai — TG: @heew_support",
+      "support_telegram": "heew_support"
+    },
+    "file_count": 38,
+    "bytes": 364615,
+    "components": {
+      "other": 9,
+      "migrations": 4,
+      "actions": 3,
+      "services": 2,
+      "jobs": 1,
+      "models": 2,
+      "controllers": 5,
+      "views": 3,
+      "assets": 9
+    },
+    "route_count": 12,
+    "tables_created": [
+      "ugc_creator_assets",
+      "ugc_creator_videos"
+    ],
+    "dependencies_detected": [
+      "video-editor"
+    ],
+    "external_domains": [
+      "api.elevenlabs.io",
+      "api.openai.com",
+      "queue.fal.run",
+      "t.me",
+      "www.w3.org"
+    ],
+    "todo_count": 0,
+    "flagged_pattern_count": 0
+  },
+  {
+    "folder": "UGCFactory",
+    "category": "creative-ai",
+    "manifest": {
+      "name": "UGCFactory",
+      "type": "extension",
+      "version": "1.1",
+      "description": "UGC Factory extension for magicai — TG: @heew_support",
+      "support_telegram": "heew_support"
+    },
+    "file_count": 54,
+    "bytes": 1070387,
+    "components": {
+      "other": 10,
+      "migrations": 3,
+      "actions": 3,
+      "services": 2,
+      "jobs": 2,
+      "models": 2,
+      "controllers": 5,
+      "views": 4,
+      "assets": 23
+    },
+    "route_count": 14,
+    "tables_created": [
+      "ugc_factory_actors",
+      "ugc_factory_videos"
+    ],
+    "dependencies_detected": [],
+    "external_domains": [
+      "api.elevenlabs.io",
+      "api.openai.com",
+      "queue.fal.run",
+      "t.me",
+      "www.w3.org"
+    ],
+    "todo_count": 1,
+    "flagged_pattern_count": 0
+  },
+  {
+    "folder": "UrlToVideo",
+    "category": "creative-ai",
+    "manifest": {
+      "name": "URL to Video AD",
+      "type": "extension",
+      "version": "1.9",
+      "description": "URL to Video AD extension for magicai — TG: @heew_support",
+      "support_telegram": "heew_support"
+    },
+    "file_count": 37,
+    "bytes": 158355,
+    "components": {
+      "other": 7,
+      "controllers": 5,
+      "views": 25
+    },
+    "route_count": 39,
+    "tables_created": [],
+    "dependencies_detected": [],
+    "external_domains": [
+      "example.com",
+      "t.me"
+    ],
+    "todo_count": 3,
+    "flagged_pattern_count": 0
+  },
+  {
+    "folder": "VideoDubbing",
+    "category": "creative-ai",
+    "manifest": {
+      "name": "Video Dubbing",
+      "type": "extension",
+      "version": "1.2",
+      "description": "AI Video Dubbing extension for translating and dubbing videos into multiple languages using HeyGen and ElevenLabs. — TG: @heew_support",
+      "support_telegram": "heew_support"
+    },
+    "file_count": 25,
+    "bytes": 137328,
+    "components": {
+      "other": 6,
+      "migrations": 2,
+      "services": 3,
+      "jobs": 3,
+      "models": 1,
+      "controllers": 2,
+      "views": 8
+    },
+    "route_count": 7,
+    "tables_created": [
+      "video_dubbings"
+    ],
+    "dependencies_detected": [],
+    "external_domains": [
+      "api.elevenlabs.io",
+      "api.heygen.com",
+      "example.com",
+      "t.me"
+    ],
+    "todo_count": 0,
+    "flagged_pattern_count": 0
+  },
+  {
+    "folder": "VideoEditor",
+    "category": "creative-ai",
+    "manifest": {
+      "name": "Video Editor",
+      "type": "extension",
+      "version": "1.0",
+      "description": "Timeline-based multi-track video editor with AI generation, drag-and-drop editing, and server-side export. — TG: @heew_support",
+      "support_telegram": "heew_support"
+    },
+    "file_count": 39,
+    "bytes": 461259,
+    "components": {
+      "other": 10,
+      "migrations": 6,
+      "services": 3,
+      "jobs": 1,
+      "models": 3,
+      "controllers": 5,
+      "views": 10,
+      "assets": 1
+    },
+    "route_count": 26,
+    "tables_created": [
+      "video_editor_export_jobs",
+      "video_editor_media",
+      "video_editor_projects"
+    ],
+    "dependencies_detected": [
+      "AiMusicPro",
+      "AiVideoPro",
+      "ai-music-pro",
+      "ai-video-pro",
+      "video-editor"
+    ],
+    "external_domains": [
+      "...",
+      "api.elevenlabs.io",
+      "api.openai.com",
+      "t.me"
+    ],
+    "todo_count": 0,
+    "flagged_pattern_count": 5
+  }
+]

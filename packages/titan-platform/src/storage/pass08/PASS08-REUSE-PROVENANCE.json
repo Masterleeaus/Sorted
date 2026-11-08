@@ -1,0 +1,36 @@
+{
+  "schema": "titan-zero-storage-reuse-provenance/v1",
+  "packet_id": "TZ-FINISH-STORAGE-DATA-AUTHORITY-001",
+  "pass": 8,
+  "dispositions": [
+    {
+      "source": "Pass 2 canonical company repository",
+      "status": "REUSED",
+      "semantics": [
+        "company_id isolation",
+        "canonical list/get/put/delete",
+        "legacy-boundary rejection"
+      ]
+    },
+    {
+      "source": "Pass 7 transactional repository support",
+      "status": "REUSED",
+      "semantics": [
+        "atomic restore",
+        "rollback on write failure",
+        "transaction-scoped recovery verification"
+      ]
+    },
+    {
+      "source": "Pass 7 stable business-state integrity posture",
+      "status": "ADAPTED",
+      "semantics": [
+        "fail-closed validation before mutation",
+        "authority-neutral persistence",
+        "company-scoped recovery"
+      ]
+    }
+  ],
+  "parallel_storage_authority_created": false,
+  "new_schema_created": false
+}

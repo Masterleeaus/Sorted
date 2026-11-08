@@ -1,0 +1,32 @@
+{
+  "template": {
+    "id": "service-booking",
+    "version": "1.0.0",
+    "name": "Service Booking",
+    "status": "ready",
+    "category": "field_services",
+    "entry_wizard": "service_booking_v1",
+    "capabilities": [
+      "crm.appointment.create"
+    ],
+    "channels": [
+      "chat",
+      "mobile",
+      "tablet",
+      "desktop",
+      "voice"
+    ],
+    "governance": {
+      "authority": "human_review_when_required",
+      "offline": true
+    },
+    "metadata": {
+      "verticals": [
+        "field_services",
+        "home_services",
+        "cleaning"
+      ],
+      "pack": "commerce_multi_vertical_2026_08"
+    }
+  }
+}

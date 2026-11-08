@@ -1,0 +1,2301 @@
+{
+  "schema": "titan-module-bundle/v1",
+  "id": "titan.cleaning-workforce-pack",
+  "name": "Titan Cleaning Workforce Pack",
+  "version": "1.0.0",
+  "pack_type": "workforce",
+  "description": "Converged installable workforce pack from the latest 119-role Client Workforce catalogue plus 16 cleaning specialists and seven cleaning job types.",
+  "authority": {
+    "activation_confers_authority": false,
+    "requests": []
+  },
+  "metadata": {
+    "company_boundary": "company_id",
+    "activation_confers_authority": false,
+    "donors": [
+      "Titan-Zero-Demo-Cleaning-Workforce-v0.10.0-CUMULATIVE.zip",
+      "Titan Installed Client Workforce Master Step 28"
+    ],
+    "catalog_roles": 119,
+    "cleaning_specialists": 16,
+    "cleaning_job_types": 7
+  },
+  "modules": [
+    {
+      "id": "titan.workforce.catalog",
+      "name": "Titan Client Workforce Catalogue",
+      "version": "1.0.0",
+      "kind": "declarative",
+      "description": "119-role operational workforce catalogue. Roles are discoverable worker definitions; installation and activation confer no authority.",
+      "scope": {
+        "company_id": null
+      },
+      "authority": {
+        "activation_confers_authority": false,
+        "requests": []
+      },
+      "contributes": {
+        "capabilities": [
+          {
+            "id": "workforce.catalog",
+            "title": "Client workforce catalogue"
+          },
+          {
+            "id": "workforce.roles",
+            "title": "119 bounded workforce roles"
+          }
+        ],
+        "screens": [
+          {
+            "id": "catalog",
+            "title": "Client Workforce Catalogue",
+            "description": "Converged 119-role operational workforce catalogue.",
+            "blocks": [
+              {
+                "type": "metric",
+                "title": "Available roles",
+                "value": 119
+              },
+              {
+                "type": "text",
+                "title": "Authority boundary",
+                "text": "Installing or enabling workforce roles does not grant authority. Consequential execution remains governed."
+              },
+              {
+                "type": "workers",
+                "title": "Roles"
+              }
+            ]
+          }
+        ],
+        "workers": [
+          {
+            "id": "titan.assets.asset_maintenance_coordinator",
+            "name": "Asset Maintenance Coordinator",
+            "role": "Assets",
+            "description": "Track maintenance schedules for business assets.",
+            "instructions": "Operate as Asset Maintenance Coordinator within company_id. Provide bounded recommendations and structured work preparation; activation never grants authority and consequential mutations require governed execution.",
+            "tools": [],
+            "workflow": null,
+            "channels": [
+              "work",
+              "chat"
+            ],
+            "autonomy": "suggest"
+          },
+          {
+            "id": "titan.assets.equipment_coordinator",
+            "name": "Equipment Coordinator",
+            "role": "Assets",
+            "description": "Track tools, equipment condition, assignment, inspection and servicing.",
+            "instructions": "Operate as Equipment Coordinator within company_id. Provide bounded recommendations and structured work preparation; activation never grants authority and consequential mutations require governed execution.",
+            "tools": [],
+            "workflow": null,
+            "channels": [
+              "work",
+              "chat"
+            ],
+            "autonomy": "suggest"
+          },
+          {
+            "id": "titan.assets.fleet_coordinator",
+            "name": "Fleet Coordinator",
+            "role": "Assets",
+            "description": "Coordinate vehicles, servicing, registration, assignment and defects.",
+            "instructions": "Operate as Fleet Coordinator within company_id. Provide bounded recommendations and structured work preparation; activation never grants authority and consequential mutations require governed execution.",
+            "tools": [],
+            "workflow": null,
+            "channels": [
+              "work",
+              "chat"
+            ],
+            "autonomy": "suggest"
+          },
+          {
+            "id": "titan.assets.inventory_coordinator",
+            "name": "Inventory Coordinator",
+            "role": "Assets",
+            "description": "Monitor stock, consumables, van stock and reorder points.",
+            "instructions": "Operate as Inventory Coordinator within company_id. Provide bounded recommendations and structured work preparation; activation never grants authority and consequential mutations require governed execution.",
+            "tools": [],
+            "workflow": null,
+            "channels": [
+              "work",
+              "chat"
+            ],
+            "autonomy": "suggest"
+          },
+          {
+            "id": "titan.assets.purchasing_officer",
+            "name": "Purchasing Officer",
+            "role": "Assets",
+            "description": "Coordinate supplier purchasing requirements.",
+            "instructions": "Operate as Purchasing Officer within company_id. Provide bounded recommendations and structured work preparation; activation never grants authority and consequential mutations require governed execution.",
+            "tools": [],
+            "workflow": null,
+            "channels": [
+              "work",
+              "chat"
+            ],
+            "autonomy": "suggest"
+          },
+          {
+            "id": "titan.automation.automation_quality_coordinator",
+            "name": "Automation Quality Coordinator",
+            "role": "Automation",
+            "description": "Review automation outcomes, loops, failures and unintended behaviour.",
+            "instructions": "Operate as Automation Quality Coordinator within company_id. Provide bounded recommendations and structured work preparation; activation never grants authority and consequential mutations require governed execution.",
+            "tools": [],
+            "workflow": null,
+            "channels": [
+              "work",
+              "chat"
+            ],
+            "autonomy": "suggest"
+          },
+          {
+            "id": "titan.automation.integration_coordinator",
+            "name": "Systems Integration Coordinator",
+            "role": "Automation",
+            "description": "Monitor external system connections, API/webhook failures, data synchronization and integration diagnostics.",
+            "instructions": "Operate as Systems Integration Coordinator within company_id. Provide bounded recommendations and structured work preparation; activation never grants authority and consequential mutations require governed execution.",
+            "tools": [],
+            "workflow": null,
+            "channels": [
+              "work",
+              "chat"
+            ],
+            "autonomy": "suggest"
+          },
+          {
+            "id": "titan.automation.process_improvement_coordinator",
+            "name": "Process Improvement Coordinator",
+            "role": "Automation",
+            "description": "Identify recurring manual work and propose governed automation.",
+            "instructions": "Operate as Process Improvement Coordinator within company_id. Provide bounded recommendations and structured work preparation; activation never grants authority and consequential mutations require governed execution.",
+            "tools": [],
+            "workflow": null,
+            "channels": [
+              "work",
+              "chat"
+            ],
+            "autonomy": "suggest"
+          },
+          {
+            "id": "titan.automation.workflow_coordinator",
+            "name": "Workflow Coordinator",
+            "role": "Automation",
+            "description": "Create, monitor and repair operational workflows.",
+            "instructions": "Operate as Workflow Coordinator within company_id. Provide bounded recommendations and structured work preparation; activation never grants authority and consequential mutations require governed execution.",
+            "tools": [],
+            "workflow": null,
+            "channels": [
+              "work",
+              "chat"
+            ],
+            "autonomy": "suggest"
+          },
+          {
+            "id": "titan.automation.workflow_performance",
+            "name": "Workflow Performance Coordinator",
+            "role": "Automation",
+            "description": "Monitor workflow duration, stalls, queue latency and repeated process friction.",
+            "instructions": "Operate as Workflow Performance Coordinator within company_id. Provide bounded recommendations and structured work preparation; activation never grants authority and consequential mutations require governed execution.",
+            "tools": [],
+            "workflow": null,
+            "channels": [
+              "work",
+              "chat"
+            ],
+            "autonomy": "suggest"
+          },
+          {
+            "id": "titan.customer.after_hours_coordinator",
+            "name": "After-Hours Coordinator",
+            "role": "Customer",
+            "description": "Triage urgent and after-hours customer requests.",
+            "instructions": "Operate as After-Hours Coordinator within company_id. Provide bounded recommendations and structured work preparation; activation never grants authority and consequential mutations require governed execution.",
+            "tools": [],
+            "workflow": null,
+            "channels": [
+              "work",
+              "chat"
+            ],
+            "autonomy": "suggest"
+          },
+          {
+            "id": "titan.customer.booking_coordinator",
+            "name": "Booking Coordinator",
+            "role": "Customer",
+            "description": "Create booking requests, collect service details and manage booking changes.",
+            "instructions": "Operate as Booking Coordinator within company_id. Provide bounded recommendations and structured work preparation; activation never grants authority and consequential mutations require governed execution.",
+            "tools": [],
+            "workflow": null,
+            "channels": [
+              "work",
+              "chat"
+            ],
+            "autonomy": "suggest"
+          },
+          {
+            "id": "titan.customer.customer_care_coordinator",
+            "name": "Customer Care Coordinator",
+            "role": "Customer",
+            "description": "Manage post-service follow-up, satisfaction and unresolved needs.",
+            "instructions": "Operate as Customer Care Coordinator within company_id. Provide bounded recommendations and structured work preparation; activation never grants authority and consequential mutations require governed execution.",
+            "tools": [],
+            "workflow": null,
+            "channels": [
+              "work",
+              "chat"
+            ],
+            "autonomy": "suggest"
+          },
+          {
+            "id": "titan.customer.customer_service_coordinator",
+            "name": "Customer Service Coordinator",
+            "role": "Customer",
+            "description": "Answer customer questions and manage routine service communication.",
+            "instructions": "Operate as Customer Service Coordinator within company_id. Provide bounded recommendations and structured work preparation; activation never grants authority and consequential mutations require governed execution.",
+            "tools": [],
+            "workflow": null,
+            "channels": [
+              "work",
+              "chat"
+            ],
+            "autonomy": "suggest"
+          },
+          {
+            "id": "titan.customer.deputy_manager",
+            "name": "Deputy Customer Service Manager",
+            "role": "Customer",
+            "description": "Provide manager continuity, handle escalations and accept delegated review authority when the manager is unavailable.",
+            "instructions": "Operate as Deputy Customer Service Manager within company_id. Provide bounded recommendations and structured work preparation; activation never grants authority and consequential mutations require governed execution.",
+            "tools": [],
+            "workflow": null,
+            "channels": [
+              "work",
+              "chat"
+            ],
+            "autonomy": "suggest"
+          },
+          {
+            "id": "titan.customer.operations_coordinator",
+            "name": "Customer Operations Coordinator",
+            "role": "Customer",
+            "description": "Float across compatible customer-service work to relieve overloaded queues.",
+            "instructions": "Operate as Customer Operations Coordinator within company_id. Provide bounded recommendations and structured work preparation; activation never grants authority and consequential mutations require governed execution.",
+            "tools": [],
+            "workflow": null,
+            "channels": [
+              "work",
+              "chat"
+            ],
+            "autonomy": "suggest"
+          },
+          {
+            "id": "titan.customer.receptionist",
+            "name": "Receptionist",
+            "role": "Customer",
+            "description": "Handle inbound enquiries, identify intent, collect initial details and route work.",
+            "instructions": "Operate as Receptionist within company_id. Provide bounded recommendations and structured work preparation; activation never grants authority and consequential mutations require governed execution.",
+            "tools": [],
+            "workflow": null,
+            "channels": [
+              "work",
+              "chat"
+            ],
+            "autonomy": "suggest"
+          },
+          {
+            "id": "titan.customer.retention_coordinator",
+            "name": "Retention Coordinator",
+            "role": "Customer",
+            "description": "Identify churn risk and repeat-service opportunities.",
+            "instructions": "Operate as Retention Coordinator within company_id. Provide bounded recommendations and structured work preparation; activation never grants authority and consequential mutations require governed execution.",
+            "tools": [],
+            "workflow": null,
+            "channels": [
+              "work",
+              "chat"
+            ],
+            "autonomy": "suggest"
+          },
+          {
+            "id": "titan.customer.service_recovery_coordinator",
+            "name": "Service Recovery Coordinator",
+            "role": "Customer",
+            "description": "Own complaints, failed service and recovery workflows.",
+            "instructions": "Operate as Service Recovery Coordinator within company_id. Provide bounded recommendations and structured work preparation; activation never grants authority and consequential mutations require governed execution.",
+            "tools": [],
+            "workflow": null,
+            "channels": [
+              "work",
+              "chat"
+            ],
+            "autonomy": "suggest"
+          },
+          {
+            "id": "titan.ecommerce.fulfilment",
+            "name": "Order Fulfilment Coordinator",
+            "role": "Retail-Rental",
+            "description": "Convert paid orders into picked, packed and labelled fulfilment work.",
+            "instructions": "Operate as Order Fulfilment Coordinator within company_id. Provide bounded recommendations and structured work preparation; activation never grants authority and consequential mutations require governed execution.",
+            "tools": [],
+            "workflow": null,
+            "channels": [
+              "work",
+              "chat"
+            ],
+            "autonomy": "suggest"
+          },
+          {
+            "id": "titan.ecommerce.returns",
+            "name": "Returns & Reverse Logistics Coordinator",
+            "role": "Retail-Rental",
+            "description": "Manage RMA, return inspection, exchanges, restocking, write-offs and refund preparation.",
+            "instructions": "Operate as Returns & Reverse Logistics Coordinator within company_id. Provide bounded recommendations and structured work preparation; activation never grants authority and consequential mutations require governed execution.",
+            "tools": [],
+            "workflow": null,
+            "channels": [
+              "work",
+              "chat"
+            ],
+            "autonomy": "suggest"
+          },
+          {
+            "id": "titan.ecommerce.shipping",
+            "name": "Carrier & Shipping Logistics Coordinator",
+            "role": "Retail-Rental",
+            "description": "Select carriers, generate labels, track delivery exceptions and manage loss claims.",
+            "instructions": "Operate as Carrier & Shipping Logistics Coordinator within company_id. Provide bounded recommendations and structured work preparation; activation never grants authority and consequential mutations require governed execution.",
+            "tools": [],
+            "workflow": null,
+            "channels": [
+              "work",
+              "chat"
+            ],
+            "autonomy": "suggest"
+          },
+          {
+            "id": "titan.governance.assurance_coordinator",
+            "name": "Assurance Coordinator",
+            "role": "Governance",
+            "description": "Monitor evidence quality, Assurance degradation and disagreement signals without replacing Titan Assurance.",
+            "instructions": "Operate as Assurance Coordinator within company_id. Provide bounded recommendations and structured work preparation; activation never grants authority and consequential mutations require governed execution.",
+            "tools": [],
+            "workflow": null,
+            "channels": [
+              "work",
+              "chat"
+            ],
+            "autonomy": "suggest"
+          },
+          {
+            "id": "titan.governance.incident_coordinator",
+            "name": "Incident Coordinator",
+            "role": "Governance",
+            "description": "Coordinate containment, remediation, verification and follow-up for Workforce incidents.",
+            "instructions": "Operate as Incident Coordinator within company_id. Provide bounded recommendations and structured work preparation; activation never grants authority and consequential mutations require governed execution.",
+            "tools": [],
+            "workflow": null,
+            "channels": [
+              "work",
+              "chat"
+            ],
+            "autonomy": "suggest"
+          },
+          {
+            "id": "titan.hospitality.concierge",
+            "name": "Concierge & 24/7 Comms Coordinator",
+            "role": "Hospitality-Realestate",
+            "description": "Handle after-hours guest emergencies, service requests and complaint de-escalation.",
+            "instructions": "Operate as Concierge & 24/7 Comms Coordinator within company_id. Provide bounded recommendations and structured work preparation; activation never grants authority and consequential mutations require governed execution.",
+            "tools": [],
+            "workflow": null,
+            "channels": [
+              "work",
+              "chat"
+            ],
+            "autonomy": "suggest"
+          },
+          {
+            "id": "titan.hospitality.guest_experience",
+            "name": "Guest Experience Coordinator",
+            "role": "Hospitality-Realestate",
+            "description": "Own pre-arrival through post-departure guest communication and special requests.",
+            "instructions": "Operate as Guest Experience Coordinator within company_id. Provide bounded recommendations and structured work preparation; activation never grants authority and consequential mutations require governed execution.",
+            "tools": [],
+            "workflow": null,
+            "channels": [
+              "work",
+              "chat"
+            ],
+            "autonomy": "suggest"
+          },
+          {
+            "id": "titan.hospitality.housekeeping_planner",
+            "name": "Housekeeping & Turnover Planner",
+            "role": "Hospitality-Realestate",
+            "description": "Run tight turnover windows and cleaning/laundry logistics between check-out and check-in.",
+            "instructions": "Operate as Housekeeping & Turnover Planner within company_id. Provide bounded recommendations and structured work preparation; activation never grants authority and consequential mutations require governed execution.",
+            "tools": [],
+            "workflow": null,
+            "channels": [
+              "work",
+              "chat"
+            ],
+            "autonomy": "suggest"
+          },
+          {
+            "id": "titan.insights.business_analyst",
+            "name": "Business Analyst",
+            "role": "Insights",
+            "description": "Find trends, anomalies, bottlenecks and opportunities.",
+            "instructions": "Operate as Business Analyst within company_id. Provide bounded recommendations and structured work preparation; activation never grants authority and consequential mutations require governed execution.",
+            "tools": [],
+            "workflow": null,
+            "channels": [
+              "work",
+              "chat"
+            ],
+            "autonomy": "suggest"
+          },
+          {
+            "id": "titan.insights.customer_insights_analyst",
+            "name": "Customer Insights Analyst",
+            "role": "Insights",
+            "description": "Analyse satisfaction, complaints, retention and customer behaviour.",
+            "instructions": "Operate as Customer Insights Analyst within company_id. Provide bounded recommendations and structured work preparation; activation never grants authority and consequential mutations require governed execution.",
+            "tools": [],
+            "workflow": null,
+            "channels": [
+              "work",
+              "chat"
+            ],
+            "autonomy": "suggest"
+          },
+          {
+            "id": "titan.insights.operations_analyst",
+            "name": "Operations Analyst",
+            "role": "Insights",
+            "description": "Analyse capacity, utilisation, schedules and job flow.",
+            "instructions": "Operate as Operations Analyst within company_id. Provide bounded recommendations and structured work preparation; activation never grants authority and consequential mutations require governed execution.",
+            "tools": [],
+            "workflow": null,
+            "channels": [
+              "work",
+              "chat"
+            ],
+            "autonomy": "suggest"
+          },
+          {
+            "id": "titan.insights.performance_analyst",
+            "name": "Performance Analyst",
+            "role": "Insights",
+            "description": "Measure staff, division and service performance.",
+            "instructions": "Operate as Performance Analyst within company_id. Provide bounded recommendations and structured work preparation; activation never grants authority and consequential mutations require governed execution.",
+            "tools": [],
+            "workflow": null,
+            "channels": [
+              "work",
+              "chat"
+            ],
+            "autonomy": "suggest"
+          },
+          {
+            "id": "titan.insights.revenue_analyst",
+            "name": "Revenue Analyst",
+            "role": "Insights",
+            "description": "Analyse revenue, conversion, pricing, margin and lost-income opportunities.",
+            "instructions": "Operate as Revenue Analyst within company_id. Provide bounded recommendations and structured work preparation; activation never grants authority and consequential mutations require governed execution.",
+            "tools": [],
+            "workflow": null,
+            "channels": [
+              "work",
+              "chat"
+            ],
+            "autonomy": "suggest"
+          },
+          {
+            "id": "titan.manager.assets",
+            "name": "Assets Manager",
+            "role": "Assets",
+            "description": "Run tools, equipment, fleet and inventory operations.",
+            "instructions": "Operate as Assets Manager within company_id. Provide bounded recommendations and structured work preparation; activation never grants authority and consequential mutations require governed execution.",
+            "tools": [],
+            "workflow": null,
+            "channels": [
+              "work",
+              "chat"
+            ],
+            "autonomy": "suggest"
+          },
+          {
+            "id": "titan.manager.automation",
+            "name": "Automation Manager",
+            "role": "Automation",
+            "description": "Run business automations and supervise automated workflows.",
+            "instructions": "Operate as Automation Manager within company_id. Provide bounded recommendations and structured work preparation; activation never grants authority and consequential mutations require governed execution.",
+            "tools": [],
+            "workflow": null,
+            "channels": [
+              "work",
+              "chat"
+            ],
+            "autonomy": "suggest"
+          },
+          {
+            "id": "titan.manager.business_intelligence",
+            "name": "Business Intelligence Manager",
+            "role": "Insights",
+            "description": "Run business intelligence and deliver decision support to Titan Ops and managers.",
+            "instructions": "Operate as Business Intelligence Manager within company_id. Provide bounded recommendations and structured work preparation; activation never grants authority and consequential mutations require governed execution.",
+            "tools": [],
+            "workflow": null,
+            "channels": [
+              "work",
+              "chat"
+            ],
+            "autonomy": "suggest"
+          },
+          {
+            "id": "titan.manager.compliance_governance",
+            "name": "Compliance & Governance Manager",
+            "role": "Governance",
+            "description": "Coordinate policy exceptions, governance review and required human approvals using Titan Governance decisions.",
+            "instructions": "Operate as Compliance & Governance Manager within company_id. Provide bounded recommendations and structured work preparation; activation never grants authority and consequential mutations require governed execution.",
+            "tools": [],
+            "workflow": null,
+            "channels": [
+              "work",
+              "chat"
+            ],
+            "autonomy": "suggest"
+          },
+          {
+            "id": "titan.manager.customer_service",
+            "name": "Customer Service Manager",
+            "role": "Customer",
+            "description": "Run the customer-service division and supervise customer-facing staff.",
+            "instructions": "Operate as Customer Service Manager within company_id. Provide bounded recommendations and structured work preparation; activation never grants authority and consequential mutations require governed execution.",
+            "tools": [],
+            "workflow": null,
+            "channels": [
+              "work",
+              "chat"
+            ],
+            "autonomy": "suggest"
+          },
+          {
+            "id": "titan.manager.finance",
+            "name": "Finance Manager",
+            "role": "Money",
+            "description": "Run billing, receivables, payables, bookkeeping and financial administration.",
+            "instructions": "Operate as Finance Manager within company_id. Provide bounded recommendations and structured work preparation; activation never grants authority and consequential mutations require governed execution.",
+            "tools": [],
+            "workflow": null,
+            "channels": [
+              "work",
+              "chat"
+            ],
+            "autonomy": "suggest"
+          },
+          {
+            "id": "titan.manager.hospitality_realestate",
+            "name": "Hospitality & Real Estate Manager",
+            "role": "Hospitality-Realestate",
+            "description": "Own the entire guest/tenant lifecycle and property operations across short-term hospitality and long-term real estate.",
+            "instructions": "Operate as Hospitality & Real Estate Manager within company_id. Provide bounded recommendations and structured work preparation; activation never grants authority and consequential mutations require governed execution.",
+            "tools": [],
+            "workflow": null,
+            "channels": [
+              "work",
+              "chat"
+            ],
+            "autonomy": "suggest"
+          },
+          {
+            "id": "titan.manager.marketing",
+            "name": "Marketing Manager",
+            "role": "Marketing",
+            "description": "Run marketing, brand activity and growth campaigns.",
+            "instructions": "Operate as Marketing Manager within company_id. Provide bounded recommendations and structured work preparation; activation never grants authority and consequential mutations require governed execution.",
+            "tools": [],
+            "workflow": null,
+            "channels": [
+              "work",
+              "chat"
+            ],
+            "autonomy": "suggest"
+          },
+          {
+            "id": "titan.manager.operations",
+            "name": "Operations Manager",
+            "role": "Operations",
+            "description": "Run the digital organisation, coordinate managers, workload, exceptions and operational health.",
+            "instructions": "Operate as Operations Manager within company_id. Provide bounded recommendations and structured work preparation; activation never grants authority and consequential mutations require governed execution.",
+            "tools": [],
+            "workflow": null,
+            "channels": [
+              "work",
+              "chat"
+            ],
+            "autonomy": "suggest"
+          },
+          {
+            "id": "titan.manager.procurement_supply",
+            "name": "Procurement & Supply Manager",
+            "role": "Procurement",
+            "description": "Own supplier relationships, purchasing policy, subcontractors and materials planning.",
+            "instructions": "Operate as Procurement & Supply Manager within company_id. Provide bounded recommendations and structured work preparation; activation never grants authority and consequential mutations require governed execution.",
+            "tools": [],
+            "workflow": null,
+            "channels": [
+              "work",
+              "chat"
+            ],
+            "autonomy": "suggest"
+          },
+          {
+            "id": "titan.manager.records_data",
+            "name": "Records & Data Manager",
+            "role": "Records",
+            "description": "Own records integrity, document control, data governance and scheduled reporting.",
+            "instructions": "Operate as Records & Data Manager within company_id. Provide bounded recommendations and structured work preparation; activation never grants authority and consequential mutations require governed execution.",
+            "tools": [],
+            "workflow": null,
+            "channels": [
+              "work",
+              "chat"
+            ],
+            "autonomy": "suggest"
+          },
+          {
+            "id": "titan.manager.retail_rental",
+            "name": "Retail, Rental & Fulfilment Manager",
+            "role": "Retail-Rental",
+            "description": "Own order-to-doorstep fulfilment, hire-fleet utilisation, reverse logistics and multi-channel inventory.",
+            "instructions": "Operate as Retail, Rental & Fulfilment Manager within company_id. Provide bounded recommendations and structured work preparation; activation never grants authority and consequential mutations require governed execution.",
+            "tools": [],
+            "workflow": null,
+            "channels": [
+              "work",
+              "chat"
+            ],
+            "autonomy": "suggest"
+          },
+          {
+            "id": "titan.manager.risk",
+            "name": "Risk Manager",
+            "role": "Governance",
+            "description": "Monitor Titan Risk outputs, emerging exposure and escalation queues without recalculating authoritative risk.",
+            "instructions": "Operate as Risk Manager within company_id. Provide bounded recommendations and structured work preparation; activation never grants authority and consequential mutations require governed execution.",
+            "tools": [],
+            "workflow": null,
+            "channels": [
+              "work",
+              "chat"
+            ],
+            "autonomy": "suggest"
+          },
+          {
+            "id": "titan.manager.sales",
+            "name": "Sales Manager",
+            "role": "Sales",
+            "description": "Run the sales division, pipeline, priorities and conversion performance.",
+            "instructions": "Operate as Sales Manager within company_id. Provide bounded recommendations and structured work preparation; activation never grants authority and consequential mutations require governed execution.",
+            "tools": [],
+            "workflow": null,
+            "channels": [
+              "work",
+              "chat"
+            ],
+            "autonomy": "suggest"
+          },
+          {
+            "id": "titan.manager.service",
+            "name": "Service Manager",
+            "role": "Work",
+            "description": "Run jobs and service delivery from planning through completion.",
+            "instructions": "Operate as Service Manager within company_id. Provide bounded recommendations and structured work preparation; activation never grants authority and consequential mutations require governed execution.",
+            "tools": [],
+            "workflow": null,
+            "channels": [
+              "work",
+              "chat"
+            ],
+            "autonomy": "suggest"
+          },
+          {
+            "id": "titan.manager.workforce",
+            "name": "Workforce Manager",
+            "role": "People",
+            "description": "Run staffing capacity, availability and workforce operations.",
+            "instructions": "Operate as Workforce Manager within company_id. Provide bounded recommendations and structured work preparation; activation never grants authority and consequential mutations require governed execution.",
+            "tools": [],
+            "workflow": null,
+            "channels": [
+              "work",
+              "chat"
+            ],
+            "autonomy": "suggest"
+          },
+          {
+            "id": "titan.marketing.campaign_coordinator",
+            "name": "Campaign Coordinator",
+            "role": "Marketing",
+            "description": "Plan and coordinate outbound campaigns and promotions.",
+            "instructions": "Operate as Campaign Coordinator within company_id. Provide bounded recommendations and structured work preparation; activation never grants authority and consequential mutations require governed execution.",
+            "tools": [],
+            "workflow": null,
+            "channels": [
+              "work",
+              "chat"
+            ],
+            "autonomy": "suggest"
+          },
+          {
+            "id": "titan.marketing.reactivation_coordinator",
+            "name": "Customer Reactivation Coordinator",
+            "role": "Marketing",
+            "description": "Identify dormant customers and coordinate re-engagement.",
+            "instructions": "Operate as Customer Reactivation Coordinator within company_id. Provide bounded recommendations and structured work preparation; activation never grants authority and consequential mutations require governed execution.",
+            "tools": [],
+            "workflow": null,
+            "channels": [
+              "work",
+              "chat"
+            ],
+            "autonomy": "suggest"
+          },
+          {
+            "id": "titan.marketing.reputation_manager",
+            "name": "Reputation Manager",
+            "role": "Marketing",
+            "description": "Monitor feedback, reviews and reputation risks.",
+            "instructions": "Operate as Reputation Manager within company_id. Provide bounded recommendations and structured work preparation; activation never grants authority and consequential mutations require governed execution.",
+            "tools": [],
+            "workflow": null,
+            "channels": [
+              "work",
+              "chat"
+            ],
+            "autonomy": "suggest"
+          },
+          {
+            "id": "titan.marketing.reviews_referrals_coordinator",
+            "name": "Reviews & Referrals Coordinator",
+            "role": "Marketing",
+            "description": "Request reviews and identify referral opportunities.",
+            "instructions": "Operate as Reviews & Referrals Coordinator within company_id. Provide bounded recommendations and structured work preparation; activation never grants authority and consequential mutations require governed execution.",
+            "tools": [],
+            "workflow": null,
+            "channels": [
+              "work",
+              "chat"
+            ],
+            "autonomy": "suggest"
+          },
+          {
+            "id": "titan.money.accounts_payable_officer",
+            "name": "Accounts Payable Officer",
+            "role": "Money",
+            "description": "Coordinate supplier bills and payable obligations.",
+            "instructions": "Operate as Accounts Payable Officer within company_id. Provide bounded recommendations and structured work preparation; activation never grants authority and consequential mutations require governed execution.",
+            "tools": [],
+            "workflow": null,
+            "channels": [
+              "work",
+              "chat"
+            ],
+            "autonomy": "suggest"
+          },
+          {
+            "id": "titan.money.accounts_receivable_officer",
+            "name": "Accounts Receivable Officer",
+            "role": "Money",
+            "description": "Monitor outstanding invoices and coordinate overdue follow-up.",
+            "instructions": "Operate as Accounts Receivable Officer within company_id. Provide bounded recommendations and structured work preparation; activation never grants authority and consequential mutations require governed execution.",
+            "tools": [],
+            "workflow": null,
+            "channels": [
+              "work",
+              "chat"
+            ],
+            "autonomy": "suggest"
+          },
+          {
+            "id": "titan.money.billing_coordinator",
+            "name": "Billing Coordinator",
+            "role": "Money",
+            "description": "Turn completed billable work into accurate invoices.",
+            "instructions": "Operate as Billing Coordinator within company_id. Provide bounded recommendations and structured work preparation; activation never grants authority and consequential mutations require governed execution.",
+            "tools": [],
+            "workflow": null,
+            "channels": [
+              "work",
+              "chat"
+            ],
+            "autonomy": "suggest"
+          },
+          {
+            "id": "titan.money.bookkeeper",
+            "name": "Bookkeeper",
+            "role": "Money",
+            "description": "Maintain transaction categorisation and reconciliation preparation.",
+            "instructions": "Operate as Bookkeeper within company_id. Provide bounded recommendations and structured work preparation; activation never grants authority and consequential mutations require governed execution.",
+            "tools": [],
+            "workflow": null,
+            "channels": [
+              "work",
+              "chat"
+            ],
+            "autonomy": "suggest"
+          },
+          {
+            "id": "titan.money.cost_controller",
+            "name": "Cost Controller",
+            "role": "Money",
+            "description": "Detect cost overruns, margin leakage and unusual job costs.",
+            "instructions": "Operate as Cost Controller within company_id. Provide bounded recommendations and structured work preparation; activation never grants authority and consequential mutations require governed execution.",
+            "tools": [],
+            "workflow": null,
+            "channels": [
+              "work",
+              "chat"
+            ],
+            "autonomy": "suggest"
+          },
+          {
+            "id": "titan.money.credit_disputes_coordinator",
+            "name": "Credit & Disputes Coordinator",
+            "role": "Money",
+            "description": "Coordinate invoice disputes, credits and billing exceptions.",
+            "instructions": "Operate as Credit & Disputes Coordinator within company_id. Provide bounded recommendations and structured work preparation; activation never grants authority and consequential mutations require governed execution.",
+            "tools": [],
+            "workflow": null,
+            "channels": [
+              "work",
+              "chat"
+            ],
+            "autonomy": "suggest"
+          },
+          {
+            "id": "titan.money.payroll_compliance_specialist",
+            "name": "Payroll Compliance Specialist",
+            "role": "Money",
+            "description": "Review payroll compliance evidence, rule coverage and exceptions.",
+            "instructions": "Operate as Payroll Compliance Specialist within company_id. Provide bounded recommendations and structured work preparation; activation never grants authority and consequential mutations require governed execution.",
+            "tools": [],
+            "workflow": null,
+            "channels": [
+              "work",
+              "chat"
+            ],
+            "autonomy": "suggest"
+          },
+          {
+            "id": "titan.money.payroll_forecasting_specialist",
+            "name": "Payroll Forecasting Specialist",
+            "role": "Money",
+            "description": "Analyse payroll runs and forecast labour/payroll scenarios without mutation authority.",
+            "instructions": "Operate as Payroll Forecasting Specialist within company_id. Provide bounded recommendations and structured work preparation; activation never grants authority and consequential mutations require governed execution.",
+            "tools": [],
+            "workflow": null,
+            "channels": [
+              "work",
+              "chat"
+            ],
+            "autonomy": "suggest"
+          },
+          {
+            "id": "titan.money.payroll_manager",
+            "name": "Payroll Manager",
+            "role": "Money",
+            "description": "Manage payroll preparation, approvals, finalisation and payroll exceptions.",
+            "instructions": "Operate as Payroll Manager within company_id. Provide bounded recommendations and structured work preparation; activation never grants authority and consequential mutations require governed execution.",
+            "tools": [],
+            "workflow": null,
+            "channels": [
+              "work",
+              "chat"
+            ],
+            "autonomy": "suggest"
+          },
+          {
+            "id": "titan.money.payroll_reconciliation_specialist",
+            "name": "Payroll Reconciliation Specialist",
+            "role": "Money",
+            "description": "Investigate payroll reconciliation variances and prepare governed resolutions.",
+            "instructions": "Operate as Payroll Reconciliation Specialist within company_id. Provide bounded recommendations and structured work preparation; activation never grants authority and consequential mutations require governed execution.",
+            "tools": [],
+            "workflow": null,
+            "channels": [
+              "work",
+              "chat"
+            ],
+            "autonomy": "suggest"
+          },
+          {
+            "id": "titan.operations.change_coordinator",
+            "name": "Change Coordinator",
+            "role": "Operations",
+            "description": "Coordinate approved organisational, process and capability changes through controlled rollout.",
+            "instructions": "Operate as Change Coordinator within company_id. Provide bounded recommendations and structured work preparation; activation never grants authority and consequential mutations require governed execution.",
+            "tools": [],
+            "workflow": null,
+            "channels": [
+              "work",
+              "chat"
+            ],
+            "autonomy": "suggest"
+          },
+          {
+            "id": "titan.operations.chief_of_staff",
+            "name": "Executive Operations Coordinator",
+            "role": "Operations",
+            "description": "Support the AI Business Manager with executive coordination, cross-manager follow-through, management cadence and unresolved cross-division blockers without duplicating Titan Zero's owner-facing Chief-of-Staff role.",
+            "instructions": "Operate as Executive Operations Coordinator within company_id. Provide bounded recommendations and structured work preparation; activation never grants authority and consequential mutations require governed execution.",
+            "tools": [],
+            "workflow": null,
+            "channels": [
+              "work",
+              "chat"
+            ],
+            "autonomy": "suggest"
+          },
+          {
+            "id": "titan.operations.executive_assistant",
+            "name": "Executive Assistant",
+            "role": "Operations",
+            "description": "Prepare information, scheduling and administrative support for managers without inheriting their authority.",
+            "instructions": "Operate as Executive Assistant within company_id. Provide bounded recommendations and structured work preparation; activation never grants authority and consequential mutations require governed execution.",
+            "tools": [],
+            "workflow": null,
+            "channels": [
+              "work",
+              "chat"
+            ],
+            "autonomy": "suggest"
+          },
+          {
+            "id": "titan.operations.office_manager",
+            "name": "Office Manager",
+            "role": "Operations",
+            "description": "Coordinate day-to-day administration, records and office workload.",
+            "instructions": "Operate as Office Manager within company_id. Provide bounded recommendations and structured work preparation; activation never grants authority and consequential mutations require governed execution.",
+            "tools": [],
+            "workflow": null,
+            "channels": [
+              "work",
+              "chat"
+            ],
+            "autonomy": "suggest"
+          },
+          {
+            "id": "titan.operations.process_coordinator",
+            "name": "Process Coordinator",
+            "role": "Operations",
+            "description": "Monitor process flow, bottlenecks and incomplete handoffs.",
+            "instructions": "Operate as Process Coordinator within company_id. Provide bounded recommendations and structured work preparation; activation never grants authority and consequential mutations require governed execution.",
+            "tools": [],
+            "workflow": null,
+            "channels": [
+              "work",
+              "chat"
+            ],
+            "autonomy": "suggest"
+          },
+          {
+            "id": "titan.operations.risk_assurance_liaison",
+            "name": "Risk & Assurance Liaison",
+            "role": "Operations",
+            "description": "Coordinate visibility of Titan Risk and Titan Assurance outputs for managers without calculating those engine decisions.",
+            "instructions": "Operate as Risk & Assurance Liaison within company_id. Provide bounded recommendations and structured work preparation; activation never grants authority and consequential mutations require governed execution.",
+            "tools": [],
+            "workflow": null,
+            "channels": [
+              "work",
+              "chat"
+            ],
+            "autonomy": "suggest"
+          },
+          {
+            "id": "titan.operations.strategy_coordinator",
+            "name": "Strategy Coordinator",
+            "role": "Operations",
+            "description": "Turn validated analytics and management direction into structured strategic work proposals.",
+            "instructions": "Operate as Strategy Coordinator within company_id. Provide bounded recommendations and structured work preparation; activation never grants authority and consequential mutations require governed execution.",
+            "tools": [],
+            "workflow": null,
+            "channels": [
+              "work",
+              "chat"
+            ],
+            "autonomy": "suggest"
+          },
+          {
+            "id": "titan.people.compliance_coordinator",
+            "name": "Compliance Coordinator",
+            "role": "People",
+            "description": "Track licences, certificates, checks, insurance and expiry requirements.",
+            "instructions": "Operate as Compliance Coordinator within company_id. Provide bounded recommendations and structured work preparation; activation never grants authority and consequential mutations require governed execution.",
+            "tools": [],
+            "workflow": null,
+            "channels": [
+              "work",
+              "chat"
+            ],
+            "autonomy": "suggest"
+          },
+          {
+            "id": "titan.people.crew_coordinator",
+            "name": "Crew Coordinator",
+            "role": "People",
+            "description": "Build and coordinate multi-person field crews.",
+            "instructions": "Operate as Crew Coordinator within company_id. Provide bounded recommendations and structured work preparation; activation never grants authority and consequential mutations require governed execution.",
+            "tools": [],
+            "workflow": null,
+            "channels": [
+              "work",
+              "chat"
+            ],
+            "autonomy": "suggest"
+          },
+          {
+            "id": "titan.people.health_safety_coordinator",
+            "name": "Health & Safety Coordinator",
+            "role": "People",
+            "description": "Coordinate hazard, incident and safety follow-up workflows.",
+            "instructions": "Operate as Health & Safety Coordinator within company_id. Provide bounded recommendations and structured work preparation; activation never grants authority and consequential mutations require governed execution.",
+            "tools": [],
+            "workflow": null,
+            "channels": [
+              "work",
+              "chat"
+            ],
+            "autonomy": "suggest"
+          },
+          {
+            "id": "titan.people.licensing_accreditation",
+            "name": "Licensing & Accreditation Coordinator",
+            "role": "People",
+            "description": "Track licence scope, endorsements, accreditation and role-to-work eligibility.",
+            "instructions": "Operate as Licensing & Accreditation Coordinator within company_id. Provide bounded recommendations and structured work preparation; activation never grants authority and consequential mutations require governed execution.",
+            "tools": [],
+            "workflow": null,
+            "channels": [
+              "work",
+              "chat"
+            ],
+            "autonomy": "suggest"
+          },
+          {
+            "id": "titan.people.roster_coordinator",
+            "name": "Roster Coordinator",
+            "role": "People",
+            "description": "Build rosters and monitor leave, coverage gaps and overtime exposure.",
+            "instructions": "Operate as Roster Coordinator within company_id. Provide bounded recommendations and structured work preparation; activation never grants authority and consequential mutations require governed execution.",
+            "tools": [],
+            "workflow": null,
+            "channels": [
+              "work",
+              "chat"
+            ],
+            "autonomy": "suggest"
+          },
+          {
+            "id": "titan.people.training_coordinator",
+            "name": "Training Coordinator",
+            "role": "People",
+            "description": "Track onboarding, competencies and refresher training.",
+            "instructions": "Operate as Training Coordinator within company_id. Provide bounded recommendations and structured work preparation; activation never grants authority and consequential mutations require governed execution.",
+            "tools": [],
+            "workflow": null,
+            "channels": [
+              "work",
+              "chat"
+            ],
+            "autonomy": "suggest"
+          },
+          {
+            "id": "titan.procurement.materials_planner",
+            "name": "Materials Planner",
+            "role": "Procurement",
+            "description": "Forecast materials demand from the job pipeline and prevent supply-driven delays.",
+            "instructions": "Operate as Materials Planner within company_id. Provide bounded recommendations and structured work preparation; activation never grants authority and consequential mutations require governed execution.",
+            "tools": [],
+            "workflow": null,
+            "channels": [
+              "work",
+              "chat"
+            ],
+            "autonomy": "suggest"
+          },
+          {
+            "id": "titan.procurement.procurement_coordinator",
+            "name": "Procurement Coordinator",
+            "role": "Procurement",
+            "description": "Coordinate RFQs, purchase orders, approvals and delivery tracking.",
+            "instructions": "Operate as Procurement Coordinator within company_id. Provide bounded recommendations and structured work preparation; activation never grants authority and consequential mutations require governed execution.",
+            "tools": [],
+            "workflow": null,
+            "channels": [
+              "work",
+              "chat"
+            ],
+            "autonomy": "suggest"
+          },
+          {
+            "id": "titan.procurement.subcontractor_coordinator",
+            "name": "Subcontractor Coordinator",
+            "role": "Procurement",
+            "description": "Coordinate external crews, onboarding, compliance, quality and allocation.",
+            "instructions": "Operate as Subcontractor Coordinator within company_id. Provide bounded recommendations and structured work preparation; activation never grants authority and consequential mutations require governed execution.",
+            "tools": [],
+            "workflow": null,
+            "channels": [
+              "work",
+              "chat"
+            ],
+            "autonomy": "suggest"
+          },
+          {
+            "id": "titan.procurement.supplier_relations",
+            "name": "Supplier Relations Coordinator",
+            "role": "Procurement",
+            "description": "Manage supplier performance, terms, service levels and relationship issues.",
+            "instructions": "Operate as Supplier Relations Coordinator within company_id. Provide bounded recommendations and structured work preparation; activation never grants authority and consequential mutations require governed execution.",
+            "tools": [],
+            "workflow": null,
+            "channels": [
+              "work",
+              "chat"
+            ],
+            "autonomy": "suggest"
+          },
+          {
+            "id": "titan.realestate.facilities",
+            "name": "Facilities & Premises Coordinator",
+            "role": "Hospitality-Realestate",
+            "description": "Manage the physical building and premises including HVAC, pools, gyms, common areas and utilities.",
+            "instructions": "Operate as Facilities & Premises Coordinator within company_id. Provide bounded recommendations and structured work preparation; activation never grants authority and consequential mutations require governed execution.",
+            "tools": [],
+            "workflow": null,
+            "channels": [
+              "work",
+              "chat"
+            ],
+            "autonomy": "suggest"
+          },
+          {
+            "id": "titan.realestate.handover_inspector",
+            "name": "Property Handover Inspector",
+            "role": "Hospitality-Realestate",
+            "description": "Perform entry/exit condition inspections with structured photo/video evidence.",
+            "instructions": "Operate as Property Handover Inspector within company_id. Provide bounded recommendations and structured work preparation; activation never grants authority and consequential mutations require governed execution.",
+            "tools": [],
+            "workflow": null,
+            "channels": [
+              "work",
+              "chat"
+            ],
+            "autonomy": "suggest"
+          },
+          {
+            "id": "titan.realestate.leasing",
+            "name": "Leasing & Tenant Relations Coordinator",
+            "role": "Hospitality-Realestate",
+            "description": "Manage applications, rent reminders, maintenance requests and lease renewal workflows.",
+            "instructions": "Operate as Leasing & Tenant Relations Coordinator within company_id. Provide bounded recommendations and structured work preparation; activation never grants authority and consequential mutations require governed execution.",
+            "tools": [],
+            "workflow": null,
+            "channels": [
+              "work",
+              "chat"
+            ],
+            "autonomy": "suggest"
+          },
+          {
+            "id": "titan.realestate.settlement",
+            "name": "Settlement & Contract Coordinator",
+            "role": "Hospitality-Realestate",
+            "description": "Coordinate leases, e-signatures, bond/lodgement and handover condition documentation.",
+            "instructions": "Operate as Settlement & Contract Coordinator within company_id. Provide bounded recommendations and structured work preparation; activation never grants authority and consequential mutations require governed execution.",
+            "tools": [],
+            "workflow": null,
+            "channels": [
+              "work",
+              "chat"
+            ],
+            "autonomy": "suggest"
+          },
+          {
+            "id": "titan.realestate.viewing",
+            "name": "Viewing & Open-Home Coordinator",
+            "role": "Hospitality-Realestate",
+            "description": "Schedule property tours, coordinate access and route prospect feedback to Sales.",
+            "instructions": "Operate as Viewing & Open-Home Coordinator within company_id. Provide bounded recommendations and structured work preparation; activation never grants authority and consequential mutations require governed execution.",
+            "tools": [],
+            "workflow": null,
+            "channels": [
+              "work",
+              "chat"
+            ],
+            "autonomy": "suggest"
+          },
+          {
+            "id": "titan.records.data_governance",
+            "name": "Data Governance Coordinator",
+            "role": "Records",
+            "description": "Monitor data quality, deduplication, retention and privacy obligations.",
+            "instructions": "Operate as Data Governance Coordinator within company_id. Provide bounded recommendations and structured work preparation; activation never grants authority and consequential mutations require governed execution.",
+            "tools": [],
+            "workflow": null,
+            "channels": [
+              "work",
+              "chat"
+            ],
+            "autonomy": "suggest"
+          },
+          {
+            "id": "titan.records.document_controller",
+            "name": "Document Controller",
+            "role": "Records",
+            "description": "Maintain controlled job files, contracts, warranties and compliance documentation.",
+            "instructions": "Operate as Document Controller within company_id. Provide bounded recommendations and structured work preparation; activation never grants authority and consequential mutations require governed execution.",
+            "tools": [],
+            "workflow": null,
+            "channels": [
+              "work",
+              "chat"
+            ],
+            "autonomy": "suggest"
+          },
+          {
+            "id": "titan.records.reporting",
+            "name": "Reporting Coordinator",
+            "role": "Records",
+            "description": "Prepare scheduled reports, dashboards and management packs from governed data.",
+            "instructions": "Operate as Reporting Coordinator within company_id. Provide bounded recommendations and structured work preparation; activation never grants authority and consequential mutations require governed execution.",
+            "tools": [],
+            "workflow": null,
+            "channels": [
+              "work",
+              "chat"
+            ],
+            "autonomy": "suggest"
+          },
+          {
+            "id": "titan.rental.availability_planner",
+            "name": "Hire Availability & Resource Planner",
+            "role": "Retail-Rental",
+            "description": "Optimise hire fleet utilisation, substitutions, maintenance blocks and minimum hire policies.",
+            "instructions": "Operate as Hire Availability & Resource Planner within company_id. Provide bounded recommendations and structured work preparation; activation never grants authority and consequential mutations require governed execution.",
+            "tools": [],
+            "workflow": null,
+            "channels": [
+              "work",
+              "chat"
+            ],
+            "autonomy": "suggest"
+          },
+          {
+            "id": "titan.rental.damage_assessment",
+            "name": "Condition & Damage Assessment Coordinator",
+            "role": "Retail-Rental",
+            "description": "Coordinate pre/post-hire inspections and classify wear, damage and deposit-impact evidence.",
+            "instructions": "Operate as Condition & Damage Assessment Coordinator within company_id. Provide bounded recommendations and structured work preparation; activation never grants authority and consequential mutations require governed execution.",
+            "tools": [],
+            "workflow": null,
+            "channels": [
+              "work",
+              "chat"
+            ],
+            "autonomy": "suggest"
+          },
+          {
+            "id": "titan.rental.turnaround",
+            "name": "Fleet Turnaround Coordinator",
+            "role": "Retail-Rental",
+            "description": "Coordinate cleaning, refuelling/recharging and safety readiness between hires.",
+            "instructions": "Operate as Fleet Turnaround Coordinator within company_id. Provide bounded recommendations and structured work preparation; activation never grants authority and consequential mutations require governed execution.",
+            "tools": [],
+            "workflow": null,
+            "channels": [
+              "work",
+              "chat"
+            ],
+            "autonomy": "suggest"
+          },
+          {
+            "id": "titan.sales.business_development_coordinator",
+            "name": "Business Development Coordinator",
+            "role": "Sales",
+            "description": "Find commercial, recurring and partnership opportunities.",
+            "instructions": "Operate as Business Development Coordinator within company_id. Provide bounded recommendations and structured work preparation; activation never grants authority and consequential mutations require governed execution.",
+            "tools": [],
+            "workflow": null,
+            "channels": [
+              "work",
+              "chat"
+            ],
+            "autonomy": "suggest"
+          },
+          {
+            "id": "titan.sales.commercial_accounts_coordinator",
+            "name": "Commercial Accounts Coordinator",
+            "role": "Sales",
+            "description": "Coordinate tenders, larger accounts and commercial requirements.",
+            "instructions": "Operate as Commercial Accounts Coordinator within company_id. Provide bounded recommendations and structured work preparation; activation never grants authority and consequential mutations require governed execution.",
+            "tools": [],
+            "workflow": null,
+            "channels": [
+              "work",
+              "chat"
+            ],
+            "autonomy": "suggest"
+          },
+          {
+            "id": "titan.sales.estimator",
+            "name": "Estimator",
+            "role": "Sales",
+            "description": "Prepare estimates using scope, labour, materials, photos, measurements and historical work.",
+            "instructions": "Operate as Estimator within company_id. Provide bounded recommendations and structured work preparation; activation never grants authority and consequential mutations require governed execution.",
+            "tools": [],
+            "workflow": null,
+            "channels": [
+              "work",
+              "chat"
+            ],
+            "autonomy": "suggest"
+          },
+          {
+            "id": "titan.sales.quote_coordinator",
+            "name": "Quote Coordinator",
+            "role": "Sales",
+            "description": "Prepare, issue, track and follow up quotes.",
+            "instructions": "Operate as Quote Coordinator within company_id. Provide bounded recommendations and structured work preparation; activation never grants authority and consequential mutations require governed execution.",
+            "tools": [],
+            "workflow": null,
+            "channels": [
+              "work",
+              "chat"
+            ],
+            "autonomy": "suggest"
+          },
+          {
+            "id": "titan.sales.sales_coordinator",
+            "name": "Sales Coordinator",
+            "role": "Sales",
+            "description": "Manage follow-ups, next actions, stale leads and pipeline hygiene.",
+            "instructions": "Operate as Sales Coordinator within company_id. Provide bounded recommendations and structured work preparation; activation never grants authority and consequential mutations require governed execution.",
+            "tools": [],
+            "workflow": null,
+            "channels": [
+              "work",
+              "chat"
+            ],
+            "autonomy": "suggest"
+          },
+          {
+            "id": "titan.sales.sales_representative",
+            "name": "Sales Representative",
+            "role": "Sales",
+            "description": "Qualify opportunities and progress prospects toward accepted work.",
+            "instructions": "Operate as Sales Representative within company_id. Provide bounded recommendations and structured work preparation; activation never grants authority and consequential mutations require governed execution.",
+            "tools": [],
+            "workflow": null,
+            "channels": [
+              "work",
+              "chat"
+            ],
+            "autonomy": "suggest"
+          },
+          {
+            "id": "titan.sales.tender_bid",
+            "name": "Tender & Bid Coordinator",
+            "role": "Sales",
+            "description": "Coordinate complex tenders, specification compliance, bid packs and submission milestones.",
+            "instructions": "Operate as Tender & Bid Coordinator within company_id. Provide bounded recommendations and structured work preparation; activation never grants authority and consequential mutations require governed execution.",
+            "tools": [],
+            "workflow": null,
+            "channels": [
+              "work",
+              "chat"
+            ],
+            "autonomy": "suggest"
+          },
+          {
+            "id": "titan.salon.appointment_allocator",
+            "name": "Appointment & Resource Allocator",
+            "role": "Retail-Rental",
+            "description": "Match stylists/trainers to clients by skill, seniority, preference and capacity while resolving overlaps.",
+            "instructions": "Operate as Appointment & Resource Allocator within company_id. Provide bounded recommendations and structured work preparation; activation never grants authority and consequential mutations require governed execution.",
+            "tools": [],
+            "workflow": null,
+            "channels": [
+              "work",
+              "chat"
+            ],
+            "autonomy": "suggest"
+          },
+          {
+            "id": "titan.salon.membership",
+            "name": "Membership & Package Coordinator",
+            "role": "Retail-Rental",
+            "description": "Manage package credits, recurring memberships, freezes, cancellations and loyalty redemption.",
+            "instructions": "Operate as Membership & Package Coordinator within company_id. Provide bounded recommendations and structured work preparation; activation never grants authority and consequential mutations require governed execution.",
+            "tools": [],
+            "workflow": null,
+            "channels": [
+              "work",
+              "chat"
+            ],
+            "autonomy": "suggest"
+          },
+          {
+            "id": "titan.work.deputy_manager",
+            "name": "Deputy Service Manager",
+            "role": "Work",
+            "description": "Provide service-management continuity and manage operational queues during manager load or unavailability.",
+            "instructions": "Operate as Deputy Service Manager within company_id. Provide bounded recommendations and structured work preparation; activation never grants authority and consequential mutations require governed execution.",
+            "tools": [],
+            "workflow": null,
+            "channels": [
+              "work",
+              "chat"
+            ],
+            "autonomy": "suggest"
+          },
+          {
+            "id": "titan.work.dispatcher",
+            "name": "Dispatcher",
+            "role": "Work",
+            "description": "Coordinate day-of-work assignment, routing, delays and exceptions.",
+            "instructions": "Operate as Dispatcher within company_id. Provide bounded recommendations and structured work preparation; activation never grants authority and consequential mutations require governed execution.",
+            "tools": [],
+            "workflow": null,
+            "channels": [
+              "work",
+              "chat"
+            ],
+            "autonomy": "suggest"
+          },
+          {
+            "id": "titan.work.emergency_service_coordinator",
+            "name": "Emergency Service Coordinator",
+            "role": "Work",
+            "description": "Triage and coordinate urgent service requests.",
+            "instructions": "Operate as Emergency Service Coordinator within company_id. Provide bounded recommendations and structured work preparation; activation never grants authority and consequential mutations require governed execution.",
+            "tools": [],
+            "workflow": null,
+            "channels": [
+              "work",
+              "chat"
+            ],
+            "autonomy": "suggest"
+          },
+          {
+            "id": "titan.work.field_coordinator",
+            "name": "Field Coordinator",
+            "role": "Work",
+            "description": "Bridge office and field teams during active work.",
+            "instructions": "Operate as Field Coordinator within company_id. Provide bounded recommendations and structured work preparation; activation never grants authority and consequential mutations require governed execution.",
+            "tools": [],
+            "workflow": null,
+            "channels": [
+              "work",
+              "chat"
+            ],
+            "autonomy": "suggest"
+          },
+          {
+            "id": "titan.work.handover_coordinator",
+            "name": "Handover Coordinator",
+            "role": "Work",
+            "description": "Coordinate final inspections, documentation, training and operational handover for major projects.",
+            "instructions": "Operate as Handover Coordinator within company_id. Provide bounded recommendations and structured work preparation; activation never grants authority and consequential mutations require governed execution.",
+            "tools": [],
+            "workflow": null,
+            "channels": [
+              "work",
+              "chat"
+            ],
+            "autonomy": "suggest"
+          },
+          {
+            "id": "titan.work.job_completion_coordinator",
+            "name": "Job Completion Coordinator",
+            "role": "Work",
+            "description": "Verify completion evidence, notes, materials and required documentation.",
+            "instructions": "Operate as Job Completion Coordinator within company_id. Provide bounded recommendations and structured work preparation; activation never grants authority and consequential mutations require governed execution.",
+            "tools": [],
+            "workflow": null,
+            "channels": [
+              "work",
+              "chat"
+            ],
+            "autonomy": "suggest"
+          },
+          {
+            "id": "titan.work.job_coordinator",
+            "name": "Job Coordinator",
+            "role": "Work",
+            "description": "Coordinate jobs from acceptance through readiness and completion.",
+            "instructions": "Operate as Job Coordinator within company_id. Provide bounded recommendations and structured work preparation; activation never grants authority and consequential mutations require governed execution.",
+            "tools": [],
+            "workflow": null,
+            "channels": [
+              "work",
+              "chat"
+            ],
+            "autonomy": "suggest"
+          },
+          {
+            "id": "titan.work.maintenance_coordinator",
+            "name": "Maintenance Coordinator",
+            "role": "Work",
+            "description": "Manage planned and preventative maintenance workflows.",
+            "instructions": "Operate as Maintenance Coordinator within company_id. Provide bounded recommendations and structured work preparation; activation never grants authority and consequential mutations require governed execution.",
+            "tools": [],
+            "workflow": null,
+            "channels": [
+              "work",
+              "chat"
+            ],
+            "autonomy": "suggest"
+          },
+          {
+            "id": "titan.work.operations_coordinator",
+            "name": "Service Operations Coordinator",
+            "role": "Work",
+            "description": "Float across compatible service-operation work to relieve overloaded queues.",
+            "instructions": "Operate as Service Operations Coordinator within company_id. Provide bounded recommendations and structured work preparation; activation never grants authority and consequential mutations require governed execution.",
+            "tools": [],
+            "workflow": null,
+            "channels": [
+              "work",
+              "chat"
+            ],
+            "autonomy": "suggest"
+          },
+          {
+            "id": "titan.work.project_coordinator",
+            "name": "Project Coordinator",
+            "role": "Work",
+            "description": "Track milestones, progress, dependencies, variations and project documentation.",
+            "instructions": "Operate as Project Coordinator within company_id. Provide bounded recommendations and structured work preparation; activation never grants authority and consequential mutations require governed execution.",
+            "tools": [],
+            "workflow": null,
+            "channels": [
+              "work",
+              "chat"
+            ],
+            "autonomy": "suggest"
+          },
+          {
+            "id": "titan.work.project_manager",
+            "name": "Project Manager",
+            "role": "Work",
+            "description": "Own major project delivery, milestones, variations, dependencies and project-level exceptions.",
+            "instructions": "Operate as Project Manager within company_id. Provide bounded recommendations and structured work preparation; activation never grants authority and consequential mutations require governed execution.",
+            "tools": [],
+            "workflow": null,
+            "channels": [
+              "work",
+              "chat"
+            ],
+            "autonomy": "suggest"
+          },
+          {
+            "id": "titan.work.quality_coordinator",
+            "name": "Quality Coordinator",
+            "role": "Work",
+            "description": "Review quality evidence and identify missing requirements or rework.",
+            "instructions": "Operate as Quality Coordinator within company_id. Provide bounded recommendations and structured work preparation; activation never grants authority and consequential mutations require governed execution.",
+            "tools": [],
+            "workflow": null,
+            "channels": [
+              "work",
+              "chat"
+            ],
+            "autonomy": "suggest"
+          },
+          {
+            "id": "titan.work.recurring_services_coordinator",
+            "name": "Recurring Services Coordinator",
+            "role": "Work",
+            "description": "Manage repeat-service schedules and recurring service obligations.",
+            "instructions": "Operate as Recurring Services Coordinator within company_id. Provide bounded recommendations and structured work preparation; activation never grants authority and consequential mutations require governed execution.",
+            "tools": [],
+            "workflow": null,
+            "channels": [
+              "work",
+              "chat"
+            ],
+            "autonomy": "suggest"
+          },
+          {
+            "id": "titan.work.scheduler",
+            "name": "Scheduler",
+            "role": "Work",
+            "description": "Propose appointment slots and staff allocations.",
+            "instructions": "Operate as Scheduler within company_id. Provide bounded recommendations and structured work preparation; activation never grants authority and consequential mutations require governed execution.",
+            "tools": [],
+            "workflow": null,
+            "channels": [
+              "work",
+              "chat"
+            ],
+            "autonomy": "suggest"
+          },
+          {
+            "id": "titan.work.site_coordinator",
+            "name": "Site Coordinator",
+            "role": "Work",
+            "description": "Coordinate service delivery for a specific site or multi-site customer location.",
+            "instructions": "Operate as Site Coordinator within company_id. Provide bounded recommendations and structured work preparation; activation never grants authority and consequential mutations require governed execution.",
+            "tools": [],
+            "workflow": null,
+            "channels": [
+              "work",
+              "chat"
+            ],
+            "autonomy": "suggest"
+          },
+          {
+            "id": "titan.work.work_planner",
+            "name": "Work Planner",
+            "role": "Work",
+            "description": "Determine skills, duration, equipment, material, evidence and service requirements.",
+            "instructions": "Operate as Work Planner within company_id. Provide bounded recommendations and structured work preparation; activation never grants authority and consequential mutations require governed execution.",
+            "tools": [],
+            "workflow": null,
+            "channels": [
+              "work",
+              "chat"
+            ],
+            "autonomy": "suggest"
+          },
+          {
+            "id": "titan.environment.environmental_performance_manager",
+            "name": "Environmental Performance Manager",
+            "role": "Environment",
+            "description": "Own the client environmental improvement programme, coordinate resource baselines, compliance evidence, targets, investigations and continuous improvement recommendations.",
+            "instructions": "Operate as Environmental Performance Manager within company_id. Provide bounded recommendations and structured work preparation; activation never grants authority and consequential mutations require governed execution.",
+            "tools": [],
+            "workflow": null,
+            "channels": [
+              "work",
+              "chat"
+            ],
+            "autonomy": "suggest"
+          },
+          {
+            "id": "titan.environment.resource_efficiency_coordinator",
+            "name": "Resource Efficiency Coordinator",
+            "role": "Environment",
+            "description": "Monitor energy, water, fuel, materials and waste intensity and surface evidence-backed efficiency actions.",
+            "instructions": "Operate as Resource Efficiency Coordinator within company_id. Provide bounded recommendations and structured work preparation; activation never grants authority and consequential mutations require governed execution.",
+            "tools": [],
+            "workflow": null,
+            "channels": [
+              "work",
+              "chat"
+            ],
+            "autonomy": "suggest"
+          },
+          {
+            "id": "titan.environment.environmental_compliance_coordinator",
+            "name": "Environmental Compliance Coordinator",
+            "role": "Environment",
+            "description": "Maintain jurisdiction-aware environmental obligations, permits, evidence, incidents and required follow-up without replacing authoritative legal/environmental sources.",
+            "instructions": "Operate as Environmental Compliance Coordinator within company_id. Provide bounded recommendations and structured work preparation; activation never grants authority and consequential mutations require governed execution.",
+            "tools": [],
+            "workflow": null,
+            "channels": [
+              "work",
+              "chat"
+            ],
+            "autonomy": "suggest"
+          },
+          {
+            "id": "titan.environment.waste_materials_coordinator",
+            "name": "Waste & Materials Coordinator",
+            "role": "Environment",
+            "description": "Track purchasing, stock loss, material use, waste, reuse/recovery and disposal opportunities.",
+            "instructions": "Operate as Waste & Materials Coordinator within company_id. Provide bounded recommendations and structured work preparation; activation never grants authority and consequential mutations require governed execution.",
+            "tools": [],
+            "workflow": null,
+            "channels": [
+              "work",
+              "chat"
+            ],
+            "autonomy": "suggest"
+          }
+        ],
+        "projections": [
+          {
+            "id": "catalog-summary",
+            "title": "Workforce catalogue summary",
+            "source": "static",
+            "value": {
+              "roles": 119,
+              "company_boundary": "company_id",
+              "activation_confers_authority": false
+            }
+          }
+        ],
+        "settingsPanels": [
+          {
+            "id": "workforce-profile",
+            "title": "Workforce profile",
+            "description": "Company-scoped workforce presentation preferences.",
+            "fields": [
+              {
+                "id": "default_department",
+                "label": "Default department",
+                "type": "text",
+                "default": "operations"
+              },
+              {
+                "id": "show_suggest_roles",
+                "label": "Show suggestion-only roles",
+                "type": "boolean",
+                "default": true
+              }
+            ]
+          }
+        ]
+      },
+      "metadata": {
+        "source": "workforce/donor/installed-client-workforce-master.json",
+        "historical_role_count": 115,
+        "total_master_roles": 119
+      }
+    },
+    {
+      "id": "titan.workforce.cleaning",
+      "name": "Titan Cleaning Workforce",
+      "version": "1.0.0",
+      "kind": "declarative",
+      "description": "16 cleaning-domain specialists layered over the shared Client Workforce catalogue, with seven evidence-aware cleaning job types.",
+      "scope": {
+        "company_id": null
+      },
+      "authority": {
+        "activation_confers_authority": false,
+        "requests": []
+      },
+      "requires": {
+        "modules": [
+          {
+            "id": "titan.workforce.catalog",
+            "range": "^1.0.0",
+            "optional": false
+          }
+        ]
+      },
+      "contributes": {
+        "capabilities": [
+          {
+            "id": "workforce.cleaning",
+            "title": "Cleaning specialist workforce"
+          },
+          {
+            "id": "cleaning.job-types",
+            "title": "Seven cleaning job-type playbooks"
+          }
+        ],
+        "intents": [
+          {
+            "id": "cleaning-workforce",
+            "patterns": [
+              "cleaning",
+              "cleaner",
+              "bond clean",
+              "end of lease",
+              "airbnb turnover",
+              "commercial clean",
+              "deep clean",
+              "SDS",
+              "cleaning quality"
+            ],
+            "route": "work",
+            "prepend": "Use the installed Titan Cleaning Workforce specialists and preserve company_id, evidence and authority boundaries.",
+            "priority": 30
+          }
+        ],
+        "screens": [
+          {
+            "id": "cleaning-team",
+            "title": "Cleaning Workforce",
+            "description": "Cleaning specialists and job-type playbooks.",
+            "blocks": [
+              {
+                "type": "metric",
+                "title": "Cleaning specialists",
+                "value": 16
+              },
+              {
+                "type": "metric",
+                "title": "Cleaning job types",
+                "value": 7
+              },
+              {
+                "type": "text",
+                "title": "Execution boundary",
+                "text": "These workers prepare and coordinate outcomes. Installation does not authorize business mutations."
+              },
+              {
+                "type": "workers",
+                "title": "Cleaning specialists"
+              },
+              {
+                "type": "projection",
+                "title": "Job types",
+                "projection": "job-types"
+              },
+              {
+                "type": "settings",
+                "title": "Cleaning team settings",
+                "panel": "cleaning-profile"
+              }
+            ]
+          }
+        ],
+        "workers": [
+          {
+            "id": "titan.cleaning.scope_assessor",
+            "name": "Cleaning Scope Assessor",
+            "role": "Sales",
+            "description": "Inspect customer details, photos and site information to define cleaning scope, exclusions, access needs and estimate inputs.",
+            "instructions": "Operate as Cleaning Scope Assessor for cleaning outcomes within company_id. Preserve evidence, scope and safety constraints; activation never grants authority. Capabilities: cleaning_scope, photo_scope, room_area_assessment, condition_notes, access_requirements, quote_inputs.",
+            "tools": [],
+            "workflow": null,
+            "channels": [
+              "work",
+              "chat"
+            ],
+            "autonomy": "suggest"
+          },
+          {
+            "id": "titan.cleaning.quote_specialist",
+            "name": "Cleaning Quote Specialist",
+            "role": "Sales",
+            "description": "Turn an approved cleaning scope into a transparent cleaning quote with inclusions, exclusions, options and assumptions.",
+            "instructions": "Operate as Cleaning Quote Specialist for cleaning outcomes within company_id. Preserve evidence, scope and safety constraints; activation never grants authority. Capabilities: cleaning_quote, labour_estimate, service_options, scope_assumptions, quote_followup.",
+            "tools": [],
+            "workflow": null,
+            "channels": [
+              "work",
+              "chat"
+            ],
+            "autonomy": "suggest"
+          },
+          {
+            "id": "titan.cleaning.crew_planner",
+            "name": "Cleaner Crew Planner",
+            "role": "Work",
+            "description": "Plan cleaner count, estimated labour, sequence, zones, skills, equipment and handoffs for a cleaning job.",
+            "instructions": "Operate as Cleaner Crew Planner for cleaning outcomes within company_id. Preserve evidence, scope and safety constraints; activation never grants authority. Capabilities: crew_planning, labour_planning, zone_assignment, equipment_plan, job_sequence, handoff_plan.",
+            "tools": [],
+            "workflow": null,
+            "channels": [
+              "work",
+              "chat"
+            ],
+            "autonomy": "suggest"
+          },
+          {
+            "id": "titan.cleaning.quality_inspector",
+            "name": "Cleaning Quality Inspector",
+            "role": "Work",
+            "description": "Review checklist and visual evidence for missed areas, quality defects, rework needs and completion readiness.",
+            "instructions": "Operate as Cleaning Quality Inspector for cleaning outcomes within company_id. Preserve evidence, scope and safety constraints; activation never grants authority. Capabilities: cleaning_qc, photo_qa, missed_area_detection, checklist_verification, rework_request, completion_gate.",
+            "tools": [],
+            "workflow": null,
+            "channels": [
+              "work",
+              "chat"
+            ],
+            "autonomy": "suggest"
+          },
+          {
+            "id": "titan.cleaning.bond_specialist",
+            "name": "Bond & End-of-Lease Specialist",
+            "role": "Work",
+            "description": "Coordinate end-of-lease and bond-clean scope, property-specific checklist, evidence and rework readiness.",
+            "instructions": "Operate as Bond & End-of-Lease Specialist for cleaning outcomes within company_id. Preserve evidence, scope and safety constraints; activation never grants authority. Capabilities: bond_clean, end_of_lease, property_checklist, oven_clean, window_clean, rework_readiness.",
+            "tools": [],
+            "workflow": null,
+            "channels": [
+              "work",
+              "chat"
+            ],
+            "autonomy": "suggest"
+          },
+          {
+            "id": "titan.cleaning.airbnb_turnover",
+            "name": "Airbnb Turnover Coordinator",
+            "role": "Work",
+            "description": "Coordinate short-stay turnovers including time windows, linen, amenities, damage observations and guest-ready verification.",
+            "instructions": "Operate as Airbnb Turnover Coordinator for cleaning outcomes within company_id. Preserve evidence, scope and safety constraints; activation never grants authority. Capabilities: airbnb_turnover, linen_turnover, amenities, guest_ready, damage_observation, turnover_timing.",
+            "tools": [],
+            "workflow": null,
+            "channels": [
+              "work",
+              "chat"
+            ],
+            "autonomy": "suggest"
+          },
+          {
+            "id": "titan.cleaning.commercial_coordinator",
+            "name": "Commercial Cleaning Coordinator",
+            "role": "Work",
+            "description": "Coordinate recurring commercial sites, zones, service frequencies, access constraints, consumables and site standards.",
+            "instructions": "Operate as Commercial Cleaning Coordinator for cleaning outcomes within company_id. Preserve evidence, scope and safety constraints; activation never grants authority. Capabilities: commercial_cleaning, site_zones, service_frequency, site_access, site_standards, consumables.",
+            "tools": [],
+            "workflow": null,
+            "channels": [
+              "work",
+              "chat"
+            ],
+            "autonomy": "suggest"
+          },
+          {
+            "id": "titan.cleaning.chemicals_sds",
+            "name": "Cleaning Chemicals & SDS Coordinator",
+            "role": "Safety",
+            "description": "Keep chemical use aligned with product labels and current SDS information, including PPE, dilution, storage and incompatibility warnings.",
+            "instructions": "Operate as Cleaning Chemicals & SDS Coordinator for cleaning outcomes within company_id. Preserve evidence, scope and safety constraints; activation never grants authority. Capabilities: sds, chemical_register, ppe, dilution_guidance, storage, chemical_compatibility, spill_response_reference.",
+            "tools": [],
+            "workflow": null,
+            "channels": [
+              "work",
+              "chat"
+            ],
+            "autonomy": "suggest"
+          },
+          {
+            "id": "titan.cleaning.consumables",
+            "name": "Cleaning Consumables Coordinator",
+            "role": "Assets",
+            "description": "Forecast and replenish cleaning chemicals, cloths, liners, paper goods, amenities and other consumables using job demand and par levels.",
+            "instructions": "Operate as Cleaning Consumables Coordinator for cleaning outcomes within company_id. Preserve evidence, scope and safety constraints; activation never grants authority. Capabilities: consumable_forecast, par_levels, reorder, van_stock, chemical_stock, linen_stock.",
+            "tools": [],
+            "workflow": null,
+            "channels": [
+              "work",
+              "chat"
+            ],
+            "autonomy": "suggest"
+          },
+          {
+            "id": "titan.cleaning.recurring_optimizer",
+            "name": "Recurring Cleaning Optimiser",
+            "role": "Work",
+            "description": "Optimise recurring domestic or commercial cleaning frequency, task rotation, visit duration and service consistency from verified outcomes.",
+            "instructions": "Operate as Recurring Cleaning Optimiser for cleaning outcomes within company_id. Preserve evidence, scope and safety constraints; activation never grants authority. Capabilities: recurring_cleaning, frequency_optimisation, task_rotation, duration_review, service_consistency.",
+            "tools": [],
+            "workflow": null,
+            "channels": [
+              "work",
+              "chat"
+            ],
+            "autonomy": "suggest"
+          },
+          {
+            "id": "titan.cleaning.keys_access",
+            "name": "Keys & Access Coordinator",
+            "role": "Operations",
+            "description": "Manage bounded cleaning-site access instructions, key custody references, alarm/access handoffs and return confirmation without exposing secrets unnecessarily.",
+            "instructions": "Operate as Keys & Access Coordinator for cleaning outcomes within company_id. Preserve evidence, scope and safety constraints; activation never grants authority. Capabilities: key_custody, site_access, alarm_handoff, access_window, key_return, access_exception.",
+            "tools": [],
+            "workflow": null,
+            "channels": [
+              "work",
+              "chat"
+            ],
+            "autonomy": "suggest"
+          },
+          {
+            "id": "titan.cleaning.service_recovery",
+            "name": "Cleaning Service Recovery Specialist",
+            "role": "Customer",
+            "description": "Investigate cleaning complaints, compare promised scope to evidence, propose rework and coordinate customer recovery.",
+            "instructions": "Operate as Cleaning Service Recovery Specialist for cleaning outcomes within company_id. Preserve evidence, scope and safety constraints; activation never grants authority. Capabilities: cleaning_complaint, scope_comparison, rework_plan, customer_recovery, quality_evidence.",
+            "tools": [],
+            "workflow": null,
+            "channels": [
+              "work",
+              "chat"
+            ],
+            "autonomy": "suggest"
+          },
+          {
+            "id": "titan.cleaning.deep_clean_specialist",
+            "name": "Deep Cleaning Specialist",
+            "role": "Work",
+            "description": "Plan high-detail deep cleaning, task sequencing, dwell-time dependencies and high-soil-area treatment using approved products and methods.",
+            "instructions": "Operate as Deep Cleaning Specialist for cleaning outcomes within company_id. Preserve evidence, scope and safety constraints; activation never grants authority. Capabilities: deep_clean, detail_cleaning, high_soil_areas, task_sequence, product_constraints.",
+            "tools": [],
+            "workflow": null,
+            "channels": [
+              "work",
+              "chat"
+            ],
+            "autonomy": "suggest"
+          },
+          {
+            "id": "titan.cleaning.carpet_upholstery",
+            "name": "Carpet & Upholstery Coordinator",
+            "role": "Work",
+            "description": "Scope carpet and upholstery cleaning with material/condition notes, method constraints, drying considerations and evidence requirements.",
+            "instructions": "Operate as Carpet & Upholstery Coordinator for cleaning outcomes within company_id. Preserve evidence, scope and safety constraints; activation never grants authority. Capabilities: carpet_cleaning, upholstery_cleaning, material_condition, method_constraints, drying_plan.",
+            "tools": [],
+            "workflow": null,
+            "channels": [
+              "work",
+              "chat"
+            ],
+            "autonomy": "suggest"
+          },
+          {
+            "id": "titan.cleaning.linen_laundry",
+            "name": "Linen & Laundry Coordinator",
+            "role": "Assets",
+            "description": "Coordinate linen counts, clean/dirty separation, laundry handoff, shortages, damage and replenishment for turnover services.",
+            "instructions": "Operate as Linen & Laundry Coordinator for cleaning outcomes within company_id. Preserve evidence, scope and safety constraints; activation never grants authority. Capabilities: linen_inventory, laundry_handoff, shortage_detection, linen_damage, replenishment.",
+            "tools": [],
+            "workflow": null,
+            "channels": [
+              "work",
+              "chat"
+            ],
+            "autonomy": "suggest"
+          },
+          {
+            "id": "titan.cleaning.environmental_efficiency",
+            "name": "Cleaning Resource Efficiency Coordinator",
+            "role": "Environment",
+            "description": "Measure and reduce avoidable water, chemical, energy, consumable and waste intensity without compromising cleaning outcomes or safety.",
+            "instructions": "Operate as Cleaning Resource Efficiency Coordinator for cleaning outcomes within company_id. Preserve evidence, scope and safety constraints; activation never grants authority. Capabilities: water_efficiency, chemical_efficiency, energy_efficiency, waste_reduction, resource_intensity, verified_outcomes.",
+            "tools": [],
+            "workflow": null,
+            "channels": [
+              "work",
+              "chat"
+            ],
+            "autonomy": "suggest"
+          }
+        ],
+        "projections": [
+          {
+            "id": "job-types",
+            "title": "Cleaning job types",
+            "source": "static",
+            "value": [
+              {
+                "id": "domestic_recurring",
+                "label": "Domestic recurring clean",
+                "checklist": [
+                  "Confirm agreed rooms and exclusions",
+                  "Kitchen surfaces and sink",
+                  "Bathrooms and toilets",
+                  "Dust reachable agreed surfaces",
+                  "Vacuum and mop agreed floors",
+                  "Reset agreed rooms",
+                  "Record exceptions or damage observations"
+                ],
+                "requiredEvidence": [
+                  "completed checklist",
+                  "exceptions/issue evidence when present"
+                ]
+              },
+              {
+                "id": "deep_clean",
+                "label": "Deep clean",
+                "checklist": [
+                  "Confirm detailed scope and exclusions",
+                  "High-detail kitchen clean",
+                  "High-detail bathroom clean",
+                  "Edges, skirtings and detail dusting",
+                  "High-soil areas per approved method",
+                  "Floors and finishing pass",
+                  "Quality inspection"
+                ],
+                "requiredEvidence": [
+                  "scope reference",
+                  "completion checklist",
+                  "before/after photos for nominated high-soil areas"
+                ]
+              },
+              {
+                "id": "bond_end_of_lease",
+                "label": "Bond / end-of-lease clean",
+                "checklist": [
+                  "Confirm property scope and agent/customer requirements",
+                  "Kitchen including oven where included",
+                  "Bathrooms and toilets",
+                  "Inside cupboards where included",
+                  "Windows/glass where included",
+                  "Walls/marks where included",
+                  "Floors and carpet scope",
+                  "Final room-by-room inspection"
+                ],
+                "requiredEvidence": [
+                  "property checklist",
+                  "before/after photos",
+                  "exclusions and pre-existing condition notes"
+                ]
+              },
+              {
+                "id": "airbnb_turnover",
+                "label": "Airbnb / short-stay turnover",
+                "checklist": [
+                  "Confirm checkout/check-in window",
+                  "Strip and replace linen",
+                  "Bathrooms reset",
+                  "Kitchen reset",
+                  "Whole-property clean to turnover standard",
+                  "Restock approved amenities",
+                  "Observe/report damage or missing items",
+                  "Guest-ready final inspection"
+                ],
+                "requiredEvidence": [
+                  "turnover checklist",
+                  "guest-ready photos",
+                  "damage/missing-item evidence when present"
+                ]
+              },
+              {
+                "id": "commercial",
+                "label": "Commercial cleaning",
+                "checklist": [
+                  "Confirm site zones and access window",
+                  "Complete frequency-based zone tasks",
+                  "Amenities/restrooms",
+                  "Waste and recycling tasks in scope",
+                  "Floors and touchpoints in scope",
+                  "Restock site consumables where authorised",
+                  "Record site hazards/issues",
+                  "Supervisor/QA exception review"
+                ],
+                "requiredEvidence": [
+                  "site checklist",
+                  "exception evidence",
+                  "consumable record when replenished"
+                ]
+              },
+              {
+                "id": "move_in",
+                "label": "Move-in clean",
+                "checklist": [
+                  "Confirm empty/occupied areas",
+                  "Kitchen and storage interiors in scope",
+                  "Bathrooms",
+                  "Dust/detail surfaces",
+                  "Floors",
+                  "Final readiness inspection"
+                ],
+                "requiredEvidence": [
+                  "completion checklist",
+                  "readiness photos where requested"
+                ]
+              },
+              {
+                "id": "office",
+                "label": "Office clean",
+                "checklist": [
+                  "Workstations/common areas in scope",
+                  "Kitchen/break areas",
+                  "Restrooms",
+                  "Bins/recycling",
+                  "Floors",
+                  "Touchpoints per agreed scope",
+                  "Final exception check"
+                ],
+                "requiredEvidence": [
+                  "site checklist",
+                  "issue evidence when present"
+                ]
+              }
+            ]
+          },
+          {
+            "id": "cleaning-summary",
+            "title": "Cleaning workforce summary",
+            "source": "static",
+            "value": {
+              "specialists": 16,
+              "job_types": 7,
+              "company_boundary": "company_id",
+              "activation_confers_authority": false
+            }
+          }
+        ],
+        "settingsPanels": [
+          {
+            "id": "cleaning-profile",
+            "title": "Cleaning workforce settings",
+            "description": "Company-scoped configuration for cleaning workforce presentation and routing.",
+            "fields": [
+              {
+                "id": "primary_service",
+                "label": "Primary cleaning service",
+                "type": "select",
+                "default": "domestic_recurring",
+                "options": [
+                  {
+                    "label": "Domestic recurring clean",
+                    "value": "domestic_recurring"
+                  },
+                  {
+                    "label": "Deep clean",
+                    "value": "deep_clean"
+                  },
+                  {
+                    "label": "Bond / end-of-lease clean",
+                    "value": "bond_end_of_lease"
+                  },
+                  {
+                    "label": "Airbnb / short-stay turnover",
+                    "value": "airbnb_turnover"
+                  },
+                  {
+                    "label": "Commercial cleaning",
+                    "value": "commercial"
+                  },
+                  {
+                    "label": "Move-in clean",
+                    "value": "move_in"
+                  },
+                  {
+                    "label": "Office clean",
+                    "value": "office"
+                  }
+                ]
+              },
+              {
+                "id": "evidence_strict",
+                "label": "Require evidence-aware recommendations",
+                "type": "boolean",
+                "default": true
+              }
+            ]
+          }
+        ]
+      },
+      "metadata": {
+        "source": "titan-cleaning-workforce.js",
+        "specialists": 16,
+        "job_types": 7,
+        "company_boundary": "company_id",
+        "activation_confers_authority": false
+      }
+    }
+  ]
+}

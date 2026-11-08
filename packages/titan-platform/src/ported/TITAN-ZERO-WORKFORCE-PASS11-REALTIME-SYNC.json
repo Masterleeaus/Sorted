@@ -1,0 +1,28 @@
+{
+  "schema": "titan-zero-workforce-integration-pass/v1",
+  "pass": 11,
+  "title": "Realtime Workforce Synchronisation",
+  "status": "PASS_READY_FOR_VERIFICATION",
+  "manager_baseline": "Titan Zero v0.18.6",
+  "company_boundary": "company_id",
+  "authority": {
+    "realtime_events_grant_authority": false,
+    "polling_grants_authority": false,
+    "durable_authority": "Laravel Workforce"
+  },
+  "implementation": {
+    "transport": "explicit configured SSE/fetch stream when available; bounded polling fallback otherwise",
+    "endpoint_guessing": false,
+    "poll_interval_ms": {
+      "min": 10000,
+      "default": 30000,
+      "max": 300000
+    },
+    "component_partial_events": true,
+    "stale_gate": "existing Pass 10 ingestManagerProjection component revision/cursor contract",
+    "offline_behavior": "no live network sync; cached/offline rules retained",
+    "reconnect": "restart sync controller on browser online event"
+  },
+  "ui": "existing Laravel Workforce connection panel extended additively with optional realtime endpoint and poll fallback interval",
+  "deletions": 0
+}

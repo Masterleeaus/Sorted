@@ -1,0 +1,14 @@
+{
+  "schema":"titan.booking.evaluations.v1",
+  "worker":"Booking Agent",
+  "scenarios":[
+    {"id":"accepted-quote-confirm","expects":"confirmed with authoritative receipt and verified booking_ref"},
+    {"id":"fixed-price-no-quote","expects":"valid booking intent without forcing quote"},
+    {"id":"stale-slot","expects":"reject before governed execution"},
+    {"id":"duplicate-retry","expects":"single governed create and replayed confirmed result"},
+    {"id":"delivery-unknown","expects":"reconcile_before_retry; no blind replay"},
+    {"id":"external-cancel","expects":"scheduling/human review conflict, no direct canonical mutation"},
+    {"id":"cross-company","expects":"fail closed across source, settings, hold, reconciliation and diagnostics"},
+    {"id":"confirmed-handoffs","expects":"deduplicated Scheduling and Jobs handoffs retaining customer/site/service/quote context"}
+  ]
+}

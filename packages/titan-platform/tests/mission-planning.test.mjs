@@ -1,0 +1,4 @@
+import test from "node:test";import assert from "node:assert/strict";import {createMissionPlan,transitionMission,replanMission} from "../.test-dist/mission-planning.js";
+const input={mission_id:"m-1",company_id:"co-1",objective:"complete jobs",steps:["inspect","schedule"],evidence_refs:["e:1"]};
+test("keeps mission transitions and plans revisioned",()=>{let p=createMissionPlan(input);p=transitionMission(p,"PROPOSED");p=transitionMission(p,"ACTIVE");const r=replanMission(p,["inspect","verify","schedule"],"new evidence",["e:2"]);assert.equal(r.change.from_revision,3);assert.equal(r.plan.revision,4);assert.equal(r.plan.authorityGranted,false)});
+test("fails closed on invalid transitions and ungrounded plans",()=>{assert.throws(()=>createMissionPlan({...input,steps:[]}),/plan-step/);assert.throws(()=>transitionMission(createMissionPlan(input),"COMPLETED"),/transition/);assert.throws(()=>replanMission(createMissionPlan(input),[],"why",[]),/plan-step/)});

@@ -1,0 +1,33 @@
+{
+  "template": {
+    "id": "service-plan-review",
+    "version": "1.0.0",
+    "name": "Service Plan Review",
+    "status": "draft",
+    "category": "care",
+    "entry_wizard": "service_plan_review_v1",
+    "capabilities": [
+      "care.service_plans.review"
+    ],
+    "channels": [
+      "chat",
+      "mobile",
+      "tablet",
+      "desktop",
+      "voice"
+    ],
+    "governance": {
+      "authority": "requires_regulated_record_and_consent_integration",
+      "offline": false
+    },
+    "metadata": {
+      "verticals": [
+        "healthcare",
+        "allied_health",
+        "aged_care",
+        "disability_services"
+      ],
+      "pack": "commerce_multi_vertical_2026_08"
+    }
+  }
+}

@@ -1,0 +1,75 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "titan.workforce.starter.invoicing.contract.v1",
+  "title": "Titan Starter Invoicing Agent Contract",
+  "type": "object",
+  "required": ["schema", "company_id", "worker", "lifecycle", "evidence", "calculation_basis", "review", "send", "payment", "blockers", "readiness", "authority"],
+  "properties": {
+    "schema": {"const": "titan.workforce.starter.invoicing.contract.v1"},
+    "company_id": {"type": "string", "minLength": 1},
+    "worker": {"const": "Invoicing Agent"},
+    "invoice_ref": {"type": ["string", "null"]},
+    "job_ref": {"type": ["string", "null"]},
+    "customer_ref": {"type": ["string", "null"]},
+    "lifecycle": {
+      "type": "object",
+      "required": ["state", "worker_may_mutate_canonical_financial_state"],
+      "properties": {
+        "state": {"enum": ["evidence_pending", "ready_for_draft", "draft", "review_pending", "approved", "issued", "viewed", "partially_paid", "paid", "overdue", "exception", "voided"]},
+        "worker_may_mutate_canonical_financial_state": {"const": false}
+      }
+    },
+    "evidence": {"type": "object"},
+    "calculation_basis": {
+      "type": "object",
+      "required": ["currency", "pricing_source_refs", "quote_or_contract_ref", "actuals_ref", "tax_basis_ref", "exact_money_certified"],
+      "properties": {
+        "currency": {"type": ["string", "null"]},
+        "pricing_source_refs": {"type": "array", "items": {"type": "string"}},
+        "quote_or_contract_ref": {"type": ["string", "null"]},
+        "actuals_ref": {"type": ["string", "null"]},
+        "tax_basis_ref": {"type": ["string", "null"]},
+        "exact_money_certified": {"type": "boolean"}
+      }
+    },
+    "review": {
+      "type": "object",
+      "required": ["state", "approval_is_external_authority"],
+      "properties": {
+        "state": {"enum": ["not_required", "pending", "approved", "rejected"]},
+        "approval_is_external_authority": {"const": true}
+      }
+    },
+    "send": {
+      "type": "object",
+      "required": ["state", "execution_requires_existing_titan_authority"],
+      "properties": {
+        "state": {"enum": ["not_requested", "pending_authority", "ready", "sent", "failed"]},
+        "execution_requires_existing_titan_authority": {"const": true}
+      }
+    },
+    "payment": {
+      "type": "object",
+      "required": ["state", "reconciliation_requires_existing_titan_authority"],
+      "properties": {
+        "state": {"enum": ["unpaid", "partial", "paid", "overpaid", "disputed", "reversed"]},
+        "reconciliation_requires_existing_titan_authority": {"const": true}
+      }
+    },
+    "exception": {"type": ["object", "null"]},
+    "blockers": {"type": "array", "items": {"type": "string"}},
+    "readiness": {"enum": ["blocked", "contract_ready_for_draft_evaluation"]},
+    "authority": {
+      "type": "object",
+      "required": ["company_boundary", "identity_grants_authority", "authority_granted", "execution_permitted", "grants_authority"],
+      "properties": {
+        "company_boundary": {"const": "company_id"},
+        "identity_grants_authority": {"const": false},
+        "authority_granted": {"const": false},
+        "execution_permitted": {"const": false},
+        "grants_authority": {"const": false}
+      }
+    }
+  },
+  "additionalProperties": true
+}

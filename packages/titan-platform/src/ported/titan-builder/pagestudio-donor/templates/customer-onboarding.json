@@ -1,0 +1,14 @@
+{
+  "template": {
+    "id": "customer-onboarding",
+    "version": "1.0.0",
+    "name": "Customer Onboarding",
+    "status": "ready",
+    "category": "crm",
+    "entry_wizard": "new_customer_v1",
+    "capabilities": ["crm.customer.create"],
+    "channels": ["chat", "mobile", "tablet", "desktop", "voice"],
+    "governance": {"authority": "delegated_with_scope", "offline": true},
+    "metadata": {"verticals": ["field_services", "home_services", "cleaning"]}
+  }
+}

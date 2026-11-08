@@ -1,0 +1,11 @@
+{
+  "schema": "titan-zero-storage-finish-pass10-collision/v1",
+  "packet_id": "TZ-FINISH-STORAGE-DATA-AUTHORITY-001",
+  "pass": 10,
+  "production_code_modified_this_pass": false,
+  "test_harness_normalization": [
+    "packages/titan-platform/tests/storage-native-pass08-backup-recovery.test.mjs",
+    "packages/titan-platform/tests/storage-native-pass09-regressions.test.mjs"
+  ],
+  "result": "NO_PRODUCTION_COLLISION"
+}

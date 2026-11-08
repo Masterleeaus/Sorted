@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "titan.workforce.customer-care.triage.v1",
+  "title": "Titan Zero Customer Care Triage",
+  "type": "object",
+  "required": ["schema", "company_id", "case_id", "customer_id", "category", "issue_class", "severity", "urgency", "feed_severity", "reasons", "routes", "evidence", "escalation_required", "immediate_human_attention", "protected_effects_remain_blocked", "triaged_case", "authority_granted", "execution_permitted", "grants_authority"],
+  "properties": {
+    "schema": {"const": "titan.workforce.customer-care.triage.v1"},
+    "company_id": {"type": "string", "minLength": 1},
+    "case_id": {"type": ["string", "null"]},
+    "customer_id": {"type": "string", "minLength": 1},
+    "category": {"enum": ["STANDARD", "EMERGENCY", "SAFETY", "PRIVACY", "PAYMENT", "PROPERTY_DAMAGE"]},
+    "issue_class": {"enum": ["NONE", "QUALITY", "DELAY", "COMMUNICATION", "BILLING", "SAFETY", "PRIVACY", "PROPERTY_DAMAGE", "OTHER"]},
+    "severity": {"enum": ["LOW", "MEDIUM", "HIGH", "CRITICAL"]},
+    "urgency": {"enum": ["INFO", "NORMAL", "HIGH", "CRITICAL"]},
+    "feed_severity": {"type": "object"},
+    "reasons": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+    "routes": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+    "evidence": {"type": "array", "items": {"type": "object"}},
+    "escalation_required": {"type": "boolean"},
+    "immediate_human_attention": {"type": "boolean"},
+    "protected_effects_remain_blocked": {"const": true},
+    "triaged_case": {"type": "object"},
+    "authority_granted": {"const": false},
+    "execution_permitted": {"const": false},
+    "grants_authority": {"const": false}
+  },
+  "additionalProperties": false
+}

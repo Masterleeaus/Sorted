@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": [
+    "verification_id",
+    "company_id",
+    "action_id",
+    "verification_state",
+    "evidence",
+    "authoritative_state_ref",
+    "verified_at"
+  ],
+  "properties": {
+    "verification_id": {
+      "type": "string"
+    },
+    "company_id": {
+      "type": "string"
+    },
+    "action_id": {
+      "type": "string"
+    },
+    "verification_state": {
+      "enum": [
+        "verified_success",
+        "verified_failure",
+        "uncertain",
+        "not_required"
+      ]
+    },
+    "evidence": {
+      "type": "array"
+    },
+    "authoritative_state_ref": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "verified_at": {
+      "type": "string"
+    }
+  }
+}

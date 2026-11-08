@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "titan.workforce.starter.invoicing.correction.v1",
+  "title": "Titan Zero Starter Invoicing Correction Proposal",
+  "type": "object",
+  "required": ["schema", "company_id", "action", "source_invoice", "audit", "linkage", "operation_id", "idempotency_key", "governance", "authority"],
+  "properties": {
+    "schema": {"const": "titan.workforce.starter.invoicing.correction.v1"},
+    "company_id": {"type": "string", "minLength": 1},
+    "action": {"enum": ["cancel_draft", "void_issued", "credit", "reissue"]},
+    "source_invoice": {
+      "type": "object",
+      "required": ["invoice_ref", "status", "immutable_source_record"],
+      "properties": {
+        "invoice_ref": {"type": "string", "minLength": 1},
+        "status": {"type": "string", "minLength": 1},
+        "immutable_source_record": {"const": true}
+      }
+    },
+    "audit": {
+      "type": "object",
+      "required": ["reason_code", "reason_ref", "operation_identity_hash"],
+      "properties": {
+        "reason_code": {"type": "string", "minLength": 1},
+        "reason_ref": {"type": "string", "minLength": 1},
+        "operation_identity_hash": {"type": "string", "pattern": "^[a-f0-9]{64}$"}
+      }
+    },
+    "linkage": {"type": "object"},
+    "credit": {"type": ["object", "null"]},
+    "replacement": {"type": ["object", "null"]},
+    "operation_id": {"type": "string", "minLength": 1},
+    "idempotency_key": {"type": "string", "minLength": 1},
+    "governance": {
+      "type": "object",
+      "required": ["command_bus_required", "proposal_only", "original_invoice_delete_permitted", "original_invoice_financial_fields_edit_permitted"],
+      "properties": {
+        "command_bus_required": {"const": true},
+        "proposal_only": {"const": true},
+        "original_invoice_delete_permitted": {"const": false},
+        "original_invoice_financial_fields_edit_permitted": {"const": false}
+      }
+    },
+    "authority": {
+      "type": "object",
+      "required": ["company_boundary", "authority_granted", "execution_permitted", "destructive_invoice_mutation_permitted", "refund_execution_permitted"],
+      "properties": {
+        "company_boundary": {"const": "company_id"},
+        "authority_granted": {"const": false},
+        "execution_permitted": {"const": false},
+        "destructive_invoice_mutation_permitted": {"const": false},
+        "refund_execution_permitted": {"const": false}
+      }
+    }
+  },
+  "additionalProperties": true
+}

@@ -1,0 +1,8 @@
+export type CampaignStage="DRAFT"|"APPROVED"|"ACTIVE"|"PAUSED"|"ENDED";
+export type GrowthAttribution=Readonly<{campaign_id:string;company_id:string;name:string;stage:CampaignStage;consent_required:boolean;channel:string;revision:number;impression_refs:readonly string[];conversion_refs:readonly string[];authorityGranted:false}>;
+const allowed:Record<CampaignStage,CampaignStage[]>={DRAFT:["APPROVED"],APPROVED:["ACTIVE","DRAFT"],ACTIVE:["PAUSED","ENDED"],PAUSED:["ACTIVE","ENDED"],ENDED:[]};function req(v:string,n:string){if(!v.trim())throw new Error(`${n}-required`)}
+export function createCampaign(input:Omit<GrowthAttribution,"stage"|"revision"|"authorityGranted">):GrowthAttribution{req(input.campaign_id,"campaign_id");req(input.company_id,"company_id");req(input.name,"campaign-name");req(input.channel,"channel");return Object.freeze({...input,stage:"DRAFT" as const,revision:1,authorityGranted:false as const})}
+export function transitionCampaign(item:GrowthAttribution,next:CampaignStage):GrowthAttribution{if(!allowed[item.stage].includes(next))throw new Error("campaign-transition-invalid");return Object.freeze({...item,stage:next,revision:item.revision+1})}
+export function recordImpression(item:GrowthAttribution,ref:string,consent:boolean):GrowthAttribution{req(ref,"impression-ref");if(item.consent_required&&!consent)throw new Error("marketing-consent-required");return Object.freeze({...item,impression_refs:[...new Set([...item.impression_refs,ref])]})}
+export function recordConversion(item:GrowthAttribution,ref:string):GrowthAttribution{req(ref,"conversion-ref");if(item.stage!=="ACTIVE"&&item.stage!=="PAUSED")throw new Error("campaign-not-attributable");return Object.freeze({...item,conversion_refs:[...new Set([...item.conversion_refs,ref])]})}
+

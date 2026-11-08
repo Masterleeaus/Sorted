@@ -1,0 +1,98 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Titan Workforce Skill Capability Registry",
+  "type": "object",
+  "required": [
+    "schema",
+    "company_id",
+    "worker_capabilities",
+    "requirements",
+    "summary",
+    "capability_presence_is_not_authority",
+    "grants_authority"
+  ],
+  "properties": {
+    "schema": {
+      "const": "titan.workforce.skill-capability-registry.v1"
+    },
+    "company_id": {
+      "type": "string",
+      "minLength": 2
+    },
+    "worker_capabilities": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "worker_id",
+          "capability_id",
+          "proficiency",
+          "verification_state",
+          "grants_authority"
+        ],
+        "properties": {
+          "worker_id": {
+            "type": "string"
+          },
+          "capability_id": {
+            "type": "string"
+          },
+          "proficiency": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 5
+          },
+          "proficiency_level": {
+            "enum": [
+              "UNKNOWN",
+              "AWARE",
+              "BASIC",
+              "WORKING",
+              "PROFICIENT",
+              "EXPERT"
+            ]
+          },
+          "verification_state": {
+            "enum": [
+              "UNVERIFIED",
+              "EVIDENCED",
+              "VERIFIED",
+              "EXPIRED",
+              "REVOKED"
+            ]
+          },
+          "evidence": {
+            "type": "array"
+          },
+          "grants_authority": {
+            "const": false
+          }
+        }
+      }
+    },
+    "requirements": {
+      "type": "array"
+    },
+    "summary": {
+      "type": "object"
+    },
+    "capability_presence_is_not_authority": {
+      "const": true
+    },
+    "proficiency_is_not_authority": {
+      "const": true
+    },
+    "verification_is_not_authority": {
+      "const": true
+    },
+    "authority_granted": {
+      "const": false
+    },
+    "execution_permitted": {
+      "const": false
+    },
+    "grants_authority": {
+      "const": false
+    }
+  }
+}

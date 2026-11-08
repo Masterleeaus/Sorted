@@ -1,0 +1,23 @@
+{
+  "schema": "titan-zero-settings-control-plane-semantic-change/v1",
+  "pass": 5,
+  "title": "Settings Change Ledger",
+  "status": "PASS",
+  "parent": "Titan-Zero-SETTINGS-CONTROL-PLANE-Pass04-CUMULATIVE.zip",
+  "manager_baseline": "Titan-Zero-CANONICAL-MASTER-2026-09-06-MERGE-19-SETTINGS-CONVERGED.zip",
+  "changes": [
+    "Added append-only Settings change-event construction with stable event IDs and duplicate rejection.",
+    "Added actor, source, timestamp, company scope, exact storage key and optional external authorization reference provenance.",
+    "Added automatic redaction of before/after values for registry entries marked sensitive.",
+    "Reused the canonical Settings value validator from the Pass 4 resolution engine to prevent validation drift.",
+    "Preserved settings-as-configuration semantics: ledger records and actor identity never grant runtime authority.",
+    "Updated the persistent 30-pass roadmap to record Pass 5 completion."
+  ],
+  "invariants": {
+    "company_boundary": "company_id",
+    "identity_grants_authority": false,
+    "settings_grant_authority": false,
+    "existing_rich_settings_ui_replaced": false,
+    "raw_sensitive_values_written_to_ledger": false
+  }
+}

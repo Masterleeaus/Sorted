@@ -1,0 +1,32 @@
+{
+  "template": {
+    "id": "booking-intake",
+    "version": "1.0.0",
+    "name": "Booking Intake",
+    "status": "ready",
+    "category": "hospitality",
+    "entry_wizard": "booking_intake_v1",
+    "capabilities": [
+      "hospitality.bookings.create"
+    ],
+    "channels": [
+      "chat",
+      "mobile",
+      "tablet",
+      "desktop",
+      "voice"
+    ],
+    "governance": {
+      "authority": "human_review_when_required",
+      "offline": true
+    },
+    "metadata": {
+      "verticals": [
+        "hospitality",
+        "events",
+        "venues"
+      ],
+      "pack": "commerce_multi_vertical_2026_08"
+    }
+  }
+}

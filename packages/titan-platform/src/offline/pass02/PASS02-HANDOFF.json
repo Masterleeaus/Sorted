@@ -1,0 +1,12 @@
+{
+  "schema": "titan-zero-builder-handoff/v2",
+  "workspace": "Builder 3",
+  "packet_id": "TZ-FINISH-OFFLINE-RESILIENCE-001",
+  "pass": 2,
+  "status": "PASS_COMPLETE_CONTINUE",
+  "semantic_delta": "Offline mutation identity and idempotency are now explicit, company-scoped and durable; duplicate deliveries are safe and changed-intent key reuse fails closed.",
+  "recommended_convergence_class": "ADDITIVE_OFFLINE_OPERATION_IDENTITY",
+  "dependency": "TZ-FINISH-STORAGE-DATA-AUTHORITY-001",
+  "next_pass": 3,
+  "next_action": "Pass 3: implement durable mutation queue, retry/backoff policy and poison-item isolation using bounded-work-queue, retry-budget and conflict-retry donors."
+}

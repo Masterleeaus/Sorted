@@ -1,0 +1,14 @@
+{
+  "schema":"titan.onboarding.import-staging-contract.v1",
+  "company_boundary":"company_id",
+  "datasets":["customers","jobs","history"],
+  "customer_target":{"workflow":"titan-business-services/workflows/new_customer.json","capability":"crm.customer.create"},
+  "job_target":{"workflow":"titan-business-services/workflows/create_job.json","capability":"crm.work_order.create"},
+  "history_target":{"owner":"historical-evidence-staging","domain_truth":false},
+  "staging_only":true,
+  "rollback":"discard staging record before governed apply",
+  "apply_live_import_supported":false,
+  "live_mutation_permitted":false,
+  "authority_granted":false,
+  "execution_permitted":false
+}

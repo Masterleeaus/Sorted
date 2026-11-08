@@ -1,0 +1,14 @@
+{
+  "schema": "titan-zero-pass-touched-files/v1",
+  "pass": 3,
+  "files": [
+    "packages/titan-platform/src/retriever/lifecycle.ts",
+    "packages/titan-platform/src/retriever/index.ts",
+    "packages/titan-platform/tests/retriever-native-pass03-lifecycle.test.mjs",
+    "packages/titan-platform/src/retriever/pass03/PASS03-VERIFICATION.json",
+    "packages/titan-platform/src/retriever/pass03/PASS03-SEMANTIC-CHANGE.json",
+    "packages/titan-platform/src/retriever/pass03/PASS03-CHANGE-IMPACT.json",
+    "packages/titan-platform/src/retriever/pass03/PASS03-COLLISION-RECORD.json",
+    "packages/titan-platform/src/retriever/pass03/PASS03-HANDOFF.json"
+  ]
+}

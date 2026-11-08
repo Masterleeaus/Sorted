@@ -1,0 +1,118 @@
+{
+  "schema": "titan-zero-manager-parity/v1",
+  "project": "titan-zero",
+  "task_id": "TZ-P0-002",
+  "status": "SUPPORT_READY_NO_CLAIMED_HOTSPOT_EDITS",
+  "parent": {
+    "artifact": "Titan-Zero-v0.18.0-Business-Database-Runtime-Convergence-CUMULATIVE.zip",
+    "sha256": "3b37f806849c6ce387e0f51369173dbb4b84658e063f35aa590b043d89712373"
+  },
+  "donor": {
+    "artifact": "Titan-Zero-v0.6.9-Business-State-Authority-CUMULATIVE.zip",
+    "sha256": "2708becba720ba084648cc037d2361dce21bb8d0e3bd5e626e9b56fee08c163a",
+    "verification_status": "PASS"
+  },
+  "manager_claim_observed": {
+    "claim_id": "TZ-CLAIM-MANAGER-V018-CONVERGENCE",
+    "status": "ACTIVE",
+    "exclusive_hotspots_respected": true,
+    "production_hotspots_modified": []
+  },
+  "capability_matrix": [
+    {
+      "capability": "company_id_only_partitioning",
+      "v018": "STRONG",
+      "v069": "STRONG",
+      "support_adapter": "PRESERVED",
+      "recommendation": "retain v0.18 IndexedDB company partitioning"
+    },
+    {
+      "capability": "indexeddb_local_primary_authority",
+      "v018": "YES",
+      "v069": "NO_chrome_storage_local",
+      "support_adapter": "YES",
+      "recommendation": "do not restore v0.6.9 chrome.storage.local authority"
+    },
+    {
+      "capability": "records_attachments_migrations_tombstones",
+      "v018": "YES",
+      "v069": "NO_generic_facade",
+      "support_adapter": "USES_V018",
+      "recommendation": "retain v0.18 business database"
+    },
+    {
+      "capability": "native_first_legacy_read_fallback",
+      "v018": "YES",
+      "v069": "NO_equivalent_generic_bridge",
+      "support_adapter": "UNCHANGED",
+      "recommendation": "retain v0.18 legacy storage bridge"
+    },
+    {
+      "capability": "domain_activity_outcome_authority",
+      "v018": "MISSING",
+      "v069": "YES",
+      "support_adapter": "YES",
+      "recommendation": "merge adapter semantics, then wire through manager-owned bootstrap/shell hotspots"
+    },
+    {
+      "capability": "optimistic_expected_revision_conflicts",
+      "v018": "MISSING",
+      "v069": "YES",
+      "support_adapter": "YES",
+      "recommendation": "merge"
+    },
+    {
+      "capability": "idempotency_same_payload_retry",
+      "v018": "YES_generic_first_result",
+      "v069": "YES",
+      "support_adapter": "YES",
+      "recommendation": "retain and strengthen for domain writes"
+    },
+    {
+      "capability": "idempotency_key_reuse_with_changed_payload_conflict",
+      "v018": "MISSING_generic_database_returns_first_result",
+      "v069": "YES",
+      "support_adapter": "YES",
+      "recommendation": "merge"
+    },
+    {
+      "capability": "durable_conflict_receipts_and_summary",
+      "v018": "MISSING_DOMAIN_LAYER",
+      "v069": "YES",
+      "support_adapter": "YES_INDEXEDDB_RECORDS",
+      "recommendation": "merge"
+    },
+    {
+      "capability": "company_domain_scoped_clear",
+      "v018": "GENERIC_DELETE_ONLY",
+      "v069": "YES",
+      "support_adapter": "YES",
+      "recommendation": "merge"
+    },
+    {
+      "capability": "shell_commit_before_compatibility_feed_outcome",
+      "v018": "NOT_WIRED",
+      "v069": "YES",
+      "support_adapter": "NOT_WIRED_BY_DESIGN",
+      "recommendation": "manager should wire after resolving active shell/bootstrap claim"
+    },
+    {
+      "capability": "diagnostics_conflict_counts_last_conflict",
+      "v018": "NOT_WIRED",
+      "v069": "YES",
+      "support_adapter": "SNAPSHOT_API_READY",
+      "recommendation": "manager should wire diagnostics after convergence"
+    }
+  ],
+  "support_files": [
+    "manager-support/APPLY-NOTES.md",
+    "manager-support/FILE-INVENTORY.sha256",
+    "manager-support/PARITY-MATRIX.json",
+    "manager-support/PARITY-REPORT.md",
+    "manager-support/README.md",
+    "manager-support/SUPPORT-HANDOFF.json",
+    "manager-support/VERIFICATION.json",
+    "manager-support/business-state-authority/authority.mjs",
+    "manager-support/tests/business-state-authority-adapter.test.mjs"
+  ]
+}

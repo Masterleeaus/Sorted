@@ -1,0 +1,152 @@
+{
+  "id": "example.environment-audit",
+  "name": "Environment Audit Crew",
+  "version": "2.0.0",
+  "kind": "declarative",
+  "description": "Example runtime-importable capability module with a screen, worker, tool, projection, workflow and settings panel.",
+  "scope": {
+    "company_id": null
+  },
+  "permissions": [],
+  "contributes": {
+    "capabilities": [
+      {
+        "id": "environment.audit",
+        "title": "Environmental audit"
+      }
+    ],
+    "intents": [
+      {
+        "id": "environment-audit",
+        "patterns": [
+          "environmental audit",
+          "waste audit",
+          "energy audit"
+        ],
+        "route": "work",
+        "priority": 50,
+        "prepend": "Use the environmental audit module. Preserve evidence, assumptions, source provenance and quantified uncertainty."
+      }
+    ],
+    "commands": [
+      {
+        "id": "prepare-audit",
+        "title": "Prepare audit packet",
+        "description": "Creates a safe declarative execution packet for the audit request."
+      }
+    ],
+    "screens": [
+      {
+        "id": "audit-console",
+        "title": "Audit Console",
+        "description": "Declarative screen rendered by Titan Zero.",
+        "blocks": [
+          {
+            "type": "text",
+            "title": "Audit crew",
+            "text": "Use the environmental auditor to prepare an evidence-led investigation."
+          },
+          {
+            "type": "projection",
+            "title": "Site",
+            "projection": "site-name"
+          },
+          {
+            "type": "settings",
+            "title": "Audit settings",
+            "panel": "audit-settings"
+          },
+          {
+            "type": "workers",
+            "title": "Workers"
+          },
+          {
+            "type": "workflows",
+            "title": "Workflows"
+          }
+        ]
+      }
+    ],
+    "workers": [
+      {
+        "id": "environment-auditor",
+        "name": "Environmental Auditor",
+        "role": "Investigation worker",
+        "description": "Builds an environmental audit packet.",
+        "instructions": "Investigate first; separate observations from inferences.",
+        "tools": [
+          "audit-brief"
+        ],
+        "workflow": "audit-start",
+        "channels": [
+          "chat",
+          "work"
+        ],
+        "autonomy": "assist"
+      }
+    ],
+    "tools": [
+      {
+        "id": "audit-brief",
+        "title": "Prepare audit brief",
+        "description": "Binds the worker to the safe declarative command.",
+        "command": "prepare-audit",
+        "permissions": [
+          "audit.read"
+        ]
+      }
+    ],
+    "providers": [],
+    "projections": [
+      {
+        "id": "site-name",
+        "title": "Site name",
+        "source": "settings",
+        "key": "site_name"
+      }
+    ],
+    "workflows": [
+      {
+        "id": "audit-start",
+        "title": "Start audit",
+        "description": "Creates an initial audit packet.",
+        "steps": [
+          {
+            "type": "tool",
+            "tool": "audit-brief",
+            "input": {
+              "site": "{{input.site}}",
+              "objective": "{{input.objective}}"
+            },
+            "assign": "brief"
+          }
+        ]
+      }
+    ],
+    "settingsPanels": [
+      {
+        "id": "audit-settings",
+        "title": "Audit settings",
+        "fields": [
+          {
+            "id": "site_name",
+            "label": "Site name",
+            "type": "text",
+            "default": "Unassigned site"
+          },
+          {
+            "id": "strict_evidence",
+            "label": "Strict evidence mode",
+            "type": "boolean",
+            "default": true
+          }
+        ]
+      }
+    ],
+    "links": [],
+    "feed": [],
+    "settings": [],
+    "queries": [],
+    "verticals": []
+  }
+}

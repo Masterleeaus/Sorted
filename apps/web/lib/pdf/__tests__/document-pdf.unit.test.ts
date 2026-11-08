@@ -1,0 +1,281 @@
+import { describe, it, expect } from "vitest";
+import { buildInvoicePdf, buildEstimatePdf } from "../document-pdf";
+import { pdfDrawnText } from "./pdf-text";
+
+/** A valid PDF byte stream begins with the "%PDF-" magic header. */
+function isPdf(bytes: Uint8Array): boolean {
+  const header = Buffer.from(bytes.slice(0, 5)).toString("latin1");
+  return header === "%PDF-";
+}
+
+describe("buildInvoicePdf", () => {
+  it("produces a valid PDF for a normal invoice", async () => {
+    const bytes = await buildInvoicePdf({
+      invoiceNumber: "DHS-KTW-187-INV",
+      status: "partial",
+      clientName: "Kim Tufts Wells",
+      clientEmail: "kim@example.com",
+      jobTitle: "Custom loft + carpentry",
+      propertyAddress: "187 Webhannet, Wells ME",
+      issueDate: "2026-04-11",
+      dueDate: "2026-05-11",
+      subtotalCents: 675968,
+      taxCents: 0,
+      totalCents: 675968,
+      paidCents: 200000,
+      notes: "60 hours custom carpentry. Deposit received.",
+      lineItems: [
+        { description: "Custom loft + carpentry — 60 hrs labor + materials", quantity: 1, unitPriceCents: 675968, totalCents: 675968 },
+      ],
+    });
+    expect(isPdf(bytes)).toBe(true);
+    expect(bytes.length).toBeGreaterThan(1000);
+  });
+
+  it("does not put internal workflow status on the customer-facing PDF", async () => {
+    const bytes = await buildInvoicePdf({
+      invoiceNumber: "DHS-STATUS-1",
+      status: "sent",
+      clientName: "Status Check Client",
+      issueDate: "2026-04-11",
+      dueDate: "2026-05-11",
+      subtotalCents: 10000,
+      totalCents: 10000,
+      paidCents: 0,
+      lineItems: [
+        { description: "Labor", quantity: 1, unitPriceCents: 10000, totalCents: 10000 },
+      ],
+    });
+    const text = pdfDrawnText(bytes);
+    // Invoice number still present for the customer.
+    expect(text).toContain("DHS-STATUS-1");
+    // Workflow labels must not appear (previously rendered as uppercase status).
+    expect(text.split("\n")).not.toContain("SENT");
+    expect(text.split("\n")).not.toContain("DRAFT");
+    expect(text.split("\n")).not.toContain("PARTIAL");
+    expect(text.split("\n")).not.toContain("OVERDUE");
+  });
+
+  it("shows deposit credit and reduces balance due", async () => {
+    const bytes = await buildInvoicePdf({
+      invoiceNumber: "INV-0029",
+      status: "draft",
+      clientName: "Joseph Legerstee",
+      issueDate: "2026-08-03",
+      subtotalCents: 1_552_600,
+      totalCents: 1_552_600,
+      paidCents: 0,
+      depositCreditCents: 150_000,
+      lineItems: [
+        { description: "Labor", quantity: 1, unitPriceCents: 1_552_600, totalCents: 1_552_600 },
+      ],
+    });
+    expect(isPdf(bytes)).toBe(true);
+    const text = pdfDrawnText(bytes);
+    expect(text).toContain("Deposit credit");
+    expect(text).toContain("Balance Due");
+    // Balance should be $14,026.00 not the full $15,526.00
+    expect(text).toContain("$14,026.00");
+    expect(text).toContain("$1,500.00");
+  });
+
+  it("handles zero payments, no notes, and empty line items", async () => {
+    const bytes = await buildInvoicePdf({
+      invoiceNumber: "X-1",
+      status: "draft",
+      clientName: null,
+      totalCents: 0,
+      subtotalCents: 0,
+      paidCents: 0,
+      lineItems: [],
+    });
+    expect(isPdf(bytes)).toBe(true);
+  });
+
+  it("renders a paid invoice with stamp and payment terms", async () => {
+    const bytes = await buildInvoicePdf({
+      invoiceNumber: "DHS-PAID-1",
+      status: "paid",
+      clientName: "Paid Client",
+      clientEmail: "paid@example.com",
+      propertyAddress: "12 Oak St, Concord NH 03301",
+      issueDate: "2026-06-01",
+      dueDate: "2026-06-15",
+      paidAt: "2026-06-10",
+      subtotalCents: 50000,
+      totalCents: 50000,
+      paidCents: 50000,
+      notes: "Thank you.",
+      lineItems: [
+        { description: "Service call", quantity: 1, unitPriceCents: 50000, totalCents: 50000 },
+      ],
+      branding: {
+        name: "Dovetails Services LLC",
+        invoiceTerms: "Payment is due on receipt.",
+      },
+    });
+    expect(isPdf(bytes)).toBe(true);
+    expect(bytes.length).toBeGreaterThan(1500);
+  });
+
+  it("renders a paid realtor-sponsored invoice with payer, beneficiary, and purpose", async () => {
+    const bytes = await buildInvoicePdf({
+      invoiceNumber: "0200",
+      status: "paid",
+      clientName: "Kimberley Tufts",
+      propertyAddress: "96 Richardson Road, North Chelmsford",
+      issueDate: "2025-09-11",
+      paidAt: "2025-09-11",
+      subtotalCents: 30970,
+      totalCents: 30970,
+      paidCents: 30970,
+      sponsored: {
+        paidBy: "Kimberley Tufts",
+        beneficiary: "Emma",
+        purpose: "Other realtor-sponsored work",
+        businessPurpose: "Client property repair paid by realtor",
+      },
+      lineItems: [{ description: "Repair", quantity: 1, unitPriceCents: 30970, totalCents: 30970 }],
+    });
+    const text = pdfDrawnText(bytes);
+    for (const expected of [
+      "REALTOR-SPONSORED PROPERTY EXPENSE", "Paid by", "Kimberley Tufts", "Work for", "Emma",
+      "Realtor-sponsored property expense", "Other realtor-sponsored work",
+      "Client property repair paid by realtor", "96 Richardson Road, North Chelmsford", "PAID", "$0.00",
+    ]) {
+      expect(text).toContain(expected);
+    }
+  });
+
+  it("omits the Work for line when no beneficiary is recorded (TASK-159)", async () => {
+    const bytes = await buildInvoicePdf({
+      invoiceNumber: "INV-0022", status: "paid", clientName: "Norman Boyd",
+      propertyAddress: "16 E Chamberlain, Merrimack, NH",
+      subtotalCents: 19598, totalCents: 19598, paidCents: 19598,
+      sponsored: { paidBy: "Norman Boyd", beneficiary: null, purpose: "Other realtor-sponsored work" },
+      lineItems: [],
+    });
+    const text = pdfDrawnText(bytes);
+    expect(text).toContain("REALTOR-SPONSORED PROPERTY EXPENSE");
+    expect(text).toContain("Norman Boyd");
+    expect(text).not.toContain("Work for");
+  });
+
+  it("omits the sponsored block on standard invoices", async () => {
+    const bytes = await buildInvoicePdf({
+      invoiceNumber: "STD-1", status: "sent", clientName: "Client",
+      subtotalCents: 100, totalCents: 100, paidCents: 0, lineItems: [],
+    });
+    expect(pdfDrawnText(bytes)).not.toContain("REALTOR-SPONSORED");
+  });
+
+  it("wraps very long descriptions across multiple lines without throwing", async () => {
+    const long = "Repair ".repeat(80).trim();
+    const bytes = await buildInvoicePdf({
+      invoiceNumber: "X-2",
+      status: "sent",
+      clientName: "Someone",
+      subtotalCents: 10000,
+      totalCents: 10000,
+      paidCents: 0,
+      lineItems: Array.from({ length: 40 }, (_, i) => ({
+        description: `${i}: ${long}`,
+        quantity: 2.5,
+        unitPriceCents: 4000,
+        totalCents: 10000,
+      })),
+    });
+    expect(isPdf(bytes)).toBe(true);
+  });
+});
+
+describe("PDF voice", () => {
+  it("labels a quote as Quote, not Estimate", async () => {
+    const bytes = await buildEstimatePdf({
+      estimateRef: "Q-1",
+      status: "sent",
+      clientName: "Peter",
+      issueDate: "2026-09-21",
+      subtotalCents: 10000,
+      totalCents: 10000,
+      lineItems: [{ description: "Assemble bed", quantity: 1, unitPriceCents: 10000, totalCents: 10000 }],
+    });
+    const text = pdfDrawnText(bytes);
+    expect(text).toContain("Quote");
+    expect(text.split("\n")).not.toContain("Estimate");
+  });
+
+  it("embeds a photo recap section on the bill", async () => {
+    const jpeg = Uint8Array.from(
+      Buffer.from(
+        "/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAb/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIQAxAAAAGfAD//2Q==",
+        "base64",
+      ),
+    );
+    const bytes = await buildInvoicePdf({
+      invoiceNumber: "BILL-1",
+      status: "draft",
+      clientName: "Peter",
+      issueDate: "2026-09-21",
+      subtotalCents: 10000,
+      totalCents: 10000,
+      paidCents: 0,
+      lineItems: [{ description: "Assemble bed + hardware", quantity: 1, unitPriceCents: 10000, totalCents: 10000 }],
+      photoRecap: [{ bytes: jpeg, mimeType: "image/jpeg" }],
+    });
+    const text = pdfDrawnText(bytes);
+    expect(text).toContain("TODAY'S WORK");
+  });
+});
+
+describe("buildEstimatePdf", () => {
+  it("renders multi-option estimates from option groups (parent total is 0)", async () => {
+    const bytes = await buildEstimatePdf({
+      estimateRef: "MULTI001",
+      status: "sent",
+      clientName: "Option Client",
+      issueDate: "2026-01-01",
+      // Parent totals are intentionally zero for multi_option estimates.
+      subtotalCents: 0,
+      totalCents: 0,
+      lineItems: [],
+      options: [
+        {
+          label: "Good",
+          description: "Budget scope",
+          isRecommended: false,
+          totalCents: 250000,
+          lineItems: [{ description: "Basic paint", quantity: 1, unitPriceCents: 250000, totalCents: 250000 }],
+        },
+        {
+          label: "Better",
+          isRecommended: true,
+          totalCents: 400000,
+          lineItems: [{ description: "Premium paint + trim", quantity: 1, unitPriceCents: 400000, totalCents: 400000 }],
+        },
+      ],
+    });
+    expect(isPdf(bytes)).toBe(true);
+    expect(bytes.length).toBeGreaterThan(1000);
+  });
+
+  it("produces a valid PDF with a deposit line", async () => {
+    const bytes = await buildEstimatePdf({
+      estimateRef: "ABCD1234",
+      status: "sent",
+      clientName: "Jon & Stacy Colman",
+      jobTitle: "Interior painting Phase 1",
+      issueDate: "2025-08-20",
+      expiresDate: "2025-09-20",
+      subtotalCents: 643900,
+      totalCents: 643900,
+      depositCents: 200000,
+      notes: "6-room interior paint with ceilings.",
+      lineItems: [
+        { description: "6-room interior paint with ceilings", quantity: 1, unitPriceCents: 643900, totalCents: 643900 },
+      ],
+    });
+    expect(isPdf(bytes)).toBe(true);
+    expect(bytes.length).toBeGreaterThan(1000);
+  });
+});

@@ -1,0 +1,21 @@
+{
+  "schema": "titan.zero.workforce.pass45.cross-system-e2e-certification.v1",
+  "pass": 45,
+  "title": "Cross-System End-to-End Certification",
+  "company_boundary": "company_id only",
+  "chain": [
+    "Titan Zero rich UI",
+    "Workforce runtime",
+    "Authority evaluator / governed command preparation",
+    "Laravel Workforce gateway",
+    "Commissioning / live host",
+    "Authoritative execution receipt",
+    "Post-action verification"
+  ],
+  "live_host_evidence_required": true,
+  "static_evidence_cannot_fake_live_host": true,
+  "automatic_execution": false,
+  "authority_granted": false,
+  "execution_permitted": false,
+  "grants_authority": false
+}

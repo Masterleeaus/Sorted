@@ -1,0 +1,16 @@
+{
+  "schema": "titan-zero-change-impact/v1",
+  "packet_id": "TZ-FINISH-004",
+  "pass": 5,
+  "risk": "LOW-MEDIUM",
+  "hotspots_touched": [
+    "sidePanel.html",
+    "titan-shell.js",
+    "titan-shell.css"
+  ],
+  "protected_hotspots_modified": false,
+  "retained_ui": "Titan Chat/AI/Business/Feed/Workforce/Agent/Work retained; donor options/content/runtime retained.",
+  "behavior": "Retriever task composer now exposes explicit Browse, Extract and Retrieve modes before dispatch.",
+  "rollback": "Restore the three runtime files from Pass 5 base snapshot; remove the Pass 5 regression/evidence files.",
+  "live_validation_required_later": true
+}

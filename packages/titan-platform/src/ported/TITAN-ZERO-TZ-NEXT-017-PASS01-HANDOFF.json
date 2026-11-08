@@ -1,0 +1,16 @@
+{
+  "schema": "titan-zero-agent-handoff/v1",
+  "packet_id": "TZ-NEXT-017",
+  "agent_id": "convergence-agent-1",
+  "pass": 1,
+  "created_utc": "2026-09-07T01:42:45Z",
+  "status": "PASS01_COMPLETE",
+  "next_pass": 2,
+  "next_action": "Define the single company_id-scoped entitlement/provider-selection contract by adapting existing Workforce cost routing and Settings projections without replacing capability authority or colliding with capability-router ownership.",
+  "known_gaps": [
+    "Settings cost-routing projection is not directly on the service-worker bootstrap path",
+    "provider control centre is not directly imported by bootstrap",
+    "provider/network call sites still require adapter-level entitlement/budget preflight verification",
+    "live unpacked Chrome and Laravel remain uncertified"
+  ]
+}

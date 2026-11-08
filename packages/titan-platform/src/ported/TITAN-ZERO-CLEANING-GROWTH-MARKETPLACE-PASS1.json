@@ -1,0 +1,30 @@
+{
+  "schema": "titan-zero-cleaning-growth-marketplace-pass/v1",
+  "pass": 1,
+  "parent_artifact": "Titan-Zero-CLEANING-WORKFORCE-MARKETPLACE-MERGE19-CUMULATIVE.zip",
+  "parent_sha256": "fc5b40651e66eda673ca70d4eae6107cd553f26323332fab9bd3e198a24d3e61",
+  "manager_baseline": "Titan-Zero-CANONICAL-MASTER-2026-09-06-MERGE-19-SETTINGS-CONVERGED.zip",
+  "manager_merge": 19,
+  "status": "VERIFIED_ISOLATED_MARKETPLACE_EXTENSION",
+  "company_boundary": "company_id",
+  "authority_rule": "Marketplace installation does not grant execution authority.",
+  "catalog": {"product_classes": 6, "products": 39, "complete_crews": 7},
+  "features": [
+    "duplicate-capability suppression",
+    "crew missing-component calculation",
+    "existing cleaning workforce ownership detection",
+    "purchased specialist workforce ownership detection",
+    "company-scoped installation state",
+    "no fabricated prices/provider connections/compliance requirements"
+  ],
+  "touched_files": [
+    "modules.html",
+    "modules.css",
+    "cleaning-growth-marketplace.js",
+    "titan-modules/cleaning-growth-marketplace.json",
+    "tests/cleaning_growth_marketplace.test.mjs",
+    "tests/cleaning_growth_no_resale.test.mjs",
+    "CHANGELOG-CLEANING-GROWTH-MARKETPLACE.md",
+    "TITAN-ZERO-CLEANING-GROWTH-MARKETPLACE-PASS1.json"
+  ]
+}

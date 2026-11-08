@@ -1,0 +1,35 @@
+{
+  "schema": "titan.workforce.hierarchy.pass03.v1",
+  "packet_id": "TZ-WF-HIERARCHY-001",
+  "pass": 3,
+  "title": "Native Supervisor runtime contracts",
+  "manager_base": {
+    "merge": 52,
+    "artifact": "Titan-Zero-CANONICAL-2026-09-13-MERGE52-QUOTE-AGENT-CONVERGED.zip",
+    "sha256": "ea6c219d40ffbddcbb68e9c9ed741c93568fe12be2e4f09dd69af0b528366d92"
+  },
+  "runtime_contract": "titan.workforce.supervisor-runtime.v1",
+  "outcomes": [
+    "company-scoped supervisor identity linked to one manager",
+    "bounded domain ownership with explicit agent membership",
+    "coordination proposals restricted to agents in owned domains",
+    "deterministic conflict classification and escalation",
+    "manager/human escalation records with no implicit authority"
+  ],
+  "reused_donors": [
+    "ported manager-supervisor-team assignment hierarchy",
+    "ported supervisor workspace projection",
+    "native hierarchy contract",
+    "existing authority/capability command gateway"
+  ],
+  "authority_invariants": {
+    "identity_confers_authority": false,
+    "supervisor_role_confers_authority": false,
+    "domain_ownership_confers_authority": false,
+    "conflict_decision_confers_execution_authority": false,
+    "escalation_confers_execution_authority": false,
+    "execution_requires_authority_evaluation": true,
+    "execution_requires_capability_resolution": true
+  },
+  "production_authority_changed": false
+}

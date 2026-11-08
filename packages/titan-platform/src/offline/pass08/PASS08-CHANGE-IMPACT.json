@@ -1,0 +1,12 @@
+{
+  "schema": "titan-zero-offline-pass08-change-impact/v1",
+  "packet_id": "TZ-FINISH-OFFLINE-RESILIENCE-001",
+  "pass": 8,
+  "modified_files": [
+    "packages/titan-platform/src/offline/network-resilience.ts",
+    "packages/titan-platform/src/offline/index.ts",
+    "packages/titan-platform/tests/offline-native-pass08-network-resilience.test.mjs"
+  ],
+  "impact": "Additive network/delivery/partial-sync hardening over canonical repository; no new transport authority, queue authority or execution path.",
+  "parallel_authority_created": false
+}

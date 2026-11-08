@@ -1,0 +1,28 @@
+{
+  "schema": "titan-zero-semantic-change/v1",
+  "task_id": "TZ-P2-008",
+  "pass": "P2-008-pass1-background-compatibility-boundary",
+  "parent": "Titan-Zero-v0.18.2-Manager-Canonical-Convergence-CUMULATIVE.zip",
+  "parent_sha256": "61999b878e243866159980b18556ef686cf3039b3637c779a10659809e2320f6",
+  "capabilities_added": [
+    "single Titan-owned service-worker compatibility activation boundary",
+    "compatibility boundary diagnostics snapshot",
+    "explicit non-authority compatibility contract"
+  ],
+  "contracts": {
+    "added": ["titan.compatibility.background.v1"],
+    "removed": [],
+    "authority_effect": false
+  },
+  "company_boundary": "company_id",
+  "permissions_changed": false,
+  "ui_changed": false,
+  "deletions": 0,
+  "constraints": [
+    "preserve_existing_ui_code_style",
+    "no_wholesale_replacement",
+    "retain_retriever_compatibility",
+    "compatibility_not_authority",
+    "mv3_static_imports_only"
+  ]
+}

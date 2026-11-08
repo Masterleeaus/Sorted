@@ -1,0 +1,75 @@
+{
+  "schema": "titan-zero-cleaning-workforce-marketplace-pass/v1",
+  "created_utc": "2026-09-06T13:38:54.255662+00:00",
+  "canonical_parent": {
+    "artifact": "Titan-Zero-CANONICAL-MASTER-2026-09-06-MERGE-19-SETTINGS-CONVERGED.zip",
+    "sha256": "7b24c9e315507583cd9f6a78a2aa6f8e88c5178e83d803e387645bd713402408",
+    "files": 1947
+  },
+  "prior_marketplace_parent": "Titan-Zero-CLEANING-MARKETPLACE-SOFTWARE-CUMULATIVE.zip",
+  "workforce_scan": {
+    "cleaning_specialists_existing": 16,
+    "shared_client_roles_existing": 119,
+    "optional_cleaning_specialists_added": 12,
+    "duplicate_policy": "role id or normalized role name already installed => never offered for sale"
+  },
+  "authority": {
+    "company_boundary": "company_id",
+    "purchase_confers_execution_authority": false,
+    "activation_confers_execution_authority": false
+  },
+  "specialists_added": [
+    "Post-Construction Cleaning Specialist",
+    "Window & Glass Cleaning Specialist",
+    "Hard Floor Care & Restoration Specialist",
+    "Exterior & Pressure Cleaning Specialist",
+    "Healthcare & Infection-Control Cleaning Specialist",
+    "Education & Childcare Cleaning Specialist",
+    "Food Premises & Kitchen Sanitation Specialist",
+    "Industrial & Warehouse Cleaning Specialist",
+    "High-Access Cleaning Coordinator",
+    "Solar Panel Cleaning Coordinator",
+    "Gym & Fitness Facility Cleaning Specialist",
+    "Aged Care Cleaning Specialist"
+  ],
+  "touched_files": [
+    {
+      "path": "titan-cleaning-workforce-products.js",
+      "sha256": "cf3b47c760639f868ff3da35afbb4c096ab2c8c616f06a3a58a0b9eccb3bc1c7"
+    },
+    {
+      "path": "cleaning-workforce-marketplace.js",
+      "sha256": "317cc0a15dc04648055d9cd7fba02e4271022c8a9f75aa4a574b59bd91f75e60"
+    },
+    {
+      "path": "titan-cleaning-workforce.js",
+      "sha256": "16a9b5ce860b0804d3726c511dd9c38ad807c3e0f9d0ea62d55fc46896315d05"
+    },
+    {
+      "path": "chatTab.html",
+      "sha256": "aa9b43c1e447024f68a2c541e5243a51a92740b9a9cbdf981748e8825bed759b"
+    },
+    {
+      "path": "modules.html",
+      "sha256": "1add403eb5bbc0edb1104e1a5b4ff3cffe48eabaa32dd059e3b06812ec11d898"
+    },
+    {
+      "path": "tests/cleaning_workforce_marketplace.test.mjs",
+      "sha256": "eb49f4752c31aaf4b29930f7fa4c18f8853e8d73f52ec5f1f610f848e37ad624"
+    },
+    {
+      "path": "CHANGELOG-CLEANING-WORKFORCE-MARKETPLACE.md",
+      "sha256": "ac9c5c6ce7d198639ae54c6ad9496315580056966ad779542a481bd61fd510c0"
+    }
+  ],
+  "verification": [
+    "node --check cleaning-workforce-marketplace.js PASS",
+    "node --check titan-cleaning-workforce-products.js PASS",
+    "node --check titan-cleaning-workforce.js PASS",
+    "cleaning_workforce_marketplace.test.mjs PASS",
+    "cleaning_supply_marketplace.test.mjs PASS",
+    "cleaning_software_marketplace.test.mjs PASS",
+    "7 workforce UI regression files PASS"
+  ],
+  "rebase_note": "Manager Merge19 changed Settings files but did not change modules.html, modules.js, modules.css, chatTab.html or titan-cleaning-workforce.js from Merge18, allowing the existing cleaning marketplaces and this workforce marketplace to be forward-ported without dropping Merge19 Settings convergence."
+}

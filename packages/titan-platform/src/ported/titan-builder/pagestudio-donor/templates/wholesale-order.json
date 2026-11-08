@@ -1,0 +1,31 @@
+{
+  "template": {
+    "id": "wholesale-order",
+    "version": "1.0.0",
+    "name": "Wholesale Order",
+    "status": "draft",
+    "category": "wholesale",
+    "entry_wizard": "wholesale_order_v1",
+    "capabilities": [
+      "wholesale.orders.create"
+    ],
+    "channels": [
+      "chat",
+      "mobile",
+      "tablet",
+      "desktop",
+      "voice"
+    ],
+    "governance": {
+      "authority": "requires_credit_pricing_tax_and_payment_terms_integration",
+      "offline": false
+    },
+    "metadata": {
+      "verticals": [
+        "wholesale",
+        "distribution"
+      ],
+      "pack": "commerce_multi_vertical_2026_08"
+    }
+  }
+}

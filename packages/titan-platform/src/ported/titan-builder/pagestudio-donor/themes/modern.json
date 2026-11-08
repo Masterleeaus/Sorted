@@ -1,0 +1,13 @@
+{
+  "id": "modern",
+  "theme": {
+    "name": "modern",
+    "extends": "default",
+    "asset-path": "themes/modern",
+    "landingPage": {
+      "googleFonts": []
+    },
+    "description": "modern \u2014 TG: @heew_support",
+    "support_telegram": "heew_support"
+  }
+}

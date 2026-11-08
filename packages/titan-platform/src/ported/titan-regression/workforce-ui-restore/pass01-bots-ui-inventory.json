@@ -1,0 +1,239 @@
+{
+  "schema": "titan-zero-workforce-ui-restore-pass1-inventory/v1",
+  "packet_id": "TZ-WORKFORCE-UI-RESTORE-001",
+  "pass": 1,
+  "base": {
+    "artifact": "Titan-Zero-CANONICAL-MASTER-2026-09-05.zip",
+    "sha256": "a8a1691ab48f926eff0f9bf72467a80d2e829a1fd75a97225b1888d50cf1b668",
+    "files": 1778,
+    "manager_merge": "08"
+  },
+  "classification": {
+    "rich_catalogue_found": true,
+    "rich_catalogue_primary_entry": "chatTab.html -> content.js",
+    "rich_catalogue_current_route": "Titan AI Workspace iframe -> chatTab.html; shell can target retained Bots/Explore/Create controls",
+    "workforce_management_surface": "sidePanel.html#titan-workforce-view + titan-client-workforce-controls.js + titan-shell.js",
+    "workforce_catalogue_gap": "The visible Workforce management surface uses Titan worker/control lists and a thin workforce-grid; the retained rich Bots catalogue remains in the embedded AI runtime and has not yet been properly migrated into a distinct Workforce Agents catalogue surface.",
+    "do_not_merge_surfaces": true
+  },
+  "retained_rich_ui": {
+    "runtime_sources": [
+      "content.js",
+      "monica-content.js",
+      "monica-popup.js",
+      "titan-zero-chat-content.compat.js",
+      "titan-zero-chat-runtime.compat.js"
+    ],
+    "feature_evidence": {
+      "content.js": {
+        "explore_my_bots": true,
+        "categories_recommendations": true,
+        "search": true,
+        "docs": true,
+        "favourites_pin": true,
+        "agent_profile_edit": true,
+        "create_customise": true,
+        "models_personas": true,
+        "history_conversations": true
+      },
+      "monica-content.js": {
+        "explore_my_bots": true,
+        "categories_recommendations": true,
+        "search": true,
+        "docs": true,
+        "favourites_pin": true,
+        "agent_profile_edit": true,
+        "create_customise": true,
+        "models_personas": true,
+        "history_conversations": true
+      },
+      "monica-popup.js": {
+        "explore_my_bots": true,
+        "categories_recommendations": true,
+        "search": true,
+        "docs": true,
+        "favourites_pin": true,
+        "agent_profile_edit": true,
+        "create_customise": true,
+        "models_personas": true,
+        "history_conversations": true
+      },
+      "titan-zero-chat-content.compat.js": {
+        "explore_my_bots": true,
+        "categories_recommendations": true,
+        "search": true,
+        "docs": true,
+        "favourites_pin": true,
+        "agent_profile_edit": true,
+        "create_customise": true,
+        "models_personas": true,
+        "history_conversations": true
+      },
+      "titan-zero-chat-runtime.compat.js": {
+        "explore_my_bots": true,
+        "categories_recommendations": true,
+        "search": true,
+        "docs": true,
+        "favourites_pin": true,
+        "agent_profile_edit": true,
+        "create_customise": true,
+        "models_personas": true,
+        "history_conversations": true
+      },
+      "titan-shell.js": {
+        "explore_my_bots": false,
+        "categories_recommendations": false,
+        "search": false,
+        "docs": false,
+        "favourites_pin": false,
+        "agent_profile_edit": false,
+        "create_customise": false,
+        "models_personas": false,
+        "history_conversations": false
+      },
+      "sidePanel.html": {
+        "explore_my_bots": false,
+        "categories_recommendations": false,
+        "search": false,
+        "docs": false,
+        "favourites_pin": false,
+        "agent_profile_edit": false,
+        "create_customise": false,
+        "models_personas": false,
+        "history_conversations": false
+      },
+      "chatTab.html": {
+        "explore_my_bots": false,
+        "categories_recommendations": false,
+        "search": false,
+        "docs": false,
+        "favourites_pin": false,
+        "agent_profile_edit": false,
+        "create_customise": false,
+        "models_personas": false,
+        "history_conversations": false
+      }
+    },
+    "bot_agent_model_assets": [
+      "static/global/src/static/bot-notification-logo.png",
+      "static/global/src/static/aiModels.png",
+      "static/global/src/static/search-agent-logo.png",
+      "static/global/src/static/bot-artist-example.png",
+      "static/global/src/static/bot-empty.png",
+      "static/global/src/static/bot-artist-logo.png",
+      "static/global/src/static/personalAvatar.png",
+      "static/global/src/static/searchAgentLogo.png",
+      "static/global/src/static/agentPlaceholderImage.png",
+      "static/global/src/static/SupportModel/support_model_gpt4.png",
+      "static/global/src/static/SupportModel/support_model_gemini.png",
+      "static/global/src/static/artifact/artifactStandardModelOutputExample.png",
+      "static/global/src/static/artifact/artifactAdvancedModelOutputExample.png",
+      "static/global/src/static/MonicaOptions/webpageAssistantCompareModelsExample.webp",
+      "static/global/src/static/video/bannerModels.webp",
+      "static/global/src/static/makeItMore/makeItMoreBotIcon.svg",
+      "static/global/src/static/OnboardingDialog/searchAgent.png",
+      "static/global/src/static/OnboardingDialog/writingAgent.png",
+      "static/global/src/static/image/model3d.png",
+      "static/global/src/static/brandIcon/AgentDeepResearch.png",
+      "static/global/src/static/brandIcon/AgentAISlides.png",
+      "static/global/src/static/brandIcon/AgentBrowserOperator.png",
+      "static/global/src/static/botFramework/writingExpertBotLogo.png",
+      "static/global/src/static/botFramework/masterTranslatorBotLogo.png",
+      "static/global/src/static/botFramework/codeAssistantBotLogo.png",
+      "static/global/src/static/artistStyles/threeDModel.jpg",
+      "static/global/src/static/artistStyles/3d_modeling.png",
+      "static/global/src/static/chatBox/modelBg.png",
+      "static/global/src/static/chatBox/shareImage/modelList.webp",
+      "static/global/src/static/chatBox/chatHomeView/botsDark.png",
+      "static/global/src/static/chatBox/chatHomeView/writingAgentDark.png",
+      "static/global/src/static/chatBox/chatHomeView/bots.png",
+      "static/global/src/static/chatBox/chatHomeView/writingAgent.png",
+      "static/global/src/static/recommendUpgradeDialog/PlanCardWithBenefit/models.png"
+    ],
+    "asset_count": 34
+  },
+  "current_titan_surfaces": {
+    "workforce_management": {
+      "page": "sidePanel.html#titan-workforce-view",
+      "features": [
+        "management activity strip",
+        "manager layer",
+        "vertical selector",
+        "observed roles",
+        "activation proposals",
+        "open assignments",
+        "waiting approvals",
+        "escalations",
+        "role search",
+        "role state filter",
+        "team template proposal",
+        "work coordination queue",
+        "worker card grid"
+      ],
+      "must_remain_separate": true
+    },
+    "retained_ai_workspace": {
+      "page": "sidePanel.html#titan-ai-view",
+      "iframe": "chatTab.html",
+      "current_buttons": [
+        "Chat",
+        "Workforce",
+        "Explore",
+        "Create",
+        "History",
+        "Models",
+        "Tools"
+      ],
+      "shell_aliases_include_bots": true,
+      "note": "The visible AI workspace currently jumps to Workforce instead of exposing the retained Bots catalogue as its own Workforce Agents destination."
+    }
+  },
+  "inventory_categories": {
+    "explore_my_bots": true,
+    "categories": true,
+    "recommended_hot_more_cards": true,
+    "search": true,
+    "docs": true,
+    "favourites_pin": true,
+    "agent_detail_profile_edit": true,
+    "models_personas_agents": true,
+    "creation_customisation": true,
+    "conversation_history": true
+  },
+  "pass1_findings": [
+    {
+      "id": "WFUI-P1-001",
+      "severity": "P0-UI-PARITY",
+      "finding": "Rich Bots catalogue UI is retained in shipped runtime but is not presented as the dedicated Workforce Agents catalogue."
+    },
+    {
+      "id": "WFUI-P1-002",
+      "severity": "P0-SEMANTIC",
+      "finding": "Workforce currently combines management controls with a thin worker-card grid; user direction requires the rich catalogue to become Workforce Agents while Workforce stays management/control."
+    },
+    {
+      "id": "WFUI-P1-003",
+      "severity": "P1-NAV",
+      "finding": "Titan AI Workspace has Explore/Create/History/Models/Tools and a Workforce jump, while shell still knows a hidden Bots target. The catalogue path needs a proper Workforce Agents destination in later passes."
+    },
+    {
+      "id": "WFUI-P1-004",
+      "severity": "P1-MIGRATION",
+      "finding": "Compiled donor runtime still contains visible Bots/Bot terminology and creation/edit flows; Pass 2 must perform a proper shipped-code migration rather than permanent aliases."
+    }
+  ],
+  "pass1_scope": {
+    "production_files_modified": [],
+    "inventory_only": true,
+    "next_pass": "Pass 2 \u2014 Proper internal rename"
+  },
+  "platform_audit": {
+    "company_id_boundary_changed": false,
+    "authority_changed": false,
+    "permissions_changed": false,
+    "storage_changed": false
+  },
+  "collision_notes": [
+    "No production hotspot modified in Pass 1. workforce UI/projections remain the packet ownership lane; manifest and primary startup shell untouched."
+  ]
+}

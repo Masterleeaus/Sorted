@@ -1,0 +1,14 @@
+{
+  "schema": "titan-zero-pass-touched-files/v1",
+  "pass": 4,
+  "files": [
+    "packages/titan-platform/src/retriever/surface-bridge.ts",
+    "packages/titan-platform/src/retriever/index.ts",
+    "packages/titan-platform/tests/retriever-native-pass04-surface-bridge.test.mjs",
+    "packages/titan-platform/src/retriever/pass04/PASS04-VERIFICATION.json",
+    "packages/titan-platform/src/retriever/pass04/PASS04-SEMANTIC-CHANGE.json",
+    "packages/titan-platform/src/retriever/pass04/PASS04-CHANGE-IMPACT.json",
+    "packages/titan-platform/src/retriever/pass04/PASS04-COLLISION-RECORD.json",
+    "packages/titan-platform/src/retriever/pass04/PASS04-HANDOFF.json"
+  ]
+}

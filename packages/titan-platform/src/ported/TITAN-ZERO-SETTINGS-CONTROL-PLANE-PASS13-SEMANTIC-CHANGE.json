@@ -1,0 +1,15 @@
+{
+  "schema": "titan-zero-settings-control-plane-semantic-change/v1",
+  "pass": 13,
+  "feature": "Risk Controls",
+  "classification": "ADDITIVE_CONTROL_PLANE_RISK_FLOOR_PROJECTION",
+  "summary": "Adds company-scoped risk floors, per-capability minimum risk and earlier escalation/review thresholds over existing risk runtimes. Settings can only tighten handling; it cannot lower runtime risk, alter classifier weights, accept risk, grant authority or override critical physical/environmental blocks.",
+  "runtime_owners_preserved": [
+    "titan-intelligence/core/risk-classification.mjs",
+    "titan-workforce/risk/physical-environmental-risk-runtime.mjs",
+    "titan-workforce/handover/investigation-installation-handover.mjs"
+  ],
+  "company_boundary": "company_id",
+  "grants_authority": false,
+  "execution_permitted": false
+}

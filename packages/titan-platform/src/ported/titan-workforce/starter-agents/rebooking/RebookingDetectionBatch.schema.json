@@ -1,0 +1,76 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "titan.workforce.starter.rebooking-detection-batch.v1",
+  "type": "object",
+  "required": [
+    "schema",
+    "company_id",
+    "input_count",
+    "opportunity_count",
+    "duplicate_count",
+    "rejected_count",
+    "opportunities",
+    "duplicates",
+    "rejected",
+    "authority"
+  ],
+  "properties": {
+    "schema": {
+      "const": "titan.workforce.starter.rebooking-detection-batch.v1"
+    },
+    "company_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "input_count": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "opportunity_count": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "duplicate_count": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "rejected_count": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "opportunities": {
+      "type": "array"
+    },
+    "duplicates": {
+      "type": "array"
+    },
+    "rejected": {
+      "type": "array"
+    },
+    "authority": {
+      "type": "object",
+      "required": [
+        "grants_authority",
+        "execution_permitted",
+        "automatic_outreach",
+        "automatic_booking"
+      ],
+      "properties": {
+        "grants_authority": {
+          "const": false
+        },
+        "execution_permitted": {
+          "const": false
+        },
+        "automatic_outreach": {
+          "const": false
+        },
+        "automatic_booking": {
+          "const": false
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

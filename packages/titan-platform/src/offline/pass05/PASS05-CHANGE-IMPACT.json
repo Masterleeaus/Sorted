@@ -1,0 +1,12 @@
+{
+  "schema": "titan-zero-offline-pass05-change-impact/v1",
+  "packet_id": "TZ-FINISH-OFFLINE-RESILIENCE-001",
+  "pass": 5,
+  "modified_files": [
+    "packages/titan-platform/src/offline/restart-recovery.ts",
+    "packages/titan-platform/src/offline/index.ts",
+    "packages/titan-platform/tests/offline-native-pass05-restart-recovery.test.mjs"
+  ],
+  "impact": "Additive native restart/recovery coordinator over canonical repository. No Chrome service-worker dependency is required by the core coordinator.",
+  "parallel_restart_authority_created": false
+}

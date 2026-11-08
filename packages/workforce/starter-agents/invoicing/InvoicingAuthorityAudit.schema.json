@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "titan.workforce.starter.invoicing.authority-audit.v1",
+  "title": "Titan Starter Invoicing Agent Authority Audit",
+  "type": "object",
+  "required": ["schema", "company_id", "worker", "canonical", "evidence", "missing_evidence", "readiness", "findings", "risk_flags", "authority"],
+  "properties": {
+    "schema": {"const": "titan.workforce.starter.invoicing.authority-audit.v1"},
+    "company_id": {"type": "string", "minLength": 1},
+    "worker": {"const": "Invoicing Agent"},
+    "canonical": {"type": "object"},
+    "evidence": {"type": "object"},
+    "connector_state": {"type": "object"},
+    "missing_evidence": {"type": "array", "items": {"type": "string"}},
+    "readiness": {"enum": ["blocked_missing_evidence", "evidence_complete_for_later_readiness_evaluation"]},
+    "findings": {"type": "object"},
+    "risk_flags": {"type": "array", "items": {"type": "string"}},
+    "authority": {
+      "type": "object",
+      "required": ["company_boundary", "identity_grants_authority", "authority_granted", "execution_permitted", "grants_authority"],
+      "properties": {
+        "company_boundary": {"const": "company_id"},
+        "identity_grants_authority": {"const": false},
+        "authority_granted": {"const": false},
+        "execution_permitted": {"const": false},
+        "grants_authority": {"const": false}
+      },
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": true
+}

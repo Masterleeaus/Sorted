@@ -1,0 +1,261 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Titan Zero Modules</title>
+<link rel="stylesheet" href="modules.css">
+<link rel="stylesheet" href="titan-theme.css">
+</head>
+<body class="titan-modules-page">
+<header>
+  <div><strong>Titan Zero Modules</strong><span>Signed packages, governed capabilities, lifecycle history and device-first workforce modules</span></div>
+  <div class="header-actions"><button id="refresh">Refresh</button><button id="download-template">Module template</button><a href="diagnostics.html">Diagnostics</a></div>
+</header>
+<main>
+  <section class="intro">
+    <div><h1>Add-ons & module marketplace</h1><p>Titan Zero accepts local declarative modules, statically packaged executable modules and cryptographically verified packages. Installing or enabling a module never grants operational authority. <code>company_id</code> remains the sole company boundary.</p></div>
+    <div class="import-actions">
+      <label class="import-button verified">Install signed package<input id="package-file" type="file" accept="application/json,.json" hidden></label>
+      <label class="import-button">Install module JSON<input id="module-file" type="file" accept="application/json,.json" hidden></label>
+      <label class="import-button secondary">Install bundle JSON<input id="bundle-file" type="file" accept="application/json,.json" hidden></label>
+      <button id="install-cleaning-workforce" class="featured">Install Cleaning Workforce</button>
+    </div>
+  </section>
+
+  <div id="notice" role="status" aria-live="polite"></div>
+  <section class="summary" id="summary"></section>
+
+  <section class="supply-marketplace" aria-labelledby="supply-marketplace-title">
+    <div class="section-head"><div><h2 id="supply-marketplace-title">Cleaning Supply Marketplace</h2><p class="section-copy">Track stock, set reorder points and preferred suppliers, build job-specific restock carts, create purchase orders and receive stock. Product entries are procurement templates—verify labels, SDS and surface compatibility before use.</p></div><span id="supply-result-count"></span></div>
+    <div id="supply-notice" role="status" aria-live="polite"></div>
+    <div id="supply-summary" class="summary supply-summary"></div>
+    <div class="supply-toolbar">
+      <input id="supply-search" type="search" placeholder="Search chemicals, PPE, equipment, parts…" aria-label="Search cleaning supplies">
+      <select id="supply-category" aria-label="Supply category"><option value="all">All categories</option></select>
+      <select id="supply-job" aria-label="Job type">
+        <option value="all">All job types</option><option value="regular">Regular residential</option><option value="end-of-lease">End of lease</option><option value="office">Office</option><option value="commercial">Commercial</option><option value="deep-clean">Deep clean</option><option value="carpet">Carpet</option>
+      </select>
+      <label class="check-filter"><input id="supply-low-only" type="checkbox"> Reorder only</label>
+      <button id="supply-add-low" class="featured">Add all low stock</button>
+    </div>
+    <div class="market-split">
+      <div>
+        <h3>Job restock kits</h3>
+        <div id="supply-kits" class="kit-list"></div>
+        <h3>Products</h3>
+        <div id="supply-products" class="supply-products"></div>
+      </div>
+      <aside class="purchase-panel">
+        <div class="section-head"><h3>Purchase order</h3><span id="supply-cart-count"></span></div>
+        <div id="supply-cart" class="supply-cart"></div>
+        <div id="supply-total" class="purchase-total"></div>
+        <div class="purchase-actions"><button id="supply-clear-cart">Clear</button><button id="supply-create-order" class="featured">Create draft PO</button></div>
+        <p class="section-copy">Unit costs and supplier details stay local to this company. Unknown prices remain blank rather than being guessed.</p>
+      </aside>
+    </div>
+    <div class="section-head orders-head"><div><h3>Purchase order history</h3><p class="section-copy">Export a draft PO as CSV for a supplier. Mark it received to add delivered quantities to on-hand stock.</p></div><span id="supply-orders-count"></span></div>
+    <div id="supply-orders" class="supply-orders"></div>
+  </section>
+
+  <section class="software-marketplace" aria-labelledby="software-marketplace-title">
+    <div class="section-head"><div><h2 id="software-marketplace-title">Cleaning Software Marketplace</h2><p class="section-copy">Plan the software stack a cleaning company actually needs. Compare categories, save preferred products, track whether each service is already used, and build an implementation shortlist. Prices and vendor connections are intentionally not invented.</p></div><span id="software-result-count"></span></div>
+    <div id="software-notice" role="status" aria-live="polite"></div>
+    <div id="software-summary" class="summary supply-summary"></div>
+    <div class="supply-toolbar">
+      <input id="software-search" type="search" placeholder="Search CRM, accounting, scheduling, payroll, communications…" aria-label="Search software products">
+      <select id="software-category" aria-label="Software category"><option value="all">All categories</option></select>
+      <select id="software-business-size" aria-label="Business size"><option value="all">All business sizes</option><option value="solo">Solo cleaner</option><option value="small">Small team</option><option value="growing">Growing company</option><option value="multi-site">Multi-site / commercial</option></select>
+      <label class="check-filter"><input id="software-preferred-only" type="checkbox"> Preferred only</label>
+    </div>
+    <div id="software-products" class="supply-products software-products"></div>
+    <div class="section-head orders-head"><div><h3>Software implementation shortlist</h3><p class="section-copy">Save products the company wants to evaluate or connect. Status is company-scoped and remains local until a real integration is configured.</p></div><span id="software-shortlist-count"></span></div>
+    <div id="software-shortlist" class="supply-orders"></div>
+  </section>
+
+
+  <section class="workforce-marketplace" aria-labelledby="workforce-marketplace-title">
+    <div class="section-head"><div><h2 id="workforce-marketplace-title">Cleaning Workforce Agent Marketplace</h2><p class="section-copy">Optional cleaning specialists only. Agents already present in the installed cleaning or shared workforce are automatically excluded, and a purchased role disappears from the sale catalogue. Purchasing adds the role to the company roster but does not grant execution authority.</p></div><span id="workforce-market-result-count"></span></div>
+    <div id="workforce-market-notice" role="status" aria-live="polite"></div>
+    <div id="workforce-market-summary" class="summary supply-summary"></div>
+    <div class="supply-toolbar">
+      <input id="workforce-market-search" type="search" placeholder="Search specialist cleaning agents…" aria-label="Search cleaning workforce agents">
+      <select id="workforce-market-specialty" aria-label="Cleaning specialty"><option value="all">All specialties</option></select>
+      <label class="check-filter"><input id="workforce-market-shortlist-only" type="checkbox"> Shortlisted only</label>
+    </div>
+    <div id="workforce-market-products" class="supply-products workforce-market-products"></div>
+    <div class="section-head orders-head"><div><h3>Purchased cleaning specialists</h3><p class="section-copy">These roles are no longer offered for sale to this company. They join the cleaning roster as governed role definitions; authority still comes from Titan permissions, policy and autonomy controls.</p></div><span id="workforce-market-purchased-count"></span></div>
+    <div id="workforce-market-purchased" class="supply-orders"></div>
+  </section>
+
+  <section class="growth-recommendation-marketplace" aria-labelledby="growth-recommendation-title">
+    <div class="section-head"><div><h2 id="growth-recommendation-title">Zero Growth Recommendations</h2><p class="section-copy">Evidence-backed recommendations only. Record real cleaning enquiries, lost work, tenders, compliance needs or operating issues; Titan compares them with current company coverage and recommends only capabilities that are still missing.</p></div><span id="growth-rec-count"></span></div>
+    <div id="growth-rec-notice" role="status" aria-live="polite"></div>
+    <div class="supply-toolbar growth-signal-toolbar">
+      <select id="growth-signal-type" aria-label="Growth signal type"></select>
+      <input id="growth-signal-subject" type="text" placeholder="e.g. Medical centre cleaning enquiry" aria-label="Growth signal subject">
+      <input id="growth-signal-detail" type="text" placeholder="What happened or what is required?" aria-label="Growth signal details">
+      <input id="growth-signal-value" type="number" min="0" step="0.01" placeholder="Opportunity value (optional)" aria-label="Estimated opportunity value">
+      <input id="growth-signal-currency" type="text" maxlength="3" placeholder="Currency e.g. AUD" aria-label="Opportunity currency code">
+      <button id="growth-signal-add" class="featured">Record evidence</button>
+    </div>
+    <div id="growth-recommendations" class="supply-products"></div>
+    <div class="section-head orders-head"><div><h3>Growth evidence ledger</h3><p class="section-copy">Company-scoped evidence used by the deterministic recommendation engine. These records are advisory inputs only and never grant authority or install products automatically.</p></div><span id="growth-signal-count"></span></div>
+    <div id="growth-signal-history" class="supply-orders"></div>
+  </section>
+
+  <section class="growth-opportunity-intelligence" aria-labelledby="growth-opportunity-title">
+    <div class="section-head"><div><h2 id="growth-opportunity-title">Cleaning Opportunity Intelligence</h2><p class="section-copy">Turn repeated enquiries, lost work and growth signals into service-line launch plans. Titan shows demand, only explicitly recorded opportunity value, current readiness and the exact missing components required to offer each cleaning service.</p></div><span id="growth-opportunity-count"></span></div>
+    <div id="growth-opportunity-notice" role="status" aria-live="polite"></div>
+    <div class="market-toolbar"><label>Service line <select id="growth-opportunity-filter"><option value="all">All opportunities</option></select></label><label class="check"><input id="growth-opportunity-demand-only" type="checkbox"> Evidence-backed only</label></div>
+    <div id="growth-opportunity-summary" class="supply-summary"></div>
+    <div id="growth-opportunity-list" class="supply-products"></div>
+  </section>
+
+
+  <section class="launch-portfolio" aria-labelledby="launch-portfolio-title">
+    <div class="section-head"><div><h2 id="launch-portfolio-title">Cleaning Launch Portfolio</h2><p class="section-copy">See every cleaning service launch in one governed view. Titan highlights owners, target dates, launch risk, stalled or overdue plans, milestone history and first-job conversion without publishing services or granting execution authority.</p></div><span id="launch-portfolio-count"></span></div>
+    <div id="launch-portfolio-notice" role="status" aria-live="polite"></div>
+    <div class="market-toolbar"><label>Portfolio view <select id="launch-portfolio-filter"><option value="tracked">Tracked launches</option><option value="risk">At risk</option><option value="overdue">Overdue</option><option value="stalled">Stalled</option><option value="ready">Ready to sell</option><option value="completed">First job completed</option><option value="all">All service lines</option></select></label></div>
+    <div id="launch-portfolio-summary" class="supply-summary portfolio-summary"></div>
+    <div id="launch-portfolio-list" class="launch-portfolio-list"></div>
+  </section>
+
+  <section class="pilot-validation" aria-labelledby="pilot-validation-title">
+    <div class="section-head"><div><h2 id="pilot-validation-title">Cleaning Pilot Outcome Validation</h2><p class="section-copy">Compare real pilot-job evidence against the commercial assumptions entered for each service. Titan shows where revenue, variable cost and contribution assumptions proved accurate, conservative or optimistic before the business decides whether to scale.</p></div><span id="pilot-validation-count"></span></div>
+    <div id="pilot-validation-notice" role="status" aria-live="polite"></div>
+    <div class="market-toolbar"><label>Pilot view <select id="pilot-validation-filter"><option value="tracked">Tracked / modelled services</option><option value="issues">Needs review</option><option value="validated">Comparable pilot evidence</option><option value="all">All service lines</option></select></label></div>
+    <div id="pilot-validation-summary" class="supply-summary pilot-validation-summary"></div>
+    <div id="pilot-validation-list" class="supply-products"></div>
+  </section>
+
+
+
+  <section class="rollout-learning" aria-labelledby="rollout-learning-title">
+    <div class="section-head"><div><h2 id="rollout-learning-title">Cleaning Rollout Learning Loop</h2><p class="section-copy">Compare controlled and broader rollout jobs against validated pilot and commercial expectations. Titan detects economic, quality and customer drift and recommends continue, slow expansion, return to controlled rollout, or pause and investigate without changing rollout authority.</p></div><span id="rollout-learning-count"></span></div>
+    <div id="rollout-learning-notice" role="status" aria-live="polite"></div>
+    <div class="market-toolbar"><label>Rollout view <select id="rollout-learning-filter"><option value="tracked">Tracked rollout services</option><option value="action">Needs action</option><option value="pause">Pause & investigate</option><option value="continue">Continue rollout</option><option value="all">All service lines</option></select></label></div>
+    <div id="rollout-learning-summary" class="supply-summary scale-readiness-summary"></div>
+    <div id="rollout-learning-list" class="supply-products"></div>
+  </section>
+
+  <section class="scale-readiness" aria-labelledby="scale-readiness-title">
+    <div class="section-head"><div><h2 id="scale-readiness-title">Cleaning Scale Readiness</h2><p class="section-copy">Combine planner readiness, commercial viability and repeated pilot evidence into a governed rollout recommendation. Titan can recommend Hold, another pilot, controlled rollout or broader rollout, but never authorizes expansion, spend, publishing, scheduling or execution.</p></div><span id="scale-readiness-count"></span></div>
+    <div id="scale-readiness-notice" role="status" aria-live="polite"></div>
+    <div class="market-toolbar"><label>Scale view <select id="scale-readiness-filter"><option value="tracked">Tracked / evidenced services</option><option value="action">Hold / another pilot</option><option value="controlled">Controlled rollout ready</option><option value="broader">Broader rollout ready</option><option value="all">All service lines</option></select></label></div>
+    <div id="scale-readiness-summary" class="supply-summary scale-readiness-summary"></div>
+    <div id="scale-readiness-list" class="supply-products"></div>
+  </section>
+
+  <section class="launch-economics" aria-labelledby="launch-economics-title">
+    <div class="section-head"><div><h2 id="launch-economics-title">Cleaning Commercial Launch Readiness</h2><p class="section-copy">Model launch economics only from company-entered assumptions. Titan calculates known investment, contribution per job, break-even jobs and budget warnings, but never invents revenue/costs or approves spending.</p></div><span id="launch-economics-count"></span></div>
+    <div id="launch-economics-notice" role="status" aria-live="polite"></div>
+    <div class="market-toolbar"><label>Commercial view <select id="launch-economics-filter"><option value="tracked">Tracked / evidence-backed</option><option value="budget">Budget warnings</option><option value="ready">Calculable & within budget</option><option value="all">All service lines</option></select></label></div>
+    <div id="launch-economics-summary" class="supply-summary economics-top-summary"></div>
+    <div id="launch-economics-list" class="supply-products"></div>
+  </section>
+
+  <section class="service-launch-planner" aria-labelledby="service-launch-title">
+    <div class="section-head"><div><h2 id="service-launch-title">Cleaning Service Launch Planner</h2><p class="section-copy">Turn an evidence-backed opportunity into a governed launch path. Titan tracks capability coverage automatically while training, compliance, pilot, quote/scope and first-job gates require explicit company confirmation. Planner readiness never publishes a service or grants execution authority.</p></div><span id="service-launch-count"></span></div>
+    <div id="service-launch-notice" role="status" aria-live="polite"></div>
+    <div class="market-toolbar"><label>Service line <select id="service-launch-filter"><option value="all">All service lines</option></select></label><label class="check"><input id="service-launch-active-only" type="checkbox"> Evidence or tracked plans only</label></div>
+    <div id="service-launch-summary" class="supply-summary"></div>
+    <div id="service-launch-list" class="supply-products"></div>
+  </section>
+
+  <section class="growth-marketplace" aria-labelledby="growth-marketplace-title">
+    <div class="section-head"><div><h2 id="growth-marketplace-title">Cleaning Growth Marketplace</h2><p class="section-copy">Expand the cleaning business with capability packs, service-line launches, knowledge overlays, templates, integrations and complete crews. Titan checks current company coverage and hides anything already supplied; crew bundles install only missing pieces.</p></div><span id="growth-result-count"></span></div>
+    <div id="growth-notice" role="status" aria-live="polite"></div>
+    <div id="growth-summary" class="summary supply-summary"></div>
+    <div class="supply-toolbar growth-toolbar">
+      <input id="growth-search" type="search" placeholder="Search service packs, capabilities, knowledge, automations, crews…" aria-label="Search cleaning growth marketplace">
+      <select id="growth-category" aria-label="Growth product class"><option value="all">All product classes</option></select>
+      <label class="check-filter"><input id="growth-missing-only" type="checkbox" checked> Missing only</label>
+    </div>
+    <div id="growth-products" class="supply-products"></div>
+    <div class="section-head orders-head"><div><h3>Covered & installed</h3><p class="section-copy">Coverage can come from Titan's existing workforce or from Marketplace installs. A product is not offered again when all of its capabilities are already covered.</p></div><span id="growth-installed-count"></span></div>
+    <div id="growth-installed" class="supply-orders"></div>
+  </section>
+
+  <section class="marketplace-action-queue" aria-labelledby="marketplace-action-queue-title">
+    <div class="section-head"><div><h2 id="marketplace-action-queue-title">Cleaning Marketplace Action Queue</h2><p class="section-copy">Turn renewal, replacement and consolidation review signals into company-owned decisions with due dates, evidence requirements and review history. This queue tracks decisions only; Titan cannot execute cancellations, renewals, purchases, migrations or Workforce changes.</p></div><span id="marketplace-action-queue-count"></span></div>
+    <div id="marketplace-action-queue-notice" class="notice"></div>
+    <div class="toolbar"><label>Show <select id="marketplace-action-queue-filter"><option value="active">Active</option><option value="overdue">Overdue</option><option value="waiting">Waiting evidence</option><option value="completed">Completed</option><option value="all">All</option></select></label></div>
+    <div id="marketplace-action-queue-summary" class="portfolio-summary marketplace-action-summary"></div>
+    <div id="marketplace-action-queue-list" class="supply-grid"></div>
+    <details class="marketplace-action-history"><summary>Review history</summary><div id="marketplace-action-history"></div></details>
+  </section>
+
+  <section class="marketplace-consolidation" aria-labelledby="marketplace-consolidation-title">
+    <div class="section-head"><div><h2 id="marketplace-consolidation-title">Cleaning Marketplace Portfolio Consolidation</h2><p class="section-copy">Review structural overlap across active software, cleaning specialists and Growth Marketplace capabilities using recorded adoption/value evidence, renewal posture, migration risk and company-entered dependency data. Overlap is not treated as redundancy; Titan cannot cancel, remove, migrate or replace anything automatically.</p></div><span id="marketplace-consolidation-count"></span></div>
+    <div id="marketplace-consolidation-notice" role="status" aria-live="polite"></div>
+    <div class="market-toolbar"><label>Portfolio view <select id="marketplace-consolidation-filter"><option value="all">All overlap groups</option><option value="action">Needs review</option><option value="candidate_for_consolidation">Consolidation candidates</option><option value="plan_safe_consolidation">Safe plan required</option><option value="review_overlap">Review overlap</option><option value="evidence_needed">Evidence needed</option><option value="no_change_supported">No change supported</option></select></label></div>
+    <div id="marketplace-consolidation-summary" class="supply-summary marketplace-consolidation-summary"></div>
+    <div id="marketplace-consolidation-list" class="supply-products"></div>
+  </section>
+
+  <section class="marketplace-renewal" aria-labelledby="marketplace-renewal-title">
+    <div class="section-head"><div><h2 id="marketplace-renewal-title">Cleaning Marketplace Renewal & Replacement Review</h2><p class="section-copy">Track explicit renewal dates, cancellation-notice windows, contract end dates, replacement candidates and migration risk against recorded adoption/value evidence. Recommendations are advisory only; Titan cannot renew, cancel, buy or replace anything automatically.</p></div><span id="marketplace-renewal-count"></span></div>
+    <div id="marketplace-renewal-notice" role="status" aria-live="polite"></div>
+    <div class="market-toolbar"><label>Renewal view <select id="marketplace-renewal-filter"><option value="all">All active components</option><option value="urgent">Renewal / notice attention</option><option value="keep">Keep</option><option value="review_renewal">Review renewal</option><option value="consider_replacement">Consider replacement</option><option value="plan_migration">Plan migration</option><option value="evidence_needed">Evidence needed</option></select></label></div>
+    <div id="marketplace-renewal-summary" class="supply-summary marketplace-renewal-summary"></div>
+    <div id="marketplace-renewal-list" class="supply-products"></div>
+  </section>
+
+  <section class="marketplace-value" aria-labelledby="marketplace-value-title">
+    <div class="section-head"><div><h2 id="marketplace-value-title">Cleaning Marketplace Adoption & Value</h2><p class="section-copy">Track whether active cleaning software, purchased specialists and installed growth components are actually used and supported by recorded company evidence. Titan can flag unused spend, low adoption and potential structural overlap, but does not invent prices, savings or ROI and cannot cancel products or remove workers.</p></div><span id="marketplace-value-count"></span></div>
+    <div id="marketplace-value-notice" role="status" aria-live="polite"></div>
+    <div class="market-toolbar"><label>Value view <select id="marketplace-value-filter"><option value="all">All active components</option><option value="action">Needs review</option><option value="unused">Unused spend</option><option value="duplicate">Potential overlap</option><option value="proven">Proven recorded value</option></select></label></div>
+    <div id="marketplace-value-summary" class="supply-summary marketplace-value-summary"></div>
+    <div id="marketplace-value-list" class="supply-products"></div>
+  </section>
+
+  <section>
+    <div class="section-head"><div><h2>Unified capability registry</h2><p class="section-copy">Company-scoped modules, platform services, certified workflows and workforce capabilities. Registration never grants execution authority.</p></div></div>
+    <div id="capability-registry-summary" class="summary"></div>
+  </section>
+
+  <section>
+    <div class="section-head"><div><h2>Marketplace</h2><p class="section-copy">Installable Titan add-ons. Signed marketplace packages are verified before install; built-in capability modules are shown as included add-ons.</p></div><span id="marketplace-count"></span></div>
+    <div id="marketplace-list" class="marketplace-list"></div>
+  </section>
+
+  <section>
+    <div class="section-head"><div><h2>Authority grants</h2><p class="section-copy">Explicit, company-scoped and revocable execution authority. Raw authority strings are not accepted for mutations.</p></div><span id="grant-count"></span></div>
+    <div class="authority-toolbar"><label>Company <input id="grant-company" value="company-default" autocomplete="off" spellcheck="false"></label><button id="reload-company">Reload company modules</button><button id="reload-grants">Reload grants</button></div>
+    <div id="grant-list" class="grant-list"></div>
+  </section>
+
+  <section>
+    <div class="section-head"><h2>Installed bundles</h2><span id="bundle-count"></span></div>
+    <div id="bundle-list" class="bundle-list"></div>
+  </section>
+
+  <section>
+    <div class="section-head"><h2>Installed modules</h2><span id="module-count"></span></div>
+    <div id="module-list" class="module-list"></div>
+  </section>
+
+
+  <section>
+    <div class="section-head"><div><h2>Recent module changes</h2><p class="section-copy">Validated install/update/enable/disable/remove transactions retain bounded snapshots for recovery.</p></div><span id="install-history-count"></span></div>
+    <div id="install-history" class="module-list"></div>
+  </section>
+
+  <section class="contract"><h2>Module contract</h2><div class="contract-grid">
+    <article><strong>Signed package</strong><p>Integrity is SHA-256 and publisher authenticity is ECDSA P-256. The extension pins public keys; signing private keys never ship in the build.</p></article>
+    <article><strong>Dependencies</strong><p><code>requires.modules</code> supports semantic-version ranges. Missing, incompatible or cyclic dependencies block activation and routing.</p></article>
+    <article><strong>Authority grants</strong><p><code>authority.requests</code> is declarative. Mutating tools and commands require an active governance grant matching company, module and action.</p></article>
+    <article><strong>Version history</strong><p>Prior module and bundle versions are retained in bounded local history so compatible upgrades can be rolled back without downloading code.</p></article>
+    <article><strong>Runtime v2 isolation</strong><p>Compatibility ranges, bounded lifecycle timeouts, failure quarantine and explicit recovery isolate a failing module without replacing the rest of Titan Zero.</p></article>
+    <article><strong>Company module state</strong><p>Global installation is separate from per-company enablement/configuration. Company controls never create a second tenant boundary; <code>company_id</code> remains canonical.</p></article>
+    <article><strong>Suspend bundle</strong><p>A workforce/team pack can be suspended and resumed as one lifecycle unit without deleting its modules or canonical business data.</p></article>
+    <article><strong>Device-first SDK</strong><p>Local modules may declare <code>local_primary</code>, <code>remote_primary</code> or <code>mirror</code> authority binding. Activation still confers no execution authority.</p></article>
+    <article><strong>Events</strong><p>Module events are local, bounded and isolated by <code>company_id</code>. Event-triggered work inherits the same governance checks.</p></article>
+    <article><strong>Packaged code</strong><p>Executable handlers must ship inside the extension and remain statically catalogued for Chrome MV3. Runtime JSON stays declarative.</p></article>
+    <article><strong>Company boundary</strong><p><code>company_id</code> is the sole canonical company boundary. Legacy tenant identifiers are rejected recursively.</p></article>
+  </div></section>
+</main>
+<script src="titan-theme.js"></script><script src="modules.js"></script><script src="cleaning-marketplace.js"></script><script src="cleaning-software-marketplace.js"></script><script src="titan-cleaning-workforce-products.js"></script><script src="titan-cleaning-workforce.js"></script><script src="cleaning-workforce-marketplace.js"></script><script src="cleaning-growth-marketplace.js"></script><script src="cleaning-growth-recommendations.js"></script><script src="cleaning-growth-opportunity-intelligence.js"></script><script src="cleaning-service-launch-planner.js"></script><script src="cleaning-service-launch-economics.js"></script><script src="cleaning-pilot-outcome-validation.js"></script><script src="cleaning-scale-readiness.js"></script><script src="cleaning-rollout-learning.js"></script><script src="cleaning-service-launch-portfolio.js"></script><script src="cleaning-marketplace-value.js"></script><script src="cleaning-marketplace-renewal.js"></script><script src="cleaning-marketplace-consolidation.js"></script><script src="cleaning-marketplace-action-queue.js"></script>
+</body>
+</html>

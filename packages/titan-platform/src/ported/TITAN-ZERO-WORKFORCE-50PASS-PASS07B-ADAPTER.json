@@ -1,0 +1,36 @@
+{
+  "schema": "titan-zero-workforce-50pass-pass/v1",
+  "programme": "Titan Zero Workforce 50-Pass Upgrade",
+  "pass": "7B",
+  "name": "Supervisor Workspace Adapter",
+  "status": "FOUNDATION_AND_UI_NEUTRAL_ADAPTER_COMPLETE_VISIBLE_UI_PENDING_CLAIM_RELEASE",
+  "base": {
+    "manager_merge": 25,
+    "artifact": "Titan-Zero-CANONICAL-MASTER-2026-09-07-MERGE-25-OMNI-SCHEDULED-MONITOR-ABSORBED.zip",
+    "sha256": "0d538ae3cc79d29f055a646244f9f54b94e9c12caae7cc730f987fa0a9ae24a1"
+  },
+  "implemented": [
+    "forward-port Pass7A supervisor workspace projection onto Merge25",
+    "add UI-neutral supervisor workspace view model",
+    "derive worker attention/busy/review presentation state without mutation",
+    "derive escalation ordering and governed-action markers",
+    "derive proposal-only staffing presentation rows",
+    "expose non-executing intent descriptors for future rich UI integration"
+  ],
+  "blocked_visible_ui": {
+    "packet": "TZ-WORKFORCE-UI-RESTORE-001",
+    "owner": "titan-zero-workforce-recovery-agent",
+    "current_pass_observed": 9,
+    "shared_ui_touched": false
+  },
+  "verification": {
+    "focused_supervisor_workspace": "10/10 PASS",
+    "surrounding_workforce_regression": "39/39 PASS",
+    "js_syntax": "PASS"
+  },
+  "company_boundary": "company_id only",
+  "supervisor_identity_confers_authority": false,
+  "hierarchy_confers_authority": false,
+  "recommendations_execute_automatically": false,
+  "grants_authority": false
+}

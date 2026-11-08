@@ -1,0 +1,18 @@
+{
+  "schema": "titan.zero.workforce.pass46.browser-live-smoke.v1",
+  "pass": 46,
+  "title": "Browser Live-Smoke Certification",
+  "company_boundary": "company_id only",
+  "real_browser_process_required": true,
+  "extension_target_observation_required": true,
+  "mv3_service_worker_observation_required": true,
+  "rich_startup_render_required": true,
+  "workforce_launcher_reachability_required": true,
+  "runtime_message_round_trip_required": true,
+  "headless_package_only_is_not_full_certification": true,
+  "certification_is_not_authority": true,
+  "automatic_execution": false,
+  "authority_granted": false,
+  "execution_permitted": false,
+  "grants_authority": false
+}

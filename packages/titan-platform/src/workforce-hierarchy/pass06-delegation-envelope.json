@@ -1,0 +1,23 @@
+{
+  "schema": "titan.workforce.hierarchy.pass06.v1",
+  "base_manager_merge": 52,
+  "outcome": "hierarchy-aware delegation envelope and compatibility bridge",
+  "company_boundary": "company_id",
+  "authority": {
+    "identity_confers_authority": false,
+    "hierarchy_confers_authority": false,
+    "delegation_confers_authority": false,
+    "ceiling_may_only_contract": true,
+    "execution_requires_authority_evaluation": true,
+    "execution_requires_capability_resolution": true
+  },
+  "compatibility": {
+    "target_delegation_schema": "titan.workforce.delegation-task-envelope.v1",
+    "queue_owner": "existing_workflow_or_domain_runtime",
+    "parallel_queue_created": false
+  },
+  "verification": {
+    "focused_tests": "21/21 PASS",
+    "typescript_compile": "PASS"
+  }
+}

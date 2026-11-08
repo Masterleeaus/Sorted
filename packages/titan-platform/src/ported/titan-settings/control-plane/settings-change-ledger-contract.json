@@ -1,0 +1,30 @@
+{
+  "schema": "titan-zero-settings-change-ledger-contract/v1",
+  "pass": 5,
+  "status": "ACTIVE",
+  "company_boundary": "company_id",
+  "identity_grants_authority": false,
+  "append_only": true,
+  "sensitive_values_redacted": true,
+  "required_event_fields": [
+    "event_id",
+    "occurred_at",
+    "setting_key",
+    "scope",
+    "actor",
+    "source"
+  ],
+  "scope_contract": "settings-scope-contract.json",
+  "registry_contract": "settings-registry.json",
+  "redaction_policy": {
+    "standard": "retain validated before/after values",
+    "sensitive": "store only redaction marker and value type; never persist raw before/after value",
+    "secret": "not permitted in generic settings registry or generic change ledger"
+  },
+  "authority_policy": "actor identity, source surface, role labels and ledger presence never grant authority; runtime authorization remains external",
+  "mutation_policy": "append returns a new frozen ledger array and rejects duplicate event_id values",
+  "next_pass": {
+    "pass": 6,
+    "name": "AI Provider Control Centre"
+  }
+}

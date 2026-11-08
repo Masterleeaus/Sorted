@@ -1,0 +1,13 @@
+{
+  "schema": "titan-zero-storage-finish-pass06-change-impact/v1",
+  "packet_id": "TZ-FINISH-STORAGE-DATA-AUTHORITY-001",
+  "pass": 6,
+  "modified_files": [
+    "apps/web/app/app/capture/pending-queue.ts",
+    "apps/web/app/app/capture/CaptureRecorder.tsx",
+    "apps/web/app/app/capture/page.tsx",
+    "apps/web/app/app/capture/pending-queue.unit.test.ts"
+  ],
+  "impact": "Offline capture retries remain device-first but are now scoped to the authenticated company. No UI design changes, no SQL migration changes, no mass route rewrite.",
+  "compatibility": "Legacy unscoped IndexedDB rows are not deleted or auto-assigned; they remain inaccessible through the new scoped API."
+}

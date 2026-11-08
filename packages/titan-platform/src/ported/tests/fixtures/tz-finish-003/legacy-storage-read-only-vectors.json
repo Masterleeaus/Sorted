@@ -1,0 +1,82 @@
+{
+  "schema": "titan-zero-finish003-read-only-fixtures/v1",
+  "packet_id": "TZ-FINISH-003",
+  "pass": 2,
+  "purpose": "Read-only legacy migration fixtures. These vectors describe source data and expected classification only; loading them must not mutate TitanBusinessDatabase or chrome.storage.local.",
+  "company_context": {
+    "company_id": "company-fixture-a",
+    "actor_id": "system:migration-fixture"
+  },
+  "legacy_storage_vectors": [
+    {"source_key":"conversationList","namespace":"conversations","value":[{"id":"c-1","title":"Legacy chat"}]},
+    {"source_key":"conversationListV2","namespace":"conversations_v2","value":{"items":[{"id":"c-2"}],"version":2}},
+    {"source_key":"conversationIds","namespace":"conversation_ids","value":["c-1","c-2"]},
+    {"source_key":"taskListMap","namespace":"tasks","value":{"t-1":{"title":"Legacy task"}}},
+    {"source_key":"taskOptionsMap","namespace":"task_options","value":{"t-1":{"priority":"high"}}},
+    {"source_key":"localTaskCache","namespace":"work_tasks","value":[{"id":"wt-1","status":"open"}]},
+    {"source_key":"workspaceList","namespace":"workspaces","value":[{"id":"ws-1","name":"Legacy workspace"}]},
+    {"source_key":"memoryV2","namespace":"memory","value":{"entries":[{"id":"m-1","text":"remember me"}]}},
+    {"source_key":"imageHistoryMap","namespace":"image_history","value":{"img-1":{"url":"blob:legacy"}}},
+    {"source_key":"agentDiscoverFeeds","namespace":"agent_discovery","value":[{"id":"agent-1","label":"Legacy agent"}]},
+    {"source_key":"runToolData","namespace":"tool_runs","value":{"run-1":{"tool":"search","ok":true}}},
+    {"source_key":"syncToolData","namespace":"tool_sync","value":{"last_sync":1700000000000}},
+    {"source_key":"lastActiveConversation","namespace":"active_conversation","value":"c-2"},
+    {"source_key":"workflow_config_list","namespace":"workflow_configs","value":[{"id":"wf-1","enabled":true}]}
+  ],
+  "history_vectors": [
+    {
+      "id": "activity-same-company",
+      "domain": "activity",
+      "source_key": "titanBusinessFeed",
+      "record": {"id":"a-1","company_id":"company-fixture-a","title":"Same company"},
+      "expected": {"classification":"eligible","canonical_company_id":"company-fixture-a","entity_id":"a-1"}
+    },
+    {
+      "id": "activity-context-company",
+      "domain": "activity",
+      "source_key": "titanBusinessFeed",
+      "record": {"operation_id":"op-2","context":{"company_id":"company-fixture-a"},"title":"Nested context"},
+      "expected": {"classification":"eligible","canonical_company_id":"company-fixture-a","entity_id":"op-2"}
+    },
+    {
+      "id": "outcome-business-company",
+      "domain": "outcome",
+      "source_key": "titanOutcomeHistory",
+      "record": {"outcome_id":"o-1","business":{"company_id":"company-fixture-a"},"outcome":"Quoted"},
+      "expected": {"classification":"eligible","canonical_company_id":"company-fixture-a","entity_id":"o-1"}
+    },
+    {
+      "id": "foreign-company",
+      "domain": "activity",
+      "source_key": "titanBusinessFeed",
+      "record": {"id":"foreign-1","company_id":"company-fixture-b","title":"Foreign"},
+      "expected": {"classification":"foreign_company_skip"}
+    },
+    {
+      "id": "unscoped-legacy-record",
+      "domain": "activity",
+      "source_key": "titanBusinessFeed",
+      "record": {"id":"unscoped-1","title":"No legacy company marker"},
+      "expected": {"classification":"eligible","canonical_company_id":"company-fixture-a","entity_id":"unscoped-1"}
+    },
+    {
+      "id": "malformed-null",
+      "domain": "activity",
+      "source_key": "titanBusinessFeed",
+      "record": null,
+      "expected": {"classification":"malformed_skip"}
+    },
+    {
+      "id": "malformed-array",
+      "domain": "outcome",
+      "source_key": "titanOutcomeHistory",
+      "record": ["not","a","record"],
+      "expected": {"classification":"malformed_skip"}
+    }
+  ],
+  "negative_vectors": [
+    {"id":"unsupported-key","source_key":"randomLegacyBlob","expected_error":"Unsupported legacy storage key"},
+    {"id":"legacy-tenant-context","context":{"company_id":"company-fixture-a","tenant_id":"legacy-tenant"},"expected_future_pass":"Pass 3 must normalize/reject legacy tenant inputs before persistence or authorization"},
+    {"id":"legacy-tenant-payload","value":{"tenant_company_id":"legacy-tenant","data":"payload"},"expected_future_pass":"Pass 3 must prevent legacy tenant identifiers from becoming canonical authority"}
+  ]
+}

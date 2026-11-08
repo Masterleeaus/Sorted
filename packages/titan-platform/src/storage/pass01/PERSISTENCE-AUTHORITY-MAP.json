@@ -1,0 +1,123 @@
+{
+  "schema": "titan-zero-storage-authority-pass01-map/v1",
+  "packet_id": "TZ-FINISH-STORAGE-DATA-AUTHORITY-001",
+  "pass": 1,
+  "manager_base": {
+    "merge": 52,
+    "artifact": "Titan-Zero-CANONICAL-2026-09-13-MERGE52-QUOTE-AGENT-CONVERGED.zip",
+    "sha256": "ea6c219d40ffbddcbb68e9c9ed741c93568fe12be2e4f09dd69af0b528366d92"
+  },
+  "authoritative_findings": {
+    "existing_web_db_portability_layer": true,
+    "existing_ported_local_primary_business_database": true,
+    "existing_company_scoped_idempotent_local_repository": true,
+    "existing_ported_indexeddb_adapter": true,
+    "existing_migration_corpus": true,
+    "canonical_storage_package_present": false,
+    "api_routes_with_direct_or_near_direct_db_access": 194,
+    "db_migration_files": 186,
+    "browser_local_storage_surfaces_count": 11
+  },
+  "primary_web_db_core": [
+    "apps/web/lib/db.ts",
+    "apps/web/lib/db-contract.ts",
+    "apps/web/lib/db/contracts.ts",
+    "apps/web/lib/db/dialect.ts",
+    "apps/web/lib/db/mysql.ts",
+    "apps/web/lib/db/portable.ts",
+    "apps/web/lib/db/audit.ts"
+  ],
+  "domain_specific_repositories": [
+    "apps/web/lib/estimates/db.ts",
+    "apps/web/lib/estimates/repository.ts",
+    "apps/web/lib/expenses/db.ts",
+    "apps/web/lib/homebox/db.ts",
+    "apps/web/lib/invoices/db.ts",
+    "apps/web/lib/paperless/db.ts",
+    "apps/web/lib/reports/db.ts"
+  ],
+  "browser_local_storage_surfaces": [
+    "apps/web/app/app/capture/pending-queue.ts",
+    "apps/web/app/app/estimates/new/EstimateEntryShell.tsx",
+    "apps/web/app/app/estimates/new/TmBriefingFlow.tsx",
+    "apps/web/app/app/estimates/new/hooks/useEstimateForm.ts",
+    "apps/web/app/app/estimates/new/page.tsx",
+    "apps/web/app/app/jobs/[id]/ProjectCloseoutCoach.tsx",
+    "apps/web/app/app/jobs/[id]/UseTmBriefingButton.tsx",
+    "apps/web/app/app/visits/[id]/assessment/AssessmentForm.tsx",
+    "apps/web/components/AppShell.tsx",
+    "apps/web/components/push/PushPermissionPrompt.tsx",
+    "apps/web/lib/estimates/assessment-context.ts"
+  ],
+  "reusable_retained_storage_implementations": [
+    "packages/titan-platform/src/ported/titan-local/storage/schema.ts",
+    "packages/titan-platform/src/ported/titan-local/storage/indexed-db.ts",
+    "packages/titan-platform/src/ported/titan-local/storage/business-database.ts",
+    "packages/titan-platform/src/ported/titan-local/storage/business-state-authority.ts",
+    "packages/titan-platform/src/ported/titan-local/storage/business-history-reconciliation.ts",
+    "packages/titan-platform/src/ported/titan-local/storage/legacy-company-normalization.ts",
+    "packages/titan-platform/src/ported/titan-local/storage/legacy-storage-bridge.ts",
+    "packages/titan-platform/src/ported/titan-local/storage/legacy-storage-migration.ts",
+    "packages/titan-platform/src/ported/titan-local/storage/bootstrap.ts",
+    "packages/titan-platform/src/ported/titan-settings/control-plane/settings-storage-adapter.ts"
+  ],
+  "db_portability_audit": {
+    "command": "node scripts/db-compat-audit.mjs",
+    "status": "PASS_EXECUTION_WITH_PORTABILITY_GAPS",
+    "remaining_postgres_specific_constructs": {
+      "RETURNING": 99,
+      "ON_CONFLICT": 40,
+      "double_colon_cast": 146,
+      "ILIKE": 2,
+      "ANY": 16,
+      "jsonb": 27,
+      "set_config": 78,
+      "gen_random_uuid": 61
+    }
+  },
+  "risk_map": [
+    {
+      "id": "STORAGE-P1-001",
+      "severity": "P0",
+      "finding": "No standalone packages/titan-platform/src/storage canonical owner exists despite a mature retained Titan local business-database implementation.",
+      "pass_target": 2,
+      "reuse": "Forward-port retained titan-local/storage contracts rather than rewrite."
+    },
+    {
+      "id": "STORAGE-P1-002",
+      "severity": "P0",
+      "finding": "API/database access remains broad and scattered; approximately 194 API route modules touch DB seams directly or near-directly.",
+      "pass_target": 2,
+      "action": "Introduce canonical company-scoped repository boundary incrementally; do not mass-rewrite routes."
+    },
+    {
+      "id": "STORAGE-P1-003",
+      "severity": "P0",
+      "finding": "Database portability audit still reports substantial PostgreSQL-specific SQL constructs.",
+      "pass_target": 3,
+      "action": "Use existing dialect/portable DB layer and fail-closed adapter selection."
+    },
+    {
+      "id": "STORAGE-P1-004",
+      "severity": "P1",
+      "finding": "186 SQL migrations create a large compatibility/idempotency/rollback surface.",
+      "pass_target": 4
+    },
+    {
+      "id": "STORAGE-P1-005",
+      "severity": "P1",
+      "finding": "At least 11 live web surfaces use browser-local storage outside the canonical data layer.",
+      "pass_target": 5,
+      "action": "Classify operational vs ephemeral/UI-only state before migration."
+    }
+  ],
+  "boundary_rules": {
+    "canonical_company_boundary": "company_id",
+    "reject_legacy_tenant_boundaries": true,
+    "identity_grants_authority": false,
+    "device_first": true,
+    "mass_rewrite_prohibited": true,
+    "reuse_first": true
+  },
+  "pass1_result": "AUTHORITATIVE_PERSISTENCE_MAP_COMPLETE"
+}

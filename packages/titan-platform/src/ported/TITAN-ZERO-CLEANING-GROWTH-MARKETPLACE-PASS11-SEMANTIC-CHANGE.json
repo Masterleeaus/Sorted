@@ -1,0 +1,34 @@
+{
+  "schema": "titan-zero-cleaning-growth-pass11/v1",
+  "pass": 11,
+  "title": "Marketplace Adoption & Value Tracking",
+  "manager_forward_port_target": {
+    "merge": 29,
+    "artifact": "Titan-Zero-CANONICAL-MASTER-2026-09-07-MERGE-29-REPAIR06-CONVERGED.zip",
+    "sha256": "3e5520d2495c2a5edde310d12d2b82de399e9277248c1fdfb5cd85df5df9d70b",
+    "files": 2245
+  },
+  "lineage_parent": "Titan-Zero-CLEANING-GROWTH-MARKETPLACE-PASS10-FINAL-CERTIFIED-CUMULATIVE.zip",
+  "company_boundary": "company_id",
+  "authority_effect": false,
+  "added": [
+    "CHANGELOG-CLEANING-GROWTH-MARKETPLACE-PASS11.md",
+    "cleaning-marketplace-value.js",
+    "tests/cleaning_marketplace_value.test.mjs",
+    "titan-modules/cleaning-marketplace-value.json"
+  ],
+  "modified": [
+    "modules.html",
+    "modules.css"
+  ],
+  "deleted": [],
+  "semantic_changes": [
+    "company-entered marketplace adoption evidence",
+    "unused spend detection",
+    "low adoption detection",
+    "potential structural overlap review",
+    "recorded net value calculation",
+    "proven recorded value classification"
+  ],
+  "no_invented_values": true
+}

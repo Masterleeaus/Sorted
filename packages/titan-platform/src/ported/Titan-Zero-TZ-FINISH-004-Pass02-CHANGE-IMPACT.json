@@ -1,0 +1,26 @@
+{
+  "schema": "titan-zero.change-impact/v1",
+  "packet_id": "TZ-FINISH-004",
+  "pass": 2,
+  "modified": [
+    "sidePanel.html",
+    "titan-shell.js",
+    "titan-shell.css"
+  ],
+  "added": [
+    "titan-regression/monica-retriever/tests/finish004-pass02-ai-workspace.test.mjs"
+  ],
+  "protected_surfaces_touched": [
+    "sidePanel.html",
+    "titan-shell.js"
+  ],
+  "retained_functionality_checks": [
+    "Titan tabs retained",
+    "chatTab.html retained as donor conversation runtime",
+    "popup/options/commands/content overlay reachability PASS",
+    "Retriever surfaces PASS",
+    "542 protected runtime hashes PASS"
+  ],
+  "risk": "MEDIUM_UI_REACHABILITY",
+  "rollback": "Apply reverse of this true delta; no data migrations."
+}

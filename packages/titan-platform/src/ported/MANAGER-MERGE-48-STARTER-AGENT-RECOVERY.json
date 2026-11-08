@@ -1,0 +1,38 @@
+{
+  "schema": "titan-zero-manager-recovery/v1",
+  "title": "Starter Workforce Agent Recovery",
+  "base": "Merge47",
+  "canonical_starter_agents": [
+    "Reception Agent",
+    "Sales Agent",
+    "Quote Agent",
+    "Booking Agent",
+    "Scheduling Agent",
+    "Dispatch Agent",
+    "Jobs Agent",
+    "Invoicing Agent",
+    "Customer Care Agent",
+    "Rebooking Agent"
+  ],
+  "recovered_missing": [
+    "Quote Agent",
+    "Scheduling Agent",
+    "Dispatch Agent",
+    "Invoicing Agent"
+  ],
+  "existing_preserved": [
+    "Reception Agent",
+    "Sales Agent",
+    "Booking Agent",
+    "Jobs Agent",
+    "Customer Care Agent",
+    "Rebooking Agent"
+  ],
+  "rules": [
+    "company_id_only",
+    "identity_not_authority",
+    "proposal_or_governed_handoff",
+    "reuse_existing_canonical_truth",
+    "no_parallel_financial_or_dispatch_authority"
+  ]
+}

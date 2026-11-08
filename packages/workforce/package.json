@@ -1,0 +1,26 @@
+{
+  "name": "@titan-zero/workforce-legacy",
+  "private": true,
+  "version": "0.1.0",
+  "description": "RETIRED legacy workforce implementation. Non-authoritative and excluded from the production workspace; production consumers must use services/workforce (@titan-zero/workforce).",
+  "type": "module",
+  "exports": { ".": "./src/index.ts" },
+  "titanZero": {
+    "status": "retired",
+    "production": false,
+    "canonicalOwner": "services/workforce"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:unit": "vitest run"
+  },
+  "dependencies": {
+    "@titan-zero/storage": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "typescript": "^5.7.2",
+    "vitest": "^3.0.5"
+  }
+}

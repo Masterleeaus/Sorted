@@ -1,0 +1,16 @@
+{
+  "schema": "titan-zero-workforce-scheduling-capacity-pass08/v1",
+  "packet_id": "TZ-NEXT-004",
+  "pass": 8,
+  "manager_merge": 46,
+  "implementation": "assignment-offline-restart-runtime.mjs",
+  "behaviors": [
+    "proposal replay returns to review",
+    "accepted state requires explicit acceptance receipt",
+    "duplicate acceptance replay is no-op",
+    "newer revision blocks stale accepted recovery",
+    "state divergence requires reconciliation",
+    "replay never executes effects or grants authority"
+  ],
+  "next_pass": "Run multi-worker/multi-job/high-volume scheduling adversarial scenarios."
+}

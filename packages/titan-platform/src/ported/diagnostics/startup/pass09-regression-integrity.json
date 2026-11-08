@@ -1,0 +1,30 @@
+{
+  "schema": "titan-zero-load-stability-pass09/v1",
+  "packet_id": "TZ-FIX-LOAD-STABILITY-001",
+  "pass": 9,
+  "manager_merge": 39,
+  "chrome_load_regression": {"tests": 43, "passed": 43, "failed": 0},
+  "inherited_failure_comparison": {
+    "baseline_repair_tests": {"tests": 13, "passed": 13, "failed": 0},
+    "current_repair_tests": {"tests": 13, "passed": 13, "failed": 0},
+    "new_inherited_failures": 0
+  },
+  "json_integrity": {"files_checked": 1230, "failures": 0},
+  "syntax_integrity": {
+    "scope": ["diagnostics/startup/**/*.js|mjs", "titan-runtime/**/*.js|mjs"],
+    "files_checked": 101,
+    "failures": 0,
+    "note": "Relevant startup/runtime syntax was checked with node --check. A whole-tree 950-file node --check batch exceeded the execution window; this is recorded rather than misreported."
+  },
+  "manifest_resource_integrity": {
+    "manifest_direct_refs": 14,
+    "html_entrypoints": ["titan-popup.html", "sidePanel.html"],
+    "html_local_refs": 35,
+    "missing": 0
+  },
+  "production_regressions_found": 0,
+  "production_files_changed_in_pass09": 0,
+  "authority_effect": false,
+  "company_boundary_effect": false,
+  "result": "PASS"
+}

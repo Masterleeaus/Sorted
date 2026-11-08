@@ -1,0 +1,36 @@
+{
+  "schema": "titan-cleaning-marketplace-consolidation/v1",
+  "version": "2026.09.07-pass13",
+  "policy": {
+    "company_scoped": true,
+    "company_boundary": "company_id",
+    "advisory_only": true,
+    "structural_overlap_is_not_redundancy": true,
+    "company_entered_dependencies_only": true,
+    "no_automatic_cancellation": true,
+    "no_automatic_removal": true,
+    "no_automatic_migration": true,
+    "authority_effect": false
+  },
+  "dependency_fields": [
+    "critical_dependency_count",
+    "business_critical",
+    "export_ready",
+    "preferred_consolidation_target",
+    "notes"
+  ],
+  "recommendations": [
+    "evidence_needed",
+    "review_overlap",
+    "candidate_for_consolidation",
+    "plan_safe_consolidation",
+    "no_change_supported"
+  ],
+  "authority": {
+    "grants_authority": false,
+    "cancels_products": false,
+    "removes_workers": false,
+    "migrates_data": false,
+    "purchases_replacements": false
+  }
+}

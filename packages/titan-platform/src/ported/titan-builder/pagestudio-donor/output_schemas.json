@@ -1,0 +1,724 @@
+{
+  "schema": "titan-assist-output-schemas-v1",
+  "version": "9.0.0",
+  "schemas": {
+    "default": {
+      "type": "object",
+      "required": [
+        "summary",
+        "missing_information",
+        "next_actions"
+      ],
+      "properties": {
+        "summary": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "missing_information": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "next_actions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "customer_facing": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "internal_notes": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "quote": {
+      "type": "object",
+      "required": [
+        "summary",
+        "scope",
+        "assumptions",
+        "exclusions",
+        "missing_information",
+        "next_actions"
+      ],
+      "properties": {
+        "summary": {
+          "type": "string"
+        },
+        "scope": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "materials": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "labour": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "assumptions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "exclusions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "options": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "missing_information": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "next_actions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "customer_facing": {
+          "type": "string"
+        }
+      }
+    },
+    "field_report": {
+      "type": "object",
+      "required": [
+        "observations",
+        "work_performed",
+        "verification",
+        "missing_information",
+        "next_actions"
+      ],
+      "properties": {
+        "observations": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "work_performed": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "materials_used": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "verification": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "evidence": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "follow_up_required": {
+          "type": "boolean"
+        },
+        "missing_information": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "next_actions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "customer_summary": {
+          "type": "string"
+        }
+      }
+    },
+    "safety": {
+      "type": "object",
+      "required": [
+        "facts",
+        "hazards",
+        "controls",
+        "escalations",
+        "missing_information"
+      ],
+      "properties": {
+        "facts": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "hazards": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "controls": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "evidence": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "escalations": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "missing_information": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "next_actions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "invoice": {
+      "type": "object",
+      "required": [
+        "line_items",
+        "missing_information",
+        "exceptions",
+        "next_actions"
+      ],
+      "properties": {
+        "line_items": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "invoice_description": {
+          "type": "string"
+        },
+        "approved_scope_match": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "exceptions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "missing_information": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "next_actions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "action_request": {
+      "type": "object",
+      "required": [
+        "capability",
+        "proposed_payload",
+        "missing_information",
+        "risk_flags",
+        "execution_status"
+      ],
+      "properties": {
+        "capability": {
+          "type": "string"
+        },
+        "proposed_payload": {
+          "type": "object"
+        },
+        "missing_information": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "conflicts": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "risk_flags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "approval_required": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "execution_status": {
+          "type": "string",
+          "enum": [
+            "proposal_only",
+            "approval_required",
+            "blocked",
+            "ready_for_executor"
+          ]
+        }
+      }
+    },
+    "job_completion": {
+      "type": "object",
+      "required": [
+        "job_summary",
+        "work_completed",
+        "verification",
+        "outstanding_items",
+        "next_actions"
+      ],
+      "properties": {
+        "job_summary": {
+          "type": "string"
+        },
+        "work_completed": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "materials_used": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "verification": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "photo_evidence": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "outstanding_items": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "follow_up_required": {
+          "type": "boolean"
+        },
+        "next_actions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "customer_facing": {
+          "type": "string"
+        }
+      }
+    },
+    "inspection": {
+      "type": "object",
+      "required": [
+        "observations",
+        "findings",
+        "severity",
+        "recommendations",
+        "next_actions"
+      ],
+      "properties": {
+        "observations": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "findings": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "severity": {
+          "type": "string"
+        },
+        "evidence": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "recommendations": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "quote_required": {
+          "type": "boolean"
+        },
+        "next_actions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "work_order": {
+      "type": "object",
+      "required": [
+        "scope",
+        "site",
+        "requirements",
+        "status"
+      ],
+      "properties": {
+        "scope": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "site": {
+          "type": "object"
+        },
+        "requirements": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "assignee": {
+          "type": [
+            "object",
+            "null"
+          ]
+        },
+        "schedule": {
+          "type": [
+            "object",
+            "null"
+          ]
+        },
+        "status": {
+          "type": "string"
+        }
+      }
+    },
+    "variation": {
+      "type": "object",
+      "required": [
+        "reason",
+        "scope_change",
+        "commercial_impact",
+        "approval_status"
+      ],
+      "properties": {
+        "reason": {
+          "type": "string"
+        },
+        "scope_change": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "commercial_impact": {
+          "type": "object"
+        },
+        "approval_status": {
+          "type": "string"
+        },
+        "customer_facing": {
+          "type": "string"
+        }
+      }
+    },
+    "incident": {
+      "type": "object",
+      "required": [
+        "summary",
+        "people",
+        "hazards",
+        "immediate_actions",
+        "escalation"
+      ],
+      "properties": {
+        "summary": {
+          "type": "string"
+        },
+        "people": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "hazards": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "evidence": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "immediate_actions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "escalation": {
+          "type": "object"
+        }
+      }
+    },
+    "maintenance": {
+      "type": "object",
+      "required": [
+        "asset_or_site",
+        "work",
+        "condition",
+        "next_service"
+      ],
+      "properties": {
+        "asset_or_site": {
+          "type": "object"
+        },
+        "work": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "condition": {
+          "type": "string"
+        },
+        "parts": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "next_service": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "recommendations": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "dispatch_plan": {
+      "type": "object",
+      "required": [
+        "date",
+        "assignments",
+        "conflicts",
+        "exceptions"
+      ],
+      "properties": {
+        "date": {
+          "type": "string"
+        },
+        "assignments": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "conflicts": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "exceptions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "optimisation_notes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "customer_message": {
+      "type": "object",
+      "required": [
+        "channel",
+        "message",
+        "intent"
+      ],
+      "properties": {
+        "channel": {
+          "type": "string"
+        },
+        "message": {
+          "type": "string"
+        },
+        "intent": {
+          "type": "string"
+        },
+        "requires_approval": {
+          "type": "boolean"
+        }
+      }
+    },
+    "purchase_order": {
+      "type": "object",
+      "required": [
+        "supplier",
+        "items",
+        "commercials",
+        "approval_status"
+      ],
+      "properties": {
+        "supplier": {
+          "type": "object"
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "commercials": {
+          "type": "object"
+        },
+        "approval_status": {
+          "type": "string"
+        }
+      }
+    },
+    "timesheet": {
+      "type": "object",
+      "required": [
+        "staff",
+        "entries",
+        "total_hours",
+        "exceptions"
+      ],
+      "properties": {
+        "staff": {
+          "type": "object"
+        },
+        "entries": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "total_hours": {
+          "type": "number"
+        },
+        "exceptions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "recurring_service": {
+      "type": "object",
+      "required": [
+        "customer",
+        "service",
+        "frequency",
+        "next_due"
+      ],
+      "properties": {
+        "customer": {
+          "type": "object"
+        },
+        "service": {
+          "type": "object"
+        },
+        "frequency": {
+          "type": "string"
+        },
+        "next_due": {
+          "type": "string"
+        },
+        "schedule_rules": {
+          "type": "object"
+        }
+      }
+    }
+  }
+}

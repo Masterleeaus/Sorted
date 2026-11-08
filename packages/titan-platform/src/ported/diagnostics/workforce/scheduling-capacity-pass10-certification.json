@@ -1,0 +1,18 @@
+{
+  "schema": "titan-zero-workforce-scheduling-capacity-pass10-certification/v1",
+  "packet_id": "TZ-NEXT-004",
+  "pass": 10,
+  "manager_merge": 46,
+  "focused_pass10_tests": "5/5 PASS",
+  "pass09_adversarial": "6/6 PASS",
+  "combined_lane_reconstructed": "47/47 PASS",
+  "effective_full_node_tree": "1530/1530 PASS (1529 direct + booking pass01 rerun with required root)",
+  "json_integrity": "1545/1545 PASS before final metadata",
+  "runtime_syntax": "7/7 PASS",
+  "exact_reconstruction_paths": "3284/3284 PASS before final test addition",
+  "authority_change": false,
+  "automatic_assignment": false,
+  "automatic_reassignment": false,
+  "accepted_state_manufactured": false,
+  "ready_for_manager_merge": true
+}

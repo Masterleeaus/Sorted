@@ -1,0 +1,10 @@
+export type OperationsHealth={schema:"titan.operations-health.v1";company_id:string;observed_at:string;nodes:readonly {node_id:string;status:"online"|"offline"|"degraded";last_seen:string;drift:"none"|"detected";backup:"current"|"stale"|"unknown"}[];remediations:readonly {remediation_id:string;node_id:string;kind:"reconnect"|"reconcile"|"backup";requires_governed_execution:true}[]};
+const req=(v:unknown,n:string)=>{const x=String(v??"").trim();if(!x)throw new Error(`${n}-required`);return x;};
+export function createOperationsHealth(input:{company_id:string;observed_at:string;nodes:Array<{node_id:string;status:OperationsHealth["nodes"][number]["status"];last_seen:string;drift:OperationsHealth["nodes"][number]["drift"];backup:OperationsHealth["nodes"][number]["backup"]}>}):OperationsHealth{
+ req(input.company_id,"company_id"); if(!Number.isFinite(Date.parse(input.observed_at)))throw new Error("observed_at-invalid"); if(!Array.isArray(input.nodes))throw new Error("nodes-required");
+ const ids=input.nodes.map(n=>req(n.node_id,"node_id"));if(new Set(ids).size!==ids.length)throw new Error("node-id-duplicate");
+ const nodes=input.nodes.map(n=>Object.freeze({...n,node_id:req(n.node_id,"node_id"),last_seen:req(n.last_seen,"last_seen")}));
+ const remediations=nodes.flatMap(n=>{const kinds:string[]=[];if(n.status!=="online")kinds.push("reconnect");if(n.drift!=="none")kinds.push("reconcile");if(n.backup!=="current")kinds.push("backup");return kinds.map(kind=>Object.freeze({remediation_id:`${n.node_id}:${kind}`,node_id:n.node_id,kind:kind as "reconnect"|"reconcile"|"backup",requires_governed_execution:true as const}));});
+ return Object.freeze({schema:"titan.operations-health.v1",company_id:req(input.company_id,"company_id"),observed_at:input.observed_at,nodes:Object.freeze(nodes),remediations:Object.freeze(remediations)});
+}
+export function assertOperationsHealthCompany(health:OperationsHealth,company_id:string){if(health.company_id!==req(company_id,"company_id"))throw new Error("operations-company-mismatch");return true;}

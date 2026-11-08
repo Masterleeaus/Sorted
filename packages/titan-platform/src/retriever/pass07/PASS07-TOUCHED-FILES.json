@@ -1,0 +1,15 @@
+{
+  "schema": "titan-zero-pass-touched-files/v1",
+  "pass": 7,
+  "files": [
+    "packages/titan-platform/src/retriever/semantic-retirement.ts",
+    "packages/titan-platform/src/retriever/index.ts",
+    "packages/titan-platform/tests/retriever-native-pass07-retirement-ledger.test.mjs",
+    "packages/titan-platform/src/retriever/pass07/DONOR-RETIREMENT-LEDGER.json",
+    "packages/titan-platform/src/retriever/pass07/PASS07-VERIFICATION.json",
+    "packages/titan-platform/src/retriever/pass07/PASS07-SEMANTIC-CHANGE.json",
+    "packages/titan-platform/src/retriever/pass07/PASS07-CHANGE-IMPACT.json",
+    "packages/titan-platform/src/retriever/pass07/PASS07-COLLISION-RECORD.json",
+    "packages/titan-platform/src/retriever/pass07/PASS07-HANDOFF.json"
+  ]
+}

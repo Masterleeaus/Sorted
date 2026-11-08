@@ -1,0 +1,4 @@
+// @ts-nocheck
+// Ported from Titan Zero extension (portable-core): titan-reliability/quorum-consistency-guard.mjs
+const clean=v=>String(v??'').trim(); const freeze=Object.freeze;
+export function inspectQuorumConsistency({company_id,observations=[]}={}){const c=clean(company_id);if(!c)throw new Error('company_id-required');const hashes=[];for(const o of observations){if(clean(o?.company_id)&&clean(o.company_id)!==c)throw new Error('cross-company:observation');const h=clean(o?.state_hash);if(h&&!hashes.includes(h))hashes.push(h)}hashes.sort();const consistent=hashes.length<=1;return freeze({schema:'titan.reliability.quorum-consistency.v1',company_id:c,consistent,conflicting_hashes:freeze(hashes),requires_explicit_resolution:!consistent,advisory_only:true,authority_effect:false,grants_authority:false,changes_permissions:false,changes_autonomy:false})}

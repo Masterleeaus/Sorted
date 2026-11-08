@@ -1,0 +1,33 @@
+{
+  "schema": "titan-cleaning-scale-readiness/v1",
+  "version": "2026.09.07-pass8",
+  "policy": "Deterministic advisory recommendation from company-scoped planner, commercial assumptions and recorded pilot evidence. Never authorizes rollout, spending, publishing, scheduling or execution.",
+  "controlled_rollout": {
+    "minimum_validated_pilots": 2,
+    "maximum_optimistic_pilots_in_window": 0,
+    "pilot_window": 3,
+    "require_planner_ready_to_sell": true,
+    "require_positive_model_contribution": true,
+    "block_budget_overrun": true,
+    "block_quality_issues": true,
+    "block_customer_issues": true
+  },
+  "broader_rollout": {
+    "minimum_validated_pilots": 4,
+    "pilot_window": 4,
+    "maximum_optimistic_pilots_in_window": 0,
+    "maximum_contribution_spread_percent": 20,
+    "require_all_recent_contributions_positive": true,
+    "require_planner_ready_to_sell": true,
+    "require_positive_model_contribution": true,
+    "block_budget_overrun": true,
+    "block_quality_issues": true,
+    "block_customer_issues": true
+  },
+  "recommendations": [
+    "hold",
+    "run_another_pilot",
+    "ready_controlled_rollout",
+    "ready_broader_rollout"
+  ]
+}

@@ -1,0 +1,42 @@
+{
+  "schema": "titan-zero.universal-workspace-donor-absorption/v1",
+  "manager_parent": 29,
+  "pass": 1,
+  "donor": "Titan-Zero-Universal-Workspace-v3-Pass01-Canonical-Baseline-Reconvergence-FULL-CUMULATIVE.zip",
+  "donor_role": "DONOR_RECOVERY_CONTAINER_NOT_ACTIVE_RELEASE",
+  "absorbed_now": [
+    "secure interface context creation and propagation",
+    "company_id-only context boundary with legacy tenant rejection",
+    "principal roles/capabilities protected from child-context escalation",
+    "capability-gated lazy object-workspace composition",
+    "presentation accessibility audit invariants",
+    "mobile-first responsive audit invariants"
+  ],
+  "donor_sources_used": [
+    "InterfaceContext.php",
+    "InterfaceContextResolver.php",
+    "ObjectWorkspace.php",
+    "ObjectWorkspaceComposer.php",
+    "AccessibilityAuditor.php",
+    "ResponsiveAuditor.php"
+  ],
+  "remaining_unabsorbed_categories": [
+    "offline sync workspace and conflict projection",
+    "working-set workspace composition",
+    "configuration lifecycle workspace",
+    "guidance overlay / attention HUD / focus workspace",
+    "interaction presentation adapter and journey snapshots",
+    "navigation projection",
+    "presentation performance/cache/quality gates",
+    "full component vocabulary and presentation tree policies",
+    "domain/facet/view/action/object/global-work registries",
+    "governance/decision/data/spatial/global-work workspace contracts"
+  ],
+  "delete_gate": "KEEP_DONOR_UNTIL_REMAINING_USEFUL_CAPABILITIES_ARE_ABSORBED_OR_EXPLICITLY_REJECTED",
+  "authority": {
+    "company_boundary": "company_id only",
+    "identity_grants_authority": false,
+    "context_changes_grant_authority": false,
+    "workspace_composition_grants_authority": false
+  }
+}

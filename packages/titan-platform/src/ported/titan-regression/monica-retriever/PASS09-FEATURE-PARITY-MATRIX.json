@@ -1,0 +1,28 @@
+{
+  "schema": "titan-zero-ui-runtime-feature-parity-matrix/v1",
+  "packet_id": "TZ-WP-004",
+  "pass": 9,
+  "status": "STATIC_RUNTIME_PARITY_GATE",
+  "gates": [
+    {"id":"toolbar_popup","expected":"PASS"},
+    {"id":"options_page","expected":"PASS"},
+    {"id":"commands","expected":"PASS"},
+    {"id":"conversation_surface","expected":"PASS"},
+    {"id":"webpage_overlay","expected":"PASS"},
+    {"id":"retriever_first_class_surface","expected":"PASS"},
+    {"id":"retriever_work_bridge_retained","expected":"PASS"},
+    {"id":"retriever_background","expected":"PASS"},
+    {"id":"retriever_offscreen","expected":"PASS"},
+    {"id":"retriever_capability_breadth","expected":"PASS","families":10,"mapped_helpers":35},
+    {"id":"conversation_retriever_handoff","expected":"PASS"},
+    {"id":"asset_reference_integrity","expected":"PASS"},
+    {"id":"locale_parity","expected":"PASS","monica_packs":55,"titan_packs":55},
+    {"id":"protected_runtime_hashes","expected":"PASS","protected_files":542},
+    {"id":"company_id_authority_boundary","expected":"PASS"}
+  ],
+  "browser_smoke": {
+    "status": "BLOCKED_ENVIRONMENT",
+    "reason": "Installed Debian Chromium wrapper launched under Xvfb but did not register the unpacked extension or expose the requested DevTools endpoint; no live-browser PASS is claimed."
+  },
+  "release_rule": "Pass 10 must not claim final production recovery unless all static/runtime gates pass and live unpacked browser smoke is either successfully executed in a capable environment or explicitly retained as a manager-visible blocker."
+}

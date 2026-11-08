@@ -1,0 +1,25 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema",
+  "$id":"titan.workforce.starter.rebooking-governed-outreach.v1",
+  "title":"Rebooking Governed Outreach",
+  "type":"object",
+  "required":["schema","outreach_id","company_id","customer_id","opportunity_id","channel","state","reasons","governance","dispatch_handoff"],
+  "properties":{
+    "schema":{"const":"titan.workforce.starter.rebooking-governed-outreach.v1"},
+    "outreach_id":{"type":"string","minLength":1},
+    "company_id":{"type":"string","minLength":1},
+    "customer_id":{"type":"string","minLength":1},
+    "opportunity_id":{"type":"string","minLength":1},
+    "channel":{"enum":["SMS","EMAIL","WHATSAPP","MESSENGER","TELEGRAM"]},
+    "state":{"enum":["SUPPRESSED","AWAITING_FRESH_AUTHORITY","READY_FOR_DISPATCH_HANDOFF"]},
+    "reasons":{"type":"array","items":{"type":"string"},"uniqueItems":true},
+    "sends_outreach":{"const":false},
+    "creates_booking":{"const":false},
+    "creates_schedule":{"const":false},
+    "changes_authority":{"const":false},
+    "execution_permitted":{"const":false},
+    "grants_authority":{"const":false},
+    "identity_is_authority":{"const":false}
+  },
+  "additionalProperties":true
+}

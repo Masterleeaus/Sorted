@@ -1,0 +1,41 @@
+{
+  "schema": "titan-zero.chrome-load-repair06-rebase/v1",
+  "created_utc": "2026-09-07T10:29:54Z",
+  "agent": "convergence-agent-1",
+  "base": {
+    "artifact": "Titan-Zero-CANONICAL-MASTER-2026-09-07-MERGE-27-AGENT3-RUNTIME-REPAIRS-CONVERGED.zip",
+    "sha256": "aa20b791ec2f9352eeb9506b041b07b59702ef7915463ae72ae29437c977d4a0",
+    "files": 2081,
+    "manager_merge": 27
+  },
+  "merge27_preserved": {
+    "agent3_yjs_manifest": true,
+    "agent3_yjs_test": true,
+    "agent3_workforce_manifest": true,
+    "agent3_workforce_test": true,
+    "workforce_marker_uses_merge27_camelcase": true,
+    "chatTab_hash_source": "manager-merge27-canonical-hash-refresh",
+    "chatTab_hash": "5cc0747a3983b431cc3041d7491faf03786ff6f18d8753953e70dbcb34168071"
+  },
+  "repair06": {
+    "explicit_launch_view_precedence": true,
+    "explicit_ai_target_precedence": true,
+    "titan_popup_startup": "titan-popup.html",
+    "titan_side_panel_startup": "sidePanel.html",
+    "options_host_retained": "monicaOptions.html",
+    "retriever_sha256": "080267be826d81fc9ff1061b24fc2ee92cff37fe4d08dfe5d6d5eba2f2d14ce9",
+    "retriever_hash_source": "retriever-runtime-chrome-instanceid-compat-repair-02-rebased-merge27"
+  },
+  "verification": {
+    "node_full": "948/948 PASS",
+    "python_pytest": "102/102 PASS",
+    "changed_js_syntax": "PASS",
+    "manifest_resources": "PASS",
+    "rendered_chrome": "NOT_CERTIFIED_ENVIRONMENT"
+  },
+  "authority": {
+    "company_boundary": "company_id only",
+    "identity_grants_authority": false,
+    "automatic_authority_change": false
+  }
+}

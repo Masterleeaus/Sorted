@@ -1,0 +1,45 @@
+{
+  "pass": "step-06",
+  "capabilities_added": [
+    "module install preflight validation",
+    "bundle install preflight validation",
+    "transactional installation snapshots",
+    "installation event history",
+    "rollback installation",
+    "automatic failed-install restoration"
+  ],
+  "capabilities_modified": [
+    "declarative module install/update",
+    "bundle install/update",
+    "module enable/disable",
+    "module uninstall",
+    "Modules workspace import and rollback controls"
+  ],
+  "contracts_added": [
+    "TitanModuleInstallerV1"
+  ],
+  "contracts_modified": [
+    "TitanModuleRuntimeV2 host integration"
+  ],
+  "schemas_added": [],
+  "schemas_modified": [],
+  "routes_added": [],
+  "storage_changes": [
+    "titanModuleInstallHistory",
+    "titanModuleInstallSnapshots"
+  ],
+  "migrations_added": [],
+  "permissions_added": [],
+  "authority_changes": [],
+  "offline_changes": [
+    "module installation state and rollback remain chrome.storage.local/device local"
+  ],
+  "breaking_changes": [],
+  "tests_added": [
+    "tests/module_installation_ui.test.mjs",
+    "extended tests/module_host.test.mjs"
+  ],
+  "bugs_fixed": [
+    "module install/update previously persisted without rollback snapshot or preflight workflow"
+  ]
+}

@@ -1,0 +1,20 @@
+import assert from 'node:assert/strict';
+import { routeFeedItemToHumanDecisionSurface, partitionHumanDecisionRouting } from '../feed-human-decision-routing.mjs';
+
+const base={company_id:'co-1',entry_id:'e1',severity:'NORMAL'};
+let r=routeFeedItemToHumanDecisionSurface(base,'co-1');
+assert.equal(r.target_surface,'feed'); assert.equal(r.authority_granted,false); assert.equal(r.execution_permitted,false);
+r=routeFeedItemToHumanDecisionSurface({...base,entry_id:'e2',severity:'URGENT',risk:'high'},'co-1');
+assert.equal(r.target_surface,'decision_feed'); assert.equal(r.human_attention_required,true);
+r=routeFeedItemToHumanDecisionSurface({...base,entry_id:'e3',authority_required:true,packet_id:'p1'},'co-1');
+assert.equal(r.target_surface,'approval_queue'); assert.equal(r.navigation.packet_id,'p1');
+r=routeFeedItemToHumanDecisionSurface({...base,entry_id:'e4',authority_requirement:{company_id:'co-1',authority_required:true,requirement_level:'human_only',authority_requirement_id:'ar1',reason_codes:['critical_or_immediate_risk']}},'co-1');
+assert.equal(r.target_surface,'human_review'); assert.equal(r.authority_requirement_id,'ar1');
+r=routeFeedItemToHumanDecisionSurface({...base,entry_id:'e5',packet_id:'p5'},'co-1');
+assert.equal(r.target_surface,'decision_feed');
+assert.throws(()=>routeFeedItemToHumanDecisionSurface({...base,company_id:'co-2'},'co-1'),/company_mismatch/);
+assert.throws(()=>routeFeedItemToHumanDecisionSurface({...base,tenant_id:'legacy'},'co-1'),/legacy_tenant_field_rejected/);
+assert.throws(()=>routeFeedItemToHumanDecisionSurface({...base,authority_requirement:{company_id:'co-2',authority_required:true}},'co-1'),/company_mismatch/);
+const p=partitionHumanDecisionRouting([base,{...base,entry_id:'x',authority_required:true},{...base,entry_id:'y',severity:'CRITICAL'}],'co-1');
+assert.equal(p.feed.length,1); assert.equal(p.approval_queue.length,1); assert.equal(p.decision_feed.length,1);
+console.log('feed-human-decision-routing: PASS');

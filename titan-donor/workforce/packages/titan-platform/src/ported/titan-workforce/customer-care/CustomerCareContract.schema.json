@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "titan.workforce.customer-care.contract.v1",
+  "title": "Titan Customer Care Contract",
+  "type": "object",
+  "required": ["schema", "company_boundary", "authority_rule", "trigger", "classification", "case_lifecycle", "remediation", "escalation", "review_eligibility", "handoffs"],
+  "properties": {
+    "schema": {"const": "titan.workforce.customer-care.contract.v1"},
+    "company_boundary": {"const": "company_id"},
+    "authority_rule": {"const": "identity_does_not_grant_authority"},
+    "trigger": {"type": "object"},
+    "classification": {"type": "object"},
+    "case_lifecycle": {"type": "object"},
+    "remediation": {"type": "object"},
+    "escalation": {"type": "object"},
+    "review_eligibility": {"type": "object"},
+    "handoffs": {"type": "object"}
+  },
+  "additionalProperties": false
+}

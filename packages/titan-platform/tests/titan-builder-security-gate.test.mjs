@@ -1,0 +1,15 @@
+import test from "node:test";import assert from "node:assert/strict";
+import fs from "node:fs";import vm from "node:vm";
+const src=fs.readFileSync(new URL("../src/titan-builder/security-gate.ts",import.meta.url),"utf8");
+const cert=fs.readFileSync(new URL("../src/titan-builder/surface-certification.ts",import.meta.url),"utf8");
+const command=fs.readFileSync(new URL("../src/titan-builder/command-handoff.ts",import.meta.url),"utf8");
+const lifecycle=fs.readFileSync(new URL("../src/titan-builder/lifecycle.ts",import.meta.url),"utf8");
+test("security source is fail closed and authority free",()=>{for(const token of ["builder_security_company_mismatch","builder_security_surface_mismatch","builder_security_active_content_denied","builder_security_command_stale_revision","builder_security_command_authority_bypass","authority_granted:false","execution_authority:false"])assert.match(src,new RegExp(token.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")));});
+test("security gate composes surface certification",()=>assert.match(src,/assertBuilderSurfaceCertified/));
+test("AI output is sanitized and bounded",()=>{assert.match(src,/sanitizeBuilderProjection/);assert.match(src,/1_000_000/);assert.match(src,/MAX_NODES=500/);assert.match(src,/MAX_DEPTH=32/);});
+test("active content patterns are denied",()=>{for(const token of ["<script","javascript","text\\/html","__proto__"])assert.ok(src.includes(token),`missing ${token}`);});
+test("command handoff still requires published document and downstream auth",()=>{assert.match(command,/builder_action_requires_published_document/);assert.match(command,/requires_downstream_authorization/);assert.match(command,/execution_owner:"command-bus"/);});
+test("lifecycle still rejects stale preview and stale revision",()=>{assert.match(lifecycle,/builder_preview_stale/);assert.match(lifecycle,/builder_lifecycle_stale_revision/);assert.match(lifecycle,/builder_lifecycle_conflict/);});
+test("surface certification still limits primary cards and bindings",()=>{assert.match(cert,/too_many_primary_cards/);assert.match(cert,/surface_data_source_denied/);assert.match(cert,/surface_action_denied/);});
+test("signal boundary rejects company and surface drift and future timestamps",()=>{assert.match(src,/s\.company_id===expected\.company_id/);assert.match(src,/s\.surface===surface/);assert.match(src,/now\+300_000/);});
+test("no local execution primitive introduced",()=>{assert.doesNotMatch(src,/\beval\s*\(|new Function|child_process|execSync|spawn\s*\(/);});

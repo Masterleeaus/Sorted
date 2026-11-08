@@ -1,0 +1,8 @@
+{
+  "schema": "titan-zero-retriever-finish-pass04-semantic-change/v1",
+  "packet_id": "TZ-FINISH-RETRIEVER-NATIVE-001",
+  "pass": 4,
+  "semantic_delta": "Adds a UI-neutral standalone surface bridge mapping chat and workflow events to the native Retriever lifecycle.",
+  "production_behavior_change": "Native surface integration contract is available without replacing existing UI components or invoking extension messaging.",
+  "donor_runtime_required": false
+}

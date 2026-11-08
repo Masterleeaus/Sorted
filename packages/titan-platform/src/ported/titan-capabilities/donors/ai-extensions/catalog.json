@@ -1,0 +1,778 @@
+{
+  "schema": "titan.donor.ai-extensions.catalog.v1",
+  "source_lineage": "AI-Extensions-Lineage-CONSOLIDATED-DEDUPED.zip",
+  "donor_count": 96,
+  "authority_neutral": true,
+  "company_boundary": "company_id",
+  "retirement_policy": "Donor metadata retained; donor runtime shells are not active Titan Zero products.",
+  "entries": [
+    {
+      "donor_id": "AdvancedImage",
+      "name": "Advanced Image",
+      "version": "2.14",
+      "type": "extension",
+      "description": "Advanced Image extension for magicai — TG: @heew_support",
+      "source_path": "canonical/AdvancedImage/extension.json"
+    },
+    {
+      "donor_id": "AIAgent",
+      "name": "AI Agent",
+      "version": "1.1",
+      "type": "extension",
+      "description": "Autonomous AI agent with multi-channel messaging, workflow automation, and user memory — TG: @heew_support",
+      "source_path": "canonical/AIAgent/extension.json"
+    },
+    {
+      "donor_id": "AIAgentGmail",
+      "name": "AI Agent: Gmail",
+      "version": "1.0",
+      "type": "extension",
+      "description": "Integrates Gmail with AIAgent: email reading, composing, and management via Google Gmail API. — TG: @heew_support",
+      "source_path": "canonical/AIAgentGmail/extension.json"
+    },
+    {
+      "donor_id": "AIAgentSlackChannel",
+      "name": "AI Agent: Slack Channel",
+      "version": "1.0",
+      "type": "extension",
+      "description": "Adds Slack channel support to AI Agent via Slack Web API. Requires the AI Agent extension. — TG: @heew_support",
+      "source_path": "canonical/AIAgentSlackChannel/extension.json"
+    },
+    {
+      "donor_id": "AIAgentToolChatbot",
+      "name": "AI Agent Tool: Chatbot",
+      "version": "1.0",
+      "type": "extension",
+      "description": "Bridges AIAgent and Chatbot: enhanced reporting and Auto Tool Calling tools for chatbot and conversation management. — TG: @heew_support",
+      "source_path": "canonical/AIAgentToolChatbot/extension.json"
+    },
+    {
+      "donor_id": "AIAgentToolMarketingBot",
+      "name": "AI Agent Tool: Marketing Bot",
+      "version": "1.0",
+      "type": "extension",
+      "description": "Bridges AIAgent and MarketingBot: enhanced reporting and Auto Tool Calling tools for campaign and conversation management. — TG: @heew_support",
+      "source_path": "canonical/AIAgentToolMarketingBot/extension.json"
+    },
+    {
+      "donor_id": "AIAgentToolSocialMediaAgent",
+      "name": "AI Agent Tool: Social Media Agent",
+      "version": "1.0",
+      "type": "extension",
+      "description": "Bridges AIAgent and SocialMediaAgent: enhanced reporting and Auto Tool Calling tools for social media management. — TG: @heew_support",
+      "source_path": "canonical/AIAgentToolSocialMediaAgent/extension.json"
+    },
+    {
+      "donor_id": "AIAgentWhatsappChannel",
+      "name": "AI Agent: WhatsApp Channel",
+      "version": "1.0",
+      "type": "extension",
+      "description": "Adds WhatsApp channel support to AI Agent via Meta Cloud API. Requires the AI Agent extension. — TG: @heew_support",
+      "source_path": "canonical/AIAgentWhatsappChannel/extension.json"
+    },
+    {
+      "donor_id": "AiAvatar",
+      "name": "AI Avatar",
+      "version": "2.5",
+      "type": "extension",
+      "description": "AI Avatar extension for magicai — TG: @heew_support",
+      "source_path": "canonical/AiAvatar/extension.json"
+    },
+    {
+      "donor_id": "AiCaptions",
+      "name": "AI Captions",
+      "version": "1.2",
+      "type": "extension",
+      "description": "AI Captions extension for magicai — automatically add stylized animated captions to videos via the Captions API. — TG: @heew_support",
+      "source_path": "canonical/AiCaptions/extension.json"
+    },
+    {
+      "donor_id": "AIChatPro",
+      "name": "AIChatPro",
+      "version": "3.7",
+      "type": "extension",
+      "description": "AIChatPro extension for MagicAI — TG: @heew_support",
+      "source_path": "canonical/AIChatPro/extension.json"
+    },
+    {
+      "donor_id": "AIChatProDeepResearch",
+      "name": "AI Chat Pro Deep Research",
+      "version": "1.3",
+      "type": "extension",
+      "description": "Deep Research extension for AI Chat Pro using OpenAI and Gemini deep research APIs — TG: @heew_support",
+      "source_path": "canonical/AIChatProDeepResearch/extension.json"
+    },
+    {
+      "donor_id": "AiChatProEntityHighlight",
+      "name": "AI Chat Pro Entity Highlight",
+      "version": "1.3",
+      "type": "extension",
+      "description": "Clickable entity highlights in AI Chat Pro responses with side drawer details — TG: @heew_support",
+      "source_path": "canonical/AiChatProEntityHighlight/extension.json"
+    },
+    {
+      "donor_id": "AIChatProFileChat",
+      "name": "AIChatProFileChat",
+      "version": "1.4",
+      "type": "extension",
+      "description": "AIChatProFileChat extension for MagicAI — TG: @heew_support",
+      "source_path": "canonical/AIChatProFileChat/extension.json"
+    },
+    {
+      "donor_id": "AIChatProFolders",
+      "name": "AI Chat Pro Folders",
+      "version": "1.4",
+      "type": "extension",
+      "description": "AI Chat Pro Folders extension for MagicAI — TG: @heew_support",
+      "source_path": "canonical/AIChatProFolders/extension.json"
+    },
+    {
+      "donor_id": "AiChatProHighlightToAsk",
+      "name": "AI Chat Pro Highlight to Ask",
+      "version": "1.1",
+      "type": "extension",
+      "description": "Highlight any text in AI Chat Pro to quickly ask follow-up questions about it — TG: @heew_support",
+      "source_path": "canonical/AiChatProHighlightToAsk/extension.json"
+    },
+    {
+      "donor_id": "AIChatProSkills",
+      "name": "AI Chat Pro Skills",
+      "version": "1.1",
+      "type": "extension",
+      "description": "AI Chat Pro Skills extension for MagicAI - Add reusable AI skills to chat — TG: @heew_support",
+      "source_path": "canonical/AIChatProSkills/extension.json"
+    },
+    {
+      "donor_id": "AiChatProSmartImage",
+      "name": "AI Chat Pro Smart Image",
+      "version": "1.2",
+      "type": "extension",
+      "description": "AI Chat Pro Smart Image extension for MagicAI — TG: @heew_support",
+      "source_path": "canonical/AiChatProSmartImage/extension.json"
+    },
+    {
+      "donor_id": "AIImagePro",
+      "name": "AIImagePro",
+      "version": "1.8",
+      "type": "extension",
+      "description": "AIImagePro extension for magicai — TG: @heew_support",
+      "source_path": "canonical/AIImagePro/extension.json"
+    },
+    {
+      "donor_id": "AiMusic",
+      "name": "AI Music",
+      "version": "1.5",
+      "type": "extension",
+      "description": "AI Music extension for MagicAI — TG: @heew_support",
+      "source_path": "canonical/AiMusic/extension.json"
+    },
+    {
+      "donor_id": "AiMusicPro",
+      "name": "AiMusicPro",
+      "version": "1.7",
+      "type": "extension",
+      "description": "AiMusicPro extension for magicai — TG: @heew_support",
+      "source_path": "canonical/AiMusicPro/extension.json"
+    },
+    {
+      "donor_id": "AiPersona",
+      "name": "AI Persona",
+      "version": "2.9",
+      "type": "extension",
+      "description": "AI Persona extension for magicai — TG: @heew_support",
+      "source_path": "canonical/AiPersona/extension.json"
+    },
+    {
+      "donor_id": "AIPhotoshoot",
+      "name": "AIPhotoshoot",
+      "version": "1.2",
+      "type": "extension",
+      "description": "AIPhotoshoot extension for magicai — TG: @heew_support",
+      "source_path": "canonical/AIPhotoshoot/extension.json"
+    },
+    {
+      "donor_id": "AIPlagiarism",
+      "name": "AI Plagiarism",
+      "version": "2.2",
+      "type": "extension",
+      "description": "AI Plagiarism extension for magicai — TG: @heew_support",
+      "source_path": "canonical/AIPlagiarism/extension.json"
+    },
+    {
+      "donor_id": "AiPresentation",
+      "name": "AI Presentation",
+      "version": "1.4",
+      "type": "extension",
+      "description": "AI Presentation extension for MagicAI — TG: @heew_support",
+      "source_path": "canonical/AiPresentation/extension.json"
+    },
+    {
+      "donor_id": "AIRealtimeImage",
+      "name": "AI Realtime Image",
+      "version": "1.14",
+      "type": "extension",
+      "description": "AI Realtime Image extension for magicai — TG: @heew_support",
+      "source_path": "canonical/AIRealtimeImage/extension.json"
+    },
+    {
+      "donor_id": "AISocialMedia",
+      "name": "AI Social Media",
+      "version": "4.12",
+      "type": "extension",
+      "description": "AI Social Media extension for magicai — TG: @heew_support",
+      "source_path": "canonical/AISocialMedia/extension.json"
+    },
+    {
+      "donor_id": "AiVideoPro",
+      "name": "AI Avatar Pro",
+      "version": "3.6",
+      "type": "extension",
+      "description": "AI Avatar Pro extension for magicai — TG: @heew_support",
+      "source_path": "canonical/AiVideoPro/extension.json"
+    },
+    {
+      "donor_id": "AIVideoToVideo",
+      "name": "Video to Video",
+      "version": "1.6",
+      "type": "extension",
+      "description": "Video to Video extension for magicai — TG: @heew_support",
+      "source_path": "canonical/AIVideoToVideo/extension.json"
+    },
+    {
+      "donor_id": "AiViralClips",
+      "name": "Example",
+      "version": "1.5",
+      "type": "extension",
+      "description": "Example extension for magicai — TG: @heew_support",
+      "source_path": "canonical/AiViralClips/extension.json"
+    },
+    {
+      "donor_id": "AIVoiceIsolator",
+      "name": "AI Voice Isolator",
+      "version": "2.3",
+      "type": "extension",
+      "description": "AI Voice Isolator extension for magicai — TG: @heew_support",
+      "source_path": "canonical/AIVoiceIsolator/extension.json"
+    },
+    {
+      "donor_id": "AIWebChat",
+      "name": "AI Web Chat",
+      "version": "2.9",
+      "type": "extension",
+      "description": "AI Web Chat extension for magicai — TG: @heew_support",
+      "source_path": "canonical/AIWebChat/extension.json"
+    },
+    {
+      "donor_id": "AIWriterTemplates",
+      "name": "AI Writer Templates",
+      "version": "2.1",
+      "type": "extension",
+      "description": "AI Writer Templates extension for magicai — TG: @heew_support",
+      "source_path": "canonical/AIWriterTemplates/extension.json"
+    },
+    {
+      "donor_id": "Announcement",
+      "name": "Announcement",
+      "version": "1.7",
+      "type": "extension",
+      "description": "Announcement extension for magicai — TG: @heew_support",
+      "source_path": "canonical/Announcement/extension.json"
+    },
+    {
+      "donor_id": "AzureOpenai",
+      "name": "Example",
+      "version": "1.5",
+      "type": "extension",
+      "description": "Example extension for MagicAI — TG: @heew_support",
+      "source_path": "canonical/AzureOpenai/extension.json"
+    },
+    {
+      "donor_id": "AzureTTS",
+      "name": "Azure TTS",
+      "version": "2.2",
+      "type": "extension",
+      "description": "Azure TTS extension for magicai — TG: @heew_support",
+      "source_path": "canonical/AzureTTS/extension.json"
+    },
+    {
+      "donor_id": "BlogPilot",
+      "name": "BlogPilot",
+      "version": "1.4",
+      "type": "extension",
+      "description": "BlogPilot extension for magicai — TG: @heew_support",
+      "source_path": "canonical/BlogPilot/extension.json"
+    },
+    {
+      "donor_id": "Canvas",
+      "name": "AI Chat Pro canvas",
+      "version": "1.11",
+      "type": "extension",
+      "description": "AI Chat Pro canvas extension for magicai — TG: @heew_support",
+      "source_path": "canonical/Canvas/extension.json"
+    },
+    {
+      "donor_id": "Chatbot",
+      "name": "Chatbot",
+      "version": "6.9.0-unified-ai-shell",
+      "type": "extension",
+      "description": "Unified Titan Zero chatbot with template-aware 14-app shell, offline WorkCore PWA, shared five-tier AI convergence, 28 Tier-2 assistants, expanded Tier-3 agents, governance, generative UI, staff inbox, team chat and business channels.",
+      "source_path": "canonical/Chatbot/extension.json"
+    },
+    {
+      "donor_id": "ChatbotAgent",
+      "name": "Chatbot agent",
+      "version": "2.10",
+      "type": "extension",
+      "description": "Chatbot agent extension for magicai — TG: @heew_support",
+      "source_path": "canonical/ChatbotAgent/extension.json"
+    },
+    {
+      "donor_id": "ChatbotBooking",
+      "name": "Booking for External Chatbot",
+      "version": "1.0.0",
+      "type": "extension",
+      "description": "Chatbot booking extension for magicai — TG: @heew_support",
+      "source_path": "canonical/ChatbotBooking/extension.json"
+    },
+    {
+      "donor_id": "ChatbotCustomerTag",
+      "name": "ChatbotCustomerTag",
+      "version": "1.0.0",
+      "type": "extension",
+      "description": "Customer tag management tools for chatbot conversations — TG: @heew_support",
+      "source_path": "canonical/ChatbotCustomerTag/extension.json"
+    },
+    {
+      "donor_id": "ChatbotEcommerce",
+      "name": "Ecommerce for External Chatbot",
+      "version": "1.0.0",
+      "type": "extension",
+      "description": "Chatbot ecommerce extension for magicai — TG: @heew_support",
+      "source_path": "canonical/ChatbotEcommerce/extension.json"
+    },
+    {
+      "donor_id": "ChatbotReview",
+      "name": "ChatbotReview",
+      "version": "1.0.0",
+      "type": "extension",
+      "description": "Adds review and feedback configuration to the Chatbot extension. — TG: @heew_support",
+      "source_path": "canonical/ChatbotReview/extension.json"
+    },
+    {
+      "donor_id": "ChatbotVoice",
+      "name": "External Voice Chatbot",
+      "version": "2.3",
+      "type": "extension",
+      "description": "external voice chatbot extension for magicai — TG: @heew_support",
+      "source_path": "canonical/ChatbotVoice/extension.json"
+    },
+    {
+      "donor_id": "ChatbotVoiceCall",
+      "name": "Chatbot Voice Call",
+      "version": "1.1",
+      "type": "extension",
+      "description": "Voice call for chatbot — TG: @heew_support",
+      "source_path": "canonical/ChatbotVoiceCall/extension.json"
+    },
+    {
+      "donor_id": "ChatProTempChat",
+      "name": "ChatProTempChat",
+      "version": "1.4",
+      "type": "extension",
+      "description": "ChatProTempChat extension for MagicAI — TG: @heew_support",
+      "source_path": "canonical/ChatProTempChat/extension.json"
+    },
+    {
+      "donor_id": "ChatSetting",
+      "name": "Chat Setting",
+      "version": "3.3",
+      "type": "extension",
+      "description": "Chat Setting extension for magicai — TG: @heew_support",
+      "source_path": "canonical/ChatSetting/extension.json"
+    },
+    {
+      "donor_id": "ChatShare",
+      "name": "Chat share",
+      "version": "2.7",
+      "type": "extension",
+      "description": "Chat share extension for magicai — TG: @heew_support",
+      "source_path": "canonical/ChatShare/extension.json"
+    },
+    {
+      "donor_id": "CheckoutRegistration",
+      "name": "Checkout Registration",
+      "version": "1.5",
+      "type": "extension",
+      "description": "Registration with checkout process extension for MagicAI — TG: @heew_support",
+      "source_path": "canonical/CheckoutRegistration/extension.json"
+    },
+    {
+      "donor_id": "Cloudflare",
+      "name": "Cloudflare R2",
+      "version": "3.3",
+      "type": "extension",
+      "description": "Cloudflare R2 extension for magicai — TG: @heew_support",
+      "source_path": "canonical/Cloudflare/extension.json"
+    },
+    {
+      "donor_id": "ContentManager",
+      "name": "ContentManager",
+      "version": "1.6",
+      "type": "extension",
+      "description": "ContentManager extension for magicai — TG: @heew_support",
+      "source_path": "canonical/ContentManager/extension.json"
+    },
+    {
+      "donor_id": "CreativeSuite",
+      "name": "Creative Suite",
+      "version": "1.15",
+      "type": "extension",
+      "description": "Creative Suite extension for magicai — TG: @heew_support",
+      "source_path": "canonical/CreativeSuite/extension.json"
+    },
+    {
+      "donor_id": "CreativeSuiteAITemplate",
+      "name": "Creative Suite AI Template",
+      "version": "1.2",
+      "type": "extension",
+      "description": "AI-powered template generation for Creative Suite — TG: @heew_support",
+      "source_path": "canonical/CreativeSuiteAITemplate/extension.json"
+    },
+    {
+      "donor_id": "CreativeSuiteAnnotations",
+      "name": "Creative Suite Annotations",
+      "version": "1.1",
+      "type": "extension",
+      "description": "Annotation mode for Creative Suite — mark regions and submit targeted AI edits with a per-region prompt. — TG: @heew_support",
+      "source_path": "canonical/CreativeSuiteAnnotations/extension.json"
+    },
+    {
+      "donor_id": "Cryptomus",
+      "name": "Cryptomus",
+      "version": "3.3",
+      "type": "extension",
+      "description": "Cryptomus extension for magicai — TG: @heew_support",
+      "source_path": "canonical/Cryptomus/extension.json"
+    },
+    {
+      "donor_id": "DiscountManager",
+      "name": "Discount Manager",
+      "version": "1.4",
+      "type": "extension",
+      "description": "Discount Manager extension for magicai — TG: @heew_support",
+      "source_path": "canonical/DiscountManager/extension.json"
+    },
+    {
+      "donor_id": "ElevenLabsVoiceChat",
+      "name": "Elevenlabs Voice Chat",
+      "version": "1.7",
+      "type": "extension",
+      "description": "Elevenlabs voice chat extension for magicai — TG: @heew_support",
+      "source_path": "canonical/ElevenLabsVoiceChat/extension.json"
+    },
+    {
+      "donor_id": "FashionStudio",
+      "name": "FashionStudio",
+      "version": "1.7",
+      "type": "extension",
+      "description": "FashionStudio extension for magicai — TG: @heew_support",
+      "source_path": "canonical/FashionStudio/extension.json"
+    },
+    {
+      "donor_id": "FluxPro",
+      "name": "Flux pro",
+      "version": "2.5",
+      "type": "extension",
+      "description": "Flux pro extension for magicai — TG: @heew_support",
+      "source_path": "canonical/FluxPro/extension.json"
+    },
+    {
+      "donor_id": "FocusMode",
+      "name": "Focus Mode",
+      "version": "2.5",
+      "type": "extension",
+      "description": "Focus Mode extension for magicai — TG: @heew_support",
+      "source_path": "canonical/FocusMode/extension.json"
+    },
+    {
+      "donor_id": "Hubspot",
+      "name": "Hubspot",
+      "version": "2.1",
+      "type": "extension",
+      "description": "Hubspot extension for magicai — TG: @heew_support",
+      "source_path": "canonical/Hubspot/extension.json"
+    },
+    {
+      "donor_id": "InfluencerAvatar",
+      "name": "Influencer Avatar",
+      "version": "1.6",
+      "type": "extension",
+      "description": "Influencer Avatar extension for magicai — TG: @heew_support",
+      "source_path": "canonical/InfluencerAvatar/extension.json"
+    },
+    {
+      "donor_id": "Introduction",
+      "name": "Introductions",
+      "version": "2.0.0",
+      "type": "extension",
+      "description": "Introductions extension for magicai — TG: @heew_support",
+      "source_path": "canonical/Introduction/extension.json"
+    },
+    {
+      "donor_id": "LiveCustomizer",
+      "name": "Live Customizer",
+      "version": "1.5",
+      "type": "extension",
+      "description": "Live Customizer extension for magicai — TG: @heew_support",
+      "source_path": "canonical/LiveCustomizer/extension.json"
+    },
+    {
+      "donor_id": "Mailchimp",
+      "name": "Mailchimp",
+      "version": "2.1",
+      "type": "extension",
+      "description": "Mailchimp extension for magicai — TG: @heew_support",
+      "source_path": "canonical/Mailchimp/extension.json"
+    },
+    {
+      "donor_id": "Maintenance",
+      "name": "Maintenance",
+      "version": "2.4",
+      "type": "extension",
+      "description": "Maintenance extension for magicai — TG: @heew_support",
+      "source_path": "canonical/Maintenance/extension.json"
+    },
+    {
+      "donor_id": "MarketingBot",
+      "name": "Marketing bot",
+      "version": "3.0",
+      "type": "extension",
+      "description": "Marketing bot extension for magicai — TG: @heew_support",
+      "source_path": "canonical/MarketingBot/extension.json"
+    },
+    {
+      "donor_id": "MegaMenu",
+      "name": "Mega menu",
+      "version": "1.4",
+      "type": "extension",
+      "description": "Mega menu extension for magicai — TG: @heew_support",
+      "source_path": "canonical/MegaMenu/extension.json"
+    },
+    {
+      "donor_id": "Menu",
+      "name": "Menu",
+      "version": "3.0",
+      "type": "extension",
+      "description": "Menu extension for magicai — TG: @heew_support",
+      "source_path": "canonical/Menu/extension.json"
+    },
+    {
+      "donor_id": "Midjourney",
+      "name": "Midjourney",
+      "version": "2.6",
+      "type": "extension",
+      "description": "Midjourney extension for magicai — TG: @heew_support",
+      "source_path": "canonical/Midjourney/extension.json"
+    },
+    {
+      "donor_id": "Migration",
+      "name": "Migration",
+      "version": "1.4",
+      "type": "extension",
+      "description": "Migration extension for magicai — TG: @heew_support",
+      "source_path": "canonical/Migration/extension.json"
+    },
+    {
+      "donor_id": "ModelCouncil",
+      "name": "ModelCouncil",
+      "version": "1.5",
+      "type": "extension",
+      "description": "Model Council extension for MagicAI — TG: @heew_support",
+      "source_path": "canonical/ModelCouncil/extension.json"
+    },
+    {
+      "donor_id": "MultiModel",
+      "name": "MultiModel",
+      "version": "1.3",
+      "type": "extension",
+      "description": "MultiModel extension for MagicAI — TG: @heew_support",
+      "source_path": "canonical/MultiModel/extension.json"
+    },
+    {
+      "donor_id": "NanoBanana",
+      "name": "Nano Banana",
+      "version": "1.6",
+      "type": "extension",
+      "description": "Nano Banana extension for magicai — TG: @heew_support",
+      "source_path": "canonical/NanoBanana/extension.json"
+    },
+    {
+      "donor_id": "Newsletter",
+      "name": "Newsletter",
+      "version": "2.1",
+      "type": "extension",
+      "description": "Newsletter extension for magicai — TG: @heew_support",
+      "source_path": "canonical/Newsletter/extension.json"
+    },
+    {
+      "donor_id": "OnboardingPro",
+      "name": "Onboarding Pro",
+      "version": "1.5",
+      "type": "extension",
+      "description": "Onboarding Pro extension for magicai — TG: @heew_support",
+      "source_path": "canonical/OnboardingPro/extension.json"
+    },
+    {
+      "donor_id": "OpenAIRealtimeChat",
+      "name": "OpenAI realtime chat",
+      "version": "1.10",
+      "type": "extension",
+      "description": "OpenAI realtime chat extension for magicai — TG: @heew_support",
+      "source_path": "canonical/OpenAIRealtimeChat/extension.json"
+    },
+    {
+      "donor_id": "OpenRouter",
+      "name": "Open Router",
+      "version": "1.2",
+      "type": "extension",
+      "description": "Open Router extension for magicai — TG: @heew_support",
+      "source_path": "canonical/OpenRouter/extension.json"
+    },
+    {
+      "donor_id": "Perplexity",
+      "name": "Perplexity",
+      "version": "1.1",
+      "type": "extension",
+      "description": "Perplexity extension for magicai — TG: @heew_support",
+      "source_path": "canonical/Perplexity/extension.json"
+    },
+    {
+      "donor_id": "PhoneCallAgent",
+      "name": "Phone Call Agent",
+      "version": "1.0",
+      "type": "extension",
+      "description": "Inbound AI phone call agent using Twilio or ElevenLabs — TG: @heew_support",
+      "source_path": "canonical/PhoneCallAgent/extension.json"
+    },
+    {
+      "donor_id": "ProductPhotography",
+      "name": "Product Photography",
+      "version": "2.6",
+      "type": "extension",
+      "description": "Product Photography extension for magicai — TG: @heew_support",
+      "source_path": "canonical/ProductPhotography/extension.json"
+    },
+    {
+      "donor_id": "SeeDreamV4",
+      "name": "SeeDream4",
+      "version": "1.3",
+      "type": "extension",
+      "description": "SeeDream4 extension for magicai — TG: @heew_support",
+      "source_path": "canonical/SeeDreamV4/extension.json"
+    },
+    {
+      "donor_id": "SEOTool",
+      "name": "SEO tool",
+      "version": "3.6",
+      "type": "extension",
+      "description": "SEO tool extension for magicai — TG: @heew_support",
+      "source_path": "canonical/SEOTool/extension.json"
+    },
+    {
+      "donor_id": "SocialMedia",
+      "name": "AI Social Media Pro",
+      "version": "5.13",
+      "type": "extension",
+      "description": "AI Social Media Pro extension for magicai — TG: @heew_support",
+      "source_path": "canonical/SocialMedia/extension.json"
+    },
+    {
+      "donor_id": "SocialMediaAgent",
+      "name": "Social Media Agent",
+      "version": "1.10",
+      "type": "extension",
+      "description": "Social Media Agent extension for magicai — TG: @heew_support",
+      "source_path": "canonical/SocialMediaAgent/extension.json"
+    },
+    {
+      "donor_id": "SocialMediaAutomation",
+      "name": "Social Media Automation",
+      "version": "1.1",
+      "type": "extension",
+      "description": "Comment & DM automation for social media platforms — TG: @heew_support",
+      "source_path": "canonical/SocialMediaAutomation/extension.json"
+    },
+    {
+      "donor_id": "TitanMapsIntelligence",
+      "name": "Titan Maps Intelligence",
+      "version": "1.0.0",
+      "type": "integration",
+      "description": "Provider-neutral business discovery, place intelligence, provider sourcing, candidate governance and WorkCore promotion for Titan Zero.",
+      "source_path": "canonical/TitanMapsIntelligence/extension.json"
+    },
+    {
+      "donor_id": "TitanZeroChatbot",
+      "name": "Chatbot",
+      "version": "6.9.0-unified-ai-shell",
+      "type": "extension",
+      "description": "Unified Titan Zero chatbot with template-aware 14-app shell, offline WorkCore PWA, shared five-tier AI convergence, 28 Tier-2 assistants, expanded Tier-3 agents, governance, generative UI, staff inbox, team chat and business channels.",
+      "source_path": "canonical/TitanZeroChatbot/extension.json"
+    },
+    {
+      "donor_id": "UGCCreator",
+      "name": "UGCCreator",
+      "version": "1.2",
+      "type": "extension",
+      "description": "UGC Creator extension for magicai — TG: @heew_support",
+      "source_path": "canonical/UGCCreator/extension.json"
+    },
+    {
+      "donor_id": "UGCFactory",
+      "name": "UGCFactory",
+      "version": "1.1",
+      "type": "extension",
+      "description": "UGC Factory extension for magicai — TG: @heew_support",
+      "source_path": "canonical/UGCFactory/extension.json"
+    },
+    {
+      "donor_id": "UrlToVideo",
+      "name": "URL to Video AD",
+      "version": "1.9",
+      "type": "extension",
+      "description": "URL to Video AD extension for magicai — TG: @heew_support",
+      "source_path": "canonical/UrlToVideo/extension.json"
+    },
+    {
+      "donor_id": "VideoDubbing",
+      "name": "Video Dubbing",
+      "version": "1.2",
+      "type": "extension",
+      "description": "AI Video Dubbing extension for translating and dubbing videos into multiple languages using HeyGen and ElevenLabs. — TG: @heew_support",
+      "source_path": "canonical/VideoDubbing/extension.json"
+    },
+    {
+      "donor_id": "VideoEditor",
+      "name": "Video Editor",
+      "version": "1.0",
+      "type": "extension",
+      "description": "Timeline-based multi-track video editor with AI generation, drag-and-drop editing, and server-side export. — TG: @heew_support",
+      "source_path": "canonical/VideoEditor/extension.json"
+    },
+    {
+      "donor_id": "Wordpress",
+      "name": "Wordpress",
+      "version": "3.5",
+      "type": "extension",
+      "description": "Wordpress extension for magicai — TG: @heew_support",
+      "source_path": "canonical/Wordpress/extension.json"
+    },
+    {
+      "donor_id": "Xero",
+      "name": "Xero",
+      "version": "1.1",
+      "type": "extension",
+      "description": "Xero extension for the API Platform — TG: @heew_support",
+      "source_path": "canonical/Xero/extension.json"
+    }
+  ]
+}

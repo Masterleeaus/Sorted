@@ -1,0 +1,24 @@
+{
+  "schema": "titan-zero-offline-pass04-verification/v1",
+  "workspace": "Builder 3",
+  "packet_id": "TZ-FINISH-OFFLINE-RESILIENCE-001",
+  "pass": 4,
+  "status": "PASS_COMPLETE_CONTINUE",
+  "checks": {
+    "typecheck": "PASS",
+    "fresh_compile": "PASS",
+    "full_titan_platform_suite": "98/98 PASS",
+    "snapshot_company_scope": "PASS",
+    "remote_newer_clean_local": "PASS",
+    "dirty_local_remote_newer": "EXPLICIT_CONFLICT",
+    "remote_stale": "IGNORED",
+    "same_revision_divergence": "EXPLICIT_CONFLICT",
+    "stale_generation": "REJECTED_WITHOUT_APPLY",
+    "duplicate_record_one_pull": "FAIL_CLOSED",
+    "cross_company": "FAIL_CLOSED",
+    "legacy_alias": "FAIL_CLOSED",
+    "restart_cursor_generation_persistence": "PASS",
+    "server_grants_authority": false
+  },
+  "next_gate": "Pass 5: app/service-worker restart recovery and interrupted-work continuation."
+}

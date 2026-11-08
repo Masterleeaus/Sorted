@@ -1,0 +1,17 @@
+{
+  "schema":"titan-zero-semantic-change/v1",
+  "pass":4,
+  "title":"Cleaning Service Launch Planner",
+  "changes":[
+    "Adds eight-stage cleaning service launch progression linked to existing opportunity intelligence.",
+    "Computes automatic coverage gates from known Marketplace/Workforce readiness only.",
+    "Requires explicit manual confirmation for service-specific training/compliance, pilot, quote/scope, delivery standard and first-job completion gates.",
+    "Adds target launch date, launch notes, blockers, first-job reference and completion state.",
+    "Exports advisory plan status with grants_authority:false, publishes_service:false and executes_work:false."
+  ],
+  "company_boundary":"company_id only",
+  "authority_effect":false,
+  "automatic_purchase":false,
+  "automatic_publish":false,
+  "automatic_execution":false
+}

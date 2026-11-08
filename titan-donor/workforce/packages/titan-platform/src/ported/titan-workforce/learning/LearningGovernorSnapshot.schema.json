@@ -1,0 +1,12 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema",
+  "$id":"titan.learning.governor.v1",
+  "title":"Titan Learning Governor",
+  "type":"object",
+  "required":["company_id","authority_effect","grants_authority"],
+  "properties":{
+    "company_id":{"type":"string","minLength":2},
+    "authority_effect":{"const":false},
+    "grants_authority":{"const":false}
+  }
+}

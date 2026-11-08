@@ -1,0 +1,19 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema",
+  "$id":"titan.zero.reception.pending-handoff.v1",
+  "title":"Titan Zero Reception Pending Handoff",
+  "type":"object",
+  "required":["schema","company_id","handoff_id","dedupe_key","packet","status","attempt_count","replay_policy","authority_granted","execution_permitted"],
+  "properties":{
+    "schema":{"const":"titan.zero.reception.pending-handoff/v1"},
+    "company_id":{"type":"string","minLength":1},
+    "handoff_id":{"type":"string","minLength":1},
+    "dedupe_key":{"type":"string","minLength":1},
+    "status":{"enum":["pending","dispatching","dispatched","dispatch_unknown","failed","rejected","acknowledged","completed","declined","cancelled"]},
+    "attempt_count":{"type":"integer","minimum":0},
+    "replay_policy":{"const":"same_dedupe_key_only"},
+    "authority_granted":{"const":false},
+    "execution_permitted":{"const":false}
+  },
+  "additionalProperties":true
+}

@@ -1,0 +1,57 @@
+{
+  "schema": "titan-zero-autonomy-settings-centre-contract/v1",
+  "pass": 11,
+  "status": "IMPLEMENTED",
+  "company_boundary": "company_id",
+  "forbidden_company_boundary_aliases": [
+    "tenant_id",
+    "tenant_company_id"
+  ],
+  "canonical_setting": "autonomySettingsCentre",
+  "canonical_scope": "company",
+  "levels": [
+    "suggest",
+    "assist",
+    "semi_auto",
+    "auto",
+    "trusted_auto",
+    "predictive"
+  ],
+  "bands": {
+    "suggest": [
+      0,
+      15
+    ],
+    "assist": [
+      16,
+      30
+    ],
+    "semi_auto": [
+      31,
+      50
+    ],
+    "auto": [
+      51,
+      70
+    ],
+    "trusted_auto": [
+      71,
+      85
+    ],
+    "predictive": [
+      86,
+      100
+    ]
+  },
+  "settings_can_grant_authority": false,
+  "settings_can_raise_verified_authority": false,
+  "settings_can_execute": false,
+  "trusted_auto_requires_three_way_handshake": [
+    "platform",
+    "user",
+    "assurance"
+  ],
+  "predictive_requires_runtime_ready": true,
+  "runtime_authority_owner": "titan-runtime/authority/autonomy.mjs",
+  "policy": "Settings is a contraction-only company policy projection. Actual authority remains externally verified by Titan autonomy/authority runtime."
+}

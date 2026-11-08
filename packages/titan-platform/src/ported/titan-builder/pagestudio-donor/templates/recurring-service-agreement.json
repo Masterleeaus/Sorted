@@ -1,0 +1,32 @@
+{
+  "template": {
+    "id": "recurring-service-agreement",
+    "version": "1.0.0",
+    "name": "Recurring Service Agreement",
+    "status": "draft",
+    "category": "field_services",
+    "entry_wizard": "recurring_service_agreement_v1",
+    "capabilities": [
+      "field_services.recurring_agreements.create"
+    ],
+    "channels": [
+      "chat",
+      "mobile",
+      "tablet",
+      "desktop",
+      "voice"
+    ],
+    "governance": {
+      "authority": "requires_recurring_billing_and_scheduling_integration",
+      "offline": false
+    },
+    "metadata": {
+      "verticals": [
+        "field_services",
+        "home_services",
+        "cleaning"
+      ],
+      "pack": "commerce_multi_vertical_2026_08"
+    }
+  }
+}

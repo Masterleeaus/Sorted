@@ -1,0 +1,63 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": [
+    "handoff_id",
+    "company_id",
+    "from_worker_actor_id",
+    "to_worker_actor_id",
+    "subject",
+    "evidence_refs",
+    "decision_refs",
+    "trace_id",
+    "correlation_id",
+    "created_at"
+  ],
+  "properties": {
+    "handoff_id": {
+      "type": "string"
+    },
+    "company_id": {
+      "type": "string"
+    },
+    "from_worker_actor_id": {
+      "type": "string"
+    },
+    "to_worker_actor_id": {
+      "type": "string"
+    },
+    "subject": {
+      "type": "object"
+    },
+    "evidence_refs": {
+      "type": "array"
+    },
+    "decision_refs": {
+      "type": "array"
+    },
+    "execution_refs": {
+      "type": "array"
+    },
+    "outcome_refs": {
+      "type": "array"
+    },
+    "trace_id": {
+      "type": "string"
+    },
+    "correlation_id": {
+      "type": "string"
+    },
+    "causation_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "created_at": {
+      "type": "string"
+    },
+    "immutable": {
+      "const": true
+    }
+  }
+}

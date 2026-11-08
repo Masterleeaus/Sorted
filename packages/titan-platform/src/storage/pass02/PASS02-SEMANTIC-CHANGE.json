@@ -1,0 +1,15 @@
+{
+  "schema": "titan-zero-storage-finish-pass02-semantic-change/v1",
+  "packet_id": "TZ-FINISH-STORAGE-DATA-AUTHORITY-001",
+  "pass": 2,
+  "semantic_delta": "Introduces native company-scoped storage contracts and repository boundary by forward-porting retained Titan local business-database semantics into packages/titan-platform/src/storage.",
+  "behavior": [
+    "company_id is the only accepted company boundary",
+    "legacy tenant aliases fail closed",
+    "nested cross-company payloads fail closed",
+    "idempotency keys are company scoped",
+    "writes support optimistic expected_revision fencing",
+    "deletes create company-scoped tombstones",
+    "storage and identity never grant execution authority"
+  ]
+}

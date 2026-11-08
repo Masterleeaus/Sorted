@@ -1,0 +1,26 @@
+{
+  "schema": "titan-zero-storage-reconciliation-contract/v1",
+  "packet_id": "TZ-FINISH-STORAGE-DATA-AUTHORITY-001",
+  "pass": 5,
+  "authority_model": {
+    "local_primary": true,
+    "server_grants_authority": false,
+    "identity_grants_authority": false,
+    "execution_authority": false,
+    "company_boundary": "company_id"
+  },
+  "checkpoint_facade": {
+    "company_bound": true,
+    "legacy_tenant_aliases": "REJECTED",
+    "cross_company_payloads": "REJECTED",
+    "new_database_or_schema_created": false
+  },
+  "reconciliation": {
+    "remote_newer_clean_local": "REMOTE_APPLIED",
+    "remote_newer_dirty_local": "EXPLICIT_CONFLICT_LOCAL_PRESERVED",
+    "remote_stale": "IGNORED_LOCAL_PRESERVED",
+    "same_revision_same_payload_dirty": "ACKNOWLEDGED_DIRTY_CLEARED",
+    "same_revision_divergent_payload": "EXPLICIT_CONFLICT",
+    "conflicts_persisted": "YES"
+  }
+}

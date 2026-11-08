@@ -1,0 +1,14 @@
+{
+  "schema": "titan-zero-semantic-change/v1",
+  "packet_id": "TZ-NEXT-011",
+  "pass": 10,
+  "generated_utc": "2026-09-07T11:08:34Z",
+  "changes": [
+    "Publish final machine-readable coherence certification",
+    "Freeze final runtime/authority/company-boundary evidence",
+    "Declare Manager/UI semantic rebase requirement without editing protected shell"
+  ],
+  "runtime_behavior_changed": false,
+  "authority_changed": false,
+  "company_boundary_changed": false
+}

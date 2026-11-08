@@ -1,0 +1,65 @@
+{
+  "schema": "titan.zero.feed-pass1-inventory/v1",
+  "packet_id": "TZ-NEXT-011",
+  "pass": 1,
+  "title": "Feed / Inbox / Notification Producer Census and Ownership Coherence",
+  "base": {
+    "artifact": "Titan-Zero-CANONICAL-MASTER-2026-09-06-MERGE-19-SETTINGS-CONVERGED.zip",
+    "sha256": "7b24c9e315507583cd9f6a78a2aa6f8e88c5178e83d803e387645bd713402408",
+    "files": 1947,
+    "manager_merge": "19"
+  },
+  "producers": [
+    {
+      "role": "event_ledger",
+      "path": "titan-runtime/event-ledger/event-ledger.mjs",
+      "owner": "event_record",
+      "company_scoped": true,
+      "authority_effect": false,
+      "observed": "Append-only hash-chained event/evidence history with operation/correlation/causation fields."
+    },
+    {
+      "role": "workforce_notification",
+      "path": "titan-workforce/notifications/workforce-notification-escalation-runtime.mjs",
+      "implementation_path": "titan-workforce/handover/investigation-installation-handover.mjs",
+      "owner": "notification_lifecycle",
+      "company_scoped": true,
+      "authority_effect": false,
+      "observed": "Notification OPEN/ACKNOWLEDGED/ESCALATED/RESOLVED/SUPPRESSED state, acknowledgement deadlines, bounded escalation, dedupe and delivery attempts."
+    },
+    {
+      "role": "decision_feed",
+      "path": "titan-intelligence/decision/unified-decision-feed.js",
+      "owner": "decision_ranking",
+      "company_scoped": true,
+      "authority_effect": false,
+      "projection_only": true,
+      "observed": "Deterministic read-only decision ranking, reconciliation, supersession, explanations, recommendations and relationship projection."
+    },
+    {
+      "role": "visible_feed",
+      "path": "titan-shell.js",
+      "owner": "presentation_read_state",
+      "company_scoped": true,
+      "authority_effect": false,
+      "observed": "Visible Feed cards, local persistence, unread/read state, drawer rendering and titan:feed event ingestion."
+    },
+    {
+      "role": "inbox",
+      "path": "titan-modules/builtin/business-services/index.mjs",
+      "owner": "external_message_lifecycle",
+      "company_scoped": "surface dependent",
+      "authority_effect": false,
+      "observed": "External communications intent family exists separately from operational Feed; later passes will preserve that separation and deep-linking."
+    }
+  ],
+  "verified_gaps": [
+    "Ownership semantics were implicit across Feed, Decision Feed, Workforce notifications and Event Ledger.",
+    "Visible Feed is a presentation/read-state store but could be misread as lifecycle authority.",
+    "Unified Decision Feed is richer than visible Feed but remains projection-only and was not tagged with shared ownership metadata.",
+    "Workforce notification runtime owns acknowledgement/escalation state but was not tagged with shared ownership metadata.",
+    "Chrome notifications permission exists, but Titan Feed itself is not yet a complete delivery fabric; that remains later-pass work."
+  ],
+  "pass1_change": "Added a shared feed-source ownership contract and connected the existing Decision Feed and Workforce notification entrypoints to it without touching active shell/page-wiring hotspots.",
+  "next_pass": "Pass 2 will define one shared severity/urgency mapping consumed by existing surfaces."
+}

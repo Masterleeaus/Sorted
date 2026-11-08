@@ -1,0 +1,967 @@
+{
+  "schema": "titan-zero-tool-parity-ledger/v1",
+  "packet_id": "TZ-TOOLS-ABSORB-001",
+  "pass": 9,
+  "parent": "Manager Merge21 + verified Pass8 true delta",
+  "tool_count": 39,
+  "summary": {
+    "static_pass": 39,
+    "static_fail": 0,
+    "repairs": [
+      "youtube_assistant",
+      "model_selection",
+      "prompts_skills",
+      "screenshots"
+    ],
+    "live_rendered_chrome": "NOT_RUN_NOT_CLAIMED"
+  },
+  "tools": [
+    {
+      "tool_id": "write",
+      "name": "Writing assistant",
+      "category": "Writing & language",
+      "original_evidence_status": "runtime_and_ui_evidence",
+      "original_evidence": [
+        "static/global/src/static/chatBox/chatHomeView/chatHomeViewWrite.png",
+        "static/global/src/static/chatBox/chatHomeView/writingAgent.png",
+        "static/writingToolExample.png",
+        "content.js"
+      ],
+      "titan_surface": "ai_workspace",
+      "titan_entrypoint": "chatTab.html",
+      "titan_action": "open:write",
+      "launch_url": "chatTab.html?tab=write&action=write&source=titan-tools",
+      "workspace_tab": "write",
+      "workspace_action": "write",
+      "capability_id": null,
+      "pass9_repair": null,
+      "static_checks": [
+        "entrypoint_exists",
+        "workspace_route_complete"
+      ],
+      "static_result": "PASS",
+      "live_rendered_result": "NOT_RUN_NOT_CLAIMED"
+    },
+    {
+      "tool_id": "rewrite",
+      "name": "Rewrite text",
+      "category": "Writing & language",
+      "original_evidence_status": "runtime_and_ui_evidence",
+      "original_evidence": [
+        "static/global/src/static/OnboardingDialog/rewriteText.png",
+        "content.js"
+      ],
+      "titan_surface": "ai_workspace",
+      "titan_entrypoint": "chatTab.html",
+      "titan_action": "open:rewrite",
+      "launch_url": "chatTab.html?tab=write&action=rewrite&source=titan-tools",
+      "workspace_tab": "write",
+      "workspace_action": "rewrite",
+      "capability_id": null,
+      "pass9_repair": null,
+      "static_checks": [
+        "entrypoint_exists",
+        "workspace_route_complete"
+      ],
+      "static_result": "PASS",
+      "live_rendered_result": "NOT_RUN_NOT_CLAIMED"
+    },
+    {
+      "tool_id": "grammar",
+      "name": "Grammar checker",
+      "category": "Writing & language",
+      "original_evidence_status": "runtime_and_ui_evidence",
+      "original_evidence": [
+        "static/global/src/static/chatBox/chatHomeView/grammarly.png",
+        "static/grammarCheckExample.png",
+        "static/grammarCheck.mp4",
+        "content.js"
+      ],
+      "titan_surface": "ai_workspace",
+      "titan_entrypoint": "chatTab.html",
+      "titan_action": "open:grammar",
+      "launch_url": "chatTab.html?tab=write&action=grammar&source=titan-tools",
+      "workspace_tab": "write",
+      "workspace_action": "grammar",
+      "capability_id": null,
+      "pass9_repair": null,
+      "static_checks": [
+        "entrypoint_exists",
+        "workspace_route_complete"
+      ],
+      "static_result": "PASS",
+      "live_rendered_result": "NOT_RUN_NOT_CLAIMED"
+    },
+    {
+      "tool_id": "translate",
+      "name": "Translate",
+      "category": "Writing & language",
+      "original_evidence_status": "runtime_and_ui_evidence",
+      "original_evidence": [
+        "static/global/src/static/chatBox/chatHomeView/chatHomeViewTranslate.png",
+        "static/global/src/static/discover/discoverTranslate.png",
+        "static/global/src/static/OnboardingDialog/webTranslate.png",
+        "content.js"
+      ],
+      "titan_surface": "ai_workspace",
+      "titan_entrypoint": "chatTab.html",
+      "titan_action": "open:translate",
+      "launch_url": "chatTab.html?tab=translate&action=translate&source=titan-tools",
+      "workspace_tab": "translate",
+      "workspace_action": "translate",
+      "capability_id": null,
+      "pass9_repair": null,
+      "static_checks": [
+        "entrypoint_exists",
+        "workspace_route_complete"
+      ],
+      "static_result": "PASS",
+      "live_rendered_result": "NOT_RUN_NOT_CLAIMED"
+    },
+    {
+      "tool_id": "summarize",
+      "name": "Summarise content",
+      "category": "Reading & research",
+      "original_evidence_status": "static_parity_evidence",
+      "original_evidence": [
+        "titan-regression/monica-retriever/PASS05-VISUAL-DOM-FEATURE-MATRIX.json",
+        "content.js"
+      ],
+      "titan_surface": "ai_workspace",
+      "titan_entrypoint": "chatTab.html",
+      "titan_action": "open:summarize",
+      "launch_url": "chatTab.html?tab=reading&action=summarize&source=titan-tools",
+      "workspace_tab": "reading",
+      "workspace_action": "summarize",
+      "capability_id": null,
+      "pass9_repair": null,
+      "static_checks": [
+        "entrypoint_exists",
+        "workspace_route_complete"
+      ],
+      "static_result": "PASS",
+      "live_rendered_result": "NOT_RUN_NOT_CLAIMED"
+    },
+    {
+      "tool_id": "read",
+      "name": "Reading assistant",
+      "category": "Reading & research",
+      "original_evidence_status": "runtime_and_ui_evidence",
+      "original_evidence": [
+        "static/global/src/static/chatBox/chatHomeView/read.png",
+        "static/readingToolExample.png",
+        "content.js"
+      ],
+      "titan_surface": "ai_workspace",
+      "titan_entrypoint": "chatTab.html",
+      "titan_action": "open:read",
+      "launch_url": "chatTab.html?tab=reading&action=read&source=titan-tools",
+      "workspace_tab": "reading",
+      "workspace_action": "read",
+      "capability_id": null,
+      "pass9_repair": null,
+      "static_checks": [
+        "entrypoint_exists",
+        "workspace_route_complete"
+      ],
+      "static_result": "PASS",
+      "live_rendered_result": "NOT_RUN_NOT_CLAIMED"
+    },
+    {
+      "tool_id": "search",
+      "name": "AI search",
+      "category": "Search & web",
+      "original_evidence_status": "runtime_and_ui_evidence",
+      "original_evidence": [
+        "static/global/src/static/chatBox/chatHomeView/aiSearch.png",
+        "static/SearchAssistantExample.png",
+        "static/global/src/static/OnboardingDialog/searchAgent.png",
+        "content.js"
+      ],
+      "titan_surface": "ai_workspace",
+      "titan_entrypoint": "chatTab.html",
+      "titan_action": "open:search",
+      "launch_url": "chatTab.html?tab=search&action=search&source=titan-tools",
+      "workspace_tab": "search",
+      "workspace_action": "search",
+      "capability_id": null,
+      "pass9_repair": null,
+      "static_checks": [
+        "entrypoint_exists",
+        "workspace_route_complete"
+      ],
+      "static_result": "PASS",
+      "live_rendered_result": "NOT_RUN_NOT_CLAIMED"
+    },
+    {
+      "tool_id": "webpage_assistant",
+      "name": "Webpage assistant",
+      "category": "Search & web",
+      "original_evidence_status": "runtime_and_ui_evidence",
+      "original_evidence": [
+        "titan-regression/monica-retriever/fixtures/webpage-assistant.html",
+        "static/global/src/static/OnboardingDialog/webAccessV2.png",
+        "static/global/src/static/OnboardingDialog/webSummary.png",
+        "content.js"
+      ],
+      "titan_surface": "page_context",
+      "titan_entrypoint": "content-runtime/page-tool.iife.js",
+      "titan_action": "page:assist",
+      "launch_url": null,
+      "workspace_tab": null,
+      "workspace_action": null,
+      "capability_id": null,
+      "pass9_repair": null,
+      "static_checks": [
+        "background_message_handler"
+      ],
+      "static_result": "PASS",
+      "live_rendered_result": "NOT_RUN_NOT_CLAIMED"
+    },
+    {
+      "tool_id": "full_page",
+      "name": "Full-page assistant",
+      "category": "Search & web",
+      "original_evidence_status": "ui_asset_evidence",
+      "original_evidence": [
+        "static/global/src/static/chatBox/chatHomeView/fullPage.png",
+        "chatTab.html"
+      ],
+      "titan_surface": "page_context",
+      "titan_entrypoint": "content-runtime/page-tool.iife.js",
+      "titan_action": "page:full-assist",
+      "launch_url": null,
+      "workspace_tab": null,
+      "workspace_action": null,
+      "capability_id": null,
+      "pass9_repair": null,
+      "static_checks": [
+        "background_message_handler"
+      ],
+      "static_result": "PASS",
+      "live_rendered_result": "NOT_RUN_NOT_CLAIMED"
+    },
+    {
+      "tool_id": "text_selection",
+      "name": "Text-selection toolbar",
+      "category": "Search & web",
+      "original_evidence_status": "static_parity_evidence",
+      "original_evidence": [
+        "static/contextual-toolbar-guide.webp",
+        "titan-regression/monica-retriever/PASS05-VISUAL-DOM-FEATURE-MATRIX.json",
+        "content.js"
+      ],
+      "titan_surface": "page_context",
+      "titan_entrypoint": "content-runtime/page-tool.iife.js",
+      "titan_action": "selection:assist",
+      "launch_url": null,
+      "workspace_tab": null,
+      "workspace_action": null,
+      "capability_id": null,
+      "pass9_repair": null,
+      "static_checks": [
+        "background_message_handler"
+      ],
+      "static_result": "PASS",
+      "live_rendered_result": "NOT_RUN_NOT_CLAIMED"
+    },
+    {
+      "tool_id": "floating_assistant",
+      "name": "Floating page assistant",
+      "category": "Search & web",
+      "original_evidence_status": "runtime_evidence",
+      "original_evidence": [
+        "content.js",
+        "monica-content.js",
+        "titan-zero-chat-content.compat.css"
+      ],
+      "titan_surface": "page_context",
+      "titan_entrypoint": "content-runtime/page-tool.iife.js",
+      "titan_action": "page:floating-assist",
+      "launch_url": null,
+      "workspace_tab": null,
+      "workspace_action": null,
+      "capability_id": null,
+      "pass9_repair": null,
+      "static_checks": [
+        "background_message_handler"
+      ],
+      "static_result": "PASS",
+      "live_rendered_result": "NOT_RUN_NOT_CLAIMED"
+    },
+    {
+      "tool_id": "chatpdf",
+      "name": "Chat with PDF / document assistant",
+      "category": "Documents",
+      "original_evidence_status": "runtime_and_ui_evidence",
+      "original_evidence": [
+        "static/global/src/static/chatBox/chatHomeView/chatHomeViewChatPdf.png",
+        "static/global/src/static/OnboardingDialog/chatWithPDF.png",
+        "static/global/src/static/discover/discoverChatPdf.png",
+        "static/pdf.worker.min.mjs",
+        "content.js"
+      ],
+      "titan_surface": "ai_workspace",
+      "titan_entrypoint": "chatTab.html",
+      "titan_action": "open:chatpdf",
+      "launch_url": "chatTab.html?tab=chat&action=document-chat&document=chatpdf&source=titan-tools&accept=pdf%2Cdoc%2Cdocx%2Cxls%2Cxlsx%2Ctxt%2Ccsv%2Cppt%2Cpptx%2Cpng%2Cjpg%2Cjpeg%2Cwebp",
+      "workspace_tab": "chat",
+      "workspace_action": "document-chat",
+      "capability_id": null,
+      "pass9_repair": null,
+      "static_checks": [
+        "entrypoint_exists",
+        "workspace_route_complete"
+      ],
+      "static_result": "PASS",
+      "live_rendered_result": "NOT_RUN_NOT_CLAIMED"
+    },
+    {
+      "tool_id": "pdf_generate_fill",
+      "name": "Generate or fill PDFs",
+      "category": "Documents",
+      "original_evidence_status": "runtime_evidence",
+      "original_evidence": [
+        "retriever-capability-catalog.json"
+      ],
+      "titan_surface": "retriever_runtime",
+      "titan_entrypoint": "side-panel/index.html",
+      "titan_action": "retriever:capability",
+      "launch_url": null,
+      "workspace_tab": null,
+      "workspace_action": null,
+      "capability_id": "pdf",
+      "pass9_repair": null,
+      "static_checks": [
+        "retriever_entrypoint_exists",
+        "capability_catalog_match"
+      ],
+      "static_result": "PASS",
+      "live_rendered_result": "NOT_RUN_NOT_CLAIMED"
+    },
+    {
+      "tool_id": "youtube_assistant",
+      "name": "YouTube assistant / summariser",
+      "category": "Documents",
+      "original_evidence_status": "static_parity_evidence",
+      "original_evidence": [
+        "static/global/src/static/OnboardingDialog/youTubeSummary.png",
+        "static/youtube-injected-script.js",
+        "titan-regression/monica-retriever/PASS05-VISUAL-DOM-FEATURE-MATRIX.json"
+      ],
+      "titan_surface": "ai_workspace",
+      "titan_entrypoint": "chatTab.html",
+      "titan_action": "open:youtube",
+      "launch_url": "chatTab.html?tab=reading&action=youtube&source=titan-tools",
+      "workspace_tab": "reading",
+      "workspace_action": "youtube",
+      "capability_id": null,
+      "pass9_repair": "Added explicit Reading workspace route",
+      "static_checks": [
+        "entrypoint_exists",
+        "workspace_route_complete"
+      ],
+      "static_result": "PASS",
+      "live_rendered_result": "NOT_RUN_NOT_CLAIMED"
+    },
+    {
+      "tool_id": "mindmap",
+      "name": "Mind map",
+      "category": "Analysis",
+      "original_evidence_status": "runtime_and_ui_evidence",
+      "original_evidence": [
+        "static/global/src/static/chatBox/chatHomeView/chatHomeViewMindmap.png",
+        "static/global/src/static/discover/mindmap.png",
+        "static/global/src/static/lowCode/mindmapCover.webp",
+        "content.js"
+      ],
+      "titan_surface": "ai_workspace",
+      "titan_entrypoint": "chatTab.html",
+      "titan_action": "open:mindmap",
+      "launch_url": "chatTab.html?tab=tools&action=mindmap&analysis=mindmap&source=titan-tools",
+      "workspace_tab": "tools",
+      "workspace_action": "mindmap",
+      "capability_id": null,
+      "pass9_repair": null,
+      "static_checks": [
+        "entrypoint_exists",
+        "workspace_route_complete"
+      ],
+      "static_result": "PASS",
+      "live_rendered_result": "NOT_RUN_NOT_CLAIMED"
+    },
+    {
+      "tool_id": "ai_detector",
+      "name": "AI content detector",
+      "category": "Analysis",
+      "original_evidence_status": "runtime_and_ui_evidence",
+      "original_evidence": [
+        "static/global/src/static/chatBox/chatHomeView/chatHomeViewAiDetector.png",
+        "static/global/src/static/discover/aiDetector.png",
+        "static/global/src/static/OnboardingDialog/aiContentDetector.webp",
+        "content.js"
+      ],
+      "titan_surface": "ai_workspace",
+      "titan_entrypoint": "chatTab.html",
+      "titan_action": "open:ai-detector",
+      "launch_url": "chatTab.html?tab=tools&action=ai-detector&analysis=ai-detector&source=titan-tools",
+      "workspace_tab": "tools",
+      "workspace_action": "ai-detector",
+      "capability_id": null,
+      "pass9_repair": null,
+      "static_checks": [
+        "entrypoint_exists",
+        "workspace_route_complete"
+      ],
+      "static_result": "PASS",
+      "live_rendered_result": "NOT_RUN_NOT_CLAIMED"
+    },
+    {
+      "tool_id": "humanize",
+      "name": "Humanise text",
+      "category": "Analysis",
+      "original_evidence_status": "ui_asset_evidence",
+      "original_evidence": [
+        "static/global/src/static/chatBox/chatHomeView/chatHomeViewHumanize.png",
+        "static/global/src/static/discover/discoverHumanize.png"
+      ],
+      "titan_surface": "ai_workspace",
+      "titan_entrypoint": "chatTab.html",
+      "titan_action": "open:humanize",
+      "launch_url": "chatTab.html?tab=tools&action=humanize&analysis=humanize&source=titan-tools",
+      "workspace_tab": "tools",
+      "workspace_action": "humanize",
+      "capability_id": null,
+      "pass9_repair": null,
+      "static_checks": [
+        "entrypoint_exists",
+        "workspace_route_complete"
+      ],
+      "static_result": "PASS",
+      "live_rendered_result": "NOT_RUN_NOT_CLAIMED"
+    },
+    {
+      "tool_id": "podcast",
+      "name": "Podcast tool",
+      "category": "Audio",
+      "original_evidence_status": "ui_asset_evidence",
+      "original_evidence": [
+        "static/global/src/static/chatBox/chatHomeView/chatHomeViewPodcast.png",
+        "static/global/src/static/discover/discoverPodcast.png"
+      ],
+      "titan_surface": "ai_workspace",
+      "titan_entrypoint": "chatTab.html",
+      "titan_action": "open:podcast",
+      "launch_url": "chatTab.html?tab=audio&action=podcast&media=podcast&source=titan-tools",
+      "workspace_tab": "audio",
+      "workspace_action": "podcast",
+      "capability_id": null,
+      "pass9_repair": null,
+      "static_checks": [
+        "entrypoint_exists",
+        "workspace_route_complete"
+      ],
+      "static_result": "PASS",
+      "live_rendered_result": "NOT_RUN_NOT_CLAIMED"
+    },
+    {
+      "tool_id": "audio_to_text",
+      "name": "Audio to text",
+      "category": "Audio",
+      "original_evidence_status": "runtime_and_ui_evidence",
+      "original_evidence": [
+        "static/global/src/static/lowCode/audioToTextCover.webp",
+        "static/global/src/static/mainNav/fillAudioIcon.png",
+        "content.js"
+      ],
+      "titan_surface": "ai_workspace",
+      "titan_entrypoint": "chatTab.html",
+      "titan_action": "open:audio-to-text",
+      "launch_url": "chatTab.html?tab=audio&action=audio-to-text&media=audio-to-text&source=titan-tools",
+      "workspace_tab": "audio",
+      "workspace_action": "audio-to-text",
+      "capability_id": null,
+      "pass9_repair": null,
+      "static_checks": [
+        "entrypoint_exists",
+        "workspace_route_complete"
+      ],
+      "static_result": "PASS",
+      "live_rendered_result": "NOT_RUN_NOT_CLAIMED"
+    },
+    {
+      "tool_id": "image_generate",
+      "name": "Image generator",
+      "category": "Image & media",
+      "original_evidence_status": "runtime_and_ui_evidence",
+      "original_evidence": [
+        "static/global/src/static/chatBox/chatHomeView/imageGenerator.webp",
+        "static/global/src/static/OnboardingDialog/imageToolsV2.png",
+        "static/global/src/static/mainNav/fillAiArt.png",
+        "content.js"
+      ],
+      "titan_surface": "ai_workspace",
+      "titan_entrypoint": "chatTab.html",
+      "titan_action": "open:image-generate",
+      "launch_url": "chatTab.html?tab=image&action=image-generate&media=image-generate&source=titan-tools",
+      "workspace_tab": "image",
+      "workspace_action": "image-generate",
+      "capability_id": null,
+      "pass9_repair": null,
+      "static_checks": [
+        "entrypoint_exists",
+        "workspace_route_complete"
+      ],
+      "static_result": "PASS",
+      "live_rendered_result": "NOT_RUN_NOT_CLAIMED"
+    },
+    {
+      "tool_id": "image_edit",
+      "name": "Image editor",
+      "category": "Image & media",
+      "original_evidence_status": "runtime_evidence",
+      "original_evidence": [
+        "content.js",
+        "static/imageToolExample.png"
+      ],
+      "titan_surface": "ai_workspace",
+      "titan_entrypoint": "chatTab.html",
+      "titan_action": "open:image-edit",
+      "launch_url": "chatTab.html?tab=image&action=image-edit&media=image-edit&source=titan-tools",
+      "workspace_tab": "image",
+      "workspace_action": "image-edit",
+      "capability_id": null,
+      "pass9_repair": null,
+      "static_checks": [
+        "entrypoint_exists",
+        "workspace_route_complete"
+      ],
+      "static_result": "PASS",
+      "live_rendered_result": "NOT_RUN_NOT_CLAIMED"
+    },
+    {
+      "tool_id": "image_realtime",
+      "name": "Realtime image/canvas generation",
+      "category": "Image & media",
+      "original_evidence_status": "runtime_evidence",
+      "original_evidence": [
+        "content.js"
+      ],
+      "titan_surface": "ai_workspace",
+      "titan_entrypoint": "chatTab.html",
+      "titan_action": "open:image-realtime",
+      "launch_url": "chatTab.html?tab=image&action=image-realtime&media=image-realtime&source=titan-tools",
+      "workspace_tab": "image",
+      "workspace_action": "image-realtime",
+      "capability_id": null,
+      "pass9_repair": null,
+      "static_checks": [
+        "entrypoint_exists",
+        "workspace_route_complete"
+      ],
+      "static_result": "PASS",
+      "live_rendered_result": "NOT_RUN_NOT_CLAIMED"
+    },
+    {
+      "tool_id": "image_restore_transform",
+      "name": "Image restoration and creative transforms",
+      "category": "Image & media",
+      "original_evidence_status": "runtime_evidence",
+      "original_evidence": [
+        "content.js",
+        "static/global/src/static/lowCode/stableDiffusionCover.webp"
+      ],
+      "titan_surface": "ai_workspace",
+      "titan_entrypoint": "chatTab.html",
+      "titan_action": "open:image-transform",
+      "launch_url": "chatTab.html?tab=image&action=image-transform&media=image-transform&source=titan-tools",
+      "workspace_tab": "image",
+      "workspace_action": "image-transform",
+      "capability_id": null,
+      "pass9_repair": null,
+      "static_checks": [
+        "entrypoint_exists",
+        "workspace_route_complete"
+      ],
+      "static_result": "PASS",
+      "live_rendered_result": "NOT_RUN_NOT_CLAIMED"
+    },
+    {
+      "tool_id": "video_generate",
+      "name": "Video generator",
+      "category": "Image & media",
+      "original_evidence_status": "runtime_and_ui_evidence",
+      "original_evidence": [
+        "static/global/src/static/chatBox/chatHomeView/videoGenerator.png",
+        "static/global/src/static/mainNav/fillVideo.png",
+        "static/global/src/static/video/image2VideoCover.webp",
+        "content.js"
+      ],
+      "titan_surface": "ai_workspace",
+      "titan_entrypoint": "chatTab.html",
+      "titan_action": "open:video-generate",
+      "launch_url": "chatTab.html?tab=video&action=video-generate&media=video-generate&source=titan-tools",
+      "workspace_tab": "video",
+      "workspace_action": "video-generate",
+      "capability_id": null,
+      "pass9_repair": null,
+      "static_checks": [
+        "entrypoint_exists",
+        "workspace_route_complete"
+      ],
+      "static_result": "PASS",
+      "live_rendered_result": "NOT_RUN_NOT_CLAIMED"
+    },
+    {
+      "tool_id": "text_to_video",
+      "name": "Text to video",
+      "category": "Image & media",
+      "original_evidence_status": "runtime_evidence",
+      "original_evidence": [
+        "content.js"
+      ],
+      "titan_surface": "ai_workspace",
+      "titan_entrypoint": "chatTab.html",
+      "titan_action": "open:text-to-video",
+      "launch_url": "chatTab.html?tab=video&action=text-to-video&media=text-to-video&source=titan-tools",
+      "workspace_tab": "video",
+      "workspace_action": "text-to-video",
+      "capability_id": null,
+      "pass9_repair": null,
+      "static_checks": [
+        "entrypoint_exists",
+        "workspace_route_complete"
+      ],
+      "static_result": "PASS",
+      "live_rendered_result": "NOT_RUN_NOT_CLAIMED"
+    },
+    {
+      "tool_id": "image_to_video",
+      "name": "Image to video",
+      "category": "Image & media",
+      "original_evidence_status": "runtime_and_ui_evidence",
+      "original_evidence": [
+        "static/global/src/static/video/image2VideoCover.webp",
+        "content.js"
+      ],
+      "titan_surface": "ai_workspace",
+      "titan_entrypoint": "chatTab.html",
+      "titan_action": "open:image-to-video",
+      "launch_url": "chatTab.html?tab=video&action=image-to-video&media=image-to-video&source=titan-tools",
+      "workspace_tab": "video",
+      "workspace_action": "image-to-video",
+      "capability_id": null,
+      "pass9_repair": null,
+      "static_checks": [
+        "entrypoint_exists",
+        "workspace_route_complete"
+      ],
+      "static_result": "PASS",
+      "live_rendered_result": "NOT_RUN_NOT_CLAIMED"
+    },
+    {
+      "tool_id": "screenshots",
+      "name": "Screenshot/page capture",
+      "category": "Browser tools",
+      "original_evidence_status": "runtime_and_ui_evidence",
+      "original_evidence": [
+        "static/global/src/static/screenshotGuideVideo.mp4",
+        "content.js"
+      ],
+      "titan_surface": "page_context",
+      "titan_entrypoint": "content-runtime/page-tool.iife.js",
+      "titan_action": "page:capture",
+      "launch_url": null,
+      "workspace_tab": null,
+      "workspace_action": null,
+      "capability_id": null,
+      "pass9_repair": "Added real background screenshot capture handler",
+      "static_checks": [
+        "background_message_handler",
+        "captureVisibleTab_handler"
+      ],
+      "static_result": "PASS",
+      "live_rendered_result": "NOT_RUN_NOT_CLAIMED"
+    },
+    {
+      "tool_id": "attachments",
+      "name": "Attachments / file chat",
+      "category": "Conversation tools",
+      "original_evidence_status": "runtime_evidence",
+      "original_evidence": [
+        "content.js",
+        "titan-capabilities/donors/ai-extensions/catalog.json"
+      ],
+      "titan_surface": "ai_workspace",
+      "titan_entrypoint": "chatTab.html",
+      "titan_action": "open:attachments",
+      "launch_url": "chatTab.html?tab=chat&action=attachments&document=files&source=titan-tools&accept=pdf%2Cdoc%2Cdocx%2Cxls%2Cxlsx%2Ctxt%2Ccsv%2Cppt%2Cpptx%2Cpng%2Cjpg%2Cjpeg%2Cwebp",
+      "workspace_tab": "chat",
+      "workspace_action": "attachments",
+      "capability_id": null,
+      "pass9_repair": null,
+      "static_checks": [
+        "entrypoint_exists",
+        "workspace_route_complete"
+      ],
+      "static_result": "PASS",
+      "live_rendered_result": "NOT_RUN_NOT_CLAIMED"
+    },
+    {
+      "tool_id": "model_selection",
+      "name": "Model selection",
+      "category": "Conversation tools",
+      "original_evidence_status": "runtime_evidence",
+      "original_evidence": [
+        "content.js",
+        "side-panel/assets/index-C8c-GDqp.js"
+      ],
+      "titan_surface": "ai_workspace",
+      "titan_entrypoint": "chatTab.html",
+      "titan_action": "open:models",
+      "launch_url": "chatTab.html?tab=chat&action=models&source=titan-tools",
+      "workspace_tab": "chat",
+      "workspace_action": "models",
+      "capability_id": null,
+      "pass9_repair": "Added explicit Chat/model-selection route",
+      "static_checks": [
+        "entrypoint_exists",
+        "workspace_route_complete"
+      ],
+      "static_result": "PASS",
+      "live_rendered_result": "NOT_RUN_NOT_CLAIMED"
+    },
+    {
+      "tool_id": "prompts_skills",
+      "name": "Prompts and reusable skills",
+      "category": "Conversation tools",
+      "original_evidence_status": "runtime_evidence",
+      "original_evidence": [
+        "side-panel/assets/skillStorageService-LGvOYmp_.js",
+        "retriever-capability-catalog.json"
+      ],
+      "titan_surface": "ai_workspace",
+      "titan_entrypoint": "chatTab.html",
+      "titan_action": "open:prompts-skills",
+      "launch_url": "chatTab.html?tab=toolkit&action=prompts-skills&source=titan-tools",
+      "workspace_tab": "toolkit",
+      "workspace_action": "prompts-skills",
+      "capability_id": null,
+      "pass9_repair": "Added explicit Toolkit prompts/skills route",
+      "static_checks": [
+        "entrypoint_exists",
+        "workspace_route_complete"
+      ],
+      "static_result": "PASS",
+      "live_rendered_result": "NOT_RUN_NOT_CLAIMED"
+    },
+    {
+      "tool_id": "browser_actions",
+      "name": "Browser actions",
+      "category": "Retriever tools",
+      "original_evidence_status": "runtime_evidence",
+      "original_evidence": [
+        "retriever-capability-catalog.json"
+      ],
+      "titan_surface": "retriever_runtime",
+      "titan_entrypoint": "side-panel/index.html",
+      "titan_action": "retriever:capability",
+      "launch_url": null,
+      "workspace_tab": null,
+      "workspace_action": null,
+      "capability_id": "browser_actions",
+      "pass9_repair": null,
+      "static_checks": [
+        "retriever_entrypoint_exists",
+        "capability_catalog_match"
+      ],
+      "static_result": "PASS",
+      "live_rendered_result": "NOT_RUN_NOT_CLAIMED"
+    },
+    {
+      "tool_id": "crawl_extract",
+      "name": "Crawl, extract and scrape webpages",
+      "category": "Retriever tools",
+      "original_evidence_status": "runtime_evidence",
+      "original_evidence": [
+        "retriever-capability-catalog.json"
+      ],
+      "titan_surface": "retriever_runtime",
+      "titan_entrypoint": "side-panel/index.html",
+      "titan_action": "retriever:capability",
+      "launch_url": null,
+      "workspace_tab": null,
+      "workspace_action": null,
+      "capability_id": "crawl_extract",
+      "pass9_repair": null,
+      "static_checks": [
+        "retriever_entrypoint_exists",
+        "capability_catalog_match"
+      ],
+      "static_result": "PASS",
+      "live_rendered_result": "NOT_RUN_NOT_CLAIMED"
+    },
+    {
+      "tool_id": "structured_data",
+      "name": "Structured data discovery and enrichment",
+      "category": "Retriever tools",
+      "original_evidence_status": "runtime_evidence",
+      "original_evidence": [
+        "retriever-capability-catalog.json"
+      ],
+      "titan_surface": "retriever_runtime",
+      "titan_entrypoint": "side-panel/index.html",
+      "titan_action": "retriever:capability",
+      "launch_url": null,
+      "workspace_tab": null,
+      "workspace_action": null,
+      "capability_id": "structured_data",
+      "pass9_repair": null,
+      "static_checks": [
+        "retriever_entrypoint_exists",
+        "capability_catalog_match"
+      ],
+      "static_result": "PASS",
+      "live_rendered_result": "NOT_RUN_NOT_CLAIMED"
+    },
+    {
+      "tool_id": "sheets",
+      "name": "Spreadsheet tools",
+      "category": "Retriever tools",
+      "original_evidence_status": "runtime_evidence",
+      "original_evidence": [
+        "retriever-capability-catalog.json",
+        "content.js"
+      ],
+      "titan_surface": "retriever_runtime",
+      "titan_entrypoint": "side-panel/index.html",
+      "titan_action": "retriever:capability",
+      "launch_url": null,
+      "workspace_tab": null,
+      "workspace_action": null,
+      "capability_id": "sheets",
+      "pass9_repair": null,
+      "static_checks": [
+        "retriever_entrypoint_exists",
+        "capability_catalog_match"
+      ],
+      "static_result": "PASS",
+      "live_rendered_result": "NOT_RUN_NOT_CLAIMED"
+    },
+    {
+      "tool_id": "docs_slides_web",
+      "name": "Create Docs, Slides and webpages",
+      "category": "Retriever tools",
+      "original_evidence_status": "runtime_evidence",
+      "original_evidence": [
+        "retriever-capability-catalog.json"
+      ],
+      "titan_surface": "retriever_runtime",
+      "titan_entrypoint": "side-panel/index.html",
+      "titan_action": "retriever:capability",
+      "launch_url": null,
+      "workspace_tab": null,
+      "workspace_action": null,
+      "capability_id": "docs_slides_web",
+      "pass9_repair": null,
+      "static_checks": [
+        "retriever_entrypoint_exists",
+        "capability_catalog_match"
+      ],
+      "static_result": "PASS",
+      "live_rendered_result": "NOT_RUN_NOT_CLAIMED"
+    },
+    {
+      "tool_id": "custom_tools",
+      "name": "Create and manage custom tools",
+      "category": "Retriever tools",
+      "original_evidence_status": "runtime_evidence",
+      "original_evidence": [
+        "retriever-capability-catalog.json"
+      ],
+      "titan_surface": "retriever_runtime",
+      "titan_entrypoint": "side-panel/index.html",
+      "titan_action": "retriever:capability",
+      "launch_url": null,
+      "workspace_tab": null,
+      "workspace_action": null,
+      "capability_id": "custom_tools",
+      "pass9_repair": null,
+      "static_checks": [
+        "retriever_entrypoint_exists",
+        "capability_catalog_match"
+      ],
+      "static_result": "PASS",
+      "live_rendered_result": "NOT_RUN_NOT_CLAIMED"
+    },
+    {
+      "tool_id": "multi_tool",
+      "name": "Run coordinated multi-tool workflows",
+      "category": "Retriever tools",
+      "original_evidence_status": "runtime_evidence",
+      "original_evidence": [
+        "retriever-capability-catalog.json"
+      ],
+      "titan_surface": "retriever_runtime",
+      "titan_entrypoint": "side-panel/index.html",
+      "titan_action": "retriever:capability",
+      "launch_url": null,
+      "workspace_tab": null,
+      "workspace_action": null,
+      "capability_id": "multi_tool",
+      "pass9_repair": null,
+      "static_checks": [
+        "retriever_entrypoint_exists",
+        "capability_catalog_match"
+      ],
+      "static_result": "PASS",
+      "live_rendered_result": "NOT_RUN_NOT_CLAIMED"
+    },
+    {
+      "tool_id": "schedules",
+      "name": "Scheduled workflows",
+      "category": "Retriever tools",
+      "original_evidence_status": "runtime_evidence",
+      "original_evidence": [
+        "retriever-capability-catalog.json"
+      ],
+      "titan_surface": "retriever_runtime",
+      "titan_entrypoint": "side-panel/index.html",
+      "titan_action": "retriever:capability",
+      "launch_url": null,
+      "workspace_tab": null,
+      "workspace_action": null,
+      "capability_id": "schedules",
+      "pass9_repair": null,
+      "static_checks": [
+        "retriever_entrypoint_exists",
+        "capability_catalog_match"
+      ],
+      "static_result": "PASS",
+      "live_rendered_result": "NOT_RUN_NOT_CLAIMED"
+    },
+    {
+      "tool_id": "triggers",
+      "name": "Event-triggered workflows",
+      "category": "Retriever tools",
+      "original_evidence_status": "runtime_evidence",
+      "original_evidence": [
+        "retriever-capability-catalog.json"
+      ],
+      "titan_surface": "retriever_runtime",
+      "titan_entrypoint": "side-panel/index.html",
+      "titan_action": "retriever:capability",
+      "launch_url": null,
+      "workspace_tab": null,
+      "workspace_action": null,
+      "capability_id": "triggers",
+      "pass9_repair": null,
+      "static_checks": [
+        "retriever_entrypoint_exists",
+        "capability_catalog_match"
+      ],
+      "static_result": "PASS",
+      "live_rendered_result": "NOT_RUN_NOT_CLAIMED"
+    }
+  ]
+}

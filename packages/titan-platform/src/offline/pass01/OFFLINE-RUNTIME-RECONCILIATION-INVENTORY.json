@@ -1,0 +1,133 @@
+{
+  "schema": "titan-zero-offline-pass01-reconciliation-inventory/v1",
+  "packet_id": "TZ-FINISH-OFFLINE-RESILIENCE-001",
+  "pass": 1,
+  "manager_base_merge": 52,
+  "dependency": "TZ-FINISH-STORAGE-DATA-AUTHORITY-001",
+  "dependency_state": "READY_FOR_MANAGER_MERGE_NOT_YET_CANONICAL",
+  "existing_native_dependency": [
+    "packages/titan-platform/src/storage/reconciliation.ts#createCompanyCheckpointFacade"
+  ],
+  "retained_donors": [
+    {
+      "path": "packages/titan-platform/src/ported/titan-offline/restart-checkpoint.ts",
+      "sha256": "7b7be189d2c8d815fcb153cd24eaebac1872edaee63cb0199c7299fbd5997f9a"
+    },
+    {
+      "path": "packages/titan-platform/src/ported/titan-offline/checkpoint-integrity.ts",
+      "sha256": "ff7deeb691ba28f835cb275704169a3ee2b71918bd38936d8fc6c96a74cce10c"
+    },
+    {
+      "path": "packages/titan-platform/src/ported/titan-offline/checkpoint-storage.ts",
+      "sha256": "cde042f6030ca3e5216f763677e846932718fe0a8ee86fd1b873faee1c5a12c0"
+    },
+    {
+      "path": "packages/titan-platform/src/ported/titan-offline/recovery-state-machine.ts",
+      "sha256": "4d62eb734f6be2e2f1a761c9b9a25048e9b8cbfc35d6501aa50056e69ee97b6c"
+    },
+    {
+      "path": "packages/titan-platform/src/ported/titan-offline/continuation-guard.ts",
+      "sha256": "a892080de08b13d1b20f2262a2e8d674cfe2d558ee35b03062b5c588eb5b7587"
+    },
+    {
+      "path": "packages/titan-platform/src/ported/titan-offline/service-worker-lifecycle.ts",
+      "sha256": "9a842a4e22a6be1429ebfe912d6cf4876e90801d16438aeef8fb631dffd25ef2"
+    },
+    {
+      "path": "packages/titan-platform/src/ported/titan-offline/conflict-retry-policy.ts",
+      "sha256": "0ff951410e8f904ea857a82689ccf66ffe2e90ae736e67f69c88db10856a7003"
+    },
+    {
+      "path": "packages/titan-platform/src/ported/titan-offline/restart-evidence-ledger.ts",
+      "sha256": "03c4cec7e71820bc8161be2eca90bbd741df1b055a19300a1a3b0b8f64af7408"
+    },
+    {
+      "path": "packages/titan-platform/src/ported/titan-offline/browser-restart-harness.ts",
+      "sha256": "3b286145ea72ce04c09a0f9992eed64d5bcdfa47270fdba0be6c2c1346ca5e2b"
+    },
+    {
+      "path": "packages/titan-platform/src/ported/titan-offline/production-hardening.ts",
+      "sha256": "872a04e00b81c99e6c9049de0330064db792e746749566301e277ee8860f6a61"
+    },
+    {
+      "path": "packages/titan-platform/src/ported/titan-offline/authority-continuity.ts",
+      "sha256": "d544649dd1978d9a79a1a8179cc910e63bc0a1bd9e8a982a947c80b5f0cb7465"
+    },
+    {
+      "path": "packages/titan-platform/src/ported/titan-offline/tab-lease-registry.ts",
+      "sha256": "74cfcd8aea9ec1d3e69c08d7ec2351742b1c6038ce0a6186b0943c4e2c9380ad"
+    },
+    {
+      "path": "packages/titan-platform/src/ported/titan-offline/execution-receipts.ts",
+      "sha256": "d8ee622a41fb5c4fa89c9d0befcdad8ef7a938c8518075bfdfcfae6cee3b26a3"
+    },
+    {
+      "path": "packages/titan-platform/src/ported/titan-reliability/bounded-work-queue.ts",
+      "sha256": "9da34c0510e83b42e43e0ee0562f7c7f32022aaf1317e450edb754ec9c41f281"
+    },
+    {
+      "path": "packages/titan-platform/src/ported/titan-reliability/retry-budget.ts",
+      "sha256": "ffcfa4c81e51416e06ce7d4fdef4e05089e0a2f7de3c38720c15d1ecc16fcca2"
+    },
+    {
+      "path": "packages/titan-platform/src/ported/background-bootstrap.ts",
+      "sha256": "acd8c3d340ea008fdf280875e4fd1c5c2fef2182e6581c0bae929ea55191f784"
+    }
+  ],
+  "browser_runtime": {
+    "background_bootstrap": "packages/titan-platform/src/ported/background-bootstrap.ts",
+    "classification": "BROWSER_ADAPTER_REQUIRED",
+    "native_offline_authority": false,
+    "reason": "Chrome service worker/bootstrap remains extension compatibility code and is not a standalone runtime authority."
+  },
+  "gaps": [
+    {
+      "id": "native_offline_facade",
+      "closed_in_pass": 1
+    },
+    {
+      "id": "operation_identity_idempotency",
+      "target_pass": 2
+    },
+    {
+      "id": "durable_mutation_queue_poison_isolation",
+      "target_pass": 3
+    },
+    {
+      "id": "snapshot_pull_apply_revision_sync",
+      "target_pass": 4
+    },
+    {
+      "id": "restart_interrupted_work_continuation",
+      "target_pass": 5
+    },
+    {
+      "id": "stale_policy_authority_contraction",
+      "target_pass": 6
+    },
+    {
+      "id": "field_media_resumable_sync",
+      "target_pass": 7
+    },
+    {
+      "id": "network_duplicate_clock_skew_hardening",
+      "target_pass": 8
+    },
+    {
+      "id": "extended_offline_restart_low_storage_multidevice_tests",
+      "target_pass": 9
+    },
+    {
+      "id": "resilience_certification",
+      "target_pass": 10
+    }
+  ],
+  "authority": {
+    "company_boundary": "company_id",
+    "identity_grants_authority": false,
+    "execution_authority": false,
+    "automatic_effect_replay": false,
+    "device_first": true,
+    "local_primary": true
+  }
+}

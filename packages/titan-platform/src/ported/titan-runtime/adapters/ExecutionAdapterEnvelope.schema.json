@@ -1,0 +1,98 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "titan-zero-execution-adapter-envelope/v1",
+  "title": "Titan Zero Execution Adapter Envelope",
+  "type": "object",
+  "required": [
+    "schema",
+    "protocol",
+    "version",
+    "type",
+    "company_id",
+    "work_id",
+    "correlation_id",
+    "operation_id",
+    "idempotency_key",
+    "authority"
+  ],
+  "properties": {
+    "schema": {
+      "const": "titan-zero-execution-adapter-envelope/v1"
+    },
+    "protocol": {
+      "const": "TITAN_EXECUTION_ADAPTER"
+    },
+    "version": {
+      "pattern": "^[0-9]+\\.[0-9]+$"
+    },
+    "type": {
+      "enum": [
+        "TITAN_WORK_SUBMIT",
+        "TITAN_WORK_ACCEPTED",
+        "TITAN_WORK_PROGRESS",
+        "TITAN_WORK_COMPLETE",
+        "TITAN_WORK_ERROR",
+        "TITAN_WORK_CANCEL",
+        "TITAN_WORK_CANCELLED"
+      ]
+    },
+    "company_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "work_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "correlation_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "operation_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "idempotency_key": {
+      "type": "string",
+      "minLength": 1
+    },
+    "authority": {
+      "type": "object",
+      "required": [
+        "authority_neutral",
+        "execution_authority",
+        "adapter_activation_grants_authority",
+        "capability_negotiation_grants_authority"
+      ],
+      "properties": {
+        "authority_neutral": {
+          "const": true
+        },
+        "execution_authority": {
+          "const": false
+        },
+        "adapter_activation_grants_authority": {
+          "const": false
+        },
+        "capability_negotiation_grants_authority": {
+          "const": false
+        }
+      }
+    }
+  },
+  "not": {
+    "anyOf": [
+      {
+        "required": [
+          "tenant_id"
+        ]
+      },
+      {
+        "required": [
+          "tenant_company_id"
+        ]
+      }
+    ]
+  },
+  "additionalProperties": true
+}

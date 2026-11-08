@@ -1,0 +1,6 @@
+{
+  "schema": "titan-zero-offline-pass01-semantic-change/v1",
+  "packet_id": "TZ-FINISH-OFFLINE-RESILIENCE-001",
+  "pass": 1,
+  "semantic_delta": "Introduces a native, company-scoped offline resilience inventory/facade that classifies retained offline/restart/retry donors, isolates Chrome background bootstrap as adapter-required compatibility code, and explicitly maps unresolved capability gaps to Passes 2-10."
+}

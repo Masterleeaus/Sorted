@@ -1,0 +1,11 @@
+{
+  "schema": "titan-zero-manager-merge-submission/v1",
+  "packet_id": "TZ-SETTINGS-THEME-RESTORE-001",
+  "agent_id": "settings-theme-recovery-agent",
+  "pass": 10,
+  "status": "READY_FOR_MANAGER_MERGE",
+  "manager_base": "MERGE18",
+  "stop_required": true,
+  "rendered_gate": "OUTSTANDING_BLOCKED_ENVIRONMENT",
+  "note": "Merge static/runtime-certified Settings/theme completion; do not treat rendered Chrome as certified."
+}

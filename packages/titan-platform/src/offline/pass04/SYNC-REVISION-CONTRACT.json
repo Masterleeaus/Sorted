@@ -1,0 +1,26 @@
+{
+  "schema": "titan-zero-offline-sync-revision-contract/v1",
+  "packet_id": "TZ-FINISH-OFFLINE-RESILIENCE-001",
+  "pass": 4,
+  "sync": {
+    "local_primary": true,
+    "company_boundary": "company_id",
+    "snapshot_company_scoped": true,
+    "cursor_durable": true,
+    "generation_durable": true,
+    "stale_generation": "REJECT_WITHOUT_APPLY",
+    "duplicate_record_in_pull": "FAIL_CLOSED"
+  },
+  "revision_rules": {
+    "remote_newer_clean_local": "APPLY_REMOTE",
+    "remote_newer_dirty_local": "EXPLICIT_CONFLICT",
+    "remote_older": "IGNORE_AS_STALE",
+    "same_revision_same_payload": "ACKNOWLEDGE_OR_ALREADY_CURRENT",
+    "same_revision_divergent_payload": "EXPLICIT_CONFLICT"
+  },
+  "authority": {
+    "server_grants_authority": false,
+    "identity_grants_authority": false,
+    "execution_authority": false
+  }
+}

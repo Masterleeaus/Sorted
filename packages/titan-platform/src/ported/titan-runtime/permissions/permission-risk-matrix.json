@@ -1,0 +1,505 @@
+{
+  "schema": "titan-zero-permission-risk-matrix/v1",
+  "packet_id": "TZ-FIX-PERMISSION-HARDENING-001",
+  "builder_workspace": "Builder 2",
+  "pass": 2,
+  "baseline": {
+    "artifact": "Titan-Zero-CANONICAL-MASTER-2026-09-08-MERGE-39-CHROME-REPAIR10-CONVERGED.zip",
+    "sha256": "c5c5bc321913dfd9f2d56847c43fa9cad3652907be94f163cbeacef9672c23c7",
+    "files": 2844
+  },
+  "classification_principles": [
+    "Static reference evidence is not sufficient to remove a permission.",
+    "Donor/compatibility-only means Titan-owned code did not provide direct evidence; retained donor functionality must still be preserved.",
+    "Sensitive permissions are reduced only after explicit user-action, denial, restart, and fallback tests exist.",
+    "No permission addition/removal or host-scope mutation occurs in Pass 2.",
+    "Manifest is Manager-only shared hotspot; Builder 2 may propose future minimal manifest deltas but does not directly converge them."
+  ],
+  "entries": [
+    {
+      "permission": "storage",
+      "classification": "required_titan_core",
+      "risk": "LOW",
+      "recommended_pass2_action": "KEEP_REQUIRED",
+      "justification": "Broad Titan-owned persistence/offline/settings/workforce usage; removing breaks core state.",
+      "evidence": {
+        "source": "chrome.storage",
+        "reference_count": 319,
+        "production_files": [
+          "background-bootstrap.js",
+          "cleaning-growth-marketplace.js",
+          "cleaning-growth-opportunity-intelligence.js",
+          "cleaning-growth-recommendations.js",
+          "cleaning-marketplace-action-queue.js",
+          "cleaning-marketplace-consolidation.js",
+          "cleaning-marketplace-renewal.js",
+          "cleaning-marketplace-value.js",
+          "cleaning-marketplace.js",
+          "cleaning-pilot-outcome-validation.js",
+          "cleaning-service-launch-economics.js",
+          "cleaning-service-launch-planner.js",
+          "cleaning-software-marketplace.js",
+          "cleaning-workforce-marketplace.js",
+          "content.js",
+          "content/all.iife.js",
+          "diagnostics.js",
+          "modules.js",
+          "monica-background.js",
+          "monica-content.js",
+          "offscreen/assets/auth-manager-pH2QX7Jc.js",
+          "offscreen/assets/index-B1QDSbwU.js",
+          "offscreen/assets/index-BzYwgI7n.js",
+          "offscreen/assets/index-D08rqSxx.js",
+          "offscreen/assets/llmConfigService-BZXHyOeL.js",
+          "offscreen/assets/storageUtils-DkecF1NS.js",
+          "offscreen/assets/unifiedFunctionExecutor-4UtoSB3u.js",
+          "retriever-background.iife.js",
+          "runtime/native-runtime-background.mjs",
+          "runtime/workforce-runtime-background.mjs",
+          "side-panel/assets/auth-manager-CpMXLbRb.js",
+          "side-panel/assets/index-C8c-GDqp.js",
+          "side-panel/assets/llmConfigService-FC6T5-i7.js",
+          "side-panel/assets/storageUtils-CrD87Pln.js",
+          "side-panel/titan-retriever-bridge.js",
+          "titan-cleaning-workforce.js",
+          "titan-client-workforce-controls.js",
+          "titan-client-workforce.js",
+          "titan-diagnostics-content.js",
+          "titan-electrical-workforce.js",
+          "titan-intelligence/core/storage.mjs",
+          "titan-intelligence/decision/adapter-registry.js",
+          "titan-intelligence/decision/adaptive-risk-assessment.js",
+          "titan-intelligence/decision/adaptive-time-policy.js",
+          "titan-intelligence/decision/authority-requirement-engine.js",
+          "titan-intelligence/decision/cross-domain-relationship-graph.js",
+          "titan-intelligence/decision/decision-explanation-engine.js",
+          "titan-intelligence/decision/packet-dedup-supersession.js",
+          "titan-intelligence/decision/recommended-action.js",
+          "titan-intelligence/decision/rewindable-decision-history.js",
+          "titan-intelligence/decision/t0gm-decision-view.js",
+          "titan-intelligence/decision/trust-aware-decision-gate.js",
+          "titan-intelligence/decision/unified-decision-feed.js",
+          "titan-intelligence/financial-engine/decision-packet-convergence.js",
+          "titan-intelligence/overseer.mjs",
+          "titan-intelligence/providers/ollama-local-provider.js",
+          "titan-intelligence/shield/decision-packet-convergence.js",
+          "titan-intelligence/shield/remediation-preview.js",
+          "titan-intelligence/trust/evidence-quality-engine.js",
+          "titan-launcher-overlay.js",
+          "titan-local/storage/bootstrap.mjs",
+          "titan-local/storage/legacy-storage-bridge.mjs",
+          "titan-local/storage/legacy-storage-migration.mjs",
+          "titan-modules/module-host.mjs",
+          "titan-observability/background.mjs",
+          "titan-options-bridge.js",
+          "titan-plumbing-workforce.js",
+          "titan-popup.js",
+          "titan-settings-integrated.js",
+          "titan-settings/control-plane/settings-storage-adapter.mjs",
+          "titan-shell.js",
+          "titan-tools/titan-tool-discovery-bridge.js",
+          "titan-workforce-agent-profile.js",
+          "titan-workforce-agents-persistence.js",
+          "titan-workforce-cleaning-catalogue.js",
+          "titan-workforce-gateway-client.js",
+          "titan-workforce-verticals-client.js",
+          "titan-workforce.js",
+          "titan-zero-chat-background.compat.js",
+          "titan-zero-chat-content.compat.js"
+        ],
+        "members": {
+          "local": 291,
+          "onChanged": 19,
+          "session": 9
+        }
+      }
+    },
+    {
+      "permission": "scripting",
+      "classification": "shared_required_currently",
+      "risk": "HIGH",
+      "recommended_pass2_action": "KEEP_REQUIRED_AND_GATE",
+      "justification": "Used by Titan shell and retained donor/compat paths for page execution; Pass 5 must place sensitive execution behind capability policy.",
+      "evidence": {
+        "source": "chrome.scripting",
+        "reference_count": 81,
+        "production_files": [
+          "monica-background.js",
+          "offscreen/assets/index-B1QDSbwU.js",
+          "offscreen/assets/index-D08rqSxx.js",
+          "offscreen/assets/unifiedFunctionExecutor-4UtoSB3u.js",
+          "retriever-background.iife.js",
+          "side-panel/assets/index-C8c-GDqp.js",
+          "side-panel/assets/index-DmDSrWNU.js",
+          "titan-shell.js",
+          "titan-zero-chat-background.compat.js"
+        ],
+        "members": {
+          "executeScript": 81
+        }
+      }
+    },
+    {
+      "permission": "sidePanel",
+      "classification": "required_titan_core",
+      "risk": "LOW",
+      "recommended_pass2_action": "KEEP_REQUIRED",
+      "justification": "Existing Titan shell/settings/popup and retained compatibility surfaces depend on sidePanel APIs.",
+      "evidence": {
+        "source": "chrome.sidePanel",
+        "reference_count": 43,
+        "production_files": [
+          "background-bootstrap.js",
+          "content.js",
+          "monica-background.js",
+          "monica-content.js",
+          "offscreen/assets/index-D08rqSxx.js",
+          "retriever-background.iife.js",
+          "side-panel/assets/index-DmDSrWNU.js",
+          "titan-options-bridge.js",
+          "titan-popup.js",
+          "titan-settings-integrated.js",
+          "titan-zero-chat-background.compat.js",
+          "titan-zero-chat-content.compat.js"
+        ],
+        "members": {
+          "getOptions": 3,
+          "open": 16,
+          "setOptions": 21,
+          "setPanelBehavior": 3
+        }
+      }
+    },
+    {
+      "permission": "contextMenus",
+      "classification": "shared_required_currently",
+      "risk": "MEDIUM",
+      "recommended_pass2_action": "KEEP_REQUIRED",
+      "justification": "Used by Titan background bootstrap and Retriever; current feature preservation requires it.",
+      "evidence": {
+        "source": "chrome.contextMenus",
+        "reference_count": 5,
+        "production_files": [
+          "background-bootstrap.js",
+          "retriever-background.iife.js"
+        ],
+        "members": {
+          "create": 2,
+          "onClicked": 1,
+          "remove": 1,
+          "removeAll": 1
+        }
+      }
+    },
+    {
+      "permission": "activeTab",
+      "classification": "unresolved_user_gesture_capability",
+      "risk": "MEDIUM",
+      "recommended_pass2_action": "KEEP_PENDING_RUNTIME_PROOF",
+      "justification": "No chrome.activeTab namespace exists to inventory; permission may narrow scripting/host access after explicit user gesture. Do not remove without scenario proof.",
+      "evidence": {
+        "source": "semantic_permission",
+        "reference_count": null,
+        "files": [],
+        "note": "No direct API namespace; runtime/user-gesture behavior must be verified."
+      }
+    },
+    {
+      "permission": "alarms",
+      "classification": "required_titan_core",
+      "risk": "LOW",
+      "recommended_pass2_action": "KEEP_REQUIRED",
+      "justification": "Titan intelligence overseer/local provider plus retained runtime use alarms for scheduled work.",
+      "evidence": {
+        "source": "chrome.alarms",
+        "reference_count": 39,
+        "production_files": [
+          "offscreen/assets/index-B1QDSbwU.js",
+          "retriever-background.iife.js",
+          "side-panel/assets/index-BzklHw8Q.js",
+          "side-panel/assets/index-C8c-GDqp.js",
+          "titan-intelligence/overseer.mjs",
+          "titan-intelligence/providers/ollama-local-provider.js"
+        ],
+        "members": {
+          "clear": 14,
+          "create": 17,
+          "get": 1,
+          "getAll": 2,
+          "onAlarm": 5
+        }
+      }
+    },
+    {
+      "permission": "tabGroups",
+      "classification": "donor_compat_only_currently",
+      "risk": "MEDIUM",
+      "recommended_pass2_action": "OPTIONALIZATION_CANDIDATE",
+      "justification": "Observed only in Monica/Retriever/compat surfaces; preserve until graceful denial and feature fallback are verified.",
+      "evidence": {
+        "source": "chrome.tabGroups",
+        "reference_count": 34,
+        "production_files": [
+          "monica-background.js",
+          "offscreen/assets/index-B1QDSbwU.js",
+          "offscreen/assets/unifiedFunctionExecutor-4UtoSB3u.js",
+          "retriever-background.iife.js",
+          "side-panel/assets/index-C8c-GDqp.js",
+          "titan-zero-chat-background.compat.js"
+        ],
+        "members": {
+          "TAB_GROUP_ID_NONE": 6,
+          "get": 8,
+          "move": 2,
+          "query": 3,
+          "update": 15
+        }
+      }
+    },
+    {
+      "permission": "notifications",
+      "classification": "donor_compat_only_currently",
+      "risk": "MEDIUM",
+      "recommended_pass2_action": "OPTIONALIZATION_CANDIDATE",
+      "justification": "Observed only in Retriever background; candidate for optional request if donor notification feature is invoked.",
+      "evidence": {
+        "source": "chrome.notifications",
+        "reference_count": 16,
+        "production_files": [
+          "retriever-background.iife.js"
+        ],
+        "members": {
+          "clear": 3,
+          "create": 5,
+          "getPermissionLevel": 2,
+          "onButtonClicked": 2,
+          "onClicked": 4
+        }
+      }
+    },
+    {
+      "permission": "offscreen",
+      "classification": "donor_compat_only_currently",
+      "risk": "MEDIUM",
+      "recommended_pass2_action": "OPTIONALIZATION_CANDIDATE",
+      "justification": "Observed only in Retriever background; retained donor capability may require it on demand.",
+      "evidence": {
+        "source": "chrome.offscreen",
+        "reference_count": 7,
+        "production_files": [
+          "retriever-background.iife.js"
+        ],
+        "members": {
+          "Reason": 3,
+          "closeDocument": 1,
+          "createDocument": 1,
+          "hasDocument": 2
+        }
+      }
+    },
+    {
+      "permission": "clipboardRead",
+      "classification": "shared_sensitive_currently",
+      "risk": "HIGH",
+      "recommended_pass2_action": "KEEP_REQUIRED_AND_GATE",
+      "justification": "Clipboard read references exist in Titan/compat/content paths. Must become explicit user-action capability before any least-privilege reduction.",
+      "evidence": {
+        "source": "navigator.clipboard",
+        "reference_count": 58,
+        "files": [
+          "content-runtime/actions.iife.js",
+          "content.js",
+          "content/all.iife.js",
+          "diagnostics.js",
+          "monica-background.js",
+          "monica-content.js",
+          "monica-popup.js",
+          "offscreen/assets/index-BzYwgI7n.js",
+          "retriever-background.iife.js",
+          "side-panel/assets/index-C8c-GDqp.js",
+          "titan-zero-chat-background.compat.js",
+          "titan-zero-chat-content.compat.js",
+          "titan-zero-chat-runtime.compat.js"
+        ]
+      }
+    },
+    {
+      "permission": "webNavigation",
+      "classification": "donor_compat_only_currently",
+      "risk": "HIGH",
+      "recommended_pass2_action": "OPTIONALIZATION_CANDIDATE",
+      "justification": "Observed only in Retriever background navigation tracking; broad observation should be gated/optionalized if retained behavior allows.",
+      "evidence": {
+        "source": "chrome.webNavigation",
+        "reference_count": 9,
+        "production_files": [
+          "retriever-background.iife.js"
+        ],
+        "members": {
+          "getAllFrames": 1,
+          "onCommitted": 5,
+          "onCompleted": 3
+        }
+      }
+    },
+    {
+      "permission": "webRequest",
+      "classification": "donor_compat_only_currently",
+      "risk": "CRITICAL",
+      "recommended_pass2_action": "OPTIONALIZATION_CANDIDATE",
+      "justification": "Observed only in Retriever background request observation; highly sensitive and should not remain unconditional if safe optionalization is possible.",
+      "evidence": {
+        "source": "chrome.webRequest",
+        "reference_count": 15,
+        "production_files": [
+          "retriever-background.iife.js"
+        ],
+        "members": {
+          "onBeforeRequest": 3,
+          "onBeforeSendHeaders": 3,
+          "onCompleted": 3,
+          "onErrorOccurred": 3,
+          "onHeadersReceived": 3
+        }
+      }
+    },
+    {
+      "permission": "cookies",
+      "classification": "donor_compat_only_optional",
+      "risk": "CRITICAL",
+      "recommended_pass2_action": "KEEP_OPTIONAL_AND_GATE",
+      "justification": "Already optional; observed only in retained donor bundles. Request only from explicit user action with domain scoping where Chrome API permits.",
+      "evidence": {
+        "source": "chrome.cookies",
+        "reference_count": 9,
+        "production_files": [
+          "offscreen/assets/index-B1QDSbwU.js",
+          "retriever-background.iife.js",
+          "side-panel/assets/index-BzklHw8Q.js",
+          "side-panel/assets/index-C8c-GDqp.js"
+        ],
+        "members": {
+          "getAll": 9
+        }
+      }
+    },
+    {
+      "permission": "<all_urls>",
+      "classification": "shared_host_scope_currently",
+      "risk": "CRITICAL",
+      "recommended_pass2_action": "REDUCTION_CANDIDATE_NOT_PASS2",
+      "justification": "Required by current content-script/compat model, but broad host scope is the largest exposure. Later passes must prove restricted-site safeguards and scoped/activeTab alternatives before narrowing.",
+      "evidence": {
+        "source": "manifest_host_scope",
+        "reference_count": null,
+        "content_script_match_sets": [
+          [
+            "http://*/*",
+            "https://*/*",
+            "<all_urls>"
+          ],
+          [
+            "http://*/*",
+            "https://*/*",
+            "<all_urls>"
+          ],
+          [
+            "http://*/*",
+            "https://*/*",
+            "<all_urls>"
+          ],
+          [
+            "<all_urls>"
+          ]
+        ]
+      }
+    }
+  ],
+  "undeclared_or_legacy_api_findings": [
+    {
+      "api_namespace": "identity",
+      "expected_or_related_permission": "identity",
+      "risk": "HIGH",
+      "reference_count": 88,
+      "production_files": [
+        "content/all.iife.js",
+        "offscreen/assets/auth-manager-pH2QX7Jc.js",
+        "offscreen/assets/index-B1QDSbwU.js",
+        "offscreen/assets/unifiedFunctionExecutor-4UtoSB3u.js",
+        "retriever-background.iife.js",
+        "side-panel/assets/auth-manager-CpMXLbRb.js",
+        "side-panel/assets/index-C8c-GDqp.js"
+      ],
+      "disposition": "INVESTIGATE_NO_MANIFEST_EXPANSION_IN_PASS2",
+      "note": "chrome.identity calls are present in retained donor bundles but identity is not declared; feature may fail or depend on alternate auth path. Validate before adding permission."
+    },
+    {
+      "api_namespace": "gcm",
+      "expected_or_related_permission": "gcm",
+      "risk": "HIGH",
+      "reference_count": 2,
+      "production_files": [
+        "retriever-background.iife.js"
+      ],
+      "disposition": "INVESTIGATE_NO_MANIFEST_EXPANSION_IN_PASS2",
+      "note": "Legacy chrome.gcm references exist in Retriever; API is legacy/deprecated context and should not trigger automatic permission expansion."
+    },
+    {
+      "api_namespace": "instanceID",
+      "expected_or_related_permission": "gcm/legacy",
+      "risk": "HIGH",
+      "reference_count": 10,
+      "production_files": [
+        "retriever-background.iife.js"
+      ],
+      "disposition": "INVESTIGATE_NO_MANIFEST_EXPANSION_IN_PASS2",
+      "note": "Deprecated chrome.instanceID references exist and are covered by an explicit compatibility test; preserve compatibility while planning migration, do not grant new authority."
+    }
+  ],
+  "summary_by_classification": {
+    "required_titan_core": 3,
+    "shared_required_currently": 2,
+    "unresolved_user_gesture_capability": 1,
+    "donor_compat_only_currently": 5,
+    "shared_sensitive_currently": 1,
+    "donor_compat_only_optional": 1,
+    "shared_host_scope_currently": 1
+  },
+  "risk_order": [
+    "LOW",
+    "MEDIUM",
+    "HIGH",
+    "CRITICAL"
+  ],
+  "pass2_decisions": {
+    "manifest_changed": false,
+    "permission_removed": false,
+    "permission_added": false,
+    "host_scope_changed": false,
+    "highest_priority_for_runtime_gating": [
+      "webRequest",
+      "cookies",
+      "<all_urls>",
+      "scripting",
+      "clipboardRead",
+      "webNavigation"
+    ],
+    "safe_optionalization_candidates_for_pass4": [
+      "cookies",
+      "notifications",
+      "offscreen",
+      "tabGroups",
+      "webNavigation",
+      "webRequest"
+    ],
+    "must_preserve_until_proven": [
+      "Retriever/Monica donor capability",
+      "Titan shell/settings/workforce behavior",
+      "device-first operation",
+      "company_id boundary",
+      "AI identity not authority"
+    ]
+  },
+  "authority_effect": "NONE",
+  "company_boundary_change": "NONE"
+}

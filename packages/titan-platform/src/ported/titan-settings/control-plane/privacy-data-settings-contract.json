@@ -1,0 +1,35 @@
+{
+  "schema":"titan.settings.privacy-data-settings-contract.v1",
+  "setting_key":"privacyDataSettings",
+  "scope":"company",
+  "owner":"privacy_runtime",
+  "composes_existing_device_settings":["privateMode"],
+  "runtime_owners":[
+    "titan-intelligence/core/defaults.mjs",
+    "titan-intelligence/core/dynamic-intelligence-topology.mjs",
+    "titan-workforce/privacy/workforce-privacy-evidence-runtime.mjs"
+  ],
+  "hard_rules":[
+    "company_id is the sole company boundary",
+    "privateMode forces cloud processing off",
+    "cloud processing requires explicit company allowance and runtime availability",
+    "sensitive cloud processing requires a separate explicit company allowance and runtime sensitive-data gate",
+    "sensitive evidence minimisation cannot be disabled",
+    "evidence export remains deny-by-default and requires explicit runtime approval",
+    "sensitive evidence export requires redaction",
+    "automatic hard deletion is not enabled by Settings",
+    "audit and authority history cannot be hard deleted by Settings",
+    "protected history disposition remains TOMBSTONE_OR_REDACT",
+    "Settings does not export, delete, grant authority or execute"
+  ],
+  "defaults":{
+    "prefer_local_processing":true,
+    "cloud_processing_allowed":false,
+    "sensitive_data_cloud_allowed":false,
+    "require_data_minimisation":true,
+    "require_export_approval":true,
+    "require_sensitive_export_redaction":true,
+    "automatic_deletion":false,
+    "preserve_audit_authority_history":true
+  }
+}

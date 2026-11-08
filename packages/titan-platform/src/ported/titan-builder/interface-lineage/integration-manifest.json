@@ -1,0 +1,26 @@
+{
+  "schema": "titan-zero.interface-builder-lineage.v1",
+  "donor": "Titan Interface Builder Frontend Pass24-27 lineage",
+  "company_boundary": "company_id",
+  "activation_confers_authority": false,
+  "retained_patterns": [
+    "immutable published extension-screen layout transport",
+    "screen-pattern and safe runtime_path binding",
+    "responsive per-screen breakpoint metadata",
+    "presentation profiles inherit/soft/contrast",
+    "deterministic three-way upgrade merge",
+    "validated-forward compatibility check"
+  ],
+  "excluded": [
+    "Laravel controllers/providers/migrations",
+    "host menu/auth implementation",
+    "public CMS write implementation",
+    "duplicate Frontend runtime",
+    "historical variants"
+  ],
+  "authority": {
+    "builder": "presentation authoring/publish only",
+    "interface_runtime": "internal screen validation/rendering",
+    "public_site": "external/shared runtime, not imported"
+  }
+}

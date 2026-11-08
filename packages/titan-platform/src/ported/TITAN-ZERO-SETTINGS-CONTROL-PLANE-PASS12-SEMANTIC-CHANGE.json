@@ -1,0 +1,11 @@
+{
+  "schema":"titan-zero-settings-control-plane-semantic-change/v1",
+  "pass":12,
+  "feature":"Approval Policy Settings",
+  "classification":"ADDITIVE_CONTROL_PLANE_POLICY_PROJECTION",
+  "summary":"Adds company-scoped approval requirement floors over the existing authority runtime. Settings can require stricter review/approval but cannot weaken runtime requirements, create approvals, satisfy approvals, grant authority or execute actions.",
+  "runtime_owners_preserved":["titan-runtime/authority/authority-evaluator.mjs","titan-runtime/authority/worker-authority.mjs","titan-intelligence/decision/authority-requirement-engine.js"],
+  "company_boundary":"company_id",
+  "grants_authority":false,
+  "execution_permitted":false
+}

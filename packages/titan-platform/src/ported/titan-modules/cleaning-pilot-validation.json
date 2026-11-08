@@ -1,0 +1,9 @@
+{
+  "schema":"titan-cleaning-pilot-validation/v1",
+  "version":"2026.09.07-pass7",
+  "policy":"Pilot validation is advisory and derived only from company-entered pilot evidence plus company-entered commercial assumptions. It does not approve scaling, pricing, spending, publishing, scheduling or execution.",
+  "variance_tolerance_percent":10,
+  "max_pilots_per_service":50,
+  "quality_outcomes":["excellent","good","acceptable","rework_required","failed"],
+  "customer_outcomes":["delighted","satisfied","neutral","dissatisfied","complaint"]
+}

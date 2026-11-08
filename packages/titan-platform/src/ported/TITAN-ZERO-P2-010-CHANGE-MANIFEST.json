@@ -1,0 +1,46 @@
+{
+  "schema": "titan-zero-semantic-change/v2",
+  "task_id": "TZ-P2-010",
+  "status": "READY_FOR_MANAGER_MERGE",
+  "frozen_task_base": {
+    "artifact": "Titan-Zero-v0.18.4-Manager-Canonical-Monica-Background-Boundary-CUMULATIVE.zip",
+    "sha256": "6470135fa5a465a2de969f05ed965c176018ba78d55bf4105018fa41a6874a78",
+    "files": 999
+  },
+  "capabilities_added": [
+    "durable company-scoped MV3 restart checkpoints",
+    "startup recovery of incomplete operations",
+    "explicit resume acknowledgement bound to idempotency identity",
+    "no automatic side-effect replay after service-worker restart"
+  ],
+  "contracts_added": [
+    "titan.offline.restart-checkpoint.v1"
+  ],
+  "contracts_modified": [
+    "TitanZeroRuntime exposes restartRecovery snapshot and acknowledgeRestartResume"
+  ],
+  "authority_effect": "none; recovery state and checkpoint identity never grant authority",
+  "storage": "uses existing TitanBusinessDatabase records under module titan.offline / collection restart-checkpoints",
+  "integration_points": [
+    "runtime/native-runtime-background.mjs"
+  ],
+  "files_added": [
+    "TITAN-ZERO-P2-010-CHANGE-MANIFEST.json",
+    "TITAN-ZERO-P2-010-VERIFICATION.json",
+    "titan-offline/README.md",
+    "titan-offline/index.mjs",
+    "titan-offline/restart-checkpoint.mjs",
+    "titan-offline/verify.mjs"
+  ],
+  "files_modified": [
+    "runtime/native-runtime-background.mjs"
+  ],
+  "files_deleted": [],
+  "overlap_evidence": {
+    "P2_009_exclusive_overlap": [],
+    "P1_007_exclusive_overlap": [],
+    "manifest_overlap": [],
+    "ui_overlap": []
+  },
+  "recommended_convergence_class": "CLEAN_FORWARD_PORT"
+}

@@ -1,0 +1,11 @@
+import fs from "node:fs";import assert from "node:assert/strict";
+const src=fs.readFileSync(new URL("../src/titan-builder/auto-binding.ts",import.meta.url),"utf8");
+const bridge=fs.readFileSync(new URL("../src/titan-builder/runtime-bridge.ts",import.meta.url),"utf8");
+const studio=fs.readFileSync(new URL("../../../apps/web/app/app/builder/BuilderStudio.tsx",import.meta.url),"utf8");
+assert.match(src,/inferBuilderDataBinding/);
+assert.match(src,/crm-owner-approvals/);assert.match(src,/crm-owner-finance-summary/);assert.match(src,/crm-field-assigned-work/);assert.match(src,/crm-customer-bookings/);
+assert.match(src,/mode:\s*"read-only"/);assert.match(src,/if\(node\.id==="root" \|\| \(node\.props as any\)\?\.data_binding\?\.source\)/);
+assert.match(bridge,/applyAutomaticBuilderBindings\([\s\S]*workspace\.snapshot\(\)[\s\S]*input\.intent\.purpose/);
+assert.match(studio,/Auto-bound/);assert.match(studio,/setDataSource\(e\.target\.value\)/);
+assert.doesNotMatch(src,/fetch\s*\(/);assert.doesNotMatch(src,/portableQuery|INSERT|UPDATE|DELETE/);
+console.log("Titan Builder Pass19 automatic binding source checks: PASS");

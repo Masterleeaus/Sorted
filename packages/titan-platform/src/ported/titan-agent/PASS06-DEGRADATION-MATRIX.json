@@ -1,0 +1,106 @@
+{
+  "schema": "titan-zero-reliability-degradation-matrix/v1",
+  "packet_id": "TZ-FINISH-005",
+  "pass": 6,
+  "generated_at": "2026-09-05T03:35:29Z",
+  "company_boundary": "company_id",
+  "authority_neutral": true,
+  "silent_fallback": false,
+  "dependencies": {
+    "browser": {
+      "read_only": [
+        "preserve_ui_state",
+        "reload_surface_or_retry",
+        "surface_dependency_status"
+      ],
+      "diagnostic": [
+        "preserve_ui_state",
+        "reload_surface_or_retry",
+        "surface_dependency_status"
+      ],
+      "durable_write": [
+        "fail_closed",
+        "preserve_intent",
+        "surface_dependency_status",
+        "retry_primary"
+      ],
+      "authority_sensitive": [
+        "fail_closed",
+        "preserve_intent",
+        "surface_dependency_status",
+        "retry_primary"
+      ]
+    },
+    "storage": {
+      "read_only": [
+        "read_verified_cache_if_explicit_else_unavailable"
+      ],
+      "diagnostic": [
+        "read_verified_cache_if_explicit_else_unavailable"
+      ],
+      "durable_write": [
+        "fail_closed",
+        "preserve_intent",
+        "surface_dependency_status",
+        "retry_primary"
+      ],
+      "authority_sensitive": [
+        "fail_closed",
+        "preserve_intent",
+        "surface_dependency_status",
+        "retry_primary"
+      ]
+    },
+    "local_bridge": {
+      "read_only": [
+        "device_fallback_if_explicit",
+        "byo_fallback_if_non_sensitive_and_explicit",
+        "surface_dependency_status"
+      ],
+      "diagnostic": [
+        "device_fallback_if_explicit",
+        "byo_fallback_if_non_sensitive_and_explicit",
+        "surface_dependency_status"
+      ],
+      "durable_write": [
+        "fail_closed",
+        "preserve_intent",
+        "surface_dependency_status",
+        "retry_primary"
+      ],
+      "authority_sensitive": [
+        "fail_closed",
+        "preserve_intent",
+        "surface_dependency_status",
+        "retry_primary"
+      ]
+    },
+    "network": {
+      "read_only": [
+        "verified_cache_if_explicit_else_offline_read_mode",
+        "surface_dependency_status"
+      ],
+      "diagnostic": [
+        "verified_cache_if_explicit_else_offline_read_mode",
+        "surface_dependency_status"
+      ],
+      "durable_write": [
+        "durable_offline_queue_only_if_idempotent_and_explicitly_available_else_fail_closed"
+      ],
+      "authority_sensitive": [
+        "fail_closed",
+        "preserve_intent",
+        "surface_dependency_status",
+        "retry_primary"
+      ]
+    }
+  },
+  "safety_assertions": [
+    "no_cross_company_fallback",
+    "no_authority_grant",
+    "no_permission_change",
+    "no_autonomy_change",
+    "no_memory_only_durable_write_fallback",
+    "no_silent_provider_switch"
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "schema": "titan-zero-workforce-scheduling-pass06/v1",
+  "packet_id": "TZ-NEXT-004",
+  "pass": 6,
+  "live_manager_rebase": {
+    "from_merge": 42,
+    "to_merge": 44,
+    "artifact": "Titan-Zero-CANONICAL-MASTER-2026-09-09-MERGE-44-PAYLOAD-SLIM-CONVERGED.zip",
+    "sha256": "cde880ecacb7319d1c2c7a87003e6eb6bade34881d646acb7a686393ecb3ff58",
+    "files": 2932
+  },
+  "existing_contracts_reused": [
+    "service_booking duration_minutes",
+    "Jobs field equipment/material context",
+    "generic Work Planner skills/duration/equipment/material requirements",
+    "Cleaning Crew Planner cleaner count/labour/equipment semantics",
+    "Pass3 candidate matching",
+    "Pass4 team hierarchy",
+    "Pass5 conflict evidence"
+  ],
+  "requirements_policy": "duration, crew size and equipment must be supplied with source evidence; none are inferred",
+  "authority_policy": "suggestions are proposal-only and require fresh assignment authority",
+  "company_boundary": "company_id only"
+}

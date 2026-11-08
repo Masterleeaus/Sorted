@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "titan.workforce.privacy-evidence-controls.v1",
+  "title": "Titan Workforce Privacy Evidence Controls",
+  "type": "object",
+  "required": [
+    "schema",
+    "company_id",
+    "control_id",
+    "purpose",
+    "evidence",
+    "readiness"
+  ],
+  "properties": {
+    "schema": {
+      "const": "titan.workforce.privacy-evidence-controls.v1"
+    },
+    "company_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    },
+    "control_id": {
+      "type": "string"
+    },
+    "purpose": {
+      "type": "object"
+    },
+    "evidence": {
+      "type": "array"
+    },
+    "delegations": {
+      "type": "array"
+    },
+    "retention": {
+      "type": "object"
+    },
+    "export_policy": {
+      "type": "object"
+    },
+    "deletion_policy": {
+      "type": "object"
+    },
+    "readiness": {
+      "type": "object"
+    },
+    "authority_granted": {
+      "const": false
+    },
+    "execution_permitted": {
+      "const": false
+    },
+    "grants_authority": {
+      "const": false
+    }
+  }
+}

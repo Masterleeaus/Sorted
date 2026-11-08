@@ -1,0 +1,18 @@
+{
+  "schema":"titan-zero-semantic-change/v1",
+  "packet_id":"TZ-NEXT-011",
+  "pass":4,
+  "title":"Separate external messages from operational activity while preserving navigation/deep links.",
+  "manager_baseline":{"merge":21,"artifact":"Titan-Zero-CANONICAL-MASTER-2026-09-06-MERGE-21-ALL-LINEAGES-CONVERGED.zip","sha256":"bf39506c0f3c849b1496d77c6dd9b079cf5ab999746c1e9cfb64b10be38fbe5c"},
+  "changes":[
+    "Added one authority-neutral Feed/Inbox routing contract.",
+    "External customer/client/lead communication routes to Inbox lifecycle ownership.",
+    "Operational/workforce/job/execution activity remains on the operational Feed projection.",
+    "Contradictory external+operational signals fail closed instead of silently mixing lifecycle ownership.",
+    "Navigation and deep-link context is preserved across route/view/url/thread/message/conversation/entity references.",
+    "Unsafe script-style deep links are rejected.",
+    "No visible shell/page-wiring hotspot was modified."
+  ],
+  "authority":{"company_boundary":"company_id only","routing_grants_authority":false,"identity_grants_authority":false},
+  "next_pass":5
+}

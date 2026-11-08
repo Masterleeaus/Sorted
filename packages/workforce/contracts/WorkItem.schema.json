@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": [
+    "work_item_id",
+    "company_id",
+    "work_type",
+    "state",
+    "priority",
+    "dependencies",
+    "required_capabilities",
+    "trace_id",
+    "correlation_id"
+  ],
+  "properties": {
+    "work_item_id": {
+      "type": "string"
+    },
+    "company_id": {
+      "type": "string"
+    },
+    "work_type": {
+      "type": "string"
+    },
+    "state": {
+      "enum": [
+        "open",
+        "ready",
+        "assigned",
+        "in_progress",
+        "waiting_approval",
+        "blocked",
+        "attention_required",
+        "recovery",
+        "completed",
+        "cancelled"
+      ]
+    },
+    "priority": {
+      "type": "integer"
+    },
+    "dependencies": {
+      "type": "array"
+    },
+    "required_capabilities": {
+      "type": "array"
+    },
+    "required_human": {
+      "type": "boolean"
+    },
+    "trace_id": {
+      "type": "string"
+    },
+    "correlation_id": {
+      "type": "string"
+    },
+    "causation_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  }
+}

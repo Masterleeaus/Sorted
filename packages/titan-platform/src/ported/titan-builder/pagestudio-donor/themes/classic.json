@@ -1,0 +1,27 @@
+{
+  "id": "classic",
+  "theme": {
+    "name": "classic",
+    "extends": "default",
+    "asset-path": "themes/classic",
+    "wideLayoutPaddingX": "px-4 lg:px-10",
+    "defaultVariations": {
+      "card": {
+        "variant": "outline-shadow",
+        "size": "md"
+      }
+    },
+    "dashboard": {
+      "googleFonts": {
+        "Poppins": [
+          "400",
+          "500",
+          "600",
+          "700"
+        ]
+      }
+    },
+    "description": "classic \u2014 TG: @heew_support",
+    "support_telegram": "heew_support"
+  }
+}

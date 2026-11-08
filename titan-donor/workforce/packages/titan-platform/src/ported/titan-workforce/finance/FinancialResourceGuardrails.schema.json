@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "titan.workforce.financial-resource-guardrails.v1",
+  "title": "Titan Workforce Financial Resource Guardrails",
+  "type": "object",
+  "required": [
+    "schema",
+    "company_id",
+    "limits",
+    "policy",
+    "authority_granted",
+    "execution_permitted",
+    "grants_authority"
+  ],
+  "properties": {
+    "schema": {
+      "const": "titan.workforce.financial-resource-guardrails.v1"
+    },
+    "company_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "limits": {
+      "type": "array"
+    },
+    "policy": {
+      "type": "object"
+    },
+    "authority_granted": {
+      "const": false
+    },
+    "execution_permitted": {
+      "const": false
+    },
+    "grants_authority": {
+      "const": false
+    }
+  },
+  "additionalProperties": true
+}

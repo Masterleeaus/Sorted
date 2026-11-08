@@ -1,0 +1,105 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "titan.client.workforce.manager-projection.v2",
+  "type": "object",
+  "additionalProperties": true,
+  "required": [
+    "schema",
+    "company_id",
+    "assignments",
+    "approval_waits",
+    "escalations",
+    "projected_at",
+    "projection_revision",
+    "sync_generation",
+    "component_cursors",
+    "grants_authority"
+  ],
+  "properties": {
+    "schema": {
+      "enum": [
+        "titan.client.workforce.manager-projection.v1",
+        "titan.client.workforce.manager-projection.v2"
+      ]
+    },
+    "company_id": {
+      "type": "string",
+      "minLength": 2,
+      "maxLength": 128,
+      "pattern": "^[A-Za-z0-9._:-]+$"
+    },
+    "projection_revision": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "projection_cursor": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "maxLength": 240
+    },
+    "sync_generation": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "sync_started_at_ms": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "component_cursors": {
+      "type": "object"
+    },
+    "assignments": {
+      "type": "array"
+    },
+    "approval_waits": {
+      "type": "array"
+    },
+    "escalations": {
+      "type": "array"
+    },
+    "roster": {
+      "type": "array"
+    },
+    "change_requests": {
+      "type": "array"
+    },
+    "workforce_profile": {
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "handover": {
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "projected_at": {
+      "type": "string"
+    },
+    "grants_authority": {
+      "const": false
+    },
+    "workforce_graph": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "schema": {
+          "const": "titan.workforce.graph.v1"
+        },
+        "company_id": {
+          "type": "string"
+        },
+        "grants_authority": {
+          "const": false
+        }
+      },
+      "additionalProperties": true
+    }
+  }
+}

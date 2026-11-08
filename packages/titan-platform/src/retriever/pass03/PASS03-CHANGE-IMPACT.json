@@ -1,0 +1,7 @@
+{
+  "schema": "titan-zero-retriever-finish-pass03-change-impact/v1",
+  "packet_id": "TZ-FINISH-RETRIEVER-NATIVE-001",
+  "pass": 3,
+  "impact": "Additive isolated lifecycle module and tests under Builder3 exclusive Retriever hotspot. Existing UI, package public exports, browser extension donor assets and shared workforce exports are unchanged.",
+  "rollback": "Remove lifecycle.ts, Pass3 test/evidence, and lifecycle export from src/retriever/index.ts."
+}

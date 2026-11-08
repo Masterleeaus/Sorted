@@ -1,0 +1,9 @@
+{
+  "schema":"titan-zero-settings-control-plane-handoff/v1",
+  "pass":10,
+  "status":"CHECKPOINT_COMPLETE_CONTINUE_30_PASS_PLAN",
+  "manager_base":{"merge":23,"sha256":"e6d4cbc9453fb42b31dbea02ac14d491272adf9b73f6c4554d172794d2710bad"},
+  "completed":"Advanced Intelligence Behaviour",
+  "next":{"pass":11,"title":"Autonomy Settings Centre"},
+  "rules":{"rescan_live_manager_before_next_pass":true,"company_boundary":"company_id only","identity_grants_authority":false,"preserve_existing_ui_and_runtime":true}
+}

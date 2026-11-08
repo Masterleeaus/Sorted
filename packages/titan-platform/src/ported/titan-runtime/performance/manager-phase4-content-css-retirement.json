@@ -1,0 +1,21 @@
+{
+  "schema": "titan-zero-manager-content-css-retirement/v1",
+  "parent_merge": 44,
+  "directive": "TZ-MGR-DONOR-SLIM-M44-004",
+  "status": "VERIFICATION_CANDIDATE",
+  "retired": "content.css",
+  "retired_sha256": "bac75be20e6f66f1ea5291141a2067157687a764012c5fc8478ce6191f9e464c",
+  "retained": "titan-zero-chat-content.compat.css",
+  "retained_sha256": "bac75be20e6f66f1ea5291141a2067157687a764012c5fc8478ce6191f9e464c",
+  "compat_js_old_sha256": "987c0de84d020c8484fb1cc7da81a69346e1bd940f7b72874d8ffa82fbfe6ab8",
+  "compat_js_new_sha256": "7823c16665d37581e460b70d3e888db7d45786b6a5c5ca868214d5b3088ff441",
+  "compat_js_replacements": 6,
+  "page_rewires": [
+    "chatTab.html",
+    "monicaOptions.html"
+  ],
+  "retriever_retained": true,
+  "authority_effect": false,
+  "company_boundary": "company_id_only",
+  "identity_not_authority": true
+}

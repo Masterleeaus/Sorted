@@ -1,0 +1,16 @@
+{
+  "category": "model-providers",
+  "extensions": [
+    "AzureOpenai",
+    "AzureTTS",
+    "FluxPro",
+    "Midjourney",
+    "ModelCouncil",
+    "MultiModel",
+    "NanoBanana",
+    "OpenRouter",
+    "Perplexity",
+    "SeeDreamV4"
+  ],
+  "count": 10
+}

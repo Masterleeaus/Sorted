@@ -1,0 +1,30 @@
+const LEGACY_KEYS=["tenant_company_id","tenant_id","account_id","business_id"];
+const CHANNELS=["SMS","EMAIL","WHATSAPP","MESSENGER","TELEGRAM"];
+const UNITS=["DAYS","WEEKS","MONTHS"];
+const req=(v,n)=>{if(typeof v!=="string"||!v.trim())throw new Error(`missing ${n}`);return v.trim()};
+const rejectLegacy=i=>{for(const k of LEGACY_KEYS)if(i&&Object.prototype.hasOwnProperty.call(i,k))throw new Error(`legacy company boundary rejected: ${k}`)};
+const int=(v,n,min,max)=>{if(!Number.isInteger(v)||v<min||v>max)throw new Error(`invalid ${n}`);return v};
+const bool=(v,n)=>{if(typeof v!=="boolean")throw new Error(`invalid ${n}`);return v};
+const uniq=a=>[...new Set((a||[]).filter(Boolean))].sort();
+const interval=(v,n)=>{if(!v||typeof v!=="object")throw new Error(`invalid ${n}`);const unit=req(v.unit,`${n}.unit`).toUpperCase();if(!UNITS.includes(unit))throw new Error(`invalid ${n}.unit`);return{value:int(v.value,`${n}.value`,1,3650),unit}};
+const channels=v=>{if(!Array.isArray(v))throw new Error("invalid outreach.channels");const out=uniq(v.map(x=>req(x,"outreach.channel").toUpperCase()));for(const c of out)if(!CHANNELS.includes(c))throw new Error(`unsupported channel: ${c}`);return out};
+const quiet=v=>{if(!v||typeof v!=="object")throw new Error("invalid outreach.quiet_hours");const p=/^(?:[01]\d|2[0-3]):[0-5]\d$/;if(!p.test(v.start)||!p.test(v.end))throw new Error("invalid outreach.quiet_hours");return{start:v.start,end:v.end}};
+export function buildRebookingSettingsPolicy(input={}){
+ rejectLegacy(input);const company_id=req(input.company_id,"company_id");const revision=int(input.revision,"revision",0,2147483647);const producer=req(input.provenance?.producer,"provenance.producer");
+ const cadenceDefault=interval(input.cadence?.default_interval,"cadence.default_interval");
+ const dormancy=int(input.dormancy?.threshold_days,"dormancy.threshold_days",1,3650);
+ const outreach=input.outreach||{};const allowed=channels(outreach.channels||[]);const qh=quiet(outreach.quiet_hours);
+ const cap7=int(outreach.frequency_caps?.max_7d,"outreach.frequency_caps.max_7d",0,100);const cap30=int(outreach.frequency_caps?.max_30d,"outreach.frequency_caps.max_30d",0,500);if(cap30<cap7)throw new Error("invalid outreach frequency cap relationship");
+ const suppression=input.suppression||{};const blockComplaint=bool(suppression.block_open_complaint,"suppression.block_open_complaint");const blockRecovery=bool(suppression.block_service_recovery,"suppression.block_service_recovery");const blockBooking=bool(suppression.block_active_booking,"suppression.block_active_booking");
+ const auto=input.auto_proposal||{};const rec=int(auto.recurring_score_threshold,"auto_proposal.recurring_score_threshold",0,100);const react=int(auto.reactivation_score_threshold,"auto_proposal.reactivation_score_threshold",0,100);const enabled=bool(auto.enabled,"auto_proposal.enabled");
+ const incentive=input.incentive||{};const incentiveEnabled=bool(incentive.enabled,"incentive.enabled");const maxPct=int(incentive.max_discount_percent,"incentive.max_discount_percent",0,100);const requiresApproval=bool(incentive.requires_explicit_approval,"incentive.requires_explicit_approval");if(incentiveEnabled&&!requiresApproval)throw new Error("incentive authority must require explicit approval");
+ const configured={cadence:{default_interval:cadenceDefault,customer_change_requires_verified_intent:true},dormancy:{threshold_days:dormancy},outreach:{channels:allowed,quiet_hours:qh,frequency_caps:{max_7d:cap7,max_30d:cap30},consent_required:true,opt_out_dominates:true},suppression:{block_open_complaint:blockComplaint,block_service_recovery:blockRecovery,block_active_booking:blockBooking,consent_and_opt_out_non_overridable:true},auto_proposal:{enabled,recurring_score_threshold:rec,reactivation_score_threshold:react,proposal_only:true,human_review_required:true},incentive:{enabled:incentiveEnabled,max_discount_percent:maxPct,requires_explicit_approval:requiresApproval,may_not_self_authorize:true}};
+ return{schema:"titan.workforce.starter.rebooking-settings-policy.v1",company_id,revision,configured,provenance:{producer,evidence_refs:uniq(input.provenance?.evidence_refs)},governance:{settings_are_policy_not_authority:true,identity_is_authority:false,may_override_consent:false,may_override_opt_out:false,may_override_suppression:false,may_grant_authority:false,may_execute:false,may_send_outreach:false,may_create_booking:false,may_create_schedule:false,may_change_recurrence:false},creates_schedule:false,creates_booking:false,sends_outreach:false,changes_consent:false,changes_authority:false,execution_permitted:false,grants_authority:false};
+}
+export function evaluateRebookingAutoProposal(policy,input={}){
+ if(!policy||policy.schema!=="titan.workforce.starter.rebooking-settings-policy.v1")throw new Error("invalid rebooking settings policy");rejectLegacy(input);if(input.company_id!==policy.company_id)throw new Error("cross-company settings evaluation");
+ const type=req(input.type,"type").toUpperCase();if(!["RECURRING","REACTIVATION"].includes(type))throw new Error("unsupported proposal type");const score=int(input.score,"score",0,100);const threshold=type==="RECURRING"?policy.configured.auto_proposal.recurring_score_threshold:policy.configured.auto_proposal.reactivation_score_threshold;
+ const blockers=[];if(!policy.configured.auto_proposal.enabled)blockers.push("AUTO_PROPOSAL_DISABLED");if(input.consent_known!==true)blockers.push("CONSENT_UNKNOWN");if(input.consent_permitted!==true)blockers.push("CONSENT_NOT_PERMITTED");if(input.opted_out===true)blockers.push("OPTED_OUT");if(input.suppressed===true)blockers.push("SUPPRESSED");
+ const eligible=score>=threshold&&blockers.length===0;
+ return{schema:"titan.workforce.starter.rebooking-auto-proposal-evaluation.v1",company_id:policy.company_id,type,score,threshold,state:eligible?"PROPOSAL_REVIEW_READY":"NOT_READY",blockers,proposal_only:true,human_review_required:true,creates_booking:false,creates_schedule:false,sends_outreach:false,execution_permitted:false,grants_authority:false,identity_is_authority:false};
+}

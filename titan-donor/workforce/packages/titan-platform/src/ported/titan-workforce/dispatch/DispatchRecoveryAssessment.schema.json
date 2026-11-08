@@ -1,0 +1,28 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema",
+  "$id":"titan.workforce.dispatch.recovery-assessment.v1",
+  "title":"DispatchRecoveryAssessment",
+  "type":"object",
+  "additionalProperties":false,
+  "required":["schema","company_id","state","duplicate_event_ids","conflicting_event_ids","stale_event_ids","future_revision_event_ids","recovery_quarantine_ids","restart_resume_candidate_ids","auto_replay","direct_mutation","execution_permitted","grants_authority"],
+  "properties":{
+    "schema":{"const":"titan.workforce.dispatch.recovery-assessment.v1"},
+    "company_id":{"type":"string","minLength":1},
+    "state":{"enum":["CLEAR","REVIEW_REQUIRED","BLOCKED_STALE_OR_CONFLICTING_EVIDENCE"]},
+    "duplicate_event_ids":{"type":"array","items":{"type":"string"},"uniqueItems":true},
+    "conflicting_event_ids":{"type":"array","items":{"type":"string"},"uniqueItems":true},
+    "stale_event_ids":{"type":"array","items":{"type":"string"},"uniqueItems":true},
+    "future_revision_event_ids":{"type":"array","items":{"type":"string"},"uniqueItems":true},
+    "recovery_quarantine_ids":{"type":"array","items":{"type":"string"},"uniqueItems":true},
+    "restart_resume_candidate_ids":{"type":"array","items":{"type":"string"},"uniqueItems":true},
+    "requires_authoritative_refresh":{"type":"boolean"},
+    "requires_explicit_resume":{"type":"boolean"},
+    "canonical_job_state_owned_elsewhere":{"const":true},
+    "auto_replay":{"const":false},
+    "automatic_job_state_repair":{"const":false},
+    "direct_mutation":{"const":false},
+    "execution_permitted":{"const":false},
+    "identity_confers_authority":{"const":false},
+    "grants_authority":{"const":false}
+  }
+}

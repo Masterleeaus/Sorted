@@ -1,0 +1,16 @@
+{
+  "schema":"titan.onboarding.payments-communications-setup-contract.v1",
+  "company_boundary":"company_id",
+  "payment_capabilities":["crm.invoice.create","finance.payment.reconcile"],
+  "communication_capability_source":"titan-capabilities/native-contributions.json channel.* entries",
+  "provider_settings_owner":"titan-settings/control-plane/ai-provider-control-centre.mjs",
+  "notification_settings_owner":"titan-settings/control-plane/notification-escalation-settings.mjs",
+  "credentials_stored_in_onboarding":false,
+  "configuration_only":true,
+  "money_movement_permitted":false,
+  "message_send_permitted":false,
+  "provider_execution_permitted":false,
+  "notification_dispatch_permitted":false,
+  "authority_granted":false,
+  "execution_permitted":false
+}

@@ -1,0 +1,172 @@
+{
+  "schema": "titan.workforce.starter-agent-registry.v2",
+  "company_boundary": "company_id",
+  "identity_grants_authority": false,
+  "agents": [
+    {
+      "agent_key": "reception",
+      "name": "Reception Agent",
+      "role_definition_id": "titan.customer.receptionist",
+      "operational_domains": [
+        "reception",
+        "crm"
+      ],
+      "enabled": true,
+      "execution_model": "proposal_or_governed_handoff",
+      "company_boundary": "company_id",
+      "identity_grants_authority": false,
+      "hierarchy_tier": "orchestrator",
+      "orchestrator_scope": "business_process",
+      "delegates_via": "governed_manager_supervisor_specialist_worker_chain"
+    },
+    {
+      "agent_key": "sales",
+      "name": "Sales Agent",
+      "role_definition_id": "titan.sales.sales_representative",
+      "operational_domains": [
+        "sales",
+        "crm"
+      ],
+      "enabled": true,
+      "execution_model": "proposal_or_governed_handoff",
+      "company_boundary": "company_id",
+      "identity_grants_authority": false,
+      "hierarchy_tier": "orchestrator",
+      "orchestrator_scope": "business_process",
+      "delegates_via": "governed_manager_supervisor_specialist_worker_chain"
+    },
+    {
+      "agent_key": "quote",
+      "name": "Quote Agent",
+      "role_definition_id": "titan.sales.quote_coordinator",
+      "operational_domains": [
+        "quoting",
+        "sales",
+        "crm"
+      ],
+      "enabled": true,
+      "execution_model": "proposal_or_governed_handoff",
+      "company_boundary": "company_id",
+      "identity_grants_authority": false,
+      "hierarchy_tier": "orchestrator",
+      "orchestrator_scope": "business_process",
+      "delegates_via": "governed_manager_supervisor_specialist_worker_chain"
+    },
+    {
+      "agent_key": "booking",
+      "name": "Booking Agent",
+      "role_definition_id": "titan.customer.booking_coordinator",
+      "operational_domains": [
+        "booking",
+        "scheduling",
+        "crm"
+      ],
+      "enabled": true,
+      "execution_model": "proposal_or_governed_handoff",
+      "company_boundary": "company_id",
+      "identity_grants_authority": false,
+      "hierarchy_tier": "orchestrator",
+      "orchestrator_scope": "business_process",
+      "delegates_via": "governed_manager_supervisor_specialist_worker_chain"
+    },
+    {
+      "agent_key": "scheduling",
+      "name": "Scheduling Agent",
+      "role_definition_id": "titan.work.scheduler",
+      "operational_domains": [
+        "scheduling",
+        "operations"
+      ],
+      "enabled": true,
+      "execution_model": "proposal_or_governed_handoff",
+      "company_boundary": "company_id",
+      "identity_grants_authority": false,
+      "hierarchy_tier": "orchestrator",
+      "orchestrator_scope": "business_process",
+      "delegates_via": "governed_manager_supervisor_specialist_worker_chain"
+    },
+    {
+      "agent_key": "dispatch",
+      "name": "Dispatch Agent",
+      "role_definition_id": "titan.work.dispatcher",
+      "operational_domains": [
+        "dispatch",
+        "operations"
+      ],
+      "enabled": true,
+      "execution_model": "proposal_or_governed_handoff",
+      "company_boundary": "company_id",
+      "identity_grants_authority": false,
+      "hierarchy_tier": "orchestrator",
+      "orchestrator_scope": "business_process",
+      "delegates_via": "governed_manager_supervisor_specialist_worker_chain"
+    },
+    {
+      "agent_key": "jobs",
+      "name": "Jobs Agent",
+      "role_definition_id": "titan.work.job_coordinator",
+      "operational_domains": [
+        "jobs",
+        "operations"
+      ],
+      "enabled": true,
+      "execution_model": "proposal_or_governed_handoff",
+      "company_boundary": "company_id",
+      "identity_grants_authority": false,
+      "hierarchy_tier": "orchestrator",
+      "orchestrator_scope": "business_process",
+      "delegates_via": "governed_manager_supervisor_specialist_worker_chain"
+    },
+    {
+      "agent_key": "invoicing",
+      "name": "Invoicing Agent",
+      "role_definition_id": "titan.money.billing_coordinator",
+      "operational_domains": [
+        "invoicing",
+        "finance"
+      ],
+      "enabled": true,
+      "execution_model": "proposal_or_governed_handoff",
+      "company_boundary": "company_id",
+      "identity_grants_authority": false,
+      "hierarchy_tier": "orchestrator",
+      "orchestrator_scope": "business_process",
+      "delegates_via": "governed_manager_supervisor_specialist_worker_chain"
+    },
+    {
+      "agent_key": "customer-care",
+      "name": "Customer Care Agent",
+      "role_definition_id": "titan.customer.customer_care_coordinator",
+      "operational_domains": [
+        "customer_service",
+        "crm",
+        "retention"
+      ],
+      "enabled": true,
+      "execution_model": "proposal_or_governed_handoff",
+      "company_boundary": "company_id",
+      "identity_grants_authority": false,
+      "hierarchy_tier": "orchestrator",
+      "orchestrator_scope": "business_process",
+      "delegates_via": "governed_manager_supervisor_specialist_worker_chain"
+    },
+    {
+      "agent_key": "rebooking",
+      "name": "Rebooking Agent",
+      "role_definition_id": "titan.customer.retention_coordinator",
+      "operational_domains": [
+        "rebooking",
+        "retention",
+        "booking"
+      ],
+      "enabled": true,
+      "execution_model": "proposal_or_governed_handoff",
+      "company_boundary": "company_id",
+      "identity_grants_authority": false,
+      "hierarchy_tier": "orchestrator",
+      "orchestrator_scope": "business_process",
+      "delegates_via": "governed_manager_supervisor_specialist_worker_chain"
+    }
+  ],
+  "registry_role": "top_hierarchy_orchestrators"
+}

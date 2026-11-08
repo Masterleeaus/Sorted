@@ -1,0 +1,15 @@
+{
+  "schema": "titan.zero.workforce.pass44.deployment-console-production.v1",
+  "pass": 44,
+  "title": "Deployment Console Production",
+  "company_boundary": "company_id only",
+  "surfaces": ["existing Workforce workspace", "MERGE-11 rich-shell Workforce launcher"],
+  "stages": ["installation_plan", "commissioning_gates", "live_laravel_host_certification", "migration_upgrade_safety", "rollback_uninstall_reversibility"],
+  "automatic_install": false,
+  "automatic_go_live": false,
+  "automatic_migration": false,
+  "automatic_uninstall": false,
+  "authority_granted": false,
+  "execution_permitted": false,
+  "grants_authority": false
+}

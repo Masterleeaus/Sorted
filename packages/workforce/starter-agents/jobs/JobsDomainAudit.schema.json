@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://titanzero.local/schemas/JobsDomainAudit.schema.json",
+  "title": "Titan Zero Jobs Domain Audit",
+  "type": "object",
+  "required": ["schema", "company_boundary", "worker", "authority", "authoritative_workflows", "canonical_lifecycle", "titan_go"],
+  "properties": {
+    "schema": {"const": "titan-zero-jobs-domain-audit/v1"},
+    "company_boundary": {"const": "company_id"},
+    "worker": {"const": "Jobs Agent"},
+    "canonical_lifecycle": {
+      "type": "array",
+      "prefixItems": [
+        {"const": "planned"}, {"const": "assigned"}, {"const": "en_route"}, {"const": "started"},
+        {"const": "blocked"}, {"const": "completed"}, {"const": "qa_ready"}, {"const": "closed"}
+      ],
+      "minItems": 8,
+      "maxItems": 8
+    }
+  },
+  "additionalProperties": true
+}

@@ -1,0 +1,19 @@
+{
+  "schema": "titan-zero-agent-semantic-change/v1",
+  "packet_id": "TZ-NEXT-011",
+  "pass": 6,
+  "title": "Repair read/acknowledge/snooze state persistence and company scoping",
+  "changes": [
+    "Adds durable company-scoped Feed/Inbox presentation state backed by Titan business IndexedDB records.",
+    "Persists read/unread, presentation acknowledgement and snooze/unsnooze transitions across restarts.",
+    "Keeps presentation acknowledgement explicitly separate from Workforce notification lifecycle acknowledgement.",
+    "Requires explicit same-company proof before importing legacy global read IDs.",
+    "Exposes the state store through TITAN_FEED_PRESENTATION_STATE in the existing local storage bootstrap."
+  ],
+  "company_boundary": "company_id only",
+  "identity_not_authority": true,
+  "notification_lifecycle_owner_preserved": "workforce_notification",
+  "presentation_read_state_owner_preserved": "visible_feed",
+  "authority_effect": false,
+  "integration_note": "Durable backend and message API are complete; protected titan-shell.js still uses legacy titanFeedRead until Manager/UI owner semantically rebases it."
+}

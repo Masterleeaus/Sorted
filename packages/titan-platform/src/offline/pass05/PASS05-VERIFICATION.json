@@ -1,0 +1,25 @@
+{
+  "schema": "titan-zero-offline-pass05-verification/v1",
+  "workspace": "Builder 3",
+  "packet_id": "TZ-FINISH-OFFLINE-RESILIENCE-001",
+  "pass": 5,
+  "status": "PASS_COMPLETE_CONTINUE",
+  "checks": {
+    "typecheck": "PASS",
+    "fresh_compile": "PASS",
+    "full_titan_platform_suite": "108/108 PASS",
+    "durable_checkpoint": "PASS",
+    "restart_to_recovery_required": "PASS",
+    "explicit_resume": "PASS",
+    "idempotency_bound_resume": "PASS",
+    "continuation_claim_exactly_once": "PASS",
+    "wrong_token": "FAIL_CLOSED",
+    "completed_work_not_recovered": "PASS",
+    "restart_state_survives_recreation": "PASS",
+    "restart_receipt_ordering": "MONOTONIC_EVENT_SEQUENCE",
+    "automatic_effect_replay": false,
+    "identity_grants_authority": false
+  },
+  "tdd_defect_fixed": "Same-millisecond lifecycle receipts could be returned out of semantic order; fixed with persisted monotonic event_sequence.",
+  "next_gate": "Pass 6: offline authorization contraction and stale-policy fail-closed behavior."
+}

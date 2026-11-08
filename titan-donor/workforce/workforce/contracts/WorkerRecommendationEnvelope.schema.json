@@ -1,0 +1,123 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": [
+    "packet_id",
+    "worker_actor_id",
+    "company_id",
+    "subject",
+    "observation",
+    "significance",
+    "evidence",
+    "evidence_state",
+    "confidence",
+    "explanation",
+    "recommended_actions",
+    "expected_effect",
+    "risk",
+    "urgency",
+    "authority_required",
+    "source_provider",
+    "source_revision",
+    "generated_at",
+    "expires_at",
+    "trace_id",
+    "correlation_id"
+  ],
+  "properties": {
+    "packet_id": {
+      "type": "string"
+    },
+    "worker_actor_id": {
+      "type": "string"
+    },
+    "company_id": {
+      "type": "string"
+    },
+    "domain": {
+      "type": "string"
+    },
+    "subject": {
+      "type": "object"
+    },
+    "observation": {
+      "type": "string"
+    },
+    "significance": {
+      "type": "string"
+    },
+    "evidence": {
+      "type": "array",
+      "minItems": 1
+    },
+    "evidence_state": {
+      "enum": [
+        "verified",
+        "supported",
+        "partial",
+        "conflicted",
+        "insufficient",
+        "stale",
+        "unknown"
+      ]
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "explanation": {
+      "type": "object"
+    },
+    "recommended_actions": {
+      "type": "array"
+    },
+    "expected_effect": {
+      "type": "object"
+    },
+    "risk": {
+      "enum": [
+        "minimal",
+        "low",
+        "medium",
+        "high",
+        "extreme"
+      ]
+    },
+    "urgency": {
+      "enum": [
+        "routine",
+        "soon",
+        "urgent",
+        "immediate"
+      ]
+    },
+    "authority_required": {
+      "type": "object"
+    },
+    "source_provider": {
+      "type": "string"
+    },
+    "source_revision": {
+      "type": "string"
+    },
+    "generated_at": {
+      "type": "string"
+    },
+    "expires_at": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "trace_id": {
+      "type": "string"
+    },
+    "correlation_id": {
+      "type": "string"
+    },
+    "hidden_chain_of_thought": {
+      "not": {}
+    }
+  }
+}

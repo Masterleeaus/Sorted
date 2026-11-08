@@ -1,0 +1,74 @@
+{
+  "schema": "titan-contract-registry/v1",
+  "contracts": {
+    "company_id": {
+      "owner": "platform",
+      "change_policy": "immutable",
+      "canonical_tenant_boundary": true,
+      "legacy_compatibility_inputs": [
+        "tenant_id",
+        "tenant_company_id",
+        "organisation_id",
+        "organization_id"
+      ],
+      "normalization_requirement": "must normalize to company_id before authorization, data access, storage, projection, execution, events or synchronization"
+    },
+    "TitanModuleV1": {
+      "owner": "module-runtime",
+      "change_policy": "backward-compatible",
+      "consumers": [
+        "module-registry",
+        "module-host",
+        "package-runtime",
+        "marketplace-runtime"
+      ]
+    },
+    "titan-module-package/v1": {
+      "owner": "module-runtime",
+      "change_policy": "backward-compatible",
+      "security": "ECDSA P-256/SHA-256 + SHA-256 canonical envelope; declarative payload only"
+    },
+    "authority_binding": {
+      "owner": "device-first-runtime",
+      "change_policy": "backward-compatible",
+      "values": [
+        "local_primary",
+        "remote_primary",
+        "mirror"
+      ]
+    },
+    "TITAN_EXECUTE_OUTCOME": {
+      "owner": "titan-work-bridge",
+      "change_policy": "backward-compatible",
+      "status": "canonical"
+    },
+    "TITAN_RETRIEVER_EXECUTE": {
+      "owner": "retriever-compatibility",
+      "change_policy": "compatibility-only",
+      "status": "non-canonical"
+    },
+    "titan.runtime.v1": {
+      "owner": "titan-native-runtime",
+      "change_policy": "backward-compatible",
+      "status": "canonical-native-runtime-envelope",
+      "company_boundary": "company_id",
+      "compatibility_mode": "known legacy events may be mirrored passively; mirroring grants no authority"
+    },
+    "titan.deployment.investigation-participation-manager.v1": {
+      "owner": "titan-workforce",
+      "change_policy": "backward-compatible",
+      "company_boundary": "company_id",
+      "authority": "participation and assignment grant no execution authority",
+      "lead_rule": "exactly one investigation_lead"
+    },
+    "titan.module-platform-manager-lifecycle/v1": {
+      "owner": "module-runtime",
+      "change_policy": "backward-compatible",
+      "company_boundary": "company_id",
+      "trusted_sender_policy": "lifecycle mutations require a trusted extension context; ordinary web/content-script senders are rejected",
+      "authority": "module identity, install, activation, recovery, bundle membership, marketplace presence and signed-package validity grant no execution authority",
+      "rollback": "company activation and bundle suspend/resume are auditable and reversible; inherited activation may be restored without deleting company config",
+      "config_audit": "configuration audit records changed key names, not configuration values"
+    }
+  }
+}

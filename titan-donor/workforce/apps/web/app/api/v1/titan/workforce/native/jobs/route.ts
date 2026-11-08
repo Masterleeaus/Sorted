@@ -1,0 +1,9 @@
+import {NextRequest,NextResponse} from "next/server";
+import {z} from "zod";
+import {withRole} from "@/lib/auth/middleware";
+import {buildNativeJobsPlan,executeNativeJobsAction} from "@/lib/titan/workforce-native/jobs";
+export const dynamic="force-dynamic";const record=z.record(z.unknown());
+const actions=["list_projects","get_project","list_work_orders","get_visit","evaluate_transition","transition_project","start_visit","transition_visit","evaluate_evidence","evaluate_completion","complete_work_order","classify_exception","plan_exception_resolution","build_offline_mutation","detect_revision_conflict","build_completion_handoffs"] as const;
+const schema=z.object({action:z.enum(actions),projectId:z.string().max(128).optional(),workOrderId:z.string().max(128).optional(),visitId:z.string().max(128).optional(),payload:record.optional(),dryRun:z.boolean().optional()});
+export const GET=withRole(["owner","admin"],async(_r,session)=>NextResponse.json({agent:"jobs",companyBoundary:session.accountId,identityGrantsAuthority:false,browserExtensionRequired:false,supportedActions:actions,examplePlan:buildNativeJobsPlan(session,{action:"list_projects",dryRun:true})}));
+export const POST=withRole(["owner","admin"],async(request:NextRequest,session)=>{const parsed=schema.safeParse(await request.json().catch(()=>null));if(!parsed.success)return NextResponse.json({error:{code:"VALIDATION_ERROR",message:"Invalid Jobs Agent request",details:parsed.error.issues,traceId:session.traceId}},{status:422});try{const result=await executeNativeJobsAction(request,session,parsed.data);const status=result.upstream?.status ?? 200;return NextResponse.json(result,{status});}catch(error){const message=error instanceof Error?error.message:"Jobs Agent request failed";const forbidden=message==="ROLE_NOT_AUTHORIZED";return NextResponse.json({error:{code:forbidden?"FORBIDDEN":"JOBS_AGENT_ERROR",message,traceId:session.traceId}},{status:forbidden?403:400});}});

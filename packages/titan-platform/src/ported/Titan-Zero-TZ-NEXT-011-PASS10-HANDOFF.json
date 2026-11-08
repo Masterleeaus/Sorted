@@ -1,0 +1,23 @@
+{
+  "schema": "titan-zero-handoff/v2",
+  "packet_id": "TZ-NEXT-011",
+  "agent_id": "notification-feed-agent",
+  "pass": 10,
+  "status": "READY_FOR_MANAGER_MERGE",
+  "generated_utc": "2026-09-07T11:08:34Z",
+  "manager_parent": {
+    "merge": 29,
+    "sha256": "3e5520d2495c2a5edde310d12d2b82de399e9277248c1fdfb5cd85df5df9d70b"
+  },
+  "formal_passes_complete": 10,
+  "certification": "titan-runtime/feed/certification/TZ-NEXT-011-PASS10-COHERENCE-CERTIFICATION.json",
+  "manager_merge_guidance": [
+    "Manager Merge29 already contains Pass3-4 feed work.",
+    "Apply final Merge29 integration delta for unabsorbed Pass5-10 lane changes after semantic collision review.",
+    "Preserve protected Merge29 shell/page/startup bytes.",
+    "Semantically wire titan-shell legacy titanFeedRead presentation state to TITAN_FEED_PRESENTATION_STATE when UI/page-wiring ownership permits.",
+    "Do not treat feed read/snooze/presentation acknowledgement, severity, routing, identity, or delivery state as approval/execution authority."
+  ],
+  "hotspots_released": true,
+  "stop_after_publication": true
+}

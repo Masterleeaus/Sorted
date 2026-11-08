@@ -1,0 +1,28 @@
+{
+  "schema": "titan.zero.cleaning-operations-pass04.v1",
+  "packet_id": "TZ-NEXT-002",
+  "pass": 4,
+  "manager_base": {
+    "merge": 42,
+    "artifact": "Titan-Zero-CANONICAL-MASTER-2026-09-09-MERGE-42-PERMISSION-HARDENING-CONVERGED.zip",
+    "sha256": "1c4b6f471ba16f44d7b27db546ba41db18032ce9967b1d725dc0926cd73cc930"
+  },
+  "repair": "confirmed booking -> existing Booking jobs handoff -> existing Jobs creation context -> governed crm.work_order.create proposal",
+  "reused": [
+    "titan-workforce/starter-agents/booking/booking-handoffs.mjs",
+    "titan-workforce/starter-agents/jobs/jobs-context-bridge.mjs",
+    "titan-business-services/workflows/create_job.json"
+  ],
+  "guards": [
+    "confirmed booking required",
+    "company_id only",
+    "legacy tenant keys rejected",
+    "existing work_order_ref suppresses duplicate creation",
+    "Jobs idempotency key suppresses retry duplicates",
+    "worker assignment remains proposal-only and grants no authority",
+    "no CRM mutation is performed by the planning bridge"
+  ],
+  "authority_granted": false,
+  "company_boundary": "company_id",
+  "next_pass": 5
+}

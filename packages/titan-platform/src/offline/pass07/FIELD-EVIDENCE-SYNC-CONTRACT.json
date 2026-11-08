@@ -1,0 +1,30 @@
+{
+  "schema": "titan-zero-offline-field-evidence-sync-contract/v1",
+  "packet_id": "TZ-FINISH-OFFLINE-RESILIENCE-001",
+  "pass": 7,
+  "metadata": {
+    "durable": true,
+    "company_boundary": "company_id",
+    "actual_media_bytes_authority": "caller_device_storage",
+    "canonical_repository_stores_bytes": false,
+    "duplicate_enqueue": "IDEMPOTENT",
+    "changed_identity": "FAIL_CLOSED"
+  },
+  "resumable_sync": {
+    "default_chunk_size": 524288,
+    "default_max_bytes": 26214400,
+    "chunk_order_strict": true,
+    "duplicate_chunk": "IDEMPOTENT",
+    "out_of_order_chunk": "FAIL_CLOSED",
+    "interruption_state_durable": true,
+    "resume_from_next_chunk": true,
+    "remote_upload_id_switch": "FAIL_CLOSED",
+    "completion_requires_all_bytes": true,
+    "completion_requires_matching_checksum": true
+  },
+  "authority": {
+    "automatic_effect_replay": false,
+    "identity_grants_authority": false,
+    "execution_authority": false
+  }
+}

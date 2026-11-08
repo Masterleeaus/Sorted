@@ -1,0 +1,519 @@
+# EPIC-007: Field Execution
+
+**How a technician experiences working in the field** — the counterpart to the
+Operations Engine (EPIC-001, *how the engine works*). This epic owns the field
+workflow end to end: arriving, executing work, capturing what happened, and
+reviewing it. The data model these features feed (Business Day, Payroll, Activity,
+the time/mileage ledgers) lives in EPIC-001; this epic is the field experience on
+top of it.
+
+**Location Intelligence is one subsystem inside Field Execution**, not its own
+epic: the phone's location (via Home Assistant) is a sensor and Dovetails the
+decision engine that detects **customer visits** — job arrivals, estimate visits,
+warranty/callbacks, material runs, walkthroughs — turning them into reviewed,
+classified ledger entries. The robot detects; the owner confirms; only confirmed
+visits touch billing, job history, or customer records.
+
+Subsystems in this epic: Location Intelligence (geofences, matching, visit
+detection), Passive Capture, Bluetooth vehicle detection, Drive detection,
+Mileage automation, Day Map, Visit Review, Operational Inbox, Site Presence, and
+the Visit production surfaces (Production Rollup + Timeline).
+
+## Active tasks
+
+# TASK-133: Job closeout on Complete (parent)
+
+See [TASK-133-job-closeout-on-complete.md](./TASK-133-job-closeout-on-complete.md). Children: TASK-134, TASK-135, TASK-137, TASK-138 (invoice slice is TASK-136 in EPIC-004).
+
+# TASK-134: Complete fork — done vs coming back
+
+See [TASK-134-complete-done-or-return.md](./TASK-134-complete-done-or-return.md).
+
+# TASK-135: Coming back — today’s work, next visit, first-up
+
+See [TASK-135-return-day-log-next-visit.md](./TASK-135-return-day-log-next-visit.md).
+
+# TASK-137: Next-person briefing on the next visit
+
+See [TASK-137-next-person-briefing.md](./TASK-137-next-person-briefing.md).
+
+# TASK-138: Night leftovers after job closeout
+
+See [TASK-138-night-closeout-leftovers.md](./TASK-138-night-closeout-leftovers.md).
+
+# TASK-145: Night stop interview
+
+See [TASK-145-night-stop-interview.md](./TASK-145-night-stop-interview.md).
+Day Review walks GPS stops (reason → job / receipt / tomorrow). TASK-138
+counts stay on Overview; this is the question walk.
+
+# TASK-148: Geofence-anchored stops + home fence
+
+See [TASK-148-geofence-anchored-stops.md](./TASK-148-geofence-anchored-stops.md).
+Walking must not smear one stop across two houses. Home is a fence, not the
+string `home`. Live prompt for a distance-proven open job; night interview
+sees the stop that is still open.
+
+# TASK-149: Park (Bluetooth disconnect) → confirm location
+
+See [TASK-149-park-arrival-prompt.md](./TASK-149-park-arrival-prompt.md).
+Ignition off matches the open job immediately and pushes “You’re on site.”
+The 5-minute GPS floor stays for still/jitter.
+
+# TASK-150: Hold until Bluetooth / zone / different property
+
+See [TASK-150-hold-until-vehicle.md](./TASK-150-hold-until-vehicle.md).
+Do not split a job stop on geocode flicker or phone `in_vehicle`. Leave is
+vehicle connect, a named zone, or `still` at a different known property.
+
+## Relationship to existing work (read first)
+
+This epic **extends TASK-024**, it does not replace it. The phone→FSM pipeline is
+already live:
+
+- **Ingest:** `POST /api/internal/location` (HA Companion → n8n/MQTT), incl.
+  periodic GPS `location_update` points. **Reused as-is — no new ingest endpoint,
+  no second `location_events` table.**
+- **Dwell detection:** the stop/drive segment reducer (`packages/domain/src/
+  location.ts`, `apps/web/lib/location/segments.ts`) already turns the GPS stream
+  into stop/drive segments with arrival/departure + duration. A `stop` segment is
+  the arrival/departure event this epic builds on. (False drives: TASK-040.
+  False stops: TASK-106.)
+- **Review + "only confirmed counts":** the captured-segments panel already does
+  provisional → owner-confirm → ledger.
+- **Ledger:** `activity_entries` already supports `entity_type` / `entity_id` /
+  `source` / `category` — confirmed visits write here (source `auto_visit`, one of
+  the allowed values), linked to job/visit/client. **No new `business_ledger_entry`
+  table.**
+- **Supplier zones:** `suggestActivityForZone` already tags supply houses.
+
+What this epic **adds** (the missing layer): geocoded customer-property
+geofences, a customer-property **matching engine with confidence scoring**, a
+`visit_candidates` table, the **classification workflow** (job/warranty/estimate/
+walkthrough/material/realtor), a manual "I'm at customer site" override, and
+workday/privacy controls.
+
+**Naming:** Dovetails already has a `visits` table = *scheduled job visits*
+(`arrived_at`/`completed_at`). Detected presence is a **visit candidate**, never a
+`visit`. A confirmed candidate may auto-fill a scheduled visit's `arrived_at`.
+
+## Build order (thin slices)
+
+Slice 1 (first): property geofences + matching engine + `visit_candidates`, with
+candidates created from existing stop segments and surfaced as pending on the
+review card. Later slices: full classification workflow + ledger write (042/044),
+manual override (045), privacy controls (046).
+
+## Tasks
+
+# TASK-040: False-drive detection
+
+Status:
+Done
+
+Phase:
+1
+
+Problem:
+Passive location capture (TASK-024) produces false drives — parked Bluetooth
+connect/disconnect cycles, GPS drift, and sub-minute teleport blips — that pile
+up as unlabeled provisional segments the owner has to dismiss by hand.
+
+Business Value:
+The owner only ever sees real trips to label; noise is cleared automatically and
+borderline cases are one tap.
+
+Scope:
+- A pure `classifyDrive` (packages/domain) that grades a closed drive by average
+  speed: noise (<1 km/h, or under 60s), suspect (1–3 km/h), ok (≥3 km/h).
+- Apply at capture: auto-dismiss noise, flag suspect (`location_segments.is_likely_noise`).
+- One-time backfill of existing provisional drives (migration 120).
+- Surface a "Likely noise" badge in the captured-segments panel with Dismiss as
+  the primary action; Confirm stays available as an override.
+
+Out of Scope:
+- Auto-mileage from drives (still parked — see TASK-027).
+- Re-classifying already confirmed/dismissed segments.
+
+Acceptance Criteria:
+- [ ] Sub-walking-pace / sub-minute drives are auto-dismissed at capture.
+- [ ] Borderline drives are flagged and dismissable in one tap; real trips are
+      untouched.
+- [ ] Existing provisional drives are backfilled by the migration.
+- [ ] `classifyDrive` is unit-tested against the real-data examples.
+
+Notes:
+Refines TASK-024 (location capture) and TASK-027 (hybrid tracking). Thresholds
+live in `classifyDrive`; migration 120's backfill mirrors them.
+
+# TASK-041: Customer-property geofences
+
+Status:
+Done
+
+Phase:
+1
+
+Problem:
+`properties` has only `address` — no coordinates — so the system can match the
+generic supplier zones but not specific customer addresses.
+
+Business Value:
+The matching engine can recognize *which customer* a stop is at.
+
+Scope:
+- Add `latitude`, `longitude`, `geofence_radius_feet` (default ~150), and
+  `property_type` to `properties` (additive migration); `is_active` already
+  implied via existing fields — confirm or add.
+- Establish property coordinates without a hard geocoder dependency: **learn the
+  center from a confirmed visit** (store the stop's lat/long the first time the
+  owner confirms a candidate at that property), with optional manual pin/geocode
+  as a follow-up.
+
+Out of Scope:
+- A paid geocoding provider (revisit only if learn-from-confirmation is
+  insufficient).
+
+Acceptance Criteria:
+- [ ] Properties can hold lat/long + geofence radius.
+- [ ] A confirmed candidate sets/refines its property's coordinates.
+
+# TASK-042: Customer-property matching engine + confidence scoring
+
+Status:
+Done
+
+Phase:
+1
+
+Problem:
+A closed stop has lat/long but no notion of *whose* property it is or how sure we
+are.
+
+Business Value:
+Turns a raw stop into "probably Kim Tufts / Wells Property, 92%."
+
+Scope:
+- A **pure** scorer (`packages/domain`) mirroring the spec's weights: scheduled
+  today +100, open job +75, recent +40, repeat/realtor +30, within 150 ft +40 /
+  250 ft +25, stayed 5+ min +20 / 15+ min +30, known supplier +25, poor GPS −25.
+- Match order: scheduled jobs today → open jobs → recent/repeat/high-value →
+  all active properties → supplier zones → home/shop/storage/gas.
+- Unit-tested against representative scenarios.
+
+Out of Scope:
+- ML/learning ranking (fixed weights to start).
+
+Acceptance Criteria:
+- [ ] Given a stop + candidate properties, the scorer returns ranked matches with
+      a 0–100 confidence and the matched customer/property.
+- [ ] Pure and unit-tested.
+
+# TASK-043: visit_candidates table + creation from stops
+
+Status:
+Done
+
+Phase:
+1
+
+Problem:
+Detected visits need to be stored as reviewable items, separate from scheduled
+job `visits`.
+
+Business Value:
+The detected-visit backlog the owner reviews.
+
+Scope:
+- New `visit_candidates` table, account-scoped like every other table:
+  `account_id` (NOT NULL FK + RLS policies keyed off `app_account_id()`),
+  `location_segment_id`, property_id, matched_customer_id, confidence_score,
+  arrival_time, departure_time, duration_minutes,
+  status (pending/confirmed/ignored), classification, linked_job_id,
+  linked_estimate_id, source.
+- When a `stop` segment closes (existing pipeline) and matches a property above a
+  confidence floor, create a **pending** `visit_candidate`. Reuse the stop's
+  arrival/departure/duration; never auto-confirm.
+- Stop-noise guard: TASK-040 only filters false *drives* ("stops are never
+  classified"), so candidate creation must not assume stops are clean — gate on
+  the confidence floor plus a minimum dwell so brief stationary/GPS blips near a
+  property don't mint candidates.
+
+Out of Scope:
+- Classification UI (TASK-044), manual creation (TASK-045).
+
+Acceptance Criteria:
+- [ ] A qualifying stop produces a pending candidate with confidence + timing.
+- [ ] Candidates are independent of the scheduled-visit `visits` table.
+
+# TASK-044: Review card + classification → ledger
+
+Status:
+Done
+
+Phase:
+1
+
+Problem:
+Pending candidates need owner review and a way to become real records.
+
+Business Value:
+One-tap classify turns a detected visit into a ledger entry (and optionally
+advances a scheduled job).
+
+Scope:
+- A "Detected visit" card (Daily Operations Log / captured-segments surface):
+  customer/property, time range, duration, confidence; classify buttons
+  (Job Work / Warranty / Estimate Visit / Walkthrough / Material Drop / Realtor /
+  Ignore).
+- On confirm: write an `activity_entries` row using values the table actually
+  accepts — `source = 'auto_visit'` (the allowed set is manual / auto_visit /
+  auto_material_run / auto_estimate / backfill) and an `entity_type` from the
+  allowed set (`job` / `visit` / `client` — there is no `property` entity type, so
+  link to the strongest of job→visit→client), category/activity from the
+  classification; set candidate `confirmed`. Optionally auto-fill a matched
+  scheduled visit's `arrived_at`. Classifications map to existing `activity_type`s
+  (no new ones needed).
+
+Out of Scope:
+- Job/estimate creation from a visit (link only, for now).
+
+Acceptance Criteria:
+- [ ] Classifying a candidate writes the correct ledger entry and marks it
+      confirmed; Ignore marks it ignored with no ledger effect.
+- [ ] A confirmed candidate can set its property's coordinates (TASK-041).
+
+# TASK-045: "I'm at customer site" manual override
+
+Status:
+Done
+
+Phase:
+1
+
+Problem:
+GPS can be wrong or the address new; the owner needs to attach a visit by hand.
+
+Scope:
+- Quick action: select customer / create new property / link to existing job /
+  create unscheduled visit — producing a candidate or ledger entry directly.
+
+Acceptance Criteria:
+- [ ] The owner can record a site visit manually when detection misses.
+
+# TASK-049: Operational Inbox (single review surface)
+
+Status:
+Proposed
+
+Phase:
+1
+
+Problem:
+The owner sees location segments, visit candidates, drives, and mileage conflicts
+as separate systems.
+
+Business Value:
+One review queue; one-tap arrival prompts powered by Current Operations State.
+
+Scope:
+- View-first `operational_review_items` (derived view/API; table only if
+  persistent snooze/dismiss is needed). Union: detected_drive, detected_visit,
+  unknown_stop, mileage_reconcile, missed_clock_out, idle_gap,
+  unassigned_activity. Dedup via candidate-owns-stop (segment UNIQUE already).
+- Confirm runs the TASK-050 hybrid action and stamps the matched scheduled
+  visit's `arrived_at` (advances TASK-044).
+
+Out of Scope:
+- Persistent per-item state until proven necessary.
+
+Acceptance Criteria:
+- [ ] A drive, a low-confidence stop, and a missed clock-out surface in one list.
+- [ ] No item appears twice; confirm links the right records.
+
+Notes:
+Phase 6. Relates to EPIC-007.
+
+# TASK-057: Site Presence
+
+Status:
+Proposed
+
+Phase:
+1
+
+Problem:
+"Where was I present" is not modeled distinctly from "what was I doing," so
+present-but-waiting (non-billable) time is invisible.
+
+Business Value:
+Presence vs Activity makes profitability and customer analytics honest (arrived
+8:10, waiting to 8:30, billable from 8:30).
+
+Scope:
+- New `presence_intervals` table (migration 131): business_day_id, place
+  (property/client or label), arrived_at, departed_at, source
+  (gps_confirmed|manual). Derived primarily from confirmed `visit_candidates`.
+
+Out of Scope:
+- Billable logic (lives in activity labor_bucket).
+
+Acceptance Criteria:
+- [ ] A presence interval can hold multiple activities of differing buckets.
+- [ ] Derives from confirmed visits; manual entry supported; additive + RLS.
+
+Notes:
+Phase 4 (after freeze gate).
+
+# TASK-066: Visit Production Rollup (Visit Summary page)
+
+Status:
+Proposed
+
+Phase:
+1
+
+Problem:
+A Visit owns scheduling and field execution but exposes no production summary.
+The real record of a session — time, mileage, materials, photos, checklist,
+notes — is scattered across the separated ledgers with no single screen that
+rolls it up for one production session.
+
+Business Value:
+The Visit becomes the production-session dashboard — the screen actually used on
+multi-day projects to see "what happened on this visit" at a glance.
+
+Scope:
+- Build the Visit Summary page: roll up, for one visit, payroll, activities,
+  mileage, materials, photos, checklist, and notes.
+- **Reference, never duplicate** (see "Favor references over ownership" in the
+  README): the page reads from the sources of truth — `activity_entries` (time),
+  `vehicle_sessions` (mileage), `visit_parts` (materials), `visit_media` (photos),
+  checklist items — via the visit linkage. No new visit-owned copies of any of it.
+- Read-only rollup first; editing stays on each source's own surface.
+
+Out of Scope:
+- Promoting Work Order to a production container (interim model stays
+  `Job → Visit → activity_entries`).
+- Multi-visit / job-level rollups (that is TASK-055 territory, EPIC-008).
+
+Acceptance Criteria:
+- [ ] One visit shows payroll, activities, mileage, materials, photos, checklist,
+      and notes in a single view.
+- [ ] Every figure traces to a source-of-truth record (no duplicated storage).
+
+Notes:
+Depends on the time truth being clean (TASK-061…065) and Site Presence
+(TASK-057). The daily workspace for multi-day production. This is the screen the
+owner will actually use day-to-day.
+
+
+
+# TASK-110: Delete Daily Recap (Day Draft is the evening close)
+
+Status:
+Done
+
+Phase:
+1
+
+Problem:
+Two “tell the AI your day” paths: Daily Recap (narrate → per-task time) and
+Day Draft (GPS + jobs + receipts → confirm). Same rule, two writers.
+
+Business Value:
+One evening close.
+
+Scope:
+- Delete DailyRecapPanel, `/api/v1/field/daily-recap`, interpret + commit.
+- Keep Day Draft, visit confirm, `work_order_tasks`, and `activity_entries.task_id`.
+
+Out of Scope:
+- Habit learning. Membership visit chrome.
+
+Acceptance Criteria:
+- [x] Recap UI and APIs gone.
+- [x] Job and My Work pages no longer mount recap.
+- [x] Day Draft confirm routes unchanged.
+
+# TASK-077: Auto-start the job on arrival at a scheduled customer (opt-in)
+
+Status:
+Deferred
+
+Phase:
+1
+
+Problem:
+Arrival at a matched customer only ever creates a *pending* `visit_candidate`
+(`detectVisitCandidate` in `app/api/internal/location/route.ts`) — nothing starts a
+job clock. If the owner forgets to tap "I'm at customer site" (TASK-045) or start
+the visit, no `job_work` time is captured for the on-site stretch; it's
+reconstructed later from the review card.
+
+Business Value:
+The clock starts itself when you arrive at a scheduled customer, so forgetting to
+tap doesn't lose billable/payroll time. The automatic sibling of TASK-045's manual
+override.
+
+Scope:
+- When `detectVisitCandidate` produces a top match that is (a) tied to a visit
+  scheduled today or an open job at that property, (b) above a **high** auto-start
+  confidence threshold (stricter than `VISIT_CONFIDENCE_FLOOR`, distance-proven),
+  and (c) a workday is active with no `job_work` activity currently open, insert a
+  `job_work` `activity_entry` bound to `top.jobId`/`visitId` and flip the visit →
+  `arrived`. Reuse the existing activity-entry write path.
+- Behind an account setting, **default OFF**: "Auto-start the job when I arrive at
+  a scheduled customer."
+- Fully reversible: the existing candidate-review / activity-correction flow can
+  void or reassign an auto-started entry; the write carries an audit reason
+  ("auto-started from arrival").
+
+Out of Scope:
+- Auto-start on schedule-only matches (no distance proof) or unscheduled drive-bys
+  — too risky; those stay pending candidates.
+- Auto-*closing* the job on departure (departure already closes the stop; closing
+  the clock is its own decision).
+- Auto-mileage (TASK-027).
+
+Acceptance Criteria:
+- [ ] With the setting on, arriving at a scheduled customer (high-confidence,
+      distance-proven) starts a `job_work` entry on that job with no tap; the visit
+      shows `arrived`.
+- [ ] With the setting off (default), behavior is unchanged (pending candidate only).
+- [ ] An auto-started entry is reversible and carries an audit reason.
+- [ ] Never auto-starts on a schedule-only or low-confidence match, or when a
+      `job_work` entry is already open.
+
+Notes:
+Phase 1 (field execution, per the ROADMAP phase→epic mapping) but **Deferred**:
+EPIC-007 is maintain-only under the Phase-1 scope freeze, and this is new
+automation that crosses the operations "surface, don't act" default
+(`docs/canonical/OPERATIONS.md`). Held until the confidence signal is trusted in
+real use — property coords are learned from confirmations (TASK-041), so early
+matches are schedule-only — and the operations engine (EPIC-001) is boring. The
+`Deferred` status, not the phase, is what says "not yet." The automatic form of
+TASK-045; gated + opt-in + reversible by design so a false auto-start never
+silently dirties payroll/billable.
+
+## Completed
+
+- [TASK-106: False-stop detection (5-minute dwell floor)](../archive/backlog-done/TASK-106-false-stop-detection.md) — Done (PR #601)
+- [TASK-107: AI Day Draft](../archive/backlog-done/TASK-107-ai-day-draft.md) — Done (PR #602)
+- [TASK-076: Stop anchor stability](../archive/backlog-done/TASK-076-stop-anchor-stability.md) — Done (code audit 2026-08-06)
+
+
+- [TASK-067: Visit Timeline](../archive/backlog-done/TASK-067-visit-timeline.md) — Done (thin day-first 2026-08-06)
+
+
+- [TASK-080: Real GPS mileage — dense trail + honest cross-check](../archive/backlog-done/TASK-080-real-gps-mileage.md) — Done (Wave 0b 2026-08-05; HA reload on homelab)
+
+- [TASK-079: Visit-candidate consolidation + Day Review de-noise](../archive/backlog-done/TASK-079-visit-candidate-consolidation.md) — Done (Wave 0b 2026-08-05)
+
+- [TASK-046: Workday & privacy controls](../archive/backlog-done/TASK-046-workday-privacy-controls.md) — Done (Wave 0a 2026-08-05)
+
+- [TASK-024: Passive location-based activity capture](../archive/backlog-done/TASK-024-passive-location-capture.md)
+- [TASK-025: Bluetooth-triggered, vehicle-aware auto-mileage](../archive/backlog-done/TASK-025-bluetooth-auto-mileage.md)
+- [TASK-026: Day Map (stops + drive routes)](../archive/backlog-done/TASK-026-day-map.md)
+- [TASK-027: Hybrid tracking — manual mileage, auto time](../archive/backlog-done/TASK-027-hybrid-tracking.md)
+- TASK-041..045 shipped — see git history (PRs #368/#372).

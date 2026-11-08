@@ -1,0 +1,16 @@
+{
+  "schema": "titan-zero-settings-control-plane-handoff/v1",
+  "pass": 13,
+  "status": "CHECKPOINT_COMPLETE_CONTINUE_30_PASS_PLAN",
+  "feature": "Risk Controls",
+  "next_pass": 14,
+  "next_feature": "Workforce Global Defaults",
+  "base_manager_merge": 25,
+  "company_boundary": "company_id",
+  "identity_grants_authority": false,
+  "notes": [
+    "Rescan live Manager before Pass14",
+    "Preserve subsystem-owned Workforce behavior and existing rich Settings UI",
+    "Risk controls are policy floors only; no runtime risk engine was replaced."
+  ]
+}

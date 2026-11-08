@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": [
+    "escalation_id",
+    "company_id",
+    "work_item_id",
+    "reason",
+    "severity",
+    "target_refs",
+    "state"
+  ],
+  "properties": {
+    "escalation_id": {
+      "type": "string"
+    },
+    "company_id": {
+      "type": "string"
+    },
+    "work_item_id": {
+      "type": "string"
+    },
+    "reason": {
+      "type": "string"
+    },
+    "severity": {
+      "enum": [
+        "low",
+        "medium",
+        "high",
+        "critical"
+      ]
+    },
+    "target_refs": {
+      "type": "array"
+    },
+    "state": {
+      "enum": [
+        "open",
+        "acknowledged",
+        "resolved",
+        "superseded"
+      ]
+    }
+  }
+}

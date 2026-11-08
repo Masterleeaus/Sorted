@@ -1,0 +1,74 @@
+{
+  "schema": "titan-zero-storage-authority-map/v1",
+  "packet_id": "TZ-FINISH-STORAGE-DATA-AUTHORITY-001",
+  "pass": 10,
+  "manager_base": {
+    "merge": 52,
+    "sha256": "ea6c219d40ffbddcbb68e9c9ed741c93568fe12be2e4f09dd69af0b528366d92"
+  },
+  "canonical_boundary": "company_id",
+  "identity_grants_authority": false,
+  "execution_authority": false,
+  "device_first": true,
+  "layers": [
+    {
+      "layer": "repository",
+      "module": "packages/titan-platform/src/storage/repository.ts",
+      "role": "canonical company-scoped logical record boundary",
+      "authority": "storage_only"
+    },
+    {
+      "layer": "adapter-selection",
+      "module": "packages/titan-platform/src/storage/adapter-selection.ts",
+      "role": "explicit fail-closed backend selection",
+      "supported": [
+        "indexeddb",
+        "memory",
+        "mysql",
+        "postgres"
+      ],
+      "silent_fallback": false
+    },
+    {
+      "layer": "migrations",
+      "module": "packages/titan-platform/src/storage/migrations.ts",
+      "role": "transactional exactly-once company migration coordination",
+      "checkpoint_after_success_only": true
+    },
+    {
+      "layer": "reconciliation",
+      "module": "packages/titan-platform/src/storage/reconciliation.ts",
+      "role": "local-primary/server reconciliation with explicit conflicts",
+      "server_grants_authority": false
+    },
+    {
+      "layer": "business-state",
+      "module": "packages/titan-platform/src/storage/business-state-authority.ts",
+      "role": "monotonic business revisions + durable commit/conflict receipts",
+      "transaction_required": true
+    },
+    {
+      "layer": "backup-recovery",
+      "module": "packages/titan-platform/src/storage/backup-recovery.ts",
+      "role": "company backup/export/import + atomic recovery verification",
+      "transaction_required": true
+    },
+    {
+      "layer": "diagnostics",
+      "module": "packages/titan-platform/src/storage/diagnostics.ts",
+      "role": "read-only authority health/drift evidence",
+      "grants_authority": false
+    }
+  ],
+  "browser_operational_storage": {
+    "capture_pending_queue": "company-scoped device queue",
+    "legacy_unscoped_rows": "retained but ignored fail-closed",
+    "ui_local_session_storage": "classified transient/non-authoritative"
+  },
+  "server_database": {
+    "existing_apps_web_sql": "retained server database authority",
+    "mass_rewrite_performed": false,
+    "second_database_authority_created": false
+  },
+  "parallel_storage_authority_created": false
+}

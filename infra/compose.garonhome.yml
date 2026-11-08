@@ -1,0 +1,177 @@
+# =============================================================================
+# ai-fsm — garonhome.local production stack
+# =============================================================================
+#
+# Host layout:
+#   /opt/business/ai-fsm/
+#     repo/          ← this repository
+#     env/           ← secrets (.env lives here, never in repo)
+#     data/
+#       postgres/    ← postgres data (bind mount)
+#     backups/       ← pg_dump output
+#
+# Networks:
+#   ${COMPOSE_PROJECT_NAME}-internal  — private bridge (internal: true)
+#                                       web, worker, postgres only
+#   business_proxy                    — external shared with nginx-proxy-manager
+#                                       web joins via ai-fsm-web alias
+#
+# Traffic flow:
+#   Browser → Nginx Proxy Manager → ai-fsm-web:3000 (business_proxy alias)
+#   web     → postgres
+#   worker  → postgres
+#   postgres: no host port binding, internal network only
+#
+# Deploy (single entrypoint):
+#   bash scripts/deploy-garonhome.sh
+#   Handles: git pull → postgres up → migrations → build → up → healthcheck
+#
+# Verify (before first deploy):
+#   docker network inspect business_proxy >/dev/null
+#   docker compose --env-file /opt/business/ai-fsm/env/.env -f infra/compose.garonhome.yml config >/dev/null
+#
+# NPM proxy host settings:
+#   Forward Hostname: ai-fsm-web   (network alias — stable, not container name)
+#   Forward Port:     3000
+#   Websockets:       On
+#   Block Exploits:   On
+#   SSL:              None for .local LAN (enable if real cert later)
+# =============================================================================
+
+name: ai-fsm
+
+services:
+
+  # ---------------------------------------------------------------------------
+  # web — Next.js app (UI + API routes)
+  # Joins business_proxy under alias ai-fsm-web so NPM can route to it.
+  # Health endpoint: GET /api/health → { status: "ok"|"degraded", checks: { db } }
+  # ---------------------------------------------------------------------------
+  web:
+    build:
+      context: ..
+      dockerfile: apps/web/Dockerfile
+    image: ai-fsm-web:${APP_TAG:-latest}
+    restart: unless-stopped
+    # Locally-built image (no registry) — tell homelab Watchtower to skip it
+    # instead of logging a "pull access denied" failure every scan.
+    labels:
+      - com.centurylinklabs.watchtower.enable=false
+    # No host port mapping. The PWA's secure origin is provided by a Cloudflare
+    # Tunnel (cloudflared) that routes to this service over the business_proxy
+    # network via the `ai-fsm-web` alias — no inbound host ports are exposed.
+    # See docs/working/pwa-https-deployment.md.
+    env_file:
+      - ${FSM_ENV_FILE:-/opt/business/ai-fsm/env/.env}
+    environment:
+      NODE_ENV: production
+      APP_PORT: "3000"
+      TZ: America/New_York
+      SECURE_COOKIES: "${SECURE_COOKIES:-true}"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:3000/api/health >/dev/null 2>&1 || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 20s
+    volumes:
+      - ${FSM_DATA_ROOT:-/opt/business/ai-fsm/data}/uploads:/app/uploads
+    networks:
+      internal: {}
+      business_proxy:
+        aliases:
+          - ai-fsm-web
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "3"
+
+  # ---------------------------------------------------------------------------
+  # worker — background job processor
+  # Runs compiled JS (node services/worker/dist/src/index.js).
+  # Handles: visit reminders, overdue invoice follow-ups.
+  # Internal only — no inbound traffic, not on proxy network.
+  # ---------------------------------------------------------------------------
+  worker:
+    build:
+      context: ..
+      dockerfile: services/worker/Dockerfile
+    image: ai-fsm-worker:${APP_TAG:-latest}
+    restart: unless-stopped
+    # Locally-built image (no registry) — skip it in homelab Watchtower.
+    labels:
+      - com.centurylinklabs.watchtower.enable=false
+    env_file:
+      - ${FSM_ENV_FILE:-/opt/business/ai-fsm/env/.env}
+    environment:
+      NODE_ENV: production
+      TZ: America/New_York
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ${FSM_DATA_ROOT:-/opt/business/ai-fsm/data}/uploads:/app/uploads
+    networks:
+      - internal
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "3"
+
+  # ---------------------------------------------------------------------------
+  # postgres — primary database
+  # Source of truth for all app data.
+  # Internal only — no host port binding, not on proxy network.
+  # ---------------------------------------------------------------------------
+  postgres:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:?POSTGRES_DB is required in .env}
+      POSTGRES_USER: ${POSTGRES_USER:?POSTGRES_USER is required in .env}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required in .env}
+    volumes:
+      - ${FSM_DATA_ROOT:-/opt/business/ai-fsm/data}/postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 15s
+      timeout: 5s
+      retries: 8
+      start_period: 10s
+    networks:
+      - internal
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "3"
+
+  # Square webhooks are delivered directly to the public /api/webhooks/square
+  # endpoint (via the Cloudflare Tunnel), so no local webhook-forwarder service
+  # is needed. (The former stripe-cli forwarder was removed when Stripe was
+  # archived in favour of Square.)
+
+# =============================================================================
+# Networks
+# =============================================================================
+networks:
+
+  internal:
+    # Private bridge — scoped to this compose project by name.
+    # internal: true means Docker blocks all external routing on this network.
+    # postgres is invisible outside this network.
+    driver: bridge
+    internal: true
+    name: ${COMPOSE_PROJECT_NAME:-ai-fsm}-internal
+
+  business_proxy:
+    # Shared external network — created once on the host, used by all
+    # compose projects that need nginx-proxy-manager access.
+    # Create with: docker network create business_proxy
+    external: true
+    name: ${PROXY_NETWORK:-business_proxy}

@@ -1,0 +1,82 @@
+{
+  "package_schema": "titan-module-package/v1",
+  "package_type": "module",
+  "publisher": {
+    "id": "titan.zero.official",
+    "name": "Titan Zero Official"
+  },
+  "payload": {
+    "id": "titan.marketplace.starter",
+    "name": "Titan Verified Starter",
+    "version": "1.0.0",
+    "kind": "declarative",
+    "description": "Verified example capability module installed through the Titan module marketplace.",
+    "author": "Titan Zero",
+    "scope": {
+      "company_id": null
+    },
+    "permissions": [],
+    "authority": {
+      "activation_confers_authority": false,
+      "requests": []
+    },
+    "requires": {
+      "modules": [
+        {
+          "id": "titan.module-health",
+          "range": "^2.0.0"
+        }
+      ]
+    },
+    "contributes": {
+      "capabilities": [
+        {
+          "id": "marketplace.verified",
+          "title": "Verified marketplace module"
+        }
+      ],
+      "screens": [
+        {
+          "id": "home",
+          "title": "Verified Starter",
+          "description": "Signed module package status.",
+          "icon": "✓",
+          "blocks": [
+            {
+              "type": "text",
+              "title": "Verified package",
+              "text": "This declarative module was installed after integrity, publisher and ECDSA signature verification."
+            }
+          ]
+        }
+      ],
+      "workers": [],
+      "tools": [],
+      "providers": [],
+      "projections": [],
+      "workflows": [],
+      "settingsPanels": [],
+      "events": [],
+      "queries": [],
+      "verticals": [],
+      "commands": [],
+      "intents": [],
+      "links": [],
+      "feed": [],
+      "settings": []
+    },
+    "metadata": {
+      "company_boundary": "company_id",
+      "activation_confers_authority": false
+    }
+  },
+  "integrity": {
+    "algorithm": "SHA-256",
+    "digest": "fLb2oV63oQJ68PWl2fiuejk6B9lIQ6kabv8D7p3UMYU"
+  },
+  "signature": {
+    "algorithm": "ECDSA-P256-SHA256",
+    "key_id": "release-2026-09",
+    "value": "so-pthvBDGfvPo9F3-fY4U_qPwotNlQlLNT492YgZCoj814QymA2fp3Wk-kOmnlNhOI6bi0tKJOwkggU6_uHFA"
+  }
+}

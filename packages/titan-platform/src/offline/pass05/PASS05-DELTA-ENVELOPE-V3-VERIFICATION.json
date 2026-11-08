@@ -1,0 +1,29 @@
+{
+  "schema": "titan-zero-delta-envelope-v3-verification/v1",
+  "workspace": "Builder 3",
+  "packet_id": "TZ-FINISH-OFFLINE-RESILIENCE-001",
+  "pass": 5,
+  "policy_schema": "titan-zero-agent-mesh-delta-routing/v3",
+  "required_embedded_coordination": [
+    "Agent Mesh/Builder 3/ROLE.json",
+    "Agent Mesh/Builder 3/WORK-PACKET/TZ-FINISH-OFFLINE-RESILIENCE-001.json",
+    "Agent Mesh/Builder 3/STATUS.json",
+    "Agent Mesh/Builder 3/OUTBOX/"
+  ],
+  "checks": {
+    "required_role_present": true,
+    "required_work_packet_present": true,
+    "required_status_present": true,
+    "required_outbox_present": true,
+    "global_agent_mesh_outbox_absent": true,
+    "role_workspace_matches": true,
+    "role_class_matches": true,
+    "status_workspace_matches": true,
+    "status_packet_matches": true,
+    "work_packet_owner_matches": true,
+    "work_packet_id_matches": true,
+    "embedded_mesh_is_coordination_only": true
+  },
+  "status": "PASS",
+  "manager_merge_instruction": "Inspect embedded OUTBOX/work-packet coordination, then strip entire Agent Mesh/ tree before applying production payload."
+}

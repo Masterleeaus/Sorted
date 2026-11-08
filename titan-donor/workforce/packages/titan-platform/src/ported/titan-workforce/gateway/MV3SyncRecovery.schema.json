@@ -1,0 +1,56 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Titan Workforce MV3 Sync Recovery",
+  "type": "object",
+  "required": [
+    "schema",
+    "company_id",
+    "operation_id",
+    "grants_authority",
+    "automatic_effect_replay"
+  ],
+  "properties": {
+    "schema": {
+      "const": "titan.workforce.sync-recovery.v1"
+    },
+    "company_id": {
+      "type": "string"
+    },
+    "operation_id": {
+      "type": "string"
+    },
+    "projection_revision": {
+      "type": "number"
+    },
+    "projection_cursor": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "sync_generation": {
+      "type": "number"
+    },
+    "mode": {
+      "enum": [
+        "realtime",
+        "polling"
+      ]
+    },
+    "token_persisted": {
+      "const": false
+    },
+    "authority_decision_persisted": {
+      "const": false
+    },
+    "command_persisted": {
+      "const": false
+    },
+    "automatic_effect_replay": {
+      "const": false
+    },
+    "grants_authority": {
+      "const": false
+    }
+  }
+}

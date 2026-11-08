@@ -1,0 +1,19 @@
+{
+  "schema": "titan-zero-semantic-change/v1",
+  "task_id": "TZ-P2-011",
+  "parent": "Titan-Zero-v0.18.2-Manager-Canonical-Convergence-CUMULATIVE.zip",
+  "parent_sha256": "61999b878e243866159980b18556ef686cf3039b3637c779a10659809e2320f6",
+  "added": [
+    "titan-capabilities/contributions/README.md",
+    "titan-capabilities/contributions/adapters.mjs",
+    "titan-capabilities/contributions/index.mjs",
+    "titan-capabilities/contributions/loader.mjs",
+    "titan-capabilities/contributions/registry.mjs",
+    "titan-capabilities/contributions/verify.mjs",
+    "TITAN-ZERO-P2-011-CHANGE-MANIFEST.json"
+  ],
+  "modified": [],
+  "deleted": [],
+  "company_boundary": "company_id",
+  "authority": "discovery_only"
+}

@@ -1,0 +1,20 @@
+{
+  "schema": "titan-zero-semantic-change/v1",
+  "step": 10,
+  "name": "Operation Identity Contract",
+  "change_class": "additive_offline_runtime_contract",
+  "added_capabilities": [
+    "durable_operation_identity",
+    "request_operation_correlation_continuity",
+    "cross_engine_stage_identity_binding",
+    "identity_fork_rejection",
+    "ledger_identity_projection",
+    "replay_idempotency_key"
+  ],
+  "modified_existing_files": 0,
+  "deleted_files": 0,
+  "company_id_only": true,
+  "identity_confers_authority": false,
+  "ui_changed": false,
+  "manifest_permissions_changed": false
+}

@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "titan.workforce.customer-care.grounded-response.v1",
+  "title": "Titan Zero Customer Care Grounded Response Proposal",
+  "type": "object",
+  "required": ["schema", "company_id", "case_id", "grounding", "response", "claims", "authority_granted", "execution_permitted"],
+  "properties": {
+    "schema": {"const": "titan.workforce.customer-care.grounded-response.v1"},
+    "company_id": {"type": "string", "minLength": 1},
+    "case_id": {"type": ["string", "null"]},
+    "grounding": {
+      "type": "object",
+      "required": ["customer", "job", "invoice", "evidence_refs"],
+      "properties": {
+        "customer": {"type": ["object", "null"]},
+        "job": {"type": ["object", "null"]},
+        "invoice": {"type": ["object", "null"]},
+        "evidence_refs": {"type": "array", "items": {"type": "string"}, "uniqueItems": true}
+      },
+      "additionalProperties": false
+    },
+    "response": {
+      "type": "object",
+      "required": ["text", "mode", "send_requires_authority"],
+      "properties": {
+        "text": {"type": "string", "minLength": 1},
+        "mode": {"const": "PROPOSAL_ONLY"},
+        "send_requires_authority": {"const": true}
+      },
+      "additionalProperties": false
+    },
+    "claims": {
+      "type": "object",
+      "required": ["allowed", "blocked"],
+      "properties": {
+        "allowed": {"type": "array", "items": {"type": "string"}},
+        "blocked": {"type": "array", "items": {"type": "string"}}
+      },
+      "additionalProperties": false
+    },
+    "authority_granted": {"const": false},
+    "execution_permitted": {"const": false}
+  },
+  "additionalProperties": false
+}

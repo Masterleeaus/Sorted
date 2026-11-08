@@ -1,0 +1,37 @@
+{
+  "schema": "titan-zero-offline-mutation-queue-contract/v1",
+  "packet_id": "TZ-FINISH-OFFLINE-RESILIENCE-001",
+  "pass": 3,
+  "queue": {
+    "durable": true,
+    "company_boundary": "company_id",
+    "bounded": true,
+    "max_pending_default": 256,
+    "duplicate_enqueue": "RETURN_EXISTING",
+    "automatic_effect_replay": false
+  },
+  "retry": {
+    "transient": [
+      "network_unavailable",
+      "timeout_before_dispatch",
+      "provider_unavailable",
+      "rate_limited",
+      "offline"
+    ],
+    "backoff": "bounded exponential",
+    "base_delay_ms": 1000,
+    "max_delay_ms": 60000,
+    "max_retries_default": 5
+  },
+  "poison_isolation": {
+    "ambiguous_effect_outcomes": "DEAD_LETTER_IMMEDIATELY",
+    "terminal_policy_validation_failures": "DEAD_LETTER_IMMEDIATELY",
+    "unknown_failure_class": "DEAD_LETTER_IMMEDIATELY",
+    "retry_exhausted": "DEAD_LETTER",
+    "blocks_other_items": false
+  },
+  "authority": {
+    "identity_grants_authority": false,
+    "execution_authority": false
+  }
+}

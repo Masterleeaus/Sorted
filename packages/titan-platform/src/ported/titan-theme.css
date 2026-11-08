@@ -1,0 +1,178 @@
+/* Titan Zero Theme Contract v2 — canonical brand hierarchy: Primary Black · Secondary Blue · Tertiary Slate. */
+:root{
+  --t0-header-height:94px;
+  color-scheme:light;
+}
+html[data-titan-theme="dark"]{color-scheme:dark}
+html,body{background:var(--t0-bg)!important;color:var(--t0-text)!important}
+body{transition:background-color .16s ease,color .16s ease}
+button,input,textarea,select{font:inherit}
+button,input,textarea,select,a{color:inherit}
+
+/* Header v2: one Titan header, separate brand/control row and workspace navigation row. */
+#titan-topbar[data-titan-header-version="2"]{
+  min-height:var(--t0-header-height);height:auto!important;
+  display:grid!important;grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"brand controls" "tabs tabs";
+  align-items:center;gap:7px 10px;padding:9px 10px 8px!important;
+  background:color-mix(in srgb,var(--t0-panel) 94%,transparent)!important;
+  border:0!important;border-bottom:1px solid var(--t0-line)!important;
+  box-shadow:0 1px 0 color-mix(in srgb,var(--t0-text) 4%,transparent)!important;
+  backdrop-filter:blur(18px);position:relative!important;z-index:2147483647!important;
+}
+#titan-topbar[data-titan-header-version="2"] .titan-brand{grid-area:brand;gap:9px;min-width:0}
+#titan-topbar[data-titan-header-version="2"] .titan-mark{background:var(--t0-text)!important;color:var(--t0-panel)!important;border:1px solid var(--t0-line);box-shadow:none}
+#titan-topbar[data-titan-header-version="2"] .titan-brand strong{color:var(--t0-text)!important;font-size:13px}
+#titan-topbar[data-titan-header-version="2"] .titan-brand small{color:var(--t0-muted)!important;font-size:9px}
+.titan-header-controls{grid-area:controls;display:flex;align-items:center;justify-content:flex-end;gap:6px}
+.titan-theme-toggle{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--t0-line)!important;background:var(--t0-panel-2)!important;color:var(--t0-muted)!important;border-radius:999px!important;padding:6px 9px!important;font-size:9px!important;font-weight:650;cursor:pointer;white-space:nowrap}
+.titan-theme-toggle:hover{background:var(--t0-soft)!important;color:var(--t0-text)!important;border-color:var(--t0-line-strong)!important}
+.titan-theme-toggle [data-theme-icon]{font-size:12px;line-height:1;color:var(--t0-accent)}
+#titan-topbar[data-titan-header-version="2"] .titan-tabs{grid-area:tabs;width:100%;display:flex;gap:4px;padding:3px!important;overflow-x:auto;scrollbar-width:none;background:var(--t0-soft)!important;border:1px solid var(--t0-line);border-radius:12px!important;box-shadow:none!important;scroll-snap-type:x proximity;overscroll-behavior-inline:contain}
+#titan-topbar[data-titan-header-version="2"] .titan-tabs::-webkit-scrollbar{display:none}
+#titan-topbar[data-titan-header-version="2"] .titan-tab{flex:0 0 auto;scroll-snap-align:start;color:var(--t0-muted)!important;background:transparent!important;border:0!important;border-radius:9px!important;padding:7px 10px!important;font-size:10px!important;font-weight:700!important;box-shadow:none!important}
+#titan-topbar[data-titan-header-version="2"] .titan-tab:hover{color:var(--t0-text)!important;background:var(--t0-panel-2)!important}
+#titan-topbar[data-titan-header-version="2"] .titan-tab.active,
+#titan-topbar[data-titan-header-version="2"] .titan-tab[aria-selected="true"]{background:var(--t0-elevated)!important;color:var(--t0-text)!important;box-shadow:0 1px 3px color-mix(in srgb,var(--t0-text) 12%,transparent)!important}
+#titan-topbar[data-titan-header-version="2"] .titan-tab:focus-visible{outline:2px solid var(--t0-accent);outline-offset:1px}
+
+/* Main shell surfaces */
+.titan-view{height:calc(100vh - var(--t0-header-height))!important;background:var(--t0-bg)!important;color:var(--t0-text)!important}
+#titan-chat-view,#root{background:var(--t0-panel)!important;color:var(--t0-text)!important}
+#titan-context-strip,.work-label,.business-head,.feed-head,.workforce-head,.titan-tool-head{background:color-mix(in srgb,var(--t0-panel) 96%,transparent)!important;border-color:var(--t0-line)!important;color:var(--t0-text)!important}
+#titan-context-strip,.work-label,#titan-work-context{border-color:var(--t0-line)!important}
+.context-copy,.business-head small,.feed-head span,.work-label span,.workforce-head span,.titan-tool-head small,.titan-tool-section-head small,.titan-tool-section-head>span{color:var(--t0-muted)!important}
+#titan-quick-actions{background:var(--t0-panel)!important}
+#titan-quick-actions button,#titan-context-strip button,.feed-head button,.feed-filters button,.business-head>button,.business-section-head>button,.titan-tool-actions button,.titan-import-button,#titan-diagnostics-view select{background:var(--t0-elevated)!important;color:var(--t0-text)!important;border-color:var(--t0-line)!important}
+#titan-quick-actions button:hover,#titan-context-strip button:hover,.feed-head button:hover,.feed-filters button:hover,.business-head>button:hover,.business-section-head>button:hover,.titan-tool-actions button:hover{background:var(--t0-soft)!important}
+#titan-active-context,#titan-work-context,.workforce-active{background:var(--t0-accent-soft)!important;color:var(--t0-text)!important;border-color:color-mix(in srgb,var(--t0-accent) 28%,var(--t0-line))!important}
+.outcome-mode{background:var(--t0-panel)!important;border-color:var(--t0-line)!important;color:var(--t0-text)!important}
+.outcome-mode button{color:var(--t0-text)!important}
+.outcome-mode small,.outcome-status{color:var(--t0-muted)!important}
+.outcome-dot{background:var(--t0-accent)!important}
+
+/* Business / feed / workforce */
+#titan-business-view,#titan-feed-view,#titan-workforce-view,.titan-tool-view{background:var(--t0-bg)!important}
+.business-panel,.business-kpi,.feed-card,.worker-card,.workforce-catalogue-meta,.titan-tool-section,#titan-diagnostics-view .panel,#titan-diagnostics-view .card,#titan-diagnostics-view .titan-diagnostic-summary>div,#titan-modules-view .module-card,#titan-modules-view .titan-module-summary>div,#titan-modules-view .titan-contract-grid article{background:var(--t0-panel)!important;color:var(--t0-text)!important;border-color:var(--t0-line)!important;box-shadow:none!important}
+.business-route-summary span,#titan-diagnostics-view pre{background:var(--t0-panel-2)!important;color:var(--t0-text)!important;border-color:var(--t0-line)!important}
+.business-kpi>span,.business-kpi small,.feed-copy>span:not(.feed-kind),.feed-copy small,.feed-kind,.worker-copy small,.worker-copy span,.workforce-catalogue-meta,#titan-modules-view .module-card p,#titan-modules-view .meta,#titan-diagnostics-view .card span,#titan-diagnostics-view .titan-diagnostic-summary span{color:var(--t0-muted)!important}
+.feed-filters{background:var(--t0-bg)!important}
+.feed-filters button.active,#titan-diagnostics-view .titan-diagnostic-tabs button.active{background:var(--t0-text)!important;color:var(--t0-panel)!important;border-color:var(--t0-text)!important}
+.feed-icon,.worker-icon,.worker-badges em,.drawer-head button{background:var(--t0-soft)!important;color:var(--t0-text)!important}
+.worker-route-chip{background:var(--t0-accent-soft)!important;color:var(--t0-text)!important}
+.workforce-active button,.drawer-actions button,#titan-work-fallback button{background:var(--t0-text)!important;color:var(--t0-panel)!important}
+
+/* Work iframe chrome + overlays. The runtime also toggles theme-light/theme-dark inside the same-origin frame. */
+#titan-work-view{background:var(--t0-panel)!important}
+#titan-work-frame,#titan-retriever-frame{background:var(--t0-panel)!important}
+#titan-work-status{background:var(--t0-soft)!important;color:var(--t0-muted)!important}
+#titan-work-fallback{background:color-mix(in srgb,var(--t0-panel) 96%,transparent)!important;color:var(--t0-text)!important}
+#titan-work-fallback span{color:var(--t0-muted)!important}
+
+/* Drawers / diagnostics */
+#titan-detail-drawer,#titan-diagnostics-panel{top:var(--t0-header-height)!important;height:calc(100vh - var(--t0-header-height))!important;background:var(--t0-panel)!important;color:var(--t0-text)!important;border-color:var(--t0-line)!important;box-shadow:var(--t0-shadow)!important}
+.drawer-head,.drawer-actions{border-color:var(--t0-line)!important}
+.drawer-body p{color:var(--t0-muted)!important}
+.drawer-body #titan-drawer-meta span{background:var(--t0-soft)!important;color:var(--t0-muted)!important}
+.drawer-actions button+button{background:var(--t0-soft)!important;color:var(--t0-text)!important}
+.diag-body>button{background:var(--t0-soft)!important;color:var(--t0-text)!important;border-color:var(--t0-line)!important}
+.diag-row{border-color:var(--t0-line)!important}.diag-row span{color:var(--t0-muted)!important}
+
+/* Integrated modules and diagnostics */
+.titan-tool-notice{color:var(--t0-info)!important}.titan-tool-notice.error{color:var(--t0-danger)!important}
+#titan-modules-view .pill{color:var(--t0-muted)!important;border-color:var(--t0-line)!important}
+#titan-modules-view .pill.error,#titan-modules-view .module-actions .danger,.titan-tool-actions .danger{color:var(--t0-danger)!important}
+#titan-modules-view .module-actions button,#titan-diagnostics-view .titan-diagnostic-tabs button{background:var(--t0-panel-2)!important;color:var(--t0-text)!important;border-color:var(--t0-line)!important}
+#titan-modules-view .module-actions .toggle.on{background:color-mix(in srgb,var(--t0-success) 14%,var(--t0-panel))!important;border-color:color-mix(in srgb,var(--t0-success) 35%,var(--t0-line))!important;color:var(--t0-success)!important}
+#titan-diagnostics-view .ok{color:var(--t0-success)!important}#titan-diagnostics-view .warn{color:var(--t0-warning)!important}#titan-diagnostics-view .error{color:var(--t0-danger)!important}
+
+/* Redirect/standalone pages share the same runtime during handoff/navigation. */
+body.titan-modules-page,body.titan-diagnostics-page,body.titan-popup-page,body.titan-monica-popup-page,body.titan-chat-tab-page{background:var(--t0-bg)!important;color:var(--t0-text)!important}
+body.titan-modules-page>header,body.titan-diagnostics-page>header{background:var(--t0-panel)!important;color:var(--t0-text)!important;border-color:var(--t0-line)!important}
+body.titan-modules-page button,body.titan-diagnostics-page button,body.titan-diagnostics-page select{background:var(--t0-panel-2)!important;color:var(--t0-text)!important;border-color:var(--t0-line)!important}
+body.titan-popup-page .brand>span{background:var(--t0-text)!important;color:var(--t0-panel)!important}
+body.titan-popup-page .brand small,body.titan-popup-page p,body.titan-popup-page .choices small,body.titan-popup-page footer{color:var(--t0-muted)!important}
+body.titan-popup-page .choices button,body.titan-popup-page .diagnostics{background:var(--t0-panel-2)!important;color:var(--t0-text)!important;border-color:var(--t0-line)!important}
+body.titan-popup-page .choices button:hover,body.titan-popup-page .diagnostics:hover{background:var(--t0-soft)!important}
+
+@media(max-width:520px){
+  :root{--t0-header-height:88px}
+  #titan-topbar[data-titan-header-version="2"]{padding:7px 8px 7px!important;gap:6px 8px}
+  #titan-topbar[data-titan-header-version="2"] .titan-brand>div{display:block!important}
+  #titan-topbar[data-titan-header-version="2"] .titan-brand small{display:none!important}
+  #titan-topbar[data-titan-header-version="2"] .titan-tab{padding:6px 8px!important;font-size:9px!important}
+  .titan-theme-toggle [data-theme-label]{display:none}
+  .titan-theme-toggle{width:30px;height:30px;padding:0!important;justify-content:center}
+}
+@media(max-width:360px){#titan-topbar[data-titan-header-version="2"] .titan-brand>div{display:none!important}}
+
+
+/* FINISH-004 Pass 6 — shared Titan-owned popup/options/standalone surface treatment. */
+body.titan-popup-page,body.titan-options-page{background:var(--t0-bg)!important;color:var(--t0-text)!important}
+body.titan-popup-page .brand>span{background:var(--t0-primary)!important;color:#fff!important;border:1px solid var(--t0-line)!important}
+body.titan-popup-page p,body.titan-popup-page small,body.titan-popup-page footer{color:var(--t0-muted)!important}
+body.titan-popup-page .choices button,body.titan-popup-page .diagnostics{background:var(--t0-panel)!important;color:var(--t0-text)!important;border-color:var(--t0-line)!important}
+body.titan-popup-page .choices button:hover,body.titan-popup-page .diagnostics:hover{background:var(--t0-soft)!important;border-color:var(--t0-line-strong)!important}
+body.titan-popup-page .mini-launchers button:hover{background:var(--t0-accent-soft)!important;border-color:color-mix(in srgb,var(--t0-secondary) 38%,var(--t0-line))!important}
+#titan-options-bar{background:var(--t0-primary)!important;color:#fff!important;border-color:var(--t0-secondary)!important}
+#titan-options-bar span{color:#94a3b8!important}
+#titan-options-bar button{background:#0f172a!important;color:#e2e8f0!important;border-color:#334155!important}
+#titan-options-bar button:hover{background:#172033!important;border-color:var(--t0-secondary)!important}
+
+/* FINISH-004 Pass 7 — persisted theme selector and editable brand triad. */
+.titan-theme-editor{margin:14px auto;max-width:900px;padding:16px;border:1px solid var(--t0-line);border-radius:16px;background:var(--t0-panel);color:var(--t0-text);box-shadow:var(--t0-shadow)}
+.titan-theme-editor-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:13px}
+.titan-theme-editor-head>div{display:grid;gap:3px}.titan-theme-editor-head strong{font-size:15px}.titan-theme-editor-head span{font-size:11px;color:var(--t0-muted)}
+.titan-theme-editor button{border:1px solid var(--t0-line);background:var(--t0-panel-2);color:var(--t0-text);border-radius:10px;padding:8px 10px;cursor:pointer}
+.titan-theme-editor button:hover{border-color:var(--t0-secondary);background:var(--t0-soft)}
+.titan-theme-presets{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-bottom:13px}
+.titan-theme-presets button{display:grid;grid-template-columns:18px 1fr;grid-template-rows:auto auto;text-align:left;column-gap:8px;align-items:center;min-width:0}
+.titan-theme-presets button i{grid-row:1/3;width:18px;height:18px;border-radius:50%;background:var(--swatch);box-shadow:0 0 0 1px var(--t0-line-strong)}
+.titan-theme-presets button b{font-size:11px}.titan-theme-presets button small{font-size:9px;color:var(--t0-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.titan-theme-presets button.active{border-color:var(--t0-secondary);background:var(--t0-accent-soft);box-shadow:inset 0 0 0 1px var(--t0-secondary)}
+.titan-theme-colors{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-bottom:12px}
+.titan-theme-colors label{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 10px;border:1px solid var(--t0-line);border-radius:10px;background:var(--t0-panel-2);font-size:10px;font-weight:700}
+.titan-theme-colors input[type="color"]{width:34px;height:24px;padding:0;border:0;border-radius:6px;background:transparent;cursor:pointer}
+.titan-theme-preview{display:flex;align-items:center;gap:8px;padding:10px;border-radius:12px;background:var(--t0-soft)}
+.titan-theme-preview span{padding:7px 9px;border-radius:8px;font-size:10px;font-weight:750}
+.titan-theme-preview .primary{background:var(--preview-primary,var(--t0-primary));color:#fff}.titan-theme-preview .secondary{background:var(--preview-secondary,var(--t0-secondary));color:#fff}.titan-theme-preview .tertiary{background:var(--preview-tertiary,var(--t0-tertiary));color:#fff}
+@media(max-width:700px){.titan-theme-presets{grid-template-columns:repeat(2,minmax(0,1fr))}.titan-theme-colors{grid-template-columns:1fr}.titan-theme-editor{margin:10px}.titan-theme-editor-head{align-items:center}}
+
+
+/* Titan Zero Theme Contract v3 — extension-wide donor + runtime normalization. */
+body.titan-chat-tab-page,body.titan-monica-options-page,body.titan-monica-popup-page,body.titan-compat-chat-page,body.titan-module-view-page{
+  background:var(--t0-bg)!important;color:var(--t0-text)!important;
+}
+body.titan-chat-tab-page #root,body.titan-monica-options-page #root,body.titan-monica-popup-page #root,body.titan-compat-chat-page #root{
+  background:var(--t0-bg)!important;color:var(--t0-text)!important;
+}
+/* Monica/legacy React surfaces: override the old white/grey design tokens without deleting donor CSS. */
+body.titan-chat-tab-page [class*="_monica-theme-"],body.titan-monica-options-page [class*="_monica-theme-"],body.titan-monica-popup-page [class*="_monica-theme-"]{
+  --theme-bg-primary:var(--t0-bg)!important;--theme-bg-secondary:var(--t0-panel)!important;--theme-bg-tertiary:var(--t0-panel-2)!important;
+  --theme-fill-primary:var(--t0-panel)!important;--theme-fill-secondary:var(--t0-panel-2)!important;
+  --theme-text-primary:var(--t0-text)!important;--theme-text-secondary:var(--t0-muted)!important;--theme-text-tertiary:var(--t0-faint)!important;
+  --theme-text-brand:var(--t0-accent)!important;--theme-icon-brand:var(--t0-accent)!important;--theme-border-primary:var(--t0-line)!important;
+  --theme-border-active:var(--t0-accent)!important;--theme-btn-fill-primary:var(--t0-accent)!important;--theme-text-link:var(--t0-accent)!important;
+}
+body.titan-chat-tab-page input,body.titan-chat-tab-page textarea,body.titan-chat-tab-page select,
+body.titan-monica-options-page input,body.titan-monica-options-page textarea,body.titan-monica-options-page select,
+body.titan-monica-popup-page input,body.titan-monica-popup-page textarea,body.titan-monica-popup-page select{
+  background:var(--t0-panel-2)!important;color:var(--t0-text)!important;border-color:var(--t0-line)!important;
+}
+.titan-theme-settings-link{position:fixed;right:12px;bottom:12px;z-index:2147483647;border:1px solid var(--t0-line);background:var(--t0-elevated);color:var(--t0-text);border-radius:999px;padding:8px 11px;text-decoration:none;font:700 10px/1 system-ui,-apple-system,sans-serif;box-shadow:var(--t0-shadow)}
+.titan-theme-settings-link:hover{background:var(--t0-accent);border-color:var(--t0-accent);color:#fff}
+.titan-theme-colors{grid-template-columns:repeat(4,minmax(0,1fr))!important}
+.titan-theme-preview .background{background:var(--preview-background,var(--t0-bg));color:var(--t0-text)}
+.titan-theme-preview .primary{background:var(--preview-primary,var(--t0-accent));color:white}
+.titan-theme-preview .secondary{background:var(--preview-secondary,var(--t0-muted));color:white}
+.titan-theme-preview .tertiary{background:var(--preview-tertiary,var(--t0-pink));color:white}
+@media(max-width:680px){.titan-theme-colors{grid-template-columns:1fr 1fr!important}}
+
+/* Settings-owned appearance mode picker + live preview. */
+.titan-theme-mode-picker{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:0 0 13px;padding:9px 10px;border:1px solid var(--t0-line);border-radius:12px;background:var(--t0-panel-2)}
+.titan-theme-mode-picker>span{font-size:10px;font-weight:800;margin-right:2px}.titan-theme-mode-picker button{padding:6px 10px}.titan-theme-mode-picker button.active{border-color:var(--t0-accent);background:var(--t0-accent-soft);box-shadow:inset 0 0 0 1px var(--t0-accent)}
+.titan-theme-mode-picker output{margin-left:auto;color:var(--t0-muted);font-size:10px;font-weight:700}
+.titan-theme-preview{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:stretch!important;gap:10px!important}
+.titan-theme-preview .preview-surface{min-width:0;padding:12px;border:1px solid var(--t0-line);border-radius:10px;background:var(--t0-panel);color:var(--t0-text)}
+.titan-theme-preview .preview-surface strong{display:block;font-size:13px}.titan-theme-preview .preview-surface small{display:block;margin-top:2px;color:var(--t0-muted)}.titan-theme-preview .preview-surface p{margin:10px 0;font-size:10px;color:var(--t0-muted)}
+.titan-theme-preview .preview-surface div{display:flex;gap:7px;flex-wrap:wrap}.titan-theme-preview .background{display:flex;align-items:center;justify-content:center;min-width:84px;background:var(--preview-background,var(--t0-bg));border:1px solid var(--t0-line);color:var(--t0-text)!important}
+@media(max-width:680px){.titan-theme-mode-picker output{width:100%;margin-left:0}.titan-theme-preview{grid-template-columns:1fr}.titan-theme-preview .background{min-height:42px}}

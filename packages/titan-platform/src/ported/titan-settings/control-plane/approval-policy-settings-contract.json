@@ -1,0 +1,19 @@
+{
+  "schema":"titan-zero-approval-policy-settings-contract/v1",
+  "pass":12,
+  "status":"ACTIVE",
+  "company_boundary":"company_id",
+  "setting_key":"approvalPolicySettings",
+  "scope":"company",
+  "levels":["runtime-default","review","approval","human-only"],
+  "runtime_sources":["titan-runtime/authority/authority-evaluator.mjs","titan-runtime/authority/worker-authority.mjs","titan-intelligence/decision/authority-requirement-engine.js"],
+  "settings_role":"approval requirement floor projection only",
+  "protected_actions_remain_runtime_governed":true,
+  "self_approval_remains_forbidden":true,
+  "approval_scope_and_freshness_remain_runtime_validated":true,
+  "settings_can_satisfy_approval":false,
+  "settings_can_create_approval":false,
+  "settings_can_relax_runtime_requirement":false,
+  "identity_grants_authority":false,
+  "execution_permitted":false
+}

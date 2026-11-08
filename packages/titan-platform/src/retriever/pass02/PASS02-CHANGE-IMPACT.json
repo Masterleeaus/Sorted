@@ -1,0 +1,7 @@
+{
+  "schema": "titan-zero-retriever-finish-pass02-change-impact/v1",
+  "packet_id": "TZ-FINISH-RETRIEVER-NATIVE-001",
+  "pass": 2,
+  "impact": "New isolated src/retriever runtime namespace plus tsconfig compilation coverage and tests. Existing public package exports and shared root index remain untouched to avoid active workforce export collisions.",
+  "rollback": "Remove src/retriever contracts/executor/index, Pass2 test, and the src/retriever/index.ts tsconfig file entry."
+}

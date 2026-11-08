@@ -1,0 +1,44 @@
+{
+  "schema": "titan.workforce.gateway.cross-system-lineage.v1",
+  "pass": 3,
+  "generated_at": "2026-09-05T04:54:00+10:00",
+  "titan_zero": {
+    "integration_parent": "Titan-Zero-v0.18.5-Workforce-Laravel-Gateway-Integration-Pass02-CUMULATIVE.zip",
+    "canonical_ancestor": "Titan-Zero-v0.18.5-Manager-Canonical-Worker-Authority-Convergence-CUMULATIVE.zip",
+    "canonical_ancestor_sha256": "cfd980e927b0611be3cb591a92a00c653e1e3f8c28b40f715d1accc68ecdeb6f"
+  },
+  "titan_code_gateway": {
+    "cumulative": "Titan-Code-v2.11.1-Full-Deployment-Workforce-Laravel-Gateway-CUMULATIVE.zip",
+    "sha256": "abbd92867d99a77cae53a2f7d528a3c3e05fa1db4c0968c6fe49447f7a5f6949",
+    "declared_parent_label": "Titan Code v2.11.0",
+    "declared_parent_sha256": "8746eb82b50c5d168046392a93bf5fbe4de050259fa89ba830684b3cb3e74a2f",
+    "delta_sha256": "1f91944bae0d4a4ad40818a010979510ff28a212d3bfaee782b267f145753c25"
+  },
+  "codee_canonical": {
+    "artifact": "Codee Master Step 12.zip",
+    "sha256": "35d55b3211dabc0f3c6a5e5237ee61ed65520dc7c7effa203a2f8f87a27c3ee2",
+    "verified": true,
+    "step12_is_normalized_superset_of_codee_step10": true,
+    "step10_to_step12": {
+      "shared_files": 35,
+      "added": 21,
+      "removed": 0
+    }
+  },
+  "archive_comparison": {
+    "codee_step12_files": 56,
+    "titan_code_gateway_files": 572,
+    "shared_relative_paths": [
+      "README.md",
+      "manifest.json",
+      "src/content-script.js"
+    ],
+    "byte_identical_shared_paths": [],
+    "conclusion": "DISTINCT_ARCHIVE_LINEAGES_SEMANTIC_ROLE_RELATIONSHIP_ONLY"
+  },
+  "authority": {
+    "company_boundary": "company_id",
+    "lineage_proof_grants_authority": false,
+    "laravel_workforce_remains_durable_authority": true
+  }
+}

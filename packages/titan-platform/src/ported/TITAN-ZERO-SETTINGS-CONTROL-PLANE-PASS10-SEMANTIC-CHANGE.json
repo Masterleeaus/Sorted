@@ -1,0 +1,24 @@
+{
+  "schema": "titan-zero-settings-control-plane-semantic-change/v1",
+  "pass": 10,
+  "title": "Advanced Intelligence Behaviour",
+  "status": "COMPLETE",
+  "manager_base": {
+    "merge": 23,
+    "artifact": "Titan-Zero-CANONICAL-MASTER-2026-09-07-MERGE-23-NANO-WORKFLOW-ABSORBED.zip",
+    "sha256": "e6d4cbc9453fb42b31dbea02ac14d491272adf9b73f6c4554d172794d2710bad",
+    "files": 2067
+  },
+  "changes": [
+    "Rebased Pass8-9 unique Settings control-plane work onto Manager Merge23 without replacing newer runtime/storage/tools/workflow code.",
+    "Added company-scoped Advanced Intelligence behaviour projection for reasoning depth, deterministic/local-first preference, confidence escalation and bounded challenge hints.",
+    "Mandatory high-risk A/B/C challenge and Zero synthesis remain runtime-owned and cannot be disabled by Settings."
+  ],
+  "invariants": {
+    "company_boundary": "company_id only",
+    "identity_grants_authority": false,
+    "settings_grant_execution_authority": false,
+    "automatic_authority_change": false,
+    "settings_can_disable_high_risk_challenge": false
+  }
+}

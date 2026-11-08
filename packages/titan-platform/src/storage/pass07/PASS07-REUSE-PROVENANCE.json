@@ -1,0 +1,33 @@
+{
+  "schema": "titan-zero-storage-reuse-provenance/v1",
+  "packet_id": "TZ-FINISH-STORAGE-DATA-AUTHORITY-001",
+  "pass": 7,
+  "dispositions": [
+    {
+      "source": "packages/titan-platform/src/ported/titan-local/storage/business-state-authority.ts",
+      "status": "ADAPTED",
+      "reused_semantics": [
+        "monotonic revisions",
+        "expected_revision optimistic concurrency",
+        "revision_mismatch durable conflicts",
+        "idempotency_key_reused durable conflicts",
+        "durable committed receipts",
+        "company-scoped state and receipt collections",
+        "summary diagnostics"
+      ]
+    },
+    {
+      "source": "SUP-REUSE-B3-STORAGE-003 Business State Authority Zero-Loss Parity Report",
+      "status": "REUSED",
+      "reused_semantics": [
+        "monotonic revisions",
+        "expected_revision conflicts",
+        "idempotency reuse detection",
+        "durable committed/conflict receipts",
+        "conflict diagnostics"
+      ]
+    }
+  ],
+  "parallel_storage_authority_created": false,
+  "authority_model_changed": false
+}

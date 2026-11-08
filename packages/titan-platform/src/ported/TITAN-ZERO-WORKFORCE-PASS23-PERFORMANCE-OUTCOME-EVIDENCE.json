@@ -1,0 +1,1 @@
+{"pass":23,"title":"Performance + Outcome Evidence","schema":"titan.workforce.performance-outcome-evidence.v1","company_boundary":"company_id only","uses_existing_outcome_contract":true,"evidence_backed":true,"dynamic_staffing_input":"bounded confidence-weighted only","performance_confers_authority":false,"automatic_reassignment":false,"grants_authority":false}

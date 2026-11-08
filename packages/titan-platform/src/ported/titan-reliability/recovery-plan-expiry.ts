@@ -1,0 +1,4 @@
+// @ts-nocheck
+// Ported from Titan Zero extension (portable-core): titan-reliability/recovery-plan-expiry.mjs
+const clean=v=>String(v??'').trim(); const freeze=Object.freeze;
+export function inspectRecoveryPlanExpiry({company_id,now_ms=Date.now(),plan={}}={}){const c=clean(company_id);if(!c)throw new Error('company_id-required');if(clean(plan?.company_id)&&clean(plan.company_id)!==c)throw new Error('cross-company:recovery-plan');const created=Number(plan?.created_at_ms);const maxAge=Math.max(0,Number(plan?.max_age_ms||0));const expired=Number.isFinite(created)&&maxAge>0&&Number(now_ms)-created>maxAge;return freeze({schema:'titan.reliability.recovery-plan-expiry.v1',company_id:c,plan_id:clean(plan?.plan_id)||null,expired,allowed:!expired,auto_execute:false,requires_explicit_resolution:expired,advisory_only:true,authority_effect:false,grants_authority:false,changes_permissions:false,changes_autonomy:false})}

@@ -1,0 +1,60 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Titan Booking Handoff v1",
+  "type": "object",
+  "required": [
+    "schema",
+    "company_id",
+    "handoff_id",
+    "from_worker",
+    "to_worker",
+    "correlation_id",
+    "dedupe_key",
+    "context",
+    "grants_authority",
+    "direct_mutation"
+  ],
+  "properties": {
+    "schema": {
+      "const": "titan.booking.handoff.v1"
+    },
+    "company_id": {
+      "type": "string",
+      "minLength": 2
+    },
+    "handoff_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "from_worker": {
+      "const": "booking"
+    },
+    "to_worker": {
+      "enum": [
+        "scheduling",
+        "jobs"
+      ]
+    },
+    "correlation_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "dedupe_key": {
+      "type": "string",
+      "minLength": 1
+    },
+    "context": {
+      "type": "object"
+    },
+    "reason": {
+      "type": "string"
+    },
+    "grants_authority": {
+      "const": false
+    },
+    "direct_mutation": {
+      "const": false
+    }
+  },
+  "additionalProperties": false
+}

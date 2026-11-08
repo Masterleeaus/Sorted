@@ -1,0 +1,549 @@
+{
+  "schema": "titan-zero-settings-merge-map/v1",
+  "packet_id": "TZ-SETTINGS-THEME-RESTORE-001",
+  "pass": 1,
+  "goal": "One rich Titan Settings centre with no useful setting lost.",
+  "authoritative_foundations": {
+    "rich_ui": "monicaOptions.html + content.js",
+    "titan_theme": "titan-zero-options.html + titan-theme.js",
+    "retriever_device_settings": "side-panel/assets/storageUtils + userSettingsService + llmConfigService"
+  },
+  "target_sections": [
+    {
+      "id": "general",
+      "title": "General",
+      "sources": [
+        "general_language",
+        "account_preferences"
+      ],
+      "destination": "Rich Titan Settings / General & Language"
+    },
+    {
+      "id": "appearance",
+      "title": "Appearance & Theme",
+      "sources": [
+        "Titan presets/mode/colour controls",
+        "Retriever theme"
+      ],
+      "destination": "Rich Titan Settings / Appearance",
+      "notes": [
+        "Converge titanZeroTheme + titanZeroThemeConfig + Retriever theme while preserving existing values."
+      ]
+    },
+    {
+      "id": "assistant_chat",
+      "title": "Assistant & Chat",
+      "sources": [
+        "chat_behavior",
+        "userContext",
+        "agentMode"
+      ],
+      "destination": "Rich Titan Settings / Assistant"
+    },
+    {
+      "id": "models_providers",
+      "title": "Models & Providers",
+      "sources": [
+        "models_providers",
+        "Retriever LLM configuration"
+      ],
+      "destination": "Rich Titan Settings / Models & Providers"
+    },
+    {
+      "id": "writing",
+      "title": "Writing & Grammar",
+      "sources": [
+        "writing_grammar"
+      ],
+      "destination": "Rich Titan Settings / Writing"
+    },
+    {
+      "id": "search",
+      "title": "Search & Research",
+      "sources": [
+        "search_research"
+      ],
+      "destination": "Rich Titan Settings / Search"
+    },
+    {
+      "id": "translation",
+      "title": "Translation",
+      "sources": [
+        "translation"
+      ],
+      "destination": "Rich Titan Settings / Translation"
+    },
+    {
+      "id": "sidebar",
+      "title": "Sidebar & Floating Assistant",
+      "sources": [
+        "sidebar_floating"
+      ],
+      "destination": "Rich Titan Settings / Sidebar & Floating"
+    },
+    {
+      "id": "selection",
+      "title": "Text Selection",
+      "sources": [
+        "text_selection"
+      ],
+      "destination": "Rich Titan Settings / Text Selection"
+    },
+    {
+      "id": "shortcuts",
+      "title": "Shortcuts",
+      "sources": [
+        "keyboard_shortcuts",
+        "workflowShortcuts"
+      ],
+      "destination": "Rich Titan Settings / Shortcuts"
+    },
+    {
+      "id": "reading",
+      "title": "Reading",
+      "sources": [
+        "reading"
+      ],
+      "destination": "Rich Titan Settings / Reading"
+    },
+    {
+      "id": "documents",
+      "title": "PDF & Documents",
+      "sources": [
+        "pdf_documents"
+      ],
+      "destination": "Rich Titan Settings / Documents"
+    },
+    {
+      "id": "media",
+      "title": "Image, Video, Audio & Voice",
+      "sources": [
+        "image",
+        "video",
+        "audio_podcast_voice"
+      ],
+      "destination": "Rich Titan Settings / Media"
+    },
+    {
+      "id": "browser_execution",
+      "title": "Browser & Execution",
+      "sources": [
+        "Retriever execution settings"
+      ],
+      "destination": "Rich Titan Settings / Browser & Execution"
+    },
+    {
+      "id": "privacy",
+      "title": "Privacy & Data",
+      "sources": [
+        "privateMode"
+      ],
+      "destination": "Rich Titan Settings / Privacy"
+    },
+    {
+      "id": "costs_tools",
+      "title": "Costs & Tool Permissions",
+      "sources": [
+        "Retriever credit/tool gates"
+      ],
+      "destination": "Rich Titan Settings / Costs & Tool Permissions"
+    },
+    {
+      "id": "tools_integrations",
+      "title": "Tools & Integrations",
+      "sources": [
+        "MCP execution/confirmation/remote browser config"
+      ],
+      "destination": "Rich Titan Settings / Tools & Integrations"
+    }
+  ],
+  "retriever_key_dispositions": [
+    {
+      "key": "chats",
+      "disposition": "history_state",
+      "destination": "Not a Settings control"
+    },
+    {
+      "key": "currentChatId",
+      "disposition": "history_state",
+      "destination": "Not a Settings control"
+    },
+    {
+      "key": "chatOptions",
+      "disposition": "user_setting",
+      "destination": "Models & Providers"
+    },
+    {
+      "key": "mcpExecutionsEnabled",
+      "disposition": "user_setting",
+      "destination": "Tools & Integrations"
+    },
+    {
+      "key": "requireMcpConfirmation",
+      "disposition": "user_setting",
+      "destination": "Tools & Integrations"
+    },
+    {
+      "key": "mcpApiKey",
+      "disposition": "secret",
+      "destination": "Provider/security flow, never plain editable field"
+    },
+    {
+      "key": "mcpApiKeyId",
+      "disposition": "secret",
+      "destination": "Provider/security flow, never plain editable field"
+    },
+    {
+      "key": "remoteBrowserToolsConfig",
+      "disposition": "user_setting",
+      "destination": "Tools & Integrations"
+    },
+    {
+      "key": "geminiApiKey",
+      "disposition": "user_setting",
+      "destination": "Models & Providers"
+    },
+    {
+      "key": "geminiApiKeyEnabled",
+      "disposition": "user_setting",
+      "destination": "Models & Providers"
+    },
+    {
+      "key": "geminiApiKeys",
+      "disposition": "user_setting",
+      "destination": "Models & Providers"
+    },
+    {
+      "key": "providerConfigs",
+      "disposition": "user_setting",
+      "destination": "Models & Providers"
+    },
+    {
+      "key": "disableAutoScroll",
+      "disposition": "user_setting",
+      "destination": "Browser & Execution"
+    },
+    {
+      "key": "privateMode",
+      "disposition": "user_setting",
+      "destination": "Privacy & Data"
+    },
+    {
+      "key": "freeModeEnabled",
+      "disposition": "user_setting",
+      "destination": "Models & Providers"
+    },
+    {
+      "key": "freeModeChoiceMade",
+      "disposition": "system_state",
+      "destination": "Not editable in Settings"
+    },
+    {
+      "key": "paidPlanHint",
+      "disposition": "system_state",
+      "destination": "Not editable in Settings"
+    },
+    {
+      "key": "closeTabsAfterExecution",
+      "disposition": "user_setting",
+      "destination": "Browser & Execution"
+    },
+    {
+      "key": "creditToolsEnabled",
+      "disposition": "user_setting",
+      "destination": "Costs & Tool Permissions"
+    },
+    {
+      "key": "cloudScrapeEnabled",
+      "disposition": "user_setting",
+      "destination": "Costs & Tool Permissions"
+    },
+    {
+      "key": "enrichEnabled",
+      "disposition": "user_setting",
+      "destination": "Costs & Tool Permissions"
+    },
+    {
+      "key": "webSearchEnabled",
+      "disposition": "user_setting",
+      "destination": "Costs & Tool Permissions"
+    },
+    {
+      "key": "imageGenerationEnabled",
+      "disposition": "user_setting",
+      "destination": "Costs & Tool Permissions"
+    },
+    {
+      "key": "codePlanTimeoutMinutes",
+      "disposition": "user_setting",
+      "destination": "Browser & Execution"
+    },
+    {
+      "key": "codePlanDataDoneReviewGate",
+      "disposition": "user_setting",
+      "destination": "Browser & Execution"
+    },
+    {
+      "key": "creditCeiling",
+      "disposition": "user_setting",
+      "destination": "Costs & Tool Permissions"
+    },
+    {
+      "key": "creditCeilingEnabled",
+      "disposition": "user_setting",
+      "destination": "Costs & Tool Permissions"
+    },
+    {
+      "key": "pageLoadDelay",
+      "disposition": "user_setting",
+      "destination": "Browser & Execution"
+    },
+    {
+      "key": "consecutiveScrollDelay",
+      "disposition": "user_setting",
+      "destination": "Browser & Execution"
+    },
+    {
+      "key": "maxParallelTabs",
+      "disposition": "user_setting",
+      "destination": "Browser & Execution"
+    },
+    {
+      "key": "networkToolExecutionMode",
+      "disposition": "user_setting",
+      "destination": "Browser & Execution"
+    },
+    {
+      "key": "extractionSpeed",
+      "disposition": "user_setting",
+      "destination": "Browser & Execution"
+    },
+    {
+      "key": "userContext",
+      "disposition": "user_setting",
+      "destination": "Assistant & Chat"
+    },
+    {
+      "key": "redeemedReferralCode",
+      "disposition": "feature_state",
+      "destination": "Feature-owned state, not generic setting"
+    },
+    {
+      "key": "theme",
+      "disposition": "user_setting",
+      "destination": "Appearance & Theme"
+    },
+    {
+      "key": "agentMode",
+      "disposition": "user_setting",
+      "destination": "Assistant & Chat"
+    },
+    {
+      "key": "userSkills",
+      "disposition": "user_setting",
+      "destination": "Assistant & Chat"
+    },
+    {
+      "key": "generalSkillSeeded",
+      "disposition": "feature_state",
+      "destination": "Feature-owned state, not generic setting"
+    },
+    {
+      "key": "user",
+      "disposition": "identity_state",
+      "destination": "Account/device identity, not generic setting"
+    },
+    {
+      "key": "userId",
+      "disposition": "identity_state",
+      "destination": "Account/device identity, not generic setting"
+    },
+    {
+      "key": "authToken",
+      "disposition": "secret",
+      "destination": "Provider/security flow, never plain editable field"
+    },
+    {
+      "key": "fcmToken",
+      "disposition": "secret",
+      "destination": "Provider/security flow, never plain editable field"
+    },
+    {
+      "key": "deviceId",
+      "disposition": "identity_state",
+      "destination": "Account/device identity, not generic setting"
+    },
+    {
+      "key": "userFunctions",
+      "disposition": "feature_state",
+      "destination": "Feature-owned state, not generic setting"
+    },
+    {
+      "key": "userFunctionTombstones",
+      "disposition": "feature_state",
+      "destination": "Feature-owned state, not generic setting"
+    },
+    {
+      "key": "toolUsageStats",
+      "disposition": "history_state",
+      "destination": "Not a Settings control"
+    },
+    {
+      "key": "predefinedFunctions",
+      "disposition": "feature_state",
+      "destination": "Feature-owned state, not generic setting"
+    },
+    {
+      "key": "predefinedLlmCallableOverrides",
+      "disposition": "feature_state",
+      "destination": "Feature-owned state, not generic setting"
+    },
+    {
+      "key": "pinnedTools",
+      "disposition": "feature_state",
+      "destination": "Feature-owned state, not generic setting"
+    },
+    {
+      "key": "predefinedMigrationV1Done",
+      "disposition": "feature_state",
+      "destination": "Feature-owned state, not generic setting"
+    },
+    {
+      "key": "managedDeepSeekDefaultMigrationDone",
+      "disposition": "feature_state",
+      "destination": "Feature-owned state, not generic setting"
+    },
+    {
+      "key": "managedGlmDefaultMigrationDone",
+      "disposition": "feature_state",
+      "destination": "Feature-owned state, not generic setting"
+    },
+    {
+      "key": "rtrvr_task_history",
+      "disposition": "history_state",
+      "destination": "Not a Settings control"
+    },
+    {
+      "key": "workflowShortcuts",
+      "disposition": "user_setting",
+      "destination": "Shortcuts"
+    },
+    {
+      "key": "scheduledWorkflows",
+      "disposition": "workflow_state",
+      "destination": "Dedicated workflow/schedule/trigger surface"
+    },
+    {
+      "key": "pastWorkflowEvents",
+      "disposition": "workflow_state",
+      "destination": "Dedicated workflow/schedule/trigger surface"
+    },
+    {
+      "key": "triggerWorkflows",
+      "disposition": "workflow_state",
+      "destination": "Dedicated workflow/schedule/trigger surface"
+    },
+    {
+      "key": "triggerEvents",
+      "disposition": "workflow_state",
+      "destination": "Dedicated workflow/schedule/trigger surface"
+    },
+    {
+      "key": "rtrvr_known_task_ids",
+      "disposition": "history_state",
+      "destination": "Not a Settings control"
+    },
+    {
+      "key": "permissionsPopupShown",
+      "disposition": "feature_state",
+      "destination": "Feature-owned state, not generic setting"
+    },
+    {
+      "key": "ONBOARDING_COMPLETED",
+      "disposition": "feature_state",
+      "destination": "Feature-owned state, not generic setting"
+    }
+  ],
+  "titan_control_dispositions": [
+    {
+      "control": "data-titan-theme-preset",
+      "destination": "Appearance & Theme",
+      "disposition": "preserve_and_integrate"
+    },
+    {
+      "control": "data-titan-theme-background",
+      "destination": "Appearance & Theme",
+      "disposition": "preserve_and_integrate"
+    },
+    {
+      "control": "data-titan-theme-primary",
+      "destination": "Appearance & Theme",
+      "disposition": "preserve_and_integrate"
+    },
+    {
+      "control": "data-titan-theme-secondary",
+      "destination": "Appearance & Theme",
+      "disposition": "preserve_and_integrate"
+    },
+    {
+      "control": "data-titan-theme-tertiary",
+      "destination": "Appearance & Theme",
+      "disposition": "preserve_and_integrate"
+    },
+    {
+      "control": "data-titan-theme-reset",
+      "destination": "Appearance & Theme",
+      "disposition": "preserve_and_integrate"
+    },
+    {
+      "control": "data-titan-theme-preview",
+      "destination": "Appearance & Theme",
+      "disposition": "preserve_and_integrate"
+    },
+    {
+      "control": "data-titan-options-launch",
+      "destination": "Navigation, not Settings",
+      "disposition": "preserve_destination_remove_from_settings_ownership"
+    }
+  ],
+  "known_conflicts": [
+    {
+      "id": "theme-key-split",
+      "severity": "high",
+      "evidence": [
+        "titanZeroTheme",
+        "titanZeroThemeConfig",
+        "theme"
+      ],
+      "finding": "Titan and Retriever currently persist theme through different keys/contracts; later passes must converge propagation without losing existing state."
+    },
+    {
+      "id": "split-settings-authority",
+      "severity": "high",
+      "evidence": [
+        "monicaOptions.html",
+        "titan-zero-options.html",
+        "userSettingsService"
+      ],
+      "finding": "Useful settings are split across three user-facing/runtime authorities and require one rich Titan Settings centre."
+    },
+    {
+      "id": "launcher-controls-in-settings",
+      "severity": "medium",
+      "evidence": [
+        "ai",
+        "retriever",
+        "donor-options",
+        "diagnostics"
+      ],
+      "finding": "The thin Titan settings page mixes navigation launchers into settings; preserve destinations but do not treat launchers as settings controls."
+    }
+  ],
+  "pass2_requirements": [
+    "Rendered inventory of every rich settings category and control after monicaOptions mounts.",
+    "Rebrand rich options structure in place as Titan Settings.",
+    "Do not delete settings just because the minified bundle label cannot yet be statically resolved.",
+    "Preserve provider/model/privacy/execution controls and move them into the rich settings information architecture.",
+    "Keep Theme & Colours inside Settings; do not treat launch shortcuts as settings."
+  ]
+}

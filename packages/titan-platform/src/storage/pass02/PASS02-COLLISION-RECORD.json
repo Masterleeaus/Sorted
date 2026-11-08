@@ -1,0 +1,10 @@
+{
+  "schema": "titan-zero-storage-finish-pass02-collision/v1",
+  "packet_id": "TZ-FINISH-STORAGE-DATA-AUTHORITY-001",
+  "pass": 2,
+  "exclusive_hotspot": "packages/titan-platform/src/storage/**",
+  "shared_file": "packages/titan-platform/tsconfig.json",
+  "shared_edit": "single additive compile root",
+  "package_export_files_modified": false,
+  "result": "NO_KNOWN_COLLISION"
+}

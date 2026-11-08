@@ -1,0 +1,32 @@
+{
+  "template": {
+    "id": "return-request",
+    "version": "1.0.0",
+    "name": "Return Request",
+    "status": "ready",
+    "category": "commerce",
+    "entry_wizard": "return_request_v1",
+    "capabilities": [
+      "commerce.returns.request"
+    ],
+    "channels": [
+      "chat",
+      "mobile",
+      "tablet",
+      "desktop",
+      "voice"
+    ],
+    "governance": {
+      "authority": "human_review_when_required",
+      "offline": true
+    },
+    "metadata": {
+      "verticals": [
+        "ecommerce",
+        "retail",
+        "wholesale"
+      ],
+      "pack": "commerce_multi_vertical_2026_08"
+    }
+  }
+}

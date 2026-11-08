@@ -1,0 +1,57 @@
+{
+  "schema": "titan-zero-retriever-final-certification/v1",
+  "workspace": "Builder 3",
+  "packet_id": "TZ-FINISH-RETRIEVER-NATIVE-001",
+  "pass": 10,
+  "manager_base": {
+    "merge": 52,
+    "artifact": "Titan-Zero-CANONICAL-2026-09-13-MERGE52-QUOTE-AGENT-CONVERGED.zip",
+    "sha256": "ea6c219d40ffbddcbb68e9c9ed741c93568fe12be2e4f09dd69af0b528366d92"
+  },
+  "input_cumulative_delta": {
+    "artifact": "Builder 3__TZ-FINISH-RETRIEVER-NATIVE-001__PASS-09__CUMULATIVE-DELTA.zip",
+    "sha256": "8f55a74c04186c250922106cf42ed21b64b68c3a25b3d4ecb2c06fdf80e7b909"
+  },
+  "reconstruction": {
+    "base_zip_integrity": "PASS",
+    "delta_zip_integrity": "PASS",
+    "delete_manifest_applied": "PASS",
+    "checked_file_count": 28,
+    "missing_files": [],
+    "hash_mismatches": [],
+    "deleted_paths": [
+      {
+        "path": "packages/titan-platform/src/ported/retriever-background.iife.ts",
+        "reconstructed_absent": true
+      },
+      {
+        "path": "packages/titan-platform/src/ported/side-panel/titan-retriever-bridge.ts",
+        "reconstructed_absent": true
+      },
+      {
+        "path": "packages/titan-platform/src/ported/titan-runtime/adapters/retriever-adapter.ts",
+        "reconstructed_absent": true
+      }
+    ],
+    "result": "EXACT_MATCH"
+  },
+  "verification": {
+    "clean_reconstruction_typecheck": "PASS",
+    "clean_reconstruction_titan_platform_suite": "52/52 PASS",
+    "live_donor_references": 0,
+    "live_donor_imports": 0,
+    "company_boundary": "company_id",
+    "identity_grants_authority": false,
+    "authority_restored_on_restart": false,
+    "auto_execute_after_reconnect": false,
+    "rollback_provenance_preserved": true
+  },
+  "retirement": {
+    "native_retriever": "CERTIFIED",
+    "donor_runtime": "RETIRED",
+    "donor_files_removed": 3,
+    "shared_monica_chat_compatibility": "PRESERVED",
+    "browser_extension_required_for_native_retriever": false
+  },
+  "result": "READY_FOR_MANAGER_CONVERGENCE"
+}

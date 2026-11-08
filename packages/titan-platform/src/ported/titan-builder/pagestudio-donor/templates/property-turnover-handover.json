@@ -1,0 +1,32 @@
+{
+  "template": {
+    "id": "property-turnover-handover",
+    "version": "1.0.0",
+    "name": "Property Turnover and Handover",
+    "status": "ready",
+    "category": "property",
+    "entry_wizard": "property_turnover_handover_v1",
+    "capabilities": [
+      "property.turnovers.complete"
+    ],
+    "channels": [
+      "chat",
+      "mobile",
+      "tablet",
+      "desktop",
+      "voice"
+    ],
+    "governance": {
+      "authority": "human_review_when_required",
+      "offline": true
+    },
+    "metadata": {
+      "verticals": [
+        "property_management",
+        "short_stay",
+        "facilities"
+      ],
+      "pack": "commerce_multi_vertical_2026_08"
+    }
+  }
+}

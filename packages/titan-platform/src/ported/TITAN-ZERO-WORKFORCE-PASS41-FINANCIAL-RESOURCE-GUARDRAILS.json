@@ -1,0 +1,23 @@
+{
+  "schema": "titan-zero-workforce-pass/v1",
+  "pass": 41,
+  "title": "Financial / Resource Guardrails",
+  "company_boundary": "company_id only",
+  "authority_effect": false,
+  "automatic_spend": false,
+  "automatic_authority_change": false,
+  "files": {
+    "added": [
+      "titan-workforce/finance/financial-resource-guardrail-runtime.mjs",
+      "titan-workforce/finance/FinancialResourceGuardrails.schema.json",
+      "tests/client_workforce_financial_resource_guardrails.test.mjs"
+    ],
+    "modified": [
+      "titan-workforce/handover/investigation-installation-handover.mjs",
+      "runtime/workforce-runtime-background.mjs",
+      "titan-workforce-gateway-client.js",
+      "titan-client-workforce-controls.js",
+      "docs/workforce/TITAN-WORKFORCE-INTEGRATION-UPGRADE-PLAN.md"
+    ]
+  }
+}

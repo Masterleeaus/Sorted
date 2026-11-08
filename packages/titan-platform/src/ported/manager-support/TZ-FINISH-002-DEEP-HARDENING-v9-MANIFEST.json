@@ -1,0 +1,22 @@
+{
+  "added": [
+    "tests/tz_finish_002_deep_lease_supersession_binding.test.mjs",
+    "tests/tz_finish_002_deep_provenance_restart_rollback.test.mjs",
+    "tests/tz_finish_002_deep_receipt_continuity.test.mjs"
+  ],
+  "base": "v8",
+  "classification": "WORKING_CANDIDATE_NOT_CANONICAL",
+  "deep_pass": "v9",
+  "deleted": [],
+  "modified": [
+    "titan-runtime/authority/authority-lease.mjs",
+    "titan-runtime/authority/execution-boundary.mjs",
+    "titan-runtime/authority/index.mjs"
+  ],
+  "packet": "TZ-FINISH-002",
+  "summary": {
+    "lease_supersession_binding": "revokes an active lease when a current authority decision supersedes its decision id",
+    "provenance_restart_history": "rejects verified_at rollback and non-contiguous decision-id reuse across persisted provenance history",
+    "receipt_continuity": "rejects same receipt_ref equivocation plus provider/outcome substitution within one replay+execution attempt"
+  }
+}

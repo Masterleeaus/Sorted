@@ -1,0 +1,11 @@
+{
+  "schema": "titan-cleaning-marketplace-renewal/v1",
+  "version": "2026.09.07-pass12",
+  "policy": "Renewal and replacement recommendations are advisory only and use company-entered contract terms plus recorded adoption/value evidence. Titan does not invent prices, renewal dates, cancellation terms or replacement suitability and cannot cancel, renew, purchase or replace anything automatically.",
+  "thresholds": {
+    "renewal_attention_days": 60,
+    "urgent_notice_days": 14
+  },
+  "migration_risk_levels": ["unknown", "low", "medium", "high"],
+  "recommendations": ["keep", "review_renewal", "consider_replacement", "plan_migration", "evidence_needed"]
+}

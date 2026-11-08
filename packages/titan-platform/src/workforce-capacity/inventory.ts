@@ -1,0 +1,26 @@
+export const WORKFORCE_CAPACITY_REUSE_INVENTORY = Object.freeze({
+  schema: 'titan.workforce.capacity-reuse-inventory.v1',
+  canonical_company_boundary: 'company_id',
+  metric_role: 'derived_measurement_only',
+  donors: Object.freeze([
+    'ported/titan-workforce/capacity/workload-capacity-runtime',
+    'ported/titan-workforce/scheduling/worker-availability-capacity-state',
+    'ported/titan-workforce/supervision/supervisor-runtime',
+    'ported/titan-intelligence/trust/evidence-quality-engine',
+    'ported/TITAN-ZERO-WORKFORCE-PASS20-WORKLOAD-CAPACITY-ENGINE.json',
+    'TZ-NEXT-004 assignment-offline-restart-runtime',
+    'Titan AI Workforce queue-resilience/backpressure semantics',
+  ]),
+  canonical_metrics: Object.freeze([
+    'concurrency',
+    'queue_depth',
+    'time_budget',
+    'cost_budget',
+    'availability',
+  ]),
+  duplicates_observability: false,
+  changes_business_truth: false,
+  automatic_reassignment: false,
+  execution_permitted: false,
+  grants_authority: false,
+});

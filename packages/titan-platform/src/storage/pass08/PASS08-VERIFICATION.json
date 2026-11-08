@@ -1,0 +1,25 @@
+{
+  "schema": "titan-zero-storage-finish-pass08-verification/v1",
+  "workspace": "Builder 3",
+  "packet_id": "TZ-FINISH-STORAGE-DATA-AUTHORITY-001",
+  "pass": 8,
+  "status": "PASS_COMPLETE_CONTINUE",
+  "checks": {
+    "typecheck": "PASS",
+    "fresh_full_compile": "PASS",
+    "fresh_full_titan_platform_suite": "56/56 PASS",
+    "company_scoped_export": "PASS",
+    "checksum_tamper_rejection": "PASS",
+    "cross_company_restore_rejection": "PASS",
+    "dry_run_no_mutation": "PASS",
+    "replace_restore": "PASS",
+    "merge_restore": "PASS",
+    "validation_failure_no_partial_write": "PASS",
+    "restore_write_failure_transaction_rollback": "PASS",
+    "precommit_recovery_checksum_verification": "PASS",
+    "company_boundary": "company_id",
+    "identity_grants_authority": false,
+    "execution_authority": false
+  },
+  "next_gate": "Pass 9: run migration, corruption, concurrency, cross-company isolation and restart regressions."
+}

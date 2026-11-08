@@ -1,0 +1,50 @@
+{
+  "schema": "titan.reliability.operational-health-summary.v1",
+  "company_id": "verification-company",
+  "company_boundary": "company_id",
+  "generated_at": 1770000000000,
+  "status": "degraded",
+  "ok": false,
+  "attention_count": 2,
+  "attention_counts": {
+    "blocked": 0,
+    "unavailable": 0,
+    "unhealthy": 0,
+    "degraded": 2,
+    "unknown": 0
+  },
+  "blocked_operations": 0,
+  "durable_offline_queued_operations": 0,
+  "backpressure_status": "degraded",
+  "lifecycle_status": "healthy",
+  "attention": [
+    {
+      "id": "runtime-backpressure",
+      "source": "backpressure",
+      "status": "degraded",
+      "reason": "queue_active",
+      "detail": "depth=0;highWater=12;rejected=0",
+      "retry_after_ms": 0,
+      "executable": false,
+      "grants_authority": false
+    },
+    {
+      "id": "network",
+      "source": "dependency",
+      "status": "degraded",
+      "reason": "explicit_degraded",
+      "detail": "retry_or_fallback",
+      "retry_after_ms": 0,
+      "executable": false,
+      "grants_authority": false
+    }
+  ],
+  "advisory_only": true,
+  "executable_actions": [],
+  "non_authoritative": true,
+  "observability_not_authority": true,
+  "grants_authority": false,
+  "changes_permissions": false,
+  "changes_autonomy": false,
+  "authority_effect": false
+}

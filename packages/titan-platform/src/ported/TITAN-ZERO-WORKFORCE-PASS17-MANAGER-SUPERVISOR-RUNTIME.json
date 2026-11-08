@@ -1,0 +1,11 @@
+{
+  "schema":"titan.workforce.pass17/v1",
+  "pass":17,
+  "title":"Manager/Supervisor Runtime",
+  "company_boundary":"company_id only",
+  "supervision_schema":"titan.workforce.supervision.v1",
+  "scope_sources":["canonical workforce graph REPORTS_TO edges","mission-team supervisor/coordinator bindings","assignment relationships","projected escalations"],
+  "durable_store":"TitanBusinessDatabase",
+  "authority_rules":{"manager_identity_confers_authority":false,"supervisor_identity_confers_authority":false,"handover_transfers_authority":false,"grants_authority":false},
+  "parallel_authority_layer":false
+}

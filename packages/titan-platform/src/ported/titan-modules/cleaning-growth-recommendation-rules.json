@@ -1,0 +1,37 @@
+{
+  "schema": "titan-cleaning-growth-recommendation-rules/v1",
+  "version": "2026.09.07-pass2",
+  "policy": "Recommendations are deterministic advisory outputs. They never purchase, install, grant authority or claim external evidence that is not present in the company-scoped signal ledger.",
+  "signal_types": [
+    {"id":"enquiry_received","name":"Cleaning enquiry received","weight":2},
+    {"id":"enquiry_lost","name":"Cleaning enquiry lost / declined","weight":4},
+    {"id":"customer_request","name":"Customer requested capability","weight":3},
+    {"id":"tender_opportunity","name":"Tender / contract opportunity","weight":4},
+    {"id":"compliance_requirement","name":"Compliance requirement identified","weight":5},
+    {"id":"recurring_issue","name":"Recurring quality / operating issue","weight":4},
+    {"id":"resource_cost_issue","name":"Water / waste / resource cost issue","weight":3},
+    {"id":"manual_growth_goal","name":"Business growth goal","weight":2}
+  ],
+  "rules": [
+    {"id":"commercial","terms":["commercial","office","contract cleaning","retail","facility","facilities"],"products":["growth.expand.commercial","growth.crew.commercial","growth.cap.qa_sampling"]},
+    {"id":"airbnb","terms":["airbnb","short stay","short-stay","holiday rental","turnover","bnb"],"products":["growth.expand.airbnb","growth.crew.airbnb","growth.integration.access"]},
+    {"id":"endlease","terms":["end of lease","end-of-lease","bond clean","vacate","move out","rental exit"],"products":["growth.expand.endlease","growth.crew.endlease","growth.cap.stain_triage"]},
+    {"id":"healthcare","terms":["healthcare","medical","clinic","hospital","infection control","infection-control","aged care","dental"],"products":["growth.expand.healthcare","growth.crew.healthcare","growth.knowledge.infection","growth.cap.atp_hygiene"]},
+    {"id":"education","terms":["school","schools","childcare","child care","education","kindergarten","daycare"],"products":["growth.expand.education","growth.knowledge.infection","growth.cap.qa_sampling"]},
+    {"id":"strata","terms":["strata","body corporate","common area","common-area","apartment common","owners corporation"],"products":["growth.expand.strata","growth.cap.periodic_floor","growth.integration.routing"]},
+    {"id":"construction","terms":["construction","builders clean","builder clean","post construction","post-construction","renovation","handover clean"],"products":["growth.expand.construction","growth.crew.construction","growth.cap.floor_machine"]},
+    {"id":"food","terms":["food premises","commercial kitchen","restaurant","cafe","kitchen sanitation","food sanitation"],"products":["growth.expand.food","growth.crew.food","growth.knowledge.food","growth.cap.atp_hygiene"]},
+    {"id":"windows","terms":["window cleaning","windows","glass cleaning","water fed pole","water-fed pole"],"products":["growth.cap.waterfed_pole"]},
+    {"id":"floors","terms":["floor restoration","floor machine","scrubber","polish floor","strip and seal","hard floor","periodic floor"],"products":["growth.cap.floor_machine","growth.cap.periodic_floor"]},
+    {"id":"stains","terms":["stain","stains","spot treatment","carpet stain","upholstery stain"],"products":["growth.cap.stain_triage"]},
+    {"id":"chemical","terms":["chemical compatibility","chemical damage","wrong chemical","dilution","sds","chemical safety"],"products":["growth.knowledge.chemical","growth.automation.dilution"]},
+    {"id":"safety","terms":["whs","ohs","safety requirement","work health safety","hazard","incident"],"products":["growth.knowledge.whs","growth.automation.incident"]},
+    {"id":"quality","terms":["quality issue","quality failure","reclean","re-clean","failed inspection","complaint","missed clean"],"products":["growth.cap.qa_sampling","growth.automation.inspection","growth.automation.followup"]},
+    {"id":"onboarding","terms":["new cleaners","new cleaner","staff onboarding","cleaner onboarding","training cleaners"],"products":["growth.automation.onboarding","growth.knowledge.equipment"]},
+    {"id":"resource","terms":["water cost","water usage","waste cost","waste reduction","sustainability","resource efficiency","environmental"],"products":["growth.cap.water_waste","growth.crew.eco"]},
+    {"id":"routing","terms":["route","routing","travel time","multiple sites","multi site","multi-site"],"products":["growth.integration.routing"]},
+    {"id":"communications","terms":["sms","phone","customer messaging","missed calls","communications"],"products":["growth.integration.communications"]},
+    {"id":"payments","terms":["payment","payments","invoice payment","getting paid","late payment"],"products":["growth.integration.payments"]},
+    {"id":"accounting","terms":["accounting","bookkeeping","xero","quickbooks","myob"],"products":["growth.integration.accounting"]}
+  ]
+}

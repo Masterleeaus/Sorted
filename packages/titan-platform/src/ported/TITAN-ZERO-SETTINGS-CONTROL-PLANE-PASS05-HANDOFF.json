@@ -1,0 +1,16 @@
+{
+  "schema": "titan-zero-settings-control-plane-handoff/v1",
+  "pass": 5,
+  "status": "IN_PROGRESS_CHECKPOINT",
+  "parent": "Titan-Zero-SETTINGS-CONTROL-PLANE-Pass04-CUMULATIVE.zip",
+  "manager_parent": {
+    "merge": "19",
+    "sha256": "7b24c9e315507583cd9f6a78a2aa6f8e88c5178e83d803e387645bd713402408"
+  },
+  "implemented": "Append-only Settings change ledger with company isolation, provenance and sensitive-value redaction.",
+  "next_pass": {
+    "pass": 6,
+    "name": "AI Provider Control Centre"
+  },
+  "merge_note": "Apply the true delta to the Pass 4 cumulative. Do not promote this agent checkpoint over Manager canonical without Manager convergence review."
+}

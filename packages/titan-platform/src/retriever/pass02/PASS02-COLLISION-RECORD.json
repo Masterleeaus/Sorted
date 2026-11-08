@@ -1,0 +1,15 @@
+{
+  "schema": "titan-zero-retriever-finish-pass02-collision/v1",
+  "packet_id": "TZ-FINISH-RETRIEVER-NATIVE-001",
+  "pass": 2,
+  "observed_shared_collision": "SUP-M52-SHARED-EXPORT-COLLISION-001",
+  "collision_files": [
+    "packages/titan-platform/package.json",
+    "packages/titan-platform/src/index.ts"
+  ],
+  "builder3_action": "AVOIDED_BOTH_SHARED_EXPORT_FILES",
+  "modified_shared_config": [
+    "packages/titan-platform/tsconfig.json"
+  ],
+  "reason": "Compile the exclusive Retriever namespace without clobbering Builder4/Builder5 public exports."
+}

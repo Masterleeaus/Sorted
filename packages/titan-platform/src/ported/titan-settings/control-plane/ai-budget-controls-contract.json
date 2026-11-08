@@ -1,0 +1,41 @@
+{
+  "schema": "titan-zero-ai-budget-controls-contract/v1",
+  "version": 1,
+  "pass": 8,
+  "status": "IMPLEMENTED",
+  "company_boundary": "company_id",
+  "forbidden_company_boundary_aliases": [
+    "tenant_id",
+    "tenant_company_id"
+  ],
+  "canonical_setting": "aiBudgetControls",
+  "canonical_scope": "company",
+  "legacy_credit_ceiling_inputs": [
+    "creditCeilingEnabled",
+    "creditCeiling"
+  ],
+  "supported_modes": [
+    "disabled",
+    "approval-required",
+    "hard-limit"
+  ],
+  "per_capability_categories": true,
+  "warning_thresholds": true,
+  "review_thresholds": true,
+  "hard_limits": true,
+  "settings_can_record_spend": false,
+  "settings_can_approve_paid_usage": false,
+  "settings_grant_execution_authority": false,
+  "settings_can_grant_entitlement": false,
+  "settings_can_grant_authority": false,
+  "execution_policy_owner": "titan-workforce-financial-resource-guardrail-runtime",
+  "runtime_revalidation_required": [
+    "budget-ledger",
+    "provider-cost",
+    "paid-opt-in",
+    "entitlement",
+    "approval",
+    "authority"
+  ],
+  "compatibility_note": "aiBudgetControls is company-scoped so financial limits cannot vary by browser/device. Existing device-scoped creditCeiling inputs remain a fail-closed compatibility bridge only. Rich AI budget Settings project into the existing Workforce financial-resource guardrail runtime and never become spend authority."
+}

@@ -1,0 +1,14 @@
+{
+  "schema":"titan-zero-ui-resource-audit/v1",
+  "packet_id":"TZ-WP-004",
+  "pass":5,
+  "html_css_missing_static_references":0,
+  "concrete_runtime_getURL_missing_before_repair":["titan-zero-options.html"],
+  "concrete_runtime_getURL_missing_after_repair":[],
+  "monica_locale_packs":55,
+  "titan_locale_packs":55,
+  "locale_key_coverage":"MATCH",
+  "intentional_locale_difference":"extension name Monica -> Titan Zero",
+  "external_font_files":0,
+  "production_files_deleted":0
+}

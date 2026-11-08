@@ -1,0 +1,137 @@
+{
+  "schema": "titan-zero-onboarding-inventory/v1",
+  "packet_id": "TZ-NEXT-015",
+  "pass": 1,
+  "manager_baseline": {
+    "merge": 42,
+    "artifact": "Titan-Zero-CANONICAL-MASTER-2026-09-09-MERGE-42-PERMISSION-HARDENING-CONVERGED.zip",
+    "sha256": "1c4b6f471ba16f44d7b27db546ba41db18032ce9967b1d725dc0926cd73cc930",
+    "files": 3023
+  },
+  "finding": {
+    "operational_owner_onboarding_runtime_present": false,
+    "reason": "No canonical Titan owner/business onboarding journey runtime or first-run state machine was found. Existing onboarding matches are donor templates/static media only.",
+    "onboarding_named_file_count": 24
+  },
+  "reuse_authorities": {
+    "company_boundary": {
+      "policy": "company_id_only",
+      "files": [
+        "TITAN-ZERO-WORKFORCE-PASS05-AUTH-COMPANY-BOUNDARY.json",
+        "titan-local/kernel/company-context.mjs",
+        "titan-regression/monica-retriever/tests/finish004-prelive03-company-boundary.test.mjs",
+        "titan-regression/monica-retriever/tests/finish004-prelive06-acceptance-company-boundary.test.mjs",
+        "titan-runtime/authority/company-boundary.mjs",
+        "titan-runtime/company-context.mjs"
+      ]
+    },
+    "business_state_and_storage": {
+      "files": [
+        "manager-support/business-state-authority/authority.mjs",
+        "titan-business-services/canonical-service-owners.json",
+        "titan-local/storage/business-database.mjs",
+        "titan-local/storage/business-state-authority.mjs"
+      ],
+      "notes": "Reuse existing business database/state authorities; onboarding must not become business-domain authority."
+    },
+    "settings_control_plane": {
+      "file_count": 49,
+      "root": "titan-settings/control-plane/",
+      "notes": "Wire configuration into existing settings authorities instead of creating duplicate preferences stores."
+    },
+    "workforce_discovery": {
+      "files": [
+        "titan-workforce/discovery/BusinessDiscoverySpecification.schema.json",
+        "titan-workforce/discovery/business-discovery-compiler.mjs"
+      ],
+      "notes": "Discovery/installation specifications are proposal/evidence only and do not grant authority."
+    },
+    "provider_and_notifications": {
+      "files": [
+        "titan-settings/control-plane/ai-provider-control-centre.mjs",
+        "titan-settings/control-plane/ai-provider-control-contract.json",
+        "titan-settings/control-plane/notification-escalation-settings-contract.json",
+        "titan-settings/control-plane/notification-escalation-settings.mjs"
+      ]
+    },
+    "business_service_ownership": {
+      "file": "titan-business-services/canonical-service-owners.json",
+      "notes": "Onboarding should orchestrate canonical service owners; it must not duplicate CRM/jobs/payments/communications/workforce authority."
+    }
+  },
+  "existing_onboarding_assets": {
+    "all_named": [
+      "static/global/src/static/OnboardingDialog/aiContentDetector.webp",
+      "static/global/src/static/OnboardingDialog/aiTranslator.png",
+      "static/global/src/static/OnboardingDialog/chatWithPDF.png",
+      "static/global/src/static/OnboardingDialog/finished.png",
+      "static/global/src/static/OnboardingDialog/gpt4V2.png",
+      "static/global/src/static/OnboardingDialog/imageToolsV2.png",
+      "static/global/src/static/OnboardingDialog/onboardingDialogChatPDF.png",
+      "static/global/src/static/OnboardingDialog/pdfTools.png",
+      "static/global/src/static/OnboardingDialog/pdfToolsV2.png",
+      "static/global/src/static/OnboardingDialog/rewriteText.png",
+      "static/global/src/static/OnboardingDialog/searchAgent.png",
+      "static/global/src/static/OnboardingDialog/webAccessV2.png",
+      "static/global/src/static/OnboardingDialog/webSummary.png",
+      "static/global/src/static/OnboardingDialog/webTranslate.png",
+      "static/global/src/static/OnboardingDialog/writingAgent.png",
+      "static/global/src/static/OnboardingDialog/youTubeSummary.png",
+      "static/global/src/static/onboardingTour/artistTour.webp",
+      "static/global/src/static/onboardingTour/chat.webp",
+      "static/global/src/static/onboardingTour/file.webp",
+      "static/global/src/static/onboardingTour/tour4.webp",
+      "static/video/onboarding_tour_4.mp4",
+      "titan-builder/pagestudio-donor/templates/customer-onboarding.json",
+      "titan-builder/pagestudio-donor/templates/property-onboarding.json",
+      "titan-builder/pagestudio-donor/templates/staff-onboarding.json"
+    ],
+    "templates": [
+      "titan-builder/pagestudio-donor/templates/customer-onboarding.json",
+      "titan-builder/pagestudio-donor/templates/property-onboarding.json",
+      "titan-builder/pagestudio-donor/templates/staff-onboarding.json"
+    ],
+    "static_media": [
+      "static/global/src/static/OnboardingDialog/aiContentDetector.webp",
+      "static/global/src/static/OnboardingDialog/aiTranslator.png",
+      "static/global/src/static/OnboardingDialog/chatWithPDF.png",
+      "static/global/src/static/OnboardingDialog/finished.png",
+      "static/global/src/static/OnboardingDialog/gpt4V2.png",
+      "static/global/src/static/OnboardingDialog/imageToolsV2.png",
+      "static/global/src/static/OnboardingDialog/onboardingDialogChatPDF.png",
+      "static/global/src/static/OnboardingDialog/pdfTools.png",
+      "static/global/src/static/OnboardingDialog/pdfToolsV2.png",
+      "static/global/src/static/OnboardingDialog/rewriteText.png",
+      "static/global/src/static/OnboardingDialog/searchAgent.png",
+      "static/global/src/static/OnboardingDialog/webAccessV2.png",
+      "static/global/src/static/OnboardingDialog/webSummary.png",
+      "static/global/src/static/OnboardingDialog/webTranslate.png",
+      "static/global/src/static/OnboardingDialog/writingAgent.png",
+      "static/global/src/static/OnboardingDialog/youTubeSummary.png",
+      "static/global/src/static/onboardingTour/artistTour.webp",
+      "static/global/src/static/onboardingTour/chat.webp",
+      "static/global/src/static/onboardingTour/file.webp",
+      "static/global/src/static/onboardingTour/tour4.webp",
+      "static/video/onboarding_tour_4.mp4"
+    ]
+  },
+  "missing_runtime_capabilities_for_later_passes": [
+    "resumable company-scoped onboarding journey state",
+    "first-run/resume lifecycle",
+    "business identity and contact setup orchestration",
+    "service-area and operating-hours setup orchestration",
+    "cleaning catalogue/job/pricing/checklist setup orchestration",
+    "workforce setup orchestration without authority grant",
+    "payment/communications/BYO-provider setup orchestration",
+    "validated import staging with rollback",
+    "readiness projection and blockers"
+  ],
+  "safety_contracts": {
+    "company_boundary": "company_id only",
+    "identity_not_authority": true,
+    "automatic_authority_change": false,
+    "device_first": true,
+    "offline_preservation_required": true,
+    "no_wholesale_replacement": true
+  }
+}

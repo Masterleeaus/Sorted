@@ -1,0 +1,17 @@
+{
+  "schema": "titan-zero-workforce-scheduling-pass04/v1",
+  "packet_id": "TZ-NEXT-004",
+  "pass": 4,
+  "manager_merge": 42,
+  "existing_contracts_composed": [
+    "titan.workforce.graph.v1 REPORTS_TO edges",
+    "titan.workforce.supervision.v1 coordination scope",
+    "titan.workforce.mission-team.v1 supervisor/coordinator/member relationships",
+    "Pass3 candidate-match eligibility and blockers"
+  ],
+  "summary": "Adds a read-only manager/supervisor/team scheduling hierarchy projection without mutating graph, supervision, mission-team, assignment or authority owners.",
+  "authority_policy": "hierarchy expresses coordination and proposal scope only; fresh assignment authority remains required",
+  "company_boundary": "company_id only",
+  "automatic_assignment": false,
+  "execution_permitted": false
+}

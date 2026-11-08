@@ -1,0 +1,109 @@
+{
+  "reception": [
+    "crm",
+    "titan-connect",
+    "titan-interaction-engine"
+  ],
+  "sales": [
+    "crm",
+    "titan-connect",
+    "titan-financial-engine"
+  ],
+  "crm": [
+    "crm"
+  ],
+  "quoting": [
+    "crm",
+    "titan-financial-engine",
+    "titan-interaction-engine"
+  ],
+  "scheduling": [
+    "titan-field",
+    "crm",
+    "titan-maps-intelligence",
+    "titan-interaction-engine"
+  ],
+  "dispatch": [
+    "titan-field",
+    "titan-maps-intelligence",
+    "titan-connect"
+  ],
+  "operations": [
+    "titan-field",
+    "titan-signal-engine",
+    "titan-interaction-engine"
+  ],
+  "customer_service": [
+    "crm",
+    "titan-connect",
+    "titan-interaction-engine"
+  ],
+  "accounts": [
+    "crm",
+    "titan-ledger",
+    "titan-financial-engine",
+    "titan-payroll"
+  ],
+  "cash_collection": [
+    "crm",
+    "titan-ledger",
+    "titan-connect"
+  ],
+  "retention": [
+    "crm",
+    "titan-connect",
+    "titan-signal-engine"
+  ],
+  "marketing": [
+    "crm",
+    "titan-connect",
+    "titan-reach"
+  ],
+  "hr_people": [
+    "titan-people",
+    "titan-payroll",
+    "titan-time-attendance",
+    "titan-ai-workforce"
+  ],
+  "compliance": [
+    "titan-governance",
+    "titan-risk-engine",
+    "titan-assurance",
+    "titan-shield",
+    "titan-knowledge-authority"
+  ],
+  "environmental_performance": [
+    "titan-environmental-intelligence",
+    "titan-knowledge-authority",
+    "titan-signal-engine",
+    "titan-assurance"
+  ],
+  "purchasing": [
+    "titan-locker",
+    "titan-assets",
+    "titan-ledger"
+  ],
+  "assets": [
+    "titan-assets",
+    "titan-locker"
+  ],
+  "analytics": [
+    "titan-signal-engine",
+    "titan-wisdom",
+    "titan-rewind",
+    "crm",
+    "titan-ledger"
+  ],
+  "management_support": [
+    "titan-ai-workforce",
+    "titan-prime",
+    "titan-signal-engine",
+    "titan-knowledge-authority"
+  ],
+  "technology_automation": [
+    "titan-mcp",
+    "titan-forge",
+    "titan-nexus",
+    "titan-interaction-engine"
+  ]
+}

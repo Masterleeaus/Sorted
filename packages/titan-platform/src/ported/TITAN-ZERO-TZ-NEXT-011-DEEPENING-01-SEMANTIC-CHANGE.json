@@ -1,0 +1,17 @@
+{
+  "schema":"titan-zero-semantic-change/v1",
+  "packet_id":"TZ-NEXT-011",
+  "deepening_pass":"DEEPENING-01",
+  "title":"Fence delivery completion against stale or expired workers",
+  "changes":[
+    "Bumped feed delivery replay guard contract to v2.",
+    "Each delivery lease now carries a unique attempt-scoped lease_token.",
+    "Delivered/failed completion now executes inside one read-write business-database transaction.",
+    "Completion requires the current lease_token and rejects stale or expired lease holders.",
+    "Retry takeover cannot be overwritten by an earlier worker finishing late."
+  ],
+  "company_boundary":"company_id only",
+  "authority_effect":false,
+  "identity_not_authority":true,
+  "automatic_effect_replay":false
+}

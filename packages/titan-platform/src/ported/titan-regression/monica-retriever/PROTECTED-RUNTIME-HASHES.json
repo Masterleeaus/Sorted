@@ -1,0 +1,2197 @@
+{
+  "schema": "titan-zero.protected-runtime-hashes/v1",
+  "entries": [
+    {
+      "path": "badge.png",
+      "sha256": "242bb47b486692fafafbbf5329a737ef0ece8c373bb785f2399e6c457d50972d",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "bannerLeft.png",
+      "sha256": "a9d1a64d709f00f75e764b63b1182e77197aa141680b77a8654b15676f45a4f9",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "bannerRight.png",
+      "sha256": "c40fe2027c65ad024aa5ebc4db6a567ec2b44cff75da11d1d4e686aa714bb58b",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "bg.jpg",
+      "sha256": "de3f8c27ad850a299853a2aa234e7c188dfe6f7cd70eb7cbce348690a6ec884c",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "black5FeatureBg.png",
+      "sha256": "08f7bf9abf5904b47864462c10236fdd2c83968ad8a0319901d6450467ef2b2f",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "chatTab.html",
+      "sha256": "8f99fa3f27f7a88cdc21f2bdc659c5e82573e8480b15db9ebfe743c4d3348bd9",
+      "source": "manager-merge44-post-adapter-content-css-retirement"
+    },
+    {
+      "path": "compatibility/monica/background-runtime-boundary.mjs",
+      "sha256": "241aa3a08237a12c97c832d69a8328dae55d0a682117cdc1ae32b3251b104cbd",
+      "source": "titan-compatibility-seam"
+    },
+    {
+      "path": "dialogLeft.png",
+      "sha256": "7888910b922cebc92550bd553b81fd9e6fafaed5ee26fa905b32249cba7f4a3a",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "dialogRight.png",
+      "sha256": "6384201bd3f57d11eef4d62bdc7d39808b576c242d89e0f2c4043fb5f8e9c8bd",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "featureBg.png",
+      "sha256": "4a4727b3bdb1ef05a2089f567a0492d67fba9a9462482a5d3863bbf8c60b4948",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "highLightTitle.png",
+      "sha256": "621bd66e4abb6575a8ab3b5a4ed7e8f9a5d939821c75e28a0e89d3b839f0ed1b",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "monicaOptions.html",
+      "sha256": "fe703c1167121385de168e3162c56c565cdb73affa32350c789a284e4bb206b6",
+      "source": "manager-merge44-post-adapter-content-css-retirement"
+    },
+    {
+      "path": "offscreen/assets/auth-manager-pH2QX7Jc.js",
+      "sha256": "d0168056c41718bf6ce07f8647b58e6e518c61f57d49536be04e1a42f97d4c11",
+      "source": "retriever-runtime-preserved"
+    },
+    {
+      "path": "offscreen/assets/config-D7CGfrNC.js",
+      "sha256": "b1fcda1aa6899679822e3bf898c62da5d7a56bede8740731410c58bdf4061706",
+      "source": "retriever-runtime-preserved"
+    },
+    {
+      "path": "offscreen/assets/file-upload-utils-Bn4gpMXH.js",
+      "sha256": "89ac36c0942f779acb3ee576d3f7bc19c73b8e52ad72a0ae24760580a9ef82e3",
+      "source": "retriever-runtime-preserved"
+    },
+    {
+      "path": "offscreen/assets/index-4v886BK9.js",
+      "sha256": "8a6d3f0ca89e8e3960640d0d357582122cdb5798d5e998b895ca119c473a885e",
+      "source": "retriever-runtime-preserved"
+    },
+    {
+      "path": "offscreen/assets/index-B1QDSbwU.js",
+      "sha256": "3e9ce6f1fbd8945282c86c127a0dedb40af01580041a3133a8e0cebe47dc7417",
+      "source": "retriever-runtime-preserved"
+    },
+    {
+      "path": "offscreen/assets/index-BzYwgI7n.js",
+      "sha256": "a61620f6f612c00fd002a1b5c259dee6f4db9e691a37328d890453d1cb696e46",
+      "source": "retriever-runtime-preserved"
+    },
+    {
+      "path": "offscreen/assets/index-CS09ynNq.js",
+      "sha256": "4828251aa83b254409ea5c528f370a999c7985c0873c9f7f3cba628d7d78c4fa",
+      "source": "retriever-runtime-preserved"
+    },
+    {
+      "path": "offscreen/assets/index-D08rqSxx.js",
+      "sha256": "3f3be85c9719f86faa765891be38d61fd9a053104fe260192d5da29a552a023c",
+      "source": "retriever-runtime-preserved"
+    },
+    {
+      "path": "offscreen/assets/index-DQ9Twk9f.js",
+      "sha256": "5d6ac5a85da6333011ef5ec3028f585c22054e6779ddb6bf857aa7c1d6d4f05b",
+      "source": "retriever-runtime-preserved"
+    },
+    {
+      "path": "offscreen/assets/llmConfigService-BZXHyOeL.js",
+      "sha256": "5056634c2891c74c9bed5cf86a825092ae67cb371388c685404ab0def8159666",
+      "source": "retriever-runtime-preserved"
+    },
+    {
+      "path": "offscreen/assets/skill-types-DTME2ioz.js",
+      "sha256": "8a21e8c2b7ef92d759447a5c250457466a360896acec9f8921ed0c69db8e2ffe",
+      "source": "retriever-runtime-preserved"
+    },
+    {
+      "path": "offscreen/assets/skillStorageService-D4Lkoz90.js",
+      "sha256": "b162e43d30c36f5e6a712e9f7bc5ffaababdc85660cfee8e80c36b06fd5186b4",
+      "source": "retriever-runtime-preserved"
+    },
+    {
+      "path": "offscreen/assets/storageUtils-DkecF1NS.js",
+      "sha256": "f0df07d3a1f4c4a9b4f0ab34ecada61ea04a2b256510d95e703242fa9aca3326",
+      "source": "retriever-runtime-preserved"
+    },
+    {
+      "path": "offscreen/assets/unifiedFunctionExecutor-4UtoSB3u.js",
+      "sha256": "a905b35491289faf8b3bed3064f752c31abd86b2e1ac3ee8cb5c57de75532313",
+      "source": "retriever-runtime-preserved"
+    },
+    {
+      "path": "offscreen/assets/upload-bytes-store-Bc_5AyUo.js",
+      "sha256": "bd6f2b72cf9e08aba074fc7c14097034c05c48fbc70ea5f7a27e2011164f1035",
+      "source": "retriever-runtime-preserved"
+    },
+    {
+      "path": "offscreen/index.html",
+      "sha256": "7e5392c5a900361d8512c9c8225ce9ed2e0cf16b5b0644bf0b10a91ee3c6820e",
+      "source": "retriever-runtime-preserved"
+    },
+    {
+      "path": "offscreen/ping-bootstrap.js",
+      "sha256": "9837f063286d4a8de37505fd0776b76915490399b4ad7faf9b1399e631de5098",
+      "source": "retriever-runtime-preserved"
+    },
+    {
+      "path": "profileBg.png",
+      "sha256": "bc94105a52d546f7c5980b0c3c81170862dedb8b0fa792253e7f44829234b647",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "retriever-background.iife.js",
+      "sha256": "080267be826d81fc9ff1061b24fc2ee92cff37fe4d08dfe5d6d5eba2f2d14ce9",
+      "source": "retriever-runtime-chrome-instanceid-compat-repair-02"
+    },
+    {
+      "path": "side-panel/assets/auth-manager-CpMXLbRb.js",
+      "sha256": "189ef2372b578af93b14c9b09570cddd24dc74fc2b27846ddcefcf563b06cdf0",
+      "source": "retriever-runtime-preserved"
+    },
+    {
+      "path": "side-panel/assets/codePlanAgent-Bw8EfqoC.js",
+      "sha256": "9e696fe51d621881406962128539b6160e039a0aa01b2180ac4c21b3274ad5ed",
+      "source": "retriever-runtime-preserved"
+    },
+    {
+      "path": "side-panel/assets/config-CnHu_OKe.js",
+      "sha256": "aac9d867ba8ce5a7fdb63e9016560391701e53be032066d924b8ebcbb35cbecf",
+      "source": "retriever-runtime-preserved"
+    },
+    {
+      "path": "side-panel/assets/file-upload-utils-tcH63QNg.js",
+      "sha256": "8b2f1808d9ecc4d6f651de6eb32594f61fad26d022bd5e3e715b027acdc94d29",
+      "source": "retriever-runtime-preserved"
+    },
+    {
+      "path": "side-panel/assets/index-BOnJaAYV.css",
+      "sha256": "e1897a14562c87504adcabd7e07f8175a75771de21e1efdeec96ebe02fcf42f3",
+      "source": "retriever-runtime-preserved"
+    },
+    {
+      "path": "side-panel/assets/index-BzklHw8Q.js",
+      "sha256": "24d2515ed582d5b8276cf865b3838ccf541a0263ebdafb4cdb05a0b0f06b8b5d",
+      "source": "retriever-runtime-preserved"
+    },
+    {
+      "path": "side-panel/assets/index-C8c-GDqp.js",
+      "sha256": "cb0f468e6568523b2793092e26b1a4a4d4a75400114a58a4780557de80f059a3",
+      "source": "manager-merge08-approved-ui-runtime-theme"
+    },
+    {
+      "path": "side-panel/assets/index-CBmBD00K.js",
+      "sha256": "b16288dec98dbe12cc44a09bf9a581a60c1ad07e075f2d09a912046f45bf043f",
+      "source": "retriever-runtime-preserved"
+    },
+    {
+      "path": "side-panel/assets/index-DmDSrWNU.js",
+      "sha256": "ee88ffa4bbf712a13e2ff2a3396a318cfd9d91981b241cd7e6db4a9b94dafa8e",
+      "source": "retriever-runtime-preserved"
+    },
+    {
+      "path": "side-panel/assets/index-DoGUjCY-.js",
+      "sha256": "2587f04d975e284786a5adf33fc729f84702e5c2a72bc8c85585b6d341491dc0",
+      "source": "retriever-runtime-preserved"
+    },
+    {
+      "path": "side-panel/assets/llmConfigService-FC6T5-i7.js",
+      "sha256": "e493bc8719f49eca4ed9c0c11c9055e17df197461e9894caf40b456e412fb01f",
+      "source": "retriever-runtime-preserved"
+    },
+    {
+      "path": "side-panel/assets/skillStorageService-LGvOYmp_.js",
+      "sha256": "620a3356dc4bc6103dc7631fc0a933ac76f4d3e927c68818e9a20bfed532d70e",
+      "source": "retriever-runtime-preserved"
+    },
+    {
+      "path": "side-panel/assets/storageUtils-CrD87Pln.js",
+      "sha256": "af72e6bada232a56480e64b995a46e271f8cb5d39860ef89c90cccabaac13e9c",
+      "source": "retriever-runtime-preserved"
+    },
+    {
+      "path": "side-panel/assets/upload-bytes-store-Bc_5AyUo.js",
+      "sha256": "bd6f2b72cf9e08aba074fc7c14097034c05c48fbc70ea5f7a27e2011164f1035",
+      "source": "retriever-runtime-preserved"
+    },
+    {
+      "path": "side-panel/assets/userSettingsService-BbHxwq7x.js",
+      "sha256": "a543b5df4e94b08d1b3d5396744a0a32ccce90af41128d9588eebcc70eb276d2",
+      "source": "retriever-runtime-preserved"
+    },
+    {
+      "path": "side-panel/assets/vendor-CRCSbEcK.js",
+      "sha256": "f54402c836f56973e50b241dc7d2f639ae2a4826c8070bc11bfb082e81a894f8",
+      "source": "retriever-runtime-preserved"
+    },
+    {
+      "path": "side-panel/assets/vendor-firebase-DmzjWjiQ.js",
+      "sha256": "8348e9556d7cff7b3bbbb160b699153c8c3e1732d1388db09123bd07fba9ad36",
+      "source": "retriever-runtime-preserved"
+    },
+    {
+      "path": "side-panel/assets/workflowSandboxPool-C43aNRZy.js",
+      "sha256": "967b5b8663438f337cdf80dd5a7fbdc2e6f35c291d1f32bef804abbe5613e8ae",
+      "source": "retriever-runtime-preserved"
+    },
+    {
+      "path": "side-panel/index.html",
+      "sha256": "9691cc0af0bdbf79fd01d0ea7e4d08d1be36df2e11bf9f65dff381477a41ca1e",
+      "source": "manager-merge08-approved-ui-runtime-theme"
+    },
+    {
+      "path": "side-panel/rtrvr-home-dog-fetch-rest.webp",
+      "sha256": "8ceb1f02d35db00c7c1c9fd198edd44c755167b3243c1ef7d7c8dab077c249db",
+      "source": "retriever-runtime-preserved"
+    },
+    {
+      "path": "side-panel/rtrvr-home-dog-fetch-sequence.webp",
+      "sha256": "2bd84669ab844823619e6cd7e5d13a5fc69c401bd1977211f5ab6a539472367f",
+      "source": "retriever-runtime-preserved"
+    },
+    {
+      "path": "side-panel/titan-retriever-bridge.js",
+      "sha256": "9d23a44e1322053c8b5d4383fb412c1739ca4dd1469db334ee69769d380fb24f",
+      "source": "manager-merge08-approved-ui-runtime-theme"
+    },
+    {
+      "path": "starBadge.png",
+      "sha256": "a4243408532dce82962b3ec2212e9df5f37e6efc77eff02e7dc7f91d69f4be0d",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/ActionOutput/toolGuide.png",
+      "sha256": "f13c19555025804703f76339415db2e046eaf3187bd41585a68a5924e81ef263",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/artifactTool.png",
+      "sha256": "9965ce6aaedbfd9e03cd1d91cb8418d617051b0aa3e7a4aa97a9261cee439b53",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/artifactToolDark.png",
+      "sha256": "6fc2e9e063c135da43b35ffcd99d331264cbd58852a820430494b0d0fc7d1708",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/baseTool.png",
+      "sha256": "3cf4616b1e5f3936a542b80abc42c787c8405baadf040ede721a4f00239ab10c",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/baseToolDark.png",
+      "sha256": "84d731d85b17c33f76aed4a4b67dd779370eada105d0db5e2a4ee1d471d4aaec",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/contextual-toolbar-guide.webp",
+      "sha256": "bb094f1c21d7b728c28a797948914eca50d0f77328fda11b9397bbc7c6d6165d",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/fileSetting.png",
+      "sha256": "bd65d571e432bc708e8093eac56a3ac8944337e1100f04b10fae43f1dc2ff860",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/ErrorImage.webp",
+      "sha256": "8d1b8bf5f6d0b0d68febcc927c914ffaac7035c88dcd39bce557ea2e3822fdf2",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/LinkCopiedDialog/lcFacebook.png",
+      "sha256": "675fb3f67f646026ba1d53e464f12978be135592c20918b551ad7f2329f4a7fa",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/LinkCopiedDialog/lcLinkedIn.png",
+      "sha256": "3022ddfba1b609493344ab5d858d29d8a39a7d5ab5fa72adf277e31f2bd5e86c",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/LinkCopiedDialog/lcTelegram.png",
+      "sha256": "09996b5edddf06c30d2fa058fd8ad1f45d6fcf7d27690177b22cd2a16f2d62ce",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/LinkCopiedDialog/lcTwitter.png",
+      "sha256": "3a1bdddcd6b718bb9f4d1e6fadf0bca410d3be1ac28e7956bbc3874acbf228e1",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/LinkCopiedDialog/lcWhatsApp.png",
+      "sha256": "d1c01b5e71fe82eb8a7b7286db0fe024b974c4418066944beaea3629846c6648",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/MonicaOptions/glossaryDisabledExample.webp",
+      "sha256": "789e4f75876d70084f6e7831d6970b3083d6e50b7d99fb95b593a7e97b6fce5b",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/MonicaOptions/glossaryEnabledExample.webp",
+      "sha256": "f809eec1fba694583156f4dec5b99faef3dcbf8d79519f65fb23f09a611c742c",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/MonicaOptions/memoPdfSummaryExample.webp",
+      "sha256": "607e1b2a12426d5dc7afb655a3f1c790f7106d501855e4d4677f3ca7e075e16d",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/MonicaOptions/memoTwitterExample.webp",
+      "sha256": "e705eed8ddeca4f129311d840e837a5912b9167608ef008443e3e51a4b82fd3b",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/MonicaOptions/memoVideoSummaryExample.webp",
+      "sha256": "3aafb7bc005ee6cb1826834a412d2ad0a39fe909678936a454e38ab86bd2c19d",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/MonicaOptions/memoWebSummaryExample.webp",
+      "sha256": "4e52d74601a3d97e4152f2fe5d342dd8228a57ce51c68f41b1e8993a56eccd10",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/MonicaOptions/monicaIconExample.webp",
+      "sha256": "6a912b3c04cd0d115263237e619faa446eabd2f80fa3a5e331dfb43a9e042e49",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/MonicaOptions/powerUpExample.webp",
+      "sha256": "b37abf66c4f0e7b17c9a4ea1479d8bca035f5836819b20ecf3fe553201e62faa",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/MonicaOptions/searchAssistantExample.webp",
+      "sha256": "64891c65168c9a111168d6883265b4397d5ac369161262ba5d8a4f568b5521c4",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/MonicaOptions/sidebarFixedExample.webp",
+      "sha256": "a1c606075034e346b471e732d78002b5937b8a02c46f3108a71b46372f0ce731",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/MonicaOptions/sidebarLeftExample.webp",
+      "sha256": "2e5054db4cd218605caf578fdebbd388ecf84f81c98da3e09db8fd8e9308492e",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/MonicaOptions/sidebarRightExample.webp",
+      "sha256": "cd83786df7d94502ae944f5e88357bd406554c7e3ee027b6e6c47f8ebde5d263",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/MonicaOptions/textSelectionReadingExample.webp",
+      "sha256": "d5dfa3eb68f222a0436b75e234214346f033f7af2a1eac8a93a6ad63710a6c7d",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/MonicaOptions/textSelectionWritingExample.webp",
+      "sha256": "efdf79e2378e18caeada5dbcdd1e1ce71f5505f7c7bf123ee11b920bb57c12a2",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/MonicaOptions/webpageAssistantCodeExample.webp",
+      "sha256": "0bb591039f4d58f760666c35aa10c1ad8278239e66265cba9b52218231d9cf91",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/MonicaOptions/webpageAssistantCompareModelsExample.webp",
+      "sha256": "505b4f8b46b2c5aac2a809dad8861a782bd465bcc9923fb3848f62feb0c31848",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/MonicaOptions/webpageAssistantGithubSummaryExample.webp",
+      "sha256": "23146c0ad4354323c5a7dc376d6cf514bc0a8f6f962420512a0b22f80b835063",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/MonicaOptions/webpageAssistantImageExample.webp",
+      "sha256": "e17fb03af4ee1abcb042e979cb5fc0c333ec66651269d8909ef772470c2ebce1",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/MonicaOptions/webpageAssistantLiteratureAssistantExample.webp",
+      "sha256": "3c6d3abf7db8fe0beeae90445706d5408044a6d82cd3463316829e189fd0533a",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/MonicaOptions/webpageAssistantYoutubeSummaryExample.webp",
+      "sha256": "2cd7036d5be7f09caeaaf40c27e42ad6647153dfddf191066b80586dd1ddee9a",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/MonicaOptions/writingAssistantEmailExample.webp",
+      "sha256": "d61b0844392cd53b1bec7dee4a05d04e55e293a21c8e6c8cda6bf2d49b04bdda",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/MonicaOptions/writingAssistantInputExample.webp",
+      "sha256": "1dcb0f34b23b2b10c14d58772e7e5bea7a4802947d6f539b1bd10ca14d494eb4",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/MonicaOptions/writingAssistantMediaExample.webp",
+      "sha256": "af9f4b96bb9503d7b4a4755bad38421ebeca83a34c003006df17f499fc2b05d9",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/MonicaOptions/writingAssistantSettingExample.webp",
+      "sha256": "d663238d666cb93303937becb8e8be9a9c9d05930f6f9dbf0b776db2abff7623",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/OnboardingDialog/writingAgent.png",
+      "sha256": "7a0a3b458e851c2befb22f10403323b8de9193f9c137045fa3c29543078b297d",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/SignInDialog/email.png",
+      "sha256": "6142cf8c2ccd340328565ab07ba68997d1affe3878238edaa72598159faa57fd",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/SignInDialog/signInDialogGoogle.png",
+      "sha256": "78767dc9b613fda423615e0a9ff76a4b62217efe1833e1cc445afa58489db81f",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/SuperCouponDialog/bg.webp",
+      "sha256": "98ab6d9764bb993f953ac24f9450a3c8a1ba81745dd9b89fdf63a3d064ed818b",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/SupportModel/claude_haiku_round.png",
+      "sha256": "5f07376a0526e86708cfb444f7f51aa605170ef4d29b39703f7fef44bdd4a0bd",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/SupportModel/claude_round.png",
+      "sha256": "0d2bcebb1a772df962e50e3aa964af92474104a58715d833ec195f8f5b844de3",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/SupportModel/facebook.png",
+      "sha256": "d06f338acc92d5dd39c434c760b7c9afff3ad28ea559ab5fdf8b55d48be7da04",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/SupportModel/gemini_logo_2.png",
+      "sha256": "e3245eac694f14c8a0fe6e41f78775d017017fc21d4b33b18831b7af22e61997",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/SupportModel/gmail.png",
+      "sha256": "2804088c2aaf85f2615c58583f89b93056470d6d7b3c97b7ee66f156874c2120",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/SupportModel/gpt3_round.png",
+      "sha256": "6d7185249237f5bacea57bd340f04a1e0fa4cf41b4ea4e023b1d24b1f678bcc6",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/SupportModel/gpt_round.png",
+      "sha256": "fabf66e4d2c2c12a3f53ae3e11998cab94432ad15b9ce9b75afc85d36d7ca442",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/SupportModel/linkedIn.png",
+      "sha256": "684c56de577d1ef0fc33fa42cd218b44d783c3dc42078f66783d495e32ca22a2",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/SupportModel/outlook.png",
+      "sha256": "cddf6e32655aa958f82803a250704347164ea8895ee2a679fc85de2e1d122316",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/SupportModel/support_model_gpt4.png",
+      "sha256": "dde516fa6ca8f9514429399e358ef94902c98ab16421074ca49c3541ed04b59c",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/SupportModel/twitter.png",
+      "sha256": "8bed64876e1ff73503d3f387d710f31cb6d89f958202cf26845c3f69f8aeeafc",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/activity/backToSchool/giftBox.png",
+      "sha256": "f5f45f84d05b4ba15cff45ba7a3ab3b7da8e131fe140219da119cecc79baeabe",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/activity/backToSchool/giftIcon2.png",
+      "sha256": "cd7620a1e43ef1860bb8d6737eeebb38fbb60be5498459a9633ee942007ad133",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/activity/newComer/gift_box.png",
+      "sha256": "fa6a42cb48af48c2cc6b8d172763bb4c9650196924b35215e4168f6e13ce4584",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/activity/newComer/upgrade_new_comer.png",
+      "sha256": "b92d709804c5cda775750a8cba046f53ca8413c3f0b712fcac3b802869eeb6ce",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/activity/yearlyGuide/badge.svg",
+      "sha256": "6a5559b60fd4ca60998b9f8e1c25b032af3cebdb2f24bf28e26ae669e3813912",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/activity/yearlyGuide/giftIcon.png",
+      "sha256": "61454b035cabd5914bbe348e2064006a1cee3535c6beeec52f45aea9029b01bb",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/activity/yearlyGuide/yearlyGuideGift.png",
+      "sha256": "ba51deef9dcf59b4cdea65af2b1bd940909c12afdada3a7fe02256badf48b0d2",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/agentPlaceholderImage.png",
+      "sha256": "8223e406525211e04b563ee0abbb867b133c6d769d48fc800faf894753f6a810",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/aiModels.png",
+      "sha256": "acdf498f10c0bbcb5a3988d7e8e52c176e6a46864d85544f39cc712871ef539d",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/artifact-builder.png",
+      "sha256": "265a3d925b11cb3b41e0440a418a5b40bcb6d2e0d5b75a6f0912fbaecd7f0518",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/artifact/artifactAdvancedModelOutputExample.png",
+      "sha256": "40a2ea342431cc599cfcef5277bfc118c7bdc638af05b4b3fc3fe5d04cd4fd85",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/artifact/artifactFavoriteEmpty.png",
+      "sha256": "c9541530ede07f0f00030712f4c9b1ed7d352b1d90f5b7f136f66a633db1f98f",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/artifact/artifactStandardModelOutputExample.png",
+      "sha256": "cfab1e829bc3ae95c51043a041073466a7ea9ef40e177a961e9b16b50a2c2687",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/artifact/startedArtifactsGuide.png",
+      "sha256": "83c6b1f8a480a5e04e4ed65618243f8fa9036955b16933359cbebeb9b4d22370",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/artistStyles/3d_anime.png",
+      "sha256": "43decbe36ec93826f4cd7b49c162df44e694d38503269a4b711e883b237f730b",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/artistStyles/3d_modeling.png",
+      "sha256": "dd37e5b1b6701d674455fc9f0443e96033f126fe391562dfffcbcdb8d92c5f6e",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/artistStyles/analogFilm.jpg",
+      "sha256": "af406d5ebcc3275ea25f0a8032cda6770dd20520799890d7b861a58ae9457da7",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/artistStyles/anime.jpg",
+      "sha256": "c0f9ef15aa0e69b8b82126a7c23a366771dc9c57319d1f2ec112a60e8a926f8d",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/artistStyles/artistStyleComic.png",
+      "sha256": "d3bbb3c4ea45cec95587394ce13c0e6e0bbfc9b1f6633538bce8c7834864fc50",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/artistStyles/artistStyleCyberpunk.png",
+      "sha256": "ac10da64cfc5f9c3a17c7cbbfb9f4dfc9ad5b804fa0f06273f89392411a4cc5d",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/artistStyles/artistStyleRealistic.png",
+      "sha256": "b523f86bbc3304ede3232d9c2d1b204871d92ee80c569f62646883a70509cdb2",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/artistStyles/cinematic.jpg",
+      "sha256": "02ef4d2ff3603d9189e766179adc98d18e15ffdbcac4faa17d3063fd2153c560",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/artistStyles/colored_pencil_drawing.png",
+      "sha256": "4bd985a70777bc0bdf545f1289bd9ab89d83c71fbfac83e00f92f8ec6f9adced",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/artistStyles/comicBook.jpg",
+      "sha256": "245563c13f408577d47bcdd3443bb486282777437efc23eb053507d9b7409abd",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/artistStyles/default.jpg",
+      "sha256": "9a338bb579c19222bc98d517d5c5cab37810229caaf081288ec439993c9dd2bf",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/artistStyles/digitalArt.jpg",
+      "sha256": "380897d76b174e6aa524287c5a2bfa8abb78cb2bb650ac4a83fc25ade36fea8c",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/artistStyles/fantasyArt.jpg",
+      "sha256": "7c5811494e4666fd7bdf183c1c96c1a213f9035a9c8ad4bf47537ac7fc0a02fc",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/artistStyles/fantasy_art.png",
+      "sha256": "76ccecaa8d9b4668f5d5f6b24d3fd9799411c4f60b7f4e9e21b1205197ab4171",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/artistStyles/isometric.jpg",
+      "sha256": "13ff12523461e481c485356d09331362ea08573f4f37caeaf572ec9a9e11785d",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/artistStyles/japanese_anime.png",
+      "sha256": "9a5a8dd6f099c465c1b47dbf4c8997363f1b80253024601511526d67972390bd",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/artistStyles/lineArt.jpg",
+      "sha256": "727645a2a97053252fa7b43c3d89cff7da8a225a38f5d40a6f9fae58400cff94",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/artistStyles/lowPoly.jpg",
+      "sha256": "1877d44843f1de90726a5dc767b7cd3e2bc846519e211da887d2ac5f45d31883",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/artistStyles/movie_style.png",
+      "sha256": "a489d913667925e219cc74461bf9872a5403cf7d89c84a2fd11270e55e58fbbf",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/artistStyles/neonPunk.jpg",
+      "sha256": "6434356947b9b5be3ad5a46c79507269d4f28ff2e8cbb464d8021f5cbdabbee2",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/artistStyles/oil_painting.png",
+      "sha256": "ab603223ba523f85bb841b5a7cd58e1e9f7c754602bb7bd702dcdb7141350f2d",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/artistStyles/origami.jpg",
+      "sha256": "943f9e04060800a7a5975692a10f1c2d48a0e42c1eedb07eaefef21d03a6d6e3",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/artistStyles/photographic.jpg",
+      "sha256": "2931e5f71e81e313d4c4299f44ed90c8fb3db7c5ce131741cbae2bdaa6125bbe",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/artistStyles/pixelArt.jpg",
+      "sha256": "8417e04d3b334718bab421b151e557e0a511d24ceabc24fc23961b8bd1f2caba",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/artistStyles/pixel_art.png",
+      "sha256": "096e3c2a856a6caeba009623debb58a1202c48c0db58c6c24bb81fa61357cd1e",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/artistStyles/threeDModel.jpg",
+      "sha256": "c3f21bd6cba30ab007883cd117a9952ccb041b9cfba48de651dd715d75dd12e5",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/artistStyles/watercolor_painting.png",
+      "sha256": "8309ecf874064ed6d602da854c2b773fdf8a8d0f3bdf4d8043f65e07676172a0",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/audio/aiPodcast.png",
+      "sha256": "47405b35e23537157acf6ac630f7bcbc749a58da4ab488fc7f0fc98bbd1af4d2",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/audio/banner.webp",
+      "sha256": "d034d2a3d7367d2fe9d9611d3c6df29015528625ea031806d26d3712951a0aea",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/audio/bannerNarrow.webp",
+      "sha256": "b3441e5cdce3e937939ed31751f7fe9a39b7fe7527da52faf19b9d9e25464b69",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/audio/bg.webp",
+      "sha256": "9163cdc6aafc0e7619e0a01f7f50fe94158394f06ea99c572ab17b4ddc0c8f8b",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/audio/bgNarrow.webp",
+      "sha256": "2696c1b2dedc885f6506fec3fc3553128e4e4fc6b3b0a73f4bd8515543c83136",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/audio/localUpload.png",
+      "sha256": "539a1dca01b4c0336138db55dc9ca2aac0ab988acbac67fcebe2bd1331a77e08",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/audio/recording.png",
+      "sha256": "4b76b36dce358f87daf163b74c9c12544ed6807ae2b4c1e00da3230720493566",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/bot-artist-example.png",
+      "sha256": "3932dcb7d51ab1220c23a49a9ac40076ab77e14033fbed41c76c161c0bdc79d1",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/bot-artist-logo.png",
+      "sha256": "be79370e5885c69c014784d7002349268c539083a393eaf4d4261cad01f41b20",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/bot-empty.png",
+      "sha256": "9f71d9ab4e539ee978f281da8ad4ccefa9db8ff908d8a2a8956949bd3aa568bd",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/bot-notification-logo.png",
+      "sha256": "acd66f0c400e3afdc7a95e70189da430fec41f6f65fe9fb0a2c1f0e1e993935f",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/botFramework/codeAssistantBotLogo.png",
+      "sha256": "b593e8d77211b2d3cb5854b72ee76080ead08c6791a8e4c2a8d34a362f158914",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/botFramework/masterTranslatorBotLogo.png",
+      "sha256": "dddd50f6360af74294c920ae123cb67bbb3a5a49acd144411536b6500c0b4f06",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/botFramework/writingExpertBotLogo.png",
+      "sha256": "3b2315047bb6aa4cc6dfb94b57d1327dc98feafd5b7ca871ba59fd3240770b8a",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/brand/appleStore.png",
+      "sha256": "962c1314c06a6727d0a2c43e15605f6a88b97a35a2f3cd7a02a2c6e9d357b212",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/brand/chatApp.png",
+      "sha256": "0a62c63e2480cae87acc5d4396dfc83292cd8896f07aa5ab4c94ccf9c4bd065f",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/brand/jetbrains.png",
+      "sha256": "896407713cfa8f7b2b1002409f78684cb9b866322a094d37f770c5acc2fcc74b",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/brand/messagingAppLogo.png",
+      "sha256": "30a185def30f21d75037e5fd4517b444ddf372526b89f85ec855145f2b32df27",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/brand/mobileApp.png",
+      "sha256": "6069c30c9c90b4acd9c3df7cd69b7572ef23a1307067086c7335852b52888502",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/brand/safari.png",
+      "sha256": "279fd4f40085f21ecb9daaad9cea5a64233227f11c8dfa7718fd2f8218e8fc15",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/brand/vscode.png",
+      "sha256": "4a77d5c84b405c21adb3d8b05694d5fa7b5de659720b4df7fc40b3a5e20e2961",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/brandIcon/AISlider.png",
+      "sha256": "069541f5c5f1e0d18230c72361fc55a59964ac42b598111a8871ec5606a21757",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/brandIcon/AgentAISlides.png",
+      "sha256": "cdf78bbfb9c4bf33a93a6c784d7df99357dcd06e783755aa4aa3ef553eaf0190",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/brandIcon/AgentBrowserOperator.png",
+      "sha256": "f399b586892be23d61b22f3e6f765c1c0ccac192cc3109af0acee521b4f09b49",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/brandIcon/AgentDeepResearch.png",
+      "sha256": "2a25d98da8242ea0129595c58f6aa59ea22a03a55b8f7a9d785af57827358e0b",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/brandIcon/BrowserOperator.png",
+      "sha256": "ef59da2a27b251131cb2f4478e43f299426ad6f44f28745599a67c6cdf5c9453",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/brandIcon/DeepResearch.png",
+      "sha256": "b2cbec09fc8f9fa8c0c9ccafc45a36efe09fef20425b6f45a8e60669f9e7b7d6",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/brandIcon/brandAndroid.png",
+      "sha256": "e9caa039b041af3109f1bc00e2c7dbd97eeef29a5aee79650caabe53f2aed84c",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/brandIcon/brandApple.png",
+      "sha256": "9011d7d534ac653b9962e1cdd53e5a93e1cac771f1a1bbecd9e08ded72351eda",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/brandIcon/brandChrome.png",
+      "sha256": "423c0c675f31068b864695822dceebf117483716a285a8fe30a401e8c382192f",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/brandIcon/brandClaude3.png",
+      "sha256": "c69820fb94b7e2dcc258f3d0da321cddd5acc41cfe8e0fb46e32eaca4a336389",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/brandIcon/brandDalle3.png",
+      "sha256": "4f3c9ff591cd2e3ba35181cf459dbeb239bae83e049c16f430ebd00d4f5b9ea0",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/brandIcon/brandEdge.png",
+      "sha256": "83c2cef832223d1b7ddc9079654989fb7338f610c6645a1f0ee5dbbf8e7550e6",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/brandIcon/brandFacebook.png",
+      "sha256": "5872d442675e257a9c97ce6cd92a611e1f025d212216b4ca20a93ca47b5414f0",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/brandIcon/brandFlux.png",
+      "sha256": "2f21b72d23c6558a1a1a66689fa7a1d66563e0789c6f5ff2f2ad1a03a25ae7ce",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/brandIcon/brandGemini.png",
+      "sha256": "c42afdcc590a46b3d8527c0c18b41693b8e4a3c18d5c6262148b0ce993f3df37",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/brandIcon/brandGmail.png",
+      "sha256": "89ec692d40583273b746384b57b204a889ec90ae6f886d225640160373fac7ea",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/brandIcon/brandGpt4.png",
+      "sha256": "4ed11f0c8084de57d8cbf56200a7276a79058c9e8fc8ba496941fea4970a4d56",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/brandIcon/brandKling.png",
+      "sha256": "e880f4103d826224ba3b4bbb3c34d8f71dfd7831a01ae2fb21e4e9d59464ce3d",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/brandIcon/brandLinkedin.png",
+      "sha256": "ec6b0693c3e8c09ef9320b50256635c4bc3a7c0743010293da674d7350bf2a94",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/brandIcon/brandLlama.png",
+      "sha256": "fbca4a353703f1ce86ce4e51c41cd2c6322ddcf421ea416804cbefb487b819d2",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/brandIcon/brandNanoBanana.png",
+      "sha256": "527f22420410d31aad27328c46c8c6d8d62ed02e885c9842866803d7979ea1d1",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/brandIcon/brandOutlook.png",
+      "sha256": "429509f2526b684f2d9c83e88c93992f3b7daf32d9375a7f1670fc9d20579b7c",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/brandIcon/brandSd3.png",
+      "sha256": "f0be9f332c3c8340d36bfc930d12262a9cb40baea54efbe49edf379296c57e4f",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/brandIcon/brandSora2.png",
+      "sha256": "2a4fc79174a9c0ca07be95e12be2bada5ea14a7e18959dab3ddb715b2cb049b7",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/brandIcon/brandVscode.png",
+      "sha256": "5b2238804ec9cd654b4869457c017d11af52c4a9aa475fcfec2272ae6f964fd3",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/brandIcon/brandWindows.png",
+      "sha256": "e48f8420c6f923737d988b73c93a50d8414760afbe0a039caf82b201fb608acc",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/brandIcon/brandX.png",
+      "sha256": "161a494b550c2b07e53b0c3439bd2895fd598d8cea4a1a22ede3cf73700ff53e",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/brandIcon/hailuoOutline.png",
+      "sha256": "c9ced99d82d75cc261c833d4829b27b3c471cbd334eecec374851b025da424e1",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/brandIcon/imageStudio.png",
+      "sha256": "42936e8a786599e1b98efd980f34fbd8be933740b95ad7c66c6c1fd1a2aaf0f2",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/brandIcon/more.png",
+      "sha256": "1fe1badc3d25fb5f5676b7e0b6f62fe56cfedc1be9a1525e12526bb815896382",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/chatBox/bookCalendarExample.png",
+      "sha256": "30f1e2112b86d5cb0eb08857809c8fc1259110e0eb1bd0e39a1aae756f3c0a5a",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/chatBox/chatHomeView/aiDetectorDark.png",
+      "sha256": "fcc1ddff76bb700bbcef9715d56613e7f1120e60ffd9e6716eb8247f77b17f02",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/chatBox/chatHomeView/aiSearch.png",
+      "sha256": "03c3dfe4206d21b22724760fdc1aaceb67213525354cf1f57f1b39abd95e2e8e",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/chatBox/chatHomeView/aiSearchDark.png",
+      "sha256": "3c1f92f63147727934596b050a00ec922a829d8cef82a4edb7befc94116e1895",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/chatBox/chatHomeView/aiform.png",
+      "sha256": "978f9649c33ad4f87f91f16d2c2f4e8db528a3157547728d77bd0768de8b9972",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/chatBox/chatHomeView/aiformDark.png",
+      "sha256": "c3e19600b6684db77b4335c05ca4dd0707419a8597f6cea8c25b1ec0cbd82405",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/chatBox/chatHomeView/artifactDemo1.png",
+      "sha256": "a23ed657ddfdf486cd03960e1466904197ac9342933883c8c276eae3030ba721",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/chatBox/chatHomeView/artifactDemo2.png",
+      "sha256": "60da828181a8d1ac1d3a87bebbca12cb15c7e3250c45cf0f10a09531f9338aaf",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/chatBox/chatHomeView/artifactDemo3.png",
+      "sha256": "c93aaf4b8489e4e64a5953034b485a61f8c75a8c21bd05d34d6716d1f0f0853c",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/chatBox/chatHomeView/artifactDemo4.png",
+      "sha256": "f191b9873fcb9bf1bd47f695b57c86d9bf1d4ff134040ee80866ef85de9d855b",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/chatBox/chatHomeView/assetCreation.png",
+      "sha256": "23b016708754a72577f9b731cc1001e49284eaa0f6e745c8ad404e07563411f4",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/chatBox/chatHomeView/assetCreationDark.png",
+      "sha256": "d1a2abd2f268e9e648a1abfdd18a57c04e98aa5311dd9b61d68cbd3ba854a9be",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/chatBox/chatHomeView/bots.png",
+      "sha256": "50af74f664d3d47259af6b29986c1e21f6e6a0a0f06274aec47cbff48ef06303",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/chatBox/chatHomeView/botsDark.png",
+      "sha256": "4a93c4a8f56d5bbc332d7b4b1fc481e00557c7fa11c6f3e1ddbaa0289de37ed6",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/chatBox/chatHomeView/chatHomeViewAiDetector.png",
+      "sha256": "bc7a3c158ed58a36378786342e3168a2b98f398f9b9227a62359ebf2e96897c8",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/chatBox/chatHomeView/chatHomeViewChatPdf.png",
+      "sha256": "38c8199a22689b383bbc579deee9ea9aca6879b3f7e1d224d234bafd935b829d",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/chatBox/chatHomeView/chatHomeViewHumanize.png",
+      "sha256": "fb02fa6124cd032231c30858c33a71f70ab47175b4ed95130a9a04811f569c9d",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/chatBox/chatHomeView/chatHomeViewMindmap.png",
+      "sha256": "536b960fa7adbf583dc33d77153086f379d6f9f0823a430fafc20d139ec9988c",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/chatBox/chatHomeView/chatHomeViewPodcast.png",
+      "sha256": "f2c5e21ba42e6a606e1a5de91968a8fcabbd7d1c332eedabab88276be276df85",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/chatBox/chatHomeView/chatHomeViewTranslate.png",
+      "sha256": "1c72ba790c2b790cfa4cef928da0c484b440324c8ac69d2a319fdb2e47b2d39e",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/chatBox/chatHomeView/chatHomeViewWrite.png",
+      "sha256": "59532fc6d6fdf643a418a24185c6a4912262c1accc0248c0a70b677cdc69295a",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/chatBox/chatHomeView/chatPdfDark.png",
+      "sha256": "b7e2188f077f74388074023765baf80474f7776c7f6e177a8cd6925edae303ef",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/chatBox/chatHomeView/fullPage.png",
+      "sha256": "b8d788aa29aace328352752124159301977d9310a5d2f1a42e9d6d5ed5d25045",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/chatBox/chatHomeView/fullPageDark.png",
+      "sha256": "7ca8b5a0220767d14cc83c05bedadb13c05814662b9621a10eb0ccd1362e6922",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/chatBox/chatHomeView/grammarly.png",
+      "sha256": "d432fda4a8cdf375b95132024f2219666ec31bd4cb5909c0c919682ce0d537ae",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/chatBox/chatHomeView/grammarlyDark.png",
+      "sha256": "4a6754c2900ef2cea8909c86d877d4eb4816305c61087e2663b0604d9a7905e7",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/chatBox/chatHomeView/humanizeDark.png",
+      "sha256": "86aeb4d15182f295110a3791f438d80ef2f4f3eab497f2e84e1433162868bb47",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/chatBox/chatHomeView/imageGenerator.webp",
+      "sha256": "c32a5b2725a8a27ca9f31fb77dcf86fadadf05b2a0e1a83848177d9e0c825c88",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/chatBox/chatHomeView/imageGeneratorDark.webp",
+      "sha256": "29aa291e643d07accafa88759d2cd0f35ade6231f2dc0a58632a765709a1933d",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/chatBox/chatHomeView/memo.png",
+      "sha256": "ed896cb69f6f04e80d5c1d3139bfc475a26b67d909af2bb7519ed83899df3e51",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/chatBox/chatHomeView/memoDark.png",
+      "sha256": "94e512f4e0c9428f7e204c37f564233f528a6fd7a360f7601706c43f8317a928",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/chatBox/chatHomeView/mindmapDark.png",
+      "sha256": "f2e88eb57d2d3b6de44739f1de7b87b3d65037bcf4dfdd3ca41af72cf23a7407",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/chatBox/chatHomeView/podcastDark.png",
+      "sha256": "8cf5d2b25e30a37471688713e15b7295b044ac6fa96ff6ad93fe50b79dff2f76",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/chatBox/chatHomeView/read.png",
+      "sha256": "93c35eb30c8104f2548e56ba9186ca78ac0416607fab43caf4b14c650aa33ac3",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/chatBox/chatHomeView/readDark.png",
+      "sha256": "56f93f963d200cd8a71d3f0ed24447f5c79f9c9f34127e2e67f7c16c5bee5531",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/chatBox/chatHomeView/simpleModeGuide.webp",
+      "sha256": "152de9ee790025b59e6df3f002b37dbc56855e8553853329d24ff8449f06e9b0",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/chatBox/chatHomeView/toolbox.png",
+      "sha256": "18a43c6dcd3830d94a5becdcb152ed3d9045202f483978eaad38f7f28f2c6fb6",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/chatBox/chatHomeView/toolboxDark.png",
+      "sha256": "40f499bc53eb3a6e964d729fdcb3322cf7b3303adc3edae4250d6c02e56b0fc8",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/chatBox/chatHomeView/translateDark.png",
+      "sha256": "1ea61d2e58440c324766264ca3f09dc3396a541712d0faae39a33c0cf18f5a25",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/chatBox/chatHomeView/videoGenerator.png",
+      "sha256": "9d557173d03d877bd770a0c3c85a7beccec4b6f4d9c93da6969438cd53508ae5",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/chatBox/chatHomeView/videoGeneratorDark.png",
+      "sha256": "4a5e0de2d5904999b32d0b0f6c8ae0a2db5118508424d4fe7cf4d7f9d6c92b27",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/chatBox/chatHomeView/writeDark.png",
+      "sha256": "0f553458cf704f7bc74262433db30e069e1189bd5c370520a5937fffcc2737e5",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/chatBox/chatHomeView/writingAgent.png",
+      "sha256": "adcb08d0a323a0282db27fd910a161a33f70ea817e303b6ac170221f0270f00f",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/chatBox/chatHomeView/writingAgentDark.png",
+      "sha256": "0adc98f13ff79dfcc5a294ccc6ceee2abd48b537300a2ad589be1f1730b1b2b1",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/chatBox/colorfulRocket.svg",
+      "sha256": "62ac29c147c6c2548d785f428ba53d3c6f2d1b02c1267c4897af77b7ce5e7b92",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/chatBox/modelBg.png",
+      "sha256": "6af535da2cad164a7c78936ef44d30665338d9d30d2e7b889947e6d4e9cb8790",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/chatBox/shareImage/modelList.webp",
+      "sha256": "17fb3bf110f6803c6b7626aab8f2a3bed2782da607c3ba00ec17c8cb1fb890c7",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/chatFeedbackLike.png",
+      "sha256": "a20c21d10e12b27b9cfad519dac439ba9d5609e7f4fe85456376fde399788c4e",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/chrome.png",
+      "sha256": "9979042a267c5194ffd5104756fe9e657c881386c720a16e1b940cbfe38ae61c",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/chromeLogo.png",
+      "sha256": "eac39f8f8590e86bd434d9a06ff83c0ac708b114b16a1018488432f1a8379e48",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/claude3.png",
+      "sha256": "10cff6a28f819577c4313b5e6d4fa3267f6621bed0ebb2177f3b0aaca1dfeec3",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/copyleaks.png",
+      "sha256": "b045f4808d285557322200c9b19a0a98468ffb2da7650f0a806b0b249774e25a",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/crosshair.cur",
+      "sha256": "a9e90d55ff20f12e26e9bf17a20b742a5e28efafc129969b49d29d4052ac1e4d",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/defaultAvatar.png",
+      "sha256": "5cb93e9449c92f416b6ea2a1a42f29dd0a3a9e786fbf70052cc62664490d10ec",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/defaultFavicon.png",
+      "sha256": "32d5a024f77247e8a2701574096096b24940d548e5db0784902aa44fab1380b8",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/defaultWhiteFavicon.png",
+      "sha256": "b19d1b5cf1d174ae8b4e75d53aca13ff8f16fb7cd9aca9abd8129ca9f97215b8",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/discover/aiDetector.png",
+      "sha256": "6935e9bff5df0b1e8f743495480660433368ad2562417ddb0e8747777a8fec6b",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/discover/chatAdBanner.webp",
+      "sha256": "eed9727f9752b5df82278e5597eb15c7a5984c9ec6de020f49aae776e2b40eae",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/discover/code.png",
+      "sha256": "29c5a0d0d5bdc9ff5c816b8c2a5c123588880fb93bd5ee096686fcf1c2474956",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/discover/codeAdBanner.png",
+      "sha256": "fc3860e7b81bbf8a714e8107151dc6c78da93ba2cd3d07b282baaabbee890b64",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/discover/desktopAdBanner.png",
+      "sha256": "f00b3e1e4409a03e0e9eb1963b2c8d699b048fdd0b11536a5be4952da9243d03",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/discover/discoverChatPdf.png",
+      "sha256": "39105eeed321451462a069b6936eb9d62e185e46ac51910e9f1180f962b053c7",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/discover/discoverHumanize.png",
+      "sha256": "8a1b919ed3a90b0d869b14612bf928868807b644cb308fb245ddbe0b067188b8",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/discover/discoverPodcast.png",
+      "sha256": "21dea842cecb9a20a2c2b1ae7761f374c35e15ab12c6f62d4bbf6803ba54f153",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/discover/discoverTranslate.png",
+      "sha256": "73b42a463b4f73ba7689087fd9f6f4e665c3bf49a09cb8bd6df954a6f9242790",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/discover/mindmap.png",
+      "sha256": "9869c7130c154dc789b2bb8c396a7a91fd05ce5f31ea0ffc584e666ac5333bc0",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/discover/mobileAdBanner.png",
+      "sha256": "77413524f9c81662e988392001f51d1b90a77ed595303541cb4313fd719766bd",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/discover/write.png",
+      "sha256": "38a3f0329d489f559bee7881ed79a0ef5e0cdc3891824a7d826f5b2ebf9bb747",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/edge.png",
+      "sha256": "dc6cbf36543174895873e5e55d0d780de0dccc234165d6036e809b1b5e0dd74d",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/empty.png",
+      "sha256": "5285d9cbab47e91e7d64c4c262ea9e5cee632a260aae96041c98f31ecbd54dda",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/empty_tool.png",
+      "sha256": "410a49ee02e62926f7d7f15ddf4028ce5834e037299a2c8c3c4c90c24eaf8bc6",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/faviconDefault.png",
+      "sha256": "73b171adea29ff62421b8be663788fc29ee8b73f6b7e31f960fe1ccb1485951f",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/gemini.png",
+      "sha256": "3522b3498e987d8a3f5486c71b6d2bdda9a78ddf7d6833a0571ca70deb3a676f",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/globalSidebar.mp4",
+      "sha256": "a5081f47a0c778be99df732ecf9577fbf2e44e1f67fbefc2569e1596aab6bb13",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/google-white.png",
+      "sha256": "b71cd8155348ff172a49fc6fa3d4685b700b8f68792ac0721ee14ceb7f8d5778",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/google.png",
+      "sha256": "341d82073d2987fb62b792fd26500bb9b8dd44428402232d082febde1ff47f1c",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/gpt-4o.png",
+      "sha256": "36107bae636bdc4d7a2e1361e1737c39a92453c4c31f10f6ac22e24a659b560a",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/gpt4.png",
+      "sha256": "1a1ff482d284696ed612f50a2bd61f31504f2523a1fd882bfa1115d063af499c",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/gptZero.png",
+      "sha256": "f262152a470c7dc29682711cd2d6c92366389ea8dc972f877b34ff6e53d2806a",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/image/anime3d.png",
+      "sha256": "31a987b57895151b63191441068b003335c81c45659cbadbb781de1f7c1a8ac2",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/image/auto.webp",
+      "sha256": "820a483bc966825062eb85a992b1bf82d8271e28b4a345c208b3a67f44e732b9",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/image/backHome.mp4",
+      "sha256": "d18e67b959ab3489d54d7e39cac7fd5efb30a9729f6dc1fb0835dc9592c04a1e",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/image/cardsAndInvitation.png",
+      "sha256": "ad853509d4cd79a8130efae40fc7754ff093d76a4f0e77629aa65591a5541e0e",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/image/cinema.png",
+      "sha256": "ed3343ff9915e859aa4c2f819cb4e152bf263bab1cb5726d2656bc6a3c7788c3",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/image/comic.png",
+      "sha256": "1b39c29fd73e90f307927db3b456f292a92effeda0022d12a1491d94dacb109c",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/image/cyberpunk.png",
+      "sha256": "43624513163648f206dc5f0b9211c08a6f729f5fa14673f8794ae4e88fd2c111",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/image/fantasy.png",
+      "sha256": "86e244b1bef463c6ec5c9423b1d28da54fc197ff3a9cc9fc4ea847d9ea1f04f5",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/image/image_empty.png",
+      "sha256": "350f8cfe69d45af40d2602b9a2193f3429bc0b648ea8b7b02b7717a159f2d3e7",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/image/japaneseAnime.png",
+      "sha256": "7c423de7a95ced0af27f372ea710f0921ca6252bdbac168f117b54c542ab5483",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/image/logo.png",
+      "sha256": "ae801fe5244cd4e820a6babbb607fa1178b7cd798655b0193bfcea9addb8ab1b",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/image/model3d.png",
+      "sha256": "27beda53cf5ba611534487d9cc67c00a5d7339ac7e4fdc57e7fb723660b032f1",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/image/oilPainting.png",
+      "sha256": "8d2011ab03ead379440e2bbb20a5b86094631e2a88b51959aed9f8e587bc4ed0",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/image/p_dark_template_upscale.webp",
+      "sha256": "2d72ab83c6e1fbcc7c31bd285201756b278866c550d002ac752d0f67333e40c3",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/image/p_image.webp",
+      "sha256": "f1413c580d9d34ba762272ba57aa8ebb558f933e0d98427f95432844047a3587",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/image/p_realtime_canvas.mp4",
+      "sha256": "889ac7d4bd45acd5b8018647e7797d1c824a148298fdfcd7505729a2029a8c42",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/image/p_realtime_text.mp4",
+      "sha256": "63ed31fe400067c3ffa44c198cfe12523247e3baeecafa71759418bb154901fc",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/image/p_scenario.webp",
+      "sha256": "0028853c927ff1317f3ecf9bc833b6d723958f94777d6497805cfabafa9ec621",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/image/p_template.webp",
+      "sha256": "432f0b3e1ba8994ff9420b88605080559e9f94d9bf6437f37435f664ede40c08",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/image/p_template_dark.webp",
+      "sha256": "1a56fc09d0d926be1573f5def76535729037c67e082f01bcba809d2b6c303368",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/image/p_template_upscale.webp",
+      "sha256": "a749f76ed7889d3b78567fb37ce52a830de0636b9deb9c4830538dd273d5595f",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/image/p_video.webp",
+      "sha256": "e49e169eb343d86c1db2ca59d0a754d4d898a1382b41ff7e8b9d658059a58e75",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/image/pencil.png",
+      "sha256": "823c140f47e019dcaf0ecaabfaaf8659760dd54d994401c98507e522e5ef2c78",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/image/pixel.png",
+      "sha256": "1754c13118f28d5597d1c1c46130279d08d68011a447983da67e40075e113d4c",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/image/placeholder/kling.webp",
+      "sha256": "95094440a983f1cc9818c31973fc90a088ab7555dcf9fd13005c164fbd355951",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/image/placeholder/klingLogo.webp",
+      "sha256": "d8984449584baba762f40398be282ebf93fe433baedf10d8d092216f5ee4f013",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/image/placeholder/minimax.webp",
+      "sha256": "cebcd3ec2d8a2f51f0c539df051c57e6f44ba26cb517ba8f2f9ffbdd56722cf0",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/image/placeholder/minimaxLogo.webp",
+      "sha256": "8ba21ba5382fa39e239321d9edfc4924d58f139e6862e92e5c8e118ee677412e",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/image/placeholder/pixverse.webp",
+      "sha256": "321d5a172aa5d57ccd942b969d1299d000e0b2b5023f17508f59ea85c1ad4bf2",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/image/placeholder/pixverseLogo.webp",
+      "sha256": "9f144a32bc7f516a582e67dcd9efec8b063f8540e12552154f7cae851cb28e2d",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/image/placeholder/sora2.webp",
+      "sha256": "6e3248a63c19f5240e3521f01b2f0b9340d2024f0239944b61f1c2a189c2c40b",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/image/placeholder/sora2Logo.webp",
+      "sha256": "b1024aadc23369bbfcb2a9c8cc374114a83392bb3e375b58770c65591ad2e4b1",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/image/placeholder/svd.webp",
+      "sha256": "728a9e743effa379f5824dbc5acd222fbf6040ce1ad474c13bfd3308b86c694f",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/image/placeholder/svdLogo.webp",
+      "sha256": "08ea67c8055334272eade3e061444f98f3cc906b32372a99e707b94b63cb74cb",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/image/placeholder/waterMarkList1.webp",
+      "sha256": "305a39c26e542ff37bda932e05da18087f387bcb05d2b3ba9a8a3ad4178049d9",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/image/placeholder/waterMarkList2.webp",
+      "sha256": "1eb08ed23f7fc0339e97901793474178983318412d8afefb907aa2210cc948f7",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/image/placeholder/waterMarkList3.webp",
+      "sha256": "7cb9dc665c1e264ffbdeeceb36984f4ffbfadd9dc41b7199ba5b46a7dbed7bc0",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/image/poster.png",
+      "sha256": "8bbf14bd5656fe285f04b8f013919e745b401a81883afef702984d7c926d61e9",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/image/realistic.png",
+      "sha256": "46b1afd83fe20a84fbd16362a18ce7824d11ef230ac7f57133bd613ab3dc0d4b",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/image/step1.webp",
+      "sha256": "84d978f581e14d353ad9c1b4eb654cc2f2a1ea1eadac93954c884fa3eb757ca3",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/image/step2.png",
+      "sha256": "2b77d282870fc4bf38c8c26f16e007d8f777d07decfeb4842d729298ff57e5f7",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/image/step3.png",
+      "sha256": "c8ec4fa033897a9db31880ab3a879366af049fefe71743cded538474078b1828",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/image/step4.png",
+      "sha256": "2c4e349a6763b555cf40aeb10794cddda3de24497dd3eab54b74abd790737d6b",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/image/sticker.png",
+      "sha256": "11f632d4501f501ede06ccfc9bc34538a3da2d558d5c4c5dd54515294ee1941a",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/image/vector.webp",
+      "sha256": "7a1595f3aa02eeeac63030b53b939f124480e5fed436fe3e931eba9fd9fc15d3",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/image/wallpaper.png",
+      "sha256": "6f9e3c3cc4f5eadb4ed8db1591608c724b189e3d9434e02b0cca1202c39b6b04",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/image/waterColor.png",
+      "sha256": "70f3bba0554dc26160cade9e870eb0669bda00f8f9d646be69083434efd8718f",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/liteWindow/speakAnimation.json",
+      "sha256": "9978d5c3fa8f66a8b0a7aff74bc17207ae187be421611cabbf825e2f66e47658",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/llama-70b.png",
+      "sha256": "b9f5857c0d0fdbe1e29a2852d4128f5823bd96455cce9eed4b836838765c9265",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/lottieAni/inviteBonus.json",
+      "sha256": "2cb93bee67954e6ffd864e1b26fe27aefed34c64fc9521b268055748e65c99d6",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/lottieAni/inviteNotice.json",
+      "sha256": "cbcdc1c2f15092cb30911863c50805d7963cade8c47930898f64607e206cf1cc",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/mainNav/fillAiArt.png",
+      "sha256": "0f206b7a6757d8d78ec6a03fcb087d1310856154b455238ee735307352466aa5",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/mainNav/fillAiArtDark.png",
+      "sha256": "3cdbcfa89f7f5beef1ed9fcb74f4f0ea91e879d524212b60071761c0e90f2154",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/mainNav/fillAudioDark.png",
+      "sha256": "08748668182f168a14ac8d435130517f79cde48b9d57c600bebca00fa4930d3a",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/mainNav/fillAudioIcon.png",
+      "sha256": "d42b472b535ba789ab560e18111aff4a68f99574f8a3806423cc5f463acd93f5",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/mainNav/fillChat.png",
+      "sha256": "70df8d2615f1a0b58e4043c35b5d3c755eee2bdf2e817065706bb64869ebf38f",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/mainNav/fillChatDark.png",
+      "sha256": "777c96d3625ce07f2a738ac6e5d7d59bf6db3ecf30b0be5906788742737dbeb4",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/mainNav/fillDiscover.png",
+      "sha256": "251bd668e32b62100ea7e409644c3e4bb4e52dab792f6ad2a7a63b19a3526ca4",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/mainNav/fillDiscoverDark.png",
+      "sha256": "7e4f77c037deea2d4688922d9bc0735a16eb67e3637c8a94d13e517a64da2144",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/mainNav/fillVideo.png",
+      "sha256": "06559567a548e86aa888819bc4df7b77e7d6b11860f9104cd5c3d0b8d4e38521",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/mainNav/fillVideoDark.png",
+      "sha256": "719118abce63c41559277dd599fb65fa86208f7d838872f2e0cdae15249622c4",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/mainNav/lineAiArt.png",
+      "sha256": "9505d073e3293ee39b1aa5863e71fb279dcaa92a8f38b6dd416ac547dc0fea3c",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/mainNav/lineAiArtDark.png",
+      "sha256": "b102e68d5a3850a737a15fd5b0022196ec53c6e70ab80606e164b39c7ffcef5e",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/mainNav/lineAudioDark.png",
+      "sha256": "bcca1163d50acd72f3ae6965eec099cff388b832f7161aaf57518817a63ef5a9",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/mainNav/lineAudioIcon.png",
+      "sha256": "fe2969a8c827f821f3621139af593448e78693c68d4fdb898e576f36955881cc",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/mainNav/lineChat.png",
+      "sha256": "4c9787472e8ed655dd774f819632a24190b48ebb77c42ba2a8c9df460b49090f",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/mainNav/lineChatDark.png",
+      "sha256": "251dadfd171e7afa5e7193091109626dd4f8d125b5ab7930e6e768c379cfc207",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/mainNav/lineDiscover.png",
+      "sha256": "8dd97ca07ba0529f61e697649822cfa9dae0df47147808eb6a12d02eb7148c78",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/mainNav/lineDiscoverDark.png",
+      "sha256": "aa6c97dc4b4c342f9a9b66c474a8ef1fe3e50c74a43792204b36b2d690eab586",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/mainNav/lineVideo.png",
+      "sha256": "6398a57eac87dae293a42b170829f8f0a19dfd8654f9e341024a9ee5d566a752",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/mainNav/lineVideoDark.png",
+      "sha256": "964ade9d504c1361496fa004b9e5cd75dd4ad9417cd6c8fb607cb4945b690d21",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/makeItMore/Nail.png",
+      "sha256": "6d662b87454476cde779c08eacdb8514437cae3d07196bdd02733fa815327c5c",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/makeItMore/cover.jpg",
+      "sha256": "3db978310ff45858847c7537af8985694fa7324afb1c8356110ffd0508400c03",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/makeItMore/makeItMoreBotIcon.svg",
+      "sha256": "63b4daa0c2ee7fd266ed498f032081f691e1f6b12c699090d286d1d7c7420a19",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/makeItMore/makeItMoreExample.mp4",
+      "sha256": "3c78492ed05fdffddb855d043927a093cffdce7cfe4127571f5d0f11f9a291b3",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/makeItMore/makeItMoreThumb.jpeg",
+      "sha256": "9fb9247c67f03364c06a356112a3ea37ae6171442389c98e9c041d9d27719881",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/memoryDrawer/bigStar.png",
+      "sha256": "b268431f63100a291f4d64b190dfc8dfa0d4b98751bd821cc8873888fdd27e52",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/memoryDrawer/smallStar.png",
+      "sha256": "36005b8cf3bb7ed470daba495723ef0a5de71e5e76af49d6fad82a551e9ec935",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/mermaid.png",
+      "sha256": "93a8e240ba97b744bbf08ebf0261ced577ed9d3d4c3cf07a3162651fc569339a",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/mindmap-guide-video.mp4",
+      "sha256": "fd9a48ddc44f21d25b0e803956c4a9dcb3227ec00508ff9a1983666c5fef9585",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/onboardingTour/artistTour.webp",
+      "sha256": "f5025de614cfb7ceedfd2706ff02df08ff65430c4332e81eeac98d7227628d06",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/onboardingTour/chat.webp",
+      "sha256": "fb93ac39d3b742efec77911360efe9230bc2f024ce67e759cfc27dd3cceb7416",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/onboardingTour/file.webp",
+      "sha256": "9791b3acfb0d3c5346875d094cfcdaf2b9a972872b3568c37b5cf9a133e384da",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/onboardingTour/tour4.webp",
+      "sha256": "2b890b7661557240cf3d0a7defe74d099a222e981102d78f76115bb293c5af15",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/paySuccess.png",
+      "sha256": "d545f1b514e75a9d84756972c24a8ff4815c25a532ba52ce72fc5e495515027b",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/paywalls/bypass.webp",
+      "sha256": "b2c3db86ac71e08c63d5c0da397c1e80f0a189b9e4cbf4e3d1e686ca062c952f",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/paywalls/chatCompare.webp",
+      "sha256": "bf3325fa7767ce237d135887ed58c7fe5cb519226a53077131cd59d0685850f4",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/paywalls/imageGen.webp",
+      "sha256": "9eba77c5b3b5735ecdb117ae9400d200b58720153c018381e1ccc434b7c0f639",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/paywalls/mindmap.webp",
+      "sha256": "8c81cdf47831d58ec573401d29a6b27b7fe16467a38a760fc95331d74148aee9",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/paywalls/paywallsChatPdf.png",
+      "sha256": "bfb6531b17089b5eea43a7eb4bc37bf198c304a7093fd1b2552183444ccf074c",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/paywalls/paywallsPodcast.png",
+      "sha256": "ac536c60e8cc134c251ee23bf605de84663655bb212778d45c8a0ca3ed5b28c8",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/paywalls/unlimitedIcon.webp",
+      "sha256": "86857986dbd52618dfd0d4f612f8dabe554a86de30d77d7afe216163fb2c2662",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/paywalls/videoGen.webp",
+      "sha256": "c3195dba383c23ae10be6bd77aa2e6ec29e96f3736964a86a3c0e7085e161578",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/paywalls/youtubeSummary.webp",
+      "sha256": "f5ee5944d2680ac830d48238f09a21d9743f3784608ea73d4ae2341adea42db3",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/personalAvatar.png",
+      "sha256": "30279a1a140b4618d5a5447882144daf7bc8891b5988e302ad16714b024d658a",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/pinGuide.mp4",
+      "sha256": "06dcb4baeb092876310b7018fca6a40c6396b3713d0040e9f681d661ffb65557",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/plannerLoading.json",
+      "sha256": "c94e3f9d52d39ceb995b18f6a3223a553838fd758d21cac2cc4332702a1ef676",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/plantuml.png",
+      "sha256": "4889f39bae0afe4c332c74d0411038915fd586f2aa8991a6e859854a40875dff",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/platforms/android_round.png",
+      "sha256": "a5e669c8aa558c988b4c437e4e8fc00031d36972ee11fd9043f6a4dda41daf2a",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/platforms/apple_round.png",
+      "sha256": "8f3d66313971cc52d59129a103ca296b87979fb8f91231b919fd60b33f2ea5c1",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/platforms/chrome_round.png",
+      "sha256": "2fbf69dd5a39cd0f3dfbfc8b351fce21cece5503484cb6dc09573287f6428d58",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/platforms/edge_round.png",
+      "sha256": "4d4a0c2170ca80c65d8c74012727589f444b02d2e2376e4d576d58a51bbb8e4c",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/platforms/vsc_round.png",
+      "sha256": "c62507ea47e827940c0798f85f492c7f9c5038df181c0f0cb4574d769f454fe0",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/platforms/windows_round.png",
+      "sha256": "2e184cebe2f8b71e4bc4f00209db1e0795249f98dd25c9642c619aca74aaed4a",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/pro-plus-promotion.png",
+      "sha256": "f9ea2becbfa713ff9cc52abd2d27dbbea49532aa90c833592a46b25abfabc9e4",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/promptGuideExample.jpg",
+      "sha256": "f17c45fb52beb13c010e30227ddbdc70a05bcb65b9a5901b7aee6bccbab83bde",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/realtime/chatgptFill.png",
+      "sha256": "368d8cfc13b5a89a69cbfb897aa475b723dfaa6ddaac980481de4866db29ca92",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/realtime/close.svg",
+      "sha256": "dbfb972ff03ceb95c307ed5a7850e0634fe7e0c4fc4763b276658dc69338981d",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/realtime/creditsBanner.png",
+      "sha256": "9ae9818fd01659812d775c518e37e69ef58e7467765e78ee337a4da97633ba19",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/realtime/realtime.mp4",
+      "sha256": "9e18b1755497882565e6b10f5b5615338c3cce3a2164b9319d52e5af10e75380",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/realtime/realtime.webp",
+      "sha256": "ca86a9b3376b1a4ef399a34f71ba3a668f0e41dd1de5c4f136847d61186cd2fd",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/realtime/skill1.png",
+      "sha256": "81a67a8b96f765809c435eb1ab9c75e7861cf8f586c8e92c5296e2c1b6969ea3",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/realtime/skill2.png",
+      "sha256": "1cc601b63dfee7bab528a0dd5165a1b8f532c64b249f990d66f2f504342ebf9c",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/realtime/skill3.png",
+      "sha256": "24f99c89112bcd5f17a06176e6074e10519755c4d2c6160f5fa45ad0785c4417",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/recommendUpgradeDialog/PlanCardWithBenefit/email.png",
+      "sha256": "04b92639d4e93da7bd8f323019ed4afc6b805bc7325f3f90e9bee0a7a9a2cb50",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/recommendUpgradeDialog/PlanCardWithBenefit/models.png",
+      "sha256": "3da89f99dafaf3e365029fc0f5d43c4b9b80752785559681831c548d6fdc534e",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/recommendUpgradeDialog/PlanCardWithBenefit/planCardGoogle.png",
+      "sha256": "c60b7df52f3463541177382aa30a88f1e361eae6265960d540a6cb9a11482cfb",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/recommendUpgradeDialog/PlanCardWithBenefit/socials.png",
+      "sha256": "8d571b675bf39556eaeab9fe433ef848150dadfdc5f2405ed9b28dc57b86b8df",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/reply-speaking.gif",
+      "sha256": "680ad508555ef0a0220dff3bad3b4d869e404a9e553ce2dd881a1bb3434538b1",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/resubscribeDialogBanner.webp",
+      "sha256": "b823a7f07c3a52bdb2b9dcc87891b2b6a33b57a92d9ae67119e9a8c7e83acaa3",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/screenshotGuideCover.jpeg",
+      "sha256": "03f6b0f68ebdfd1feeea0892da1d997603d6da6c210b49ebbb6efbfca7f77d69",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/screenshotGuideVideo.mp4",
+      "sha256": "84e94e247a7d977db31052c21c6b81dcd1864736e75c96e4b0f03b0fde37d67d",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/search-agent-logo.png",
+      "sha256": "abe087d829ebe984a6ad3bd512d0e6db43e9a9799982ebdaf1b61f402d8be9de",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/searchAgentLogo.png",
+      "sha256": "392f405f8106a2d3b11399e6815b7094764d4793f32952d401f6f4f6c7fae31b",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/searchEmpty.png",
+      "sha256": "26c0f370af4e71d37687899da553f2cb283f9478612730a9efd8636b0bd27832",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/sidebar.png",
+      "sha256": "1c82c20f653a3f80dc6fb55c17007ce2008ab6baaa73e900936df2a9a5ee8d6e",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/sourceEmpty.png",
+      "sha256": "1156a8bc671d373e17e6e61ece4422fc377856342e51038dba88042bd0ba5ba5",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/subscribeExample.mp4",
+      "sha256": "4f479723bf2984468b0fc07b91c1871afccf3cb0281065245e02b25e12a2c7fd",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/textTool.png",
+      "sha256": "6b75220b8d41c43ca26c2a48163aab7d99dc28bf0f30bb2bbefc800410cde251",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/tour-genius-logo.png",
+      "sha256": "4ab78e4c4840b20df7265fffd7a2bfc7c7208f6bc1129737a1bdf9c9388b8a33",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/upgrade.png",
+      "sha256": "1e0b8ffd25d55b4d77bfff8ff3e814c85c401066a68cef75177dbab319af0140",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/video/banner2.webp",
+      "sha256": "ee5a4240220716f8d772d0e9ddf9d434101a3978f54fef50eb296d4b4af937ee",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/video/bannerModels.webp",
+      "sha256": "0c822066ca24d53e4cda4457b44b2aaf1813851eb913c581600ee05a13c19367",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/video/creativeEffectsCover.webp",
+      "sha256": "18b1d29f18054ac13cda44f90b27fec3e7e7c6f96699541218c09fecbcdb5c21",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/video/image2VideoCover.webp",
+      "sha256": "6600d76f3c344a7a48fe0039feb1894017f78616bc73ce01abddc9691f0e026b",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/video/text2ImageCover.webp",
+      "sha256": "7c0ac5c5d67f1c40585adc5d052e2a05ebfa4b321075f99c1134ae9a51dc8c79",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/video/venom.mp4",
+      "sha256": "5a875f3ae2850e057c54c37ee4726dbb5866b5adca35157e067f68069412251d",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/whatsApp.png",
+      "sha256": "10afff975112b92ca4de155630da4a2857dbbcb191d247aa5477ca288eac1847",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/global/src/static/zeroGpt.png",
+      "sha256": "470f1d5bfcce78f2359dc703ff122e09cc3955b713dc6cced097f797ba5e72f7",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/gmail.png",
+      "sha256": "d01e9073e6f490707ed00acccca7878319f07a191e609c46831ced4ebd9a0ac4",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/grammarCheck.mp4",
+      "sha256": "2be5bff5c27db2655a6ffcb8ebd516f9b16148d4f6ea4d44b1bbc4e6afe6c654",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/outlook.png",
+      "sha256": "af9d86925c87c2cd6d7f28a41ae4154f534dd97cddd46fa96a49e0aed677ab6c",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/pdf.worker.min.mjs",
+      "sha256": "a7cf858ab0bbe21a00ef438c24a4ef5833c3d05935a294382c8d0773a8958f50",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/searchEnhance/copilot.png",
+      "sha256": "342667aacbc5fa803656e7802defb9d994b2cb8645db2e276308c93e69524cfe",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/searchEnhance/fast.png",
+      "sha256": "798359a55a54d81fde577915fdc6f2571f36bf619a451f75c5f1cd6d98f92911",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/searchEnhance/gpt4SearchEnhance.png",
+      "sha256": "688eabdff754b29f9ec880ce814cfcde9cf4b5afe6a38c54f27e2ae232cf6258",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/tipArtifactTool.png",
+      "sha256": "cc2828de411b7bd8bdc6c1e7a7213bb2455ddab6b6c98556af514f82e459d9cf",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/tipArtifactToolActive.png",
+      "sha256": "87565fc420425a7cf0529f58bfaeddc5cc837fe9123edff049c76888b7791a48",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/tipBaseTool.png",
+      "sha256": "c3e8ca4d1f49e84003e86bd98d942256ca1f2f5919ae432531decc86f74281a5",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/tipBaseToolActive.png",
+      "sha256": "dc312338d72b58d6ab47675f404aba8d78de61d76a5e89de75d2e1c0dc05eda4",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/toolDetailDarkBg.png",
+      "sha256": "72a7822c8a2d4e58adf081826850eff141ef94941ce38d0742e0daed2b73d9aa",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/toolDetailLightBg.png",
+      "sha256": "6d89b5d9d5a707ec882ec9a8c7b2dc81362a3435377400043f185e97e10058d7",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/video/onboarding_tour_4.mp4",
+      "sha256": "bbe9422f606bb36bd8d311254a3e66a64ec681607451999bb103fb938e0e435f",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/window.png",
+      "sha256": "317e8c021f93cf52bb9a0434b31a154560eb617c4bd101c89eb5f8280b6af398",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/windowSelect.png",
+      "sha256": "fe353c812cf0f53b212d628f89fa29044a13e5dc75d20a586369016094d3fbdb",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/window_prompt.png",
+      "sha256": "816b6cd0a6de8dfaff2ea9b70e9831977cb571fb9095d39f1d82c7465a253880",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "static/youtube-injected-script.js",
+      "sha256": "03ac1acab4b96842407e529f1db61db4082b4d31aed12be6be11f22a8266ac2e",
+      "source": "monica-9.0.22-identical"
+    },
+    {
+      "path": "titan-zero-chat-content.compat.css",
+      "sha256": "bac75be20e6f66f1ea5291141a2067157687a764012c5fc8478ce6191f9e464c",
+      "source": "titan-compatibility-seam"
+    },
+    {
+      "path": "titan-zero-chat-content.compat.js",
+      "sha256": "7823c16665d37581e460b70d3e888db7d45786b6a5c5ca868214d5b3088ff441",
+      "source": "manager-merge44-post-adapter-content-css-retirement"
+    },
+    {
+      "path": "upgrade_dialog.webp",
+      "sha256": "92be5608b526b9ccaf158204c4508c77690f394c4dffd1a40713e38589412096",
+      "source": "monica-9.0.22-identical"
+    }
+  ],
+  "manager_refresh": {
+    "manager_merge": "20-all-pass-plus-concurrent-workforce",
+    "changed_hash_entries": 0,
+    "missing_paths": [],
+    "phase3_directive": "TZ-MGR-DONOR-SLIM-M42-003",
+    "phase3_retired_hashes_moved": 30
+  }
+}

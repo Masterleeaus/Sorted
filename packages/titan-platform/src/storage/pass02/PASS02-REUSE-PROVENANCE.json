@@ -1,0 +1,20 @@
+{
+  "schema": "titan-zero-storage-reuse-provenance/v1",
+  "packet_id": "TZ-FINISH-STORAGE-DATA-AUTHORITY-001",
+  "pass": 2,
+  "donors": [
+    "packages/titan-platform/src/ported/titan-local/storage/business-database.ts",
+    "packages/titan-platform/src/ported/titan-local/storage/schema.ts",
+    "packages/titan-platform/src/ported/titan-local/kernel/company-context.ts"
+  ],
+  "forward_ported_semantics": [
+    "company-prefixed keys",
+    "nested legacy-boundary rejection",
+    "nested company consistency checks",
+    "idempotency receipts",
+    "soft-delete/tombstone behavior",
+    "revision increments",
+    "device-first adapter abstraction"
+  ],
+  "rewrite_avoided": true
+}

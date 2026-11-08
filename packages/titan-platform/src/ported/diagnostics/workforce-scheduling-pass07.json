@@ -1,0 +1,23 @@
+{
+  "schema": "titan-zero-workforce-scheduling-pass07/v1",
+  "packet_id": "TZ-NEXT-004",
+  "pass": 7,
+  "manager_merge": 45,
+  "title": "Approval/escalation for risky or authority-sensitive reassignment",
+  "composition": [
+    "Pass6 cleaning assignment suggestions",
+    "DecisionRightsPolicy/evaluateDecisionRight",
+    "workforce graph",
+    "mission team/supervisor coordination evidence"
+  ],
+  "invariants": [
+    "company_id only",
+    "identity not authority",
+    "APPROVE/ESCALATE rights are not execution authority",
+    "scheduling blockers cannot be overridden",
+    "no automatic assignment/reassignment"
+  ],
+  "production_added": [
+    "titan-workforce/scheduling/scheduling-approval-escalation-runtime.mjs"
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "schema": "titan-zero-donor-consolidation/v1",
+  "manager_merge": 24,
+  "donor": "Titan Omni Nano Master V0.1.48.zip",
+  "status": "FINAL_USEFUL_SEMANTICS_ABSORBED",
+  "absorbed": [
+    "pause fence invalidates in-flight dispatch",
+    "cancel fence invalidates in-flight dispatch and clears retry scheduling"
+  ],
+  "adaptations": [
+    "integrated into existing titan-offline restart checkpoint authority",
+    "company_id only",
+    "TitanBusinessDatabase persistence",
+    "authority-neutral; no automatic execution or authority change"
+  ],
+  "rejected_as_duplicate_or_weaker": [
+    "donor standalone browser-plan runtime",
+    "donor PDF print surface",
+    "donor translation script",
+    "donor checkpoint/retry/pass-state implementations"
+  ],
+  "deletion_authorized": true
+}

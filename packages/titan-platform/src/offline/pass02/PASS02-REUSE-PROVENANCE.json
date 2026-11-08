@@ -1,0 +1,37 @@
+{
+  "schema": "titan-zero-offline-reuse-provenance/v1",
+  "packet_id": "TZ-FINISH-OFFLINE-RESILIENCE-001",
+  "pass": 2,
+  "dispositions": [
+    {
+      "source": "packages/titan-platform/src/ported/titan-offline/execution-receipts.ts",
+      "status": "ADAPTED",
+      "reused_semantics": [
+        "company-scoped receipts",
+        "prepared/terminal lifecycle",
+        "duplicate receipt lookup",
+        "authority neutrality"
+      ]
+    },
+    {
+      "source": "packages/titan-platform/src/ported/titan-offline/continuation-guard.ts",
+      "status": "ADAPTED",
+      "reused_semantics": [
+        "idempotency binding",
+        "duplicate-safe continuation",
+        "automatic effect replay disabled"
+      ]
+    },
+    {
+      "source": "packages/titan-platform/src/storage/repository.ts",
+      "status": "REUSED_DEPENDENCY",
+      "reused_semantics": [
+        "transactional company-scoped persistence",
+        "revision fencing",
+        "legacy boundary rejection"
+      ]
+    }
+  ],
+  "rewrite_avoided": true,
+  "parallel_storage_authority_created": false
+}

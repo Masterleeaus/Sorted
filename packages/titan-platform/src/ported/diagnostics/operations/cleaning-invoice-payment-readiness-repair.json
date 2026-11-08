@@ -1,0 +1,12 @@
+{
+  "schema": "titan.zero.cleaning-invoice-payment-readiness-repair.v1",
+  "packet_id": "TZ-NEXT-002",
+  "pass": 7,
+  "manager_base": 42,
+  "status": "PASS",
+  "problem": "Jobs completion could emit crm.invoice.create readiness, but the cleaning lifecycle had no certified continuity layer for invoice inputs, duplicate suppression, authoritative invoice receipt, and governed payment reconciliation readiness.",
+  "resolution": "Added an authority-neutral cleaning invoice/payment readiness planner that reuses existing crm.invoice.create and finance.payment.reconcile workflows, requires QA-ready completion, blocks incomplete invoice inputs, suppresses authoritative duplicate invoices, and exposes payment reconciliation only after an authoritative invoice receipt.",
+  "company_boundary": "company_id only",
+  "authority_change": false,
+  "financial_mutations_performed": false
+}

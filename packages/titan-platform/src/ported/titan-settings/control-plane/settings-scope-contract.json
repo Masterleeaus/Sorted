@@ -1,0 +1,121 @@
+{
+  "schema": "titan-zero-settings-scope-contract/v1",
+  "version": 1,
+  "pass": 23,
+  "status": "ACTIVE",
+  "company_boundary": "company_id",
+  "forbidden_company_boundary_aliases": [
+    "tenant_id",
+    "tenant_company_id"
+  ],
+  "non_global_scopes_require_company_id": true,
+  "identity_grants_authority": false,
+  "settings_scope_grants_authority": false,
+  "scope_precedence": [
+    "session",
+    "device",
+    "user",
+    "company",
+    "global"
+  ],
+  "scopes": {
+    "global": {
+      "required_dimensions": [],
+      "meaning": "Platform fallback/default that is not owned by a company, user, device or session.",
+      "storage_prefix": "tz.settings.global"
+    },
+    "company": {
+      "required_dimensions": [
+        "company_id"
+      ],
+      "meaning": "Company-specific configuration. company_id is the sole company boundary.",
+      "storage_prefix": "tz.settings.company"
+    },
+    "user": {
+      "required_dimensions": [
+        "company_id",
+        "user_id"
+      ],
+      "meaning": "A user's preference inside one company. user_id is a preference dimension, not a company authority boundary.",
+      "storage_prefix": "tz.settings.user"
+    },
+    "device": {
+      "required_dimensions": [
+        "company_id",
+        "device_id"
+      ],
+      "meaning": "A device preference inside one company. device_id cannot substitute for company_id.",
+      "storage_prefix": "tz.settings.device"
+    },
+    "session": {
+      "required_dimensions": [
+        "company_id",
+        "session_id"
+      ],
+      "meaning": "Temporary session-specific configuration inside one company. session_id cannot substitute for company_id.",
+      "storage_prefix": "tz.settings.session"
+    }
+  },
+  "canonical_storage_key": "tz.settings.<scope>.<scope dimensions>.<setting key>",
+  "compatibility_policy": "Legacy tenant identifiers may only be normalised by an explicit compatibility adapter before this scope runtime is called. This runtime never treats them as an independent authority boundary.",
+  "authority_policy": "Scope validation proves only where a preference belongs. Runtime policy, permissions, autonomy, risk and entitlements separately decide whether an action is permitted.",
+  "registry_scope_members": {
+    "global": [],
+    "company": [
+      "advancedIntelligenceBehaviour",
+      "aiBudgetControls",
+      "aiModelSelectionPolicy",
+      "approvalPolicySettings",
+      "autonomySettingsCentre",
+      "browserExecutionControls",
+      "mcpExternalToolGovernance",
+      "missionTeamSettings",
+      "notificationEscalationSettings",
+      "offlineSynchronisationSettings",
+      "privacyDataSettings",
+      "researchSettings",
+      "riskControlSettings",
+      "toolsPermissionsCentre",
+      "workforceAgentOverrides",
+      "workforceGlobalDefaults"
+    ],
+    "user": [
+      "agentMode",
+      "chatOptions",
+      "disableAutoScroll",
+      "userContext",
+      "userSkills",
+      "workflowShortcuts"
+    ],
+    "device": [
+      "aiCostRoutingPreferences",
+      "aiProviderFallbackPolicy",
+      "aiTitanManagedUsagePolicy",
+      "closeTabsAfterExecution",
+      "cloudScrapeEnabled",
+      "codePlanDataDoneReviewGate",
+      "codePlanTimeoutMinutes",
+      "consecutiveScrollDelay",
+      "creditCeiling",
+      "creditCeilingEnabled",
+      "creditToolsEnabled",
+      "enrichEnabled",
+      "extractionSpeed",
+      "freeModeEnabled",
+      "imageGenerationEnabled",
+      "maxParallelTabs",
+      "mcpExecutionsEnabled",
+      "networkToolExecutionMode",
+      "pageLoadDelay",
+      "privateMode",
+      "providerConfigs",
+      "remoteBrowserToolsConfig",
+      "requireMcpConfirmation",
+      "titanZeroTheme",
+      "titanZeroThemeConfig",
+      "webSearchEnabled"
+    ],
+    "session": []
+  },
+  "registry_member_count": 48
+}

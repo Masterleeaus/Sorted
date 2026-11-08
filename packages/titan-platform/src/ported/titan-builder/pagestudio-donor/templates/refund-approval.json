@@ -1,0 +1,32 @@
+{
+  "template": {
+    "id": "refund-approval",
+    "version": "1.0.0",
+    "name": "Refund Approval",
+    "status": "ready",
+    "category": "commerce",
+    "entry_wizard": "refund_approval_v1",
+    "capabilities": [
+      "commerce.refunds.approve"
+    ],
+    "channels": [
+      "chat",
+      "mobile",
+      "tablet",
+      "desktop",
+      "voice"
+    ],
+    "governance": {
+      "authority": "human_approval_over_500",
+      "offline": true
+    },
+    "metadata": {
+      "verticals": [
+        "ecommerce",
+        "retail",
+        "wholesale"
+      ],
+      "pack": "commerce_multi_vertical_2026_08"
+    }
+  }
+}

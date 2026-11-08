@@ -1,0 +1,29 @@
+{
+  "schema": "titan-zero-workforce-scheduling-pass05/v1",
+  "packet_id": "TZ-NEXT-004",
+  "pass": 5,
+  "manager_merge": 42,
+  "historical_semantics_reused": [
+    "double-booking detection",
+    "explicit unavailable-worker detection",
+    "travel-overlap detection only with supplied travel evidence",
+    "no inferred travel time",
+    "no synthetic calendar truth",
+    "no automatic reschedule"
+  ],
+  "current_lane_composition": [
+    "Pass2 availability/capacity eligibility",
+    "Pass3 verified skill/role/site candidate matching",
+    "Pass4 manager/supervisor/team hierarchy"
+  ],
+  "company_boundary": "company_id only",
+  "automatic_reschedule": false,
+  "execution_permitted": false,
+  "concurrent_pass04_checkpoint": {
+    "artifact": "Builder 1__TZ-NEXT-004__PASS04__CUMULATIVE-DELTA.zip",
+    "sha256": "a432a3495ece7b0a3353031da3a71cf6494c9ad9ec653427c8b35de03c056bce",
+    "assessment": "NOT_SELECTED_AS_STRONGER_PREDECESSOR",
+    "reason": "standalone cumulative test run produced 14 PASS / 1 FAIL because Pass2 test imports titan-workforce/graph/workforce-graph.mjs absent from that checkpoint",
+    "action": "leave artifact untouched for Manager; Pass5 checkpoint supersedes lane reconstruction with independently passing true-delta union"
+  }
+}

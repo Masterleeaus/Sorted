@@ -1,0 +1,20 @@
+{
+  "schema": "titan-zero-semantic-change/v1",
+  "pass": 22,
+  "area": "settings-control-plane/privacy-data",
+  "change": "ADDITIVE_CONTRACTIVE_POLICY_PROJECTION",
+  "summary": "Adds company-scoped privacyDataSettings over existing privateMode, Titan Intelligence cloud privacy defaults and Workforce privacy-evidence controls.",
+  "hard_invariants": [
+    "privateMode forces cloud off",
+    "cloud processing defaults off",
+    "sensitive cloud requires separate runtime gate",
+    "sensitive evidence minimisation remains mandatory",
+    "exports remain deny-by-default and approval/redaction governed",
+    "automatic hard deletion remains disabled",
+    "protected audit/authority history remains preserved",
+    "Settings does not export/delete/execute/grant authority"
+  ],
+  "runtime_files_modified": false,
+  "company_boundary": "company_id only",
+  "authority_change": false
+}

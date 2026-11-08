@@ -1,0 +1,30 @@
+{
+  "schema": "titan-zero-workforce-integration-handoff/v1",
+  "pass": 1,
+  "title": "Current-baseline Laravel Client Workforce gateway convergence",
+  "status": "PASS_READY_FOR_MANAGER_REVIEW",
+  "parent": {
+    "artifact": "Titan-Zero-v0.18.5-Manager-Canonical-Worker-Authority-Convergence-CUMULATIVE.zip",
+    "sha256": "cfd980e927b0611be3cb591a92a00c653e1e3f8c28b40f715d1accc68ecdeb6f"
+  },
+  "donor": {
+    "artifact": "Titan-Zero-v0.18.3-Laravel-Client-Workforce-Gateway-Convergence-CUMULATIVE.zip",
+    "sha256": "67ac020c58adf89f3b00132bf669d7af2b34471aa1b029e581695609618f74c2",
+    "true_delta": "Titan-Zero-v0.18.2-to-v0.18.3-Laravel-Client-Workforce-Gateway-Convergence-TRUE-DELTA.zip",
+    "delta_sha256": "e2819b4cd6d6265d4b0123b9445e9916bb9d2e75db452d430201d9e235a13d4b"
+  },
+  "integration_policy": {
+    "current_titan_zero_is_primary": true,
+    "wholesale_donor_overlay": false,
+    "reuse_existing_workforce_controls": true,
+    "side_panel_preserved": true,
+    "manifest_preserved": true,
+    "permissions_changed": false,
+    "company_boundary": "company_id",
+    "durable_workforce_authority": "Laravel Workforce",
+    "ui_grants_authority": false
+  },
+  "next_pass": 2,
+  "verification": "TITAN-ZERO-WORKFORCE-INTEGRATION-PASS01-VERIFICATION.json",
+  "plan": "docs/workforce/TITAN-WORKFORCE-INTEGRATION-UPGRADE-PLAN.md"
+}

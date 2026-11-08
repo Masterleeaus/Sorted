@@ -1,0 +1,12 @@
+=== @titan-zero imports ===
+
+=== Relative imports leaving workforce folders ===
+
+=== Current AI-FSM packages ===
+/home/admin/apps/ai-fsm/packages/log/package.json
+/home/admin/apps/ai-fsm/packages/money/package.json
+/home/admin/apps/ai-fsm/packages/email-templates/package.json
+/home/admin/apps/ai-fsm/packages/domain/package.json
+
+=== Existing Titan files in live app ===
+/home/admin/apps/ai-fsm/titan-donor/workforce/apps/web/app/components/titan-brand.tsx

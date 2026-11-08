@@ -1,0 +1,22 @@
+{
+  "schema": "titan-zero-semantic-change/v1",
+  "pass": 21,
+  "setting_key": "researchSettings",
+  "summary": "Company research policy projection over existing web search, cloud scrape and enrichment settings.",
+  "composes": [
+    "webSearchEnabled",
+    "cloudScrapeEnabled",
+    "enrichEnabled",
+    "RESEARCH_REQUESTS",
+    "Pass18 tool permissions",
+    "Pass8 budget/cost gates"
+  ],
+  "hard_invariants": [
+    "company_id only",
+    "device cannot exceed company ceiling",
+    "runtime/tool/cost gates remain authoritative",
+    "no credentials in generic Settings",
+    "no execution or authority granted",
+    "no ungrounded research-depth enum"
+  ]
+}

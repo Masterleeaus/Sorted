@@ -1,0 +1,254 @@
+import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
+import { withRole } from "../../../../../../lib/auth/middleware";
+import type { AuthSession } from "../../../../../../lib/auth/middleware";
+import { getPool } from "../../../../../../lib/db";
+import { appendAuditLog } from "../../../../../../lib/db/audit";
+import { logger } from "../../../../../../lib/logger";
+import { jobTransitions, jobStatusSchema, dueDateUponCompletion } from "@ai-fsm/domain";
+import type { JobStatus } from "@ai-fsm/domain";
+import { reviewJobIntakeGate } from "../../../../../../lib/jobs/intake-guard";
+import { createDraftFinalInvoiceForJob } from "../../../../../../lib/invoices/final-invoice";
+import { markLinkedBookingRequestConverted } from "../../../../../../lib/booking-requests/fulfill";
+
+export const dynamic = "force-dynamic";
+
+const transitionBody = z.object({
+  status: jobStatusSchema,
+});
+
+export const POST = withRole(
+  ["owner", "admin"],
+  async (request: NextRequest, session: AuthSession) => {
+    // Extract [id] from URL — HOF wrappers don't forward route params
+    const id = request.url.match(/\/jobs\/([^/]+)\/transition/)?.[1];
+
+    if (!id) {
+      return NextResponse.json(
+        { error: { code: "NOT_FOUND", message: "Job not found", traceId: session.traceId } },
+        { status: 404 }
+      );
+    }
+
+    const body = await request.json().catch(() => null);
+    const parsed = transitionBody.safeParse(body);
+
+    if (!parsed.success) {
+      return NextResponse.json(
+        {
+          error: {
+            code: "VALIDATION_ERROR",
+            message: "Invalid request body",
+            details: parsed.error.flatten().fieldErrors,
+            traceId: session.traceId,
+          },
+        },
+        { status: 422 }
+      );
+    }
+
+    const targetStatus = parsed.data.status as JobStatus;
+
+    const pool = getPool();
+    const client = await pool.connect();
+
+    try {
+      await client.query("BEGIN");
+      await client.query(
+        `SELECT set_config('app.current_user_id', $1, true), set_config('app.current_account_id', $2, true), set_config('app.current_role', $3, true)`,
+        [session.userId, session.accountId, session.role]
+      );
+
+      const existing = await client.query(
+        `SELECT * FROM jobs WHERE id = $1 AND account_id = $2 FOR UPDATE`,
+        [id, session.accountId]
+      );
+
+      if (!existing.rows[0]) {
+        await client.query("ROLLBACK");
+        return NextResponse.json(
+          { error: { code: "NOT_FOUND", message: "Job not found", traceId: session.traceId } },
+          { status: 404 }
+        );
+      }
+
+      const job = existing.rows[0];
+      const currentStatus = job.status as JobStatus;
+      const allowed = jobTransitions[currentStatus];
+
+      if (!allowed.includes(targetStatus)) {
+        await client.query("ROLLBACK");
+        return NextResponse.json(
+          {
+            error: {
+              code: "INVALID_TRANSITION",
+              message: `Cannot transition job from '${currentStatus}' to '${targetStatus}'`,
+              traceId: session.traceId,
+            },
+          },
+          { status: 422 }
+        );
+      }
+
+      // Intake gate: fires only on draft → quoted
+      let intakeWarning: string | null = null;
+      if (currentStatus === "draft" && targetStatus === "quoted") {
+        const gate = reviewJobIntakeGate(job);
+        if (gate.status === "blocked") {
+          await client.query("ROLLBACK");
+          return NextResponse.json(
+            {
+              error: {
+                code: "INTAKE_GATE_BLOCKED",
+                message: gate.blocker,
+                traceId: session.traceId,
+              },
+            },
+            { status: 409 }
+          );
+        }
+        intakeWarning = gate.warning;
+      }
+
+      const { rows } = await client.query(
+        `UPDATE jobs SET status = $1, updated_at = now() WHERE id = $2 AND account_id = $3 RETURNING *`,
+        [targetStatus, id, session.accountId]
+      );
+
+      const updated = rows[0];
+
+      // Owner explicit project completion → draft final invoice for billing review.
+      // Visits / work orders never complete the project or create this invoice.
+      let final_invoice_id: string | null = null;
+      let closedBecausePaid = false;
+      if (targetStatus === "completed") {
+        const { closeJobIfFullyPaid } = await import("@/lib/jobs/close-if-paid");
+        const paidClose = await closeJobIfFullyPaid(client, {
+          accountId: session.accountId,
+          jobId: id,
+          actorId: session.userId,
+          traceId: session.traceId,
+        });
+        if (paidClose?.to === "invoiced") {
+          closedBecausePaid = true;
+          updated.status = "invoiced";
+        }
+      }
+      if (targetStatus === "completed" && !closedBecausePaid) {
+        await client.query("SAVEPOINT before_final_invoice");
+        try {
+          const result = await createDraftFinalInvoiceForJob({
+            client,
+            jobId: id,
+            accountId: session.accountId,
+            userId: session.userId,
+            traceId: session.traceId,
+          });
+          final_invoice_id = result?.invoiceId ?? null;
+          await client.query("RELEASE SAVEPOINT before_final_invoice");
+        } catch (invoiceErr) {
+          await client.query("ROLLBACK TO SAVEPOINT before_final_invoice");
+          await client.query("RELEASE SAVEPOINT before_final_invoice");
+          logger.error("job completion: auto-create invoice draft failed (non-fatal)", invoiceErr, {
+            traceId: session.traceId,
+          });
+        }
+
+        // If a final/standard invoice already existed (or create returned null for
+        // empty line items), still surface the latest one so Complete & Invoice
+        // can land the owner on it.
+        if (!final_invoice_id) {
+          const existingInv = await client.query<{ id: string }>(
+            `SELECT id FROM invoices
+             WHERE job_id = $1 AND account_id = $2
+               AND invoice_kind IN ('final', 'standard')
+               AND status NOT IN ('cancelled', 'void')
+             ORDER BY
+               CASE status WHEN 'draft' THEN 0 ELSE 1 END,
+               created_at DESC
+             LIMIT 1`,
+            [id, session.accountId]
+          );
+          final_invoice_id = existingInv.rows[0]?.id ?? null;
+        }
+
+        // TASK-078: "due upon completion" — now that the job is complete, fill the
+        // due date on its standard/final invoices that were left open (NULL) while
+        // the work was in progress. The one-time NULL→value fill is allowed by the
+        // immutability trigger (migration 149). Deposits are excluded (due now).
+        await client.query(
+          `UPDATE invoices
+             SET due_date = $3::timestamptz, updated_at = now()
+           WHERE job_id = $1 AND account_id = $2
+             AND due_date IS NULL
+             AND invoice_kind IN ('standard', 'final')
+             -- Only non-terminal invoices: the immutability trigger (149) rejects
+             -- any update to a paid/void invoice, so filling one would 500.
+             AND status IN ('draft', 'sent', 'partial', 'overdue')`,
+          [id, session.accountId, dueDateUponCompletion()],
+        );
+      }
+
+      // Finish the intake request as converted (not cancelled) when work is done.
+      if (targetStatus === "completed" || targetStatus === "invoiced") {
+        try {
+          await markLinkedBookingRequestConverted(client, {
+            accountId: session.accountId,
+            jobId: id,
+            userId: session.userId,
+            note: `Auto-converted: project moved to ${targetStatus}.`,
+          });
+        } catch (brErr) {
+          logger.error("job transition: mark booking converted failed (non-fatal)", brErr, {
+            traceId: session.traceId,
+            jobId: id,
+          });
+        }
+      }
+
+      await appendAuditLog(client, {
+        account_id: session.accountId,
+        entity_type: "job",
+        entity_id: id,
+        action: "update",
+        actor_id: session.userId,
+        trace_id: session.traceId,
+        old_value: { status: currentStatus },
+        new_value: {
+          status: closedBecausePaid ? "invoiced" : targetStatus,
+          final_invoice_id,
+        },
+      });
+
+      await client.query("COMMIT");
+
+      const response: Record<string, unknown> = { data: updated };
+      if (final_invoice_id) {
+        response.final_invoice_id = final_invoice_id;
+      }
+      if (closedBecausePaid) {
+        response.job_status = "invoiced";
+        response.closed_because_paid = true;
+      }
+      if (intakeWarning) {
+        response.warning = intakeWarning;
+      }
+      return NextResponse.json(response);
+    } catch (err) {
+      await client.query("ROLLBACK");
+      logger.error("[jobs transition POST]", err, { traceId: session.traceId });
+      return NextResponse.json(
+        {
+          error: {
+            code: "INTERNAL_ERROR",
+            message: "Failed to transition job",
+            traceId: session.traceId,
+          },
+        },
+        { status: 500 }
+      );
+    } finally {
+      client.release();
+    }
+  }
+);

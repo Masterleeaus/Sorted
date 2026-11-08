@@ -1,0 +1,1007 @@
+{
+  "schema": "titan-zero.ui-runtime-preservation-baseline/v1",
+  "packet_id": "TZ-WP-004",
+  "incident": "TZ-REGRESSION-005",
+  "pass": 1,
+  "purpose": "Protect original Monica-derived UI and Retriever execution reachability before any restoration edits.",
+  "canonical": {
+    "artifact": "Titan-Zero-v0.18.5-Manager-Canonical-Worker-Authority-Convergence-CUMULATIVE.zip",
+    "sha256": "cfd980e927b0611be3cb591a92a00c653e1e3f8c28b40f715d1accc68ecdeb6f",
+    "file_count": 1024,
+    "manifest_version": "0.18.2",
+    "side_panel": "sidePanel.html"
+  },
+  "donor": {
+    "artifact": "Monica-All-In-One-AI-Assist-v9.0.22.zip",
+    "sha256": "e5697224ed53a59a44f74e95daf9e328ff0253733efdd92e3f47e56946cb02c2",
+    "version": "9.0.22",
+    "product_files_inspected": 563,
+    "excluded_metadata_manifests": [
+      "manifest.v2.json",
+      "manifest.v3.json"
+    ]
+  },
+  "comparison": {
+    "identical": 499,
+    "different": 3,
+    "missing": 61,
+    "different_files": [
+      {
+        "donor_path": "manifest.json",
+        "canonical_path": "manifest.json"
+      },
+      {
+        "donor_path": "monicaPopup.html",
+        "canonical_path": "monicaPopup.html"
+      },
+      {
+        "donor_path": "sidePanel.html",
+        "canonical_path": "sidePanel.html"
+      }
+    ],
+    "missing_categories": {
+      "locales": 55,
+      "fonts": 4,
+      "metadata": 2,
+      "other": 0
+    },
+    "renamed_equivalence_map": {
+      "background.js": "monica-background.js",
+      "content.js": "monica-content.js",
+      "content.css": "monica-content.css",
+      "monicaPopup.js": "monica-popup.js",
+      "monicaPopup.css": "monica-popup.css"
+    }
+  },
+  "launch_surfaces": {
+    "toolbar_popup": {
+      "donor": "monicaPopup.html",
+      "current": "titan-popup.html -> monicaPopup.html explicit first-class route",
+      "state": "RESTORED",
+      "recovery_gate": "Toolbar action must expose the preserved Monica popup UI directly or through an explicit reachable Titan wrapper."
+    },
+    "options": {
+      "donor": "monicaOptions.html",
+      "current": "monicaOptions.html",
+      "state": "RESTORED",
+      "recovery_gate": "monicaOptions.html must be registered or explicitly reachable from an equivalent first-class settings route."
+    },
+    "commands": {
+      "donor": [
+        "_execute_action",
+        "run-monica-on-new-tab"
+      ],
+      "current": [
+        "_execute_action",
+        "run-monica-on-new-tab"
+      ],
+      "state": "RESTORED",
+      "recovery_gate": "Equivalent keyboard/new-tab launch commands must be registered without removing Titan commands."
+    },
+    "conversation_side_panel": {
+      "donor": "sidePanel.html -> content.css + content.js",
+      "current": "sidePanel.html -> Titan shell + titan-zero-chat-content.compat.js",
+      "state": "RESTORED",
+      "recovery_gate": "The preserved Monica conversation/home/tools runtime must be reachable as a first-class side-panel surface while Titan Business/Workforce remain available."
+    },
+    "webpage_assistant_overlay": {
+      "donor_content_script": [
+        "content.js"
+      ],
+      "current_content_scripts": [
+        "content/all.iife.js",
+        "content-main/all.iife.js",
+        "titan-zero-chat-content.compat.js",
+        "titan-diagnostics-content.js"
+      ],
+      "state": "PARTIAL_UNPROVEN",
+      "recovery_gate": "Original Monica overlay feature families must be proved reachable on DOM fixtures; file presence alone is insufficient."
+    },
+    "chat_tab": {
+      "donor": "chatTab.html",
+      "current": "chatTab.html",
+      "state": "PRESERVED_FILE_REACHABILITY_UNPROVEN"
+    },
+    "retriever_background": {
+      "current": "compatibility/monica/background-runtime-boundary.mjs -> retriever-background.iife.js",
+      "state": "REACHABLE_COMPATIBILITY_BOUNDARY"
+    },
+    "retriever_side_panel": {
+      "current": "Titan Agent first-class tab -> side-panel/index.html; Titan Work bridge retained",
+      "state": "RESTORED_FIRST_CLASS",
+      "recovery_gate": "Full Retriever side-panel runtime must be directly navigable as a primary Agent surface while the existing Work bridge remains available."
+    },
+    "retriever_offscreen": {
+      "current": "offscreen/index.html + unifiedFunctionExecutor bundle",
+      "state": "PRESERVED_RUNTIME_REACHABILITY_UNPROVEN"
+    }
+  },
+  "monica_feature_families": [
+    {
+      "id": "conversation_home_tools",
+      "status": "REGRESSED_LAUNCH"
+    },
+    {
+      "id": "toolbar_popup",
+      "status": "REGRESSED_LAUNCH"
+    },
+    {
+      "id": "options",
+      "status": "REGRESSED_LAUNCH"
+    },
+    {
+      "id": "keyboard_and_new_tab_commands",
+      "status": "REGRESSED_LAUNCH"
+    },
+    {
+      "id": "webpage_assistant_overlays",
+      "status": "PARTIAL_UNPROVEN"
+    },
+    {
+      "id": "chat_tab",
+      "status": "PRESERVED_FILE"
+    },
+    {
+      "id": "localization",
+      "status": "MISSING_55_LOCALES"
+    },
+    {
+      "id": "fonts",
+      "status": "MISSING_4_FONTS"
+    }
+  ],
+  "retriever_capability_families": {
+    "browser_actions": {
+      "evidence_count": 16,
+      "evidence": [
+        {
+          "path": "retriever-background.iife.js",
+          "terms": [
+            "browser action",
+            "click",
+            "scroll",
+            "navigate"
+          ]
+        },
+        {
+          "path": "side-panel/titan-retriever-bridge.js",
+          "terms": [
+            "click"
+          ]
+        },
+        {
+          "path": "side-panel/assets/vendor-CRCSbEcK.js",
+          "terms": [
+            "click",
+            "scroll",
+            "navigate"
+          ]
+        },
+        {
+          "path": "side-panel/assets/workflowSandboxPool-C43aNRZy.js",
+          "terms": [
+            "navigate"
+          ]
+        },
+        {
+          "path": "side-panel/assets/storageUtils-CrD87Pln.js",
+          "terms": [
+            "scroll"
+          ]
+        },
+        {
+          "path": "side-panel/assets/index-C8c-GDqp.js",
+          "terms": [
+            "browser action",
+            "click",
+            "scroll",
+            "navigate"
+          ]
+        },
+        {
+          "path": "side-panel/assets/userSettingsService-BbHxwq7x.js",
+          "terms": [
+            "scroll"
+          ]
+        },
+        {
+          "path": "side-panel/assets/index-DmDSrWNU.js",
+          "terms": [
+            "click",
+            "scroll"
+          ]
+        },
+        {
+          "path": "side-panel/assets/index-DoGUjCY-.js",
+          "terms": [
+            "navigate"
+          ]
+        },
+        {
+          "path": "side-panel/assets/index-CBmBD00K.js",
+          "terms": [
+            "click",
+            "scroll"
+          ]
+        },
+        {
+          "path": "offscreen/assets/index-4v886BK9.js",
+          "terms": [
+            "navigate"
+          ]
+        },
+        {
+          "path": "offscreen/assets/index-CS09ynNq.js",
+          "terms": [
+            "click",
+            "scroll"
+          ]
+        }
+      ]
+    },
+    "crawl_extract": {
+      "evidence_count": 20,
+      "evidence": [
+        {
+          "path": "retriever-background.iife.js",
+          "terms": [
+            "crawl",
+            "extract",
+            "scrape"
+          ]
+        },
+        {
+          "path": "side-panel/assets/vendor-CRCSbEcK.js",
+          "terms": [
+            "extract"
+          ]
+        },
+        {
+          "path": "side-panel/assets/storageUtils-CrD87Pln.js",
+          "terms": [
+            "extract",
+            "scrape"
+          ]
+        },
+        {
+          "path": "side-panel/assets/index-C8c-GDqp.js",
+          "terms": [
+            "crawl",
+            "extract",
+            "scrape"
+          ]
+        },
+        {
+          "path": "side-panel/assets/codePlanAgent-Bw8EfqoC.js",
+          "terms": [
+            "extract",
+            "scrape"
+          ]
+        },
+        {
+          "path": "side-panel/assets/userSettingsService-BbHxwq7x.js",
+          "terms": [
+            "extract",
+            "scrape"
+          ]
+        },
+        {
+          "path": "side-panel/assets/index-DmDSrWNU.js",
+          "terms": [
+            "extract"
+          ]
+        },
+        {
+          "path": "side-panel/assets/index-DoGUjCY-.js",
+          "terms": [
+            "extract"
+          ]
+        },
+        {
+          "path": "side-panel/assets/auth-manager-CpMXLbRb.js",
+          "terms": [
+            "crawl",
+            "extract",
+            "scrape"
+          ]
+        },
+        {
+          "path": "side-panel/assets/index-CBmBD00K.js",
+          "terms": [
+            "extract"
+          ]
+        },
+        {
+          "path": "side-panel/assets/vendor-firebase-DmzjWjiQ.js",
+          "terms": [
+            "extract"
+          ]
+        },
+        {
+          "path": "side-panel/assets/file-upload-utils-tcH63QNg.js",
+          "terms": [
+            "extract"
+          ]
+        }
+      ]
+    },
+    "structured_data": {
+      "evidence_count": 27,
+      "evidence": [
+        {
+          "path": "retriever-background.iife.js",
+          "terms": [
+            "structured data",
+            "json",
+            "table"
+          ]
+        },
+        {
+          "path": "side-panel/titan-retriever-bridge.js",
+          "terms": [
+            "table"
+          ]
+        },
+        {
+          "path": "side-panel/assets/vendor-CRCSbEcK.js",
+          "terms": [
+            "json",
+            "table"
+          ]
+        },
+        {
+          "path": "side-panel/assets/workflowSandboxPool-C43aNRZy.js",
+          "terms": [
+            "json",
+            "table"
+          ]
+        },
+        {
+          "path": "side-panel/assets/storageUtils-CrD87Pln.js",
+          "terms": [
+            "table"
+          ]
+        },
+        {
+          "path": "side-panel/assets/index-C8c-GDqp.js",
+          "terms": [
+            "structured data",
+            "json",
+            "table"
+          ]
+        },
+        {
+          "path": "side-panel/assets/codePlanAgent-Bw8EfqoC.js",
+          "terms": [
+            "json",
+            "table"
+          ]
+        },
+        {
+          "path": "side-panel/assets/userSettingsService-BbHxwq7x.js",
+          "terms": [
+            "table"
+          ]
+        },
+        {
+          "path": "side-panel/assets/index-DmDSrWNU.js",
+          "terms": [
+            "json",
+            "table"
+          ]
+        },
+        {
+          "path": "side-panel/assets/skillStorageService-LGvOYmp_.js",
+          "terms": [
+            "json",
+            "table"
+          ]
+        },
+        {
+          "path": "side-panel/assets/index-DoGUjCY-.js",
+          "terms": [
+            "json",
+            "table"
+          ]
+        },
+        {
+          "path": "side-panel/assets/auth-manager-CpMXLbRb.js",
+          "terms": [
+            "json",
+            "table"
+          ]
+        }
+      ]
+    },
+    "sheets": {
+      "evidence_count": 13,
+      "evidence": [
+        {
+          "path": "retriever-background.iife.js",
+          "terms": [
+            "google sheets",
+            "sheet",
+            "spreadsheet"
+          ]
+        },
+        {
+          "path": "side-panel/assets/vendor-CRCSbEcK.js",
+          "terms": [
+            "sheet",
+            "spreadsheet"
+          ]
+        },
+        {
+          "path": "side-panel/assets/index-C8c-GDqp.js",
+          "terms": [
+            "google sheets",
+            "sheet",
+            "spreadsheet"
+          ]
+        },
+        {
+          "path": "side-panel/assets/codePlanAgent-Bw8EfqoC.js",
+          "terms": [
+            "google sheets",
+            "sheet",
+            "spreadsheet"
+          ]
+        },
+        {
+          "path": "side-panel/assets/index-DmDSrWNU.js",
+          "terms": [
+            "sheet"
+          ]
+        },
+        {
+          "path": "side-panel/assets/auth-manager-CpMXLbRb.js",
+          "terms": [
+            "sheet"
+          ]
+        },
+        {
+          "path": "side-panel/assets/index-BzklHw8Q.js",
+          "terms": [
+            "sheet"
+          ]
+        },
+        {
+          "path": "offscreen/assets/skill-types-DTME2ioz.js",
+          "terms": [
+            "sheet"
+          ]
+        },
+        {
+          "path": "offscreen/assets/auth-manager-pH2QX7Jc.js",
+          "terms": [
+            "sheet"
+          ]
+        },
+        {
+          "path": "offscreen/assets/index-B1QDSbwU.js",
+          "terms": [
+            "google sheets",
+            "sheet",
+            "spreadsheet"
+          ]
+        },
+        {
+          "path": "offscreen/assets/index-BzYwgI7n.js",
+          "terms": [
+            "sheet"
+          ]
+        },
+        {
+          "path": "offscreen/assets/index-D08rqSxx.js",
+          "terms": [
+            "google sheets",
+            "sheet",
+            "spreadsheet"
+          ]
+        }
+      ]
+    },
+    "pdf": {
+      "evidence_count": 9,
+      "evidence": [
+        {
+          "path": "retriever-background.iife.js",
+          "terms": [
+            "pdf"
+          ]
+        },
+        {
+          "path": "side-panel/assets/index-C8c-GDqp.js",
+          "terms": [
+            "pdf"
+          ]
+        },
+        {
+          "path": "side-panel/assets/codePlanAgent-Bw8EfqoC.js",
+          "terms": [
+            "pdf"
+          ]
+        },
+        {
+          "path": "side-panel/assets/index-DmDSrWNU.js",
+          "terms": [
+            "pdf"
+          ]
+        },
+        {
+          "path": "side-panel/assets/index-CBmBD00K.js",
+          "terms": [
+            "pdf"
+          ]
+        },
+        {
+          "path": "offscreen/assets/index-CS09ynNq.js",
+          "terms": [
+            "pdf"
+          ]
+        },
+        {
+          "path": "offscreen/assets/index-B1QDSbwU.js",
+          "terms": [
+            "pdf"
+          ]
+        },
+        {
+          "path": "offscreen/assets/index-D08rqSxx.js",
+          "terms": [
+            "pdf"
+          ]
+        },
+        {
+          "path": "offscreen/assets/unifiedFunctionExecutor-4UtoSB3u.js",
+          "terms": [
+            "pdf"
+          ]
+        }
+      ]
+    },
+    "docs_slides": {
+      "evidence_count": 9,
+      "evidence": [
+        {
+          "path": "retriever-background.iife.js",
+          "terms": [
+            "google docs",
+            "docs",
+            "slides",
+            "presentation"
+          ]
+        },
+        {
+          "path": "side-panel/assets/vendor-CRCSbEcK.js",
+          "terms": [
+            "docs",
+            "presentation"
+          ]
+        },
+        {
+          "path": "side-panel/assets/index-C8c-GDqp.js",
+          "terms": [
+            "google docs",
+            "docs",
+            "slides",
+            "presentation"
+          ]
+        },
+        {
+          "path": "side-panel/assets/codePlanAgent-Bw8EfqoC.js",
+          "terms": [
+            "docs",
+            "slides"
+          ]
+        },
+        {
+          "path": "side-panel/assets/index-DmDSrWNU.js",
+          "terms": [
+            "slides"
+          ]
+        },
+        {
+          "path": "side-panel/assets/vendor-firebase-DmzjWjiQ.js",
+          "terms": [
+            "docs"
+          ]
+        },
+        {
+          "path": "offscreen/assets/index-B1QDSbwU.js",
+          "terms": [
+            "docs",
+            "slides",
+            "presentation"
+          ]
+        },
+        {
+          "path": "offscreen/assets/index-D08rqSxx.js",
+          "terms": [
+            "google docs",
+            "docs",
+            "slides",
+            "presentation"
+          ]
+        },
+        {
+          "path": "offscreen/assets/unifiedFunctionExecutor-4UtoSB3u.js",
+          "terms": [
+            "docs",
+            "slides",
+            "presentation"
+          ]
+        }
+      ]
+    },
+    "webpage_creation": {
+      "evidence_count": 17,
+      "evidence": [
+        {
+          "path": "retriever-background.iife.js",
+          "terms": [
+            "webpage",
+            "html"
+          ]
+        },
+        {
+          "path": "side-panel/titan-retriever-bridge.js",
+          "terms": [
+            "html"
+          ]
+        },
+        {
+          "path": "side-panel/assets/vendor-CRCSbEcK.js",
+          "terms": [
+            "html"
+          ]
+        },
+        {
+          "path": "side-panel/assets/workflowSandboxPool-C43aNRZy.js",
+          "terms": [
+            "html"
+          ]
+        },
+        {
+          "path": "side-panel/assets/index-C8c-GDqp.js",
+          "terms": [
+            "webpage",
+            "html"
+          ]
+        },
+        {
+          "path": "side-panel/assets/codePlanAgent-Bw8EfqoC.js",
+          "terms": [
+            "webpage",
+            "html"
+          ]
+        },
+        {
+          "path": "side-panel/assets/index-DmDSrWNU.js",
+          "terms": [
+            "html"
+          ]
+        },
+        {
+          "path": "side-panel/assets/index-DoGUjCY-.js",
+          "terms": [
+            "webpage",
+            "html"
+          ]
+        },
+        {
+          "path": "side-panel/assets/index-CBmBD00K.js",
+          "terms": [
+            "webpage",
+            "html"
+          ]
+        },
+        {
+          "path": "side-panel/assets/file-upload-utils-tcH63QNg.js",
+          "terms": [
+            "html"
+          ]
+        },
+        {
+          "path": "offscreen/assets/index-4v886BK9.js",
+          "terms": [
+            "webpage",
+            "html"
+          ]
+        },
+        {
+          "path": "offscreen/assets/index-CS09ynNq.js",
+          "terms": [
+            "webpage",
+            "html"
+          ]
+        }
+      ]
+    },
+    "custom_tools": {
+      "evidence_count": 23,
+      "evidence": [
+        {
+          "path": "retriever-background.iife.js",
+          "terms": [
+            "custom tool",
+            "tool"
+          ]
+        },
+        {
+          "path": "side-panel/assets/vendor-CRCSbEcK.js",
+          "terms": [
+            "tool"
+          ]
+        },
+        {
+          "path": "side-panel/assets/workflowSandboxPool-C43aNRZy.js",
+          "terms": [
+            "tool"
+          ]
+        },
+        {
+          "path": "side-panel/assets/storageUtils-CrD87Pln.js",
+          "terms": [
+            "tool"
+          ]
+        },
+        {
+          "path": "side-panel/assets/index-C8c-GDqp.js",
+          "terms": [
+            "custom tool",
+            "tool"
+          ]
+        },
+        {
+          "path": "side-panel/assets/codePlanAgent-Bw8EfqoC.js",
+          "terms": [
+            "tool"
+          ]
+        },
+        {
+          "path": "side-panel/assets/userSettingsService-BbHxwq7x.js",
+          "terms": [
+            "tool"
+          ]
+        },
+        {
+          "path": "side-panel/assets/index-DmDSrWNU.js",
+          "terms": [
+            "tool"
+          ]
+        },
+        {
+          "path": "side-panel/assets/index-DoGUjCY-.js",
+          "terms": [
+            "tool"
+          ]
+        },
+        {
+          "path": "side-panel/assets/auth-manager-CpMXLbRb.js",
+          "terms": [
+            "tool"
+          ]
+        },
+        {
+          "path": "side-panel/assets/index-CBmBD00K.js",
+          "terms": [
+            "tool"
+          ]
+        },
+        {
+          "path": "side-panel/assets/vendor-firebase-DmzjWjiQ.js",
+          "terms": [
+            "tool"
+          ]
+        }
+      ]
+    },
+    "multi_tool_execution": {
+      "evidence_count": 17,
+      "evidence": [
+        {
+          "path": "retriever-background.iife.js",
+          "terms": [
+            "workflow"
+          ]
+        },
+        {
+          "path": "side-panel/titan-retriever-bridge.js",
+          "terms": [
+            "workflow"
+          ]
+        },
+        {
+          "path": "side-panel/assets/workflowSandboxPool-C43aNRZy.js",
+          "terms": [
+            "workflow"
+          ]
+        },
+        {
+          "path": "side-panel/assets/storageUtils-CrD87Pln.js",
+          "terms": [
+            "workflow"
+          ]
+        },
+        {
+          "path": "side-panel/assets/index-C8c-GDqp.js",
+          "terms": [
+            "workflow"
+          ]
+        },
+        {
+          "path": "side-panel/assets/codePlanAgent-Bw8EfqoC.js",
+          "terms": [
+            "workflow"
+          ]
+        },
+        {
+          "path": "side-panel/assets/userSettingsService-BbHxwq7x.js",
+          "terms": [
+            "workflow"
+          ]
+        },
+        {
+          "path": "side-panel/assets/index-DmDSrWNU.js",
+          "terms": [
+            "workflow"
+          ]
+        },
+        {
+          "path": "side-panel/assets/index-DoGUjCY-.js",
+          "terms": [
+            "workflow"
+          ]
+        },
+        {
+          "path": "side-panel/assets/auth-manager-CpMXLbRb.js",
+          "terms": [
+            "workflow"
+          ]
+        },
+        {
+          "path": "offscreen/assets/index-4v886BK9.js",
+          "terms": [
+            "workflow"
+          ]
+        },
+        {
+          "path": "offscreen/assets/auth-manager-pH2QX7Jc.js",
+          "terms": [
+            "workflow"
+          ]
+        }
+      ]
+    },
+    "schedules_triggers": {
+      "evidence_count": 15,
+      "evidence": [
+        {
+          "path": "retriever-background.iife.js",
+          "terms": [
+            "schedule",
+            "trigger",
+            "cron",
+            "alarm"
+          ]
+        },
+        {
+          "path": "side-panel/assets/vendor-CRCSbEcK.js",
+          "terms": [
+            "schedule"
+          ]
+        },
+        {
+          "path": "side-panel/assets/storageUtils-CrD87Pln.js",
+          "terms": [
+            "schedule",
+            "trigger"
+          ]
+        },
+        {
+          "path": "side-panel/assets/index-C8c-GDqp.js",
+          "terms": [
+            "schedule",
+            "trigger",
+            "cron",
+            "alarm"
+          ]
+        },
+        {
+          "path": "side-panel/assets/codePlanAgent-Bw8EfqoC.js",
+          "terms": [
+            "trigger"
+          ]
+        },
+        {
+          "path": "side-panel/assets/userSettingsService-BbHxwq7x.js",
+          "terms": [
+            "schedule",
+            "trigger"
+          ]
+        },
+        {
+          "path": "side-panel/assets/index-DmDSrWNU.js",
+          "terms": [
+            "schedule",
+            "trigger",
+            "alarm"
+          ]
+        },
+        {
+          "path": "side-panel/assets/auth-manager-CpMXLbRb.js",
+          "terms": [
+            "schedule",
+            "trigger"
+          ]
+        },
+        {
+          "path": "side-panel/assets/vendor-firebase-DmzjWjiQ.js",
+          "terms": [
+            "schedule",
+            "trigger"
+          ]
+        },
+        {
+          "path": "side-panel/assets/index-BzklHw8Q.js",
+          "terms": [
+            "schedule",
+            "alarm"
+          ]
+        },
+        {
+          "path": "offscreen/assets/auth-manager-pH2QX7Jc.js",
+          "terms": [
+            "schedule",
+            "trigger"
+          ]
+        },
+        {
+          "path": "offscreen/assets/index-B1QDSbwU.js",
+          "terms": [
+            "schedule",
+            "trigger",
+            "cron",
+            "alarm"
+          ]
+        }
+      ]
+    }
+  },
+  "expected_current_regression_gates": [],
+  "protected_hash_inventory": "PROTECTED-RUNTIME-HASHES.json",
+  "full_donor_comparison": "MONICA-DONOR-COMPARISON.json",
+  "rules": {
+    "restore_before_retire": true,
+    "file_presence_is_not_feature_reachability": true,
+    "preserve_titan_business_workforce_ui": true,
+    "company_boundary": "company_id",
+    "compatibility_grants_authority": false,
+    "zero_deletions_until_parity": true
+  },
+  "recovery_progress": {
+    "pass": 4,
+    "status": "REACHABILITY_RESTORED_STATIC_GATE",
+    "remaining_reachability_failures": [],
+    "note": "Live unpacked browser parity remains a final packet gate; Pass 4 restores manifest reachability for the exact retained content overlay runtime."
+  },
+  "retriever_capability_breadth": {
+    "status": "RESTORED_REACHABLE",
+    "catalog": "retriever-capability-catalog.json",
+    "surface": "agent",
+    "capability_families": [
+      "browser_actions",
+      "crawl_extract",
+      "structured_data",
+      "sheets",
+      "pdf",
+      "docs_slides_web",
+      "custom_tools",
+      "multi_tool",
+      "schedules",
+      "triggers"
+    ],
+    "authority": "UNCHANGED"
+  }
+}

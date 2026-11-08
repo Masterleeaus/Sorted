@@ -1,0 +1,26 @@
+{
+  "schema": "titan-trusted-publishers/v1",
+  "publishers": [
+    {
+      "id": "titan.zero.official",
+      "name": "Titan Zero Official",
+      "keys": [
+        {
+          "id": "release-2026-09",
+          "algorithm": "ECDSA-P256-SHA256",
+          "jwk": {
+            "key_ops": [
+              "verify"
+            ],
+            "ext": true,
+            "kty": "EC",
+            "x": "rmdAs2jRLohJt4pWqeBwSi_Yl8ryaC8t4xIuW20bIFo",
+            "y": "k5vFfpfN_wr2cls8Tb3esix1a88M-OpX01Tm2hPm4ss",
+            "crv": "P-256"
+          },
+          "status": "active"
+        }
+      ]
+    }
+  ]
+}

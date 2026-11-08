@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "titan.workforce.customer-care.human-review.v1",
+  "type": "object",
+  "required": ["schema", "company_id", "review_id", "case_id", "review_class", "state", "proposal", "authority_granted", "execution_permitted"],
+  "properties": {
+    "schema": {"const": "titan.workforce.customer-care.human-review.v1"},
+    "company_id": {"type": "string", "minLength": 1},
+    "review_id": {"type": "string", "minLength": 1},
+    "case_id": {"type": ["string", "null"]},
+    "review_class": {"enum": ["REFUND", "CREDIT", "FREE_REWORK", "LEGAL_SAFETY", "ABUSIVE_INTERACTION", "HIGH_VALUE_CUSTOMER", "GENERAL"]},
+    "state": {"enum": ["WAITING", "APPROVED", "REJECTED", "EXPIRED", "SUPERSEDED"]},
+    "proposal": {"type": "object"},
+    "authority_granted": {"const": false},
+    "execution_permitted": {"const": false},
+    "grants_authority": {"const": false}
+  },
+  "additionalProperties": true
+}

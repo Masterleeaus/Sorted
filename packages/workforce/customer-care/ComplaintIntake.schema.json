@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "titan://workforce/customer-care/ComplaintIntake/v1",
+  "title": "Titan Zero Customer Care Complaint Intake",
+  "type": "object",
+  "required": [
+    "schema", "company_id", "intake_id", "customer_id", "source_event_type",
+    "source_event_id", "dedupe_key", "state", "evidence", "authority_granted", "execution_permitted"
+  ],
+  "properties": {
+    "schema": {"const": "titan.workforce.customer-care.complaint-intake.v1"},
+    "company_id": {"type": "string", "minLength": 1},
+    "intake_id": {"type": "string", "minLength": 1},
+    "customer_id": {"type": "string", "minLength": 1},
+    "job_id": {"type": ["string", "null"]},
+    "location_id": {"type": ["string", "null"]},
+    "invoice_id": {"type": ["string", "null"]},
+    "conversation_id": {"type": ["string", "null"]},
+    "source_event_type": {"enum": ["complaint.received", "customer.message.received"]},
+    "source_event_id": {"type": "string", "minLength": 1},
+    "dedupe_key": {"type": "string", "minLength": 1},
+    "state": {"const": "OPEN"},
+    "sentiment": {"enum": ["POSITIVE", "NEUTRAL", "NEGATIVE", "UNKNOWN"]},
+    "issue_class": {"enum": ["NONE", "QUALITY", "DELAY", "COMMUNICATION", "BILLING", "SAFETY", "PRIVACY", "PROPERTY_DAMAGE", "OTHER"]},
+    "severity": {"enum": ["LOW", "MEDIUM", "HIGH", "CRITICAL"]},
+    "evidence": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["ref_id", "kind", "immutable"],
+        "properties": {
+          "ref_id": {"type": "string", "minLength": 1},
+          "kind": {"type": "string", "minLength": 1},
+          "channel": {"type": ["string", "null"]},
+          "message_id": {"type": ["string", "null"]},
+          "content_hash": {"type": ["string", "null"]},
+          "captured_at": {"type": ["string", "number", "null"]},
+          "immutable": {"const": true}
+        },
+        "additionalProperties": false
+      }
+    },
+    "authority_granted": {"const": false},
+    "execution_permitted": {"const": false}
+  },
+  "additionalProperties": true
+}

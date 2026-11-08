@@ -1,0 +1,16 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema",
+  "$id":"titan.workforce.starter.invoicing.payment-monitoring.v1",
+  "title":"Titan Zero Starter Invoicing Agent Payment Monitoring Projection",
+  "type":"object",
+  "required":["schema","company_id","invoice","observed","collections","authority"],
+  "properties":{
+    "schema":{"const":"titan.workforce.starter.invoicing.payment-monitoring.v1"},
+    "company_id":{"type":"string","minLength":1},
+    "invoice":{"type":"object","required":["invoice_ref","status","currency","system_of_record"]},
+    "observed":{"type":"object","required":["invoice_total_minor","verified_paid_minor","balance_due_minor","payment_state","overdue"]},
+    "collections":{"type":"object","required":["owned_by_worker","escalation_permitted","handoff_required"]},
+    "authority":{"type":"object","required":["company_boundary","authority_granted","execution_permitted","canonical_payment_mutation_permitted","collections_authority"]}
+  },
+  "additionalProperties":true
+}

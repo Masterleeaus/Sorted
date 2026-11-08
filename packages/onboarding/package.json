@@ -1,0 +1,9 @@
+{
+  "name": "@titan-zero/onboarding",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "exports": { ".": "./runtime/index.mjs" },
+  "scripts": { "typecheck": "node --test runtime/import-graph.test.mjs", "test": "node --test runtime/*.test.mjs", "test:unit": "node --test runtime/*.test.mjs" },
+  "dependencies": { "@titan-zero/storage": "workspace:*" }
+}

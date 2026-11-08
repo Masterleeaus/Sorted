@@ -1,0 +1,7 @@
+{
+  "schema": "titan-zero-retriever-finish-pass01-semantic-change/v1",
+  "packet_id": "TZ-FINISH-RETRIEVER-NATIVE-001",
+  "pass": 1,
+  "semantic_delta": "Establishes Merge52 authoritative Retriever dependency/reachability truth. No execution route changed.",
+  "production_behavior_change": "NONE"
+}

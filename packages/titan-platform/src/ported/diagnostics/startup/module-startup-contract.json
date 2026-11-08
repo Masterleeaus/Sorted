@@ -1,0 +1,34 @@
+{
+  "schema": "titan-zero-startup-module-contract/v1",
+  "packet_id": "TZ-FIX-LOAD-STABILITY-001",
+  "pass": 4,
+  "manager_baseline": {
+    "merge": "39",
+    "artifact": "Titan-Zero-CANONICAL-MASTER-2026-09-08-MERGE-39-CHROME-REPAIR10-CONVERGED.zip",
+    "sha256": "c5c5bc321913dfd9f2d56847c43fa9cad3652907be94f163cbeacef9672c23c7"
+  },
+  "module_startup_invariants": [
+    "titan-modules/index.json is the packaged descriptor source and descriptors are unique",
+    "every packaged descriptor manifest and entry exists in the extension payload",
+    "descriptor id exactly matches normalized manifest id and kind=packaged",
+    "every packaged descriptor id is statically represented by packaged-catalog.mjs for MV3 startup",
+    "module-host normalizes packaged manifests before registration",
+    "module-host resolves dependency state before packaged activation becomes available",
+    "missing/version-mismatched/cyclic dependencies fail closed as blocked",
+    "signed marketplace packages require integrity digest and trusted ECDSA signature verification before install",
+    "startup readiness resolves only after packaged/declarative loading and dependency refresh attempts complete"
+  ],
+  "expected_packaged_modules": [
+    "titan.module-health",
+    "titan.business-services",
+    "titan.workforce-verticals"
+  ],
+  "authority": {
+    "module_identity_grants_authority": false,
+    "signed_package_grants_authority": false,
+    "execution_authority_changed": false
+  },
+  "company_boundary": "company_id",
+  "shared_hotspots_edited": [],
+  "live_chrome": "NOT_CERTIFIED_IN_THIS_ENVIRONMENT"
+}

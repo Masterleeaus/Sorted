@@ -1,0 +1,18 @@
+{
+  "schema": "titan-zero-workforce-scheduling-pass03/v1",
+  "packet_id": "TZ-NEXT-004",
+  "pass": 3,
+  "manager_merge": 42,
+  "summary": "Intersect Pass2 scheduling eligibility with existing role-worker, verified capability and explicit site eligibility evidence.",
+  "existing_authorities_preserved": [
+    "role-worker separation/integrity projections",
+    "skill/capability verification registry",
+    "Pass2 worker availability + capacity scheduling state",
+    "AssignmentDecision and execution authority boundaries"
+  ],
+  "site_policy": "explicit evidence only; missing site eligibility is review-blocking and never inferred",
+  "company_boundary": "company_id only",
+  "identity_not_authority": true,
+  "automatic_assignment": false,
+  "execution_permitted": false
+}

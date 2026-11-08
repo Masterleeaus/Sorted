@@ -1,0 +1,95 @@
+{
+  "schema": "titan-supersession/v1",
+  "records": [
+    {
+      "new_artifact": "titan-zero-v0.18.2-p0-003-platform-manager-lifecycle-convergence-candidate",
+      "supersedes": "module-lifecycle-conflict-state-only",
+      "reason": "Converges lifecycle semantics without superseding Manager canonical authority until Manager verification.",
+      "retained_features": [
+        "Manager canonical v0.18.1 full feature set",
+        "Runtime v2",
+        "signed marketplace",
+        "transactional installer",
+        "governance grants",
+        "Company Module Manager"
+      ],
+      "removed_features": [],
+      "verification": [
+        "tests/module_platform_manager_lifecycle.test.mjs",
+        "tests/module_platform_manager_host_behavior.test.mjs"
+      ]
+    },
+    {
+      "new_artifact": "titan-zero-v0.18.0-business-database-convergence",
+      "supersedes": "titan-zero-v0.17.0-rich-lineage-convergence",
+      "reason": "v0.18 adds company-scoped IndexedDB business authority while retaining every v0.17 module/runtime/workforce capability and the richer v0.14 marketplace/governance baseline.",
+      "retained_features": [
+        "Module Runtime v2",
+        "transactional module installs",
+        "company module manager",
+        "electrical/client workforce",
+        "signed marketplace",
+        "governance grants",
+        "lifecycle history"
+      ],
+      "removed_features": [],
+      "verification": [
+        "tests/business_database.test.mjs",
+        "tests/module_marketplace.test.mjs",
+        "tests/governance_grants.test.mjs",
+        "tests/module_lifecycle_history.test.mjs"
+      ]
+    },
+    {
+      "new_artifact": "titan-zero-v0.17.0-rich-lineage-convergence",
+      "supersedes": "v0.16.0-wholesale-step06-candidate",
+      "reason": "v0.17 retains v0.16 Runtime v2/install/electrical improvements without losing richer v0.14 signed-marketplace/governance/lifecycle functionality.",
+      "retained_features": [
+        "Module Runtime v2",
+        "transactional installs",
+        "electrical workforce",
+        "signed marketplace",
+        "governance grants",
+        "lifecycle history"
+      ],
+      "removed_features": [],
+      "verification": [
+        "tests/module_runtime_v2.test.mjs",
+        "tests/module_marketplace.test.mjs",
+        "tests/governance_grants.test.mjs",
+        "tests/module_lifecycle_history.test.mjs"
+      ]
+    },
+    {
+      "new_artifact": "titan-zero-v0.14.0-converged-signed-marketplace-device-first",
+      "supersedes": "v0.13.0-wholesale-runtime-candidate",
+      "reason": "Selective convergence preserves v0.11 authority/dependency/event/bundle runtime while retaining additive v0.13 Device-First SDK pieces.",
+      "retained_features": [
+        "Device-First SDK",
+        "business-service router",
+        "queries",
+        "role router"
+      ],
+      "removed_features": [],
+      "verification": [
+        "tests/module_union_convergence.test.mjs",
+        "tests/local_module_sdk.test.mjs"
+      ]
+    },
+    {
+      "new_artifact": "titan-zero-v0.14.0-converged-signed-marketplace-device-first",
+      "supersedes": "v0.12.0-wholesale-workforce-candidate",
+      "reason": "Selective convergence retains vertical/plumbing workforce additions without replacing richer module/runtime/business surfaces.",
+      "retained_features": [
+        "vertical workforce module",
+        "plumbing specialists",
+        "workforce routes"
+      ],
+      "removed_features": [],
+      "verification": [
+        "tests/workforce_vertical_module.test.mjs",
+        "tests/test_plumbing_vertical_workforce.py"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "schema": "titan-zero-storage-business-state-integrity/v1",
+  "packet_id": "TZ-FINISH-STORAGE-DATA-AUTHORITY-001",
+  "pass": 7,
+  "authority": {
+    "company_boundary": "company_id",
+    "identity_grants_authority": false,
+    "execution_authority": false,
+    "transaction_required": true
+  },
+  "integrity": {
+    "monotonic_revisions": true,
+    "expected_revision_conflicts": "DURABLE",
+    "idempotency_key_reuse_conflicts": "DURABLE",
+    "committed_receipts": "DURABLE",
+    "partial_write_rollback": "VERIFIED",
+    "company_isolation": "VERIFIED"
+  },
+  "layering": {
+    "business_state_idempotency": "AUTHORITATIVE_FOR_BUSINESS_STATE_COMMITS",
+    "repository_idempotency_inside_business_tx": "DISABLED_FOR_INTERNAL_ENTITY_RECEIPT_SUMMARY_WRITES",
+    "reason": "Prevents generic repository receipts from collapsing distinct internal records under one business-state idempotency key."
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "titan.workforce.starter.invoicing.issue-send.v1",
+  "title": "Titan Zero Starter Invoicing Agent Issue/Send Proposal",
+  "type": "object",
+  "required": ["schema", "company_id", "canonical_invoice", "issue", "send", "identity", "authority", "dispatch"],
+  "properties": {
+    "schema": {"const": "titan.workforce.starter.invoicing.issue-send.v1"},
+    "company_id": {"type": "string", "minLength": 1},
+    "canonical_invoice": {"type": "object", "required": ["invoice_ref", "system_of_record", "mutation_owned_by_worker"]},
+    "issue": {"type": "object", "required": ["capability", "provider_ref", "operation_id", "idempotency_key", "external_reference_key", "command_bus_required"]},
+    "send": {"type": "object", "required": ["capability", "provider_ref", "recipient_ref", "channel", "durable_idempotency_reservation_required_before_provider", "normalized_provider_receipt_required"]},
+    "identity": {"type": "object", "required": ["content_hash", "operation_id", "idempotency_key", "external_reference_key"]},
+    "authority": {"type": "object", "required": ["company_boundary", "identity_grants_authority", "authority_granted", "execution_permitted", "direct_provider_send_permitted", "command_bus_required"]},
+    "dispatch": {"type": "object", "required": ["state", "command_bus_dispatch_eligible", "reason"]}
+  },
+  "additionalProperties": true
+}

@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "titan.workforce.browser-live-smoke-certification.v1",
+  "type": "object",
+  "required": [
+    "schema",
+    "company_id",
+    "state",
+    "checks",
+    "readiness"
+  ],
+  "properties": {
+    "schema": {
+      "const": "titan.workforce.browser-live-smoke-certification.v1"
+    },
+    "company_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "state": {
+      "enum": [
+        "PASS",
+        "BLOCKED"
+      ]
+    },
+    "authority_granted": {
+      "const": false
+    },
+    "execution_permitted": {
+      "const": false
+    },
+    "grants_authority": {
+      "const": false
+    }
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "schema": "titan.workforce.hierarchy.pass05.worker-runtime.v1",
+  "packet_id": "TZ-WF-HIERARCHY-001",
+  "manager_base": 52,
+  "outcome": "Worker/Specialist execution units beneath agents with bounded task contracts and least-authority command access",
+  "donor_evidence": {
+    "atomic_worker_tool_binding_runtime": "ported/titan-workforce/hierarchy/atomic-worker-tool-binding-runtime.ts",
+    "atomic_worker_bindings": 62,
+    "worker_authority": "ported/titan-runtime/authority/worker-authority.ts",
+    "client_worker_contract": "ported/titan-workforce/contracts/ClientWorkerInstance.schema.json"
+  },
+  "invariants": [
+    "company_id_only",
+    "worker_identity_grants_no_authority",
+    "worker_parentage_grants_no_authority",
+    "worker_binding_grants_no_authority",
+    "workers_cannot_delegate",
+    "worker_tasks_cannot_expand_tool_access",
+    "protected_execution_requires_approval_when_declared",
+    "protected_execution_requires_idempotency_when_declared",
+    "execution_stops_at_authority_and_capability_gate",
+    "business_ops_routes_remain_authoritative"
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "schema": "titan.zero.cleaning-operations-pass06.v1",
+  "packet_id": "TZ-NEXT-002",
+  "pass": 6,
+  "manager_base": {
+    "merge": 42,
+    "artifact": "Titan-Zero-CANONICAL-MASTER-2026-09-09-MERGE-42-PERMISSION-HARDENING-CONVERGED.zip",
+    "sha256": "1c4b6f471ba16f44d7b27db546ba41db18032ce9967b1d725dc0926cd73cc930",
+    "files": 3023
+  },
+  "repair": "existing cleaning job execution context -> completion QA -> existing Jobs readiness/evidence/exception policies -> crm.work_order.complete proposal",
+  "guards": [
+    "authoritative existing-job receipt required",
+    "required before/after evidence must be satisfied",
+    "required checklist must be complete",
+    "unresolved exceptions or rework block completion",
+    "company_id only",
+    "legacy tenant keys rejected",
+    "completion proposal does not perform evidence acceptance, exception resolution, work-order completion or invoice creation"
+  ],
+  "focused_pass06": "6/6 PASS",
+  "broader_regression": "41/41 PASS",
+  "json_integrity": "1334/1334 PASS",
+  "syntax": "PASS",
+  "authority_granted": false,
+  "company_boundary": "company_id",
+  "next_pass": 7
+}

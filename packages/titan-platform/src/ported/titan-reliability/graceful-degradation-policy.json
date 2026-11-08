@@ -1,0 +1,28 @@
+{
+  "schema": "titan.reliability.graceful-degradation-policy/v1",
+  "company_boundary": "company_id",
+  "authority_neutral": true,
+  "silent_fallback": false,
+  "operation_classes": ["read_only", "diagnostic", "durable_write", "authority_sensitive"],
+  "rules": {
+    "authority_sensitive": "fail_closed_and_preserve_intent",
+    "durable_write": "durable_offline_queue_only_when_idempotent_and_explicitly_available",
+    "storage_read": "verified_cache_only_when_explicitly_available",
+    "network_read": "cache_or_offline_read_mode",
+    "local_bridge": "device_then_byo_when_explicitly_available_and_sensitive_data_rules_allow",
+    "browser": "preserve_ui_state_then_reload_or_retry"
+  },
+  "retry_after_ms": {
+    "degraded": 1000,
+    "unhealthy": 5000,
+    "unavailable": 15000,
+    "unknown": 3000
+  },
+  "safety": {
+    "fallback_grants_authority": false,
+    "fallback_changes_permissions": false,
+    "fallback_changes_autonomy": false,
+    "memory_only_durable_write_fallback": false,
+    "cross_company_fallback": false
+  }
+}

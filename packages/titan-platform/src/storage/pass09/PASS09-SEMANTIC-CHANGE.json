@@ -1,0 +1,6 @@
+{
+  "schema": "titan-zero-storage-finish-pass09-semantic-change/v1",
+  "packet_id": "TZ-FINISH-STORAGE-DATA-AUTHORITY-001",
+  "pass": 9,
+  "semantic_delta": "Closes a concurrent migration double-execution race by transactionally serializing migration checkpoint lookup, stage execution and completion checkpoint. Adds read-only native storage authority diagnostics and cumulative restart/corruption/concurrency regressions."
+}

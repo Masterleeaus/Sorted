@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "titan.workforce.starter.invoicing.readiness.v1",
+  "title": "Titan Zero Invoicing Agent Invoice Readiness",
+  "type": "object",
+  "required": ["schema", "company_id", "worker", "ready", "readiness_state", "blockers", "evidence", "calculation_basis", "authority"],
+  "properties": {
+    "schema": {"const": "titan.workforce.starter.invoicing.readiness.v1"},
+    "company_id": {"type": "string", "minLength": 1},
+    "worker": {"const": "Invoicing Agent"},
+    "ready": {"type": "boolean"},
+    "readiness_state": {"enum": ["evidence_pending", "ready_for_draft_contract"]},
+    "blockers": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+    "evidence": {
+      "type": "object",
+      "required": ["job_completion_ref", "accepted_terms_ref", "actual_time_ref", "actual_materials_ref", "tax_basis_ref", "attachment_refs"]
+    },
+    "calculation_basis": {
+      "type": "object",
+      "required": ["currency", "pricing_source_refs", "quote_or_contract_ref", "actuals_ref", "tax_basis_ref", "exact_money_certified", "calculation_engine_ref"],
+      "properties": {"exact_money_certified": {"const": false}, "calculation_engine_ref": {"type": ["string", "null"]}}
+    },
+    "authority": {
+      "type": "object",
+      "required": ["company_boundary", "identity_grants_authority", "authority_granted", "grants_authority", "execution_permitted", "canonical_mutation_permitted"],
+      "properties": {
+        "company_boundary": {"const": "company_id"},
+        "identity_grants_authority": {"const": false},
+        "authority_granted": {"const": false},
+        "grants_authority": {"const": false},
+        "execution_permitted": {"const": false},
+        "canonical_mutation_permitted": {"const": false}
+      }
+    }
+  }
+}

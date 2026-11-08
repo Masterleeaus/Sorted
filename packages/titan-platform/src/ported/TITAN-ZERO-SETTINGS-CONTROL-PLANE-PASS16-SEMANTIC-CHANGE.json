@@ -1,0 +1,15 @@
+{
+  "schema": "titan-zero-settings-control-plane-semantic-change/v1",
+  "pass": 16,
+  "title": "Mission Team Settings",
+  "changes": [
+    "Added company-scoped mission-team policy projection grounded in the existing temporary mission-team runtime and lifecycle states.",
+    "Preserved the canonical DRAFT/FORMING/ACTIVE/HANDOVER/COMPLETED/DISSOLVED/FAILED transition matrix as runtime-owned and immutable from Settings.",
+    "Added stricter optional activation gates for coordination owner, supervisor, coordinator and objective presence without creating or activating teams.",
+    "Preserved mandatory active-member and HANDOVER reference requirements, proposal-only membership/staffing behavior and authority-neutral team identities.",
+    "Rejected legacy tenant aliases and cross-company transition evaluation."
+  ],
+  "authority_effect": "none",
+  "execution_effect": "none",
+  "next_pass": 17
+}

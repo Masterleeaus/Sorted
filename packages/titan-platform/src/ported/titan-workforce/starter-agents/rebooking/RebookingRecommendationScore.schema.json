@@ -1,0 +1,83 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "titan.workforce.starter.rebooking-recommendation-score.v1",
+  "title": "Titan Zero Rebooking Recommendation Score",
+  "type": "object",
+  "required": [
+    "schema",
+    "company_id",
+    "opportunity_id",
+    "state",
+    "recommendation",
+    "score",
+    "confidence_band",
+    "recurring_conversion",
+    "reactivation",
+    "model_may_override",
+    "execution_permitted",
+    "grants_authority",
+    "identity_is_authority"
+  ],
+  "properties": {
+    "schema": {
+      "const": "titan.workforce.starter.rebooking-recommendation-score.v1"
+    },
+    "company_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "opportunity_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "state": {
+      "enum": [
+        "SUPPRESSED",
+        "REVIEW",
+        "RECOMMENDED"
+      ]
+    },
+    "recommendation": {
+      "enum": [
+        "NONE",
+        "RECURRING_CONVERSION_RECOMMENDED",
+        "REACTIVATION_RECOMMENDED"
+      ]
+    },
+    "score": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 100
+    },
+    "confidence_band": {
+      "enum": [
+        "NONE",
+        "LOW",
+        "MEDIUM",
+        "HIGH"
+      ]
+    },
+    "model_may_override": {
+      "const": false
+    },
+    "creates_schedule": {
+      "const": false
+    },
+    "creates_booking": {
+      "const": false
+    },
+    "sends_outreach": {
+      "const": false
+    },
+    "execution_permitted": {
+      "const": false
+    },
+    "grants_authority": {
+      "const": false
+    },
+    "identity_is_authority": {
+      "const": false
+    }
+  },
+  "additionalProperties": true
+}

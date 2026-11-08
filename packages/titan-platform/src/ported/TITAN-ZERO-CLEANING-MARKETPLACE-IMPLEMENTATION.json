@@ -1,0 +1,58 @@
+{
+  "schema": "titan-zero-cleaning-marketplace-implementation/v1",
+  "created_at": "2026-09-06T22:56:00+10:00",
+  "source": "Titan-Zero-CANONICAL-MASTER-2026-09-06-MERGE-18-ALL-PENDING-MERGED(2).zip",
+  "status": "verified",
+  "focus": "Cleaning business supply marketplace integrated alongside existing signed module marketplace",
+  "catalog": {
+    "products": 42,
+    "categories": 8,
+    "job_kits": 4
+  },
+  "implemented": [
+    "company_id-scoped local procurement state",
+    "product search/category/job filters",
+    "on-hand stock and reorder points",
+    "preferred products",
+    "supplier and supplier SKU memory",
+    "optional unit costs without fabricated pricing",
+    "low-stock replenishment cart",
+    "job-specific restock kits",
+    "persistent purchase-order cart",
+    "draft purchase order history",
+    "CSV purchase order export",
+    "receive-order stock increment",
+    "safety/SDS compatibility reminders",
+    "preservation of existing signed add-on marketplace"
+  ],
+  "modified_files": [
+    "modules.html",
+    "modules.js",
+    "modules.css",
+    "cleaning-marketplace.js",
+    "titan-modules/cleaning-supply-catalog.json",
+    "tests/cleaning_supply_marketplace.test.mjs"
+  ],
+  "verification": [
+    {
+      "command": "node --check cleaning-marketplace.js",
+      "result": "PASS"
+    },
+    {
+      "command": "node tests/cleaning_supply_marketplace.test.mjs",
+      "result": "PASS"
+    },
+    {
+      "command": "node tests/module_marketplace.test.mjs",
+      "result": "PASS"
+    },
+    {
+      "command": "node tests/module_marketplace_host_fixture.test.mjs",
+      "result": "PASS"
+    },
+    {
+      "command": "python -m pytest -q tests/test_v14_module_marketplace_ui.py tests/test_v11_module_ecosystem_ui.py tests/test_cleaning_vertical_workforce.py",
+      "result": "9 passed"
+    }
+  ]
+}

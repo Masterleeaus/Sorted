@@ -1,0 +1,32 @@
+{
+  "template": {
+    "id": "guest-issue-resolution",
+    "version": "1.0.0",
+    "name": "Guest Issue Resolution",
+    "status": "ready",
+    "category": "hospitality",
+    "entry_wizard": "guest_issue_resolution_v1",
+    "capabilities": [
+      "hospitality.guest_issues.resolve"
+    ],
+    "channels": [
+      "chat",
+      "mobile",
+      "tablet",
+      "desktop",
+      "voice"
+    ],
+    "governance": {
+      "authority": "human_review_when_required",
+      "offline": true
+    },
+    "metadata": {
+      "verticals": [
+        "hospitality",
+        "events",
+        "venues"
+      ],
+      "pack": "commerce_multi_vertical_2026_08"
+    }
+  }
+}

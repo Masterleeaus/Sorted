@@ -1,0 +1,16 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema",
+  "$id":"titan://contracts/OperationIdentity/v1",
+  "title":"Titan Operation Identity",
+  "type":"object",
+  "additionalProperties":true,
+  "required":["schema_version","company_id","operation_id","request_id","correlation_id","idempotency_key","actor_id","capability","state","created_at","updated_at"],
+  "properties":{
+    "schema_version":{"const":"1.0"},"company_id":{"type":"string","minLength":1},"operation_id":{"type":"string","minLength":1},
+    "request_id":{"type":"string","minLength":1},"correlation_id":{"type":"string","minLength":1},"causation_id":{"type":["string","null"]},
+    "idempotency_key":{"type":"string","minLength":1},"actor_id":{"type":"string","minLength":1},"actor_type":{"type":"string","minLength":1},
+    "capability":{"type":"string","minLength":1},"state":{"enum":["created","accepted","planning","deciding","awaiting_approval","authorized","dispatching","executing","observing","completed","attention","blocked","failed","cancelled"]},
+    "source":{"type":"string"},"created_at":{"type":"string"},"updated_at":{"type":"string"},"authority_ref":{"type":["string","null"]},
+    "decision_id":{"type":["string","null"]},"action_id":{"type":["string","null"]}
+  }
+}

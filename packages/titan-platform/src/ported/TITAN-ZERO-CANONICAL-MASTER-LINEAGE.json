@@ -1,0 +1,95 @@
+{
+  "authority_rule": "company_id remains the sole canonical tenant/company boundary; legacy tenant identifiers are compatibility inputs only.",
+  "canonical_runtime_source": {
+    "name": "Titan-Zero-v0.19.1-Manager-Workforce-Pass17-Converged-CUMULATIVE.zip",
+    "note": "Byte-identical to Workforce-Laravel Gateway Pass17 cumulative; selected as newest converged runnable base.",
+    "sha256": "4cd2c2bb6cf898383629fac25029f294aad4973534cef43eac897b6b9de4e089"
+  },
+  "cleanup": "Build caches (.pytest_cache, __pycache__, *.pyc) removed from canonical package.",
+  "company_boundary": "company_id",
+  "consolidations": [
+    {
+      "authority_neutral": true,
+      "company_boundary": "company_id",
+      "donor": "Titan Frontend Pass14-17I2",
+      "excluded_runtime": "Laravel/Blade/Appway public CMS host",
+      "retained_path": "titan-builder/frontend-lineage"
+    }
+  ],
+  "donor_integrations": [
+    {
+      "capabilities": [
+        "browser.capability_packs",
+        "browser.cross_tab_sessions",
+        "knowledge.page_evidence",
+        "work.contextual_task_intent",
+        "interaction.prompt_quality_proposal",
+        "commerce.commercial_decision_intelligence"
+      ],
+      "contained_extensions": 19,
+      "donor": "base extensions - VITAL COMPONENT SOURCE.zip",
+      "implementation": "clean-room pattern reimplementation",
+      "raw_third_party_code_included": false,
+      "source_sha256": "3eecc8c2a33ff2b99c8aee891124ade98224057a8d94e201210c0333b0b7bf6f"
+    },
+    {
+      "byte_identical_files_preserved": 554,
+      "donor": "Monica-All-In-One-AI-Assist-v9.0.22.zip",
+      "donor_files": 565,
+      "nonessential_legacy_files_excluded": 8,
+      "retirement_proof": "donor-provenance/MONICA-v9.0.22-RETIREMENT.json",
+      "source_size_bytes": 74914233,
+      "titan_modified_shell_files": 3,
+      "unique_executable_capability_missing": false
+    }
+  ],
+  "generated_at": "2026-09-05",
+  "harvested_unique_lineage": [
+    {
+      "bytes_harvested": 6426802,
+      "label": "legacy-v0.6.14",
+      "source": "01-legacy-v0.6/full-snapshots/Titan-Zero-v0.6.14-IndexedDB-Migration-PARTIAL-DONOR-SNAPSHOT.zip",
+      "unique_files_harvested": 167
+    },
+    {
+      "bytes_harvested": 33430,
+      "label": "p2-009",
+      "source": "03-agent-mesh/P2-009-prepacket/Titan-Zero-v0.18.4-P2-009-Cross-System-Observability-CANDIDATE-CUMULATIVE.zip",
+      "unique_files_harvested": 11
+    },
+    {
+      "bytes_harvested": 272581,
+      "label": "wp002-pass02",
+      "source": "TZ-WP-002 Pass02 working cumulative",
+      "unique_files_harvested": 21
+    }
+  ],
+  "historical_archives_preserved": [
+    "legacy-v0.6.14",
+    "p2-009",
+    "wp002-pass02",
+    "other-agent-consolidation variants/provenance"
+  ],
+  "latest_convergence_note": "Canonical manager convergence after v10: Reliability Pass10 + Workforce Pass26 + Offline Steps15-16; Business Discovery compiler co-located with already-loaded handover module to preserve static-runtime and startup-budget invariants.",
+  "live_delta_merged": [
+    "TZ-WP-005 Pass01 Authority Decision Provenance Lease",
+    "TZ-FINISH-002 Pass02 company_id Gateway Normalization (surgical forward-port)",
+    "Base Extensions vital component donor clean-room capability integration",
+    "Workforce Pass22-25 staffing/performance/improvement/investigation-installation handover chain (surgical forward-port from Pass25)",
+    "Offline Engine Step14 conversation-state runtime",
+    "TZ-FINISH-005 Pass10 reliability final semantic rebase (lazy AI surface, diagnostic retention, graceful degradation, fault injection, resource lifecycle, operational health, endurance)",
+    "Workforce Pass26 Business Discovery Compiler (surgical semantic forward-port; company_id scoped, authority-neutral)",
+    "Offline Engine Steps15-16 Journey + Universal Wizard runtime (rebased authority-neutral interaction runtime)"
+  ],
+  "merge_policy": "Current Pass17 runtime wins all path conflicts. Unique historical files are retained only under lineage-archive and are not runtime-loaded.",
+  "runtime_base": "Titan-Zero-v0.19.1-Manager-Workforce-Pass17-Converged-CUMULATIVE.zip",
+  "runtime_base_sha256": "4cd2c2bb6cf898383629fac25029f294aad4973534cef43eac897b6b9de4e089",
+  "runtime_policy": "Current Pass17 runtime wins historical conflicts; only verified newer live deltas may overlay runtime. Historical alternatives are non-runtime under lineage-archive.",
+  "schema": "titan-zero-canonical-master-lineage/v2",
+  "supersession_notes": [
+    "WP-004 Pass10 contributes no unique file paths not already present in Pass17.",
+    "WP-002 functional/runtime paths are represented in Pass17; only unique history/evidence files were archived.",
+    "P2-008 candidate contributes no unique file paths beyond Pass17.",
+    "Legacy v0.6 and P2-009 unique paths are archived for provenance/donor recovery, not overlaid onto current runtime."
+  ]
+}

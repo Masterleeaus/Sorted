@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "titan.workforce.external-actor-boundary.v1",
+  "title": "Titan Workforce External Actor Boundary",
+  "type": "object",
+  "required": [
+    "schema",
+    "company_id",
+    "external_actors",
+    "policy"
+  ],
+  "properties": {
+    "schema": {
+      "const": "titan.workforce.external-actor-boundary.v1"
+    },
+    "company_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "external_actors": {
+      "type": "array"
+    },
+    "policy": {
+      "type": "object"
+    },
+    "authority_granted": {
+      "const": false
+    },
+    "execution_permitted": {
+      "const": false
+    },
+    "grants_authority": {
+      "const": false
+    }
+  }
+}

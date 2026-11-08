@@ -1,0 +1,10 @@
+{
+  "schema":"titan-zero-settings-control-plane-semantic-change/v1",
+  "pass":19,
+  "setting":"mcpExternalToolGovernance",
+  "scope":"company",
+  "owner":"external_tools",
+  "changes":["company MCP allow/deny projection","additive MCP confirmation policy","external-tool disable/confirmation projection","remote-browser company policy gate","explicit MCP secret exclusion"],
+  "authority_granted":false,
+  "execution_permitted":false
+}

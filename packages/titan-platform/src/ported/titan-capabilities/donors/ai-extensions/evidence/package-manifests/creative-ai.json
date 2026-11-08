@@ -1,0 +1,32 @@
+{
+  "category": "creative-ai",
+  "extensions": [
+    "AIImagePro",
+    "AIPhotoshoot",
+    "AIRealtimeImage",
+    "AIVideoToVideo",
+    "AIVoiceIsolator",
+    "AIWriterTemplates",
+    "AdvancedImage",
+    "AiAvatar",
+    "AiCaptions",
+    "AiMusic",
+    "AiMusicPro",
+    "AiPersona",
+    "AiPresentation",
+    "AiVideoPro",
+    "AiViralClips",
+    "CreativeSuite",
+    "CreativeSuiteAITemplate",
+    "CreativeSuiteAnnotations",
+    "FashionStudio",
+    "InfluencerAvatar",
+    "ProductPhotography",
+    "UGCCreator",
+    "UGCFactory",
+    "UrlToVideo",
+    "VideoDubbing",
+    "VideoEditor"
+  ],
+  "count": 26
+}

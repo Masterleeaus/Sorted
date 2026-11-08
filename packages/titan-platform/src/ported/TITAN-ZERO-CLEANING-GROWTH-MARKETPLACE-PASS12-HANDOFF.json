@@ -1,0 +1,10 @@
+{
+  "schema": "titan-zero-agent-handoff/v1",
+  "status": "READY FOR MANAGER MERGE",
+  "pass": 12,
+  "depends_on": "Cleaning Growth Marketplace Pass11",
+  "target_manager_merge": 29,
+  "instructions": "Apply Pass10, then Pass11, then this Pass12 semantic delta onto the current Manager baseline. Do not replace Manager29 wholesale. Preserve Repair06 launch precedence/injection ordering.",
+  "company_boundary": "company_id only",
+  "authority": "no automatic renewal/cancellation/replacement/spend authority"
+}

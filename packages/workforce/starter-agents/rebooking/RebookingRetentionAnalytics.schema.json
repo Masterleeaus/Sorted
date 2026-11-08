@@ -1,0 +1,14 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema",
+  "$id":"titan.workforce.starter.rebooking-retention-analytics.v1",
+  "type":"object",
+  "required":["schema","company_id","as_of_date","counts","rates","customers","interpretation","execution_permitted","grants_authority"],
+  "properties":{
+    "schema":{"const":"titan.workforce.starter.rebooking-retention-analytics.v1"},
+    "company_id":{"type":"string","minLength":1},
+    "as_of_date":{"type":"string","pattern":"^\\d{4}-\\d{2}-\\d{2}$"},
+    "execution_permitted":{"const":false},
+    "grants_authority":{"const":false}
+  },
+  "additionalProperties":true
+}

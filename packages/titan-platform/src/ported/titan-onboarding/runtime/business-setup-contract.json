@@ -1,0 +1,17 @@
+{
+  "schema": "titan.onboarding.business-setup-contract.v1",
+  "company_boundary": "company_id",
+  "module_id": "titan-onboarding",
+  "profile_collection": "business-profile",
+  "profile_authority": "titan-local/storage/business-database.mjs",
+  "preference_authority": "titan-settings/control-plane/settings-storage-adapter.mjs",
+  "settings_registry": "titan-settings/control-plane/settings-registry.json",
+  "profile_fields": ["identity", "service_areas", "operating_hours", "contact"],
+  "preferences_rule": "Only existing editable company-scoped, non-secret settings registry keys may be written.",
+  "legacy_company_aliases_rejected": ["tenant_id", "tenant_company_id", "workspace_tenant_id"],
+  "authority": {
+    "grants_authority": false,
+    "authority_granted": false,
+    "execution_permitted": false
+  }
+}

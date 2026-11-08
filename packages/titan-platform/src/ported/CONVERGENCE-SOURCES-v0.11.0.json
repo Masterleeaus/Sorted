@@ -1,0 +1,50 @@
+{
+  "schema": "titan-zero-convergence-sources/v1",
+  "release": "0.11.0",
+  "scanned_at": "2026-09-04T20:24:25+10:00",
+  "selection_rule": "Compare actual contents, contracts, tests, features and retained functionality; do not select solely by filename or numeric version.",
+  "sources": [
+    {
+      "role": "base",
+      "name": "Titan-Zero-Demo-Monica-Retriever-v0.8.0-Capability-Modules-Cumulative.zip",
+      "sha256": "2804a175f5433dc9b24af024306714f985781984c012c77f918ad7678753e7df",
+      "size_bytes": 37136252,
+      "decision": "authoritative capability runtime"
+    },
+    {
+      "role": "donor",
+      "name": "Titan-Zero-v0.9.0-Unified-Business-Work-Modules-Main-Page-CUMULATIVE.zip",
+      "sha256": "99459534f1638ec04e0c338b7b2a5a983d79ac17f3b2cec4ee0fa30f5089742e",
+      "size_bytes": 37134458,
+      "decision": "native main/business shell, rebrand and Retriever bridge"
+    },
+    {
+      "role": "donor",
+      "name": "Titan-Zero-Demo-Cleaning-Workforce-v0.10.0-CUMULATIVE.zip",
+      "sha256": "45fdb8a219b36392ac00dfefae39511c6d5d91b37960106ac00dce03c410c61d",
+      "size_bytes": 37160712,
+      "decision": "119-role workforce catalogue, 16 cleaning specialists, contracts"
+    },
+    {
+      "role": "reviewed",
+      "name": "Titan-Zero-Demo-Monica-Retriever-v0.9.0-Native-Monica-Shell.zip",
+      "sha256": "e296fff9c77fdcc831c8878384e9e742c5986edfdcf191d6af6baf105789183c",
+      "size_bytes": 37072531,
+      "decision": "reviewed for shell compatibility; unified v0.9 donor chosen"
+    },
+    {
+      "role": "reviewed",
+      "name": "Titan-Zero-Demo-Monica-Retriever-v0.8.0-FULLY-WIRED-MERGED-CUMULATIVE(1).zip",
+      "sha256": "37637df99273ff2363918ceb87657869d9387b14401aac36cee0c2fe152dc74e",
+      "size_bytes": 37090469,
+      "decision": "reviewed; superseded by stronger capability runtime plus v0.9 shell"
+    }
+  ],
+  "canonical_rules": [
+    "company_id is the sole company boundary",
+    "runtime imported modules remain declarative",
+    "module activation does not confer authority",
+    "packaged executable code remains statically catalogued for MV3"
+  ],
+  "result": "v0.8 capability runtime + v0.9 unified shell + v0.10 workforce donor"
+}

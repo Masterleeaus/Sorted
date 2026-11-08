@@ -1,0 +1,34 @@
+{
+  "pass": 42,
+  "title": "Physical / Environmental Risk Hooks",
+  "runtime_schema": "titan.workforce.physical-environmental-risk-hooks.v1",
+  "company_boundary": "company_id only",
+  "risk_kinds": [
+    "PHYSICAL_SAFETY",
+    "CHEMICAL",
+    "BIOLOGICAL",
+    "ELECTRICAL",
+    "FIRE",
+    "ERGONOMIC",
+    "ENVIRONMENTAL",
+    "WEATHER",
+    "EQUIPMENT",
+    "SECURITY",
+    "OTHER"
+  ],
+  "decisions": [
+    "ALLOW",
+    "REVIEW_REQUIRED",
+    "DENY"
+  ],
+  "critical_unresolved_risk_blocks_work": true,
+  "high_risk_requires_governed_review": true,
+  "environmental_impacts_first_class": true,
+  "risk_signal_is_not_authority": true,
+  "mitigation_evidence_is_not_authority": true,
+  "automatic_risk_acceptance": false,
+  "automatic_execution": false,
+  "authority_granted": false,
+  "execution_permitted": false,
+  "grants_authority": false
+}

@@ -1,0 +1,128 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "titan.workforce.knowledge-authority.v1",
+  "title": "Workforce Knowledge Authority Packet",
+  "type": "object",
+  "required": [
+    "schema",
+    "company_id",
+    "packet_id",
+    "knowledge",
+    "readiness",
+    "knowledge_is_not_authority"
+  ],
+  "properties": {
+    "schema": {
+      "const": "titan.workforce.knowledge-authority.v1"
+    },
+    "company_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    },
+    "packet_id": {
+      "type": "string"
+    },
+    "jurisdiction": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "vertical": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "knowledge": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "knowledge_id",
+          "scope",
+          "provenance_refs",
+          "freshness",
+          "contradiction_state",
+          "grants_authority"
+        ],
+        "properties": {
+          "knowledge_id": {
+            "type": "string"
+          },
+          "scope": {
+            "enum": [
+              "SHARED_PUBLIC",
+              "COMPANY_PRIVATE"
+            ]
+          },
+          "company_id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "version": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "provenance_refs": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "jurisdictions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "verticals": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "freshness": {
+            "enum": [
+              "FRESH",
+              "AGING",
+              "STALE",
+              "UNKNOWN"
+            ]
+          },
+          "contradiction_state": {
+            "enum": [
+              "NONE",
+              "POTENTIAL",
+              "CONFIRMED",
+              "UNRESOLVED"
+            ]
+          },
+          "grants_authority": {
+            "const": false
+          }
+        }
+      }
+    },
+    "readiness": {
+      "type": "object"
+    },
+    "knowledge_is_not_authority": {
+      "const": true
+    },
+    "authority_granted": {
+      "const": false
+    },
+    "execution_permitted": {
+      "const": false
+    },
+    "grants_authority": {
+      "const": false
+    }
+  }
+}

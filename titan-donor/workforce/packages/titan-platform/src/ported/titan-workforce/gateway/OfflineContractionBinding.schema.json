@@ -1,0 +1,17 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema",
+  "$id":"titan.workforce.gateway.offline-contraction-binding.v1",
+  "title":"Titan Workforce Gateway Offline Contraction Binding",
+  "type":"object",
+  "required":["company_id","connectivity","local_can_raise_authority","protected_command_allowed","grants_authority"],
+  "properties":{
+    "company_id":{"type":"string","minLength":2},
+    "connectivity":{"enum":["online","degraded","offline"]},
+    "local_can_raise_authority":{"const":false},
+    "protected_command_allowed":{"type":"boolean"},
+    "cached_reads_allowed":{"type":"boolean"},
+    "prepared_intents_retained":{"type":"boolean"},
+    "grants_authority":{"const":false}
+  },
+  "additionalProperties":true
+}

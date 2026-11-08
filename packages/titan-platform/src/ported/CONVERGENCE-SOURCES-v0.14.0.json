@@ -1,0 +1,71 @@
+{
+  "schema": "titan-zero-convergence/v1",
+  "target_version": "0.14.0",
+  "company_boundary": "company_id",
+  "base": {
+    "filename": "Titan-Zero-Demo-Monica-Retriever-v0.11.0-Converged-Module-Ecosystem-CUMULATIVE.zip",
+    "sha256": "18fc9f46f5daf77db64c9d4d6305e4f90ef708eee7fdd38a103ebc0591036e17",
+    "decision": "retain_runtime_authority",
+    "retained": [
+      "semantic dependency resolver",
+      "authority declarations and execution checks",
+      "company-scoped event bus",
+      "bundle runtime",
+      "bounded workflow runtime",
+      "native Business workspace",
+      "TITAN_EXECUTE_OUTCOME business-envelope bridge"
+    ]
+  },
+  "library_donors": [
+    {
+      "filename": "Titan-Zero-Business-Operating-v0.13.0-Pass1-Device-First-Module-SDK-CUMULATIVE.zip",
+      "sha256": "e61cec8b9c76b12ed929c59d49c27d4699138df98e084f4e2c86755838ba9226",
+      "decision": "selective_merge",
+      "merged": [
+        "titan-local Device-First Local Module SDK",
+        "local_primary/remote_primary/mirror authority-binding contracts",
+        "business-service ownership/routing metadata and packaged router",
+        "workforce role catalogue and role router",
+        "query contributions and query runtime"
+      ],
+      "rejected": [
+        "wholesale branch replacement that would drop parts of the v0.11 ecosystem"
+      ]
+    },
+    {
+      "filename": "Titan-Zero-Demo-Modular-Workforce-Deep-Plumbing-v0.12.0-CUMULATIVE.zip",
+      "sha256": "fcc165a3db0083288fb4492309ddb7cc94f42236219be47b9addae69e2504cfe",
+      "decision": "selective_merge",
+      "merged": [
+        "workforce-verticals packaged module",
+        "11-vertical workforce client catalogue",
+        "deep plumbing workforce runtime",
+        "cleaning/plumbing/vertical routing additions",
+        "Workforce shell view and preferred-worker routing"
+      ],
+      "rejected": [
+        "wholesale sidePanel/titan-shell replacement because it removes the v0.11 Business workspace",
+        "parallel TITAN_RETRIEVER_EXECUTE parent protocol as canonical because v0.11 TITAN_EXECUTE_OUTCOME carries richer company/business envelope state"
+      ]
+    },
+    {
+      "filename": "Titan-Zero-v0.11.1-Step01-Canonical-Architecture-Audit-CUMULATIVE.zip",
+      "sha256": "43d3fbcdf572f6563e9ffa28221772b4543c1bb5a5fd8b0d184400092e2a314d",
+      "decision": "merge_findings",
+      "merged": [
+        "union module contribution families rather than overwriting parallel branches",
+        "main.html is canonical side-panel surface",
+        "sidePanel.html remains an exact compatibility mirror"
+      ]
+    }
+  ],
+  "new_v0_14_layers": [
+    "ECDSA-P256-SHA256 signed module/bundle package verifier",
+    "pinned trusted-publisher public-key registry",
+    "local signed marketplace catalogue",
+    "bounded module and bundle version history with rollback",
+    "company-scoped governance authority grants with expiry and revocation",
+    "team/bundle suspend and resume lifecycle",
+    "signed-package and lifecycle controls in the Module Manager"
+  ]
+}

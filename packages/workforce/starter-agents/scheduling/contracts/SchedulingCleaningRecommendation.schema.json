@@ -1,0 +1,26 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema",
+  "$id":"titan.scheduling.cleaning-recommendation.v1",
+  "type":"object",
+  "required":["schema","company_id","schedule_intent_id","work_item_id","duration_minutes","crew_size","recommended_worker_ids","reserved_equipment","unmet_requirements","status","synthetic_equipment_truth","automatic_assignment","automatic_reschedule","automatic_purchase","direct_mutation","execution_permitted","grants_authority"],
+  "properties":{
+    "schema":{"const":"titan.scheduling.cleaning-recommendation.v1"},
+    "company_id":{"type":"string","minLength":1},
+    "schedule_intent_id":{"type":"string","minLength":1},
+    "work_item_id":{"type":"string","minLength":1},
+    "duration_minutes":{"type":"integer","minimum":1},
+    "crew_size":{"type":"integer","minimum":1},
+    "recommended_worker_ids":{"type":"array","items":{"type":"string"}},
+    "reserved_equipment":{"type":"array"},
+    "unmet_requirements":{"type":"array"},
+    "status":{"enum":["READY_FOR_GOVERNED_ASSIGNMENT","REQUIREMENTS_UNMET"]},
+    "synthetic_equipment_truth":{"const":false},
+    "automatic_assignment":{"const":false},
+    "automatic_reschedule":{"const":false},
+    "automatic_purchase":{"const":false},
+    "direct_mutation":{"const":false},
+    "execution_permitted":{"const":false},
+    "grants_authority":{"const":false}
+  },
+  "additionalProperties":true
+}

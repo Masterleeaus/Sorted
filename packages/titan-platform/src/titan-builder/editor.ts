@@ -1,0 +1,42 @@
+import { getBuilderItem, listBuilderItems, resolveBuilderSurface, sanitizeBuilderProjection, validateBuilderIntent, type BuilderSurface, type TitanBuilderCollection } from "./index.js";
+
+export type BuilderNode = { id:string; type:string; props?:Record<string,unknown>; children?:BuilderNode[]; actions?:Array<{action:string; data_source?:string}>; visibility?:Record<string,unknown> };
+export type BuilderDocument = { id:string; company_id:string; surface:BuilderSurface; title:string; root:BuilderNode; revision:number; status:"draft"|"published"; updated_at:string };
+export type BuilderHistoryEntry = Readonly<{ revision:number; document:BuilderDocument; published:boolean; created_at:string }>;
+
+const clone=<T>(v:T):T=>structuredClone(v);
+const now=()=>new Date().toISOString();
+function walk(node:BuilderNode, fn:(n:BuilderNode)=>void){ fn(node); for(const c of node.children??[]) walk(c,fn); }
+function find(root:BuilderNode,id:string){ let out:BuilderNode|undefined; walk(root,n=>{if(n.id===id)out=n}); return out; }
+function remove(root:BuilderNode,id:string):BuilderNode|undefined{ for(const [i,c] of (root.children??[]).entries()){if(c.id===id){root.children!.splice(i,1);return c} const x:BuilderNode|undefined=remove(c,id);if(x)return x;} }
+function uniqueNodeId(root:BuilderNode, preferred:string){let candidate=preferred;let i=2;while(find(root,candidate))candidate=`${preferred}-${i++}`;return candidate;}
+function cloneSubtreeWithFreshIds(root:BuilderNode,node:BuilderNode,suffix="copy"){const copy=clone(node);const remap=(n:BuilderNode)=>{n.id=uniqueNodeId(root,`${n.id}-${suffix}`);for(const c of n.children??[])remap(c);};remap(copy);return copy;}
+function assertComponent(type:string){if(!getBuilderItem("components",type)&&!getBuilderItem("blocks",type))throw new Error("builder_component_not_registered");}
+function validateNode(company_id:string,surface:BuilderSurface,node:BuilderNode){assertComponent(node.type);for(const binding of node.actions??[]){const v=validateBuilderIntent({company_id,surface,action:binding.action,data_source:binding.data_source});if(!v.accepted)throw new Error(v.reason);}for(const child of node.children??[])validateNode(company_id,surface,child);}
+
+export class TitanBuilderWorkspace {
+ #doc:BuilderDocument; #history:BuilderHistoryEntry[]=[]; #undo:BuilderDocument[]=[]; #redo:BuilderDocument[]=[];
+ constructor(input:{company_id:string;surface:string;id?:string;title?:string;root?:BuilderNode}){if(!input.company_id.trim())throw new Error("company_id_required");const surface=resolveBuilderSurface(input.surface);this.#doc={id:input.id??`workspace-${Date.now()}`,company_id:input.company_id,surface,title:input.title??"Untitled workspace",root:input.root??{id:"root",type:"stack",children:[]},revision:0,status:"draft",updated_at:now()};this.validate();}
+ static restore(document:BuilderDocument){if(!document.company_id.trim())throw new Error("company_id_required");const surface=resolveBuilderSurface(document.surface);const workspace=new TitanBuilderWorkspace({company_id:document.company_id,surface,id:document.id,title:document.title,root:document.root});workspace.#doc={...clone(document),surface};workspace.validate();return workspace;}
+ snapshot(){return clone(this.#doc)}
+ palette(search=""){const q=search.trim().toLowerCase();return ([...listBuilderItems("components"),...listBuilderItems("blocks")]).filter(i=>!q||`${i.id} ${JSON.stringify(i.data)}`.toLowerCase().includes(q)).map(i=>({collection:i.collection,id:i.id,data:sanitizeBuilderProjection(i.data)}));}
+ private mutate(fn:(d:BuilderDocument)=>void){this.#undo.push(clone(this.#doc));this.#redo=[];fn(this.#doc);this.#doc.status="draft";this.#doc.updated_at=now();this.validate();return this.snapshot();}
+ insert(parentId:string,node:BuilderNode,index?:number){return this.mutate(d=>{assertComponent(node.type);if(find(d.root,node.id))throw new Error("builder_node_id_exists");const p=find(d.root,parentId);if(!p)throw new Error("builder_parent_not_found");p.children??=[];p.children.splice(index??p.children.length,0,clone(node));});}
+ patch(nodeId:string,props:Record<string,unknown>){return this.mutate(d=>{const n=find(d.root,nodeId);if(!n)throw new Error("builder_node_not_found");n.props={...(n.props??{}),...sanitizeBuilderProjection(props) as Record<string,unknown>};});}
+ bindAction(nodeId:string,binding:{action:string;data_source?:string}){return this.mutate(d=>{const v=validateBuilderIntent({company_id:d.company_id,surface:d.surface,...binding});if(!v.accepted)throw new Error(v.reason);const n=find(d.root,nodeId);if(!n)throw new Error("builder_node_not_found");n.actions=[...(n.actions??[]),clone(binding)];});}
+ move(nodeId:string,newParentId:string,index?:number){if(nodeId==="root")throw new Error("builder_root_immutable");return this.mutate(d=>{const node=find(d.root,nodeId);const parent=find(d.root,newParentId);if(!node||!parent)throw new Error("builder_node_not_found");let cycle=false;walk(node,n=>{if(n.id===newParentId)cycle=true});if(cycle)throw new Error("builder_cycle_denied");const moved=remove(d.root,nodeId);if(!moved)throw new Error("builder_node_not_found");parent.children??=[];parent.children.splice(index??parent.children.length,0,moved);});}
+ remove(nodeId:string){if(nodeId==="root")throw new Error("builder_root_immutable");return this.mutate(d=>{if(!remove(d.root,nodeId))throw new Error("builder_node_not_found");});}
+ duplicate(nodeId:string){if(nodeId==="root")throw new Error("builder_root_immutable");return this.mutate(d=>{const node=find(d.root,nodeId);if(!node)throw new Error("builder_node_not_found");let parent:BuilderNode|undefined;walk(d.root,n=>{if((n.children??[]).some(c=>c.id===nodeId))parent=n});if(!parent)throw new Error("builder_parent_not_found");const index=(parent.children??[]).findIndex(c=>c.id===nodeId);const copy=cloneSubtreeWithFreshIds(d.root,node);parent.children??=[];parent.children.splice(index+1,0,copy);});}
+ reorder(parentId:string,fromIndex:number,toIndex:number){return this.mutate(d=>{const parent=find(d.root,parentId);if(!parent)throw new Error("builder_parent_not_found");const children=parent.children??[];if(fromIndex<0||fromIndex>=children.length||toIndex<0||toIndex>=children.length)throw new Error("builder_reorder_index_invalid");const [moved]=children.splice(fromIndex,1);children.splice(toIndex,0,moved);parent.children=children;});}
+ replaceActions(nodeId:string,actions:Array<{action:string;data_source?:string}>){return this.mutate(d=>{const n=find(d.root,nodeId);if(!n)throw new Error("builder_node_not_found");for(const binding of actions){const v=validateBuilderIntent({company_id:d.company_id,surface:d.surface,...binding});if(!v.accepted)throw new Error(v.reason);}n.actions=clone(actions);});}
+ setVisibility(nodeId:string,visibility:Record<string,unknown>){return this.mutate(d=>{const n=find(d.root,nodeId);if(!n)throw new Error("builder_node_not_found");n.visibility=sanitizeBuilderProjection(visibility) as Record<string,unknown>;});}
+ undo(){const prev=this.#undo.pop();if(!prev)return this.snapshot();this.#redo.push(clone(this.#doc));this.#doc=prev;return this.snapshot();}
+ redo(){const next=this.#redo.pop();if(!next)return this.snapshot();this.#undo.push(clone(this.#doc));this.#doc=next;return this.snapshot();}
+ validate(){validateNode(this.#doc.company_id,this.#doc.surface,this.#doc.root);return {valid:true as const,authority_granted:false as const,presentation_only:true as const};}
+ preview(device:"mobile"|"tablet"|"desktop"="desktop"){this.validate();return {schema:"titan.builder.preview/v1",device,surface:this.#doc.surface,document:sanitizeBuilderProjection(this.snapshot()),publish:false,authority_granted:false};}
+ publish(){this.validate();this.#doc.revision+=1;this.#doc.status="published";this.#doc.updated_at=now();const entry={revision:this.#doc.revision,document:this.snapshot(),published:true,created_at:now()} as const;this.#history.push(entry);return clone(entry);}
+ history(){return clone(this.#history)}
+ rollback(revision:number){const target=this.#history.find(h=>h.revision===revision);if(!target)throw new Error("builder_revision_not_found");const restored=clone(target.document);return this.mutate(d=>{const next=d.revision;Object.assign(d,restored,{revision:next,status:"draft",updated_at:now()});});}
+}
+
+export function builderCollections():TitanBuilderCollection[]{return ["components","blocks","pages","themes","templates","surfaces","data-sources","verticals","actions","schemas","specs"]}

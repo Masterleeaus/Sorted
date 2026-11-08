@@ -1,0 +1,29 @@
+{
+  "schema": "titan-zero-manager-handoff/v1",
+  "status": "MANAGER_CERTIFIED_CANONICAL",
+  "version": "0.18.1",
+  "parent_artifact": "Titan-Zero-v0.18.0-Manager-Safe-Convergence-CUMULATIVE.zip",
+  "parent_sha256": "c18cf3b0ede8287aa934104f105ad995d29ad624c35cf6e7c19897d992f4b71e",
+  "merged_task_ids": [
+    "TZ-P0-001",
+    "TZ-P0-002",
+    "TZ-P1-004",
+    "TZ-P1-005",
+    "TZ-P1-006"
+  ],
+  "pending_task_ids": [
+    "TZ-P0-003"
+  ],
+  "conflict_resolution": {
+    "TZ-CONFLICT-001": "RESOLVED: sidePanel.html canonical; native runtime seam accepted; main.html compatibility-only",
+    "TZ-CONFLICT-002": "OPEN: P0-003 agent active"
+  },
+  "company_id_audit": "PASS",
+  "authority_audit": "PASS",
+  "source_tests": "87 Python + 35 Node test files PASS",
+  "side_panel_authority": "sidePanel.html",
+  "cumulative_artifact": "Titan-Zero-v0.18.1-Manager-Canonical-Convergence-CUMULATIVE.zip",
+  "delta_artifact": "Titan-Zero-v0.18.0-Manager-Safe-to-v0.18.1-Manager-Canonical-TRUE-DELTA.zip",
+  "delta_reconstruction": "PRECERT PASS 959/959 byte-identical; final artifact proof required after serialization",
+  "recommended_next_action": "Inspect and merge TZ-P0-003 only when its active implementation claim becomes READY_FOR_MANAGER_MERGE."
+}

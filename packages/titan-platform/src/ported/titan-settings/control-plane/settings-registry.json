@@ -1,0 +1,1027 @@
+{
+  "schema": "titan-zero-settings-registry/v1",
+  "version": 1,
+  "pass": 23,
+  "status": "IMPLEMENTED",
+  "company_boundary": "company_id",
+  "identity_grants_authority": false,
+  "settings_is_projection_not_parallel_business_logic": true,
+  "scope_note": "Pass 2 records current intended scope metadata. Pass 3 formalises scope persistence and isolation semantics.",
+  "excluded_key_patterns": [
+    "*ApiKey*",
+    "*api_key*",
+    "*token*",
+    "*password*",
+    "*secret*",
+    "*credential*"
+  ],
+  "excluded_state_classes": [
+    "identity_state",
+    "history_state",
+    "workflow_execution_state",
+    "migration_markers",
+    "diagnostic_counters"
+  ],
+  "settings": [
+    {
+      "key": "advancedIntelligenceBehaviour",
+      "type": "object",
+      "default": {
+        "reasoning_depth": "balanced",
+        "prefer_deterministic": true,
+        "prefer_local": true,
+        "cloud_escalation": "when-unresolved",
+        "minimum_confidence": 0.62,
+        "max_challenge_rounds": 2,
+        "require_independent_challenge_on_high_risk": true
+      },
+      "scope": "company",
+      "owner": "titan_intelligence_runtime",
+      "category": "Assistant & Chat",
+      "sensitivity": "standard",
+      "restart_requirement": "none",
+      "source": "titan-settings/control-plane/advanced-intelligence-behaviour.mjs",
+      "description": "Company Advanced Intelligence behavioural preferences. They shape reasoning/escalation hints but cannot grant authority, execute providers or disable mandatory high-risk challenge paths.",
+      "editable": true,
+      "authority_effect": "policy_projection"
+    },
+    {
+      "key": "agentMode",
+      "type": "string",
+      "default": "default",
+      "scope": "user",
+      "owner": "assistant_runtime",
+      "category": "Assistant & Chat",
+      "sensitivity": "standard",
+      "restart_requirement": "none",
+      "source": [
+        "side-panel/assets/userSettingsService-BbHxwq7x.js"
+      ],
+      "description": "",
+      "editable": true,
+      "authority_effect": "none"
+    },
+    {
+      "key": "aiBudgetControls",
+      "type": "object",
+      "default": {
+        "mode": "disabled",
+        "currency": "AUD",
+        "period": "MONTHLY",
+        "categories": {}
+      },
+      "scope": "company",
+      "owner": "ai_cost_runtime",
+      "category": "AI Cost & Budgets",
+      "sensitivity": "standard",
+      "restart_requirement": "none",
+      "source": [
+        "titan-settings/control-plane/ai-budget-controls.mjs",
+        "titan-workforce/finance/financial-resource-guardrail-runtime.mjs",
+        "side-panel/assets/userSettingsService-BbHxwq7x.js"
+      ],
+      "description": "AI budget preferences by capability category. They project warning/review/hard limits into existing financial resource guardrails and never grant spend authority.",
+      "editable": true,
+      "authority_effect": "policy_projection"
+    },
+    {
+      "key": "aiCostRoutingPreferences",
+      "type": "object",
+      "default": {
+        "device_local": true,
+        "customer_local": true,
+        "byo_api": true,
+        "byo_service": true,
+        "titan_entitled": false,
+        "titan_metered": false
+      },
+      "scope": "device",
+      "owner": "ai_cost_runtime",
+      "category": "AI Cost & Budgets",
+      "sensitivity": "standard",
+      "restart_requirement": "none",
+      "source": [
+        "titan-workforce/handover/investigation-installation-handover.mjs",
+        "tests/client_workforce_local_ai_byo_routing.test.mjs"
+      ],
+      "description": "Preference projection over the existing cost-sovereign AI route tiers. Runtime entitlement, budget, privacy, availability, approval and authority gates remain separate.",
+      "editable": true,
+      "authority_effect": "policy_projection"
+    },
+    {
+      "key": "aiModelSelectionPolicy",
+      "type": "object",
+      "default": {
+        "profiles": {},
+        "preserve_current_chat_model": true
+      },
+      "scope": "company",
+      "owner": "ai_model_runtime",
+      "category": "Models & Providers",
+      "sensitivity": "standard",
+      "restart_requirement": "none",
+      "source": "titan-settings/control-plane/model-selection-policy.mjs",
+      "editable": true,
+      "authority_effect": "policy_projection",
+      "description": "Company workload model preferences. Preferences only reorder real runtime candidates and never bypass provider availability, cost routing, budgets, entitlement, approvals or authority."
+    },
+    {
+      "key": "aiProviderFallbackPolicy",
+      "type": "enum",
+      "default": "manual",
+      "scope": "device",
+      "owner": "ai_provider_runtime",
+      "category": "Models & Providers",
+      "sensitivity": "standard",
+      "restart_requirement": "none",
+      "source": [
+        "titan-settings/control-plane/ai-provider-control-centre.mjs"
+      ],
+      "allowed_values": [
+        "manual",
+        "ordered-enabled"
+      ],
+      "description": "Controls whether provider fallback is manual only or follows the stored order of enabled providers. This setting never bypasses runtime authority, entitlements, privacy or budget gates.",
+      "editable": true,
+      "authority_effect": "policy_projection"
+    },
+    {
+      "key": "aiTitanManagedUsagePolicy",
+      "type": "enum",
+      "default": "never",
+      "allowed_values": [
+        "never",
+        "entitled-only",
+        "approval-required"
+      ],
+      "scope": "device",
+      "owner": "ai_cost_runtime",
+      "category": "AI Cost & Budgets",
+      "sensitivity": "standard",
+      "restart_requirement": "none",
+      "source": [
+        "titan-workforce/handover/investigation-installation-handover.mjs",
+        "tests/client_workforce_local_ai_byo_routing.test.mjs"
+      ],
+      "description": "Controls whether Titan-managed AI may be considered by routing. It never grants entitlement, approval, budget or execution authority. Metered Titan remains explicit-runtime-approval only.",
+      "editable": true,
+      "authority_effect": "policy_projection"
+    },
+    {
+      "key": "approvalPolicySettings",
+      "type": "object",
+      "default": {
+        "default_level": "runtime-default",
+        "risk_levels": {},
+        "protected_actions": "approval",
+        "capability_overrides": {},
+        "require_fresh_auth": false,
+        "require_separation_of_duties": true
+      },
+      "scope": "company",
+      "owner": "authority_runtime",
+      "category": "Approvals & Risk",
+      "sensitivity": "standard",
+      "restart_requirement": "none",
+      "source": [
+        "titan-settings/control-plane/approval-policy-settings.mjs",
+        "titan-runtime/authority/authority-evaluator.mjs",
+        "titan-intelligence/decision/authority-requirement-engine.js"
+      ],
+      "description": "Company approval requirement floors by risk, protected action and capability. Settings can require more review but can never satisfy an approval or relax runtime authority requirements.",
+      "editable": true,
+      "authority_effect": "approval_requirement_floor_projection"
+    },
+    {
+      "key": "autonomySettingsCentre",
+      "type": "object",
+      "default": {
+        "default_level": "suggest",
+        "risk_caps": {
+          "low": "suggest",
+          "medium": "suggest",
+          "high": "suggest"
+        },
+        "capability_overrides": {},
+        "predictive_enabled": false
+      },
+      "scope": "company",
+      "owner": "autonomy_runtime",
+      "category": "Workforce & Autonomy",
+      "sensitivity": "standard",
+      "restart_requirement": "none",
+      "source": [
+        "titan-runtime/authority/autonomy.mjs"
+      ],
+      "description": "Company-wide autonomy preference caps. Settings may contract but never raise verified authority.",
+      "editable": true,
+      "authority_effect": "contraction_only_policy_projection"
+    },
+    {
+      "key": "browserExecutionControls",
+      "type": "object",
+      "default": {
+        "max_parallel_tabs_cap": 20,
+        "minimum_page_load_delay_ms": 0,
+        "minimum_scroll_delay_ms": 0,
+        "allowed_extraction_speeds": [
+          "fast",
+          "balanced",
+          "thorough"
+        ],
+        "allowed_network_modes": [],
+        "force_close_tabs_after_execution": false,
+        "remote_browser_allowed": true
+      },
+      "scope": "company",
+      "owner": "browser_execution",
+      "category": "Browser & Execution",
+      "sensitivity": "standard",
+      "restart_requirement": "none",
+      "source": [
+        "titan-settings/control-plane/browser-execution-controls.mjs"
+      ],
+      "description": "Company-level contraction policy over device browser execution settings.",
+      "editable": true,
+      "authority_effect": "browser_execution_policy_projection"
+    },
+    {
+      "key": "chatOptions",
+      "type": "object",
+      "default": {},
+      "scope": "user",
+      "owner": "assistant_chat",
+      "category": "Assistant & Chat",
+      "sensitivity": "standard",
+      "restart_requirement": "none",
+      "source": [
+        "side-panel/assets/userSettingsService-BbHxwq7x.js"
+      ],
+      "description": "Existing chat behaviour preferences.",
+      "editable": true,
+      "authority_effect": "none"
+    },
+    {
+      "key": "closeTabsAfterExecution",
+      "type": "boolean",
+      "default": true,
+      "scope": "device",
+      "owner": "browser_execution",
+      "category": "Browser & Execution",
+      "sensitivity": "standard",
+      "restart_requirement": "none",
+      "source": [
+        "side-panel/assets/userSettingsService-BbHxwq7x.js"
+      ],
+      "description": "",
+      "editable": true,
+      "authority_effect": "none"
+    },
+    {
+      "key": "cloudScrapeEnabled",
+      "type": "boolean",
+      "default": false,
+      "scope": "device",
+      "owner": "tool_runtime",
+      "category": "Tools & Integrations",
+      "sensitivity": "standard",
+      "restart_requirement": "none",
+      "source": [
+        "side-panel/assets/userSettingsService-BbHxwq7x.js"
+      ],
+      "description": "",
+      "editable": true,
+      "authority_effect": "policy_projection"
+    },
+    {
+      "key": "codePlanDataDoneReviewGate",
+      "type": "boolean",
+      "default": true,
+      "scope": "device",
+      "owner": "workflow_runtime",
+      "category": "Approvals & Risk",
+      "sensitivity": "standard",
+      "restart_requirement": "none",
+      "source": [
+        "side-panel/assets/userSettingsService-BbHxwq7x.js"
+      ],
+      "description": "",
+      "editable": true,
+      "authority_effect": "policy_projection"
+    },
+    {
+      "key": "codePlanTimeoutMinutes",
+      "type": "number",
+      "default": 30,
+      "scope": "device",
+      "owner": "workflow_runtime",
+      "category": "Browser & Execution",
+      "sensitivity": "standard",
+      "restart_requirement": "none",
+      "source": [
+        "side-panel/assets/userSettingsService-BbHxwq7x.js"
+      ],
+      "description": "",
+      "editable": true,
+      "authority_effect": "none"
+    },
+    {
+      "key": "consecutiveScrollDelay",
+      "type": "number",
+      "default": 0,
+      "scope": "device",
+      "owner": "browser_execution",
+      "category": "Browser & Execution",
+      "sensitivity": "standard",
+      "restart_requirement": "none",
+      "source": [
+        "side-panel/assets/userSettingsService-BbHxwq7x.js"
+      ],
+      "description": "",
+      "editable": true,
+      "authority_effect": "none"
+    },
+    {
+      "key": "creditCeiling",
+      "type": "number",
+      "default": 0,
+      "scope": "device",
+      "owner": "ai_cost_runtime",
+      "category": "AI Cost & Budgets",
+      "sensitivity": "standard",
+      "restart_requirement": "none",
+      "source": [
+        "side-panel/assets/userSettingsService-BbHxwq7x.js"
+      ],
+      "description": "",
+      "editable": true,
+      "authority_effect": "policy_projection"
+    },
+    {
+      "key": "creditCeilingEnabled",
+      "type": "boolean",
+      "default": false,
+      "scope": "device",
+      "owner": "ai_cost_runtime",
+      "category": "AI Cost & Budgets",
+      "sensitivity": "standard",
+      "restart_requirement": "none",
+      "source": [
+        "side-panel/assets/userSettingsService-BbHxwq7x.js"
+      ],
+      "description": "",
+      "editable": true,
+      "authority_effect": "policy_projection"
+    },
+    {
+      "key": "creditToolsEnabled",
+      "type": "boolean",
+      "default": false,
+      "scope": "device",
+      "owner": "tool_runtime",
+      "category": "Tools & Integrations",
+      "sensitivity": "standard",
+      "restart_requirement": "none",
+      "source": [
+        "side-panel/assets/userSettingsService-BbHxwq7x.js"
+      ],
+      "description": "",
+      "editable": true,
+      "authority_effect": "policy_projection"
+    },
+    {
+      "key": "disableAutoScroll",
+      "type": "boolean",
+      "default": false,
+      "scope": "user",
+      "owner": "assistant_chat",
+      "category": "Assistant & Chat",
+      "sensitivity": "standard",
+      "restart_requirement": "none",
+      "source": [
+        "side-panel/assets/userSettingsService-BbHxwq7x.js"
+      ],
+      "description": "",
+      "editable": true,
+      "authority_effect": "none"
+    },
+    {
+      "key": "enrichEnabled",
+      "type": "boolean",
+      "default": false,
+      "scope": "device",
+      "owner": "tool_runtime",
+      "category": "Tools & Integrations",
+      "sensitivity": "standard",
+      "restart_requirement": "none",
+      "source": [
+        "side-panel/assets/userSettingsService-BbHxwq7x.js"
+      ],
+      "description": "",
+      "editable": true,
+      "authority_effect": "policy_projection"
+    },
+    {
+      "key": "extractionSpeed",
+      "type": "string",
+      "default": "normal",
+      "scope": "device",
+      "owner": "browser_execution",
+      "category": "Browser & Execution",
+      "sensitivity": "standard",
+      "restart_requirement": "none",
+      "source": [
+        "side-panel/assets/userSettingsService-BbHxwq7x.js"
+      ],
+      "description": "",
+      "editable": true,
+      "authority_effect": "none"
+    },
+    {
+      "key": "freeModeEnabled",
+      "type": "boolean",
+      "default": true,
+      "scope": "device",
+      "owner": "ai_cost_runtime",
+      "category": "AI Cost & Budgets",
+      "sensitivity": "standard",
+      "restart_requirement": "none",
+      "source": [
+        "side-panel/assets/userSettingsService-BbHxwq7x.js"
+      ],
+      "description": "",
+      "editable": true,
+      "authority_effect": "policy_projection"
+    },
+    {
+      "key": "imageGenerationEnabled",
+      "type": "boolean",
+      "default": true,
+      "scope": "device",
+      "owner": "tool_runtime",
+      "category": "Media",
+      "sensitivity": "standard",
+      "restart_requirement": "none",
+      "source": [
+        "side-panel/assets/userSettingsService-BbHxwq7x.js"
+      ],
+      "description": "",
+      "editable": true,
+      "authority_effect": "policy_projection"
+    },
+    {
+      "key": "maxParallelTabs",
+      "type": "number",
+      "default": 1,
+      "scope": "device",
+      "owner": "browser_execution",
+      "category": "Browser & Execution",
+      "sensitivity": "standard",
+      "restart_requirement": "none",
+      "source": [
+        "side-panel/assets/userSettingsService-BbHxwq7x.js"
+      ],
+      "description": "",
+      "editable": true,
+      "authority_effect": "none"
+    },
+    {
+      "key": "mcpExecutionsEnabled",
+      "type": "boolean",
+      "default": false,
+      "scope": "device",
+      "owner": "external_tools",
+      "category": "Tools & Integrations",
+      "sensitivity": "standard",
+      "restart_requirement": "none",
+      "source": [
+        "side-panel/assets/userSettingsService-BbHxwq7x.js"
+      ],
+      "description": "Allows MCP execution only where runtime authority separately permits it.",
+      "editable": true,
+      "authority_effect": "policy_projection"
+    },
+    {
+      "key": "mcpExternalToolGovernance",
+      "type": "object",
+      "default": {
+        "mcp_allowed": true,
+        "require_confirmation": true,
+        "remote_browser_allowed": false,
+        "disabled_external_tools": [],
+        "require_confirmation_for": []
+      },
+      "scope": "company",
+      "owner": "external_tools",
+      "category": "Tools & Integrations",
+      "sensitivity": "standard",
+      "restart_requirement": "none",
+      "source": [
+        "titan-settings/control-plane/mcp-external-tool-governance.mjs",
+        "side-panel/assets/userSettingsService-BbHxwq7x.js",
+        "retriever-background.iife.js"
+      ],
+      "description": "Company governance over MCP and external tools. Company policy can disable MCP/external tools and require confirmation, but cannot store MCP secrets, force connectors, bypass tool/entitlement/cost/authority gates or execute external actions.",
+      "editable": true,
+      "authority_effect": "policy_projection"
+    },
+    {
+      "key": "missionTeamSettings",
+      "type": "object",
+      "default": {
+        "default_kind": "temporary",
+        "require_coordination_owner_before_activation": true,
+        "require_supervisor_before_activation": false,
+        "require_coordinator_before_activation": false,
+        "require_objective_before_activation": false,
+        "require_handover_ref": true,
+        "membership_changes_proposal_only": true,
+        "automatic_activation": false,
+        "team_membership_confers_authority": false,
+        "supervisor_confers_authority": false,
+        "coordinator_confers_authority": false
+      },
+      "scope": "company",
+      "owner": "workforce_runtime",
+      "category": "Workforce & Autonomy",
+      "sensitivity": "standard",
+      "restart_requirement": "none",
+      "source": [
+        "titan-settings/control-plane/mission-team-settings.mjs",
+        "titan-workforce/mission/mission-team-runtime.mjs",
+        "titan-workforce/coordination/chief-of-staff-runtime.mjs",
+        "titan-workforce/supervision/supervisor-runtime.mjs"
+      ],
+      "description": "Company-scoped mission-team policy projection over the existing temporary-team lifecycle. Settings may require stricter coordination/supervisor/coordinator/objective gates but cannot change the runtime transition matrix, bypass handover evidence, auto-activate teams, mutate membership directly, grant authority or execute transitions.",
+      "editable": true,
+      "authority_effect": "mission_team_policy_projection"
+    },
+    {
+      "key": "networkToolExecutionMode",
+      "type": "string",
+      "default": "normal",
+      "scope": "device",
+      "owner": "browser_execution",
+      "category": "Browser & Execution",
+      "sensitivity": "standard",
+      "restart_requirement": "none",
+      "source": [
+        "side-panel/assets/userSettingsService-BbHxwq7x.js"
+      ],
+      "description": "",
+      "editable": true,
+      "authority_effect": "none"
+    },
+    {
+      "key": "notificationEscalationSettings",
+      "type": "object",
+      "default": {
+        "channels_by_urgency": {
+          "LOW": [
+            "IN_APP"
+          ],
+          "NORMAL": [
+            "IN_APP"
+          ],
+          "HIGH": [
+            "IN_APP"
+          ],
+          "CRITICAL": [
+            "IN_APP"
+          ]
+        },
+        "ack_minutes_by_urgency": {
+          "LOW": 0,
+          "NORMAL": 0,
+          "HIGH": 30,
+          "CRITICAL": 10
+        },
+        "require_escalation_path_by_urgency": {
+          "LOW": false,
+          "NORMAL": false,
+          "HIGH": true,
+          "CRITICAL": true
+        },
+        "max_delivery_attempts": 3,
+        "max_escalation_depth": 2,
+        "cooldown_ms": 300000,
+        "retain_in_app_for_high_critical": true,
+        "automatic_dispatch": false,
+        "automatic_escalation": false
+      },
+      "scope": "company",
+      "owner": "workforce_runtime",
+      "category": "Notifications & Escalations",
+      "sensitivity": "standard",
+      "restart_requirement": "none",
+      "source": [
+        "titan-settings/control-plane/notification-escalation-settings.mjs",
+        "titan-workforce/notifications/workforce-notification-escalation-runtime.mjs",
+        "titan-workforce/handover/investigation-installation-handover.mjs"
+      ],
+      "description": "Company-scoped notification and escalation policy composed over Workforce global defaults. Settings can tighten acknowledgement timing, bounded retries/depth/cooldown, validate channel preferences against runtime capabilities, and require escalation paths, but cannot store recipient identities/live delivery state, dispatch, auto-escalate, grant authority or execute transitions.",
+      "editable": true,
+      "authority_effect": "notification_escalation_policy_projection"
+    },
+    {
+      "key": "offlineSynchronisationSettings",
+      "type": "object",
+      "default": {
+        "offline_first": true,
+        "sync_allowed": true,
+        "allowed_sync_modes": [
+          "realtime",
+          "polling"
+        ],
+        "cached_reads_allowed": true,
+        "prepared_intents_retained": true,
+        "max_retry_attempts": 5,
+        "minimum_retry_delay_ms": 1000,
+        "maximum_retry_delay_ms": 60000,
+        "conflict_resolution": "manual-review",
+        "require_explicit_resume": true,
+        "fresh_authority_after_reconnect": true,
+        "automatic_effect_replay": false
+      },
+      "scope": "company",
+      "owner": "offline_sync_runtime",
+      "category": "Offline & Synchronisation",
+      "sensitivity": "standard",
+      "restart_requirement": "none",
+      "source": [
+        "titan-settings/control-plane/offline-synchronisation-settings.mjs",
+        "titan-offline/index.mjs",
+        "titan-workforce/gateway/MV3SyncRecovery.schema.json"
+      ],
+      "description": "Company contraction policy over Titan offline-first recovery, sync modes, bounded retry and conflict handling. Runtime checkpoints, cursors, revisions and execution receipts remain runtime-owned state.",
+      "editable": true,
+      "authority_effect": "offline_sync_policy_projection"
+    },
+    {
+      "key": "pageLoadDelay",
+      "type": "number",
+      "default": 0,
+      "scope": "device",
+      "owner": "browser_execution",
+      "category": "Browser & Execution",
+      "sensitivity": "standard",
+      "restart_requirement": "none",
+      "source": [
+        "side-panel/assets/userSettingsService-BbHxwq7x.js"
+      ],
+      "description": "",
+      "editable": true,
+      "authority_effect": "none"
+    },
+    {
+      "key": "privacyDataSettings",
+      "type": "object",
+      "default": {
+        "prefer_local_processing": true,
+        "cloud_processing_allowed": false,
+        "sensitive_data_cloud_allowed": false,
+        "require_data_minimisation": true,
+        "require_export_approval": true,
+        "require_sensitive_export_redaction": true,
+        "automatic_deletion": false,
+        "preserve_audit_authority_history": true
+      },
+      "scope": "company",
+      "owner": "privacy_runtime",
+      "category": "Privacy & Data",
+      "sensitivity": "standard",
+      "restart_requirement": "none",
+      "source": [
+        "titan-settings/control-plane/privacy-data-settings.mjs",
+        "titan-intelligence/core/defaults.mjs",
+        "titan-workforce/privacy/workforce-privacy-evidence-runtime.mjs"
+      ],
+      "description": "Company privacy and data-governance ceiling over existing privateMode, intelligence cloud privacy and Workforce evidence controls. Mandatory minimisation, export approval/redaction, governed deletion and protected-history preservation cannot be weakened.",
+      "editable": true,
+      "authority_effect": "privacy_policy_projection"
+    },
+    {
+      "key": "privateMode",
+      "type": "boolean",
+      "default": false,
+      "scope": "device",
+      "owner": "privacy_runtime",
+      "category": "Privacy & Data",
+      "sensitivity": "standard",
+      "restart_requirement": "none",
+      "source": [
+        "side-panel/assets/userSettingsService-BbHxwq7x.js"
+      ],
+      "description": "",
+      "editable": true,
+      "authority_effect": "policy_projection"
+    },
+    {
+      "key": "providerConfigs",
+      "type": "array",
+      "default": [],
+      "scope": "device",
+      "owner": "ai_provider_runtime",
+      "category": "Models & Providers",
+      "sensitivity": "sensitive",
+      "restart_requirement": "none",
+      "source": [
+        "side-panel/assets/llmConfigService-FC6T5-i7.js",
+        "side-panel/assets/storageUtils-CrD87Pln.js",
+        "side-panel/assets/userSettingsService-BbHxwq7x.js"
+      ],
+      "description": "Existing BYO provider records in array order. Records may contain credentials; Settings projections must redact credential material and preserve the existing provider storage/migration path.",
+      "editable": true,
+      "authority_effect": "none"
+    },
+    {
+      "key": "remoteBrowserToolsConfig",
+      "type": "object",
+      "default": {},
+      "scope": "device",
+      "owner": "browser_execution",
+      "category": "Browser & Execution",
+      "sensitivity": "sensitive",
+      "restart_requirement": "none",
+      "source": [
+        "side-panel/assets/userSettingsService-BbHxwq7x.js"
+      ],
+      "description": "",
+      "editable": true,
+      "authority_effect": "policy_projection"
+    },
+    {
+      "key": "requireMcpConfirmation",
+      "type": "boolean",
+      "default": true,
+      "scope": "device",
+      "owner": "external_tools",
+      "category": "Tools & Integrations",
+      "sensitivity": "standard",
+      "restart_requirement": "none",
+      "source": [
+        "side-panel/assets/userSettingsService-BbHxwq7x.js"
+      ],
+      "description": "",
+      "editable": true,
+      "authority_effect": "policy_projection"
+    },
+    {
+      "key": "researchSettings",
+      "type": "object",
+      "default": {
+        "web_search_allowed": true,
+        "cloud_scrape_allowed": false,
+        "enrichment_allowed": false,
+        "require_confirmation_for_paid_research": true,
+        "prefer_local_or_cached_sources": true,
+        "require_citations_when_available": true
+      },
+      "scope": "company",
+      "owner": "research_runtime",
+      "category": "Search & Research",
+      "sensitivity": "standard",
+      "restart_requirement": "none",
+      "source": [
+        "titan-settings/control-plane/research-settings.mjs",
+        "side-panel/assets/userSettingsService-BbHxwq7x.js",
+        "titan-workforce/handover/investigation-installation-handover.mjs"
+      ],
+      "description": "Company ceiling and governance projection for web search, cloud scrape and enrichment.",
+      "editable": true,
+      "authority_effect": "research_policy_projection"
+    },
+    {
+      "key": "riskControlSettings",
+      "type": "object",
+      "default": {
+        "minimum_level": "low",
+        "capability_minimum_levels": {},
+        "escalation_at": "high",
+        "independent_review_at": "medium",
+        "specialist_review_at": "high",
+        "require_human_review_on_exceptional": true,
+        "block_unresolved_critical_physical_environmental_risk": true
+      },
+      "scope": "company",
+      "owner": "risk_runtime",
+      "category": "Approvals & Risk",
+      "sensitivity": "standard",
+      "restart_requirement": "none",
+      "source": "titan-settings/control-plane/risk-controls.mjs",
+      "description": "Company risk floors and earlier review/escalation preferences. Settings may tighten risk handling but cannot lower runtime risk, alter deterministic classifier weights, accept risk, grant authority or bypass critical physical/environmental blocks.",
+      "editable": true,
+      "authority_effect": "risk_floor_projection"
+    },
+    {
+      "key": "titanZeroTheme",
+      "type": "enum",
+      "default": "system",
+      "scope": "device",
+      "owner": "theme",
+      "category": "Appearance & Theme",
+      "sensitivity": "standard",
+      "restart_requirement": "none",
+      "source": [
+        "titan-theme.js"
+      ],
+      "description": "Preferred visual mode; system follows OS preference.",
+      "editable": true,
+      "authority_effect": "none",
+      "allowed_values": [
+        "system",
+        "light",
+        "dark"
+      ]
+    },
+    {
+      "key": "titanZeroThemeConfig",
+      "type": "object",
+      "default": {
+        "preset": "titan"
+      },
+      "scope": "device",
+      "owner": "theme",
+      "category": "Appearance & Theme",
+      "sensitivity": "standard",
+      "restart_requirement": "none",
+      "source": [
+        "titan-theme.js"
+      ],
+      "description": "Brand colour/preset configuration for Titan surfaces.",
+      "editable": true,
+      "authority_effect": "none"
+    },
+    {
+      "key": "toolsPermissionsCentre",
+      "type": "object",
+      "default": {
+        "disabled_tools": [],
+        "require_confirmation_for": [],
+        "require_confirmation_for_authority_classes": [
+          "protected_execution"
+        ],
+        "tool_overrides": {}
+      },
+      "scope": "company",
+      "owner": "tool_runtime",
+      "category": "Tools & Integrations",
+      "sensitivity": "standard",
+      "restart_requirement": "none",
+      "source": [
+        "titan-settings/control-plane/tools-permissions-centre.mjs",
+        "titan-tools/TOOL-REGISTRY.json",
+        "titan-runtime/authority/execution-boundary.mjs"
+      ],
+      "description": "Company tool permission projection over the canonical Titan tool registry. It can disable tools and require additional confirmation but cannot enable unavailable tools, expand roles/autonomy, bypass entitlement/cost policy, grant authority or execute tools.",
+      "editable": true,
+      "authority_effect": "policy_projection"
+    },
+    {
+      "key": "userContext",
+      "type": "string",
+      "default": "",
+      "scope": "user",
+      "owner": "assistant_chat",
+      "category": "Assistant & Chat",
+      "sensitivity": "sensitive",
+      "restart_requirement": "none",
+      "source": [
+        "side-panel/assets/userSettingsService-BbHxwq7x.js"
+      ],
+      "description": "User-provided context used by assistant behaviour.",
+      "editable": true,
+      "authority_effect": "none"
+    },
+    {
+      "key": "userSkills",
+      "type": "array",
+      "default": [],
+      "scope": "user",
+      "owner": "assistant_runtime",
+      "category": "Assistant & Chat",
+      "sensitivity": "standard",
+      "restart_requirement": "none",
+      "source": [
+        "side-panel/assets/userSettingsService-BbHxwq7x.js"
+      ],
+      "description": "",
+      "editable": true,
+      "authority_effect": "none"
+    },
+    {
+      "key": "webSearchEnabled",
+      "type": "boolean",
+      "default": true,
+      "scope": "device",
+      "owner": "tool_runtime",
+      "category": "Search & Research",
+      "sensitivity": "standard",
+      "restart_requirement": "none",
+      "source": [
+        "side-panel/assets/userSettingsService-BbHxwq7x.js"
+      ],
+      "description": "",
+      "editable": true,
+      "authority_effect": "policy_projection"
+    },
+    {
+      "key": "workflowShortcuts",
+      "type": "array",
+      "default": [],
+      "scope": "user",
+      "owner": "workflow_ui",
+      "category": "Shortcuts",
+      "sensitivity": "standard",
+      "restart_requirement": "none",
+      "source": [
+        "side-panel/assets/userSettingsService-BbHxwq7x.js"
+      ],
+      "description": "",
+      "editable": true,
+      "authority_effect": "none"
+    },
+    {
+      "key": "workforceAgentOverrides",
+      "type": "object",
+      "default": {
+        "roles": {},
+        "workers": {}
+      },
+      "scope": "company",
+      "owner": "workforce_runtime",
+      "category": "Workforce & Autonomy",
+      "sensitivity": "standard",
+      "restart_requirement": "none",
+      "source": [
+        "titan-settings/control-plane/workforce-agent-overrides.mjs",
+        "titan-workforce/contracts/ClientWorkerInstance.schema.json",
+        "titan-workforce/graph/workforce-graph.mjs",
+        "titan-workforce/catalogue/installed-client-workforce-master.json"
+      ],
+      "description": "Company-scoped role and worker preference overrides resolved over Workforce global defaults. Overrides are contractive only and cannot weaken mandatory evidence, risk ceilings, staffing/mission safeguards, authority or execution gates.",
+      "editable": true,
+      "authority_effect": "workforce_agent_override_projection"
+    },
+    {
+      "key": "workforceGlobalDefaults",
+      "type": "object",
+      "default": {
+        "notifications": {
+          "ack_minutes_by_urgency": {
+            "LOW": 0,
+            "NORMAL": 0,
+            "HIGH": 30,
+            "CRITICAL": 10
+          },
+          "max_delivery_attempts": 3,
+          "max_escalation_depth": 2,
+          "cooldown_ms": 300000
+        },
+        "evidence": {
+          "supervisor_handover_evidence_required": true,
+          "prefer_evidence_backed_performance": true,
+          "investigation_finding_evidence_required": true
+        },
+        "coordination": {
+          "require_coordination_owner": true,
+          "supervisor_handover_transfers_authority": false
+        },
+        "staffing": {
+          "proposal_only": true,
+          "automatic_reassignment": false,
+          "automatic_staffing_change": false
+        },
+        "mission_teams": {
+          "automatic_activation": false,
+          "team_membership_confers_authority": false
+        }
+      },
+      "scope": "company",
+      "owner": "workforce_runtime",
+      "category": "Workforce & Autonomy",
+      "sensitivity": "standard",
+      "restart_requirement": "none",
+      "source": [
+        "titan-settings/control-plane/workforce-global-defaults.mjs",
+        "titan-workforce/notifications/workforce-notification-escalation-runtime.mjs",
+        "titan-workforce/supervision/supervisor-runtime.mjs",
+        "titan-workforce/performance/performance-outcome-runtime.mjs",
+        "titan-workforce/staffing/dynamic-staffing-runtime.mjs",
+        "titan-workforce/mission/mission-team-runtime.mjs"
+      ],
+      "description": "Company-wide Workforce defaults for bounded notifications, evidence-backed handovers/outcomes, coordination, proposal-only staffing and mission-team behavior. Settings configures defaults but never grants authority or executes Workforce actions.",
+      "editable": true,
+      "authority_effect": "workforce_defaults_projection"
+    }
+  ],
+  "counts": {
+    "settings": 48,
+    "categories": 14,
+    "owners": 19,
+    "registry_members": 48,
+    "registry_settings": 48
+  },
+  "next_pass": 24,
+  "registry_member_count": 48
+}

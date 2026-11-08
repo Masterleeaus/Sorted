@@ -1,0 +1,23 @@
+{
+  "schema": "titan.zero.workforce.pass-manifest/v1",
+  "pass": 32,
+  "title": "Security Hardening",
+  "company_boundary": "company_id",
+  "added": [
+    "titan-workforce/security/workforce-security-runtime.mjs",
+    "titan-workforce/security/WorkforceSecurityPosture.schema.json",
+    "tests/client_workforce_security_hardening.test.mjs"
+  ],
+  "security_controls": [
+    "trusted endpoint policy",
+    "request nonce + expiry",
+    "SHA-256 request integrity envelope",
+    "company/idempotency binding",
+    "privileged authority reference",
+    "tamper-evident evidence chain",
+    "compromise authority contraction",
+    "secret local persistence prohibition"
+  ],
+  "authority_effect": false,
+  "deletions": []
+}

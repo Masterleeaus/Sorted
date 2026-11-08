@@ -1,0 +1,7 @@
+{
+  "schema": "titan-zero-retriever-finish-pass07-semantic-change/v1",
+  "packet_id": "TZ-FINISH-RETRIEVER-NATIVE-001",
+  "pass": 7,
+  "semantic_delta": "Replaces byte-hash equality as retirement authority with native semantic contract + reachability evidence while retaining historical hashes as provenance.",
+  "production_behavior_change": "Retirement decisions now fail closed on semantic parity, company isolation, authority neutrality and live reachability rather than donor bytes."
+}

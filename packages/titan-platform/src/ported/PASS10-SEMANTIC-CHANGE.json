@@ -1,0 +1,17 @@
+{
+  "schema": "titan-zero-semantic-change/v1",
+  "packet_id": "TZ-SETTINGS-THEME-RESTORE-001",
+  "pass": 10,
+  "summary": "Final Settings/theme certification. No product runtime change was required after Pass9; added final certification test and release evidence only.",
+  "product_runtime_changes": 0,
+  "preserved": [
+    "rich Monica-derived Settings UI",
+    "Theme & Colours inside Settings",
+    "canonical theme persistence",
+    "generic iframe propagation",
+    "Settings discovery",
+    "Workforce/Tools/Business semantics"
+  ],
+  "manager_base": "MERGE18_ALL_PENDING_MERGED",
+  "stop_after_pass": true
+}

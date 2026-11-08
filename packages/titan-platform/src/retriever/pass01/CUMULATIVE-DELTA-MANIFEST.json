@@ -1,0 +1,91 @@
+{
+  "schema": "titan-zero-cumulative-builder-delta-manifest/v2",
+  "workspace": "Builder 3",
+  "packet_id": "TZ-FINISH-RETRIEVER-NATIVE-001",
+  "pass": 1,
+  "base_merge": 52,
+  "base_sha256": "ea6c219d40ffbddcbb68e9c9ed741c93568fe12be2e4f09dd69af0b528366d92",
+  "file_count": 16,
+  "files": [
+    {
+      "path": "Agent Mesh/Builder 3/OUTBOX/PASS01-CHANGE-IMPACT.json",
+      "sha256": "df9aa008066fe66ead5606c974af053e24c25d44afeee7f112ae5e79981e5c3c",
+      "bytes": 372
+    },
+    {
+      "path": "Agent Mesh/Builder 3/OUTBOX/PASS01-HANDOFF.json",
+      "sha256": "84b65b48ca913d945d139b695babaf9e6e6da78f7e52ab6b032e77978f2bc682",
+      "bytes": 722
+    },
+    {
+      "path": "Agent Mesh/Builder 3/OUTBOX/PASS01-REMAINING-DEPENDENCY-MAP.json",
+      "sha256": "3b09b5d8c65a5a7a18918f213c668879fe39ee23a2f2a5da47d153bfa7fb33c4",
+      "bytes": 7342
+    },
+    {
+      "path": "Agent Mesh/Builder 3/OUTBOX/PASS01-SEMANTIC-CHANGE.json",
+      "sha256": "caf0634d29c62a4b5e6b7a92bfb485da2db3f0d97986681ee7f39cae59c3e2f9",
+      "bytes": 300
+    },
+    {
+      "path": "Agent Mesh/Builder 3/OUTBOX/PASS01-VERIFICATION.json",
+      "sha256": "7a260a2e4f3e336adfb7ed1e8be150eb0e836b71da93c6970c4c1b3cdcf405f8",
+      "bytes": 943
+    },
+    {
+      "path": "Agent Mesh/Builder 3/OUTBOX.json",
+      "sha256": "047001f3f29a3fb01dcf7ebef9ef4d188068f4aabc4e7b3cc72081bed09fc568",
+      "bytes": 265
+    },
+    {
+      "path": "Agent Mesh/Builder 3/ROLE.json",
+      "sha256": "1de05eff4569f3a10994cb08580233e8ec43c05e5d6d03d1e4b26ad77b2ff332",
+      "bytes": 2398
+    },
+    {
+      "path": "Agent Mesh/Builder 3/STATUS.json",
+      "sha256": "94709055da45b1ac179ca22b20635242511fccd5ec38c0e23c02f3595022fae1",
+      "bytes": 798
+    },
+    {
+      "path": "Agent Mesh/Builder 3/WORK-PACKET/TZ-FINISH-RETRIEVER-NATIVE-001.json",
+      "sha256": "26ae8f93e4148b05f1700888a9f38c4051bfa09968e10b3f7bf86ffabdb856bc",
+      "bytes": 5049
+    },
+    {
+      "path": "Agent Mesh/Builder 3/WORK_PACKET.json",
+      "sha256": "26ae8f93e4148b05f1700888a9f38c4051bfa09968e10b3f7bf86ffabdb856bc",
+      "bytes": 5049
+    },
+    {
+      "path": "packages/titan-platform/src/retriever/pass01/PASS01-CHANGE-IMPACT.json",
+      "sha256": "df9aa008066fe66ead5606c974af053e24c25d44afeee7f112ae5e79981e5c3c",
+      "bytes": 372
+    },
+    {
+      "path": "packages/titan-platform/src/retriever/pass01/PASS01-HANDOFF.json",
+      "sha256": "84b65b48ca913d945d139b695babaf9e6e6da78f7e52ab6b032e77978f2bc682",
+      "bytes": 722
+    },
+    {
+      "path": "packages/titan-platform/src/retriever/pass01/PASS01-SCAN.md",
+      "sha256": "a4db5dc744585f6442b68b4c67ce16e53f23ab5ccdb5ac0c89d72f5070f56e20",
+      "bytes": 1304
+    },
+    {
+      "path": "packages/titan-platform/src/retriever/pass01/PASS01-SEMANTIC-CHANGE.json",
+      "sha256": "caf0634d29c62a4b5e6b7a92bfb485da2db3f0d97986681ee7f39cae59c3e2f9",
+      "bytes": 300
+    },
+    {
+      "path": "packages/titan-platform/src/retriever/pass01/PASS01-VERIFICATION.json",
+      "sha256": "7a260a2e4f3e336adfb7ed1e8be150eb0e836b71da93c6970c4c1b3cdcf405f8",
+      "bytes": 943
+    },
+    {
+      "path": "packages/titan-platform/src/retriever/pass01/REMAINING-DEPENDENCY-MAP.json",
+      "sha256": "3b09b5d8c65a5a7a18918f213c668879fe39ee23a2f2a5da47d153bfa7fb33c4",
+      "bytes": 7342
+    }
+  ]
+}

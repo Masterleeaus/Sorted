@@ -1,0 +1,7 @@
+{
+  "schema": "titan-zero-retriever-finish-pass08-change-impact/v1",
+  "packet_id": "TZ-FINISH-RETRIEVER-NATIVE-001",
+  "pass": 8,
+  "impact": "Adds regression certification test/evidence and certified retirement ledger. No donor or shared runtime file is removed.",
+  "rollback": "Remove Pass8 regression test/evidence. Native Pass2-7 implementation remains unchanged."
+}

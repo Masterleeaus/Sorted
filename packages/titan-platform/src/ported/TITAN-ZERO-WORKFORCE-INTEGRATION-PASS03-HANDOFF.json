@@ -1,0 +1,35 @@
+{
+  "schema": "titan-zero-workforce-integration-handoff/v1",
+  "pass": 3,
+  "title": "Titan Code parent convergence and cross-system gateway lineage handshake",
+  "status": "PASS_READY_FOR_MANAGER_REVIEW",
+  "parent": {
+    "artifact": "Titan-Zero-v0.18.5-Workforce-Laravel-Gateway-Integration-Pass02-CUMULATIVE.zip"
+  },
+  "canonical_titan_zero_ancestor": {
+    "artifact": "Titan-Zero-v0.18.5-Manager-Canonical-Worker-Authority-Convergence-CUMULATIVE.zip",
+    "sha256": "cfd980e927b0611be3cb591a92a00c653e1e3f8c28b40f715d1accc68ecdeb6f"
+  },
+  "finding": {
+    "codee_master": "Codee Master Step 12.zip",
+    "codee_sha256": "35d55b3211dabc0f3c6a5e5237ee61ed65520dc7c7effa203a2f8f87a27c3ee2",
+    "titan_code_gateway_sha256": "abbd92867d99a77cae53a2f7d528a3c3e05fa1db4c0968c6fe49447f7a5f6949",
+    "titan_code_declared_parent_sha256": "8746eb82b50c5d168046392a93bf5fbe4de050259fa89ba830684b3cb3e74a2f",
+    "archive_overlap": "3 shared relative paths, 0 byte-identical",
+    "resolution": "SEMANTIC_CONTEXT_NOT_PARENT_IDENTITY"
+  },
+  "implementation": {
+    "existing_gateway_client_extended": true,
+    "parallel_gateway_runtime_created": false,
+    "cross_system_lineage_contract": "titan-workforce/gateway/cross-system-lineage.json",
+    "deployment_lineage_expectation_on_requests": true,
+    "deployment_lineage_proof_verification": true,
+    "lineage_proof_grants_authority": false,
+    "ui_changed": false,
+    "manifest_changed": false,
+    "permissions_changed": false,
+    "deleted_files": 0
+  },
+  "next_pass": 4,
+  "next_title": "Gateway contract v2"
+}

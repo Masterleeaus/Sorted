@@ -1,0 +1,32 @@
+{
+  "schema": "titan-zero-semantic-change/v1",
+  "packet_id": "TZ-NEXT-017",
+  "agent_id": "convergence-agent-1",
+  "pass": 1,
+  "created_utc": "2026-09-07T01:42:45Z",
+  "summary": "Rebased entitlement/cost-sovereignty work onto Manager Merge 26, forward-ported newer Settings control-plane Passes 08-13, and added a static provider/model/tool cost-sovereignty reachability inventory. No execution authority was added.",
+  "product_runtime_changes": {
+    "forward_ported_existing_agent_work": [
+      "AI budget controls",
+      "model-selection policy",
+      "advanced-intelligence behaviour settings",
+      "autonomy settings centre",
+      "approval policy settings",
+      "risk controls"
+    ],
+    "new_agent1_work": [
+      "static entitlement/cost-sovereignty inventory tool",
+      "focused Pass1 inventory regression test",
+      "generated Pass1 inventory evidence"
+    ],
+    "execution_wiring": "deferred to later passes where collision-safe; Pass1 establishes the verified call-site map and ownership boundaries"
+  },
+  "preserved": [
+    "rich Titan/Monica-derived UI",
+    "Merge26 storage hardening",
+    "canonical company_id boundary",
+    "identity != authority",
+    "existing Workforce cost route/receipts",
+    "existing provider compatibility runtime"
+  ]
+}

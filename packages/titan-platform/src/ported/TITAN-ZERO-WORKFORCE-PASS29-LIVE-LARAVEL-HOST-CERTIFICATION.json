@@ -1,0 +1,15 @@
+{
+  "schema": "titan.zero.workforce.pass-manifest/v1",
+  "pass": 29,
+  "title": "Live Laravel Host Certification",
+  "contract": "titan.workforce.live-laravel-host-certification.v1",
+  "company_boundary": "company_id",
+  "requires_real_live_probe_evidence": true,
+  "placeholder_endpoints_never_certify": true,
+  "safe_read_probe_supported": true,
+  "protected_mutation_test_must_be_server_provided_or_explicitly_evidenced": true,
+  "automatic_go_live": false,
+  "authority_granted": false,
+  "execution_permitted": false,
+  "grants_authority": false
+}

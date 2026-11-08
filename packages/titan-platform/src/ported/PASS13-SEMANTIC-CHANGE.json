@@ -1,0 +1,14 @@
+{
+  "schema": "titan-zero-semantic-change/v1",
+  "pass": 13,
+  "summary": "Adds evidence-based Marketplace portfolio consolidation planning over Pass11 value and Pass12 renewal evidence.",
+  "manager_merge_target": 30,
+  "forward_port_only": true,
+  "preserve_manager30_universal_workspace": true,
+  "runtime_files": [
+    "cleaning-marketplace-consolidation.js",
+    "titan-modules/cleaning-marketplace-consolidation.json"
+  ],
+  "ui_files": ["modules.html", "modules.css"],
+  "authority_change": false
+}

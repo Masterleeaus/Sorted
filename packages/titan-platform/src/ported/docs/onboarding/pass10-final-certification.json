@@ -1,0 +1,34 @@
+{
+  "schema": "titan-zero-onboarding-final-certification/v1",
+  "packet_id": "TZ-NEXT-015",
+  "pass": 10,
+  "status": "PASS",
+  "manager_baseline": {
+    "merge": 46,
+    "artifact": "Titan-Zero-CANONICAL-MASTER-2026-09-09-MERGE-46-BULK-AGENT-ANALYTICS-CONVERGED.zip",
+    "sha256": "2bef6fd90116796c76fa1ba7cb0e59841b0788c7657dc59077dd0a9ba440f949",
+    "files": 3224
+  },
+  "verification": {
+    "onboarding_node": "61/61 PASS",
+    "whole_tree_node": "1181/1181 PASS",
+    "python": "102/102 PASS",
+    "json_parse": "1508/1508 PASS",
+    "zip_integrity": "PASS",
+    "exact_reconstruction": "PASS",
+    "live_chrome": "NOT_CERTIFIED",
+    "live_laravel": "NOT_CERTIFIED"
+  },
+  "certified": {
+    "completion_state_persistence": true,
+    "settings_persistence": "PASS via Pass3 suite",
+    "operational_readiness": true,
+    "company_boundary": "company_id_only",
+    "identity_not_authority": true,
+    "grants_authority": false,
+    "execution_permitted": false
+  },
+  "runtime_change_in_pass10": false,
+  "recommended_convergence_class": "CLEAN_ADDITIVE_FORWARD_PORT",
+  "lane_file_count": 35
+}

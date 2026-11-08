@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "titan.zero.capability-ownership-decision.v1",
+  "type": "object",
+  "required": ["schema","company_id","owner","capability","allowed","reason","authority_neutral","permission_confers_authority","privilege_inheritance_permitted"],
+  "properties": {
+    "schema": {"const":"titan.zero.capability-ownership-decision.v1"},
+    "company_id": {"type":"string","minLength":1},
+    "owner": {"enum":["TITAN","MONICA","RETRIEVER"]},
+    "capability": {"type":"string","minLength":1},
+    "allowed": {"type":"boolean"},
+    "reason": {"type":"string","minLength":1},
+    "authority_neutral": {"const":true},
+    "permission_confers_authority": {"const":false},
+    "privilege_inheritance_permitted": {"const":false},
+    "cross_runtime_grant_permitted": {"const":false},
+    "cross_company_access_permitted": {"const":false}
+  },
+  "additionalProperties": true
+}

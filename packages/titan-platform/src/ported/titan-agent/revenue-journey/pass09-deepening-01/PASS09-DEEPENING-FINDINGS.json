@@ -1,0 +1,44 @@
+{
+  "schema": "titan-zero-pass09-deepening-findings/v1",
+  "packet_id": "TZ-NEXT-003",
+  "pass": "9-DEEPENING-01",
+  "status": "REPAIRED_AND_VERIFIED",
+  "findings": [
+    {
+      "id": "RJ-P9D-001",
+      "severity": "HIGH",
+      "finding": "Projection identity changed with observation arrival order.",
+      "repair": "Canonical deterministic observation ordering."
+    },
+    {
+      "id": "RJ-P9D-002",
+      "severity": "HIGH",
+      "finding": "Duplicate replay produced duplicate projected items.",
+      "repair": "Stable event identity deduplication."
+    },
+    {
+      "id": "RJ-P9D-003",
+      "severity": "HIGH",
+      "finding": "Conflicting replay sharing event identity was accepted.",
+      "repair": "Conflicting visible replay fails closed."
+    },
+    {
+      "id": "RJ-P9D-004",
+      "severity": "HIGH",
+      "finding": "Real payment observations could be classified as booking/job due inherited correlation entities.",
+      "repair": "Stage detection now prioritizes the observation's own explicit entity identifiers."
+    },
+    {
+      "id": "RJ-P9D-005",
+      "severity": "MEDIUM",
+      "finding": "Payment projection could display invoice_state; quote/lead transitions could display observed instead of target state.",
+      "repair": "Stage-aware status resolution including nested transition.to_state."
+    },
+    {
+      "id": "RJ-P9D-006",
+      "severity": "MEDIUM",
+      "finding": "Any review object was treated review-required even when all flags were false.",
+      "repair": "Review required only for true review flags, explicit handoff, or review/handoff-required downstream semantics."
+    }
+  ]
+}

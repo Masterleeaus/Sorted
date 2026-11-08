@@ -1,0 +1,25 @@
+{
+  "schema": "titan-zero-storage-authority-diagnostics-map/v1",
+  "packet_id": "TZ-FINISH-STORAGE-DATA-AUTHORITY-001",
+  "pass": 9,
+  "protocol": "titan.observability.storage-authority.native.v1",
+  "read_only": true,
+  "evidence": [
+    "company-scoped record inventory",
+    "module/collection inventory",
+    "record version drift detection",
+    "company-prefixed primary-key drift detection",
+    "readonly transaction canary",
+    "migration checkpoint/rollback capability inventory",
+    "reconciliation conflict capability inventory",
+    "business receipt/conflict capability inventory",
+    "backup/restore capability inventory",
+    "idempotency-index capability inventory"
+  ],
+  "not_ported": {
+    "indexeddb_store_index_introspection": "REJECTED_WITH_REASON",
+    "reason": "Native storage adapter contract is backend-neutral; browser IndexedDB store/index metadata would incorrectly couple diagnostics to one backend. Backend-specific diagnostics belong in adapter implementations."
+  },
+  "authority_neutral": true,
+  "grants_authority": false
+}

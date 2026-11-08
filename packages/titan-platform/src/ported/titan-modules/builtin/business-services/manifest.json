@@ -1,0 +1,31 @@
+{
+  "id": "titan.business-services",
+  "name": "Titan Business Services Router",
+  "version": "1.0.0",
+  "kind": "packaged",
+  "description": "Routes owner outcomes to canonical Titan service owners and certified interaction workflows without becoming a second domain authority.",
+  "author": "Titan Zero",
+  "scope": {"company_id": null},
+  "permissions": [],
+  "contributes": {
+    "capabilities": [
+      {"id": "business.service.resolve", "title": "Resolve canonical business service"},
+      {"id": "business.workflow.resolve", "title": "Resolve certified business workflow"}
+    ],
+    "commands": [
+      {"id": "resolve-route", "title": "Resolve business route", "description": "Returns the canonical service owner and applicable certified workflow for an outcome."},
+      {"id": "list-services", "title": "List service owners", "description": "Returns canonical service ownership projection metadata."},
+      {"id": "list-workflows", "title": "List business workflows", "description": "Returns packaged Interaction Engine workflow routing metadata."}
+    ],
+    "intents": [],
+    "links": [],
+    "feed": [],
+    "settings": []
+  },
+  "metadata": {
+    "company_boundary": "company_id",
+    "authority_mode": "projection_and_routing_only",
+    "source_registry": "Titan Shared Platform Services Step 14",
+    "workflow_source": "Titan Interaction Engine 10.12.0"
+  }
+}

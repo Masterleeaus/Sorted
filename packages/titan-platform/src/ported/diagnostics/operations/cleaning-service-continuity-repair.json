@@ -1,0 +1,22 @@
+{
+  "schema": "titan-zero-cleaning-service-continuity-repair/v1",
+  "packet_id": "TZ-NEXT-002",
+  "pass": 8,
+  "manager_merge": 42,
+  "company_boundary": "company_id",
+  "authority_change": false,
+  "flows": {
+    "recurring": "existing workforce recurrence runtime -> governed crm.appointment.create proposals with fresh authority evaluation",
+    "reschedule": "authoritative booking receipt -> existing booking calendar reconciliation event; no direct mutation",
+    "cancel": "authoritative booking receipt -> existing booking cancellation reconciliation with human review; no direct cancellation",
+    "rework": "authoritative job receipt -> existing Jobs rework exception and governed crm.work_order.update proposal"
+  },
+  "restrictions": [
+    "no automatic recurring booking creation",
+    "no direct reschedule",
+    "no direct cancellation",
+    "no automatic rework start",
+    "no work-order mutation",
+    "no authority grant"
+  ]
+}

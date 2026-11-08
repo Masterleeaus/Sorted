@@ -1,0 +1,22 @@
+{
+  "schema": "titan-zero-model-selection-policy-contract/v1",
+  "pass": 9,
+  "status": "ACTIVE",
+  "company_boundary": "company_id",
+  "setting_key": "aiModelSelectionPolicy",
+  "scope": "company",
+  "workloads": ["chat", "research", "reasoning", "extraction", "vision"],
+  "existing_model_sources_preserved": ["chatOptions.model", "providerConfigs[].modelId", "managed model catalogue", "Gemini BYO model catalogue"],
+  "settings_role": "ordered workload preference projection only",
+  "selection_requires_runtime_candidate": true,
+  "provider_enablement_required_for_byo": true,
+  "cost_gate_required": true,
+  "runtime_must_revalidate": ["provider-availability", "cost-route", "budget", "entitlement", "approval", "authority"],
+  "credentials_in_generic_policy": false,
+  "credentials_exposed_by_projection": false,
+  "existing_chat_model_storage_preserved": true,
+  "automatic_spend": false,
+  "automatic_authority_change": false,
+  "execution_permitted": false,
+  "grants_authority": false
+}

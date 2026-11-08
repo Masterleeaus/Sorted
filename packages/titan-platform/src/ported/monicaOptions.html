@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en" data-titan-settings-authority="rich">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Titan Zero Settings</title>
+    <link rel="stylesheet" href="./titan-zero-chat-content.compat.css" />
+    <link rel="stylesheet" href="./titan-theme.css" />
+    <link rel="stylesheet" href="./titan-rich-shell.css" />
+    <link rel="stylesheet" href="./titan-settings-integrated.css" />
+    <link rel="stylesheet" href="./titan-settings-discovery.css" />
+</head>
+
+  <body class="titan-monica-options-page titan-settings-page" data-titan-settings-authority="rich">
+    <section class="titan-settings-native" data-titan-settings-native="true" aria-labelledby="titan-native-settings-title">
+      <div class="titan-settings-native-head">
+        <div>
+          <strong id="titan-native-settings-title">Titan Zero controls</strong>
+          <span>Extension-wide appearance and Titan destinations now live inside the rich Settings centre.</span>
+        </div>
+        <div class="titan-settings-launchers" aria-label="Titan Zero destinations">
+          <button type="button" data-titan-settings-launch="chat">Chat</button>
+          <button type="button" data-titan-settings-launch="work">Titan Work</button>
+          <button type="button" data-titan-settings-launch="diagnostics">Diagnostics</button>
+        </div>
+      </div>
+      <section class="titan-theme-editor" aria-labelledby="titan-theme-editor-title">
+        <div class="titan-theme-editor-head">
+          <div>
+            <strong id="titan-theme-editor-title">Theme &amp; Colours</strong>
+            <span>Choose appearance and colours for Titan Zero. This preview is driven by the same saved theme state used by the extension.</span>
+          </div>
+          <button type="button" data-titan-theme-reset aria-label="Reset theme to Titan defaults and System appearance">Reset theme</button>
+        </div>
+        <div class="titan-theme-mode-picker" role="group" aria-label="Theme mode">
+          <span>Appearance</span>
+          <button type="button" data-titan-theme-mode-choice="system" aria-pressed="false">System</button>
+          <button type="button" data-titan-theme-mode-choice="light" aria-pressed="false">Light</button>
+          <button type="button" data-titan-theme-mode-choice="dark" aria-pressed="false">Dark</button>
+          <output data-titan-theme-mode-status aria-live="polite"></output>
+        </div>
+        <div class="titan-theme-presets" aria-label="Theme presets">
+          <button type="button" data-titan-theme-preset="titan"><i style="--swatch:#05070b"></i><b>Titan</b><small>Charcoal · Blue · Slate · Pink</small></button>
+          <button type="button" data-titan-theme-preset="midnight"><i style="--swatch:#020617"></i><b>Midnight</b><small>Ink · Sky · Slate · Pink</small></button>
+          <button type="button" data-titan-theme-preset="cobalt"><i style="--swatch:#1d4ed8"></i><b>Cobalt</b><small>Charcoal · Cobalt · Grey · Rose</small></button>
+          <button type="button" data-titan-theme-preset="graphite"><i style="--swatch:#71717a"></i><b>Graphite</b><small>Black · Blue · Zinc · Pink</small></button>
+        </div>
+        <div class="titan-theme-colors">
+          <label>Background <input type="color" value="#05070b" data-titan-theme-background aria-label="Background theme colour"></label>
+          <label>Primary <input type="color" value="#2563eb" data-titan-theme-primary aria-label="Primary theme colour"></label>
+          <label>Secondary <input type="color" value="#64748b" data-titan-theme-secondary aria-label="Secondary theme colour"></label>
+          <label>Tertiary <input type="color" value="#ec4899" data-titan-theme-tertiary aria-label="Tertiary theme colour"></label>
+        </div>
+        <div class="titan-theme-preview" data-titan-theme-preview aria-label="Live theme preview">
+          <div class="preview-surface">
+            <strong>Titan Zero</strong>
+            <small data-titan-theme-preview-mode>System</small>
+            <p>Live preview from your saved Titan theme.</p>
+            <div><span class="primary">Action</span><span class="secondary">Secondary</span><span class="tertiary">Highlight</span></div>
+          </div>
+          <span class="background" aria-hidden="true">Background</span>
+        </div>
+      </section>
+    </section>
+    <div id="root"></div>
+    <script src="./titan-zero-chat-content.compat.js"></script>
+    <script src="./titan-theme.js"></script>
+    <script src="./titan-rich-shell.js"></script>
+    <script src="./titan-settings-restore.js"></script>
+    <script src="./titan-settings-integrated.js"></script>
+    <script src="./titan-settings-discovery.js"></script>
+<script src="./titan-permission-consent-hooks.js"></script>
+</body>
+</html>

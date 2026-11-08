@@ -1,0 +1,40 @@
+{
+  "schema": "titan-zero-cleaning-operations-final-certification/v1",
+  "packet_id": "TZ-NEXT-002",
+  "workspace": "Builder 1",
+  "pass": 10,
+  "result": "PASS_SCOPED_FINAL",
+  "manager_merge": 42,
+  "manager_baseline": {
+    "artifact": "Titan-Zero-CANONICAL-MASTER-2026-09-09-MERGE-42-PERMISSION-HARDENING-CONVERGED.zip",
+    "sha256": "1c4b6f471ba16f44d7b27db546ba41db18032ce9967b1d725dc0926cd73cc930"
+  },
+  "input_pass09": {
+    "sha256": "6a8288d8c9a92f14a103bb854b9bd3ae094da00160083b9305ba1124844d9aea",
+    "files": 29,
+    "focused_scenarios": "5/5 PASS",
+    "pass08_plus_pass09": "13/13 PASS"
+  },
+  "inherited_evidence": {
+    "pass08": "8/8 focused; 54/54 broader; 3040/3040 exact reconstruction PASS",
+    "pass07": "6/6 focused; 55/55 broader; 3038/3038 exact reconstruction PASS",
+    "pass06": "6/6 focused; 41/41 broader; 3036/3036 exact reconstruction PASS"
+  },
+  "pass10_checks": {
+    "focused_certification_tests": "7/7 PASS",
+    "pre_metadata_mjs_syntax": "10/10 PASS",
+    "pre_metadata_json_parse": "19/19 PASS",
+    "pass09_zip_integrity": "PASS",
+    "runtime_sha256": "7c3da12c94f627ced36ee085ac52ae2a2188c7f013c22eb6365b80571019205b",
+    "runtime_changed_in_pass10": false,
+    "company_boundary": "company_id only",
+    "authority_change": false
+  },
+  "limitations": {
+    "full_manager_tree_regression": "NOT_RUN_BUILDER_DELTA_ENVIRONMENT",
+    "claim": "Final certification is scoped to the cumulative Builder delta plus inherited verified regression evidence; Manager must perform canonical convergence/regression."
+  },
+  "disposition": "READY_FOR_MANAGER_MERGE",
+  "stop_lane": true,
+  "certified_utc": "2026-09-09T00:16:30Z"
+}

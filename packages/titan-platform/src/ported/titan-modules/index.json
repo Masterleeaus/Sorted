@@ -1,0 +1,8 @@
+{
+  "schemaVersion": 1,
+  "modules": [
+    {"id":"titan.module-health","manifest":"titan-modules/builtin/module-health/manifest.json","entry":"titan-modules/builtin/module-health/index.mjs","enabled":true},
+    {"id":"titan.business-services","manifest":"titan-modules/builtin/business-services/manifest.json","entry":"titan-modules/builtin/business-services/index.mjs","enabled":true},
+    {"id":"titan.workforce-verticals","manifest":"titan-modules/builtin/workforce-verticals/manifest.json","entry":"titan-modules/builtin/workforce-verticals/index.mjs","enabled":true}
+  ]
+}

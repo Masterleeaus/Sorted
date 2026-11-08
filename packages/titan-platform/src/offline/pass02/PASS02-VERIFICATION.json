@@ -1,0 +1,23 @@
+{
+  "schema": "titan-zero-offline-pass02-verification/v1",
+  "workspace": "Builder 3",
+  "packet_id": "TZ-FINISH-OFFLINE-RESILIENCE-001",
+  "pass": 2,
+  "status": "PASS_COMPLETE_CONTINUE",
+  "checks": {
+    "typecheck": "PASS",
+    "fresh_compile": "PASS",
+    "full_titan_platform_suite": "80/80 PASS",
+    "deterministic_identity": "PASS",
+    "legacy_alias_rejection": "PASS",
+    "cross_company_payload_rejection": "PASS",
+    "duplicate_delivery": "IDEMPOTENT",
+    "idempotency_key_reuse": "EXPLICIT_CONFLICT",
+    "operation_id_reuse": "EXPLICIT_CONFLICT",
+    "company_isolation": "PASS",
+    "terminal_receipt_mutation": "FAIL_CLOSED",
+    "identity_grants_authority": false,
+    "execution_authority": false
+  },
+  "next_gate": "Pass 3: durable mutation queue, retries, bounded backoff and poison-item isolation."
+}

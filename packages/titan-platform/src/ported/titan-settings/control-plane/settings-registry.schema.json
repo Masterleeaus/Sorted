@@ -1,0 +1,122 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "titan-zero-settings-registry.schema.json",
+  "title": "Titan Zero Canonical Settings Registry",
+  "type": "object",
+  "required": [
+    "schema",
+    "company_boundary",
+    "identity_grants_authority",
+    "settings_is_projection_not_parallel_business_logic",
+    "settings"
+  ],
+  "properties": {
+    "schema": {
+      "const": "titan-zero-settings-registry/v1"
+    },
+    "company_boundary": {
+      "const": "company_id"
+    },
+    "identity_grants_authority": {
+      "const": false
+    },
+    "settings_is_projection_not_parallel_business_logic": {
+      "const": true
+    },
+    "settings": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/setting"
+      }
+    }
+  },
+  "$defs": {
+    "setting": {
+      "type": "object",
+      "required": [
+        "key",
+        "type",
+        "default",
+        "scope",
+        "owner",
+        "category",
+        "sensitivity",
+        "restart_requirement",
+        "source"
+      ],
+      "properties": {
+        "key": {
+          "type": "string",
+          "pattern": "^[A-Za-z][A-Za-z0-9_.-]*$"
+        },
+        "type": {
+          "enum": [
+            "boolean",
+            "number",
+            "string",
+            "object",
+            "array",
+            "enum"
+          ]
+        },
+        "default": {},
+        "allowed_values": {
+          "type": "array"
+        },
+        "scope": {
+          "enum": [
+            "global",
+            "company",
+            "user",
+            "device",
+            "session"
+          ]
+        },
+        "owner": {
+          "type": "string",
+          "minLength": 1
+        },
+        "category": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sensitivity": {
+          "enum": [
+            "standard",
+            "sensitive",
+            "internal"
+          ]
+        },
+        "restart_requirement": {
+          "enum": [
+            "none",
+            "surface_reload",
+            "background_restart",
+            "extension_reload"
+          ]
+        },
+        "source": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1
+        },
+        "description": {
+          "type": "string"
+        },
+        "editable": {
+          "type": "boolean"
+        },
+        "authority_effect": {
+          "enum": [
+            "none",
+            "preference_only",
+            "policy_projection"
+          ]
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

@@ -1,0 +1,11 @@
+import assert from 'node:assert/strict';
+import { createChatEvent, createChatComponent, chatEventFromPresentationIntent } from '../src/ported/titan-runtime/interaction-engine/chat-protocol.js';
+const c=createChatComponent({component_id:'c1',kind:'card',props:{title:'Jobs',secret:'x'},actions:[{intent:'job.open',params:{id:'j1'}}]});
+assert.equal(c.authority_granted,false); assert.equal(c.props.secret,undefined); assert.equal(c.actions[0].downstream_authorization_required,true);
+const e=createChatEvent({event_id:'e1',conversation_id:'q1',company_id:'co1',surface:'command',type:'component',components:[c,c,c,c]});
+assert.equal(e.surface,'zero'); assert.equal(e.components.length,3); assert.equal(e.authority_granted,false);
+assert.throws(()=>createChatEvent({event_id:'e',conversation_id:'q',company_id:'co',tenant_id:'bad',surface:'zero',type:'component'}));
+assert.throws(()=>createChatComponent({component_id:'x',kind:'card',actions:[{intent:'x',execute:true}]}));
+const p=chatEventFromPresentationIntent({authority_neutral:true,company_id:'co1',surface:'hub',payload:{semantic_components:[{id:'x',kind:'invoice',props:{title:'Invoice'}}]},actions:[{intent:'invoice.view'}]}, {event_id:'e2',conversation_id:'q1'});
+assert.equal(p.components[0].kind,'invoice'); assert.equal(p.company_id,'co1');
+console.log('chat-protocol pass01: 10/10 PASS');

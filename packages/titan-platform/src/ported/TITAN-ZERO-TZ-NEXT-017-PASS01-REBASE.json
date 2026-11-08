@@ -1,0 +1,31 @@
+{
+  "schema": "titan-zero-agent-rebase/v1",
+  "packet_id": "TZ-NEXT-017",
+  "agent_id": "convergence-agent-1",
+  "pass": 1,
+  "created_utc": "2026-09-07T01:42:45Z",
+  "from_packet_base": {
+    "manager_merge": 24,
+    "artifact": "Titan-Zero-CANONICAL-MASTER-2026-09-07-MERGE-24-NANO-CONTROL-FENCE-ABSORBED.zip"
+  },
+  "to_parent": {
+    "artifact": "Titan-Zero-CANONICAL-MASTER-2026-09-07-MERGE-26-ALL-PASSES-STORAGE-CONVERGED.zip",
+    "sha256": "04241bb7c0fc647114e8ea23620ba93c3e8285d042d553d2ddd0cb6f9d23d89b",
+    "files": 2076,
+    "manager_merge": 26
+  },
+  "donor_forward_port": {
+    "agent": "settings-control-plane-agent",
+    "latest_delta": "Titan-Zero-SETTINGS-CONTROL-PLANE-Pass13-TRUE-DELTA.zip",
+    "sha256": "2f85d2974fcd1eaacb7ee6e34f0e40db1738b1246f8c1794f2decd167ac43386",
+    "passes_forward_ported": "08-13",
+    "reason": "newer non-conflicting control-plane work published after Manager Merge 26 baseline"
+  },
+  "rules_preserved": [
+    "company_id only",
+    "AI/workforce identity does not grant authority",
+    "device/local/BYO first",
+    "no silent Titan variable cost",
+    "existing rich UI preserved"
+  ]
+}

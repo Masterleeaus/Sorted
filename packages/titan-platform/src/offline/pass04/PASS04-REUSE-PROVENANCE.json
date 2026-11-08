@@ -1,0 +1,32 @@
+{
+  "schema": "titan-zero-offline-reuse-provenance/v1",
+  "packet_id": "TZ-FINISH-OFFLINE-RESILIENCE-001",
+  "pass": 4,
+  "dispositions": [
+    {
+      "source": "packages/titan-platform/src/storage/reconciliation.ts",
+      "status": "REUSED",
+      "semantics": [
+        "local-primary",
+        "remote revision comparison",
+        "explicit same-revision divergence conflict",
+        "dirty-local conflict",
+        "stale remote ignore"
+      ]
+    },
+    {
+      "source": "packages/titan-platform/src/storage/repository.ts",
+      "status": "REUSED_DEPENDENCY",
+      "semantics": [
+        "company-scoped durable sync cursor/generation state"
+      ]
+    },
+    {
+      "source": "Pass3 durable mutation queue",
+      "status": "PRESERVED_NOT_REWRITTEN",
+      "reason": "Pass4 synchronization composes with queue identity/retry rather than replacing it."
+    }
+  ],
+  "rewrite_avoided": true,
+  "parallel_storage_authority_created": false
+}

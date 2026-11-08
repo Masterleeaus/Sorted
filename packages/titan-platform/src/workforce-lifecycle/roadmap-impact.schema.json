@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "titan.workforce.roadmap-impact.v1",
+  "title": "Titan Zero roadmap workforce impact",
+  "type": "object",
+  "required": ["company_id", "goal_id", "subgoal_id", "mode", "owning_agent_ids", "registry_deltas"],
+  "properties": {
+    "company_id": {"type": "string", "minLength": 1},
+    "goal_id": {"type": "string", "minLength": 1},
+    "subgoal_id": {"type": "string", "minLength": 1},
+    "mode": {"enum": ["REUSE_EXISTING_AGENT", "EXTEND_EXISTING_AGENT", "CREATE_NEW_AGENT", "SURFACE_BINDING_EXISTING_AGENTS", "NO_AGENT_INFRASTRUCTURE_ONLY"]},
+    "owning_agent_ids": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+    "registry_deltas": {"type": "array", "items": {"type": "object", "required": ["agent_id", "operation", "capability_ids"], "properties": {"agent_id": {"type": "string"}, "operation": {"enum": ["REUSE", "EXTEND", "CREATE"]}, "capability_ids": {"type": "array", "uniqueItems": true, "items": {"type": "string"}}}, "additionalProperties": false}},
+    "infrastructure_only_justification": {"type": ["string", "null"]},
+    "identity_grants_authority": {"const": false}
+  },
+  "not": {"anyOf": [{"required": ["tenant_id"]}, {"required": ["tenant_company_id"]}, {"required": ["tenant"]}]},
+  "additionalProperties": false
+}

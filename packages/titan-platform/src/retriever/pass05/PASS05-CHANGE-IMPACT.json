@@ -1,0 +1,7 @@
+{
+  "schema": "titan-zero-retriever-finish-pass05-change-impact/v1",
+  "packet_id": "TZ-FINISH-RETRIEVER-NATIVE-001",
+  "pass": 5,
+  "impact": "Native Retriever now carries a policy and regression gate forbidding live donor execution. Existing ported/migration evidence remains intact for rollback and Pass7/9 retirement proof.",
+  "rollback": "Remove donor-policy.ts, its index export, Pass5 test/evidence. No runtime donor file was deleted."
+}

@@ -1,0 +1,43 @@
+{
+  "schema": "titan.zero.workforce.pass49.manager-convergence-release-prep.v1",
+  "pass": 49,
+  "title": "Manager Convergence Release Prep",
+  "manager_baseline": "MERGE-18",
+  "purpose": "Prepare the converged Workforce candidate for manager release review without self-promoting it to canonical.",
+  "company_boundary": "company_id",
+  "candidate_only": true,
+  "manager_promotion_required": true,
+  "required_release_evidence": [
+    "full_node_regression",
+    "full_python_regression",
+    "javascript_syntax",
+    "json_parse",
+    "zip_integrity",
+    "exact_reconstruction",
+    "rollback_evidence",
+    "browser_live_smoke_evidence",
+    "laravel_live_host_evidence"
+  ],
+  "known_external_blockers": [
+    {
+      "id": "LIVE_BROWSER_EXTENSION_TARGET",
+      "status": "BLOCKED_UNTIL_OBSERVED",
+      "may_be_faked": false
+    },
+    {
+      "id": "LIVE_LARAVEL_HOST",
+      "status": "BLOCKED_UNTIL_CONFIGURED_AND_PROBED",
+      "may_be_faked": false
+    }
+  ],
+  "release_rules": {
+    "offline_may_expand_authority": false,
+    "rollback_may_expand_authority": false,
+    "ui_may_grant_authority": false,
+    "fresh_authority_after_version_transition": true,
+    "protected_changes_require_command_bus": true
+  },
+  "authority_granted": false,
+  "execution_permitted": false,
+  "grants_authority": false
+}

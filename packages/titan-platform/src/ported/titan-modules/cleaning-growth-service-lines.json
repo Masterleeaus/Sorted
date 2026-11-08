@@ -1,0 +1,77 @@
+{
+  "schema": "titan-cleaning-growth-service-lines/v1",
+  "version": "2026.09.07-pass3",
+  "policy": "Service-line opportunity intelligence is deterministic and advisory. Demand and value come only from company-scoped evidence. Readiness reflects known installed marketplace/workforce coverage and never grants authority.",
+  "service_lines": [
+    {
+      "id": "commercial",
+      "name": "Commercial Cleaning",
+      "terms": ["commercial","office","contract cleaning","retail","facility","facilities"],
+      "launch_product": "growth.expand.commercial",
+      "crew_product": "growth.crew.commercial",
+      "required_products": ["growth.expand.commercial","growth.cap.qa_sampling","growth.automation.inspection"],
+      "required_workers": ["titan.cleaning.commercial_coordinator","titan.cleaning.quality_inspector","titan.cleaning.consumables"]
+    },
+    {
+      "id": "airbnb",
+      "name": "Short-Stay Turnovers",
+      "terms": ["airbnb","short stay","short-stay","holiday rental","turnover","bnb"],
+      "launch_product": "growth.expand.airbnb",
+      "crew_product": "growth.crew.airbnb",
+      "required_products": ["growth.expand.airbnb","growth.integration.access","growth.automation.inspection"],
+      "required_workers": ["titan.cleaning.airbnb_turnover","titan.cleaning.linen_laundry","titan.cleaning.keys_access"]
+    },
+    {
+      "id": "endlease",
+      "name": "End-of-Lease Cleaning",
+      "terms": ["end of lease","end-of-lease","bond clean","vacate","move out","rental exit"],
+      "launch_product": "growth.expand.endlease",
+      "crew_product": "growth.crew.endlease",
+      "required_products": ["growth.expand.endlease","growth.cap.stain_triage","growth.automation.inspection"],
+      "required_workers": ["titan.cleaning.bond_specialist","titan.cleaning.deep_clean_specialist","titan.cleaning.quality_inspector"]
+    },
+    {
+      "id": "healthcare",
+      "name": "Healthcare Cleaning",
+      "terms": ["healthcare","medical","clinic","hospital","infection control","infection-control","dental"],
+      "launch_product": "growth.expand.healthcare",
+      "crew_product": "growth.crew.healthcare",
+      "required_products": ["growth.expand.healthcare","growth.knowledge.infection","growth.cap.atp_hygiene","growth.cap.colour_coding","growth.automation.inspection"],
+      "required_workers": ["titan.cleaning.healthcare_infection_control","titan.cleaning.chemicals_sds","titan.cleaning.quality_inspector"]
+    },
+    {
+      "id": "education",
+      "name": "Schools & Childcare Cleaning",
+      "terms": ["school","schools","childcare","child care","education","kindergarten","daycare"],
+      "launch_product": "growth.expand.education",
+      "required_products": ["growth.expand.education","growth.knowledge.infection","growth.cap.colour_coding","growth.cap.qa_sampling"],
+      "required_workers": ["titan.cleaning.education_childcare","titan.cleaning.quality_inspector"]
+    },
+    {
+      "id": "strata",
+      "name": "Strata & Common-Area Cleaning",
+      "terms": ["strata","body corporate","common area","common-area","owners corporation"],
+      "launch_product": "growth.expand.strata",
+      "required_products": ["growth.expand.strata","growth.cap.periodic_floor","growth.integration.routing"],
+      "required_workers": ["titan.cleaning.commercial_coordinator","titan.cleaning.recurring_optimizer"]
+    },
+    {
+      "id": "construction",
+      "name": "Builders & Post-Construction Cleans",
+      "terms": ["construction","builders clean","builder clean","post construction","post-construction","renovation","handover clean"],
+      "launch_product": "growth.expand.construction",
+      "crew_product": "growth.crew.construction",
+      "required_products": ["growth.expand.construction","growth.cap.floor_machine","growth.automation.inspection"],
+      "required_workers": ["titan.cleaning.post_construction","titan.cleaning.quality_inspector"]
+    },
+    {
+      "id": "food",
+      "name": "Food-Premises Cleaning",
+      "terms": ["food premises","commercial kitchen","restaurant","cafe","kitchen sanitation","food sanitation"],
+      "launch_product": "growth.expand.food",
+      "crew_product": "growth.crew.food",
+      "required_products": ["growth.expand.food","growth.knowledge.food","growth.cap.atp_hygiene","growth.cap.colour_coding"],
+      "required_workers": ["titan.cleaning.food_premises","titan.cleaning.chemicals_sds","titan.cleaning.quality_inspector"]
+    }
+  ]
+}

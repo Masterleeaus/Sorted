@@ -1,0 +1,5 @@
+// @ts-nocheck
+import { presentWizardSession } from './generated-ui-presenter.js';
+export function renderWizardConversational(definition,session){if(session.status==='completed')return `${definition.name} is complete.`;const step=definition.steps.find(s=>s.step_id===session.current_step_id);return String(step?.metadata?.question??step?.metadata?.description??step?.metadata?.title??'Provide the next details.');}
+export function renderWizardStructured(definition,session){return Object.freeze({session_id:session.wizard_session_id,wizard_id:definition.wizard_id,status:session.status,step_id:session.current_step_id,step:definition.steps.find(s=>s.step_id===session.current_step_id)??null,answers:session.answers});}
+export function renderWizardHybrid(context,definition,session){return Object.freeze({message:renderWizardConversational(definition,session),view_model:renderWizardStructured(definition,session),interaction:presentWizardSession({company_id:context.company_id,definition,session})});}

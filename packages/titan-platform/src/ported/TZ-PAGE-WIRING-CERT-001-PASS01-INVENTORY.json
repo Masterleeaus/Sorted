@@ -1,0 +1,348 @@
+{
+  "schema": "titan-zero-page-wiring-pass1/v1",
+  "packet_id": "TZ-PAGE-WIRING-CERT-001",
+  "pass": 1,
+  "name": "Full page inventory",
+  "base": {
+    "artifact": "Titan-Zero-CANONICAL-MASTER-2026-09-05-MERGE-09.zip",
+    "sha256": "123a55898ce6f2d0d15bf67100b31532d3fc1e1ca8fe299eb6b866317fb25c86",
+    "files": 1844
+  },
+  "manifest_entrypoints": {
+    "action_popup": "monicaPopup.html",
+    "side_panel": "chatTab.html",
+    "options": "monicaOptions.html",
+    "background": "background-bootstrap.js"
+  },
+  "counts": {
+    "primary": 4,
+    "supporting": 8,
+    "obsolete-thin-replacement": 4,
+    "test-fixture": 1,
+    "total_html": 17
+  },
+  "inventory": [
+    {
+      "path": "chatTab.html",
+      "title": "Titan Zero",
+      "bytes": 785,
+      "classification": "primary",
+      "incoming_reference_count": 31,
+      "sample_incoming_references": [
+        "TZ-FINISH-004-PASS01-UI-INVENTORY.json",
+        "TITAN-ZERO-P2-008-PASS1-VERIFICATION.json",
+        "background-bootstrap.js",
+        "monica-background.js",
+        "monica-popup.js",
+        "main-redirect.js",
+        "monica-content.js",
+        "content.js",
+        "manifest.json",
+        "Titan-Zero-TZ-FINISH-004-Pass02-CHANGE-IMPACT.json"
+      ]
+    },
+    {
+      "path": "diagnostics.html",
+      "title": "Titan Zero Diagnostics",
+      "bytes": 2610,
+      "classification": "supporting",
+      "incoming_reference_count": 13,
+      "sample_incoming_references": [
+        "modules.html",
+        "titan-popup.js",
+        "VERIFICATION-STEP08.json",
+        "module-view.html",
+        "TITAN-ZERO-v0.19.0-CONSOLIDATION-REPORT.json",
+        "titan-shell.js",
+        "sidePanel.html",
+        "titan-options-bridge.js",
+        "README-TITAN-DIAGNOSTICS.md",
+        "tests/reliability_diagnostic_retention.test.mjs"
+      ]
+    },
+    {
+      "path": "dynamic-content/index.html",
+      "title": "rtrvr.ai Dynamic Content",
+      "bytes": 3426,
+      "classification": "supporting",
+      "incoming_reference_count": 23,
+      "sample_incoming_references": [
+        "TZ-FINISH-004-PASS01-UI-INVENTORY.json",
+        "manifest.json",
+        "retriever-background.iife.js",
+        "titan-shell.js",
+        "WORKFORCE-CONVERSION-REPORT.json",
+        "sidePanel.html",
+        "TITAN-ZERO-MANAGER-MERGE-08-MANIFEST.json",
+        "sandbox/index.html",
+        "titan-ui-restore/PASS1-UI-INVENTORY.json",
+        "titan-ui-restore/PASS1-UI-INVENTORY.md"
+      ]
+    },
+    {
+      "path": "main.html",
+      "title": "Titan Zero",
+      "bytes": 384,
+      "classification": "obsolete-thin-replacement",
+      "incoming_reference_count": 55,
+      "sample_incoming_references": [
+        "CONVERGENCE-SOURCES-v0.14.0.json",
+        "TITAN-ZERO-STEP04-WORKFORCE-CONVERGENCE.md",
+        "CHANGELOG-v0.14.0.md",
+        "TZ-FINISH-004-PASS01-UI-INVENTORY.json",
+        "TITAN-ZERO-STEP06-MODULE-INSTALLATION-SYSTEM.md",
+        "VERIFICATION-v0.14.0.json",
+        "README.md",
+        "CHANGELOG-v0.18.1.md",
+        "VERIFICATION-STEP08.json",
+        "manifest.json"
+      ]
+    },
+    {
+      "path": "microphone-permission/index.html",
+      "title": "Allow Microphone",
+      "bytes": 402,
+      "classification": "supporting",
+      "incoming_reference_count": 23,
+      "sample_incoming_references": [
+        "TZ-FINISH-004-PASS01-UI-INVENTORY.json",
+        "manifest.json",
+        "retriever-background.iife.js",
+        "titan-shell.js",
+        "WORKFORCE-CONVERSION-REPORT.json",
+        "sidePanel.html",
+        "TITAN-ZERO-MANAGER-MERGE-08-MANIFEST.json",
+        "sandbox/index.html",
+        "titan-ui-restore/PASS1-UI-INVENTORY.json",
+        "titan-ui-restore/PASS1-UI-INVENTORY.md"
+      ]
+    },
+    {
+      "path": "module-view.html",
+      "title": "Titan Zero Module",
+      "bytes": 1127,
+      "classification": "supporting",
+      "incoming_reference_count": 12,
+      "sample_incoming_references": [
+        "CHANGELOG-v0.8.0.md",
+        "modules.js",
+        "manifest.json",
+        "TITAN-ZERO-MANAGER-MERGE-08-MANIFEST.json",
+        "titan-ui-restore/PASS1-UI-INVENTORY.json",
+        "titan-agent/WORK-CLAIMS.json",
+        "titan-agent/history/v0.14.0/WORK-CLAIMS.json",
+        "titan-agent/history/v0.18.0/WORK-CLAIMS.json",
+        "titan-agent/history/v0.18.1-manager-canonical/WORK-CLAIMS.json",
+        "titan-agent/history/v0.17.0/WORK-CLAIMS.json"
+      ]
+    },
+    {
+      "path": "modules.html",
+      "title": "Titan Zero Modules",
+      "bytes": 6108,
+      "classification": "supporting",
+      "incoming_reference_count": 33,
+      "sample_incoming_references": [
+        "diagnostics.html",
+        "VERIFICATION-STEP08.json",
+        "manifest.json",
+        "module-view.html",
+        "titan-popup.html",
+        "sidePanel.html",
+        "TITAN-ZERO-MANAGER-MERGE-08-MANIFEST.json",
+        "tests/module_platform_manager_host_behavior.test.mjs",
+        "tests/module_platform_manager_lifecycle.test.mjs",
+        "tests/module_manager_ui.test.mjs"
+      ]
+    },
+    {
+      "path": "monicaOptions.html",
+      "title": "Titan Zero Settings",
+      "bytes": 583,
+      "classification": "primary",
+      "incoming_reference_count": 27,
+      "sample_incoming_references": [
+        "Titan-Zero-TZ-FINISH-004-Pass04-VERIFICATION.json",
+        "TZ-FINISH-004-PASS01-UI-INVENTORY.json",
+        "TITAN-ZERO-P2-008-PASS1-VERIFICATION.json",
+        "monica-background.js",
+        "monica-popup.js",
+        "monica-content.js",
+        "content.js",
+        "manifest.json",
+        "sidePanel.html",
+        "titan-options-bridge.js"
+      ]
+    },
+    {
+      "path": "monicaPopup.html",
+      "title": "Titan Zero",
+      "bytes": 642,
+      "classification": "primary",
+      "incoming_reference_count": 19,
+      "sample_incoming_references": [
+        "TZ-FINISH-004-PASS01-UI-INVENTORY.json",
+        "background-bootstrap.js",
+        "manifest.json",
+        "titan-popup.html",
+        "sidePanel.html",
+        "TITAN-ZERO-MANAGER-MERGE-08-MANIFEST.json",
+        "tests/ui_restore_primary_shell_pass3.test.mjs",
+        "tests/ui_restore_startup_pass2.test.mjs",
+        "titan-ui-restore/PASS1-UI-INVENTORY.json",
+        "titan-ui-restore/PASS1-UI-INVENTORY.md"
+      ]
+    },
+    {
+      "path": "offscreen/index.html",
+      "title": "Offscreen",
+      "bytes": 511,
+      "classification": "supporting",
+      "incoming_reference_count": 23,
+      "sample_incoming_references": [
+        "TZ-FINISH-004-PASS01-UI-INVENTORY.json",
+        "manifest.json",
+        "retriever-background.iife.js",
+        "titan-shell.js",
+        "WORKFORCE-CONVERSION-REPORT.json",
+        "sidePanel.html",
+        "TITAN-ZERO-MANAGER-MERGE-08-MANIFEST.json",
+        "sandbox/index.html",
+        "titan-ui-restore/PASS1-UI-INVENTORY.json",
+        "titan-ui-restore/PASS1-UI-INVENTORY.md"
+      ]
+    },
+    {
+      "path": "sandbox/index.html",
+      "title": "",
+      "bytes": 62118,
+      "classification": "supporting",
+      "incoming_reference_count": 22,
+      "sample_incoming_references": [
+        "TZ-FINISH-004-PASS01-UI-INVENTORY.json",
+        "manifest.json",
+        "retriever-background.iife.js",
+        "titan-shell.js",
+        "WORKFORCE-CONVERSION-REPORT.json",
+        "sidePanel.html",
+        "TITAN-ZERO-MANAGER-MERGE-08-MANIFEST.json",
+        "titan-ui-restore/PASS1-UI-INVENTORY.json",
+        "titan-ui-restore/PASS1-UI-INVENTORY.md",
+        "side-panel/assets/workflowSandboxPool-C43aNRZy.js"
+      ]
+    },
+    {
+      "path": "side-panel/index.html",
+      "title": "Side Panel",
+      "bytes": 622,
+      "classification": "supporting",
+      "incoming_reference_count": 23,
+      "sample_incoming_references": [
+        "TZ-FINISH-004-PASS01-UI-INVENTORY.json",
+        "manifest.json",
+        "retriever-background.iife.js",
+        "titan-shell.js",
+        "WORKFORCE-CONVERSION-REPORT.json",
+        "sidePanel.html",
+        "TITAN-ZERO-MANAGER-MERGE-08-MANIFEST.json",
+        "sandbox/index.html",
+        "titan-ui-restore/PASS1-UI-INVENTORY.json",
+        "titan-ui-restore/PASS1-UI-INVENTORY.md"
+      ]
+    },
+    {
+      "path": "sidePanel.html",
+      "title": "Titan Zero",
+      "bytes": 19574,
+      "classification": "primary",
+      "incoming_reference_count": 91,
+      "sample_incoming_references": [
+        "CONVERGENCE-SOURCES-v0.14.0.json",
+        "CHANGELOG-v0.18.6.md",
+        "TITAN-ZERO-STEP04-WORKFORCE-CONVERGENCE.md",
+        "CHANGELOG-v0.14.0.md",
+        "TZ-FINISH-004-PASS01-UI-INVENTORY.json",
+        "TITAN-ZERO-P2-008-PASS1-VERIFICATION.json",
+        "Titan-Zero-TZ-FINISH-004-Pass03-CHANGE-IMPACT.json",
+        "TITAN-ZERO-v0.18.6-MANAGER-VERIFICATION.json",
+        "README.md",
+        "Titan-Zero-TZ-FINISH-004-Pass05-SEMANTIC-DELTA.json"
+      ]
+    },
+    {
+      "path": "titan-popup.html",
+      "title": "Titan Zero",
+      "bytes": 2179,
+      "classification": "obsolete-thin-replacement",
+      "incoming_reference_count": 19,
+      "sample_incoming_references": [
+        "TZ-FINISH-004-PASS01-UI-INVENTORY.json",
+        "VERIFICATION-STEP08.json",
+        "Titan-Zero-TZ-FINISH-004-Pass06-VERIFICATION.json",
+        "TITAN-ZERO-MANAGER-MERGE-08-MANIFEST.json",
+        "titan-reliability/performance-budgets.json",
+        "titan-reliability/audit-lazy-loading.mjs",
+        "tests/reliability_performance_budgets.test.mjs",
+        "titan-ui-restore/PASS1-UI-INVENTORY.json",
+        "titan-ui-restore/PASS1-UI-INVENTORY.md",
+        "titan-regression/monica-retriever/PASS05-VISUAL-DOM-FEATURE-MATRIX.json"
+      ]
+    },
+    {
+      "path": "titan-regression/monica-retriever/fixtures/webpage-assistant.html",
+      "title": "WP-004 Pass 4 fixture",
+      "bytes": 605,
+      "classification": "test-fixture",
+      "incoming_reference_count": 2,
+      "sample_incoming_references": [
+        "TZ-FINISH-004-PASS01-UI-INVENTORY.json",
+        "titan-regression/monica-retriever/tests/pass04-webpage-overlay.test.mjs"
+      ]
+    },
+    {
+      "path": "titan-zero-chat-runtime.html",
+      "title": "Titan Zero",
+      "bytes": 688,
+      "classification": "obsolete-thin-replacement",
+      "incoming_reference_count": 5,
+      "sample_incoming_references": [
+        "TZ-FINISH-004-PASS01-UI-INVENTORY.json",
+        "sidePanel.html",
+        "TITAN-ZERO-MANAGER-MERGE-08-MANIFEST.json",
+        "titan-ui-restore/PASS1-UI-INVENTORY.json",
+        "titan-ui-restore/PASS1-UI-INVENTORY.md"
+      ]
+    },
+    {
+      "path": "titan-zero-options.html",
+      "title": "Titan Zero \u2014 Launch Settings",
+      "bytes": 3106,
+      "classification": "obsolete-thin-replacement",
+      "incoming_reference_count": 28,
+      "sample_incoming_references": [
+        "Titan-Zero-TZ-FINISH-004-Pass04-VERIFICATION.json",
+        "Titan-Zero-TZ-FINISH-004-Pass07-VERIFICATION.json",
+        "Titan-Zero-TZ-FINISH-004-Pass07-CHANGE-IMPACT.json",
+        "TZ-FINISH-004-PASS01-UI-INVENTORY.json",
+        "titan-zero-chat-content.compat.js",
+        "module-view.html",
+        "titan-zero-chat-runtime.compat.js",
+        "titan-zero-chat-runtime.html",
+        "Titan-Zero-TZ-FINISH-004-Pass06-VERIFICATION.json",
+        "titan-popup.html"
+      ]
+    }
+  ],
+  "findings": [
+    "Merge09 now points Chrome popup to monicaPopup.html, options to monicaOptions.html, and side panel to chatTab.html.",
+    "sidePanel.html remains a rich Titan orchestration surface and should be treated as a primary routed workspace, not discarded.",
+    "main.html, titan-popup.html, titan-zero-chat-runtime.html and titan-zero-options.html remain shipped thin/bridge pages and must be removed from normal user flow or redirected to the richer retained surfaces in later passes.",
+    "side-panel/index.html is retained as Retriever execution/support runtime, not a user-facing competing product.",
+    "The regression fixture is not a product page."
+  ],
+  "authority_notes": [
+    "Page classification grants no execution authority.",
+    "company_id remains the sole company boundary.",
+    "AI/workforce identity does not grant authority."
+  ]
+}

@@ -1,0 +1,4 @@
+// @ts-nocheck
+// Ported from Titan Zero extension (portable-core): titan-runtime/prompt/quality-layer.mjs
+const req=(v,n)=>{const s=String(v??'').trim();if(!s)throw new Error(`${n}-required`);return s};
+export function proposePromptQuality(raw={},{company_id}={}){const cid=req(raw.company_id??company_id,'company_id');if(company_id&&cid!==company_id)throw new Error('cross-company-prompt-quality');const original=req(raw.text,'text');const suggestions=[...(raw.suggestions||[])].map(String).filter(Boolean);return Object.freeze({schema:'titan.prompt-quality-proposal.v1',company_id:cid,original_text:original,suggestions:Object.freeze(suggestions),proposed_text:raw.proposed_text==null?null:String(raw.proposed_text),exact_execution_text:Boolean(raw.exact_execution_text),can_auto_replace:false,requires_user_or_plan_authority:true,authority_neutral:true});}

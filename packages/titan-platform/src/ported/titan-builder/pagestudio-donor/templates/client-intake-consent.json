@@ -1,0 +1,33 @@
+{
+  "template": {
+    "id": "client-intake-consent",
+    "version": "1.0.0",
+    "name": "Client Intake and Consent",
+    "status": "ready",
+    "category": "care",
+    "entry_wizard": "client_intake_consent_v1",
+    "capabilities": [
+      "care.clients.intake"
+    ],
+    "channels": [
+      "chat",
+      "mobile",
+      "tablet",
+      "desktop",
+      "voice"
+    ],
+    "governance": {
+      "authority": "explicit_human_consent",
+      "offline": true
+    },
+    "metadata": {
+      "verticals": [
+        "healthcare",
+        "allied_health",
+        "aged_care",
+        "disability_services"
+      ],
+      "pack": "commerce_multi_vertical_2026_08"
+    }
+  }
+}

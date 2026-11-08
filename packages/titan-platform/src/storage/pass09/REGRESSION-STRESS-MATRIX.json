@@ -1,0 +1,52 @@
+{
+  "schema": "titan-zero-storage-pass09-regression-matrix/v1",
+  "packet_id": "TZ-FINISH-STORAGE-DATA-AUTHORITY-001",
+  "pass": 9,
+  "cases": [
+    {
+      "case": "concurrent migration same company/stage",
+      "before": "FAIL duplicate up execution",
+      "after": "PASS exactly once + peer skipped",
+      "fix": "migration coordinator serialized in repository transaction"
+    },
+    {
+      "case": "failed migration + restart",
+      "result": "PASS retryable after coordinator recreation"
+    },
+    {
+      "case": "checkpoint restart persistence",
+      "result": "PASS same-company recovery; foreign company invisible"
+    },
+    {
+      "case": "simultaneous business writes same expected revision",
+      "result": "PASS one commit + one durable revision_mismatch conflict"
+    },
+    {
+      "case": "nested cross-company payload corruption",
+      "result": "PASS rejected before persistence"
+    },
+    {
+      "case": "tampered backup after restart",
+      "result": "PASS checksum rejection; current data preserved"
+    },
+    {
+      "case": "legacy tenant aliases",
+      "result": "PASS fail-closed across migration/repository/recovery"
+    },
+    {
+      "case": "backup authority/company smuggling",
+      "result": "PASS rejected"
+    },
+    {
+      "case": "readonly storage diagnostics",
+      "result": "PASS no mutation"
+    },
+    {
+      "case": "malformed record envelope diagnostics",
+      "result": "PASS degraded + INVALID_VERSION evidence"
+    }
+  ],
+  "focused": "10/10 PASS",
+  "full_suite": "66/66 PASS",
+  "typecheck": "PASS"
+}

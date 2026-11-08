@@ -1,0 +1,391 @@
+{
+  "schema": "titan.capability.native-contributions.v1",
+  "company_boundary": "company_id",
+  "activation_confers_authority": false,
+  "entries": [
+    {
+      "id": "client_workforce.role_activation_proposal",
+      "kind": "capability",
+      "title": "Role activation proposal",
+      "description": "Prepare a company-scoped role activation proposal without activating the role or granting authority.",
+      "risk_class": "MEDIUM"
+    },
+    {
+      "id": "client_workforce.team_template_proposal",
+      "kind": "capability",
+      "title": "Team template proposal",
+      "description": "Prepare governed client-team role proposals from a template without automatic activation.",
+      "risk_class": "MEDIUM"
+    },
+    {
+      "id": "client_workforce.manager_projection",
+      "kind": "projection",
+      "title": "Workforce manager projection",
+      "description": "Read company-scoped assignments, approval waits and escalations projected by the workforce manager.",
+      "risk_class": "LOW"
+    },
+    {
+      "id": "client_workforce.control_intent",
+      "kind": "action",
+      "title": "Workforce control intent",
+      "description": "Prepare pause, resume or assignment-review control intents. The intent itself does not execute or grant authority.",
+      "risk_class": "MEDIUM",
+      "mutates": true,
+      "authority": []
+    },
+    {
+      "id": "surface.workforce.client_controls",
+      "kind": "capability",
+      "title": "Client workforce controls surface",
+      "description": "Existing Workforce surface contribution for governed client workforce controls.",
+      "risk_class": "LOW"
+    },
+    {
+      "id": "zero_intelligence.risk_classification",
+      "kind": "capability",
+      "title": "Deterministic risk classification",
+      "description": "Classify company-scoped intelligence items without granting execution authority.",
+      "risk_class": "LOW",
+      "authority": [],
+      "mutates": false
+    },
+    {
+      "id": "zero_intelligence.independent_analysis",
+      "kind": "capability",
+      "title": "Independent intelligence teams",
+      "description": "Run independent Team A/B/C assessments with evidence-preserving challenge paths.",
+      "risk_class": "LOW",
+      "authority": [],
+      "mutates": false
+    },
+    {
+      "id": "zero_intelligence.convergence_divergence",
+      "kind": "capability",
+      "title": "Convergence and divergence intelligence",
+      "description": "Assess agreement, disagreement, severity and shared blind spots without averaging away conflicts.",
+      "risk_class": "LOW",
+      "authority": [],
+      "mutates": false
+    },
+    {
+      "id": "zero_intelligence.adversarial_challenge",
+      "kind": "capability",
+      "title": "Adversarial challenge",
+      "description": "Challenge high-risk agreement and evidence blind spots before synthesis.",
+      "risk_class": "MEDIUM",
+      "authority": [],
+      "mutates": false
+    },
+    {
+      "id": "zero_intelligence.synthesis",
+      "kind": "capability",
+      "title": "Zero synthesis",
+      "description": "Synthesize sealed independent assessments into a company-scoped intelligence state; synthesis does not authorize effects.",
+      "risk_class": "MEDIUM",
+      "authority": [],
+      "mutates": false
+    },
+    {
+      "id": "zero_intelligence.dynamic_topology",
+      "kind": "capability",
+      "title": "Dynamic intelligence topology",
+      "description": "Select bounded intelligence processing topology based on context, evidence and risk.",
+      "risk_class": "LOW",
+      "authority": [],
+      "mutates": false
+    },
+    {
+      "id": "zero_intelligence.semantic_evidence",
+      "kind": "capability",
+      "title": "Semantic and reality provenance evidence",
+      "description": "Create sealed semantic evidence and reality/provenance records.",
+      "risk_class": "LOW",
+      "authority": [],
+      "mutates": false
+    },
+    {
+      "id": "zero_intelligence.consequence_analysis",
+      "kind": "capability",
+      "title": "Consequence intelligence",
+      "description": "Assess downstream consequences and acceptance gates before consequential action.",
+      "risk_class": "MEDIUM",
+      "authority": [],
+      "mutates": false
+    },
+    {
+      "id": "zero_intelligence.decision_projection",
+      "kind": "capability",
+      "title": "Decision packet projection",
+      "description": "Build authority-neutral decision packets, feeds, explanations, correlations and rewind projections.",
+      "risk_class": "MEDIUM",
+      "authority": [],
+      "mutates": false
+    },
+    {
+      "id": "zero_intelligence.local_ollama",
+      "kind": "capability",
+      "title": "Local Ollama intelligence provider",
+      "description": "Discover and use loopback Ollama models as local intelligence without conferring authority.",
+      "risk_class": "LOW",
+      "authority": [],
+      "mutates": false
+    },
+    {
+      "id": "ai_provider.openrouter",
+      "kind": "provider",
+      "title": "OpenRouter BYO provider",
+      "description": "Expose OpenRouter as a BYO/cloud escalation provider descriptor; provider registration does not grant execution authority.",
+      "risk_class": "LOW",
+      "authority": [],
+      "mutates": false,
+      "donor_source": "AI Extensions lineage",
+      "activation_confers_authority": false
+    },
+    {
+      "id": "ai_provider.perplexity",
+      "kind": "provider",
+      "title": "Perplexity research provider",
+      "description": "Expose Perplexity as an optional BYO research provider descriptor with policy and budget gating.",
+      "risk_class": "LOW",
+      "authority": [],
+      "mutates": false,
+      "donor_source": "AI Extensions lineage",
+      "activation_confers_authority": false
+    },
+    {
+      "id": "ai_orchestration.model_council",
+      "kind": "capability",
+      "title": "Model council orchestration",
+      "description": "Coordinate multiple model assessments for bounded comparison and synthesis without granting action authority.",
+      "risk_class": "MEDIUM",
+      "authority": [],
+      "mutates": false,
+      "donor_source": "AI Extensions lineage",
+      "activation_confers_authority": false
+    },
+    {
+      "id": "ai_orchestration.multi_model",
+      "kind": "capability",
+      "title": "Multi-model routing",
+      "description": "Route eligible intelligence requests across configured providers using Titan resource-order, budget and policy constraints.",
+      "risk_class": "MEDIUM",
+      "authority": [],
+      "mutates": false,
+      "donor_source": "AI Extensions lineage",
+      "activation_confers_authority": false
+    },
+    {
+      "id": "research.deep_research",
+      "kind": "capability",
+      "title": "Deep research workflow",
+      "description": "Run provenance-preserving deep research workflows through configured providers and return evidence for review.",
+      "risk_class": "MEDIUM",
+      "authority": [],
+      "mutates": false,
+      "donor_source": "AI Extensions lineage",
+      "activation_confers_authority": false
+    },
+    {
+      "id": "knowledge.file_chat",
+      "kind": "capability",
+      "title": "File-grounded chat",
+      "description": "Ground conversations in selected company-scoped files without changing source authority.",
+      "risk_class": "LOW",
+      "authority": [],
+      "mutates": false,
+      "donor_source": "AI Extensions lineage",
+      "activation_confers_authority": false
+    },
+    {
+      "id": "knowledge.folder_context",
+      "kind": "capability",
+      "title": "Folder context assembly",
+      "description": "Assemble bounded company-scoped folder context for intelligence workflows.",
+      "risk_class": "LOW",
+      "authority": [],
+      "mutates": false,
+      "donor_source": "AI Extensions lineage",
+      "activation_confers_authority": false
+    },
+    {
+      "id": "channel.gmail",
+      "kind": "adapter",
+      "title": "Gmail channel capability",
+      "description": "Describe Gmail read/compose/manage operations for governed connector adapters; credentials remain BYO and scoped.",
+      "risk_class": "MEDIUM",
+      "authority": [],
+      "mutates": false,
+      "donor_source": "AI Extensions lineage",
+      "activation_confers_authority": false
+    },
+    {
+      "id": "channel.slack",
+      "kind": "adapter",
+      "title": "Slack channel capability",
+      "description": "Describe Slack channel operations for governed connector adapters; no message is sent without authority gates.",
+      "risk_class": "MEDIUM",
+      "authority": [],
+      "mutates": false,
+      "donor_source": "AI Extensions lineage",
+      "activation_confers_authority": false
+    },
+    {
+      "id": "channel.whatsapp",
+      "kind": "adapter",
+      "title": "WhatsApp channel capability",
+      "description": "Describe WhatsApp channel operations for governed connector adapters with consent, policy and cost gates.",
+      "risk_class": "MEDIUM",
+      "authority": [],
+      "mutates": false,
+      "donor_source": "AI Extensions lineage",
+      "activation_confers_authority": false
+    },
+    {
+      "id": "integration.xero",
+      "kind": "adapter",
+      "title": "Xero accounting integration",
+      "description": "Describe Xero accounting connector operations under company-scoped permissions and financial authority gates.",
+      "risk_class": "HIGH",
+      "authority": [],
+      "mutates": false,
+      "donor_source": "AI Extensions lineage",
+      "activation_confers_authority": false
+    },
+    {
+      "id": "maps.business_intelligence",
+      "kind": "capability",
+      "title": "Maps business intelligence",
+      "description": "Provider-neutral business/place discovery, territory analysis and candidate governance for company-scoped research.",
+      "risk_class": "MEDIUM",
+      "authority": [],
+      "mutates": false,
+      "donor_source": "AI Extensions lineage",
+      "activation_confers_authority": false
+    },
+    {
+      "id": "customer.external_booking",
+      "kind": "capability",
+      "title": "External conversational booking",
+      "description": "Support booking intents initiated from external chat surfaces while preserving canonical booking authority.",
+      "risk_class": "MEDIUM",
+      "authority": [],
+      "mutates": false,
+      "donor_source": "AI Extensions lineage",
+      "activation_confers_authority": false
+    },
+    {
+      "id": "customer.tags",
+      "kind": "capability",
+      "title": "Conversation customer tags",
+      "description": "Maintain company-scoped conversational customer-tag metadata through governed CRM projections.",
+      "risk_class": "LOW",
+      "authority": [],
+      "mutates": false,
+      "donor_source": "AI Extensions lineage",
+      "activation_confers_authority": false
+    },
+    {
+      "id": "customer.feedback_review",
+      "kind": "capability",
+      "title": "Conversation review and feedback",
+      "description": "Capture review/feedback configuration and evidence without granting publication authority.",
+      "risk_class": "LOW",
+      "authority": [],
+      "mutates": false,
+      "donor_source": "AI Extensions lineage",
+      "activation_confers_authority": false
+    },
+    {
+      "id": "voice.phone_agent",
+      "kind": "capability",
+      "title": "Phone agent integration descriptor",
+      "description": "Describe inbound phone-agent capability using BYO telephony/voice providers under explicit cost and authority gates.",
+      "risk_class": "HIGH",
+      "authority": [],
+      "mutates": false,
+      "donor_source": "AI Extensions lineage",
+      "activation_confers_authority": false
+    },
+    {
+      "id": "voice.external_chat",
+      "kind": "capability",
+      "title": "External voice chat descriptor",
+      "description": "Expose voice-chat interaction capability while keeping business effects behind existing Titan intent and authority gates.",
+      "risk_class": "MEDIUM",
+      "authority": [],
+      "mutates": false,
+      "donor_source": "AI Extensions lineage",
+      "activation_confers_authority": false
+    },
+    {
+      "id": "surface.external_web_chat",
+      "kind": "capability",
+      "title": "External web chat descriptor",
+      "description": "Expose external web-chat interaction as a presentation/input surface, not an independent authority boundary.",
+      "risk_class": "LOW",
+      "authority": [],
+      "mutates": false,
+      "donor_source": "AI Extensions lineage",
+      "activation_confers_authority": false
+    },
+    {
+      "id": "builder.pagestudio.templates",
+      "kind": "capability",
+      "title": "PageStudio interaction templates",
+      "description": "Portable PageStudio interaction templates exposed through Titan Builder without donor runtime authority.",
+      "risk_class": "LOW",
+      "authority": [],
+      "mutates": false
+    },
+    {
+      "id": "builder.pagestudio.themes",
+      "kind": "capability",
+      "title": "PageStudio theme profiles",
+      "description": "Portable visual theme profiles for Titan Builder/Interface Runtime preview and composition.",
+      "risk_class": "LOW",
+      "authority": [],
+      "mutates": false
+    },
+    {
+      "id": "builder.pagestudio.lifecycle",
+      "kind": "capability",
+      "title": "Builder publish/version/rollback lifecycle",
+      "description": "Page lifecycle metadata and plans; host authority is still required for material publish or rollback effects.",
+      "risk_class": "MEDIUM",
+      "authority": [],
+      "mutates": false
+    },
+    {
+      "id": "settings.change",
+      "kind": "action",
+      "title": "Change Settings",
+      "description": "Apply a validated Settings change such as turn on turn off enable disable dark mode light mode system theme web search private mode through the canonical Settings control plane.",
+      "risk_class": "MEDIUM",
+      "authority": [
+        "settings.change"
+      ],
+      "mutates": true,
+      "activation_confers_authority": false
+    },
+    {
+      "id": "settings.read",
+      "kind": "query",
+      "title": "Read Setting",
+      "description": "Read the current value of one canonical Titan Zero setting or preference without changing it.",
+      "risk_class": "LOW",
+      "authority": [],
+      "mutates": false,
+      "activation_confers_authority": false
+    },
+    {
+      "id": "settings.list",
+      "kind": "query",
+      "title": "List Settings",
+      "description": "Show list open current Titan Zero settings and preferences without changing them.",
+      "risk_class": "LOW",
+      "authority": [],
+      "mutates": false,
+      "activation_confers_authority": false
+    }
+  ]
+}

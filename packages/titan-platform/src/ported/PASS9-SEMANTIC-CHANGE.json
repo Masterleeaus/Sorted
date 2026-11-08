@@ -1,0 +1,8 @@
+{
+  "schema": "titan-zero-semantic-change/v1",
+  "packet_id": "TZ-TOOLS-ABSORB-001",
+  "pass": 9,
+  "summary": "Functional parity audit repaired four proven launch gaps and produced per-tool parity ledger.",
+  "authority_effect": "none; launch visibility does not grant execution authority",
+  "company_boundary": "company_id unchanged"
+}

@@ -1,0 +1,25 @@
+{
+  "schema": "titan-zero.pass10-final-release-candidate/v1",
+  "packet_id": "TZ-WP-004",
+  "incident": "TZ-REGRESSION-005",
+  "candidate_status": "IMPLEMENTATION_COMPLETE_BROWSER_SMOKE_BLOCKED_ENVIRONMENT",
+  "canonical_status": "NOT_CANONICAL_MANAGER_REVIEW_REQUIRED",
+  "manager_predecessor": {
+    "artifact": "Titan-Zero-v0.18.6-Manager-Canonical-Offline-Restart-Hardening-CUMULATIVE.zip",
+    "sha256": "2c34037fec632283cc3780831ff5913cd6252ab2754c0fbf5c4fa048cacf34fc",
+    "merge_class": "CLEAN_FORWARD_PORT",
+    "merged_into_candidate": true
+  },
+  "wp004_recovery": {
+    "static_runtime_feature_parity": "15/15 PASS",
+    "protected_runtime_hashes": "542/542 PASS",
+    "production_deletions": 0,
+    "permissions_changed_by_wp004": false,
+    "company_boundary": "company_id"
+  },
+  "final_gate": {
+    "live_unpacked_browser_smoke": "BLOCKED_ENVIRONMENT",
+    "reason": "Available Debian Chromium/Xvfb environment did not register the unpacked extension or expose the requested DevTools endpoint.",
+    "promotion_rule": "Manager must not mark canonical solely from this agent candidate until the live unpacked-browser requirement is satisfied or formally superseded by Manager policy."
+  }
+}

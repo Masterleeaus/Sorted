@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "titan.zero.reception.qualification.v1",
+  "title": "Titan Zero Reception Qualification",
+  "type": "object",
+  "required": ["schema","company_id","identity","contact","location","service","urgency","timing","source","authority_granted","creates_customer_record","creates_booking","completeness"],
+  "properties": {
+    "schema": {"const":"titan.zero.reception.qualification/v1"},
+    "company_id": {"type":"string","minLength":1},
+    "conversation_id": {"type":["string","null"]},
+    "identity": {"type":"object"},
+    "contact": {"type":"object"},
+    "location": {"type":"object"},
+    "service": {"type":"object"},
+    "urgency": {"enum":["routine","soon","urgent","emergency","unknown"]},
+    "urgency_reason": {"type":["string","null"]},
+    "timing": {"type":"object"},
+    "source": {"type":"object"},
+    "summary": {"type":["string","null"],"maxLength":800},
+    "authority_granted": {"const":false},
+    "creates_customer_record": {"const":false},
+    "creates_booking": {"const":false},
+    "completeness": {"type":"object"}
+  },
+  "additionalProperties": false
+}

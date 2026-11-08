@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "titan.workforce.physical-environmental-risk-hooks.v1",
+  "type": "object",
+  "required": [
+    "schema",
+    "company_id",
+    "risks",
+    "policy",
+    "authority_granted",
+    "execution_permitted",
+    "grants_authority"
+  ],
+  "properties": {
+    "schema": {
+      "const": "titan.workforce.physical-environmental-risk-hooks.v1"
+    },
+    "company_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    },
+    "risk_register_id": {
+      "type": "string"
+    },
+    "risks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "risk_id",
+          "risk_kind",
+          "inherent_severity",
+          "residual_severity",
+          "status"
+        ]
+      }
+    },
+    "policy": {
+      "type": "object"
+    },
+    "automatic_risk_acceptance": {
+      "const": false
+    },
+    "automatic_execution": {
+      "const": false
+    },
+    "authority_granted": {
+      "const": false
+    },
+    "execution_permitted": {
+      "const": false
+    },
+    "grants_authority": {
+      "const": false
+    }
+  },
+  "additionalProperties": true
+}

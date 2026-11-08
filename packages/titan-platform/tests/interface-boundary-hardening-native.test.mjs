@@ -1,0 +1,11 @@
+import test from "node:test";import assert from "node:assert/strict";
+import{assertInterfacePayloadBoundary,assertDeviceIntentBoundary,assertSyncBoundary}from"../.test-dist/interface-boundary-hardening.js";
+const node={device_id:"d1",company_id:"c1",actor_id:"a1",kind:"phone",trusted:true};
+const event=(payload={},kind="presentation")=>({event_id:"e1",company_id:"c1",device_id:"d1",sequence:1,kind,payload,created_at:"2026-09-20T00:00:00Z"});
+test("accepts presentation-only payload",()=>assert.equal(assertInterfacePayloadBoundary("c1",{company_id:"c1",card:{title:"ok"}}).safe,true));
+test("rejects nested legacy tenant authority",()=>assert.throws(()=>assertInterfacePayloadBoundary("c1",{card:{tenant_id:"bad"}}),/forbidden/));
+test("rejects nested direct execution authority",()=>assert.throws(()=>assertInterfacePayloadBoundary("c1",{action:{direct_effect:true}}),/forbidden/));
+test("rejects cross-company payload",()=>assert.throws(()=>assertInterfacePayloadBoundary("c1",{company_id:"c2"}),/cross-company/));
+test("untrusted device cannot originate intent",()=>assert.throws(()=>assertDeviceIntentBoundary({...node,trusted:false},event({x:1},"intent")),/untrusted/));
+test("trusted device can originate safe intent",()=>assert.equal(assertDeviceIntentBoundary(node,event({x:1},"intent")),true));
+test("sync rejects authority smuggling",()=>assert.throws(()=>assertSyncBoundary(node,{schema:"titan.interface-sync-envelope.v1",company_id:"c1",from_device:"d1",to_device:null,events:[event({execution_authority:true})],mode:"device-first",business_writes:false}),/forbidden/));

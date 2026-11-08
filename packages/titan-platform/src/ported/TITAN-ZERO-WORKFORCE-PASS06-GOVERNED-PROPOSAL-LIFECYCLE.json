@@ -1,0 +1,15 @@
+{
+  "schema":"titan.zero.workforce.pass.v1",
+  "pass":6,
+  "title":"Governed Proposal Lifecycle + Command Bus Binding",
+  "implementation":"existing_workforce_gateway_plus_existing_workforce_runtime_authority_boundary",
+  "proposal_states":["prepared","submitted","evaluated","approved","rejected","scheduled","executing","verified","completed","failed","reversed"],
+  "command_prepare_message":"TITAN_WORKFORCE_COMMAND_PREPARE",
+  "receipt_verify_message":"TITAN_WORKFORCE_RECEIPT_VERIFY",
+  "execution_transport":"titan-command-bus",
+  "company_boundary":"company_id",
+  "gateway_grants_authority":false,
+  "direct_gateway_mutation":false,
+  "ui_replaced":false,
+  "manifest_changed":false
+}

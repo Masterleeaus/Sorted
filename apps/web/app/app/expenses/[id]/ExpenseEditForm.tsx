@@ -1,0 +1,313 @@
+"use client";
+
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import type { Route } from "next";
+import { Input, Select, Textarea, Button } from "@/components/ui";
+import type { ExpenseCategory } from "@ai-fsm/domain";
+import { formatJobPickerLabel } from "@ai-fsm/domain";
+import { parseDollarsToCents, formatCentsToDollars } from "@/lib/expenses/math";
+import {
+  isFuelExpenseCategory,
+  parseGallonsFromFuelText,
+  reviewFuelReceipt,
+} from "@/lib/expenses/fuel-from-receipt";
+
+interface Expense {
+  id: string;
+  vendor_name: string;
+  category: ExpenseCategory;
+  amount_cents: number;
+  expense_date: string; // YYYY-MM-DD
+  job_id: string | null;
+  client_id: string | null;
+  notes: string | null;
+  billable?: boolean;
+  vehicle_id?: string | null;
+  fuel_gallons?: number | string | null;
+  fuel_odometer?: number | string | null;
+}
+
+interface Props {
+  expense: Expense;
+  jobs: { id: string; title: string; job_number?: string | null }[];
+  clients: { id: string; name: string }[];
+  vehicles?: { id: string; nickname: string }[];
+  categories: { value: string; label: string }[];
+}
+
+export function ExpenseEditForm({ expense, jobs, clients, vehicles = [], categories }: Props) {
+  const router = useRouter();
+
+  const initialAmount = (expense.amount_cents / 100).toFixed(2);
+
+  const [vendorName, setVendorName] = useState(expense.vendor_name);
+  const [category, setCategory] = useState<string>(expense.category);
+  const [amountStr, setAmountStr] = useState(initialAmount);
+  const [expenseDate, setExpenseDate] = useState(expense.expense_date);
+  const [jobId, setJobId] = useState(expense.job_id ?? "");
+  const [clientId, setClientId] = useState(expense.client_id ?? "");
+  const [notes, setNotes] = useState(expense.notes ?? "");
+  const [billable, setBillable] = useState(expense.billable !== false);
+  const [vehicleId, setVehicleId] = useState(expense.vehicle_id ?? "");
+  const [gallonsStr, setGallonsStr] = useState(() => {
+    if (expense.fuel_gallons != null && expense.fuel_gallons !== "") {
+      return String(expense.fuel_gallons);
+    }
+    return String(parseGallonsFromFuelText(expense.notes) ?? "");
+  });
+  const [odometerStr, setOdometerStr] = useState(() =>
+    expense.fuel_odometer != null && expense.fuel_odometer !== ""
+      ? String(expense.fuel_odometer)
+      : "",
+  );
+  const [pending, setPending] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+
+  function validate(): boolean {
+    const errs: Record<string, string> = {};
+    if (!vendorName.trim()) errs.vendor_name = "Vendor name is required.";
+    if (!category) errs.category = "Category is required.";
+    if (!amountStr.trim() || isNaN(parseFloat(amountStr)) || parseFloat(amountStr) <= 0) {
+      errs.amount = "Enter a valid amount greater than $0.";
+    }
+    if (!expenseDate) errs.expense_date = "Date is required.";
+    setFieldErrors(errs);
+    return Object.keys(errs).length === 0;
+  }
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!validate()) return;
+    setPending(true);
+    setError(null);
+    setSuccess(false);
+
+    const amount_cents = parseDollarsToCents(amountStr);
+
+    try {
+      const res = await fetch(`/api/v1/expenses/${expense.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          vendor_name: vendorName.trim(),
+          category,
+          amount_cents,
+          expense_date: expenseDate,
+          job_id: jobId || null,
+          client_id: clientId || null,
+          notes: notes.trim() || null,
+          billable,
+          vehicle_id: isFuelExpenseCategory(category) ? vehicleId || null : null,
+          gallons: isFuelExpenseCategory(category) && gallonsStr.trim()
+            ? Number(gallonsStr)
+            : null,
+          odometer: isFuelExpenseCategory(category) && odometerStr.trim()
+            ? parseInt(odometerStr, 10)
+            : null,
+        }),
+      });
+
+      const data = (await res.json()) as { updated?: boolean; error?: { message?: string } };
+
+      if (!res.ok) {
+        setError(data?.error?.message ?? "Failed to update expense.");
+        setPending(false);
+        return;
+      }
+
+      setSuccess(true);
+      setPending(false);
+      router.refresh();
+    } catch {
+      setError("Network error — please try again.");
+      setPending(false);
+    }
+  }
+
+  return (
+    <form onSubmit={handleSubmit} className="p7-form-stack">
+      {error && (
+        <div className="p7-card-danger" role="alert" style={{ fontSize: "var(--text-sm)" }}>
+          {error}
+        </div>
+      )}
+      {success && (
+        <div
+          className="p7-card"
+          role="status"
+          style={{
+            fontSize: "var(--text-sm)",
+            color: "var(--color-green-700)",
+            border: "1px solid var(--color-green-200)",
+          }}
+        >
+          Expense updated.
+        </div>
+      )}
+
+      <Input
+        id="edit_vendor_name"
+        label="Vendor / Payee"
+        value={vendorName}
+        onChange={(e) => setVendorName(e.target.value)}
+        required
+        disabled={pending}
+        error={fieldErrors.vendor_name}
+      />
+
+      <Select
+        id="edit_category"
+        label="Category"
+        value={category}
+        onChange={(e) => setCategory(e.target.value)}
+        options={categories}
+        required
+        disabled={pending}
+        error={fieldErrors.category}
+      />
+
+      <Input
+        id="edit_amount"
+        label="Amount ($)"
+        type="number"
+        inputMode="decimal"
+        min="0.01"
+        step="0.01"
+        value={amountStr}
+        onChange={(e) => setAmountStr(e.target.value)}
+        required
+        disabled={pending}
+        error={fieldErrors.amount}
+        hint={`Current: ${formatCentsToDollars(expense.amount_cents)}`}
+      />
+
+      <Input
+        id="edit_expense_date"
+        label="Date"
+        type="date"
+        value={expenseDate}
+        onChange={(e) => setExpenseDate(e.target.value)}
+        required
+        disabled={pending}
+        error={fieldErrors.expense_date}
+      />
+
+      {isFuelExpenseCategory(category) && (
+        <div className="p7-form-grid-2">
+          <Select
+            id="edit_vehicle_id"
+            label="Vehicle"
+            value={vehicleId}
+            onChange={(e) => setVehicleId(e.target.value)}
+            options={[
+              { value: "", label: vehicles.length ? "Select vehicle…" : "No trucks on file" },
+              ...vehicles.map((v) => ({ value: v.id, label: v.nickname })),
+            ]}
+            disabled={pending || vehicles.length === 0}
+          />
+          <Input
+            id="edit_gallons"
+            label="Gallons"
+            type="number"
+            inputMode="decimal"
+            min="0.001"
+            step="0.001"
+            value={gallonsStr}
+            onChange={(e) => setGallonsStr(e.target.value)}
+            placeholder="23.707"
+            disabled={pending}
+          />
+          <Input
+            id="edit_odometer"
+            label="Odometer"
+            inputMode="numeric"
+            value={odometerStr}
+            onChange={(e) => setOdometerStr(e.target.value)}
+            placeholder="That day's start mileage if blank"
+            disabled={pending}
+          />
+        </div>
+      )}
+      {isFuelExpenseCategory(category) &&
+        reviewFuelReceipt({
+          gallons: gallonsStr.trim() ? Number(gallonsStr) : null,
+          amountCents: amountStr.trim() ? parseDollarsToCents(amountStr) : null,
+          notes,
+        }).warnings.map((w) => (
+          <p key={w} role="status" style={{ margin: 0, color: "var(--color-warning, #b45309)", fontSize: "var(--text-sm)" }}>
+            {w}
+          </p>
+        ))}
+
+      {jobs.length > 0 && (
+        <Select
+          id="edit_job_id"
+          label="Link to Job"
+          value={jobId}
+          onChange={(e) => setJobId(e.target.value)}
+          options={[
+            { value: "", label: "No open project" },
+            ...jobs.map((j) => ({
+              value: j.id,
+              label: formatJobPickerLabel(j.title, j.job_number),
+            })),
+          ]}
+          disabled={pending}
+          hint="Open projects only (in progress / scheduled / quoted). Closed jobs stay hidden unless already linked."
+        />
+      )}
+
+      {clients.length > 0 && (
+        <Select
+          id="edit_client_id"
+          label="Link to Client"
+          value={clientId}
+          onChange={(e) => setClientId(e.target.value)}
+          options={[
+            { value: "", label: "No client" },
+            ...clients.map((c) => ({ value: c.id, label: c.name })),
+          ]}
+          disabled={pending}
+        />
+      )}
+
+      <Textarea
+        id="edit_notes"
+        label="Notes"
+        value={notes}
+        onChange={(e) => setNotes(e.target.value)}
+        disabled={pending}
+        rows={3}
+      />
+
+      <label style={{ display: "flex", alignItems: "center", gap: "var(--space-2)", fontSize: "var(--text-sm)" }}>
+        <input
+          type="checkbox"
+          checked={billable}
+          onChange={(e) => setBillable(e.target.checked)}
+          disabled={pending}
+          data-testid="expense-billable"
+        />
+        Bill to client (uncheck for duplicates, tools, or receipts billed elsewhere)
+      </label>
+
+      <div className="p7-form-actions">
+        <Button type="submit" variant="primary" loading={pending} disabled={pending} size="sm">
+          Save Changes
+        </Button>
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          disabled={pending}
+          onClick={() => router.push("/app/expenses" as Route)}
+        >
+          Back to List
+        </Button>
+      </div>
+    </form>
+  );
+}

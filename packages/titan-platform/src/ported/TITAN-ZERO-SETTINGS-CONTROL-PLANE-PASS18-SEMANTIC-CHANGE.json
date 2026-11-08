@@ -1,0 +1,19 @@
+{
+  "schema": "titan-zero-settings-control-plane-semantic-change/v1",
+  "pass": 18,
+  "setting_key": "toolsPermissionsCentre",
+  "summary": "Adds company-scoped tool permission and confirmation projection over canonical Titan tool IDs.",
+  "runtime_owners_preserved": [
+    "titan-tools/TOOL-REGISTRY.json",
+    "titan-tools/tool-registry.mjs",
+    "titan-runtime/authority/execution-boundary.mjs"
+  ],
+  "rules": [
+    "disable-only company tool control",
+    "confirmation may only be raised",
+    "supported roles cannot be expanded",
+    "autonomy ceilings cannot be raised",
+    "runtime availability/entitlement/cost/authority remain independent gates",
+    "Settings never grants authority or executes"
+  ]
+}

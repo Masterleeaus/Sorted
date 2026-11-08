@@ -1,0 +1,60 @@
+{
+  "schema": "titan-zero-agent-handoff/v1",
+  "packet": "TZ-NEXT-011",
+  "agent_id": "notification-feed-agent",
+  "pass": 9,
+  "status": "PASS09_COMPLETE_IN_PROGRESS_PACKET",
+  "manager_baseline": "Merge29",
+  "manager_sha256": "3e5520d2495c2a5edde310d12d2b82de399e9277248c1fdfb5cd85df5df9d70b",
+  "parent_lane": "Merge29 + unmerged TZ-NEXT-011 Pass05-08 forward-port",
+  "pass9_added": [
+    "TITAN-ZERO-TZ-NEXT-011-PASS09-COLLISION.json",
+    "TITAN-ZERO-TZ-NEXT-011-PASS09-SEMANTIC-CHANGE.json",
+    "TITAN-ZERO-TZ-NEXT-011-PASS09-TOUCHED-FILES.json",
+    "TITAN-ZERO-TZ-NEXT-011-PASS09-VERIFICATION.json",
+    "titan-runtime/feed/tests/feed-high-volume-regression.test.mjs"
+  ],
+  "pass9_modified": [
+    "titan-runtime/feed/feed-delivery-replay-guard.mjs"
+  ],
+  "pass9_deleted": [],
+  "merge29_integration_added": [
+    "TITAN-ZERO-TZ-NEXT-011-PASS05-COLLISION.json",
+    "TITAN-ZERO-TZ-NEXT-011-PASS05-SEMANTIC-CHANGE.json",
+    "TITAN-ZERO-TZ-NEXT-011-PASS05-TOUCHED-FILES.json",
+    "TITAN-ZERO-TZ-NEXT-011-PASS05-VERIFICATION.json",
+    "TITAN-ZERO-TZ-NEXT-011-PASS06-COLLISION.json",
+    "TITAN-ZERO-TZ-NEXT-011-PASS06-SEMANTIC-CHANGE.json",
+    "TITAN-ZERO-TZ-NEXT-011-PASS06-TOUCHED-FILES.json",
+    "TITAN-ZERO-TZ-NEXT-011-PASS06-VERIFICATION.json",
+    "TITAN-ZERO-TZ-NEXT-011-PASS07-COLLISION.json",
+    "TITAN-ZERO-TZ-NEXT-011-PASS07-SEMANTIC-CHANGE.json",
+    "TITAN-ZERO-TZ-NEXT-011-PASS07-TOUCHED-FILES.json",
+    "TITAN-ZERO-TZ-NEXT-011-PASS07-VERIFICATION.json",
+    "TITAN-ZERO-TZ-NEXT-011-PASS08-COLLISION.json",
+    "TITAN-ZERO-TZ-NEXT-011-PASS08-SEMANTIC-CHANGE.json",
+    "TITAN-ZERO-TZ-NEXT-011-PASS08-TOUCHED-FILES.json",
+    "TITAN-ZERO-TZ-NEXT-011-PASS08-VERIFICATION.json",
+    "TITAN-ZERO-TZ-NEXT-011-PASS09-COLLISION.json",
+    "TITAN-ZERO-TZ-NEXT-011-PASS09-SEMANTIC-CHANGE.json",
+    "TITAN-ZERO-TZ-NEXT-011-PASS09-TOUCHED-FILES.json",
+    "TITAN-ZERO-TZ-NEXT-011-PASS09-VERIFICATION.json",
+    "TZ-NEXT-011-PASS08-MERGE28-APPLY-INTEGRATION-DELTA.json",
+    "titan-runtime/feed/feed-deduplication.mjs",
+    "titan-runtime/feed/feed-delivery-replay-guard.mjs",
+    "titan-runtime/feed/feed-human-decision-routing.mjs",
+    "titan-runtime/feed/feed-presentation-state.mjs",
+    "titan-runtime/feed/tests/feed-deduplication.test.mjs",
+    "titan-runtime/feed/tests/feed-delivery-replay-guard.test.mjs",
+    "titan-runtime/feed/tests/feed-high-volume-regression.test.mjs",
+    "titan-runtime/feed/tests/feed-human-decision-routing.test.mjs",
+    "titan-runtime/feed/tests/feed-presentation-state.test.mjs"
+  ],
+  "merge29_integration_modified": [
+    "titan-local/storage/bootstrap.mjs"
+  ],
+  "merge29_integration_deleted": [],
+  "verification": "29/29 tests PASS",
+  "next_pass": 10,
+  "next_action": "Certify feed/inbox/notification coherence and reconstruction; publish final packet handoff, move packet READY FOR MANAGER MERGE, release hotspots, STOP."
+}

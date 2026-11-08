@@ -1,0 +1,75 @@
+{
+  "id": "titan.module-health",
+  "name": "Module Health",
+  "version": "2.0.0",
+  "kind": "packaged",
+  "description": "Built-in reference module proving screens, workers, tools, providers, projections, workflows, settings, commands and diagnostics.",
+  "author": "Titan Zero",
+  "scope": {"company_id": null},
+  "permissions": [],
+  "contributes": {
+    "capabilities": [
+      {"id": "module.health", "title": "Module health probe"},
+      {"id": "module.capability-runtime", "title": "Capability-first module runtime reference"}
+    ],
+    "commands": [
+      {"id": "ping", "title": "Ping module", "description": "Returns module runtime status."}
+    ],
+    "intents": [],
+    "links": [],
+    "feed": [],
+    "settings": [],
+    "screens": [
+      {
+        "id": "health",
+        "title": "Module Health",
+        "description": "Reference screen contributed by a packaged Titan module.",
+        "icon": "pulse",
+        "blocks": [
+          {"type": "text", "title": "Capability runtime", "text": "This screen is rendered from the module manifest without injecting executable UI code."},
+          {"type": "projection", "title": "Runtime health", "projection": "health"},
+          {"type": "settings", "title": "Reference settings", "panel": "general"},
+          {"type": "workers", "title": "Workers"},
+          {"type": "workflows", "title": "Workflows"}
+        ]
+      }
+    ],
+    "workers": [
+      {
+        "id": "checker",
+        "name": "Module Checker",
+        "role": "Runtime checker",
+        "description": "Runs the built-in capability probe workflow.",
+        "instructions": "Verify the Titan module capability runtime and report structured results.",
+        "tools": ["probe"],
+        "workflow": "check",
+        "channels": ["chat", "work"],
+        "autonomy": "assist"
+      }
+    ],
+    "tools": [
+      {"id": "probe", "title": "Probe runtime", "description": "Runs a local packaged module health probe.", "permissions": [], "inputSchema": {"type": "object"}, "outputSchema": {"type": "object"}}
+    ],
+    "providers": [
+      {"id": "echo-provider", "title": "Reference provider", "type": "local", "description": "Local packaged provider used to verify provider registration.", "capabilities": ["echo"], "settingsPanel": "general"}
+    ],
+    "projections": [
+      {"id": "health", "title": "Module runtime health", "description": "Live packaged runtime projection.", "source": "runtime"},
+      {"id": "label", "title": "Configured label", "description": "Reads the company-scoped label setting.", "source": "settings", "key": "label"}
+    ],
+    "workflows": [
+      {"id": "check", "title": "Capability check", "description": "Runs the packaged probe tool.", "steps": [{"type": "tool", "tool": "probe", "input": {"source": "workflow"}, "assign": "probe"}]}
+    ],
+    "settingsPanels": [
+      {
+        "id": "general",
+        "title": "Module Health settings",
+        "description": "Company-scoped reference settings.",
+        "fields": [
+          {"id": "label", "label": "Display label", "type": "text", "default": "Titan", "placeholder": "Titan"},
+          {"id": "strict", "label": "Strict checks", "type": "boolean", "default": true}
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,412 @@
+import Link from "next/link";
+import { redirect } from "next/navigation";
+import type { Route } from "next";
+import { getSession } from "@/lib/auth/session";
+import { canCreateInvoices } from "@/lib/auth/permissions";
+import { withInvoiceContext } from "@/lib/invoices/db";
+import type { InvoiceStatus } from "@ai-fsm/domain";
+import { invoiceDueOnCompletion, daysUntilInvoiceDue } from "@ai-fsm/domain";
+import {
+  PageContainer,
+  PageHeader,
+  ItemCard,
+  StatusSection,
+  EmptyState,
+  MetricGrid,
+  LinkButton,
+  HubSubnav,
+  WhatNext,
+} from "@/components/ui";
+import type { MetricCardData } from "@/components/ui";
+import { formatInvoiceViewLabel, isInvoiceUnread } from "@/lib/invoices/client-view";
+import { amountDueCents } from "@/lib/invoices/payments";
+import { MONEY_HUB_LINKS } from "@/lib/navigation/hubs";
+import { invoiceAttentionPredicate } from "@/lib/attention/counts";
+import { formatSponsoredInvoiceLabel } from "@/lib/invoices/sponsored";
+
+export const dynamic = "force-dynamic";
+
+interface InvoiceRow {
+  id: string;
+  status: InvoiceStatus;
+  invoice_number: string;
+  subtotal_cents: number;
+  tax_cents: number;
+  total_cents: number;
+  paid_cents: number;
+  deposit_cents: number;
+  due_date: string | null;
+  created_at: string;
+  sent_at: string | null;
+  first_viewed_at: string | null;
+  last_viewed_at: string | null;
+  view_count: number;
+  client_name: string | null;
+  invoice_kind: string;
+  job_status: string | null;
+  billing_context: string;
+  property_address: string | null;
+  beneficiary_name: string | null;
+  work_summary: string | null;
+  [key: string]: unknown;
+}
+
+const STATUS_LABELS: Record<InvoiceStatus, string> = {
+  draft: "Draft",
+  sent: "Sent",
+  partial: "Partially Paid",
+  paid: "Paid",
+  overdue: "Overdue",
+  void: "Void",
+};
+
+const STATUS_ORDER: InvoiceStatus[] = [
+  "overdue",
+  "sent",
+  "partial",
+  "draft",
+  "paid",
+  "void",
+];
+
+function formatDollars(cents: number): string {
+  return `$${(cents / 100).toFixed(2)}`;
+}
+
+/** Calendar days until due (ET). 0 = due today, negative = overdue. */
+function getDaysUntilDue(dueDate: string | null): number | null {
+  return daysUntilInvoiceDue(dueDate);
+}
+
+function formatAging(days: number | null): string | null {
+  if (days === null) return null;
+  if (days < 0) return `${Math.abs(days)}d overdue`;
+  if (days === 0) return "Due today";
+  if (days === 1) return "Due tomorrow";
+  if (days <= 7) return `Due in ${days} days`;
+  return null;
+}
+
+/** Aging/overdue only applies while money is still open. */
+function isOpenBalance(status: InvoiceStatus): boolean {
+  return status === "sent" || status === "partial" || status === "overdue" || status === "draft";
+}
+
+/**
+ * TASK-078: the status to group / count / prioritize by. A due-on-completion
+ * invoice is never "overdue" — its balance isn't due while the job is open — so
+ * an `overdue` row on an open job is reclassified to its underlying open state.
+ */
+function effectiveInvoiceStatus(inv: InvoiceRow): InvoiceStatus {
+  if (
+    inv.status === "overdue" &&
+    invoiceDueOnCompletion({ invoiceKind: inv.invoice_kind, jobStatus: inv.job_status })
+  ) {
+    return inv.paid_cents > 0 ? "partial" : "sent";
+  }
+  return inv.status;
+}
+
+interface PageProps {
+  searchParams: Promise<{ attention?: string }>;
+}
+
+export default async function InvoicesPage({ searchParams }: PageProps) {
+  const session = await getSession();
+  if (!session) redirect("/login");
+  if (session.role === "tech") redirect("/app/my-work"); // EPIC-006: techs have no invoice access
+  const canCreate = canCreateInvoices(session.role);
+
+  const { attention } = await searchParams;
+  const attentionMode = attention === "1" || attention === "true";
+  const attentionPred = attentionMode ? `AND ${invoiceAttentionPredicate("i")}` : "";
+
+  const invoices = await withInvoiceContext(session, async (client) => {
+    const r = await client.query(
+      `SELECT i.id, i.status, i.invoice_number,
+              i.subtotal_cents, i.tax_cents, i.total_cents, i.paid_cents, i.deposit_cents,
+              i.due_date, i.created_at, i.sent_at,
+              i.first_viewed_at, i.last_viewed_at, i.view_count,
+              i.invoice_kind, j.status AS job_status,
+              c.name AS client_name,
+              i.billing_context, i.work_summary, sp.address AS property_address,
+              COALESCE(spcc.name, spc.external_name) AS beneficiary_name
+       FROM invoices i
+       LEFT JOIN clients c ON c.id = i.client_id
+       LEFT JOIN jobs j ON j.id = i.job_id
+       LEFT JOIN properties sp ON sp.id = i.property_id AND sp.account_id = i.account_id
+       LEFT JOIN property_contacts spc
+         ON spc.id = i.beneficiary_property_contact_id AND spc.account_id = i.account_id
+       LEFT JOIN clients spcc ON spcc.id = spc.client_id AND spcc.account_id = i.account_id
+       WHERE i.account_id = $1
+       ${attentionPred}
+       ORDER BY 
+         CASE i.status 
+           WHEN 'overdue' THEN 1 
+           WHEN 'partial' THEN 2 
+           WHEN 'sent' THEN 3 
+           ELSE 4 
+         END,
+         i.due_date ASC NULLS LAST
+       LIMIT 100`,
+      [session.accountId]
+    );
+    return r.rows as InvoiceRow[];
+  });
+
+  const grouped = STATUS_ORDER.reduce<Record<string, InvoiceRow[]>>(
+    (acc, s) => ({ ...acc, [s]: [] }),
+    {}
+  );
+  for (const inv of invoices) {
+    grouped[effectiveInvoiceStatus(inv)]?.push(inv);
+  }
+  const activeStatuses = STATUS_ORDER.filter((s) => grouped[s].length > 0);
+
+  const totalOutstanding = invoices
+    .filter((i) => ["sent", "partial", "overdue"].includes(effectiveInvoiceStatus(i)))
+    .reduce(
+      (sum, i) => sum + amountDueCents(i.total_cents, i.paid_cents, i.deposit_cents ?? 0),
+      0,
+    );
+
+  const totalOverdue = grouped.overdue.reduce(
+    (sum, i) => sum + amountDueCents(i.total_cents, i.paid_cents, i.deposit_cents ?? 0),
+    0,
+  );
+
+  const totalPaid = grouped.paid.reduce((sum, i) => sum + i.paid_cents, 0);
+  const priorityInvoice = grouped.overdue[0] ?? grouped.partial[0] ?? grouped.sent[0] ?? null;
+  // Use the effective status so a due-on-completion invoice never drives an
+  // "overdue" call-to-action.
+  const priorityStatus = priorityInvoice ? effectiveInvoiceStatus(priorityInvoice) : null;
+  const priorityLabel = priorityStatus
+    ? priorityStatus === "overdue"
+      ? "Collect overdue payment"
+      : priorityStatus === "partial"
+        ? "Finish partial payment"
+        : "Follow up on sent invoice"
+    : null;
+
+  const metrics: MetricCardData[] = [
+    {
+      label: "Outstanding",
+      value: formatDollars(totalOutstanding),
+      sub: `${grouped.sent.length + grouped.partial.length + grouped.overdue.length} unpaid`,
+    },
+    {
+      label: "Overdue",
+      value: formatDollars(totalOverdue),
+      sub: `${grouped.overdue.length} invoices`,
+      variant: totalOverdue > 0 ? "alert" : "default",
+    },
+    {
+      label: "Collected",
+      value: formatDollars(totalPaid),
+      sub: `${grouped.paid.length} paid`,
+      variant: totalPaid > 0 ? "success" : "default",
+    },
+  ];
+
+  return (
+    <PageContainer>
+      <PageHeader
+        title="Bills"
+        subtitle={`${invoices.length} total`}
+        actions={
+          canCreate ? (
+            <LinkButton
+              href="/app/invoices/new"
+              variant="primary"
+              data-testid="create-invoice-btn"
+            >
+              + Create Invoice
+            </LinkButton>
+          ) : undefined
+        }
+      />
+      <HubSubnav hub="Money" links={MONEY_HUB_LINKS} pathname="/app/invoices" />
+
+      {attentionMode && (
+        <p
+          data-testid="attention-filter-banner"
+          style={{
+            margin: "0 0 var(--space-3)",
+            padding: "10px 14px",
+            borderRadius: 8,
+            background: "color-mix(in srgb, var(--accent, #166534) 10%, transparent)",
+            border: "1px solid color-mix(in srgb, var(--accent, #166534) 28%, transparent)",
+            fontSize: "var(--text-sm)",
+            color: "var(--fg)",
+          }}
+        >
+          Showing invoices that need attention (draft finals, unopened sent/partial, overdue).{" "}
+          <Link href={"/app/invoices" as Route} style={{ fontWeight: 600 }}>
+            Clear filter
+          </Link>
+        </p>
+      )}
+
+      {invoices.length > 0 && <MetricGrid metrics={metrics} />}
+
+      {priorityInvoice && (
+        <div data-testid="billing-queue-card">
+          <WhatNext
+            title={priorityLabel ?? "Follow up on invoice"}
+            description={`${priorityInvoice.invoice_number} · ${priorityInvoice.client_name ?? "Client"} · ${priorityInvoice.due_date ? new Date(priorityInvoice.due_date).toLocaleDateString() : "No due date"}`}
+            href={`/app/invoices/${priorityInvoice.id}`}
+            actionLabel="Open & collect"
+          />
+        </div>
+      )}
+
+      {invoices.length === 0 ? (
+        <EmptyState
+          title={attentionMode ? "Nothing needs attention" : "No invoices yet"}
+          description={
+            attentionMode
+              ? "No draft finals, unopened sent invoices, or overdue balances right now."
+              : "Create a draft invoice for any client — add line items, hours, and materials. Or convert an approved estimate when you have one."
+          }
+          action={
+            !attentionMode && canCreate ? (
+              <LinkButton
+                href="/app/invoices/new"
+                variant="primary"
+                data-testid="create-invoice-empty-btn"
+              >
+                Create Invoice
+              </LinkButton>
+            ) : undefined
+          }
+          data-testid="invoices-empty"
+        />
+      ) : (
+        <div>
+          {activeStatuses.map((status) => (
+            <StatusSection
+              key={status}
+              title={STATUS_LABELS[status]}
+              count={grouped[status].length}
+            >
+              {grouped[status].map((inv) => {
+                const amountDue = amountDueCents(
+                  inv.total_cents,
+                  inv.paid_cents,
+                  inv.deposit_cents ?? 0,
+                );
+                const open = isOpenBalance(inv.status);
+                // TASK-078: an open job's balance is "due on completion" — never
+                // aging/overdue while the work is unfinished, even if a due date passed.
+                const dueOnCompletion = invoiceDueOnCompletion({
+                  invoiceKind: inv.invoice_kind,
+                  jobStatus: inv.job_status,
+                });
+                const daysUntilDue = open && !dueOnCompletion ? getDaysUntilDue(inv.due_date) : null;
+                const aging = formatAging(daysUntilDue);
+                // Past due_date alone must not mark paid/void invoices overdue
+                // (e.g. Gina INV-0019 paid same day but due_date still in the past).
+                const isOverdue = open && daysUntilDue !== null && daysUntilDue < 0;
+                const isDueSoon = open && daysUntilDue !== null && daysUntilDue >= 0 && daysUntilDue <= 7;
+                const dueLabel =
+                  inv.status === "paid"
+                    ? "Paid"
+                    : inv.status === "void"
+                      ? "Void"
+                      : dueOnCompletion
+                        ? "Due on completion"
+                        : inv.due_date
+                          ? aging || `Due ${new Date(inv.due_date).toLocaleDateString()}`
+                          : null;
+                const unread = isInvoiceUnread({
+                  status: inv.status,
+                  sent_at: inv.sent_at,
+                  first_viewed_at: inv.first_viewed_at,
+                });
+                const view = formatInvoiceViewLabel({
+                  status: inv.status,
+                  first_viewed_at: inv.first_viewed_at,
+                  last_viewed_at: inv.last_viewed_at,
+                  view_count: inv.view_count,
+                });
+
+                return (
+                  <ItemCard
+                    key={inv.id}
+                    href={`/app/invoices/${inv.id}`}
+                    title={inv.invoice_number}
+                    titleBadge={
+                      <span style={{ display: "inline-flex", gap: "var(--space-2)", alignItems: "center" }}>
+                        {inv.client_name ? (
+                          <span style={{ color: "var(--fg-muted)", fontSize: "var(--text-sm)" }}>· {inv.client_name}</span>
+                        ) : null}
+                        {inv.billing_context === "realtor_sponsored" && (
+                          <span data-testid="invoice-sponsored-label" style={{ color: "var(--fg-muted)", fontSize: "var(--text-sm)" }}>
+                            · {formatSponsoredInvoiceLabel({
+                              propertyAddress: inv.property_address ?? "",
+                              beneficiaryName: inv.beneficiary_name,
+                              workSummary: inv.work_summary,
+                              invoiceNumber: inv.invoice_number,
+                            })}
+                          </span>
+                        )}
+                        {unread && (
+                          <span
+                            data-testid="invoice-unread-badge"
+                            style={{
+                              fontSize: "var(--text-xs)",
+                              fontWeight: 700,
+                              color: "var(--color-warning, #b45309)",
+                              background: "color-mix(in srgb, var(--color-warning, #f59e0b) 14%, transparent)",
+                              border: "1px solid color-mix(in srgb, var(--color-warning, #f59e0b) 35%, transparent)",
+                              borderRadius: 999,
+                              padding: "1px 7px",
+                            }}
+                          >
+                            Not opened
+                          </span>
+                        )}
+                        {view.kind === "viewed" && (
+                          <span
+                            data-testid="invoice-viewed-badge"
+                            title={view.title}
+                            style={{
+                              fontSize: "var(--text-xs)",
+                              fontWeight: 600,
+                              color: "var(--fg-muted)",
+                            }}
+                          >
+                            · {view.label}
+                          </span>
+                        )}
+                      </span>
+                    }
+                    meta={
+                      <span style={{ display: "flex", gap: "var(--space-2)", alignItems: "center", fontSize: "var(--text-sm)" }}>
+                        {dueLabel && (
+                          <span style={{ color: isOverdue ? "var(--color-danger)" : isDueSoon ? "var(--color-warning)" : "var(--fg-muted)" }}>
+                            {dueLabel}
+                          </span>
+                        )}
+                        <span style={{ color: "var(--fg-muted)" }}>·</span>
+                        <span style={{ fontFamily: "var(--font-mono)", fontWeight: 600 }}>{formatDollars(inv.total_cents)}</span>
+                        {amountDue > 0 && open && (
+                          <span style={{ color: "var(--color-danger)", fontFamily: "var(--font-mono)" }}>
+                            {formatDollars(amountDue)} due
+                          </span>
+                        )}
+                      </span>
+                    }
+                    overdue={isOverdue && inv.status !== "overdue"}
+                    actions={null}
+                    data-testid="invoice-card"
+                  />
+                );
+              })}
+            </StatusSection>
+          ))}
+        </div>
+      )}
+    </PageContainer>
+  );
+}

@@ -1,0 +1,8 @@
+export type ReliabilityState="HEALTHY"|"DEGRADED"|"READ_ONLY"|"ISOLATED"|"RECOVERING"|"RECOVERED"|"FAILED";
+export type RecoveryRecord=Readonly<{incident_id:string;company_id:string;state:ReliabilityState;revision:number;detected_at:string;recovery_refs:readonly string[];authorityGranted:false}>;
+const allowed:Record<ReliabilityState,ReliabilityState[]>={HEALTHY:["DEGRADED","FAILED"],DEGRADED:["READ_ONLY","ISOLATED","RECOVERING","FAILED"],READ_ONLY:["RECOVERING","FAILED"],ISOLATED:["RECOVERING","FAILED"],RECOVERING:["RECOVERED","FAILED"],RECOVERED:["HEALTHY","DEGRADED"],FAILED:["RECOVERING","ISOLATED"]};
+function req(v:string,n:string){if(!v.trim())throw new Error(`${n}-required`)}
+export function beginRecovery(input:Omit<RecoveryRecord,"state"|"revision"|"authorityGranted">):RecoveryRecord{req(input.company_id,"company_id");req(input.incident_id,"incident_id");req(input.detected_at,"detected_at");return Object.freeze({...input,state:"HEALTHY" as const,revision:1,authorityGranted:false as const})}
+export function transitionReliability(record:RecoveryRecord,state:ReliabilityState,recovery_ref?:string):RecoveryRecord{if(!allowed[record.state].includes(state))throw new Error("reliability-transition-invalid");if(["RECOVERED","HEALTHY"].includes(state)&&!recovery_ref&&!record.recovery_refs.length)throw new Error("recovery-evidence-required");return Object.freeze({...record,state,revision:record.revision+1,recovery_refs:recovery_ref?[...record.recovery_refs,recovery_ref]:record.recovery_refs})}
+export function canAcceptConsequentialWork(record:RecoveryRecord):boolean{return record.state==="HEALTHY"||record.state==="RECOVERED"}
+

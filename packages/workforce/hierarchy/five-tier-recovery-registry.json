@@ -1,0 +1,778 @@
+{
+  "schema": "titan.workforce.five-tier-recovery.v1",
+  "status": "RECOVERED_CATALOGUE_EVIDENCE_NOT_FULL_SOURCE_CONVERGENCE",
+  "source_evidence": {
+    "extension_inventory": "Library extension-inventory.json",
+    "audit": "Titan-Zero-Chatbot-DEEP-CODE-AUDIT-REPORT.md",
+    "five_tier_packages": [
+      "titan-zero",
+      "titan-uno-managers",
+      "titan-duo-assistants",
+      "titan-trio-agents",
+      "titan-quattro-tools",
+      "custom-agent-factory"
+    ]
+  },
+  "target_model": [
+    {
+      "tier": 0,
+      "name": "Starter / Process Orchestrator",
+      "rule": "Owns an end-to-end business process; not part of the 119 role hierarchy."
+    },
+    {
+      "tier": 1,
+      "name": "Manager",
+      "rule": "Owns a functional outcome and delegates; no authority from identity alone."
+    },
+    {
+      "tier": 2,
+      "name": "Supervisor",
+      "rule": "Coordinates day-to-day queues, teams, capacity and exceptions."
+    },
+    {
+      "tier": 3,
+      "name": "Specialist",
+      "rule": "Provides domain expertise and recommendations."
+    },
+    {
+      "tier": 4,
+      "name": "Worker",
+      "rule": "Atomic single-task agent; does not delegate."
+    },
+    {
+      "tier": 5,
+      "name": "Tool / Capability",
+      "rule": "Deterministic connector/domain capability used by workers; not an agent."
+    }
+  ],
+  "legacy_recovery": {
+    "safe_manager_candidates": [
+      {
+        "id": "customer_manager",
+        "name": "Customer Manager",
+        "legacy_class": "CustomerManager",
+        "legacy_path": "System/TitanAI/tier1/managers/CustomerManager.php"
+      },
+      {
+        "id": "field_staff_manager",
+        "name": "Field Staff Manager",
+        "legacy_class": "FieldStaffManager",
+        "legacy_path": "System/TitanAI/tier1/managers/FieldStaffManager.php"
+      },
+      {
+        "id": "finance_manager",
+        "name": "Finance Manager",
+        "legacy_class": "FinanceManager",
+        "legacy_path": "System/TitanAI/tier1/managers/FinanceManager.php"
+      },
+      {
+        "id": "marketing_manager",
+        "name": "Marketing Manager",
+        "legacy_class": "MarketingManager",
+        "legacy_path": "System/TitanAI/tier1/managers/MarketingManager.php"
+      },
+      {
+        "id": "operations_manager",
+        "name": "Operations Manager",
+        "legacy_class": "OperationsManager",
+        "legacy_path": "System/TitanAI/tier1/managers/OperationsManager.php"
+      },
+      {
+        "id": "quality_safety_manager",
+        "name": "Quality Safety Manager",
+        "legacy_class": "QualitySafetyManager",
+        "legacy_path": "System/TitanAI/tier1/managers/QualitySafetyManager.php"
+      },
+      {
+        "id": "sales_manager",
+        "name": "Sales Manager",
+        "legacy_class": "SalesManager",
+        "legacy_path": "System/TitanAI/tier1/managers/SalesManager.php"
+      },
+      {
+        "id": "supplies_equipment_manager",
+        "name": "Supplies Equipment Manager",
+        "legacy_class": "SuppliesEquipmentManager",
+        "legacy_path": "System/TitanAI/tier1/managers/SuppliesEquipmentManager.php"
+      }
+    ],
+    "tier2_specialist_assistants": [
+      {
+        "id": "autonomous_dispatch_assistant",
+        "name": "Autonomous Dispatch Assistant",
+        "legacy_class": "AutonomousDispatchAssistant",
+        "legacy_path": "System/TitanAI/tier2/assistants/AutonomousDispatchAssistant.php"
+      },
+      {
+        "id": "autonomous_pricing_assistant",
+        "name": "Autonomous Pricing Assistant",
+        "legacy_class": "AutonomousPricingAssistant",
+        "legacy_path": "System/TitanAI/tier2/assistants/AutonomousPricingAssistant.php"
+      },
+      {
+        "id": "cleaning_vertical_assistant",
+        "name": "Cleaning Vertical Assistant",
+        "legacy_class": "CleaningVerticalAssistant",
+        "legacy_path": "System/TitanAI/tier2/assistants/CleaningVerticalAssistant.php"
+      },
+      {
+        "id": "customer_analytics_assistant",
+        "name": "Customer Analytics Assistant",
+        "legacy_class": "CustomerAnalyticsAssistant",
+        "legacy_path": "System/TitanAI/tier2/assistants/CustomerAnalyticsAssistant.php"
+      },
+      {
+        "id": "customer_service_assistant",
+        "name": "Customer Service Assistant",
+        "legacy_class": "CustomerServiceAssistant",
+        "legacy_path": "System/TitanAI/tier2/assistants/CustomerServiceAssistant.php"
+      },
+      {
+        "id": "dispatch_assistant",
+        "name": "Dispatch Assistant",
+        "legacy_class": "DispatchAssistant",
+        "legacy_path": "System/TitanAI/tier2/assistants/DispatchAssistant.php"
+      },
+      {
+        "id": "electrical_vertical_assistant",
+        "name": "Electrical Vertical Assistant",
+        "legacy_class": "ElectricalVerticalAssistant",
+        "legacy_path": "System/TitanAI/tier2/assistants/ElectricalVerticalAssistant.php"
+      },
+      {
+        "id": "field_service_analytics_assistant",
+        "name": "Field Service Analytics Assistant",
+        "legacy_class": "FieldServiceAnalyticsAssistant",
+        "legacy_path": "System/TitanAI/tier2/assistants/FieldServiceAnalyticsAssistant.php"
+      },
+      {
+        "id": "fleet_management_assistant",
+        "name": "Fleet Management Assistant",
+        "legacy_class": "FleetManagementAssistant",
+        "legacy_path": "System/TitanAI/tier2/assistants/FleetManagementAssistant.php"
+      },
+      {
+        "id": "h_v_a_c_vertical_assistant",
+        "name": "H V A C Vertical Assistant",
+        "legacy_class": "HVACVerticalAssistant",
+        "legacy_path": "System/TitanAI/tier2/assistants/HVACVerticalAssistant.php"
+      },
+      {
+        "id": "handymen_vertical_assistant",
+        "name": "Handymen Vertical Assistant",
+        "legacy_class": "HandymenVerticalAssistant",
+        "legacy_path": "System/TitanAI/tier2/assistants/HandymenVerticalAssistant.php"
+      },
+      {
+        "id": "intelligent_customer_success_assistant",
+        "name": "Intelligent Customer Success Assistant",
+        "legacy_class": "IntelligentCustomerSuccessAssistant",
+        "legacy_path": "System/TitanAI/tier2/assistants/IntelligentCustomerSuccessAssistant.php"
+      },
+      {
+        "id": "intelligent_emergency_response_assistant",
+        "name": "Intelligent Emergency Response Assistant",
+        "legacy_class": "IntelligentEmergencyResponseAssistant",
+        "legacy_path": "System/TitanAI/tier2/assistants/IntelligentEmergencyResponseAssistant.php"
+      },
+      {
+        "id": "intelligent_fleet_assistant",
+        "name": "Intelligent Fleet Assistant",
+        "legacy_class": "IntelligentFleetAssistant",
+        "legacy_path": "System/TitanAI/tier2/assistants/IntelligentFleetAssistant.php"
+      },
+      {
+        "id": "intelligent_inventory_assistant",
+        "name": "Intelligent Inventory Assistant",
+        "legacy_class": "IntelligentInventoryAssistant",
+        "legacy_path": "System/TitanAI/tier2/assistants/IntelligentInventoryAssistant.php"
+      },
+      {
+        "id": "intelligent_invoicing_assistant",
+        "name": "Intelligent Invoicing Assistant",
+        "legacy_class": "IntelligentInvoicingAssistant",
+        "legacy_path": "System/TitanAI/tier2/assistants/IntelligentInvoicingAssistant.php"
+      },
+      {
+        "id": "intelligent_lead_scoring_assistant",
+        "name": "Intelligent Lead Scoring Assistant",
+        "legacy_class": "IntelligentLeadScoringAssistant",
+        "legacy_path": "System/TitanAI/tier2/assistants/IntelligentLeadScoringAssistant.php"
+      },
+      {
+        "id": "intelligent_marketing_assistant",
+        "name": "Intelligent Marketing Assistant",
+        "legacy_class": "IntelligentMarketingAssistant",
+        "legacy_path": "System/TitanAI/tier2/assistants/IntelligentMarketingAssistant.php"
+      },
+      {
+        "id": "intelligent_payments_assistant",
+        "name": "Intelligent Payments Assistant",
+        "legacy_class": "IntelligentPaymentsAssistant",
+        "legacy_path": "System/TitanAI/tier2/assistants/IntelligentPaymentsAssistant.php"
+      },
+      {
+        "id": "intelligent_quality_assurance_assistant",
+        "name": "Intelligent Quality Assurance Assistant",
+        "legacy_class": "IntelligentQualityAssuranceAssistant",
+        "legacy_path": "System/TitanAI/tier2/assistants/IntelligentQualityAssuranceAssistant.php"
+      },
+      {
+        "id": "intelligent_quoting_assistant",
+        "name": "Intelligent Quoting Assistant",
+        "legacy_class": "IntelligentQuotingAssistant",
+        "legacy_path": "System/TitanAI/tier2/assistants/IntelligentQuotingAssistant.php"
+      },
+      {
+        "id": "intelligent_recurring_services_assistant",
+        "name": "Intelligent Recurring Services Assistant",
+        "legacy_class": "IntelligentRecurringServicesAssistant",
+        "legacy_path": "System/TitanAI/tier2/assistants/IntelligentRecurringServicesAssistant.php"
+      },
+      {
+        "id": "intelligent_reporting_assistant",
+        "name": "Intelligent Reporting Assistant",
+        "legacy_class": "IntelligentReportingAssistant",
+        "legacy_path": "System/TitanAI/tier2/assistants/IntelligentReportingAssistant.php"
+      },
+      {
+        "id": "intelligent_route_planning_assistant",
+        "name": "Intelligent Route Planning Assistant",
+        "legacy_class": "IntelligentRoutePlanningAssistant",
+        "legacy_path": "System/TitanAI/tier2/assistants/IntelligentRoutePlanningAssistant.php"
+      },
+      {
+        "id": "intelligent_safety_assistant",
+        "name": "Intelligent Safety Assistant",
+        "legacy_class": "IntelligentSafetyAssistant",
+        "legacy_path": "System/TitanAI/tier2/assistants/IntelligentSafetyAssistant.php"
+      },
+      {
+        "id": "intelligent_staff_coordination_assistant",
+        "name": "Intelligent Staff Coordination Assistant",
+        "legacy_class": "IntelligentStaffCoordinationAssistant",
+        "legacy_path": "System/TitanAI/tier2/assistants/IntelligentStaffCoordinationAssistant.php"
+      },
+      {
+        "id": "intelligent_training_assistant",
+        "name": "Intelligent Training Assistant",
+        "legacy_class": "IntelligentTrainingAssistant",
+        "legacy_path": "System/TitanAI/tier2/assistants/IntelligentTrainingAssistant.php"
+      },
+      {
+        "id": "inventory_assistant",
+        "name": "Inventory Assistant",
+        "legacy_class": "InventoryAssistant",
+        "legacy_path": "System/TitanAI/tier2/assistants/InventoryAssistant.php"
+      },
+      {
+        "id": "invoicing_assistant",
+        "name": "Invoicing Assistant",
+        "legacy_class": "InvoicingAssistant",
+        "legacy_path": "System/TitanAI/tier2/assistants/InvoicingAssistant.php"
+      },
+      {
+        "id": "landscaping_vertical_assistant",
+        "name": "Landscaping Vertical Assistant",
+        "legacy_class": "LandscapingVerticalAssistant",
+        "legacy_path": "System/TitanAI/tier2/assistants/LandscapingVerticalAssistant.php"
+      },
+      {
+        "id": "lead_management_assistant",
+        "name": "Lead Management Assistant",
+        "legacy_class": "LeadManagementAssistant",
+        "legacy_path": "System/TitanAI/tier2/assistants/LeadManagementAssistant.php"
+      },
+      {
+        "id": "marketing_assistant",
+        "name": "Marketing Assistant",
+        "legacy_class": "MarketingAssistant",
+        "legacy_path": "System/TitanAI/tier2/assistants/MarketingAssistant.php"
+      },
+      {
+        "id": "payments_assistant",
+        "name": "Payments Assistant",
+        "legacy_class": "PaymentsAssistant",
+        "legacy_path": "System/TitanAI/tier2/assistants/PaymentsAssistant.php"
+      },
+      {
+        "id": "plumbing_vertical_assistant",
+        "name": "Plumbing Vertical Assistant",
+        "legacy_class": "PlumbingVerticalAssistant",
+        "legacy_path": "System/TitanAI/tier2/assistants/PlumbingVerticalAssistant.php"
+      },
+      {
+        "id": "pool_service_vertical_assistant",
+        "name": "Pool Service Vertical Assistant",
+        "legacy_class": "PoolServiceVerticalAssistant",
+        "legacy_path": "System/TitanAI/tier2/assistants/PoolServiceVerticalAssistant.php"
+      },
+      {
+        "id": "predictive_maintenance_assistant",
+        "name": "Predictive Maintenance Assistant",
+        "legacy_class": "PredictiveMaintenanceAssistant",
+        "legacy_path": "System/TitanAI/tier2/assistants/PredictiveMaintenanceAssistant.php"
+      },
+      {
+        "id": "predictive_maintenance_optimization_assistant",
+        "name": "Predictive Maintenance Optimization Assistant",
+        "legacy_class": "PredictiveMaintenanceOptimizationAssistant",
+        "legacy_path": "System/TitanAI/tier2/assistants/PredictiveMaintenanceOptimizationAssistant.php"
+      },
+      {
+        "id": "pressure_washing_vertical_assistant",
+        "name": "Pressure Washing Vertical Assistant",
+        "legacy_class": "PressureWashingVerticalAssistant",
+        "legacy_path": "System/TitanAI/tier2/assistants/PressureWashingVerticalAssistant.php"
+      },
+      {
+        "id": "quality_inspection_assistant",
+        "name": "Quality Inspection Assistant",
+        "legacy_class": "QualityInspectionAssistant",
+        "legacy_path": "System/TitanAI/tier2/assistants/QualityInspectionAssistant.php"
+      },
+      {
+        "id": "quoting_assistant",
+        "name": "Quoting Assistant",
+        "legacy_class": "QuotingAssistant",
+        "legacy_path": "System/TitanAI/tier2/assistants/QuotingAssistant.php"
+      },
+      {
+        "id": "recurring_services_assistant",
+        "name": "Recurring Services Assistant",
+        "legacy_class": "RecurringServicesAssistant",
+        "legacy_path": "System/TitanAI/tier2/assistants/RecurringServicesAssistant.php"
+      },
+      {
+        "id": "reporting_assistant",
+        "name": "Reporting Assistant",
+        "legacy_class": "ReportingAssistant",
+        "legacy_path": "System/TitanAI/tier2/assistants/ReportingAssistant.php"
+      },
+      {
+        "id": "route_planning_assistant",
+        "name": "Route Planning Assistant",
+        "legacy_class": "RoutePlanningAssistant",
+        "legacy_path": "System/TitanAI/tier2/assistants/RoutePlanningAssistant.php"
+      },
+      {
+        "id": "safety_compliance_assistant",
+        "name": "Safety Compliance Assistant",
+        "legacy_class": "SafetyComplianceAssistant",
+        "legacy_path": "System/TitanAI/tier2/assistants/SafetyComplianceAssistant.php"
+      },
+      {
+        "id": "scheduling_assistant",
+        "name": "Scheduling Assistant",
+        "legacy_class": "SchedulingAssistant",
+        "legacy_path": "System/TitanAI/tier2/assistants/SchedulingAssistant.php"
+      },
+      {
+        "id": "staff_coordination_assistant",
+        "name": "Staff Coordination Assistant",
+        "legacy_class": "StaffCoordinationAssistant",
+        "legacy_path": "System/TitanAI/tier2/assistants/StaffCoordinationAssistant.php"
+      },
+      {
+        "id": "technician_performance_assistant",
+        "name": "Technician Performance Assistant",
+        "legacy_class": "TechnicianPerformanceAssistant",
+        "legacy_path": "System/TitanAI/tier2/assistants/TechnicianPerformanceAssistant.php"
+      },
+      {
+        "id": "training_and_onboarding_assistant",
+        "name": "Training And Onboarding Assistant",
+        "legacy_class": "TrainingAndOnboardingAssistant",
+        "legacy_path": "System/TitanAI/tier2/assistants/TrainingAndOnboardingAssistant.php"
+      }
+    ],
+    "tier3_atomic_worker_candidates": [
+      {
+        "id": "accept_quote_agent",
+        "name": "Accept Quote Agent",
+        "legacy_class": "AcceptQuoteAgent",
+        "legacy_path": "System/TitanAI/tier3/Actions/AcceptQuoteAgent.php"
+      },
+      {
+        "id": "allocate_equipment_agent",
+        "name": "Allocate Equipment Agent",
+        "legacy_class": "AllocateEquipmentAgent",
+        "legacy_path": "System/TitanAI/tier3/Actions/AllocateEquipmentAgent.php"
+      },
+      {
+        "id": "apply_customer_tag_agent",
+        "name": "Apply Customer Tag Agent",
+        "legacy_class": "ApplyCustomerTagAgent",
+        "legacy_path": "System/TitanAI/tier3/Actions/ApplyCustomerTagAgent.php"
+      },
+      {
+        "id": "archive_conversation_agent",
+        "name": "Archive Conversation Agent",
+        "legacy_class": "ArchiveConversationAgent",
+        "legacy_path": "System/TitanAI/tier3/Actions/ArchiveConversationAgent.php"
+      },
+      {
+        "id": "assign_cleaner_agent",
+        "name": "Assign Cleaner Agent",
+        "legacy_class": "AssignCleanerAgent",
+        "legacy_path": "System/TitanAI/tier3/Actions/AssignCleanerAgent.php"
+      },
+      {
+        "id": "automated_reschedule_agent",
+        "name": "Automated Reschedule Agent",
+        "legacy_class": "AutomatedRescheduleAgent",
+        "legacy_path": "System/TitanAI/tier3/Actions/AutomatedRescheduleAgent.php"
+      },
+      {
+        "id": "book_job_agent",
+        "name": "Book Job Agent",
+        "legacy_class": "BookJobAgent",
+        "legacy_path": "System/TitanAI/tier3/Actions/BookJobAgent.php"
+      },
+      {
+        "id": "bulk_operations_agent",
+        "name": "Bulk Operations Agent",
+        "legacy_class": "BulkOperationsAgent",
+        "legacy_path": "System/TitanAI/tier3/Actions/BulkOperationsAgent.php"
+      },
+      {
+        "id": "cancel_job_agent",
+        "name": "Cancel Job Agent",
+        "legacy_class": "CancelJobAgent",
+        "legacy_path": "System/TitanAI/tier3/Actions/CancelJobAgent.php"
+      },
+      {
+        "id": "compliance_audit_agent",
+        "name": "Compliance Audit Agent",
+        "legacy_class": "ComplianceAuditAgent",
+        "legacy_path": "System/TitanAI/tier3/Actions/ComplianceAuditAgent.php"
+      },
+      {
+        "id": "conversation_summary_agent",
+        "name": "Conversation Summary Agent",
+        "legacy_class": "ConversationSummaryAgent",
+        "legacy_path": "System/TitanAI/tier3/Actions/ConversationSummaryAgent.php"
+      },
+      {
+        "id": "cost_analysis_agent",
+        "name": "Cost Analysis Agent",
+        "legacy_class": "CostAnalysisAgent",
+        "legacy_path": "System/TitanAI/tier3/Actions/CostAnalysisAgent.php"
+      },
+      {
+        "id": "create_customer_agent",
+        "name": "Create Customer Agent",
+        "legacy_class": "CreateCustomerAgent",
+        "legacy_path": "System/TitanAI/tier3/Actions/CreateCustomerAgent.php"
+      },
+      {
+        "id": "create_follow_up_agent",
+        "name": "Create Follow Up Agent",
+        "legacy_class": "CreateFollowUpAgent",
+        "legacy_path": "System/TitanAI/tier3/Actions/CreateFollowUpAgent.php"
+      },
+      {
+        "id": "create_invoice_agent",
+        "name": "Create Invoice Agent",
+        "legacy_class": "CreateInvoiceAgent",
+        "legacy_path": "System/TitanAI/tier3/Actions/CreateInvoiceAgent.php"
+      },
+      {
+        "id": "create_lead_agent",
+        "name": "Create Lead Agent",
+        "legacy_class": "CreateLeadAgent",
+        "legacy_path": "System/TitanAI/tier3/Actions/CreateLeadAgent.php"
+      },
+      {
+        "id": "create_purchase_order_agent",
+        "name": "Create Purchase Order Agent",
+        "legacy_class": "CreatePurchaseOrderAgent",
+        "legacy_path": "System/TitanAI/tier3/Actions/CreatePurchaseOrderAgent.php"
+      },
+      {
+        "id": "create_quote_agent",
+        "name": "Create Quote Agent",
+        "legacy_class": "CreateQuoteAgent",
+        "legacy_path": "System/TitanAI/tier3/Actions/CreateQuoteAgent.php"
+      },
+      {
+        "id": "create_recurring_job_agent",
+        "name": "Create Recurring Job Agent",
+        "legacy_class": "CreateRecurringJobAgent",
+        "legacy_path": "System/TitanAI/tier3/Actions/CreateRecurringJobAgent.php"
+      },
+      {
+        "id": "customer_loyalty_agent",
+        "name": "Customer Loyalty Agent",
+        "legacy_class": "CustomerLoyaltyAgent",
+        "legacy_path": "System/TitanAI/tier3/Actions/CustomerLoyaltyAgent.php"
+      },
+      {
+        "id": "customer_notification_agent",
+        "name": "Customer Notification Agent",
+        "legacy_class": "CustomerNotificationAgent",
+        "legacy_path": "System/TitanAI/tier3/Actions/CustomerNotificationAgent.php"
+      },
+      {
+        "id": "dispatch_optimization_agent",
+        "name": "Dispatch Optimization Agent",
+        "legacy_class": "DispatchOptimizationAgent",
+        "legacy_path": "System/TitanAI/tier3/Actions/DispatchOptimizationAgent.php"
+      },
+      {
+        "id": "edit_image_agent",
+        "name": "Edit Image Agent",
+        "legacy_class": "EditImageAgent",
+        "legacy_path": "System/TitanAI/tier3/Actions/EditImageAgent.php"
+      },
+      {
+        "id": "emergency_service_agent",
+        "name": "Emergency Service Agent",
+        "legacy_class": "EmergencyServiceAgent",
+        "legacy_path": "System/TitanAI/tier3/Actions/EmergencyServiceAgent.php"
+      },
+      {
+        "id": "feedback_analysis_agent",
+        "name": "Feedback Analysis Agent",
+        "legacy_class": "FeedbackAnalysisAgent",
+        "legacy_path": "System/TitanAI/tier3/Actions/FeedbackAnalysisAgent.php"
+      },
+      {
+        "id": "field_service_documentation_agent",
+        "name": "Field Service Documentation Agent",
+        "legacy_class": "FieldServiceDocumentationAgent",
+        "legacy_path": "System/TitanAI/tier3/Actions/FieldServiceDocumentationAgent.php"
+      },
+      {
+        "id": "generate_blog_draft_agent",
+        "name": "Generate Blog Draft Agent",
+        "legacy_class": "GenerateBlogDraftAgent",
+        "legacy_path": "System/TitanAI/tier3/Actions/GenerateBlogDraftAgent.php"
+      },
+      {
+        "id": "generate_marketing_image_agent",
+        "name": "Generate Marketing Image Agent",
+        "legacy_class": "GenerateMarketingImageAgent",
+        "legacy_path": "System/TitanAI/tier3/Actions/GenerateMarketingImageAgent.php"
+      },
+      {
+        "id": "generate_photo_shoot_agent",
+        "name": "Generate Photo Shoot Agent",
+        "legacy_class": "GeneratePhotoShootAgent",
+        "legacy_path": "System/TitanAI/tier3/Actions/GeneratePhotoShootAgent.php"
+      },
+      {
+        "id": "generate_product_shot_agent",
+        "name": "Generate Product Shot Agent",
+        "legacy_class": "GenerateProductShotAgent",
+        "legacy_path": "System/TitanAI/tier3/Actions/GenerateProductShotAgent.php"
+      },
+      {
+        "id": "intelligent_lead_scoring_agent",
+        "name": "Intelligent Lead Scoring Agent",
+        "legacy_class": "IntelligentLeadScoringAgent",
+        "legacy_path": "System/TitanAI/tier3/Actions/IntelligentLeadScoringAgent.php"
+      },
+      {
+        "id": "job_estimation_agent",
+        "name": "Job Estimation Agent",
+        "legacy_class": "JobEstimationAgent",
+        "legacy_path": "System/TitanAI/tier3/Actions/JobEstimationAgent.php"
+      },
+      {
+        "id": "maintenance_scheduler_agent",
+        "name": "Maintenance Scheduler Agent",
+        "legacy_class": "MaintenanceSchedulerAgent",
+        "legacy_path": "System/TitanAI/tier3/Actions/MaintenanceSchedulerAgent.php"
+      },
+      {
+        "id": "mark_job_complete_agent",
+        "name": "Mark Job Complete Agent",
+        "legacy_class": "MarkJobCompleteAgent",
+        "legacy_path": "System/TitanAI/tier3/Actions/MarkJobCompleteAgent.php"
+      },
+      {
+        "id": "notify_cleaner_agent",
+        "name": "Notify Cleaner Agent",
+        "legacy_class": "NotifyCleanerAgent",
+        "legacy_path": "System/TitanAI/tier3/Actions/NotifyCleanerAgent.php"
+      },
+      {
+        "id": "optimise_route_agent",
+        "name": "Optimise Route Agent",
+        "legacy_class": "OptimiseRouteAgent",
+        "legacy_path": "System/TitanAI/tier3/Actions/OptimiseRouteAgent.php"
+      },
+      {
+        "id": "pause_recurring_service_agent",
+        "name": "Pause Recurring Service Agent",
+        "legacy_class": "PauseRecurringServiceAgent",
+        "legacy_path": "System/TitanAI/tier3/Actions/PauseRecurringServiceAgent.php"
+      },
+      {
+        "id": "performance_metrics_agent",
+        "name": "Performance Metrics Agent",
+        "legacy_class": "PerformanceMetricsAgent",
+        "legacy_path": "System/TitanAI/tier3/Actions/PerformanceMetricsAgent.php"
+      },
+      {
+        "id": "predictive_maintenance_agent",
+        "name": "Predictive Maintenance Agent",
+        "legacy_class": "PredictiveMaintenanceAgent",
+        "legacy_path": "System/TitanAI/tier3/Actions/PredictiveMaintenanceAgent.php"
+      },
+      {
+        "id": "pricing_optimization_agent",
+        "name": "Pricing Optimization Agent",
+        "legacy_class": "PricingOptimizationAgent",
+        "legacy_path": "System/TitanAI/tier3/Actions/PricingOptimizationAgent.php"
+      },
+      {
+        "id": "publish_blog_post_agent",
+        "name": "Publish Blog Post Agent",
+        "legacy_class": "PublishBlogPostAgent",
+        "legacy_path": "System/TitanAI/tier3/Actions/PublishBlogPostAgent.php"
+      },
+      {
+        "id": "publish_social_post_agent",
+        "name": "Publish Social Post Agent",
+        "legacy_class": "PublishSocialPostAgent",
+        "legacy_path": "System/TitanAI/tier3/Actions/PublishSocialPostAgent.php"
+      },
+      {
+        "id": "reassign_cleaner_agent",
+        "name": "Reassign Cleaner Agent",
+        "legacy_class": "ReassignCleanerAgent",
+        "legacy_path": "System/TitanAI/tier3/Actions/ReassignCleanerAgent.php"
+      },
+      {
+        "id": "record_incident_agent",
+        "name": "Record Incident Agent",
+        "legacy_class": "RecordIncidentAgent",
+        "legacy_path": "System/TitanAI/tier3/Actions/RecordIncidentAgent.php"
+      },
+      {
+        "id": "record_inspection_agent",
+        "name": "Record Inspection Agent",
+        "legacy_class": "RecordInspectionAgent",
+        "legacy_path": "System/TitanAI/tier3/Actions/RecordInspectionAgent.php"
+      },
+      {
+        "id": "record_payment_agent",
+        "name": "Record Payment Agent",
+        "legacy_class": "RecordPaymentAgent",
+        "legacy_path": "System/TitanAI/tier3/Actions/RecordPaymentAgent.php"
+      },
+      {
+        "id": "request_review_agent",
+        "name": "Request Review Agent",
+        "legacy_class": "RequestReviewAgent",
+        "legacy_path": "System/TitanAI/tier3/Actions/RequestReviewAgent.php"
+      },
+      {
+        "id": "reschedule_job_agent",
+        "name": "Reschedule Job Agent",
+        "legacy_class": "RescheduleJobAgent",
+        "legacy_path": "System/TitanAI/tier3/Actions/RescheduleJobAgent.php"
+      },
+      {
+        "id": "resource_allocation_agent",
+        "name": "Resource Allocation Agent",
+        "legacy_class": "ResourceAllocationAgent",
+        "legacy_path": "System/TitanAI/tier3/Actions/ResourceAllocationAgent.php"
+      },
+      {
+        "id": "schedule_social_post_agent",
+        "name": "Schedule Social Post Agent",
+        "legacy_class": "ScheduleSocialPostAgent",
+        "legacy_path": "System/TitanAI/tier3/Actions/ScheduleSocialPostAgent.php"
+      },
+      {
+        "id": "send_customer_message_agent",
+        "name": "Send Customer Message Agent",
+        "legacy_class": "SendCustomerMessageAgent",
+        "legacy_path": "System/TitanAI/tier3/Actions/SendCustomerMessageAgent.php"
+      },
+      {
+        "id": "send_invoice_agent",
+        "name": "Send Invoice Agent",
+        "legacy_class": "SendInvoiceAgent",
+        "legacy_path": "System/TitanAI/tier3/Actions/SendInvoiceAgent.php"
+      },
+      {
+        "id": "send_payment_reminder_agent",
+        "name": "Send Payment Reminder Agent",
+        "legacy_class": "SendPaymentReminderAgent",
+        "legacy_path": "System/TitanAI/tier3/Actions/SendPaymentReminderAgent.php"
+      },
+      {
+        "id": "send_quote_agent",
+        "name": "Send Quote Agent",
+        "legacy_class": "SendQuoteAgent",
+        "legacy_path": "System/TitanAI/tier3/Actions/SendQuoteAgent.php"
+      },
+      {
+        "id": "service_checklist_agent",
+        "name": "Service Checklist Agent",
+        "legacy_class": "ServiceChecklistAgent",
+        "legacy_path": "System/TitanAI/tier3/Actions/ServiceChecklistAgent.php"
+      },
+      {
+        "id": "service_quality_predictor_agent",
+        "name": "Service Quality Predictor Agent",
+        "legacy_class": "ServiceQualityPredictorAgent",
+        "legacy_path": "System/TitanAI/tier3/Actions/ServiceQualityPredictorAgent.php"
+      },
+      {
+        "id": "technician_certification_agent",
+        "name": "Technician Certification Agent",
+        "legacy_class": "TechnicianCertificationAgent",
+        "legacy_path": "System/TitanAI/tier3/Actions/TechnicianCertificationAgent.php"
+      },
+      {
+        "id": "technician_payroll_agent",
+        "name": "Technician Payroll Agent",
+        "legacy_class": "TechnicianPayrollAgent",
+        "legacy_path": "System/TitanAI/tier3/Actions/TechnicianPayrollAgent.php"
+      },
+      {
+        "id": "update_customer_agent",
+        "name": "Update Customer Agent",
+        "legacy_class": "UpdateCustomerAgent",
+        "legacy_path": "System/TitanAI/tier3/Actions/UpdateCustomerAgent.php"
+      },
+      {
+        "id": "update_stock_agent",
+        "name": "Update Stock Agent",
+        "legacy_class": "UpdateStockAgent",
+        "legacy_path": "System/TitanAI/tier3/Actions/UpdateStockAgent.php"
+      },
+      {
+        "id": "upload_job_evidence_agent",
+        "name": "Upload Job Evidence Agent",
+        "legacy_class": "UploadJobEvidenceAgent",
+        "legacy_path": "System/TitanAI/tier3/Actions/UploadJobEvidenceAgent.php"
+      },
+      {
+        "id": "workforce_availability_agent",
+        "name": "Workforce Availability Agent",
+        "legacy_class": "WorkforceAvailabilityAgent",
+        "legacy_path": "System/TitanAI/tier3/Actions/WorkforceAvailabilityAgent.php"
+      }
+    ],
+    "counts": {
+      "safe_manager_candidates": 8,
+      "tier2_unique_specialists": 48,
+      "tier3_unique_workers": 62
+    }
+  },
+  "convergence_rules": [
+    "Do not copy legacy manager authority into the current workforce.",
+    "Do not restore speculative legacy manager classes merely because they existed.",
+    "Map useful legacy Duo assistants to current specialists before adding duplicates.",
+    "Map useful legacy Trio actions to atomic workers; each worker must have one bounded operation.",
+    "Workers do not delegate and cannot self-grant authority.",
+    "All company-scoped execution remains bounded by company_id and current Titan authority/approval services.",
+    "Tools remain capabilities beneath workers, not workforce identities."
+  ]
+}

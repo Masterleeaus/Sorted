@@ -1,0 +1,28 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema",
+  "$id":"titan.scheduling.operational-conflict.v1",
+  "title":"Titan Scheduling Operational Conflict",
+  "type":"object",
+  "required":["schema","code","worker_id","work_item_id","message","grants_authority","execution_permitted","automatic_assignment","automatic_reschedule","direct_mutation"],
+  "properties":{
+    "schema":{"const":"titan.scheduling.operational-conflict.v1"},
+    "code":{"enum":["DOUBLE_BOOKING","WORKER_UNAVAILABLE","TRAVEL_OVERLAP"]},
+    "worker_id":{"type":"string","minLength":1},
+    "work_item_id":{"type":"string","minLength":1},
+    "message":{"type":"string","minLength":1},
+    "conflicting_assignment_id":{"type":"string"},
+    "conflicting_work_item_id":{"type":"string"},
+    "direction":{"enum":["BEFORE_REQUESTED_WINDOW","AFTER_REQUESTED_WINDOW"]},
+    "from_site_id":{"type":"string"},
+    "to_site_id":{"type":"string"},
+    "required_travel_minutes":{"type":"number","minimum":0},
+    "available_gap_minutes":{"type":"number"},
+    "travel_source":{"type":"string"},
+    "grants_authority":{"const":false},
+    "execution_permitted":{"const":false},
+    "automatic_assignment":{"const":false},
+    "automatic_reschedule":{"const":false},
+    "direct_mutation":{"const":false}
+  },
+  "additionalProperties":true
+}

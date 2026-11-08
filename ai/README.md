@@ -1,0 +1,24 @@
+# AI Quick References
+
+**Start here:** [`INVARIANTS.md`](./INVARIANTS.md) — operational facts an agent
+must know before auditing status, building infra, or deploying (deploy lag,
+worker egress, RLS/superuser, migration numbering, HA schedules, running tests).
+
+**Before UI or workflow changes:** read and follow
+[`docs/working/ux-implementation-direction.md`](../docs/working/ux-implementation-direction.md).
+Do not duplicate that brief here. Preserve working plumbing unless a section
+explicitly calls for replacement.
+
+This directory is intentionally small. Treat the canonical docs as the source of truth:
+
+- docs/canonical/ARCHITECTURE.md
+- docs/canonical/DOMAIN_MODEL.md
+- docs/canonical/OPERATIONS.md
+- docs/canonical/PRODUCT_VISION.md
+- docs/canonical/ROADMAP.md
+- docs/canonical/WORKFLOW.md
+- docs/contracts/api-contract.md
+- docs/contracts/test-strategy.md
+- docs/contracts/workflow-states.md
+
+Use this file as a pointer map only. Do not duplicate canonical product, domain, workflow, or database rules here.

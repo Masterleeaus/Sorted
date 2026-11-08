@@ -1,0 +1,422 @@
+import { NextResponse } from "next/server";
+import { z } from "zod";
+import { withAuth, withRole } from "@/lib/auth/middleware";
+import { withInvoiceContext } from "@/lib/invoices/db";
+import { appendAuditLog } from "@/lib/db/audit";
+import { logger } from "@/lib/logger";
+import { getPathId } from "@/lib/route-utils";
+import { upsertMaterialHandlingFeeLine } from "@/lib/invoices/job-expenses";
+import { recalculateInvoiceTotals } from "@/lib/invoices/line-items";
+import { INVOICE_DEPOSIT_TYPES } from "@/lib/invoices/deposit";
+import {
+  canOwnerHardDeleteInvoice,
+  ownerHardDeleteInvoiceBlockReason,
+} from "@/lib/invoices/delete-policy";
+import { SPONSORED_PURPOSES, validateInvoiceContext } from "@/lib/invoices/sponsored";
+
+export const dynamic = "force-dynamic";
+
+const patchInvoiceSchema = z.object({
+  client_id: z.string().uuid().optional(),
+  job_id: z.string().uuid().nullable().optional(),
+  property_id: z.string().uuid().nullable().optional(),
+  billing_context: z.enum(["standard", "realtor_sponsored"]).optional(),
+  sponsored_purpose: z.enum(SPONSORED_PURPOSES).nullable().optional(),
+  beneficiary_property_contact_id: z.string().uuid().nullable().optional(),
+  business_purpose: z.string().trim().max(2000).nullable().optional(),
+}).passthrough();
+
+// === Get Invoice (GET /api/v1/invoices/[id]) ===
+
+export const GET = withAuth(async (request, session) => {
+  const id = getPathId(request.nextUrl.pathname);
+
+  try {
+    const data = await withInvoiceContext(session, async (client) => {
+      const invoiceResult = await client.query(
+        `SELECT i.id, i.status, i.invoice_number,
+                i.subtotal_cents, i.tax_cents, i.total_cents, i.paid_cents,
+                i.deposit_cents, i.balance_cents, i.deposit_paid_at,
+                i.notes, i.due_date, i.sent_at, i.paid_at,
+                i.estimate_id, i.client_id, i.job_id, i.property_id,
+                i.billing_context, i.sponsored_purpose,
+                i.beneficiary_property_contact_id, i.business_purpose,
+                i.created_by, i.created_at, i.updated_at,
+                c.name AS client_name, j.title AS job_title
+         FROM invoices i
+         LEFT JOIN clients c ON c.id = i.client_id
+         LEFT JOIN jobs j ON j.id = i.job_id
+         WHERE i.id = $1 AND i.account_id = $2`,
+        [id, session.accountId]
+      );
+
+      if (invoiceResult.rowCount === 0) return null;
+
+      const lineItemsResult = await client.query(
+        `SELECT id, invoice_id, estimate_line_item_id,
+                description, quantity::float8 AS quantity, unit_price_cents, total_cents, line_item_type, sort_order, created_at
+         FROM invoice_line_items
+         WHERE invoice_id = $1
+         ORDER BY sort_order ASC, created_at ASC`,
+        [id]
+      );
+
+      return {
+        ...invoiceResult.rows[0],
+        line_items: lineItemsResult.rows,
+      };
+    });
+
+    if (!data) {
+      return NextResponse.json(
+        {
+          error: {
+            code: "NOT_FOUND",
+            message: "Invoice not found",
+            traceId: session.traceId,
+          },
+        },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json({ data });
+  } catch (error) {
+    logger.error("GET /api/v1/invoices/[id] error", error, { traceId: session.traceId });
+    return NextResponse.json(
+      {
+        error: {
+          code: "INTERNAL_ERROR",
+          message: "Failed to fetch invoice",
+          traceId: session.traceId,
+        },
+      },
+      { status: 500 }
+    );
+  }
+});
+
+// === Update Invoice (PATCH /api/v1/invoices/[id]) ===
+// - notes, due_date: draft only
+// - deposit_paid_at: any non-terminal status (draft/sent/partial/overdue)
+// - paid/void are fully terminal
+
+export const PATCH = withRole(["owner", "admin"], async (request, session) => {
+  const id = getPathId(request.nextUrl.pathname);
+
+  let body: Record<string, unknown>;
+  try {
+    body = (await request.json()) as Record<string, unknown>;
+  } catch {
+    return NextResponse.json(
+      {
+        error: {
+          code: "VALIDATION_ERROR",
+          message: "Invalid JSON body",
+          traceId: session.traceId,
+        },
+      },
+      { status: 400 }
+    );
+  }
+
+  const parsed = patchInvoiceSchema.safeParse(body);
+  if (!parsed.success) {
+    return NextResponse.json(
+      { error: { code: "VALIDATION_ERROR", message: "Invalid request body", details: parsed.error.flatten().fieldErrors, traceId: session.traceId } },
+      { status: 422 }
+    );
+  }
+  body = parsed.data;
+
+  const TERMINAL = ["paid", "void"];
+  const DRAFT_ONLY_FIELDS = [
+    "notes", "due_date", "apply_material_handling", "client_id", "job_id", "property_id",
+    "billing_context", "sponsored_purpose", "beneficiary_property_contact_id", "business_purpose",
+  ] as const;
+  const NON_TERMINAL_FIELDS = ["deposit_paid_at"] as const;
+
+  try {
+    await withInvoiceContext(session, async (client) => {
+      const existing = await client.query<{
+        id: string;
+        status: string;
+        client_id: string;
+        job_id: string | null;
+        property_id: string | null;
+        billing_context: "standard" | "realtor_sponsored";
+        sponsored_purpose: (typeof SPONSORED_PURPOSES)[number] | null;
+        beneficiary_property_contact_id: string | null;
+        business_purpose: string | null;
+      }>(
+        `SELECT id, status, client_id, job_id, property_id, billing_context,
+                sponsored_purpose, beneficiary_property_contact_id, business_purpose
+         FROM invoices WHERE id = $1 AND account_id = $2`,
+        [id, session.accountId]
+      );
+
+      if (existing.rowCount === 0) {
+        throw Object.assign(new Error("Not found"), { code: "NOT_FOUND" });
+      }
+
+      const inv = existing.rows[0];
+
+      if (TERMINAL.includes(inv.status)) {
+        throw Object.assign(
+          new Error(`Invoice in ${inv.status} state cannot be edited`),
+          { code: "IMMUTABLE_ENTITY" }
+        );
+      }
+
+      const setClauses: string[] = [];
+      const params: unknown[] = [];
+      let idx = 1;
+
+      // draft-only fields
+      if (inv.status === "draft") {
+        if (["client_id", "job_id", "property_id", "billing_context", "sponsored_purpose", "beneficiary_property_contact_id", "business_purpose"].some((key) => key in body)) {
+          await validateInvoiceContext(client, session.accountId, {
+            payerClientId: (body.client_id as string | undefined) ?? inv.client_id,
+            jobId: "job_id" in body ? body.job_id as string | null : inv.job_id,
+            propertyId: "property_id" in body ? body.property_id as string | null : inv.property_id,
+            billingContext: (body.billing_context as "standard" | "realtor_sponsored" | undefined) ?? inv.billing_context,
+            sponsoredPurpose: "sponsored_purpose" in body
+              ? body.sponsored_purpose as (typeof SPONSORED_PURPOSES)[number] | null
+              : inv.sponsored_purpose,
+            beneficiaryPropertyContactId: "beneficiary_property_contact_id" in body
+              ? body.beneficiary_property_contact_id as string | null
+              : inv.beneficiary_property_contact_id,
+            businessPurpose: "business_purpose" in body ? body.business_purpose as string | null : inv.business_purpose,
+          });
+        }
+        for (const key of DRAFT_ONLY_FIELDS) {
+          if (key in body) {
+            setClauses.push(`${key} = $${idx++}`);
+            params.push(body[key] ?? null);
+          }
+        }
+        // TASK-157: room-by-room work summary + itemized receipts opt-in.
+        if ("work_summary" in body) {
+          const ws = body.work_summary;
+          if (ws !== null && (typeof ws !== "string" || ws.length > 8000)) {
+            throw Object.assign(new Error("work_summary must be text up to 8000 characters"), { code: "VALIDATION_ERROR" });
+          }
+          setClauses.push(`work_summary = $${idx++}`);
+          params.push(typeof ws === "string" && ws.trim() ? ws.trim() : null);
+        }
+        if ("show_itemized_receipts" in body) {
+          setClauses.push(`show_itemized_receipts = $${idx++}`);
+          params.push(body.show_itemized_receipts === true);
+        }
+      }
+
+      // fields settable on any non-terminal invoice
+      for (const key of NON_TERMINAL_FIELDS) {
+        if (key in body) {
+          setClauses.push(`${key} = $${idx++}`);
+          params.push(body[key] ?? null);
+        }
+      }
+
+      // Deposit policy — settable on any non-terminal invoice (editable until
+      // paid). Sets the three columns coherently so only the active value is kept.
+      if ("deposit_type" in body) {
+        const dType = body.deposit_type;
+        if (!(INVOICE_DEPOSIT_TYPES as readonly string[]).includes(dType as string)) {
+          throw Object.assign(new Error("Invalid deposit_type"), { code: "VALIDATION_ERROR" });
+        }
+        let pct: number | null = null;
+        let fixed: number | null = null;
+        if (dType === "percentage") {
+          const p = Number(body.deposit_percentage);
+          if (!Number.isFinite(p) || p < 0 || p > 100) {
+            throw Object.assign(new Error("deposit_percentage must be between 0 and 100"), { code: "VALIDATION_ERROR" });
+          }
+          pct = p;
+        } else if (dType === "fixed") {
+          const f = Number(body.deposit_fixed_cents);
+          if (!Number.isInteger(f) || f < 0) {
+            throw Object.assign(new Error("deposit_fixed_cents must be a non-negative integer"), { code: "VALIDATION_ERROR" });
+          }
+          fixed = f;
+        }
+        setClauses.push(`deposit_type = $${idx++}`); params.push(dType);
+        setClauses.push(`deposit_percentage = $${idx++}`); params.push(pct);
+        setClauses.push(`deposit_fixed_cents = $${idx++}`); params.push(fixed);
+      }
+
+      if (setClauses.length > 0) {
+        setClauses.push(`updated_at = now()`);
+        params.push(id);
+        params.push(session.accountId);
+        await client.query(
+          `UPDATE invoices SET ${setClauses.join(", ")} WHERE id = $${idx} AND account_id = $${idx + 1}`,
+          params
+        );
+      }
+
+      if (inv.status === "draft" && "apply_material_handling" in body) {
+        await upsertMaterialHandlingFeeLine(client, id, session.accountId);
+        await recalculateInvoiceTotals(client, id, session.accountId);
+      }
+
+      await appendAuditLog(client, {
+        account_id: session.accountId,
+        entity_type: "invoice",
+        entity_id: id,
+        action: "update",
+        actor_id: session.userId,
+        trace_id: session.traceId,
+        old_value: { status: inv.status },
+        new_value: body,
+      });
+    });
+
+    return NextResponse.json({ updated: true });
+  } catch (error) {
+    const err = error as Error & { code?: string };
+    if (err.code === "NOT_FOUND") {
+      return NextResponse.json(
+        {
+          error: {
+            code: "NOT_FOUND",
+            message: "Invoice not found",
+            traceId: session.traceId,
+          },
+        },
+        { status: 404 }
+      );
+    }
+    if (err.code === "IMMUTABLE_ENTITY") {
+      return NextResponse.json(
+        {
+          error: {
+            code: "IMMUTABLE_ENTITY",
+            message: err.message,
+            traceId: session.traceId,
+          },
+        },
+        { status: 422 }
+      );
+    }
+    if (err.code === "VALIDATION_ERROR") {
+      return NextResponse.json(
+        { error: { code: "VALIDATION_ERROR", message: err.message, traceId: session.traceId } },
+        { status: 422 }
+      );
+    }
+    logger.error("PATCH /api/v1/invoices/[id] error", error, { traceId: session.traceId });
+    return NextResponse.json(
+      {
+        error: {
+          code: "INTERNAL_ERROR",
+          message: "Failed to update invoice",
+          traceId: session.traceId,
+        },
+      },
+      { status: 500 }
+    );
+  }
+});
+
+// === Delete Invoice (DELETE /api/v1/invoices/[id]) ===
+
+export const DELETE = withRole(["owner"], async (request, session) => {
+  const id = getPathId(request.nextUrl.pathname);
+
+  try {
+    await withInvoiceContext(session, async (client) => {
+      const existing = await client.query<{
+        id: string;
+        status: string;
+        invoice_number: string;
+        paid_cents: number;
+        total_cents: number;
+        client_id: string | null;
+      }>(
+        `SELECT id, status, invoice_number, paid_cents, total_cents, client_id
+         FROM invoices WHERE id = $1 AND account_id = $2`,
+        [id, session.accountId]
+      );
+
+      if (existing.rowCount === 0) {
+        throw Object.assign(new Error("Not found"), { code: "NOT_FOUND" });
+      }
+
+      const inv = existing.rows[0];
+      if (!canOwnerHardDeleteInvoice(inv)) {
+        throw Object.assign(
+          new Error(ownerHardDeleteInvoiceBlockReason(inv) ?? "Invoice cannot be deleted"),
+          { code: "IMMUTABLE_ENTITY" }
+        );
+      }
+
+      // Orphan payment rows should not exist when paid_cents=0, but clear any just in case.
+      await client.query(`DELETE FROM payments WHERE invoice_id = $1 AND account_id = $2`, [
+        id,
+        session.accountId,
+      ]);
+
+      // Delete line items first
+      await client.query(`DELETE FROM invoice_line_items WHERE invoice_id = $1`, [id]);
+
+      // Delete the invoice
+      await client.query(`DELETE FROM invoices WHERE id = $1 AND account_id = $2`, [id, session.accountId]);
+
+      await appendAuditLog(client, {
+        account_id: session.accountId,
+        entity_type: "invoice",
+        entity_id: id,
+        action: "delete",
+        actor_id: session.userId,
+        trace_id: session.traceId,
+        old_value: {
+          status: inv.status,
+          invoice_number: inv.invoice_number,
+          paid_cents: inv.paid_cents,
+          total_cents: inv.total_cents,
+          client_id: inv.client_id,
+        },
+      });
+    });
+
+    return NextResponse.json({ deleted: true });
+  } catch (error) {
+    const err = error as Error & { code?: string };
+    if (err.code === "NOT_FOUND") {
+      return NextResponse.json(
+        {
+          error: {
+            code: "NOT_FOUND",
+            message: "Invoice not found",
+            traceId: session.traceId,
+          },
+        },
+        { status: 404 }
+      );
+    }
+    if (err.code === "IMMUTABLE_ENTITY") {
+      return NextResponse.json(
+        {
+          error: {
+            code: "IMMUTABLE_ENTITY",
+            message: err.message,
+            traceId: session.traceId,
+          },
+        },
+        { status: 422 }
+      );
+    }
+    logger.error("DELETE /api/v1/invoices/[id] error", error, { traceId: session.traceId });
+    return NextResponse.json(
+      {
+        error: {
+          code: "INTERNAL_ERROR",
+          message: "Failed to delete invoice",
+          traceId: session.traceId,
+        },
+      },
+      { status: 500 }
+    );
+  }
+});

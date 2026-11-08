@@ -1,0 +1,15 @@
+{
+  "dataset_name": "AI Extensions Lossless Source Archive",
+  "dataset_id": "c9a8ddba-1412-493d-b0d8-7b17b939522f",
+  "source_format": "ndjson",
+  "hosted_format": "parquet",
+  "rows": 4204,
+  "raw_bytes": 81323004,
+  "hosted_bytes": 93123653,
+  "url": "https://titan-builder-ob009-artifact.miniup.app/api/data-file/titan-builder-ob009-artifact/ai-extensions-lossless.parquet",
+  "codec": "zlib+base64",
+  "path_root": "extensions/",
+  "selected_extensions": 78,
+  "canonical_chatbot": "Chatbot",
+  "excluded_duplicate": "TitanZeroChatbot"
+}

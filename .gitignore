@@ -1,0 +1,12 @@
+.env
+.env.*
+*secret*
+*.zip
+*.tar*
+*.log
+*.pid
+*.backup
+*.bak
+backups/
+node_modules/
+dist/

@@ -1,0 +1,23 @@
+{
+  "schema": "titan-zero-agent3-hotfix/v1",
+  "agent": "agent-3",
+  "pass": 1,
+  "issue": "Yjs already imported duplicate runtime injection",
+  "parent_artifact": "Titan-Zero-CANONICAL-MASTER-2026-09-07-MERGE-26-ALL-PASSES-STORAGE-CONVERGED.zip",
+  "parent_sha256": "04241bb7c0fc647114e8ea23620ba93c3e8285d042d553d2ddd0cb6f9d23d89b",
+  "changes": {
+    "modified": [
+      "manifest.json",
+      "titan-regression/monica-retriever/tests/pass04-webpage-overlay.test.mjs",
+      "titan-regression/monica-retriever/tests/pass09-full-parity-gate.test.mjs",
+      "titan-regression/monica-retriever/tests/reachability-regression.test.mjs",
+      "titan-regression/monica-retriever/tests/finish004-pass05-route-reachability.test.mjs",
+      "titan-regression/monica-retriever/tests/finish004-pass04-launch-surfaces.test.mjs"
+    ],
+    "added": [
+      "titan-regression/agent3-yjs/pass01-yjs-single-injection.test.mjs"
+    ],
+    "deleted": []
+  },
+  "strategy": "retain legacy bundles on disk; remove automatic content.js/content.css injection; retain Titan compat runtime injection"
+}

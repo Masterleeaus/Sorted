@@ -1,0 +1,36 @@
+{
+  "schema": "titan-zero-reliability-diagnostic-retention-stress/v1",
+  "packet_id": "TZ-FINISH-005",
+  "pass": 4,
+  "generated_at": "2026-09-05T03:21:07Z",
+  "baseline_wrapper": {
+    "artifact": "Titan-Zero-CANONICAL-MASTER-2026-09-05.zip",
+    "version_id": 6,
+    "runtime_base_sha256": "4cd2c2bb6cf898383629fac25029f294aad4973534cef43eac897b6b9de4e089"
+  },
+  "scope": {
+    "legacy_log_key": "titanDiagnosticLog",
+    "max_entries": 1000,
+    "stress_events": 5000,
+    "observability_exclusive_files_modified": false
+  },
+  "findings": [
+    "Legacy diagnostics storage is count-bounded to 1000 entries but previously lacked explicit normalization/correlation retention stress coverage.",
+    "Pass 4 adds deterministic normalization/pruning and promotes correlation_id/operation_id to stable top-level diagnostic fields for the diagnostics surface.",
+    "The observability runtime remains company_id-scoped and correlation-searchable; titan-observability/** was not modified because it is owned by the observability lane."
+  ],
+  "stress_results": {
+    "burst_events": 5000,
+    "retained": 1000,
+    "pruned": 4000,
+    "oldest_retained": "m-4000",
+    "newest_retained": "m-4999",
+    "ordering": "PASS",
+    "hard_cap": "PASS",
+    "correlation_preservation": "PASS",
+    "operation_preservation": "PASS"
+  },
+  "authority_effect": false,
+  "company_boundary": "company_id",
+  "live_browser_claimed": false
+}

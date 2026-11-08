@@ -1,0 +1,730 @@
+{
+  "schema": "titan-zero-cost-sovereignty-inventory/v1",
+  "generated_at": "2026-09-07T01:40:04.024Z",
+  "root": ".",
+  "scope": {
+    "max_file_bytes": 1000000,
+    "code_extensions": [
+      ".cjs",
+      ".html",
+      ".js",
+      ".json",
+      ".mjs"
+    ],
+    "note": "Static inventory only. A candidate is not proof of an outbound paid call; live execution must still be traced and tested."
+  },
+  "startup": {
+    "service_worker": "background-bootstrap.js",
+    "workforce_runtime_imported": true,
+    "native_runtime_imported": true,
+    "settings_cost_module_imported_by_bootstrap": false,
+    "provider_control_module_imported_by_bootstrap": false
+  },
+  "summary": {
+    "scanned_files": 1478,
+    "matched_files": 1041,
+    "first_party_matched_files": 647,
+    "guarded_first_party_files": 6,
+    "cost_aware_first_party_files": 46,
+    "provider_network_candidate_files": 8
+  },
+  "known_core": [
+    {
+      "path": "titan-settings/control-plane/ai-cost-routing-settings.mjs",
+      "exists": true,
+      "guarded": true
+    },
+    {
+      "path": "titan-settings/control-plane/ai-provider-control-centre.mjs",
+      "exists": true,
+      "guarded": false
+    },
+    {
+      "path": "titan-settings/control-plane/ai-budget-controls.mjs",
+      "exists": true,
+      "guarded": false
+    },
+    {
+      "path": "titan-workforce/handover/investigation-installation-handover.mjs",
+      "exists": true,
+      "guarded": true
+    },
+    {
+      "path": "runtime/workforce-runtime-background.mjs",
+      "exists": true,
+      "guarded": true
+    }
+  ],
+  "gaps": [
+    "bundled-provider-network-call-sites-require-adapter-level-entitlement-preflight-verification",
+    "first-party-network-provider-call-sites-exist-without-local-routing-guard-reference-in-same-file",
+    "provider-control-centre-not-directly-imported-by-service-worker-bootstrap",
+    "settings-cost-routing-projection-not-directly-imported-by-service-worker-bootstrap"
+  ],
+  "provider_network_candidates": [
+    {
+      "path": "offscreen/assets/storageUtils-DkecF1NS.js",
+      "class": "bundled_or_donor_runtime",
+      "size_bytes": 80955,
+      "network_calls": 4,
+      "provider_refs": 123,
+      "cost_hints": 7,
+      "routing_guard_refs": 0,
+      "settings_route_refs": 22,
+      "company_id_refs": 0
+    },
+    {
+      "path": "offscreen/assets/index-BzYwgI7n.js",
+      "class": "bundled_or_donor_runtime",
+      "size_bytes": 20819,
+      "network_calls": 14,
+      "provider_refs": 12,
+      "cost_hints": 0,
+      "routing_guard_refs": 0,
+      "settings_route_refs": 0,
+      "company_id_refs": 0
+    },
+    {
+      "path": "side-panel/assets/storageUtils-CrD87Pln.js",
+      "class": "bundled_or_donor_runtime",
+      "size_bytes": 21630,
+      "network_calls": 1,
+      "provider_refs": 19,
+      "cost_hints": 7,
+      "routing_guard_refs": 0,
+      "settings_route_refs": 22,
+      "company_id_refs": 0
+    },
+    {
+      "path": "offscreen/assets/index-D08rqSxx.js",
+      "class": "bundled_or_donor_runtime",
+      "size_bytes": 109919,
+      "network_calls": 8,
+      "provider_refs": 10,
+      "cost_hints": 10,
+      "routing_guard_refs": 0,
+      "settings_route_refs": 5,
+      "company_id_refs": 0
+    },
+    {
+      "path": "side-panel/assets/vendor-firebase-DmzjWjiQ.js",
+      "class": "bundled_or_donor_runtime",
+      "size_bytes": 471673,
+      "network_calls": 12,
+      "provider_refs": 1,
+      "cost_hints": 0,
+      "routing_guard_refs": 0,
+      "settings_route_refs": 0,
+      "company_id_refs": 0
+    },
+    {
+      "path": "offscreen/assets/llmConfigService-BZXHyOeL.js",
+      "class": "bundled_or_donor_runtime",
+      "size_bytes": 8914,
+      "network_calls": 1,
+      "provider_refs": 10,
+      "cost_hints": 6,
+      "routing_guard_refs": 0,
+      "settings_route_refs": 3,
+      "company_id_refs": 0
+    },
+    {
+      "path": "side-panel/assets/llmConfigService-FC6T5-i7.js",
+      "class": "bundled_or_donor_runtime",
+      "size_bytes": 8958,
+      "network_calls": 1,
+      "provider_refs": 10,
+      "cost_hints": 6,
+      "routing_guard_refs": 0,
+      "settings_route_refs": 3,
+      "company_id_refs": 0
+    },
+    {
+      "path": "microphone-permission/assets/index-B0effiU7.js",
+      "class": "first_party_runtime_or_config",
+      "size_bytes": 6533,
+      "network_calls": 2,
+      "provider_refs": 7,
+      "cost_hints": 0,
+      "routing_guard_refs": 0,
+      "settings_route_refs": 0,
+      "company_id_refs": 0
+    }
+  ],
+  "guarded_files": [
+    {
+      "path": "runtime/workforce-runtime-background.mjs",
+      "class": "first_party_runtime_or_config",
+      "size_bytes": 148092,
+      "network_calls": 0,
+      "provider_refs": 0,
+      "cost_hints": 0,
+      "routing_guard_refs": 12,
+      "settings_route_refs": 0,
+      "company_id_refs": 773
+    },
+    {
+      "path": "titan-settings/control-plane/ai-cost-routing-settings.mjs",
+      "class": "first_party_runtime_or_config",
+      "size_bytes": 5715,
+      "network_calls": 0,
+      "provider_refs": 0,
+      "cost_hints": 16,
+      "routing_guard_refs": 3,
+      "settings_route_refs": 5,
+      "company_id_refs": 11
+    },
+    {
+      "path": "titan-workforce-gateway-client.js",
+      "class": "first_party_runtime_or_config",
+      "size_bytes": 100155,
+      "network_calls": 5,
+      "provider_refs": 0,
+      "cost_hints": 0,
+      "routing_guard_refs": 6,
+      "settings_route_refs": 0,
+      "company_id_refs": 456
+    },
+    {
+      "path": "titan-workforce/finance/financial-resource-guardrail-runtime.mjs",
+      "class": "first_party_runtime_or_config",
+      "size_bytes": 260,
+      "network_calls": 0,
+      "provider_refs": 0,
+      "cost_hints": 0,
+      "routing_guard_refs": 2,
+      "settings_route_refs": 0,
+      "company_id_refs": 0
+    },
+    {
+      "path": "titan-workforce/handover/investigation-installation-handover.mjs",
+      "class": "first_party_runtime_or_config",
+      "size_bytes": 182104,
+      "network_calls": 0,
+      "provider_refs": 0,
+      "cost_hints": 17,
+      "routing_guard_refs": 21,
+      "settings_route_refs": 0,
+      "company_id_refs": 484
+    },
+    {
+      "path": "titan-workforce/intelligence/workforce-intelligence-routing-runtime.mjs",
+      "class": "first_party_runtime_or_config",
+      "size_bytes": 215,
+      "network_calls": 0,
+      "provider_refs": 0,
+      "cost_hints": 0,
+      "routing_guard_refs": 3,
+      "settings_route_refs": 0,
+      "company_id_refs": 0
+    }
+  ],
+  "cost_aware_files": [
+    {
+      "path": "runtime/workforce-runtime-background.mjs",
+      "class": "first_party_runtime_or_config",
+      "size_bytes": 148092,
+      "network_calls": 0,
+      "provider_refs": 0,
+      "cost_hints": 0,
+      "routing_guard_refs": 12,
+      "settings_route_refs": 0,
+      "company_id_refs": 773
+    },
+    {
+      "path": "sandbox/index.html",
+      "class": "first_party_runtime_or_config",
+      "size_bytes": 62118,
+      "network_calls": 9,
+      "provider_refs": 0,
+      "cost_hints": 3,
+      "routing_guard_refs": 0,
+      "settings_route_refs": 0,
+      "company_id_refs": 0
+    },
+    {
+      "path": "sidePanel.html",
+      "class": "first_party_runtime_or_config",
+      "size_bytes": 28713,
+      "network_calls": 0,
+      "provider_refs": 0,
+      "cost_hints": 1,
+      "routing_guard_refs": 0,
+      "settings_route_refs": 0,
+      "company_id_refs": 2
+    },
+    {
+      "path": "titan-agent/PASS05-VERIFICATION.json",
+      "class": "first_party_runtime_or_config",
+      "size_bytes": 1345,
+      "network_calls": 0,
+      "provider_refs": 0,
+      "cost_hints": 1,
+      "routing_guard_refs": 0,
+      "settings_route_refs": 0,
+      "company_id_refs": 1
+    },
+    {
+      "path": "titan-agent/PASS08-VERIFICATION.json",
+      "class": "first_party_runtime_or_config",
+      "size_bytes": 1430,
+      "network_calls": 0,
+      "provider_refs": 0,
+      "cost_hints": 1,
+      "routing_guard_refs": 0,
+      "settings_route_refs": 0,
+      "company_id_refs": 0
+    },
+    {
+      "path": "titan-business-services/workflows/job_variation_approval.json",
+      "class": "first_party_runtime_or_config",
+      "size_bytes": 3838,
+      "network_calls": 0,
+      "provider_refs": 0,
+      "cost_hints": 1,
+      "routing_guard_refs": 0,
+      "settings_route_refs": 0,
+      "company_id_refs": 2
+    },
+    {
+      "path": "titan-capabilities/native-contributions.json",
+      "class": "first_party_runtime_or_config",
+      "size_bytes": 14569,
+      "network_calls": 0,
+      "provider_refs": 8,
+      "cost_hints": 4,
+      "routing_guard_refs": 0,
+      "settings_route_refs": 0,
+      "company_id_refs": 1
+    },
+    {
+      "path": "titan-client-workforce-controls.js",
+      "class": "first_party_runtime_or_config",
+      "size_bytes": 84504,
+      "network_calls": 2,
+      "provider_refs": 0,
+      "cost_hints": 2,
+      "routing_guard_refs": 0,
+      "settings_route_refs": 0,
+      "company_id_refs": 112
+    },
+    {
+      "path": "titan-client-workforce.js",
+      "class": "first_party_runtime_or_config",
+      "size_bytes": 65064,
+      "network_calls": 0,
+      "provider_refs": 0,
+      "cost_hints": 3,
+      "routing_guard_refs": 0,
+      "settings_route_refs": 0,
+      "company_id_refs": 125
+    },
+    {
+      "path": "titan-intelligence/core/dynamic-intelligence-topology.mjs",
+      "class": "first_party_runtime_or_config",
+      "size_bytes": 2724,
+      "network_calls": 0,
+      "provider_refs": 1,
+      "cost_hints": 4,
+      "routing_guard_refs": 0,
+      "settings_route_refs": 0,
+      "company_id_refs": 4
+    },
+    {
+      "path": "titan-local/kernel/company-context.mjs",
+      "class": "first_party_runtime_or_config",
+      "size_bytes": 4874,
+      "network_calls": 0,
+      "provider_refs": 0,
+      "cost_hints": 1,
+      "routing_guard_refs": 0,
+      "settings_route_refs": 0,
+      "company_id_refs": 18
+    },
+    {
+      "path": "titan-modules/bundles/cleaning-workforce.bundle.json",
+      "class": "first_party_runtime_or_config",
+      "size_bytes": 107542,
+      "network_calls": 0,
+      "provider_refs": 0,
+      "cost_hints": 3,
+      "routing_guard_refs": 0,
+      "settings_route_refs": 0,
+      "company_id_refs": 142
+    },
+    {
+      "path": "titan-modules/marketplace/packages/cleaning-workforce.package.json",
+      "class": "first_party_runtime_or_config",
+      "size_bytes": 112628,
+      "network_calls": 0,
+      "provider_refs": 0,
+      "cost_hints": 3,
+      "routing_guard_refs": 0,
+      "settings_route_refs": 0,
+      "company_id_refs": 142
+    },
+    {
+      "path": "titan-offline/restart-checkpoint.mjs",
+      "class": "first_party_runtime_or_config",
+      "size_bytes": 18545,
+      "network_calls": 0,
+      "provider_refs": 0,
+      "cost_hints": 1,
+      "routing_guard_refs": 0,
+      "settings_route_refs": 0,
+      "company_id_refs": 40
+    },
+    {
+      "path": "titan-popup.html",
+      "class": "first_party_runtime_or_config",
+      "size_bytes": 2179,
+      "network_calls": 0,
+      "provider_refs": 0,
+      "cost_hints": 1,
+      "routing_guard_refs": 0,
+      "settings_route_refs": 0,
+      "company_id_refs": 0
+    },
+    {
+      "path": "titan-reliability/analyze-startup.mjs",
+      "class": "first_party_runtime_or_config",
+      "size_bytes": 5065,
+      "network_calls": 0,
+      "provider_refs": 0,
+      "cost_hints": 1,
+      "routing_guard_refs": 0,
+      "settings_route_refs": 0,
+      "company_id_refs": 0
+    },
+    {
+      "path": "titan-reliability/deadline-budget.mjs",
+      "class": "first_party_runtime_or_config",
+      "size_bytes": 1616,
+      "network_calls": 0,
+      "provider_refs": 0,
+      "cost_hints": 12,
+      "routing_guard_refs": 0,
+      "settings_route_refs": 0,
+      "company_id_refs": 10
+    },
+    {
+      "path": "titan-reliability/operational-health-summary.mjs",
+      "class": "first_party_runtime_or_config",
+      "size_bytes": 45090,
+      "network_calls": 0,
+      "provider_refs": 0,
+      "cost_hints": 9,
+      "routing_guard_refs": 0,
+      "settings_route_refs": 0,
+      "company_id_refs": 59
+    },
+    {
+      "path": "titan-reliability/performance-budgets.json",
+      "class": "first_party_runtime_or_config",
+      "size_bytes": 3660,
+      "network_calls": 0,
+      "provider_refs": 0,
+      "cost_hints": 1,
+      "routing_guard_refs": 0,
+      "settings_route_refs": 0,
+      "company_id_refs": 0
+    },
+    {
+      "path": "titan-reliability/recovery-attempt-budget.mjs",
+      "class": "first_party_runtime_or_config",
+      "size_bytes": 852,
+      "network_calls": 0,
+      "provider_refs": 0,
+      "cost_hints": 1,
+      "routing_guard_refs": 0,
+      "settings_route_refs": 0,
+      "company_id_refs": 4
+    },
+    {
+      "path": "titan-reliability/retry-budget.mjs",
+      "class": "first_party_runtime_or_config",
+      "size_bytes": 2692,
+      "network_calls": 0,
+      "provider_refs": 0,
+      "cost_hints": 4,
+      "routing_guard_refs": 0,
+      "settings_route_refs": 0,
+      "company_id_refs": 14
+    },
+    {
+      "path": "titan-settings/control-plane/ai-budget-controls-contract.json",
+      "class": "first_party_runtime_or_config",
+      "size_bytes": 1396,
+      "network_calls": 0,
+      "provider_refs": 0,
+      "cost_hints": 7,
+      "routing_guard_refs": 0,
+      "settings_route_refs": 3,
+      "company_id_refs": 1
+    },
+    {
+      "path": "titan-settings/control-plane/ai-budget-controls.mjs",
+      "class": "first_party_runtime_or_config",
+      "size_bytes": 8529,
+      "network_calls": 0,
+      "provider_refs": 0,
+      "cost_hints": 20,
+      "routing_guard_refs": 0,
+      "settings_route_refs": 3,
+      "company_id_refs": 20
+    },
+    {
+      "path": "titan-settings/control-plane/ai-cost-routing-contract.json",
+      "class": "first_party_runtime_or_config",
+      "size_bytes": 1409,
+      "network_calls": 0,
+      "provider_refs": 0,
+      "cost_hints": 6,
+      "routing_guard_refs": 0,
+      "settings_route_refs": 6,
+      "company_id_refs": 1
+    },
+    {
+      "path": "titan-settings/control-plane/ai-cost-routing-settings.mjs",
+      "class": "first_party_runtime_or_config",
+      "size_bytes": 5715,
+      "network_calls": 0,
+      "provider_refs": 0,
+      "cost_hints": 16,
+      "routing_guard_refs": 3,
+      "settings_route_refs": 5,
+      "company_id_refs": 11
+    },
+    {
+      "path": "titan-settings/control-plane/ai-provider-control-centre.mjs",
+      "class": "first_party_runtime_or_config",
+      "size_bytes": 7018,
+      "network_calls": 0,
+      "provider_refs": 20,
+      "cost_hints": 0,
+      "routing_guard_refs": 0,
+      "settings_route_refs": 1,
+      "company_id_refs": 7
+    },
+    {
+      "path": "titan-settings/control-plane/ai-provider-control-contract.json",
+      "class": "first_party_runtime_or_config",
+      "size_bytes": 1285,
+      "network_calls": 0,
+      "provider_refs": 2,
+      "cost_hints": 1,
+      "routing_guard_refs": 0,
+      "settings_route_refs": 1,
+      "company_id_refs": 1
+    },
+    {
+      "path": "titan-settings/control-plane/model-selection-policy-contract.json",
+      "class": "first_party_runtime_or_config",
+      "size_bytes": 998,
+      "network_calls": 0,
+      "provider_refs": 2,
+      "cost_hints": 3,
+      "routing_guard_refs": 0,
+      "settings_route_refs": 0,
+      "company_id_refs": 1
+    },
+    {
+      "path": "titan-settings/control-plane/model-selection-policy.mjs",
+      "class": "first_party_runtime_or_config",
+      "size_bytes": 9680,
+      "network_calls": 0,
+      "provider_refs": 9,
+      "cost_hints": 6,
+      "routing_guard_refs": 0,
+      "settings_route_refs": 0,
+      "company_id_refs": 9
+    },
+    {
+      "path": "titan-settings/control-plane/pass01-fresh-settings-authority-census.json",
+      "class": "first_party_runtime_or_config",
+      "size_bytes": 7076,
+      "network_calls": 0,
+      "provider_refs": 0,
+      "cost_hints": 1,
+      "routing_guard_refs": 0,
+      "settings_route_refs": 0,
+      "company_id_refs": 1
+    },
+    {
+      "path": "titan-settings/control-plane/settings-ai-language.mjs",
+      "class": "first_party_runtime_or_config",
+      "size_bytes": 7954,
+      "network_calls": 0,
+      "provider_refs": 0,
+      "cost_hints": 1,
+      "routing_guard_refs": 0,
+      "settings_route_refs": 3,
+      "company_id_refs": 0
+    },
+    {
+      "path": "titan-settings/control-plane/settings-registry.json",
+      "class": "first_party_runtime_or_config",
+      "size_bytes": 21843,
+      "network_calls": 0,
+      "provider_refs": 1,
+      "cost_hints": 18,
+      "routing_guard_refs": 0,
+      "settings_route_refs": 6,
+      "company_id_refs": 1
+    },
+    {
+      "path": "titan-settings/control-plane/settings-scope-contract.json",
+      "class": "first_party_runtime_or_config",
+      "size_bytes": 3454,
+      "network_calls": 0,
+      "provider_refs": 1,
+      "cost_hints": 1,
+      "routing_guard_refs": 0,
+      "settings_route_refs": 6,
+      "company_id_refs": 8
+    },
+    {
+      "path": "titan-settings/settings-census-scan.mjs",
+      "class": "first_party_runtime_or_config",
+      "size_bytes": 9124,
+      "network_calls": 0,
+      "provider_refs": 1,
+      "cost_hints": 0,
+      "routing_guard_refs": 0,
+      "settings_route_refs": 1,
+      "company_id_refs": 0
+    },
+    {
+      "path": "titan-settings/settings-census.json",
+      "class": "first_party_runtime_or_config",
+      "size_bytes": 39658,
+      "network_calls": 0,
+      "provider_refs": 1,
+      "cost_hints": 2,
+      "routing_guard_refs": 0,
+      "settings_route_refs": 6,
+      "company_id_refs": 0
+    },
+    {
+      "path": "titan-settings/settings-merge-map.json",
+      "class": "first_party_runtime_or_config",
+      "size_bytes": 15203,
+      "network_calls": 0,
+      "provider_refs": 1,
+      "cost_hints": 1,
+      "routing_guard_refs": 0,
+      "settings_route_refs": 3,
+      "company_id_refs": 0
+    },
+    {
+      "path": "titan-shell.js",
+      "class": "first_party_runtime_or_config",
+      "size_bytes": 89834,
+      "network_calls": 5,
+      "provider_refs": 0,
+      "cost_hints": 1,
+      "routing_guard_refs": 0,
+      "settings_route_refs": 0,
+      "company_id_refs": 190
+    },
+    {
+      "path": "titan-tools/cleaning-programme/PROGRAMME.json",
+      "class": "first_party_runtime_or_config",
+      "size_bytes": 23375,
+      "network_calls": 0,
+      "provider_refs": 0,
+      "cost_hints": 7,
+      "routing_guard_refs": 0,
+      "settings_route_refs": 0,
+      "company_id_refs": 3
+    },
+    {
+      "path": "titan-tools/tool-registry.mjs",
+      "class": "first_party_runtime_or_config",
+      "size_bytes": 1963,
+      "network_calls": 0,
+      "provider_refs": 0,
+      "cost_hints": 1,
+      "routing_guard_refs": 0,
+      "settings_route_refs": 0,
+      "company_id_refs": 2
+    },
+    {
+      "path": "titan-workforce-gateway-client.js",
+      "class": "first_party_runtime_or_config",
+      "size_bytes": 100155,
+      "network_calls": 5,
+      "provider_refs": 0,
+      "cost_hints": 0,
+      "routing_guard_refs": 6,
+      "settings_route_refs": 0,
+      "company_id_refs": 456
+    },
+    {
+      "path": "titan-workforce/catalogue/installed-client-workforce-master.json",
+      "class": "first_party_runtime_or_config",
+      "size_bytes": 70169,
+      "network_calls": 0,
+      "provider_refs": 0,
+      "cost_hints": 2,
+      "routing_guard_refs": 0,
+      "settings_route_refs": 0,
+      "company_id_refs": 120
+    },
+    {
+      "path": "titan-workforce/finance/financial-resource-guardrail-runtime.mjs",
+      "class": "first_party_runtime_or_config",
+      "size_bytes": 260,
+      "network_calls": 0,
+      "provider_refs": 0,
+      "cost_hints": 0,
+      "routing_guard_refs": 2,
+      "settings_route_refs": 0,
+      "company_id_refs": 0
+    },
+    {
+      "path": "titan-workforce/handover/investigation-installation-handover.mjs",
+      "class": "first_party_runtime_or_config",
+      "size_bytes": 182104,
+      "network_calls": 0,
+      "provider_refs": 0,
+      "cost_hints": 17,
+      "routing_guard_refs": 21,
+      "settings_route_refs": 0,
+      "company_id_refs": 484
+    },
+    {
+      "path": "titan-workforce/intelligence/workforce-intelligence-routing-runtime.mjs",
+      "class": "first_party_runtime_or_config",
+      "size_bytes": 215,
+      "network_calls": 0,
+      "provider_refs": 0,
+      "cost_hints": 0,
+      "routing_guard_refs": 3,
+      "settings_route_refs": 0,
+      "company_id_refs": 0
+    },
+    {
+      "path": "workforce/donor/ai-workforce-role-definitions-v0.97.json",
+      "class": "first_party_runtime_or_config",
+      "size_bytes": 280757,
+      "network_calls": 0,
+      "provider_refs": 0,
+      "cost_hints": 9,
+      "routing_guard_refs": 0,
+      "settings_route_refs": 0,
+      "company_id_refs": 0
+    },
+    {
+      "path": "workforce/donor/installed-client-workforce-master.json",
+      "class": "first_party_runtime_or_config",
+      "size_bytes": 70169,
+      "network_calls": 0,
+      "provider_refs": 0,
+      "cost_hints": 2,
+      "routing_guard_refs": 0,
+      "settings_route_refs": 0,
+      "company_id_refs": 120
+    }
+  ]
+}

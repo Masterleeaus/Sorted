@@ -1,0 +1,148 @@
+{
+  "schema": "titan.zero.cleaning-operations-flow-map.v1",
+  "packet_id": "TZ-NEXT-002",
+  "manager_base": {
+    "merge": 41,
+    "artifact": "Titan-Zero-CANONICAL-MASTER-2026-09-08-MERGE-41-LOAD-STABILITY-CONVERGED.zip",
+    "sha256": "dfbd39a0475de73dc00bc1dee82c3969194a45db0ae8fc1fc0a92651641addd2"
+  },
+  "status": "PASS01_INVENTORY",
+  "authority_model": "existing domain owners only; workflows/projections do not grant authority",
+  "company_boundary": "company_id only",
+  "stages": [
+    {
+      "stage": "quote",
+      "source": "titan-business-services/workflows/create_quote.json",
+      "capability": "crm.quote.create",
+      "authority": "business/revenue authority",
+      "offline": true,
+      "handoff_gap": "No explicit quote->booking correlation contract in this workflow file; booking layer accepts quote_ref."
+    },
+    {
+      "stage": "booking",
+      "sources": [
+        "titan-business-services/workflows/service_booking.json",
+        "titan-workforce/starter-agents/booking/booking-orchestrator.mjs",
+        "titan-workforce/starter-agents/booking/booking-handoffs.mjs"
+      ],
+      "capability": "crm.appointment.create",
+      "governance": [
+        "authority decision",
+        "authoritative receipt",
+        "post-action verification"
+      ],
+      "jobs_handoff": "confirmed booking only; idempotent dedupe key; quote_ref retained"
+    },
+    {
+      "stage": "job_materialization",
+      "sources": [
+        "titan-business-services/workflows/create_job.json",
+        "titan-workforce/starter-agents/jobs/jobs-work-order-adapter.mjs"
+      ],
+      "capabilities": [
+        "crm.work_order.create",
+        "crm.work_order.update",
+        "crm.work_order.complete"
+      ],
+      "governance": [
+        "company_id",
+        "operation_id idempotency",
+        "command bus",
+        "execution receipt",
+        "post verification",
+        "no parallel record"
+      ]
+    },
+    {
+      "stage": "field_execution",
+      "sources": [
+        "titan-workforce/starter-agents/jobs/jobs-field-context.mjs",
+        "titan-workforce/starter-agents/jobs/jobs-evidence-policy.mjs"
+      ],
+      "cleaning_context": [
+        "tasks",
+        "checklist",
+        "site_instructions",
+        "hazards",
+        "equipment",
+        "materials"
+      ],
+      "cross_company": "rejected",
+      "authority_granted": false
+    },
+    {
+      "stage": "completion_qa",
+      "sources": [
+        "titan-business-services/workflows/complete_job.json",
+        "titan-workforce/starter-agents/jobs/jobs-completion-readiness.mjs"
+      ],
+      "blocks_on": [
+        "incomplete operational prerequisites",
+        "evidence policy failures",
+        "unresolved exceptions/rework",
+        "optional supervisor review"
+      ],
+      "invoice_handoff": "crm.invoice.create only when ready"
+    },
+    {
+      "stage": "invoice",
+      "source": "titan-business-services/workflows/create_invoice.json",
+      "capability": "crm.invoice.create",
+      "job_ref_supported": true,
+      "authority": "Titan CRM revenue document authority"
+    },
+    {
+      "stage": "payment",
+      "source": "titan-business-services/workflows/payment_reconciliation.json",
+      "capability": "finance.payment.reconcile",
+      "authority": "user_only",
+      "verticals": [
+        "field_services",
+        "home_services",
+        "cleaning"
+      ]
+    },
+    {
+      "stage": "recurrence",
+      "sources": [
+        "titan-workforce/scheduling/workforce-schedule-recurrence-runtime.mjs",
+        "titan-workforce/scheduling/WorkforceScheduleRecurrence.schema.json"
+      ],
+      "note": "recurrence infrastructure exists; end-to-end cleaning reschedule/cancel/rework linkage remains later-pass scope"
+    }
+  ],
+  "pass01_findings": [
+    {
+      "id": "GAP-001",
+      "severity": "HIGH",
+      "title": "Quote-to-booking correlation is implicit, not certified end-to-end",
+      "detail": "create_quote has no explicit handoff; booking handoff supports quote_ref. Pass2 should repair customer-to-quote first, then Pass3 should certify quote acceptance into booking without duplicate authority."
+    },
+    {
+      "id": "GAP-002",
+      "severity": "MEDIUM",
+      "title": "Cleaning operational detail is richer in Jobs runtime than generic create_job wizard",
+      "detail": "Jobs field context supports hazards/equipment/materials/checklists; generic create_job exposes checklist_id/access/notes. Pass5 should wire existing rich context rather than add a parallel job model."
+    },
+    {
+      "id": "GAP-003",
+      "severity": "MEDIUM",
+      "title": "QA is distributed across completion workflow, evidence policy and completion readiness",
+      "detail": "No separate QA authority is needed. Pass6 should preserve this composition and certify exception/rework handoffs."
+    },
+    {
+      "id": "GAP-004",
+      "severity": "MEDIUM",
+      "title": "Invoice readiness exists but payment continuation is not directly linked from Jobs completion",
+      "detail": "Jobs emits invoice handoff; payment reconciliation is a separate governed finance template. Pass7 should connect readiness/projection without duplicating financial authority."
+    },
+    {
+      "id": "GAP-005",
+      "severity": "MEDIUM",
+      "title": "Recurring scheduling exists but cancellation/reschedule/rework are not one certified cleaning lifecycle",
+      "detail": "Pass8 owns correlation across existing booking recurrence and Jobs exception/rework semantics."
+    }
+  ],
+  "production_behavior_changed": false,
+  "next_pass": "Pass 2 \u2014 repair customer-to-quote flow using existing business/revenue authorities."
+}

@@ -1,0 +1,32 @@
+{
+  "template": {
+    "id": "event-function-setup",
+    "version": "1.0.0",
+    "name": "Event or Function Setup",
+    "status": "ready",
+    "category": "hospitality",
+    "entry_wizard": "event_function_setup_v1",
+    "capabilities": [
+      "hospitality.events.prepare"
+    ],
+    "channels": [
+      "chat",
+      "mobile",
+      "tablet",
+      "desktop",
+      "voice"
+    ],
+    "governance": {
+      "authority": "human_review_when_required",
+      "offline": true
+    },
+    "metadata": {
+      "verticals": [
+        "hospitality",
+        "events",
+        "venues"
+      ],
+      "pack": "commerce_multi_vertical_2026_08"
+    }
+  }
+}

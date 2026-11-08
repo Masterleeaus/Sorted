@@ -1,0 +1,14 @@
+{
+  "schema": "titan-zero-storage-finish-pass03-semantic-change/v1",
+  "packet_id": "TZ-FINISH-STORAGE-DATA-AUTHORITY-001",
+  "pass": 3,
+  "semantic_delta": "Adds deterministic, fail-closed native storage backend inference and adapter selection without creating a second storage authority.",
+  "behavior": [
+    "postgres/postgresql URLs resolve to postgres",
+    "mysql/mariadb URLs resolve to mysql",
+    "memory and indexeddb require explicit supported selection",
+    "external database backends require explicitly registered factories",
+    "factory failures never cascade to another backend",
+    "adapter selection does not grant execution authority"
+  ]
+}

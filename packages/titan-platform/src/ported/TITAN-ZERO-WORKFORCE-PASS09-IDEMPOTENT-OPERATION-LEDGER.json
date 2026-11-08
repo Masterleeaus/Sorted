@@ -1,0 +1,23 @@
+{
+  "schema": "titan-zero-workforce-pass/v1",
+  "pass": 9,
+  "title": "Idempotent Operation Ledger",
+  "canonical_forward_port": {
+    "release": "0.18.6",
+    "sha256": "2c34037fec632283cc3780831ff5913cd6252ab2754c0fbf5c4fa048cacf34fc",
+    "manager_delta_sha256": "45db93103cef61b0b978426b8c006bcc090498baa9ac3d69391a2a273453c478",
+    "class": "CLEAN_FORWARD_PORT"
+  },
+  "implementation": [
+    "company-scoped TitanBusinessDatabase operation claims",
+    "stable Workforce intent idempotency keys",
+    "duplicate proposal suppression",
+    "duplicate protected command suppression",
+    "delivery-unknown fail closed",
+    "receipt-linked operation completion",
+    "v0.18.6 restart checkpoint inheritance"
+  ],
+  "authority_effect": false,
+  "automatic_effect_replay": false,
+  "company_boundary": "company_id"
+}

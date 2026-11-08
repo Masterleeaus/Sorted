@@ -1,0 +1,35 @@
+{
+  "schema": "titan.builder.pagestudio.components.v1",
+  "components": [
+    {
+      "id": "info-tooltip",
+      "source": "PageStudio",
+      "portable_contract": "presentation_component"
+    },
+    {
+      "id": "alert",
+      "source": "PageStudio",
+      "portable_contract": "presentation_component"
+    },
+    {
+      "id": "card",
+      "source": "PageStudio",
+      "portable_contract": "presentation_component"
+    },
+    {
+      "id": "modal",
+      "source": "PageStudio",
+      "portable_contract": "presentation_component"
+    },
+    {
+      "id": "button",
+      "source": "PageStudio",
+      "portable_contract": "presentation_component"
+    },
+    {
+      "id": "forms/input",
+      "source": "PageStudio",
+      "portable_contract": "presentation_component"
+    }
+  ]
+}

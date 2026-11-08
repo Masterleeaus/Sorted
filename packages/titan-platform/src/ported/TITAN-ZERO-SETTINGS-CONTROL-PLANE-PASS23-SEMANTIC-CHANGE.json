@@ -1,0 +1,21 @@
+{
+  "schema": "titan-zero-semantic-change/v1",
+  "pass": 23,
+  "area": "settings-control-plane/offline-synchronisation",
+  "change": "ADDITIVE_CONTRACTIVE_POLICY_PROJECTION",
+  "summary": "Adds company-scoped offlineSynchronisationSettings over existing Titan offline restart recovery, Workforce sync recovery, bounded retry and offline authority contraction.",
+  "hard_invariants": [
+    "real sync modes are realtime and polling",
+    "checkpoint/revision/cursor/generation/retry counters remain runtime state",
+    "tokens authority decisions and commands are never persisted by Settings",
+    "conflicts remain manual review",
+    "restart recovery requires explicit resume",
+    "fresh authority required after reconnect",
+    "protected commands remain blocked offline",
+    "automatic effect replay remains false",
+    "Settings does not grant authority or execute"
+  ],
+  "runtime_files_modified": false,
+  "company_boundary": "company_id only",
+  "authority_change": false
+}

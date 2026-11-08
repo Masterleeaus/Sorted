@@ -1,0 +1,15 @@
+{
+  "schema":"titan.zero.workforce.pass/v1",
+  "pass":28,
+  "title":"Commissioning Gates",
+  "contract":"titan.workforce.commissioning-gates.v1",
+  "company_boundary":"company_id only",
+  "gate_kinds":["SECURITY","PERMISSIONS","INTEGRATIONS","DATA_KNOWLEDGE","AUTHORITY","OFFLINE_RESTART_RECOVERY","ROLLBACK","OPERATIONAL_ACCEPTANCE"],
+  "evidence_backed":true,
+  "ready_state":"READY_FOR_LIVE_DECLARATION_REVIEW",
+  "declares_live":false,
+  "automatic_go_live":false,
+  "authority_granted":false,
+  "execution_permitted":false,
+  "grants_authority":false
+}

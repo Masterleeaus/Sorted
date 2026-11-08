@@ -1,0 +1,8 @@
+{
+  "schema": "titan-zero-offline-pass05-collision/v1",
+  "packet_id": "TZ-FINISH-OFFLINE-RESILIENCE-001",
+  "pass": 5,
+  "exclusive_hotspot": "packages/titan-platform/src/offline/**",
+  "shared_files_modified": [],
+  "result": "NO_KNOWN_COLLISION"
+}

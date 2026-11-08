@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "titan.workforce.notification-escalation.v1",
+  "type": "object",
+  "required": [
+    "schema",
+    "company_id",
+    "notifications",
+    "policy"
+  ],
+  "properties": {
+    "schema": {
+      "const": "titan.workforce.notification-escalation.v1"
+    },
+    "company_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "notifications": {
+      "type": "array"
+    },
+    "policy": {
+      "type": "object"
+    },
+    "authority_granted": {
+      "const": false
+    },
+    "execution_permitted": {
+      "const": false
+    },
+    "grants_authority": {
+      "const": false
+    }
+  }
+}

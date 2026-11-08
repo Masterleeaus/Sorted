@@ -1,0 +1,1173 @@
+{
+  "schema": "titan-cleaning-growth-marketplace/v1",
+  "version": "2026.09.06-pass1",
+  "currency_policy": "No prices are invented. Commercial model is descriptive until a real entitlement/pricing source is connected.",
+  "dedupe_policy": "Do not offer a product when all of its provided capability tokens are already covered for the company. Crew bundles include only missing components.",
+  "categories": [
+    {
+      "id": "capability",
+      "name": "Cleaning capability packs",
+      "description": "Add a specialist operating capability without creating a duplicate worker."
+    },
+    {
+      "id": "expansion",
+      "name": "Business expansion packs",
+      "description": "Launch a new cleaning service line with workflows, quoting, QA and knowledge."
+    },
+    {
+      "id": "knowledge",
+      "name": "Knowledge & compliance packs",
+      "description": "Company and jurisdiction-aware cleaning knowledge overlays with provenance requirements."
+    },
+    {
+      "id": "automation",
+      "name": "Templates & automations",
+      "description": "Reusable cleaning calculators, evidence flows, forms and follow-up automations."
+    },
+    {
+      "id": "integration",
+      "name": "Integrations & service add-ons",
+      "description": "Connections for cleaning operations. Real provider credentials and entitlements are required."
+    },
+    {
+      "id": "crew",
+      "name": "Complete cleaning crews",
+      "description": "Install only the missing pieces for a complete service-line team."
+    }
+  ],
+  "products": [
+    {
+      "id": "growth.cap.atp_hygiene",
+      "name": "ATP Hygiene Verification Pack",
+      "category": "capability",
+      "summary": "Adds ATP/hygiene verification planning, test-point records, evidence capture and trend review. It does not invent pass/fail thresholds; company/site rules supply them.",
+      "provides": [
+        "atp_hygiene_testing",
+        "hygiene_test_points",
+        "hygiene_verification_records",
+        "hygiene_trend_review"
+      ],
+      "requires": [
+        "approved_test_method"
+      ],
+      "recommended_for": [
+        "healthcare",
+        "food premises",
+        "high-assurance commercial"
+      ],
+      "commercial_model": "paid_add_on",
+      "risk_ceiling": "MEDIUM",
+      "jurisdiction_aware": true,
+      "components": [],
+      "tags": [
+        "hygiene",
+        "verification",
+        "ATP"
+      ]
+    },
+    {
+      "id": "growth.cap.colour_coding",
+      "name": "Colour-Coded Cleaning System Pack",
+      "category": "capability",
+      "summary": "Adds zone/equipment colour allocation, cross-contamination controls, setup checks and crew-facing colour guidance.",
+      "provides": [
+        "colour_coded_cleaning",
+        "zone_colour_rules",
+        "cross_contamination_controls"
+      ],
+      "requires": [],
+      "recommended_for": [
+        "healthcare",
+        "education",
+        "commercial kitchens"
+      ],
+      "commercial_model": "included_or_entitled",
+      "risk_ceiling": "LOW",
+      "jurisdiction_aware": false,
+      "components": [],
+      "tags": [
+        "colour coding",
+        "zones",
+        "cross contamination"
+      ]
+    },
+    {
+      "id": "growth.cap.floor_machine",
+      "name": "Floor Machine Workflow Pack",
+      "category": "capability",
+      "summary": "Adds scrubber/burnisher workflow planning, machine pre-checks, task sequencing, pad/brush records and post-use care.",
+      "provides": [
+        "floor_machine_workflow",
+        "machine_precheck",
+        "pad_brush_tracking",
+        "machine_postcare"
+      ],
+      "requires": [
+        "approved_machine_method"
+      ],
+      "recommended_for": [
+        "commercial floors",
+        "schools",
+        "retail"
+      ],
+      "commercial_model": "paid_add_on",
+      "risk_ceiling": "MEDIUM",
+      "jurisdiction_aware": false,
+      "components": [],
+      "tags": [
+        "floor machine",
+        "scrubber",
+        "burnisher"
+      ]
+    },
+    {
+      "id": "growth.cap.waterfed_pole",
+      "name": "Water-Fed Pole Window Pack",
+      "category": "capability",
+      "summary": "Adds purified-water window workflow, pole/equipment checks, access boundaries and finish verification.",
+      "provides": [
+        "water_fed_pole",
+        "pure_water_window_cleaning",
+        "pole_equipment_check",
+        "glass_finish_verification"
+      ],
+      "requires": [
+        "approved_access_method"
+      ],
+      "recommended_for": [
+        "commercial glass",
+        "shopfronts",
+        "low-risk exterior windows"
+      ],
+      "commercial_model": "paid_add_on",
+      "risk_ceiling": "MEDIUM",
+      "jurisdiction_aware": false,
+      "components": [],
+      "tags": [
+        "windows",
+        "water fed pole",
+        "glass"
+      ]
+    },
+    {
+      "id": "growth.cap.stain_triage",
+      "name": "Stain Identification & Treatment Triage Pack",
+      "category": "capability",
+      "summary": "Adds stain observation, material/colourfastness checks, treatment constraints and escalation before any uncertain chemistry is used.",
+      "provides": [
+        "stain_triage",
+        "material_colourfastness_check",
+        "treatment_constraint_record",
+        "stain_escalation"
+      ],
+      "requires": [
+        "product_label",
+        "current_sds"
+      ],
+      "recommended_for": [
+        "carpet",
+        "upholstery",
+        "end of lease"
+      ],
+      "commercial_model": "included_or_entitled",
+      "risk_ceiling": "MEDIUM",
+      "jurisdiction_aware": false,
+      "components": [],
+      "tags": [
+        "stain",
+        "carpet",
+        "upholstery"
+      ]
+    },
+    {
+      "id": "growth.cap.periodic_floor",
+      "name": "Periodic Floor Maintenance Program Pack",
+      "category": "capability",
+      "summary": "Adds periodic floor schedules, condition scoring, task rotation, restoration triggers and evidence history.",
+      "provides": [
+        "periodic_floor_program",
+        "floor_condition_scoring",
+        "floor_restoration_trigger",
+        "floor_history"
+      ],
+      "requires": [],
+      "recommended_for": [
+        "commercial",
+        "education",
+        "retail"
+      ],
+      "commercial_model": "paid_add_on",
+      "risk_ceiling": "LOW",
+      "jurisdiction_aware": false,
+      "components": [],
+      "tags": [
+        "floor program",
+        "periodic maintenance"
+      ]
+    },
+    {
+      "id": "growth.cap.qa_sampling",
+      "name": "Cleaning QA Sampling Pack",
+      "category": "capability",
+      "summary": "Adds room/zone sampling plans, defect classification, repeat-failure tracking and evidence-backed reinspection.",
+      "provides": [
+        "qa_sampling",
+        "defect_classification",
+        "repeat_failure_tracking",
+        "reinspection_plan"
+      ],
+      "requires": [],
+      "recommended_for": [
+        "multi-site",
+        "commercial contracts",
+        "healthcare"
+      ],
+      "commercial_model": "included_or_entitled",
+      "risk_ceiling": "LOW",
+      "jurisdiction_aware": false,
+      "components": [],
+      "tags": [
+        "QA",
+        "inspection",
+        "sampling"
+      ]
+    },
+    {
+      "id": "growth.cap.water_waste",
+      "name": "Water & Waste Measurement Pack",
+      "category": "capability",
+      "summary": "Adds job-level water, waste and consumables measurement with baselines and verified reduction tracking.",
+      "provides": [
+        "water_measurement",
+        "waste_measurement",
+        "consumable_intensity_baseline",
+        "verified_resource_reduction"
+      ],
+      "requires": [],
+      "recommended_for": [
+        "eco cleaning",
+        "commercial tenders",
+        "facilities"
+      ],
+      "commercial_model": "paid_add_on",
+      "risk_ceiling": "LOW",
+      "jurisdiction_aware": true,
+      "components": [],
+      "tags": [
+        "environment",
+        "water",
+        "waste"
+      ]
+    },
+    {
+      "id": "growth.expand.commercial",
+      "name": "Start Commercial Cleaning",
+      "category": "expansion",
+      "summary": "Launches a cleaning-specific Commercial Cleaning service line using existing Titan capabilities first, then identifies missing workforce, workflow, evidence and knowledge pieces.",
+      "provides": [
+        "commercial_service_launch",
+        "commercial_quote_template",
+        "site_walkthrough",
+        "contract_cleaning_qa"
+      ],
+      "requires": [],
+      "recommended_for": [
+        "cleaning businesses adding a new service line"
+      ],
+      "commercial_model": "paid_add_on",
+      "risk_ceiling": "MEDIUM",
+      "jurisdiction_aware": true,
+      "components": [],
+      "tags": [
+        "commercial",
+        "service launch",
+        "growth"
+      ]
+    },
+    {
+      "id": "growth.expand.airbnb",
+      "name": "Start Short-Stay Turnovers",
+      "category": "expansion",
+      "summary": "Launches a cleaning-specific Short-Stay Turnovers service line using existing Titan capabilities first, then identifies missing workforce, workflow, evidence and knowledge pieces.",
+      "provides": [
+        "turnover_service_launch",
+        "turnover_quote_template",
+        "linen_amenity_setup",
+        "guest_ready_qa"
+      ],
+      "requires": [],
+      "recommended_for": [
+        "cleaning businesses adding a new service line"
+      ],
+      "commercial_model": "paid_add_on",
+      "risk_ceiling": "MEDIUM",
+      "jurisdiction_aware": true,
+      "components": [],
+      "tags": [
+        "airbnb",
+        "service launch",
+        "growth"
+      ]
+    },
+    {
+      "id": "growth.expand.endlease",
+      "name": "Start End-of-Lease Cleaning",
+      "category": "expansion",
+      "summary": "Launches a cleaning-specific End-of-Lease Cleaning service line using existing Titan capabilities first, then identifies missing workforce, workflow, evidence and knowledge pieces.",
+      "provides": [
+        "end_of_lease_service_launch",
+        "bond_quote_template",
+        "property_condition_scope",
+        "bond_rework_flow"
+      ],
+      "requires": [],
+      "recommended_for": [
+        "cleaning businesses adding a new service line"
+      ],
+      "commercial_model": "paid_add_on",
+      "risk_ceiling": "MEDIUM",
+      "jurisdiction_aware": true,
+      "components": [],
+      "tags": [
+        "endlease",
+        "service launch",
+        "growth"
+      ]
+    },
+    {
+      "id": "growth.expand.healthcare",
+      "name": "Start Healthcare Cleaning",
+      "category": "expansion",
+      "summary": "Launches a cleaning-specific Healthcare Cleaning service line using existing Titan capabilities first, then identifies missing workforce, workflow, evidence and knowledge pieces.",
+      "provides": [
+        "healthcare_service_launch",
+        "healthcare_site_setup",
+        "infection_control_overlay",
+        "healthcare_qa"
+      ],
+      "requires": [],
+      "recommended_for": [
+        "cleaning businesses adding a new service line"
+      ],
+      "commercial_model": "paid_add_on",
+      "risk_ceiling": "HIGH",
+      "jurisdiction_aware": true,
+      "components": [],
+      "tags": [
+        "healthcare",
+        "service launch",
+        "growth"
+      ]
+    },
+    {
+      "id": "growth.expand.education",
+      "name": "Start Schools & Childcare Cleaning",
+      "category": "expansion",
+      "summary": "Launches a cleaning-specific Schools & Childcare Cleaning service line using existing Titan capabilities first, then identifies missing workforce, workflow, evidence and knowledge pieces.",
+      "provides": [
+        "education_service_launch",
+        "occupancy_window_setup",
+        "education_site_rules",
+        "education_qa"
+      ],
+      "requires": [],
+      "recommended_for": [
+        "cleaning businesses adding a new service line"
+      ],
+      "commercial_model": "paid_add_on",
+      "risk_ceiling": "MEDIUM",
+      "jurisdiction_aware": true,
+      "components": [],
+      "tags": [
+        "education",
+        "service launch",
+        "growth"
+      ]
+    },
+    {
+      "id": "growth.expand.strata",
+      "name": "Start Strata & Common-Area Cleaning",
+      "category": "expansion",
+      "summary": "Launches a cleaning-specific Strata & Common-Area Cleaning service line using existing Titan capabilities first, then identifies missing workforce, workflow, evidence and knowledge pieces.",
+      "provides": [
+        "strata_service_launch",
+        "common_area_rotation",
+        "bin_area_workflow",
+        "strata_qa"
+      ],
+      "requires": [],
+      "recommended_for": [
+        "cleaning businesses adding a new service line"
+      ],
+      "commercial_model": "paid_add_on",
+      "risk_ceiling": "MEDIUM",
+      "jurisdiction_aware": true,
+      "components": [],
+      "tags": [
+        "strata",
+        "service launch",
+        "growth"
+      ]
+    },
+    {
+      "id": "growth.expand.construction",
+      "name": "Start Builders & Post-Construction Cleans",
+      "category": "expansion",
+      "summary": "Launches a cleaning-specific Builders & Post-Construction Cleans service line using existing Titan capabilities first, then identifies missing workforce, workflow, evidence and knowledge pieces.",
+      "provides": [
+        "post_construction_service_launch",
+        "builders_scope_template",
+        "handover_stage_workflow",
+        "construction_clean_qa"
+      ],
+      "requires": [],
+      "recommended_for": [
+        "cleaning businesses adding a new service line"
+      ],
+      "commercial_model": "paid_add_on",
+      "risk_ceiling": "MEDIUM",
+      "jurisdiction_aware": true,
+      "components": [],
+      "tags": [
+        "construction",
+        "service launch",
+        "growth"
+      ]
+    },
+    {
+      "id": "growth.expand.food",
+      "name": "Start Food-Premises Cleaning",
+      "category": "expansion",
+      "summary": "Launches a cleaning-specific Food-Premises Cleaning service line using existing Titan capabilities first, then identifies missing workforce, workflow, evidence and knowledge pieces.",
+      "provides": [
+        "food_premises_service_launch",
+        "kitchen_scope_template",
+        "food_contact_cleaning_overlay",
+        "food_site_qa"
+      ],
+      "requires": [],
+      "recommended_for": [
+        "cleaning businesses adding a new service line"
+      ],
+      "commercial_model": "paid_add_on",
+      "risk_ceiling": "HIGH",
+      "jurisdiction_aware": true,
+      "components": [],
+      "tags": [
+        "food",
+        "service launch",
+        "growth"
+      ]
+    },
+    {
+      "id": "growth.knowledge.whs",
+      "name": "Cleaning WHS/OHS Overlay",
+      "category": "knowledge",
+      "summary": "Adds cleaning-specific safety knowledge slots for the company jurisdiction, current-source provenance, PPE/task references and escalation links.",
+      "provides": [
+        "cleaning_safety_overlay",
+        "jurisdiction_safety_sources",
+        "ppe_task_reference",
+        "safety_provenance"
+      ],
+      "requires": [],
+      "recommended_for": [
+        "all cleaning businesses"
+      ],
+      "commercial_model": "byo_or_entitled",
+      "risk_ceiling": "MEDIUM",
+      "jurisdiction_aware": true,
+      "components": [],
+      "tags": [
+        "WHS",
+        "OHS",
+        "safety"
+      ]
+    },
+    {
+      "id": "growth.knowledge.chemical",
+      "name": "Chemical Compatibility Knowledge Pack",
+      "category": "knowledge",
+      "summary": "Adds product/SDS-grounded compatibility lookup, surface constraints, dilution-record fields and explicit unknown/unsafe escalation.",
+      "provides": [
+        "chemical_compatibility_knowledge",
+        "surface_chemistry_constraints",
+        "dilution_record",
+        "chemical_unknown_escalation"
+      ],
+      "requires": [
+        "current_sds"
+      ],
+      "recommended_for": [
+        "businesses using multiple chemicals"
+      ],
+      "commercial_model": "byo_or_entitled",
+      "risk_ceiling": "HIGH",
+      "jurisdiction_aware": true,
+      "components": [],
+      "tags": [
+        "SDS",
+        "chemicals",
+        "compatibility"
+      ]
+    },
+    {
+      "id": "growth.knowledge.infection",
+      "name": "Infection-Control Knowledge Overlay",
+      "category": "knowledge",
+      "summary": "Adds jurisdiction/site-specific infection-control references and cleaning procedure provenance without inventing clinical guidance.",
+      "provides": [
+        "infection_control_knowledge",
+        "site_procedure_provenance",
+        "touchpoint_reference",
+        "infection_control_update_check"
+      ],
+      "requires": [],
+      "recommended_for": [
+        "healthcare",
+        "aged care",
+        "high-risk sites"
+      ],
+      "commercial_model": "paid_add_on",
+      "risk_ceiling": "HIGH",
+      "jurisdiction_aware": true,
+      "components": [],
+      "tags": [
+        "infection control",
+        "healthcare"
+      ]
+    },
+    {
+      "id": "growth.knowledge.food",
+      "name": "Food-Premises Sanitation Knowledge Overlay",
+      "category": "knowledge",
+      "summary": "Adds food-premises cleaning and sanitation reference slots tied to jurisdiction and site procedures, including food-contact constraints.",
+      "provides": [
+        "food_sanitation_knowledge",
+        "food_contact_reference",
+        "site_sanitation_provenance"
+      ],
+      "requires": [],
+      "recommended_for": [
+        "restaurants",
+        "cafes",
+        "commercial kitchens"
+      ],
+      "commercial_model": "paid_add_on",
+      "risk_ceiling": "HIGH",
+      "jurisdiction_aware": true,
+      "components": [],
+      "tags": [
+        "food",
+        "sanitation",
+        "kitchen"
+      ]
+    },
+    {
+      "id": "growth.knowledge.equipment",
+      "name": "Cleaning Equipment Manual Library",
+      "category": "knowledge",
+      "summary": "Organises manufacturer manuals, maintenance instructions, consumable parts and approved-use references by equipment asset.",
+      "provides": [
+        "equipment_manual_library",
+        "manufacturer_procedure_link",
+        "equipment_parts_reference",
+        "maintenance_reference"
+      ],
+      "requires": [],
+      "recommended_for": [
+        "equipment-heavy cleaning businesses"
+      ],
+      "commercial_model": "byo_or_entitled",
+      "risk_ceiling": "LOW",
+      "jurisdiction_aware": false,
+      "components": [],
+      "tags": [
+        "equipment",
+        "manuals",
+        "maintenance"
+      ]
+    },
+    {
+      "id": "growth.automation.quote_time",
+      "name": "Cleaning Time & Labour Estimator",
+      "category": "automation",
+      "summary": "Estimates labour/time inputs from service scope, rooms/zones, condition and company productivity assumptions; keeps assumptions visible.",
+      "provides": [
+        "cleaning_time_estimator",
+        "labour_estimator"
+      ],
+      "requires": [],
+      "recommended_for": [
+        "cleaning operations"
+      ],
+      "commercial_model": "included_or_entitled",
+      "risk_ceiling": "LOW",
+      "jurisdiction_aware": false,
+      "components": [],
+      "tags": [
+        "template",
+        "automation"
+      ]
+    },
+    {
+      "id": "growth.automation.dilution",
+      "name": "Chemical Dilution Record Calculator",
+      "category": "automation",
+      "summary": "Calculates quantities only from an explicitly supplied product-label dilution ratio and records the source ratio; it never guesses chemistry.",
+      "provides": [
+        "label_based_dilution_calculator",
+        "dilution_record_calculator"
+      ],
+      "requires": [],
+      "recommended_for": [
+        "cleaning operations"
+      ],
+      "commercial_model": "included_or_entitled",
+      "risk_ceiling": "MEDIUM",
+      "jurisdiction_aware": false,
+      "components": [],
+      "tags": [
+        "template",
+        "automation"
+      ]
+    },
+    {
+      "id": "growth.automation.inspection",
+      "name": "Cleaning Inspection & Photo Evidence Flow",
+      "category": "automation",
+      "summary": "Creates room/zone inspections, required-photo prompts, defects, rework and completion evidence.",
+      "provides": [
+        "inspection_template",
+        "photo_evidence_flow",
+        "rework_evidence"
+      ],
+      "requires": [],
+      "recommended_for": [
+        "cleaning operations"
+      ],
+      "commercial_model": "included_or_entitled",
+      "risk_ceiling": "LOW",
+      "jurisdiction_aware": false,
+      "components": [],
+      "tags": [
+        "template",
+        "automation"
+      ]
+    },
+    {
+      "id": "growth.automation.onboarding",
+      "name": "Cleaner Onboarding Pack",
+      "category": "automation",
+      "summary": "Creates cleaning-specific worker induction checklists for site rules, evidence, chemicals, equipment, privacy and escalation.",
+      "provides": [
+        "cleaner_onboarding_template",
+        "cleaner_induction_checklist"
+      ],
+      "requires": [],
+      "recommended_for": [
+        "cleaning operations"
+      ],
+      "commercial_model": "included_or_entitled",
+      "risk_ceiling": "LOW",
+      "jurisdiction_aware": false,
+      "components": [],
+      "tags": [
+        "template",
+        "automation"
+      ]
+    },
+    {
+      "id": "growth.automation.followup",
+      "name": "Cleaning Customer Follow-Up Automation",
+      "category": "automation",
+      "summary": "Creates governed post-service follow-up, issue capture, review-request eligibility and rebooking prompts without claiming messages were sent until a receipt exists.",
+      "provides": [
+        "cleaning_followup_automation",
+        "review_request_eligibility",
+        "rebooking_prompt"
+      ],
+      "requires": [],
+      "recommended_for": [
+        "cleaning operations"
+      ],
+      "commercial_model": "included_or_entitled",
+      "risk_ceiling": "LOW",
+      "jurisdiction_aware": false,
+      "components": [],
+      "tags": [
+        "template",
+        "automation"
+      ]
+    },
+    {
+      "id": "growth.automation.incident",
+      "name": "Cleaning Incident & Damage Report Pack",
+      "category": "automation",
+      "summary": "Creates structured spill, damage, access, hazard and customer-property incident capture with evidence and escalation.",
+      "provides": [
+        "cleaning_incident_form",
+        "damage_report",
+        "hazard_evidence_flow"
+      ],
+      "requires": [],
+      "recommended_for": [
+        "cleaning operations"
+      ],
+      "commercial_model": "included_or_entitled",
+      "risk_ceiling": "MEDIUM",
+      "jurisdiction_aware": false,
+      "components": [],
+      "tags": [
+        "template",
+        "automation"
+      ]
+    },
+    {
+      "id": "growth.integration.accounting",
+      "name": "Cleaning Accounting Connection Pack",
+      "category": "integration",
+      "summary": "Maps cleaning quotes, jobs, invoices and payments to a user-selected supported accounting provider once credentials are configured.",
+      "provides": [
+        "cleaning_accounting_connection"
+      ],
+      "requires": [],
+      "recommended_for": [
+        "cleaning businesses needing connected operations"
+      ],
+      "commercial_model": "byo_service",
+      "risk_ceiling": "MEDIUM",
+      "jurisdiction_aware": true,
+      "components": [],
+      "tags": [
+        "integration",
+        "accounting"
+      ]
+    },
+    {
+      "id": "growth.integration.payments",
+      "name": "Cleaning Payment Connection Pack",
+      "category": "integration",
+      "summary": "Maps customer payment intents and receipts to a user-selected supported payment provider; provider credentials/fees remain external.",
+      "provides": [
+        "cleaning_payment_connection"
+      ],
+      "requires": [],
+      "recommended_for": [
+        "cleaning businesses needing connected operations"
+      ],
+      "commercial_model": "byo_service",
+      "risk_ceiling": "MEDIUM",
+      "jurisdiction_aware": true,
+      "components": [],
+      "tags": [
+        "integration",
+        "payments"
+      ]
+    },
+    {
+      "id": "growth.integration.communications",
+      "name": "Cleaning SMS/Phone Connection Pack",
+      "category": "integration",
+      "summary": "Connects booking reminders, cleaner/customer updates and phone workflows to a configured communications provider with cost controls.",
+      "provides": [
+        "cleaning_comms_connection"
+      ],
+      "requires": [],
+      "recommended_for": [
+        "cleaning businesses needing connected operations"
+      ],
+      "commercial_model": "byo_service",
+      "risk_ceiling": "MEDIUM",
+      "jurisdiction_aware": true,
+      "components": [],
+      "tags": [
+        "integration",
+        "communications"
+      ]
+    },
+    {
+      "id": "growth.integration.routing",
+      "name": "Cleaning Maps & Route Connection Pack",
+      "category": "integration",
+      "summary": "Connects cleaner routes, travel estimates and job geocoding to a configured mapping provider with budget controls.",
+      "provides": [
+        "cleaning_route_connection"
+      ],
+      "requires": [],
+      "recommended_for": [
+        "cleaning businesses needing connected operations"
+      ],
+      "commercial_model": "byo_service",
+      "risk_ceiling": "MEDIUM",
+      "jurisdiction_aware": true,
+      "components": [],
+      "tags": [
+        "integration",
+        "routing"
+      ]
+    },
+    {
+      "id": "growth.integration.access",
+      "name": "Smart Access & Keyless Entry Connection Pack",
+      "category": "integration",
+      "summary": "Provides a governed adapter slot for supported smart-lock/access systems; credentials and access authority remain external.",
+      "provides": [
+        "cleaning_smart_access_connection"
+      ],
+      "requires": [],
+      "recommended_for": [
+        "cleaning businesses needing connected operations"
+      ],
+      "commercial_model": "byo_service",
+      "risk_ceiling": "MEDIUM",
+      "jurisdiction_aware": true,
+      "components": [],
+      "tags": [
+        "integration",
+        "access"
+      ]
+    },
+    {
+      "id": "growth.crew.commercial",
+      "name": "Commercial Cleaning Crew",
+      "category": "crew",
+      "summary": "A complete cleaning service-line bundle. Titan checks the company first and installs/marks only missing components; existing capabilities remain owned and are never resold.",
+      "provides": [
+        "crew:commercial"
+      ],
+      "requires": [],
+      "recommended_for": [
+        "cleaning businesses wanting a ready service-line team"
+      ],
+      "commercial_model": "bundle_missing_only",
+      "risk_ceiling": "MEDIUM",
+      "jurisdiction_aware": true,
+      "components": [
+        {
+          "kind": "marketplace_product",
+          "id": "growth.expand.commercial"
+        },
+        {
+          "kind": "marketplace_product",
+          "id": "growth.cap.qa_sampling"
+        },
+        {
+          "kind": "marketplace_product",
+          "id": "growth.automation.inspection"
+        },
+        {
+          "kind": "workforce_agent",
+          "id": "titan.cleaning.commercial_coordinator"
+        },
+        {
+          "kind": "workforce_agent",
+          "id": "titan.cleaning.quality_inspector"
+        },
+        {
+          "kind": "workforce_agent",
+          "id": "titan.cleaning.consumables"
+        }
+      ],
+      "tags": [
+        "crew",
+        "bundle",
+        "commercial"
+      ]
+    },
+    {
+      "id": "growth.crew.airbnb",
+      "name": "Short-Stay Turnover Crew",
+      "category": "crew",
+      "summary": "A complete cleaning service-line bundle. Titan checks the company first and installs/marks only missing components; existing capabilities remain owned and are never resold.",
+      "provides": [
+        "crew:airbnb"
+      ],
+      "requires": [],
+      "recommended_for": [
+        "cleaning businesses wanting a ready service-line team"
+      ],
+      "commercial_model": "bundle_missing_only",
+      "risk_ceiling": "MEDIUM",
+      "jurisdiction_aware": true,
+      "components": [
+        {
+          "kind": "marketplace_product",
+          "id": "growth.expand.airbnb"
+        },
+        {
+          "kind": "marketplace_product",
+          "id": "growth.automation.inspection"
+        },
+        {
+          "kind": "marketplace_product",
+          "id": "growth.automation.followup"
+        },
+        {
+          "kind": "workforce_agent",
+          "id": "titan.cleaning.airbnb_turnover"
+        },
+        {
+          "kind": "workforce_agent",
+          "id": "titan.cleaning.linen_laundry"
+        },
+        {
+          "kind": "workforce_agent",
+          "id": "titan.cleaning.quality_inspector"
+        }
+      ],
+      "tags": [
+        "crew",
+        "bundle",
+        "airbnb"
+      ]
+    },
+    {
+      "id": "growth.crew.endlease",
+      "name": "End-of-Lease Crew",
+      "category": "crew",
+      "summary": "A complete cleaning service-line bundle. Titan checks the company first and installs/marks only missing components; existing capabilities remain owned and are never resold.",
+      "provides": [
+        "crew:endlease"
+      ],
+      "requires": [],
+      "recommended_for": [
+        "cleaning businesses wanting a ready service-line team"
+      ],
+      "commercial_model": "bundle_missing_only",
+      "risk_ceiling": "MEDIUM",
+      "jurisdiction_aware": true,
+      "components": [
+        {
+          "kind": "marketplace_product",
+          "id": "growth.expand.endlease"
+        },
+        {
+          "kind": "marketplace_product",
+          "id": "growth.cap.stain_triage"
+        },
+        {
+          "kind": "marketplace_product",
+          "id": "growth.automation.inspection"
+        },
+        {
+          "kind": "workforce_agent",
+          "id": "titan.cleaning.bond_specialist"
+        },
+        {
+          "kind": "workforce_agent",
+          "id": "titan.cleaning.carpet_upholstery"
+        },
+        {
+          "kind": "workforce_agent",
+          "id": "titan.cleaning.quality_inspector"
+        }
+      ],
+      "tags": [
+        "crew",
+        "bundle",
+        "endlease"
+      ]
+    },
+    {
+      "id": "growth.crew.healthcare",
+      "name": "Healthcare Cleaning Crew",
+      "category": "crew",
+      "summary": "A complete cleaning service-line bundle. Titan checks the company first and installs/marks only missing components; existing capabilities remain owned and are never resold.",
+      "provides": [
+        "crew:healthcare"
+      ],
+      "requires": [],
+      "recommended_for": [
+        "cleaning businesses wanting a ready service-line team"
+      ],
+      "commercial_model": "bundle_missing_only",
+      "risk_ceiling": "HIGH",
+      "jurisdiction_aware": true,
+      "components": [
+        {
+          "kind": "marketplace_product",
+          "id": "growth.expand.healthcare"
+        },
+        {
+          "kind": "marketplace_product",
+          "id": "growth.cap.colour_coding"
+        },
+        {
+          "kind": "marketplace_product",
+          "id": "growth.cap.atp_hygiene"
+        },
+        {
+          "kind": "marketplace_product",
+          "id": "growth.knowledge.infection"
+        },
+        {
+          "kind": "marketplace_product",
+          "id": "growth.automation.inspection"
+        },
+        {
+          "kind": "workforce_agent",
+          "id": "titan.cleaning.healthcare_infection_control"
+        },
+        {
+          "kind": "workforce_agent",
+          "id": "titan.cleaning.chemicals_sds"
+        },
+        {
+          "kind": "workforce_agent",
+          "id": "titan.cleaning.quality_inspector"
+        }
+      ],
+      "tags": [
+        "crew",
+        "bundle",
+        "healthcare"
+      ]
+    },
+    {
+      "id": "growth.crew.food",
+      "name": "Food-Premises Cleaning Crew",
+      "category": "crew",
+      "summary": "A complete cleaning service-line bundle. Titan checks the company first and installs/marks only missing components; existing capabilities remain owned and are never resold.",
+      "provides": [
+        "crew:food"
+      ],
+      "requires": [],
+      "recommended_for": [
+        "cleaning businesses wanting a ready service-line team"
+      ],
+      "commercial_model": "bundle_missing_only",
+      "risk_ceiling": "HIGH",
+      "jurisdiction_aware": true,
+      "components": [
+        {
+          "kind": "marketplace_product",
+          "id": "growth.expand.food"
+        },
+        {
+          "kind": "marketplace_product",
+          "id": "growth.cap.colour_coding"
+        },
+        {
+          "kind": "marketplace_product",
+          "id": "growth.knowledge.food"
+        },
+        {
+          "kind": "marketplace_product",
+          "id": "growth.automation.inspection"
+        },
+        {
+          "kind": "workforce_agent",
+          "id": "titan.cleaning.food_premises"
+        },
+        {
+          "kind": "workforce_agent",
+          "id": "titan.cleaning.chemicals_sds"
+        },
+        {
+          "kind": "workforce_agent",
+          "id": "titan.cleaning.quality_inspector"
+        }
+      ],
+      "tags": [
+        "crew",
+        "bundle",
+        "food"
+      ]
+    },
+    {
+      "id": "growth.crew.construction",
+      "name": "Builders Clean Crew",
+      "category": "crew",
+      "summary": "A complete cleaning service-line bundle. Titan checks the company first and installs/marks only missing components; existing capabilities remain owned and are never resold.",
+      "provides": [
+        "crew:construction"
+      ],
+      "requires": [],
+      "recommended_for": [
+        "cleaning businesses wanting a ready service-line team"
+      ],
+      "commercial_model": "bundle_missing_only",
+      "risk_ceiling": "MEDIUM",
+      "jurisdiction_aware": true,
+      "components": [
+        {
+          "kind": "marketplace_product",
+          "id": "growth.expand.construction"
+        },
+        {
+          "kind": "marketplace_product",
+          "id": "growth.automation.inspection"
+        },
+        {
+          "kind": "marketplace_product",
+          "id": "growth.automation.incident"
+        },
+        {
+          "kind": "workforce_agent",
+          "id": "titan.cleaning.post_construction"
+        },
+        {
+          "kind": "workforce_agent",
+          "id": "titan.cleaning.crew_planner"
+        },
+        {
+          "kind": "workforce_agent",
+          "id": "titan.cleaning.quality_inspector"
+        }
+      ],
+      "tags": [
+        "crew",
+        "bundle",
+        "construction"
+      ]
+    },
+    {
+      "id": "growth.crew.eco",
+      "name": "Resource-Efficient Cleaning Crew",
+      "category": "crew",
+      "summary": "A complete cleaning service-line bundle. Titan checks the company first and installs/marks only missing components; existing capabilities remain owned and are never resold.",
+      "provides": [
+        "crew:eco"
+      ],
+      "requires": [],
+      "recommended_for": [
+        "cleaning businesses wanting a ready service-line team"
+      ],
+      "commercial_model": "bundle_missing_only",
+      "risk_ceiling": "MEDIUM",
+      "jurisdiction_aware": true,
+      "components": [
+        {
+          "kind": "marketplace_product",
+          "id": "growth.cap.water_waste"
+        },
+        {
+          "kind": "marketplace_product",
+          "id": "growth.knowledge.whs"
+        },
+        {
+          "kind": "marketplace_product",
+          "id": "growth.automation.inspection"
+        },
+        {
+          "kind": "workforce_agent",
+          "id": "titan.cleaning.environmental_efficiency"
+        },
+        {
+          "kind": "workforce_agent",
+          "id": "titan.cleaning.consumables"
+        },
+        {
+          "kind": "workforce_agent",
+          "id": "titan.cleaning.quality_inspector"
+        }
+      ],
+      "tags": [
+        "crew",
+        "bundle",
+        "eco"
+      ]
+    }
+  ]
+}

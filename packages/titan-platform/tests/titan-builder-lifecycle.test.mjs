@@ -1,0 +1,12 @@
+import test from 'node:test'; import assert from 'node:assert/strict'; import fs from 'node:fs';
+const src=fs.readFileSync(new URL('../src/titan-builder/lifecycle.ts',import.meta.url),'utf8');
+test('lifecycle is company bounded',()=>{assert.match(src,/document\.company_id!==company_id/);assert.match(src,/builder_lifecycle_company_mismatch/)});
+test('surface canonicalization enforced',()=>assert.match(src,/resolveBuilderSurface/));
+test('publish requires explicit approval',()=>assert.match(src,/builder_explicit_approval_required/));
+test('publish requires fresh preview',()=>assert.match(src,/preview_revision!==input\.document\.revision/));
+test('optimistic stale revision denied',()=>assert.match(src,/builder_lifecycle_stale_revision/));
+test('rewind requires expected current revision',()=>assert.match(src,/builder_lifecycle_conflict/));
+test('rewind creates new revision rather than destructive overwrite',()=>assert.match(src,/revision:latest\.revision\+1/));
+test('rewind returns draft requiring preview',()=>{assert.match(src,/status:"draft"/);assert.match(src,/requires_preview_before_publish:true/)});
+test('records grant no authority',()=>assert.match(src,/authority_granted:false/));
+test('store is append oriented',()=>{assert.match(src,/append\(record/);assert.doesNotMatch(src,/delete\(|overwrite\(/)});

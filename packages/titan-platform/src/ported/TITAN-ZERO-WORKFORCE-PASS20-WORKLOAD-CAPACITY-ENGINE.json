@@ -1,0 +1,12 @@
+{
+  "schema": "titan.workforce.pass/v1",
+  "pass": 20,
+  "title": "Workload + Capacity Engine",
+  "company_boundary": "company_id only",
+  "derived_measurement": true,
+  "automatic_reassignment": false,
+  "automatic_staffing_change": false,
+  "requires_governed_proposal_for_recommendations": true,
+  "grants_authority": false,
+  "added_runtime": "titan-workforce/capacity/workload-capacity-runtime.mjs"
+}

@@ -1,0 +1,21 @@
+{
+  "schema": "titan-zero-ai-provider-control-contract/v1",
+  "version": 1,
+  "pass": 6,
+  "status": "ACTIVE",
+  "company_boundary": "company_id",
+  "identity_grants_authority": false,
+  "settings_grant_execution_authority": false,
+  "credentials_in_generic_settings": false,
+  "credentials_exposed_by_control_projection": false,
+  "existing_provider_storage_key": "providerConfigs",
+  "existing_provider_storage_shape": "array",
+  "existing_provider_order_semantics": "array-order",
+  "existing_provider_enablement_field": "enabled",
+  "existing_byo_storage_preserved": true,
+  "fallback_setting_key": "aiProviderFallbackPolicy",
+  "fallback_policies": ["manual", "ordered-enabled"],
+  "fallback_execution_policy": "The control plane produces an ordered fallback plan only. Runtime authority, entitlements, privacy, budget and availability gates remain separate and can contract or reject execution.",
+  "credential_policy": "API keys, tokens, secrets and credentials remain in existing provider-specific storage/migration paths and are removed from Settings projections.",
+  "compatibility_note": "Pass 6 does not rewrite existing Retriever provider credential persistence. It adds a company-aware control projection and safe update plan around the retained providerConfigs path."
+}

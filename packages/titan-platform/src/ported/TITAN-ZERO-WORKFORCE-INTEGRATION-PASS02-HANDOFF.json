@@ -1,0 +1,38 @@
+{
+  "schema": "titan-zero-workforce-integration-handoff/v1",
+  "pass": 2,
+  "title": "Workforce backend parent identity recovery and fail-closed lineage contract",
+  "status": "PASS_READY_FOR_MANAGER_REVIEW",
+  "parent": {
+    "artifact": "Titan-Zero-v0.18.5-Workforce-Laravel-Gateway-Integration-Pass01-CUMULATIVE.zip"
+  },
+  "canonical_titan_zero_ancestor": {
+    "artifact": "Titan-Zero-v0.18.5-Manager-Canonical-Worker-Authority-Convergence-CUMULATIVE.zip",
+    "sha256": "cfd980e927b0611be3cb591a92a00c653e1e3f8c28b40f715d1accc68ecdeb6f"
+  },
+  "lineage_finding": {
+    "declared_parent_label": "Titan-Workforce Step10",
+    "declared_parent_sha256": "f8de3ed1bf3350d0524079b5825c76ec27d8761d56eae2a1f60f708a4ec7cda9",
+    "resolution": "UNRESOLVED_PARENT_IDENTITY",
+    "substitution_rejected": [
+      "Titan Workforce Management Master Step 45.zip",
+      "Titan Workforce Manager Master Step 30.zip"
+    ]
+  },
+  "implementation": {
+    "existing_gateway_client_extended": true,
+    "parallel_gateway_runtime_created": false,
+    "new_lineage_contract": "titan-workforce/gateway/backend-lineage.json",
+    "request_lineage_expectation": true,
+    "host_lineage_proof_verification": true,
+    "absent_proof_compatibility": "allowed but marked UNVERIFIED_HOST_LINEAGE",
+    "mismatching_proof": "rejected",
+    "ui_changed": false,
+    "manifest_changed": false,
+    "permissions_changed": false,
+    "company_boundary": "company_id",
+    "grants_authority": false
+  },
+  "next_pass": 3,
+  "next_title": "Titan Code parent convergence and cross-system gateway lineage handshake"
+}

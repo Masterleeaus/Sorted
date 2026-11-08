@@ -1,0 +1,14 @@
+{
+  "schema": "titan-zero-pass-touched-files/v1",
+  "pass": 8,
+  "files": [
+    "packages/titan-platform/tests/retriever-native-pass08-regression-certification.test.mjs",
+    "packages/titan-platform/src/retriever/pass08/DONOR-RETIREMENT-LEDGER-CERTIFIED.json",
+    "packages/titan-platform/src/retriever/pass08/PASS08-REGRESSION-CERTIFICATION.json",
+    "packages/titan-platform/src/retriever/pass08/PASS08-VERIFICATION.json",
+    "packages/titan-platform/src/retriever/pass08/PASS08-SEMANTIC-CHANGE.json",
+    "packages/titan-platform/src/retriever/pass08/PASS08-CHANGE-IMPACT.json",
+    "packages/titan-platform/src/retriever/pass08/PASS08-COLLISION-RECORD.json",
+    "packages/titan-platform/src/retriever/pass08/PASS08-HANDOFF.json"
+  ]
+}

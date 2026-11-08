@@ -1,0 +1,6 @@
+{
+  "schema": "titan-zero-storage-finish-pass07-semantic-change/v1",
+  "packet_id": "TZ-FINISH-STORAGE-DATA-AUTHORITY-001",
+  "pass": 7,
+  "semantic_delta": "Adds a native transaction-capable Business State Authority with monotonic revisions, durable commit/conflict receipts, idempotency reuse detection, optimistic revision conflicts, and rollback-safe atomic writes."
+}

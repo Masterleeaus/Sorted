@@ -1,0 +1,103 @@
+{
+  "schema": "titan-zero-finish004-pass09-live-smoke/v1",
+  "packet_id": "TZ-FINISH-004",
+  "pass": 9,
+  "status": "BLOCKED_ENVIRONMENT",
+  "live_pass_claimed": false,
+  "candidate_reconstruction": {
+    "base": "Titan-Zero-TZ-FINISH-004-Pass05-CHECKPOINT-CUMULATIVE.zip",
+    "applied_deltas": [
+      "Pass06",
+      "Pass07",
+      "Pass08"
+    ],
+    "candidate_files": 1330,
+    "manifest_present": true
+  },
+  "browser": {
+    "name": "Chromium",
+    "version": "144.0.7559.96 Debian",
+    "remote_debugging_port": 9227
+  },
+  "managed_policy": {
+    "ExtensionInstallBlocklist": [
+      "*"
+    ],
+    "ExtensionInstallForcelist": [],
+    "ExtensionInstallSources": []
+  },
+  "fresh_attempt": {
+    "headless_devtools_targets": [
+      {
+        "description": "",
+        "devtoolsFrontendUrl": "https://chrome-devtools-frontend.appspot.com/serve_rev/@d7b80622cfab91c265741194e7942eefd2d21811/inspector.html?ws=127.0.0.1:9227/devtools/page/E7EF0E9AC854404238BD9F9EBB332327",
+        "id": "E7EF0E9AC854404238BD9F9EBB332327",
+        "title": "about:blank",
+        "type": "page",
+        "url": "about:blank",
+        "webSocketDebuggerUrl": "ws://127.0.0.1:9227/devtools/page/E7EF0E9AC854404238BD9F9EBB332327"
+      }
+    ],
+    "extension_registered": false,
+    "observed_targets": [
+      {
+        "type": "page",
+        "url": "about:blank",
+        "title": "about:blank"
+      }
+    ],
+    "result": "Only about:blank target observed; no extension/service-worker target registered."
+  },
+  "static_integration": {
+    "status": "PASS",
+    "pass05_resource_parity_test": "updated stale assertion to protect monicaOptions.html while allowing Titan Launch Settings extension surface",
+    "protected_runtime": "542/542",
+    "donor_files": 563,
+    "routes": "65/65"
+  },
+  "required_live_checks": [
+    {
+      "step": 1,
+      "status": "BLOCKED_NOT_OBSERVED"
+    },
+    {
+      "step": 2,
+      "status": "BLOCKED_NOT_OBSERVED"
+    },
+    {
+      "step": 3,
+      "status": "BLOCKED_NOT_OBSERVED"
+    },
+    {
+      "step": 4,
+      "status": "BLOCKED_NOT_OBSERVED"
+    },
+    {
+      "step": 5,
+      "status": "BLOCKED_NOT_OBSERVED"
+    },
+    {
+      "step": 6,
+      "status": "BLOCKED_NOT_OBSERVED"
+    },
+    {
+      "step": 7,
+      "status": "BLOCKED_NOT_OBSERVED"
+    },
+    {
+      "step": 8,
+      "status": "BLOCKED_NOT_OBSERVED"
+    },
+    {
+      "step": 9,
+      "status": "BLOCKED_NOT_OBSERVED"
+    },
+    {
+      "step": 10,
+      "status": "BLOCKED_NOT_OBSERVED"
+    }
+  ],
+  "product_runtime_failure_inferred": false,
+  "next_action": "Run the packaged exact candidate as an unpacked extension in a supported local Chrome/Chromium environment with unpacked extension loading permitted; return 1 PASS ... 10 PASS or screenshots/errors.",
+  "created_at_local": "2026-09-05T13:37:00+10:00"
+}

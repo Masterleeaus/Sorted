@@ -1,0 +1,22 @@
+{
+  "category": "core-chat",
+  "extensions": [
+    "AIChatPro",
+    "AIChatProDeepResearch",
+    "AIChatProFileChat",
+    "AIChatProFolders",
+    "AIChatProSkills",
+    "AIWebChat",
+    "AiChatProEntityHighlight",
+    "AiChatProHighlightToAsk",
+    "AiChatProSmartImage",
+    "Canvas",
+    "ChatProTempChat",
+    "ChatSetting",
+    "ChatShare",
+    "ElevenLabsVoiceChat",
+    "FocusMode",
+    "OpenAIRealtimeChat"
+  ],
+  "count": 16
+}

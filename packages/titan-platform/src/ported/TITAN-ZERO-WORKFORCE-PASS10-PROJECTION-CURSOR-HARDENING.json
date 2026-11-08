@@ -1,0 +1,20 @@
+{
+  "schema":"titan-zero-workforce-pass/v1",
+  "pass":10,
+  "title":"Projection Revisioning / Monotonic Cursor Hardening",
+  "manager_baseline":"Titan Zero v0.18.6",
+  "donor_semantics":"Titan Zero v0.6.13 Projection Cursors — semantic extraction only; no stale-line overlay",
+  "company_boundary":"company_id",
+  "rules":[
+    "Server component revisions/cursors are tracked independently.",
+    "Lower component revisions cannot overwrite newer component state.",
+    "Equal revision with different cursor or data is a conflict and fails closed.",
+    "Equal revision with identical state is idempotent.",
+    "Unversioned updates cannot overwrite already-versioned component state.",
+    "Local sync generation rejects older refreshes that finish after newer refreshes.",
+    "Projection metadata never grants authority."
+  ],
+  "deletions":0,
+  "ui_replacement":false,
+  "permissions_changed":false
+}

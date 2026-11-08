@@ -1,0 +1,18 @@
+{
+  "schema": "titan-zero-manager-convergence-note/v1",
+  "merge_candidate": "49",
+  "title": "Five-Tier Workforce Recovery Foundation",
+  "base": "Merge48",
+  "changes": [
+    "Recovered unique legacy Duo specialist catalogue from Library inventory",
+    "Recovered unique legacy Trio atomic-worker catalogue from Library inventory",
+    "Defined current target hierarchy: Starter -> Manager -> Supervisor -> Specialist -> Worker -> Tool",
+    "Added fail-safe convergence rules preventing legacy authority/speculative managers from blind restoration"
+  ],
+  "verification": [
+    "node tests/workforce-hierarchy/five-tier-recovery.test.mjs"
+  ],
+  "limitations": [
+    "Historical Five-Tier source ZIP bytes were not materializable in this pass; no claim of full PHP source restoration."
+  ]
+}

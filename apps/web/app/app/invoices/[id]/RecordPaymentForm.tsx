@@ -1,0 +1,196 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { depositVsSpendGuide } from "@/lib/guide/next-move";
+
+interface Props {
+  invoiceId: string;
+  remainingCents: number;
+}
+
+const PAYMENT_METHODS = [
+  { value: "square", label: "Square" },
+  { value: "venmo", label: "Venmo" },
+  { value: "cash", label: "Cash" },
+  { value: "check", label: "Check" },
+  { value: "zelle", label: "Zelle" },
+  { value: "ach", label: "ACH" },
+  { value: "other", label: "Other" },
+] as const;
+
+const PAYMENT_TYPES = [
+  { value: "deposit", label: "Deposit" },
+  { value: "progress", label: "Progress" },
+  { value: "final", label: "Final" },
+  { value: "refund", label: "Refund" },
+  { value: "adjustment", label: "Adjustment" },
+] as const;
+
+export function RecordPaymentForm({ invoiceId, remainingCents }: Props) {
+  const router = useRouter();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+  const [amount, setAmount] = useState("");
+  const [method, setMethod] = useState("cash");
+  const [paymentType, setPaymentType] = useState("progress");
+  const [notes, setNotes] = useState("");
+
+  useEffect(() => {
+    if (!success) return;
+    const t = setTimeout(() => setSuccess(""), 5000);
+    return () => clearTimeout(t);
+  }, [success]);
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setLoading(true);
+    setError("");
+    setSuccess("");
+
+    const amountCents = Math.round(parseFloat(amount) * 100);
+
+    if (isNaN(amountCents) || amountCents <= 0) {
+      setError("Please enter a valid payment amount");
+      setLoading(false);
+      return;
+    }
+
+    // Refunds are ledger-only and may exceed the remaining balance.
+    if (paymentType !== "refund" && amountCents > remainingCents) {
+      setError(
+        `Amount exceeds remaining balance of $${(remainingCents / 100).toFixed(2)}`
+      );
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const res = await fetch(`/api/v1/invoices/${invoiceId}/payments`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          amount_cents: amountCents,
+          method,
+          payment_type: paymentType,
+          notes: notes.trim() || null,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setError(data.error?.message ?? "Failed to record payment");
+      } else {
+        setSuccess(
+          `Payment of $${(amountCents / 100).toFixed(2)} recorded successfully`
+        );
+        setAmount("");
+        setNotes("");
+        router.refresh();
+      }
+    } catch {
+      setError("Unexpected error");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <form onSubmit={handleSubmit} data-testid="record-payment-form">
+      {error && <p className="error-inline" data-testid="payment-error">{error}</p>}
+      {success && <p className="success-inline" data-testid="payment-success">{success}</p>}
+
+      <div className="payment-form-fields">
+        <div className="form-group">
+          <label htmlFor="payment-amount">Amount ($)</label>
+          <input
+            id="payment-amount"
+            type="number"
+            step="0.01"
+            min="0.01"
+            // Refunds aren't bounded by the remaining balance, so don't cap them.
+            max={
+              paymentType === "refund"
+                ? undefined
+                : (remainingCents / 100).toFixed(2)
+            }
+            value={amount}
+            onChange={(e) => setAmount(e.target.value)}
+            placeholder={
+              paymentType === "refund"
+                ? "Refund amount"
+                : `Max: $${(remainingCents / 100).toFixed(2)}`
+            }
+            required
+            data-testid="payment-amount-input"
+          />
+        </div>
+
+        <div className="form-group">
+          <label htmlFor="payment-type">Type</label>
+          <select
+            id="payment-type"
+            value={paymentType}
+            onChange={(e) => setPaymentType(e.target.value)}
+            className="payment-select"
+            data-testid="payment-type-select"
+          >
+            {PAYMENT_TYPES.map((t) => (
+              <option key={t.value} value={t.value}>
+                {t.label}
+              </option>
+            ))}
+          </select>
+          {paymentType === "deposit" ? (
+            <p style={{ margin: "8px 0 0", fontSize: 14 }} data-testid="deposit-spend-guide">
+              {(() => {
+                const guide = depositVsSpendGuide();
+                return `${guide.move} ${guide.why}`;
+              })()}
+            </p>
+          ) : null}
+        </div>
+
+        <div className="form-group">
+          <label htmlFor="payment-method">Method</label>
+          <select
+            id="payment-method"
+            value={method}
+            onChange={(e) => setMethod(e.target.value)}
+            className="payment-select"
+            data-testid="payment-method-select"
+          >
+            {PAYMENT_METHODS.map((m) => (
+              <option key={m.value} value={m.value}>
+                {m.label}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className="form-group">
+          <label htmlFor="payment-notes">Notes (optional)</label>
+          <input
+            id="payment-notes"
+            type="text"
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+            placeholder="e.g. Check #1234"
+            data-testid="payment-notes-input"
+          />
+        </div>
+      </div>
+
+      <button
+        type="submit"
+        disabled={loading}
+        className="btn btn-primary"
+        data-testid="record-payment-submit"
+      >
+        {loading ? "Recording..." : "Record Payment"}
+      </button>
+    </form>
+  );
+}

@@ -1,0 +1,9 @@
+{
+  "schema":"titan-zero-agent-handoff/v1",
+  "lane":"cleaning-growth-marketplace",
+  "completed_pass":4,
+  "next_pass":5,
+  "next_focus":"Service-launch portfolio dashboard, milestone history, launch risk/owner accountability and cumulative checkpoint.",
+  "authority_effect":false,
+  "company_boundary":"company_id only"
+}

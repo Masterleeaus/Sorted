@@ -1,0 +1,32 @@
+{
+  "template": {
+    "id": "order-fulfilment",
+    "version": "1.0.0",
+    "name": "Order Fulfilment",
+    "status": "ready",
+    "category": "commerce",
+    "entry_wizard": "order_fulfilment_v1",
+    "capabilities": [
+      "commerce.orders.fulfil"
+    ],
+    "channels": [
+      "chat",
+      "mobile",
+      "tablet",
+      "desktop",
+      "voice"
+    ],
+    "governance": {
+      "authority": "human_review_when_required",
+      "offline": true
+    },
+    "metadata": {
+      "verticals": [
+        "ecommerce",
+        "retail",
+        "wholesale"
+      ],
+      "pack": "commerce_multi_vertical_2026_08"
+    }
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "schema": "titan-zero-builder-cumulative-checkpoint/v1",
+  "workspace": "Builder 1",
+  "packet_id": "TZ-NEXT-004",
+  "checkpoint_pass": 5,
+  "base_manager_merge": 44,
+  "base_artifact": "Titan-Zero-CANONICAL-MASTER-2026-09-09-MERGE-44-PAYLOAD-SLIM-CONVERGED.zip",
+  "base_sha256": "cde880ecacb7319d1c2c7a87003e6eb6bade34881d646acb7a686393ecb3ff58",
+  "composition": "union of verified Builder1 TZ-NEXT-004 Pass01-05 true deltas; root metadata namespaced per pass",
+  "source_delta_sha256": {
+    "pass01": "26c4b2ac693b6cef5d41412bfed35073e5c4e5b50d49eef116d98f77bdf5ae97",
+    "pass02": "a22affe73a0551ea4f5490dd12d85afb0821b5cb4a4478b29103a6bf3df796f8",
+    "pass03": "5939abe9b9dd73e92002d14d238a88d7063948330e46c4bc10b08445958ea69d",
+    "pass04": "ea7b485af2a0070577750ef745f6378076edc65af6d0ec6f328d8e265ea75548",
+    "pass05": "f50e0577644de2e977b055151649995f109c6ae1ce0180c27c25ee5200ada8ca"
+  },
+  "content_collisions": [],
+  "concurrent_pass04_checkpoint_reconciliation": {
+    "artifact": "Builder 1__TZ-NEXT-004__PASS04__CUMULATIVE-DELTA.zip",
+    "sha256": "a432a3495ece7b0a3353031da3a71cf6494c9ad9ec653427c8b35de03c056bce",
+    "assessment": "NOT_SELECTED_AS_STRONGER_PREDECESSOR",
+    "reason": "standalone cumulative test run produced 14 PASS / 1 FAIL because Pass2 test imports titan-workforce/graph/workforce-graph.mjs absent from that checkpoint",
+    "action": "leave artifact untouched for Manager; Pass5 checkpoint supersedes lane reconstruction with independently passing true-delta union"
+  },
+  "not_canonical": true,
+  "manager_promotion_required": true,
+  "forward_port_verification": {
+    "from_manager_merge": 42,
+    "to_manager_merge": 44,
+    "result": "PASS",
+    "tests": "24/24 PASS",
+    "travel_time_inferred": false,
+    "calendar_truth_created": false,
+    "automatic_reschedule": false,
+    "authority_change": false,
+    "company_boundary": "company_id only"
+  }
+}

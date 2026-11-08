@@ -1,0 +1,7 @@
+.titan-settings-native{max-width:900px;margin:14px auto 0;padding:0 14px;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--t0-text)}
+.titan-settings-native-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;padding:14px 16px;border:1px solid var(--t0-line);border-radius:16px;background:var(--t0-panel);box-shadow:var(--t0-shadow)}
+.titan-settings-native-head div{display:grid;gap:4px}.titan-settings-native-head strong{font-size:15px}.titan-settings-native-head span{font-size:11px;color:var(--t0-muted);max-width:640px}
+.titan-settings-launchers{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.titan-settings-launchers button{border:1px solid var(--t0-line);background:var(--t0-panel-2);color:var(--t0-text);border-radius:10px;padding:8px 10px;cursor:pointer;font-weight:700}
+.titan-settings-launchers button:hover{border-color:var(--t0-secondary);background:var(--t0-soft)}
+@media(max-width:700px){.titan-settings-native{margin-top:10px;padding:0 10px}.titan-settings-native-head{display:grid}.titan-settings-launchers{justify-content:flex-start}}

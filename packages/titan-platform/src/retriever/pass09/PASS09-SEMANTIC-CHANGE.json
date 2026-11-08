@@ -1,0 +1,7 @@
+{
+  "schema": "titan-zero-retriever-finish-pass09-semantic-change/v1",
+  "packet_id": "TZ-FINISH-RETRIEVER-NATIVE-001",
+  "pass": 9,
+  "semantic_delta": "Retires three proven-dead Retriever-specific donor runtime files and detaches the shared compatibility boundary from Retriever while preserving unrelated browser/chat compatibility and rollback provenance.",
+  "production_behavior_change": "Standalone runtime remains native-only; dead Retriever donor execution paths are removed from platform source."
+}

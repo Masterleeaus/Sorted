@@ -1,0 +1,204 @@
+{
+  "schema": "titan-shared-platform-service-owners-v1",
+  "tenant_boundary": "company_id",
+  "rules": {
+    "newest_version_wins": false,
+    "no_duplicate_domain_authority": true,
+    "donors_do_not_become_authority_automatically": true,
+    "adapters_and_workforce_do_not_own_domain_truth": true
+  },
+  "services": [
+    {
+      "service": "crm",
+      "canonical_owner": "Titan CRM",
+      "provider": "Titan-CRM-v1.3.0-alpha.42-Pass6-DEEP-SCAN-FIXED-Cumulative.zip",
+      "authority": [
+        "customers",
+        "contacts",
+        "leads",
+        "opportunities",
+        "sales pipeline",
+        "revenue journey correlation",
+        "customer-facing sales documents"
+      ]
+    },
+    {
+      "service": "bookings",
+      "canonical_owner": "CRM revenue journey + Titan Bookings/Quotes lifecycle engine",
+      "provider": "Titan-Bookings-Quotes-v0.1.0-alpha.2-Pass2-Booking-Engine-Cumulative.zip",
+      "authority": [
+        "booking lifecycle",
+        "booking windows",
+        "booking events"
+      ],
+      "notes": "Lifecycle contribution only; no second CRM/customer authority."
+    },
+    {
+      "service": "quotes",
+      "canonical_owner": "Titan CRM",
+      "provider": "Titan-CRM-v1.3.0-alpha.42-Pass6-DEEP-SCAN-FIXED-Cumulative.zip",
+      "contributors": [
+        "Titan-Bookings-Quotes-v0.1.0-alpha.2-Pass2-Booking-Engine-Cumulative.zip",
+        "Titan-Financial-Engine-v0.4.0-Pass5-Executable-Workforce-Contract-Cumulative.zip"
+      ],
+      "authority": [
+        "quote/estimate customer and revenue truth"
+      ]
+    },
+    {
+      "service": "jobs_work_orders",
+      "canonical_owner": "Titan Field",
+      "provider": "Titan-Field-v1.0.12-Pass6-DEEP-SCAN-FIXED-Cumulative.zip",
+      "authority": [
+        "service requests",
+        "work orders",
+        "job execution",
+        "dispatch operational state",
+        "forms/evidence"
+      ]
+    },
+    {
+      "service": "invoicing",
+      "canonical_owner": "Titan CRM revenue document authority",
+      "provider": "Titan-CRM-v1.3.0-alpha.42-Pass6-DEEP-SCAN-FIXED-Cumulative.zip",
+      "contributors": [
+        "Titan-Financial-Engine-v0.4.0-Pass5-Executable-Workforce-Contract-Cumulative.zip",
+        "Titan-Ledger-v1.20.0-rc.5-Pass5-Executable-Workforce-Contract-Cumulative.zip"
+      ]
+    },
+    {
+      "service": "payments",
+      "canonical_owner": "Titan CRM receivable/payment lifecycle pending dedicated Titan Pay master",
+      "provider": "Titan-CRM-v1.3.0-alpha.42-Pass6-DEEP-SCAN-FIXED-Cumulative.zip",
+      "contributors": [
+        "Titan-Ledger-v1.20.0-rc.5-Pass5-Executable-Workforce-Contract-Cumulative.zip",
+        "Titan-Financial-Engine-v0.4.0-Pass5-Executable-Workforce-Contract-Cumulative.zip"
+      ]
+    },
+    {
+      "service": "communications",
+      "canonical_owner": "Titan Connect",
+      "provider": "Titan-Connect-v0.10.6-Pass5-Executable-Workforce-Contract-Cumulative.zip",
+      "authority": [
+        "inbox",
+        "messaging",
+        "voice/channel execution",
+        "conversation handoff"
+      ]
+    },
+    {
+      "service": "human_workforce",
+      "canonical_owner": "Titan People + Payroll + Time Attendance",
+      "provider": "Titan-People-v1.0.0-rc.1-Workforce31-Converged-Cumulative.zip",
+      "contributors": [
+        "Titan-Payroll-v0.1.0-rc.2-Workforce31-Converged-Cumulative.zip",
+        "Titan-Time-Attendance-v0.1.7-Pass6-DEEP-SCAN-FIXED-Cumulative.zip"
+      ]
+    },
+    {
+      "service": "advanced_intelligence_workforce",
+      "canonical_owner": "Titan AI Workforce",
+      "provider": "Titan-AI-Workforce-v0.72.0-alpha.45-31-Provider-Full-Platform-Converged-Cumulative.zip",
+      "authority": [
+        "digital organisation",
+        "AI worker definitions",
+        "goals",
+        "tasks",
+        "handoffs",
+        "evidence",
+        "delegation"
+      ]
+    },
+    {
+      "service": "knowledge",
+      "canonical_owner": "Titan Knowledge Authority",
+      "provider": "TitanKnowledgeAuthority-Production-Orchestration-Operations-v1.7-DeepScan-CompanyID-Cumulative.zip"
+    },
+    {
+      "service": "governance",
+      "canonical_owner": "Titan Governance",
+      "provider": "Titan-Governance-v1.0.0-rc.2-Pass5-Durable-Execution-Cumulative.zip",
+      "contributors": [
+        "Titan-Risk-Engine-v1.0.0-rc.3-Pass5-Durable-Execution-Cumulative.zip",
+        "Titan-AI-Assurance-Engine-v2.3.0-Pass6-Namespace-Isolation-Cumulative.zip",
+        "Titan-Autonomy-v1.7.5-Agent06-Pass7-DeepScan-CompanyID-Cumulative.zip",
+        "Titan-Command-Bus-v0.2.0-alpha.7-Pass5-Executable-Workforce-Contract-Cumulative.zip",
+        "TitanRewind-Production-Orchestration-Operations-v1.7-DeepScan-CompanyID-Cumulative.zip"
+      ]
+    },
+    {
+      "service": "providers_capabilities",
+      "canonical_owner": "Provider contracts + Command Bus",
+      "provider": "Titan-Command-Bus-v0.2.0-alpha.7-Pass5-Executable-Workforce-Contract-Cumulative.zip",
+      "contributors": [
+        "Titan-AI-Vision-v1.12.6-Agent06-Pass7-DeepScan-CompanyID-Cumulative.zip",
+        "Titan-MCP-v1.5.14-Agent06-Pass7-DeepScan-CompanyID-Cumulative.zip",
+        "Titan-Interaction-Engine-v10.3.2-Pass5-Executable-Workforce-Contract-Cumulative.zip"
+      ]
+    },
+    {
+      "service": "reporting",
+      "canonical_owner": "projection/reporting layer over authoritative providers",
+      "provider": null,
+      "contributors": [
+        "recovered-donors/quality-compliance/report_builder",
+        "Titan-CRM-v1.3.0-alpha.42-Pass6-DEEP-SCAN-FIXED-Cumulative.zip",
+        "Titan-Ledger-v1.20.0-rc.5-Pass5-Executable-Workforce-Contract-Cumulative.zip",
+        "TitanSignalEngine-Production-Orchestration-Operations-v1.7-DeepScan-CompanyID-Cumulative.zip"
+      ],
+      "notes": "Reporting is projection-only."
+    },
+    {
+      "service": "quality_compliance",
+      "canonical_owner": "Assurance/Shield + compliance domain contributions",
+      "provider": "Titan-AI-Assurance-Engine-v2.3.0-Pass6-Namespace-Isolation-Cumulative.zip",
+      "contributors": [
+        "Titan-Shield-v1.0.0-rc.2-Pass5-Durable-Execution-Cumulative.zip",
+        "recovered-donors/quality-compliance/ComplianceIQ",
+        "recovered-donors/quality-compliance/QualityControl",
+        "recovered-donors/quality-compliance/TitanZeroAssurance"
+      ]
+    },
+    {
+      "service": "environmental_systems",
+      "canonical_owner": "Titan Environmental Intelligence",
+      "provider": null,
+      "contributors": [
+        "Titan Knowledge Authority",
+        "Titan Assurance",
+        "Titan Governance",
+        "Titan Signal Engine"
+      ],
+      "status": "UNRESOLVED_SOURCE_REQUIRED",
+      "notes": "No distinct environmental runtime archive found; no fake runtime created."
+    },
+    {
+      "service": "assets_inventory",
+      "canonical_owner": "Titan Assets + Titan Locker",
+      "provider": "Titan-Assets-v0.2.0-alpha.7-Pass6-DEEP-SCAN-FIXED-Cumulative.zip",
+      "contributors": [
+        "Titan-Locker-v1.1.0-alpha.6-Pass6-Command-Bus-Convergence-Cumulative.zip"
+      ]
+    },
+    {
+      "service": "maps_spatial",
+      "canonical_owner": "Titan Maps Intelligence",
+      "provider": "Titan-Maps-Intelligence-v2.0.7-Pass6-DEEP-SCAN-FIXED-Cumulative.zip"
+    },
+    {
+      "service": "audit_rewind_signals",
+      "canonical_owner": "Titan Rewind + Titan Signal Engine",
+      "provider": "TitanRewind-Production-Orchestration-Operations-v1.7-DeepScan-CompanyID-Cumulative.zip",
+      "contributors": [
+        "TitanSignalEngine-Production-Orchestration-Operations-v1.7-DeepScan-CompanyID-Cumulative.zip"
+      ]
+    }
+  ],
+  "_titan_provenance": {
+    "source_product": "Titan Shared Platform Services",
+    "source_step": 14,
+    "source_file": "registry/canonical-service-owners.json",
+    "company_boundary": "company_id",
+    "purpose": "Authority routing/projection metadata only; provider filenames are lineage evidence and do not make the extension a domain authority."
+  }
+}

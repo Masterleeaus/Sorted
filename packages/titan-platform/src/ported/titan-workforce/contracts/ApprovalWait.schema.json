@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": [
+    "approval_wait_id",
+    "company_id",
+    "work_item_id",
+    "approval_class",
+    "required_approver_refs",
+    "state"
+  ],
+  "properties": {
+    "approval_wait_id": {
+      "type": "string"
+    },
+    "company_id": {
+      "type": "string"
+    },
+    "work_item_id": {
+      "type": "string"
+    },
+    "approval_class": {
+      "type": "string"
+    },
+    "required_approver_refs": {
+      "type": "array"
+    },
+    "state": {
+      "enum": [
+        "waiting",
+        "approved",
+        "rejected",
+        "expired",
+        "superseded"
+      ]
+    }
+  }
+}

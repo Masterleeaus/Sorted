@@ -1,0 +1,16 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema",
+  "$id":"titan.workforce.business-discovery.v1",
+  "type":"object",
+  "required":["schema","company_id","discovery_id","source_handover_id","completeness","installation_spec","automatic_installation","authority_granted","execution_permitted","grants_authority"],
+  "properties":{
+    "schema":{"const":"titan.workforce.business-discovery.v1"},
+    "company_id":{"type":"string","minLength":2},
+    "discovery_id":{"type":"string","minLength":1},
+    "source_handover_id":{"type":"string","minLength":1},
+    "completeness":{"type":"object","required":["state","ready_for_installation_planning","blockers"]},
+    "installation_spec":{"type":"object","required":["schema","company_id","processes","people","systems","devices","documents","objectives","risks","required_capabilities","requires_installation_planner","automatic_installation","authority_granted","execution_permitted","grants_authority"]},
+    "automatic_installation":{"const":false},"automatic_provisioning":{"const":false},"automatic_authority_change":{"const":false},"authority_granted":{"const":false},"execution_permitted":{"const":false},"grants_authority":{"const":false},"authority_effect":{"const":false}
+  },
+  "additionalProperties":true
+}

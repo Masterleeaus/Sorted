@@ -1,0 +1,30 @@
+{
+  "schema": "titan-zero-offline-restart-recovery-contract/v1",
+  "packet_id": "TZ-FINISH-OFFLINE-RESILIENCE-001",
+  "pass": 5,
+  "checkpoint": {
+    "durable": true,
+    "company_boundary": "company_id",
+    "idempotency_bound": true,
+    "restart_state": "recovery_required",
+    "requires_explicit_resume": true,
+    "automatic_effect_replay": false
+  },
+  "continuation": {
+    "resume_requires_matching_idempotency_key": true,
+    "deterministic_token": true,
+    "claim_exactly_once": true,
+    "duplicate_claim": "IDEMPOTENT_NO_REPLAY",
+    "wrong_token": "FAIL_CLOSED"
+  },
+  "evidence": {
+    "durable_restart_receipts": true,
+    "monotonic_event_sequence": true,
+    "same_millisecond_order_safe": true
+  },
+  "authority": {
+    "identity_grants_authority": false,
+    "execution_authority": false,
+    "effect_replay_allowed": false
+  }
+}

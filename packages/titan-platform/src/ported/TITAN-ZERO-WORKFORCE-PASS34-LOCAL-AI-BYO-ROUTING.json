@@ -1,0 +1,25 @@
+{
+  "schema": "titan.workforce.pass-manifest.v1",
+  "pass": 34,
+  "title": "Local AI / BYO Routing",
+  "company_boundary": "company_id",
+  "route_order": [
+    "DETERMINISTIC",
+    "DEVICE_LOCAL",
+    "CUSTOMER_LOCAL",
+    "BYO_API",
+    "BYO_SERVICE",
+    "TITAN_ENTITLED",
+    "TITAN_METERED_ADDON"
+  ],
+  "deterministic_first": true,
+  "local_first": true,
+  "byo_before_titan": true,
+  "no_silent_paid_cloud_fallback": true,
+  "free_tier_no_silent_titan_variable_cost": true,
+  "provider_receipts_required": true,
+  "authority_granted": false,
+  "execution_permitted": false,
+  "grants_authority": false,
+  "next_pass": 35
+}

@@ -1,0 +1,71 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": [
+    "evidence_id",
+    "source_provider",
+    "source_record_type",
+    "source_record_id",
+    "source_revision",
+    "evidence_state",
+    "observed_at"
+  ],
+  "properties": {
+    "evidence_id": {
+      "type": "string"
+    },
+    "source_provider": {
+      "type": "string"
+    },
+    "source_record_type": {
+      "type": "string"
+    },
+    "source_record_id": {
+      "type": "string"
+    },
+    "source_revision": {
+      "type": "string"
+    },
+    "evidence_state": {
+      "enum": [
+        "verified",
+        "supported",
+        "partial",
+        "conflicted",
+        "insufficient",
+        "stale",
+        "unknown"
+      ]
+    },
+    "observed_at": {
+      "type": "string"
+    },
+    "expires_at": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "citation_ref": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "hash": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "jurisdiction": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "company_id": {
+      "type": "string"
+    }
+  }
+}

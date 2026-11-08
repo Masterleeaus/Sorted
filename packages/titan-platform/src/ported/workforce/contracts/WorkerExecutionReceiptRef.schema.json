@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": [
+    "receipt_ref",
+    "company_id",
+    "action_id",
+    "capability",
+    "idempotency_key",
+    "status",
+    "source_provider",
+    "source_revision"
+  ],
+  "properties": {
+    "receipt_ref": {
+      "type": "string"
+    },
+    "company_id": {
+      "type": "string"
+    },
+    "action_id": {
+      "type": "string"
+    },
+    "capability": {
+      "type": "string"
+    },
+    "idempotency_key": {
+      "type": "string"
+    },
+    "status": {
+      "enum": [
+        "succeeded",
+        "failed",
+        "unknown"
+      ]
+    },
+    "source_provider": {
+      "type": "string"
+    },
+    "source_revision": {
+      "type": "string"
+    },
+    "authoritative": {
+      "const": true
+    },
+    "domain_state_ref": {
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  }
+}

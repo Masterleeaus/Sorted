@@ -1,0 +1,26 @@
+{
+  "schema": "titan-zero-settings-theme-certification/v1",
+  "packet_id": "TZ-SETTINGS-THEME-RESTORE-001",
+  "pass": 10,
+  "base_manager_merge": "18",
+  "base_sha256": "6b2da8a50224345be19f4293373333a0ea0f16339206a43ce020bba9629840d7",
+  "certified_contracts": {
+    "single_rich_settings_authority": "PASS",
+    "options_ui_to_monicaOptions": "PASS",
+    "thin_options_handoff_only": "PASS",
+    "theme_and_colours_inside_settings_only": "PASS",
+    "theme_modes_system_light_dark": "PASS",
+    "four_presets_and_four_colours": "PASS",
+    "reset_to_defaults_and_system": "PASS",
+    "canonical_theme_persistence": "PASS",
+    "legacy_theme_migration_cleanup": "PASS",
+    "cross_surface_theme_contract": "PASS",
+    "major_surface_matrix": "11/11",
+    "settings_search_and_categories": "PASS",
+    "light_dark_semantic_tokens": "PASS",
+    "donor_settings_title_absent": "PASS"
+  },
+  "rendered_unpacked_chrome": "BLOCKED_ENVIRONMENT",
+  "render_attempt": "Chromium headless timed out after 18 seconds; no screenshot produced.",
+  "release_gate_note": "Static/runtime certification is complete. Live interactive unpacked Chrome certification remains outstanding and must not be inferred."
+}

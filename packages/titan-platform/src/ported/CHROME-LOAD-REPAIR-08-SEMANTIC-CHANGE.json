@@ -1,0 +1,16 @@
+{
+  "schema": "titan-zero-repair-semantic-change/v1",
+  "repair": 8,
+  "changes": [
+    "Fresh launcher injection replaces stale Titan-owned launcher DOM instead of aborting.",
+    "Foreign host-page elements with the same id are preserved.",
+    "Extension reload/update triggers one session-gated lightweight launcher rehydration across eligible already-open tabs.",
+    "Ordinary MV3 service-worker restarts do not repeat launcher reinjection.",
+    "Heavy retained Monica/Retriever content runtimes are not bulk reinjected."
+  ],
+  "company_boundary_changed": false,
+  "authority_contract_changed": false,
+  "storage_schema_changed": false,
+  "permissions_changed": false,
+  "ui_replacement": false
+}

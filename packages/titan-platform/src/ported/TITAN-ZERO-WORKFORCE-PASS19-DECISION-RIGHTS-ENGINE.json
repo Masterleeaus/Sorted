@@ -1,0 +1,20 @@
+{
+  "schema": "titan.workforce.pass/v1",
+  "pass": 19,
+  "title": "Decision-Rights Engine",
+  "company_boundary": "company_id only",
+  "rights": [
+    "RECOMMEND",
+    "DECIDE",
+    "APPROVE",
+    "VETO",
+    "ESCALATE",
+    "OBSERVE"
+  ],
+  "execution_right_exists": false,
+  "decision_rights_are_not_execution_authority": true,
+  "authority_granted": false,
+  "execution_permitted": false,
+  "grants_authority": false,
+  "canonical_parent": "Titan-Zero-CANONICAL-MASTER-2026-09-05-v2.zip"
+}

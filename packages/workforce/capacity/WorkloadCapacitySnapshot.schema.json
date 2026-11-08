@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Titan Workforce Workload Capacity Snapshot",
+  "type": "object",
+  "required": [
+    "schema",
+    "company_id",
+    "worker_capacity",
+    "mission_demand",
+    "summary",
+    "grants_authority"
+  ],
+  "properties": {
+    "schema": {
+      "const": "titan.workforce.workload-capacity.v1"
+    },
+    "company_id": {
+      "type": "string",
+      "minLength": 2
+    },
+    "worker_capacity": {
+      "type": "array"
+    },
+    "mission_demand": {
+      "type": "array"
+    },
+    "capability_bottlenecks": {
+      "type": "array"
+    },
+    "recommendations": {
+      "type": "array"
+    },
+    "summary": {
+      "type": "object"
+    },
+    "automatic_reassignment": {
+      "const": false
+    },
+    "authority_granted": {
+      "const": false
+    },
+    "execution_permitted": {
+      "const": false
+    },
+    "grants_authority": {
+      "const": false
+    }
+  }
+}

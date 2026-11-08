@@ -1,0 +1,7 @@
+{
+  "schema": "titan-zero-retriever-finish-pass09-change-impact/v1",
+  "packet_id": "TZ-FINISH-RETRIEVER-NATIVE-001",
+  "pass": 9,
+  "impact": "Deletes only three Retriever-specific ported runtime files. Keeps shared background bootstrap and Monica/chat boundary. Rollback copies remain in migration provenance.",
+  "rollback": "Restore exact donor files from DELETE-MANIFEST rollback sources and re-run Pass8/Pass9 regression gates."
+}

@@ -1,0 +1,21 @@
+{
+  "schema": "titan.workforce.pass-manifest.v1",
+  "pass": 31,
+  "title": "Uninstall / Reversibility",
+  "company_boundary": "company_id",
+  "runtime_schema": "titan.workforce.uninstall-reversibility.v1",
+  "storage_collection": "uninstall_reversibility",
+  "registered_actions_only": true,
+  "protected_changes_require_command_bus": true,
+  "preserves_unrelated_company_data": true,
+  "preserves_evidence": true,
+  "preserves_audit_history": true,
+  "preserves_authority_history": true,
+  "automatic_uninstall": false,
+  "automatic_data_deletion": false,
+  "automatic_effect_replay": false,
+  "automatic_authority_change": false,
+  "authority_granted": false,
+  "execution_permitted": false,
+  "grants_authority": false
+}

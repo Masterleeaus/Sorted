@@ -1,0 +1,15 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema",
+  "$id":"titan.workforce.dispatch.golden-evaluation.v1",
+  "type":"object",
+  "required":["schema","company_id","status","checks","execution_permitted","grants_authority"],
+  "properties":{
+    "schema":{"const":"titan.workforce.dispatch.golden-evaluation.v1"},
+    "company_id":{"type":"string","minLength":1},
+    "status":{"enum":["PASS","REVIEW_REQUIRED","BLOCKED"]},
+    "checks":{"type":"array","items":{"type":"object","required":["name","status"],"properties":{"name":{"type":"string"},"status":{"enum":["PASS","REVIEW","BLOCKED"]}}}},
+    "execution_permitted":{"const":false},
+    "grants_authority":{"const":false}
+  },
+  "additionalProperties":true
+}

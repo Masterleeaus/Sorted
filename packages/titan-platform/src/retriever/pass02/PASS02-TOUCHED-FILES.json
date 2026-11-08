@@ -1,0 +1,16 @@
+{
+  "schema": "titan-zero-pass-touched-files/v1",
+  "pass": 2,
+  "files": [
+    "packages/titan-platform/src/retriever/contracts.ts",
+    "packages/titan-platform/src/retriever/executor.ts",
+    "packages/titan-platform/src/retriever/index.ts",
+    "packages/titan-platform/tests/retriever-native-pass02.test.mjs",
+    "packages/titan-platform/tsconfig.json",
+    "packages/titan-platform/src/retriever/pass02/PASS02-VERIFICATION.json",
+    "packages/titan-platform/src/retriever/pass02/PASS02-SEMANTIC-CHANGE.json",
+    "packages/titan-platform/src/retriever/pass02/PASS02-CHANGE-IMPACT.json",
+    "packages/titan-platform/src/retriever/pass02/PASS02-COLLISION-RECORD.json",
+    "packages/titan-platform/src/retriever/pass02/PASS02-HANDOFF.json"
+  ]
+}

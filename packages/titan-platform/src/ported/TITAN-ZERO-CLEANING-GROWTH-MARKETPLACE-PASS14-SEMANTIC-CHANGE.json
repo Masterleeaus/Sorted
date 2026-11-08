@@ -1,0 +1,19 @@
+{
+  "schema": "titan-zero-semantic-change/v1",
+  "pass": 14,
+  "feature": "cleaning_marketplace_action_queue",
+  "manager_forward_port_target": 30,
+  "company_boundary": "company_id",
+  "authority": {
+    "grants_authority": false,
+    "executes_underlying_action": false
+  },
+  "runtime_files": [
+    "cleaning-marketplace-action-queue.js",
+    "titan-modules/cleaning-marketplace-action-queue.json"
+  ],
+  "modified_surfaces": [
+    "modules.html",
+    "modules.css"
+  ]
+}

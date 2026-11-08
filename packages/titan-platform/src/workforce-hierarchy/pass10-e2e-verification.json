@@ -1,0 +1,9 @@
+{
+  "schema": "titan.workforce.hierarchy-pass-evidence.v1",
+  "packet_id": "TZ-WF-HIERARCHY-001",
+  "pass": 10,
+  "representative_flows": ["reception", "booking", "dispatch", "jobs", "invoicing"],
+  "verification_contract": "titan.workforce.hierarchy-e2e-verification.v1",
+  "invariants": ["company_id_only", "identity_not_authority", "least_authority_workers", "authority_ceiling_no_expansion", "protected_work_stops_at_authority_gate", "adjacent_tier_escalation", "restart_revalidation", "read_only_diagnostics", "business_ops_route_authoritative"],
+  "execution_permitted": false
+}

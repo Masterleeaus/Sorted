@@ -1,0 +1,20 @@
+{
+  "pass": 8,
+  "packet_id": "TZ-NEXT-011",
+  "title": "Offline/restart delivery hardening and duplicate notification storm prevention",
+  "parent_manager_merge": 28,
+  "parent_manager_sha256": "9000fdf1f46bdb1142f8b765ef842647ea7ff2a8dd8f271fbe18e252209bfd43",
+  "lane_parent": "Manager Merge28 + TZ-NEXT-011 Pass05 + Pass06 + Pass07 true deltas",
+  "changes": [
+    "Added persistent company-scoped delivery replay guard with deterministic channel/surface/lifecycle fingerprinting.",
+    "Added delivery leases to block concurrent duplicate dispatch storms.",
+    "Successful delivery suppresses restart replay only inside a bounded replay window.",
+    "Failed deliveries use bounded exponential backoff and capped attempts; exhaustion requires review.",
+    "Restart recovery exposes candidates but never automatically dispatches or replays effects.",
+    "Distinct lifecycle states, surfaces and channels retain separate delivery identities.",
+    "Wired guard into existing local storage bootstrap message API; no UI/startup shell or Workforce lifecycle authority changed."
+  ],
+  "company_boundary": "company_id only",
+  "identity_not_authority": true,
+  "automatic_effect_replay": false
+}

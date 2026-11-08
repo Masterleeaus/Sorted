@@ -1,0 +1,23 @@
+{
+  "schema": "titan-zero-onboarding-journey-contract/v1",
+  "journey_id": "owner-business-setup",
+  "company_boundary": "company_id",
+  "legacy_company_aliases_rejected": ["tenant_id", "tenant_company_id"],
+  "grants_authority": false,
+  "statuses": ["not_started", "in_progress", "completed"],
+  "steps": [
+    {"id":"business_identity","required":true,"owner":"existing_settings_and_business_authorities"},
+    {"id":"operations","required":true,"owner":"existing_settings_authorities"},
+    {"id":"cleaning_services","required":true,"owner":"existing_business_service_authorities"},
+    {"id":"workforce","required":true,"owner":"existing_workforce_authorities"},
+    {"id":"payments_communications","required":false,"owner":"existing_capability_and_settings_authorities"},
+    {"id":"import_data","required":false,"owner":"existing_business_storage_authorities"},
+    {"id":"readiness","required":true,"owner":"onboarding_projection_only"}
+  ],
+  "persistence": {
+    "key_prefix": "tz.onboarding.company",
+    "resumable": true,
+    "optimistic_revision": true,
+    "state_is_projection_not_execution_authority": true
+  }
+}

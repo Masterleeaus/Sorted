@@ -1,0 +1,20 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema",
+  "$id":"titan.workforce.supervision.v1",
+  "type":"object",
+  "required":["schema","company_id","supervisor_worker_id","scope","coordination_state","grants_authority"],
+  "properties":{
+    "schema":{"const":"titan.workforce.supervision.v1"},
+    "company_id":{"type":"string","minLength":2,"maxLength":128},
+    "supervisor_worker_id":{"type":"string","minLength":1},
+    "coordination_state":{"type":"string"},
+    "scope":{"type":"object"},
+    "escalations":{"type":"array"},
+    "handover_history":{"type":"array"},
+    "manager_identity_confers_authority":{"const":false},
+    "supervisor_identity_confers_authority":{"const":false},
+    "handover_transfers_authority":{"const":false},
+    "grants_authority":{"const":false}
+  },
+  "additionalProperties":true
+}

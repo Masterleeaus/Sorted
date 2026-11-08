@@ -1,0 +1,30 @@
+{
+  "template": {
+    "id": "incident-response",
+    "version": "1.0.0",
+    "name": "Incident Response",
+    "status": "ready",
+    "category": "assurance",
+    "entry_wizard": "incident_response_v1",
+    "capabilities": [
+      "crm.form.submit"
+    ],
+    "channels": [
+      "chat",
+      "mobile",
+      "tablet",
+      "voice"
+    ],
+    "governance": {
+      "authority": "human_approval_for_high_and_critical",
+      "offline": true
+    },
+    "metadata": {
+      "verticals": [
+        "field_services",
+        "home_services",
+        "cleaning"
+      ]
+    }
+  }
+}

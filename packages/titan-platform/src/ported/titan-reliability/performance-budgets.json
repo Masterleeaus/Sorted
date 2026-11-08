@@ -1,0 +1,94 @@
+{
+  "schema": "titan-zero-performance-budgets/v1",
+  "packet_id": "TZ-FINISH-005",
+  "pass": 1,
+  "baseline": {
+    "manager_artifact": "Titan-Zero-v0.19.1-Manager-Workforce-Pass17-Converged-CUMULATIVE.zip",
+    "manager_sha256": "4cd2c2bb6cf898383629fac25029f294aad4973534cef43eac897b6b9de4e089",
+    "inspection_artifact": "Titan-Zero-CANONICAL-MASTER-2026-09-05.zip"
+  },
+  "policy": {
+    "purpose": "Prevent silent growth of startup-critical extension surfaces before Pass 2 safe lazy-loading work.",
+    "measurement_kind": "static_payload_guardrail",
+    "live_timing_claimed": false,
+    "growth_headroom_percent": 12,
+    "notes": [
+      "Budgets are growth guards derived from the current Manager runtime baseline, not claims of browser wall-clock latency.",
+      "Pass 2 owns reducing oversized compatibility bundles without losing Monica/Retriever reachability.",
+      "Shared observability/background hotspots are measured here but not modified.",
+      "Pass 10 rebased the popup direct-script guardrail to canonical v9 measured bytes (18,232) after intentional theme/workspace expansion; total action payload ceiling remains 24,576 bytes.",
+      "Post-finish Round 4 rebased the service-worker static import closure file-count guardrail to canonical v12 measured count 66; byte ceiling remains unchanged and measured closure bytes remain below the existing cap.",
+      "Chrome Load Repair 03 restores Titan-owned toolbar/side-panel launch entrypoints; retained Monica-derived chat remains reachable inside the Titan shell."
+    ]
+  },
+  "surfaces": {
+    "startup": {
+      "entrypoint": "background-bootstrap.js",
+      "metric": "service_worker_static_import_closure_bytes",
+      "baseline_bytes": 14657622,
+      "max_bytes": 16456576,
+      "baseline_files": 66,
+      "max_files": 74
+    },
+    "service_worker": {
+      "entrypoint": "background-bootstrap.js",
+      "bootstrap_baseline_bytes": 3301,
+      "bootstrap_max_bytes": 8192,
+      "closure_baseline_bytes": 14657622,
+      "closure_max_bytes": 16456576,
+      "closure_baseline_files": 66,
+      "closure_max_files": 74
+    },
+    "side_panel": {
+      "entrypoint": "sidePanel.html",
+      "html_baseline_bytes": 14762,
+      "html_max_bytes": 32768,
+      "direct_script_baseline_count": 11,
+      "direct_script_max_count": 13,
+      "direct_script_baseline_bytes": 28813157,
+      "direct_script_max_bytes": 32270736
+    },
+    "popup": {
+      "entrypoint": "titan-popup.html",
+      "html_baseline_bytes": 1340,
+      "html_max_bytes": 32768,
+      "direct_script_baseline_count": 1,
+      "direct_script_max_count": 3,
+      "direct_script_baseline_bytes": 18232,
+      "direct_script_max_bytes": 9000000
+    },
+    "action": {
+      "manifest_action_popup": "titan-popup.html",
+      "initial_payload_max_bytes": 9100000,
+      "semantics": "manifest action popup HTML plus its direct scripts"
+    }
+  },
+  "known_oversized_dependencies_for_pass2": [
+    {
+      "file": "titan-zero-chat-content.compat.js",
+      "bytes": 28593109,
+      "surface": "side_panel",
+      "rule": "do_not_remove_or_lazy_load_without reachability verification"
+    },
+    {
+      "file": "titan-zero-chat-background.compat.js",
+      "bytes": 11561391,
+      "surface": "service_worker",
+      "rule": "do_not_remove_or_lazy_load_without Monica/Retriever background verification"
+    },
+    {
+      "file": "retriever-background.iife.js",
+      "bytes": 2731264,
+      "surface": "service_worker",
+      "rule": "preserve Retriever reachability while optimizing"
+    }
+  ],
+  "manager_merge20_adjustments": [
+    {
+      "field": "surfaces.side_panel.direct_script_max_count",
+      "from": 12,
+      "to": 13,
+      "reason": "All-pass convergence adds one intentional direct runtime bridge; byte budget remains unchanged and passes."
+    }
+  ]
+}

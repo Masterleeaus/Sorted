@@ -1,0 +1,32 @@
+{
+  "template": {
+    "id": "supplier-replenishment",
+    "version": "1.0.0",
+    "name": "Supplier Replenishment",
+    "status": "draft",
+    "category": "procurement",
+    "entry_wizard": "supplier_replenishment_v1",
+    "capabilities": [
+      "procurement.replenishment.request"
+    ],
+    "channels": [
+      "chat",
+      "mobile",
+      "tablet",
+      "desktop",
+      "voice"
+    ],
+    "governance": {
+      "authority": "requires_procurement_host_integration",
+      "offline": false
+    },
+    "metadata": {
+      "verticals": [
+        "ecommerce",
+        "retail",
+        "wholesale"
+      ],
+      "pack": "commerce_multi_vertical_2026_08"
+    }
+  }
+}

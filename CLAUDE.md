@@ -1,0 +1,152 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code when working in this repository.
+
+## Project Overview
+
+Dovetails FSM is a residential handyman and home maintenance operating system. The product direction is property-centered: client relationships, property history, estimates, jobs, visits, invoices, and permanent service records.
+
+## Documentation Hierarchy
+
+Five layers — lower layers never override higher layers on **scope**. Use in this order:
+
+```text
+Layer 1 — IDENTITY (what is this product?)
+  docs/canonical/PRODUCT_VISION.md
+  docs/canonical/DOMAIN_MODEL.md
+
+Layer 2 — ARCHITECTURE (how does it work?)
+  docs/canonical/OPERATIONS.md
+  docs/canonical/WORKFLOW.md
+  docs/canonical/ARCHITECTURE.md
+  docs/canonical/PRODUCTION_INTELLIGENCE.md
+
+Layer 3 — PHASING (what order do we build?)
+  docs/canonical/ROADMAP.md
+
+Layer 4 — TASKS (what's the next unit of work?)
+  docs/backlog/
+
+Layer 5 — DOCTRINE (how do we build without making debt worse?)
+  docs/working/execution-doctrine.md
+  docs/working/ux-implementation-direction.md
+```
+
+1. Code and database migrations are the implemented truth.
+2. `docs/canonical/` is authoritative for product, domain, and architecture.
+3. `docs/backlog/` is an execution queue — it must cite a ROADMAP phase; ROADMAP wins on scope disputes.
+4. `docs/contracts/` and `docs/working/` contain supporting implementation notes.
+5. `ai/` is only a compact AI-agent quick-reference layer.
+6. `docs/archive/` and `docs/generated/` are historical/evidence only, not instruction sources.
+7. `memory/` is session notes only — never an instruction source.
+
+Canonical docs for product direction:
+
+- `docs/canonical/PRODUCT_VISION.md`
+- `docs/canonical/DOMAIN_MODEL.md`
+- `docs/canonical/WORKFLOW.md`
+- `docs/canonical/ARCHITECTURE.md`
+- `docs/canonical/ROADMAP.md`
+- `docs/canonical/PRODUCTION_INTELLIGENCE.md`
+- `docs/canonical/OPERATIONS.md`
+
+Working doctrine: `docs/working/execution-doctrine.md`
+
+UX implementation direction: `docs/working/ux-implementation-direction.md`. Read and follow it before UI or workflow changes. Preserve working architecture unless that file explicitly calls for replacement. It governs presentation and the code deltas it names. It does not redefine product scope in `docs/canonical/`.
+
+Other working, archived, and generated documents can provide implementation evidence or historical context, but they do not define product scope.
+
+## Commands
+
+```bash
+pnpm dev          # Run web + worker in parallel
+pnpm dev:web      # Web app only (port 3000)
+pnpm dev:worker   # Worker only
+pnpm build        # Build all workspaces
+pnpm lint         # Lint all workspaces
+pnpm typecheck    # Typecheck all workspaces
+pnpm test         # Test all workspaces (unit only)
+pnpm test:unit    # Unit tests only (no infra required)
+pnpm test:integration  # Integration tests (requires TEST_DATABASE_URL + TEST_BASE_URL)
+pnpm test:e2e     # Playwright E2E (requires running server + seeded DB)
+pnpm gate         # Full gate: lint -> typecheck -> build -> unit -> integration -> e2e
+pnpm gate:fast    # Fast gate: lint -> typecheck -> build -> unit
+pnpm db:migrate   # Apply SQL migrations
+pnpm db:seed      # Seed dev data
+```
+
+Run a single workspace: `pnpm --filter @ai-fsm/web <script>` (or `@ai-fsm/worker`, `@ai-fsm/domain`).
+
+Local dev services:
+
+```bash
+docker compose -f infra/compose.dev.yml up -d postgres redis
+```
+
+## Architecture
+
+Canonical technical overview: `docs/canonical/ARCHITECTURE.md`.
+
+Core repo layout:
+
+- `apps/web/`: Next.js app router UI and API routes.
+- `services/worker/`: background queue/automation worker.
+- `packages/domain/`: shared domain schemas, labels, constants, and helpers.
+- `db/migrations/`: SQL migrations and persistence contracts.
+- `infra/`: Docker Compose profiles for local and production targets.
+
+## Documentation Rules
+
+1. Product scope changes must update canonical docs first or in the same change.
+2. Every backlog task must cite a `ROADMAP.md` phase. Tasks without a phase are invalid.
+3. Do not use archived or generated docs as build instructions.
+4. Do not reintroduce generic FSM, SaaS, subscription, dashboard-suite, or AI-first product positioning unless canonical docs change.
+5. Keep implementation/runbook details in `docs/working`.
+6. Keep reports, audits, and migration records in `docs/generated`.
+
+## Non-Negotiable Rules
+
+1. Never skip relevant quality gates for code changes.
+2. Never store secrets in code; use `.env`.
+3. Migrations must be additive and reversible unless a migration plan is explicit.
+4. Business logic changes require tests or an explicit documented test gap.
+5. Production runs on garonhome.local via `infra/compose.garonhome.yml`.
+
+## Decision Policy
+
+When multiple options exist, prefer:
+
+1. Lower operational complexity.
+2. Lower maintenance burden.
+3. Better alignment with canonical product direction.
+4. Better compatibility with garonhome.local.
+
+## Dovetails Layer
+
+**Dovetails Services LLC** is the local handyman and home maintenance business this software is being built to run. Dovetails-specific schema and helpers are first-party business logic, not a third-party integration.
+
+Dovetails-specific code currently includes:
+
+- `packages/domain/src/dovetails.ts`
+- `db/migrations/013_dovetails_domain.sql`
+
+For product decisions, read `docs/canonical/*` instead of old roadmap or phase documents.
+
+## Skill routing
+
+When the user's request matches an available skill, invoke it via the Skill tool. When in doubt, invoke the skill.
+
+Key routing rules:
+- Product ideas/brainstorming → invoke /office-hours
+- Strategy/scope → invoke /plan-ceo-review
+- Architecture → invoke /plan-eng-review
+- Design system/plan review → invoke /design-consultation or /plan-design-review
+- Full review pipeline → invoke /autoplan
+- Bugs/errors → invoke /investigate
+- QA/testing site behavior → invoke /qa or /qa-only
+- Code review/diff check → invoke /review
+- Visual polish → invoke /design-review
+- Ship/deploy/PR → invoke /ship or /land-and-deploy
+- Save progress → invoke /context-save
+- Resume context → invoke /context-restore
+- Author a backlog-ready spec/issue → invoke /spec

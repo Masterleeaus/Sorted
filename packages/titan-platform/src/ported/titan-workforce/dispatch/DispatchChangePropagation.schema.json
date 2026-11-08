@@ -1,0 +1,73 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "titan.workforce.dispatch.change-propagation.v1",
+  "type": "object",
+  "required": [
+    "schema",
+    "company_id",
+    "work_item_id",
+    "change_id",
+    "change_kind",
+    "worker_projection",
+    "customer_projection",
+    "projection_only",
+    "automatic_send",
+    "execution_permitted",
+    "identity_confers_authority",
+    "grants_authority"
+  ],
+  "properties": {
+    "schema": {
+      "const": "titan.workforce.dispatch.change-propagation.v1"
+    },
+    "company_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "work_item_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "change_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "change_kind": {
+      "enum": [
+        "ASSIGNMENT_CHANGED",
+        "SCHEDULE_CHANGED",
+        "STATUS_CHANGED",
+        "LOCATION_CHANGED",
+        "CANCELLATION",
+        "OTHER"
+      ]
+    },
+    "worker_projection": {
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "customer_projection": {
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "projection_only": {
+      "const": true
+    },
+    "automatic_send": {
+      "const": false
+    },
+    "execution_permitted": {
+      "const": false
+    },
+    "identity_confers_authority": {
+      "const": false
+    },
+    "grants_authority": {
+      "const": false
+    }
+  }
+}

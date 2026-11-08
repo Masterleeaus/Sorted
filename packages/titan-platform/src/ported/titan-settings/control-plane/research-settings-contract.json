@@ -1,0 +1,31 @@
+{
+  "schema": "titan.settings.research-settings-contract.v1",
+  "setting_key": "researchSettings",
+  "scope": "company",
+  "owner": "research_runtime",
+  "composes_existing_device_settings": [
+    "webSearchEnabled",
+    "cloudScrapeEnabled",
+    "enrichEnabled"
+  ],
+  "resource_kind": "RESEARCH_REQUESTS",
+  "hard_rules": [
+    "company_id is the sole company boundary",
+    "device preferences may contract but never exceed company policy",
+    "runtime availability remains authoritative",
+    "tool permission remains authoritative",
+    "cost and entitlement gates remain authoritative",
+    "Settings does not store provider or connector credentials",
+    "Settings does not execute research tools",
+    "Settings does not grant execution authority",
+    "no research-depth enum is invented when the runtime publishes none"
+  ],
+  "defaults": {
+    "web_search_allowed": true,
+    "cloud_scrape_allowed": false,
+    "enrichment_allowed": false,
+    "require_confirmation_for_paid_research": true,
+    "prefer_local_or_cached_sources": true,
+    "require_citations_when_available": true
+  }
+}

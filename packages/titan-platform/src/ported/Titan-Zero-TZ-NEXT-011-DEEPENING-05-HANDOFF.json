@@ -1,0 +1,11 @@
+{
+  "base": "Titan-Zero-TZ-NEXT-011-DEEPENING-04-CUMULATIVE.zip",
+  "deepening": "DEEPENING-05",
+  "formal_passes_1_10_immutable": true,
+  "manager_observed": "Merge 36",
+  "packet_id": "TZ-NEXT-011",
+  "schema": "titan-zero-handoff/v1",
+  "status": "VERIFIED",
+  "summary": "Delivery retry budget now resets after a successful delivery ages beyond the replay window, preventing prior successful epochs from exhausting later legitimate deliveries.",
+  "tests": "50/50 PASS"
+}

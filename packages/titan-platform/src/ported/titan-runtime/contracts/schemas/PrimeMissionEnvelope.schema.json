@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "titan://contracts/PrimeMissionEnvelope/v1",
+  "title": "PrimeMissionEnvelope",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "mission_id",
+    "company_id",
+    "objective",
+    "state",
+    "created_at",
+    "authority_neutral",
+    "execution_authority",
+    "mission_is_authority",
+    "authority_conferred_by_activation",
+    "command_bus_required",
+    "governance_required",
+    "authority_check_required"
+  ],
+  "properties": {
+    "schema_version": { "const": "1.0" },
+    "mission_id": { "type": "string", "minLength": 1 },
+    "company_id": { "type": "string", "minLength": 1 },
+    "operation_id": { "type": "string" },
+    "objective": { "type": "object" },
+    "state": {
+      "enum": ["proposed", "active", "waiting", "blocked", "completed", "failed", "cancelled", "superseded"]
+    },
+    "checkpoint_id": { "type": ["string", "null"] },
+    "created_at": { "type": "string", "format": "date-time" },
+    "updated_at": { "type": "string", "format": "date-time" },
+    "evidence_refs": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "uniqueItems": true
+    },
+    "authority_neutral": { "const": true },
+    "execution_authority": { "const": false },
+    "mission_is_authority": { "const": false },
+    "authority_conferred_by_activation": { "const": false },
+    "command_bus_required": { "const": true },
+    "governance_required": { "const": true },
+    "authority_check_required": { "const": true },
+    "metadata": { "type": "object" }
+  }
+}

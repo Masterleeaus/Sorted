@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "titan.workforce.uninstall-reversibility.v1",
+  "title": "Titan Workforce Uninstall / Reversibility",
+  "type": "object",
+  "required": ["schema", "company_id", "uninstall_id", "actions", "preservation", "phase", "readiness", "automatic_uninstall", "automatic_data_deletion", "authority_granted", "execution_permitted", "grants_authority"],
+  "properties": {
+    "schema": {"const": "titan.workforce.uninstall-reversibility.v1"},
+    "company_id": {"type": "string", "minLength": 1, "maxLength": 128},
+    "uninstall_id": {"type": "string", "minLength": 1},
+    "phase": {"enum": ["BLOCKED", "PREPARED", "DISABLING", "VERIFYING", "RECOVERY_REQUIRED", "ROLLBACK_REQUIRED", "ROLLED_BACK", "COMPLETED", "CANCELLED"]},
+    "actions": {"type": "array"},
+    "preservation": {"type": "object"},
+    "readiness": {"type": "object"},
+    "automatic_uninstall": {"const": false},
+    "automatic_data_deletion": {"const": false},
+    "automatic_effect_replay": {"const": false},
+    "automatic_authority_change": {"const": false},
+    "authority_granted": {"const": false},
+    "execution_permitted": {"const": false},
+    "grants_authority": {"const": false}
+  },
+  "additionalProperties": true
+}

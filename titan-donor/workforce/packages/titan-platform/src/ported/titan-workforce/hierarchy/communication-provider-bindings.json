@@ -1,0 +1,255 @@
+{
+  "schema": "titan.workforce.communication-provider-bindings.v2",
+  "company_boundary": "company_id",
+  "source_capabilities": "titan-capabilities/native-contributions.json",
+  "rules": {
+    "reuse_existing_channel_capabilities": true,
+    "provider_binding_grants_authority": false,
+    "identity_grants_authority": false,
+    "protected_send_requires_approval": true,
+    "protected_send_requires_idempotency": true,
+    "protected_send_requires_execution_receipt": true,
+    "missing_channel_fails_closed": true,
+    "sms_is_not_synthesized_without_provider": true,
+    "host_advertised_provider_must_be_verified": true,
+    "fallback_must_be_explicit": true,
+    "channel_consent_must_be_honoured": true
+  },
+  "providers": [
+    {
+      "provider_id": "titan.connect.gmail",
+      "channel": "email",
+      "capability_id": "channel.gmail",
+      "provider_family": "titan-connect",
+      "risk_class": "MEDIUM",
+      "company_boundary": "company_id",
+      "requires_approval": true,
+      "requires_idempotency_key": true,
+      "requires_execution_receipt": true,
+      "binding_grants_authority": false
+    },
+    {
+      "provider_id": "titan.connect.whatsapp",
+      "channel": "whatsapp",
+      "capability_id": "channel.whatsapp",
+      "provider_family": "titan-connect",
+      "risk_class": "MEDIUM",
+      "company_boundary": "company_id",
+      "requires_approval": true,
+      "requires_idempotency_key": true,
+      "requires_execution_receipt": true,
+      "binding_grants_authority": false
+    },
+    {
+      "provider_id": "titan.connect.phone",
+      "channel": "phone",
+      "capability_id": "voice.phone_agent",
+      "provider_family": "titan-connect",
+      "risk_class": "HIGH",
+      "company_boundary": "company_id",
+      "requires_approval": true,
+      "requires_idempotency_key": true,
+      "requires_execution_receipt": true,
+      "binding_grants_authority": false,
+      "provider_engines": [
+        "twilio",
+        "elevenlabs",
+        "openai_realtime"
+      ],
+      "operations": [
+        "voice.call.prepare",
+        "voice.call.place",
+        "voice.call.answer",
+        "voice.call.transfer",
+        "voice.call.record.start",
+        "voice.voicemail.capture",
+        "voice.call.end",
+        "voice.call.status"
+      ]
+    },
+    {
+      "provider_id": "titan.connect.sms",
+      "channel": "sms",
+      "capability_id": "channel.sms",
+      "provider_family": "titan-connect",
+      "provider_engines": [
+        "twilio"
+      ],
+      "risk_class": "MEDIUM",
+      "company_boundary": "company_id",
+      "requires_approval": true,
+      "requires_idempotency_key": true,
+      "requires_execution_receipt": true,
+      "binding_grants_authority": false,
+      "host_binding_required": true,
+      "binding_verified_required": true,
+      "contract_status": "RECOVERED_HOST_BINDING_REQUIRED"
+    },
+    {
+      "provider_id": "titan.connect.push",
+      "channel": "push_notification",
+      "capability_id": "notification.push",
+      "provider_family": "titan-connect",
+      "provider_engines": [
+        "native_push",
+        "browser_notifications"
+      ],
+      "risk_class": "MEDIUM",
+      "company_boundary": "company_id",
+      "requires_approval": true,
+      "requires_idempotency_key": true,
+      "requires_execution_receipt": true,
+      "binding_grants_authority": false,
+      "host_binding_required": true,
+      "binding_verified_required": true,
+      "contract_status": "RECOVERED_HOST_BINDING_REQUIRED"
+    }
+  ],
+  "worker_bindings": [
+    {
+      "worker_id": "titan.worker.answer_call_agent",
+      "allowed_channels": [
+        "phone"
+      ],
+      "default_channel": "phone",
+      "provider_operation": "voice.call.answer"
+    },
+    {
+      "worker_id": "titan.worker.capture_voicemail_agent",
+      "allowed_channels": [
+        "phone"
+      ],
+      "default_channel": "phone",
+      "provider_operation": "voice.voicemail.capture"
+    },
+    {
+      "worker_id": "titan.worker.customer_notification_agent",
+      "allowed_channels": [
+        "email",
+        "whatsapp",
+        "sms",
+        "push_notification"
+      ],
+      "default_channel": "email"
+    },
+    {
+      "worker_id": "titan.worker.end_call_agent",
+      "allowed_channels": [
+        "phone"
+      ],
+      "default_channel": "phone",
+      "provider_operation": "voice.call.end"
+    },
+    {
+      "worker_id": "titan.worker.get_call_status_agent",
+      "allowed_channels": [
+        "phone"
+      ],
+      "default_channel": "phone",
+      "provider_operation": "voice.call.status"
+    },
+    {
+      "worker_id": "titan.worker.place_call_agent",
+      "allowed_channels": [
+        "phone"
+      ],
+      "default_channel": "phone",
+      "provider_operation": "voice.call.place"
+    },
+    {
+      "worker_id": "titan.worker.prepare_call_agent",
+      "allowed_channels": [
+        "phone"
+      ],
+      "default_channel": "phone",
+      "provider_operation": "voice.call.prepare"
+    },
+    {
+      "worker_id": "titan.worker.send_customer_message_agent",
+      "allowed_channels": [
+        "email",
+        "whatsapp",
+        "sms"
+      ],
+      "default_channel": "email"
+    },
+    {
+      "worker_id": "titan.worker.send_invoice_agent",
+      "allowed_channels": [
+        "email",
+        "whatsapp",
+        "sms"
+      ],
+      "default_channel": "email"
+    },
+    {
+      "worker_id": "titan.worker.send_payment_reminder_agent",
+      "allowed_channels": [
+        "email",
+        "whatsapp",
+        "sms"
+      ],
+      "default_channel": "email"
+    },
+    {
+      "worker_id": "titan.worker.send_quote_agent",
+      "allowed_channels": [
+        "email",
+        "whatsapp",
+        "sms"
+      ],
+      "default_channel": "email"
+    },
+    {
+      "worker_id": "titan.worker.start_call_recording_agent",
+      "allowed_channels": [
+        "phone"
+      ],
+      "default_channel": "phone",
+      "provider_operation": "voice.call.record.start"
+    },
+    {
+      "worker_id": "titan.worker.transfer_call_agent",
+      "allowed_channels": [
+        "phone"
+      ],
+      "default_channel": "phone",
+      "provider_operation": "voice.call.transfer"
+    }
+  ],
+  "unavailable_channels": [],
+  "conditional_channels": [
+    {
+      "channel": "sms",
+      "capability_id": "channel.sms",
+      "provider_id": "titan.connect.sms",
+      "condition": "verified host execution binding required",
+      "default_available": false
+    },
+    {
+      "channel": "push_notification",
+      "capability_id": "notification.push",
+      "provider_id": "titan.connect.push",
+      "condition": "verified host execution binding required",
+      "default_available": false
+    }
+  ],
+  "voice_worker_contract": {
+    "worker_count": 8,
+    "atomic": true,
+    "can_delegate": false,
+    "provider_id": "titan.connect.phone",
+    "capability_id": "voice.phone_agent",
+    "operations": [
+      "voice.call.prepare",
+      "voice.call.place",
+      "voice.call.answer",
+      "voice.call.transfer",
+      "voice.call.record.start",
+      "voice.voicemail.capture",
+      "voice.call.end",
+      "voice.call.status"
+    ],
+    "source": "Titan Phone v1.7.0 / Titan Connect communications execution contract"
+  }
+}

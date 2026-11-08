@@ -1,0 +1,15 @@
+{
+  "schema": "titan-zero-pass-touched-files/v1",
+  "pass": 5,
+  "files": [
+    "packages/titan-platform/src/retriever/donor-policy.ts",
+    "packages/titan-platform/src/retriever/index.ts",
+    "packages/titan-platform/tests/retriever-native-pass05-donor-reachability.test.mjs",
+    "packages/titan-platform/src/retriever/pass05/DONOR-REACHABILITY-LEDGER.json",
+    "packages/titan-platform/src/retriever/pass05/PASS05-VERIFICATION.json",
+    "packages/titan-platform/src/retriever/pass05/PASS05-SEMANTIC-CHANGE.json",
+    "packages/titan-platform/src/retriever/pass05/PASS05-CHANGE-IMPACT.json",
+    "packages/titan-platform/src/retriever/pass05/PASS05-COLLISION-RECORD.json",
+    "packages/titan-platform/src/retriever/pass05/PASS05-HANDOFF.json"
+  ]
+}

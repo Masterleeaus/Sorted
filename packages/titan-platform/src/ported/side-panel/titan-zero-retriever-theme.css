@@ -1,0 +1,23 @@
+
+/* Titan Zero Retriever Runtime Theme — charcoal / blue / slate / pink */
+:root{
+  --titan-charcoal:var(--t0-bg,#05070b);--titan-charcoal-2:var(--t0-panel,#0d1119);--titan-panel:var(--t0-panel-2,#111827);
+  --titan-blue:var(--t0-accent,#2563eb);--titan-blue-bright:var(--t0-info,#3b82f6);--titan-slate:var(--t0-muted,#64748b);
+  --titan-pink:var(--t0-pink,#ec4899);--titan-text:var(--t0-text,#f8fafc);--titan-muted:var(--t0-muted,#94a3b8);--titan-line:var(--t0-line,#253044);
+}
+html,body,#app-container{background:var(--titan-charcoal)!important;color:var(--titan-text)!important}
+body{background-image:radial-gradient(circle at 80% -10%,rgba(37,99,235,.18),transparent 34%),radial-gradient(circle at 8% 105%,rgba(236,72,153,.10),transparent 28%)!important}
+/* Broad donor-surface normalization. Specific semantic status colors remain intact. */
+.app-container,.side-panel,.main-container,.chat-container,.content-area,.workspace,.panel,.card,.modal-content,.dropdown-menu,.settings-panel,.task-panel,.history-panel,.tools-panel,.agent-panel,[class*="surface"],[class*="pane"]{background-color:var(--titan-charcoal)!important;color:var(--titan-text)!important}
+input,textarea,select,[contenteditable="true"]{background:var(--titan-charcoal-2)!important;color:var(--titan-text)!important;border-color:var(--titan-line)!important}
+input::placeholder,textarea::placeholder{color:var(--titan-slate)!important}
+button{border-color:var(--titan-line)!important}
+a{color:var(--titan-blue-bright)!important}
+[class*="sidebar"],[class*="header"],[class*="toolbar"],[class*="nav"]{background-color:var(--titan-charcoal-2)!important;border-color:var(--titan-line)!important}
+[class*="primary"],button[type="submit"],.send-button{background-color:var(--titan-blue)!important;color:white!important}
+[class*="secondary"]{border-color:var(--titan-slate)!important}
+[class*="badge"],[class*="chip"]{background-color:#172033!important;color:var(--titan-muted)!important;border-color:var(--titan-line)!important}
+/* Tertiary accent is pink, used sparingly for active/highlight affordances. */
+[aria-selected="true"],[aria-pressed="true"],.active-tab,.selected-tab{box-shadow:inset 0 -2px 0 var(--titan-pink)!important}
+.login-overlay{display:none!important}
+.signed-out-preview{filter:none!important;opacity:1!important;pointer-events:auto!important;user-select:auto!important}

@@ -1,0 +1,27 @@
+{
+  "id": "titan-field-classic",
+  "theme": {
+    "name": "Titan Field Classic",
+    "extends": "default",
+    "asset-path": "themes/titan-field-classic",
+    "wideLayoutPaddingX": "px-3 sm:px-4 lg:px-5 xl:px-5 2xl:px-7",
+    "defaultVariations": {
+      "card": {
+        "variant": "outline-shadow",
+        "size": "md"
+      }
+    },
+    "dashboard": {
+      "googleFonts": {
+        "Poppins": [
+          "400",
+          "500",
+          "600",
+          "700"
+        ]
+      }
+    },
+    "description": "Titan Field Classic \u2014 completed desktop field-service operations theme with Operations dashboard, Jobs, Dispatch & Scheduling, Finance & Billing, Assets & Inventory, inspector, command palette and Classic-native interaction mechanics",
+    "support_telegram": "heew_support"
+  }
+}

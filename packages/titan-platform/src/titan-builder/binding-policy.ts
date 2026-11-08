@@ -1,0 +1,13 @@
+import catalogJson from "./catalog.json" with { type: "json" };
+type BuilderSurface="zero"|"go"|"hub";
+
+type Item={collection:string;id:string;data:any};
+const items=(catalogJson as any).items as Item[];
+const surfaceNames:Record<BuilderSurface,readonly string[]>={zero:["zero","owner","business","manager","command","onboarding"],go:["go","field","worker"],hub:["hub","customer"]};
+const arr=(v:unknown)=>Array.isArray(v)?v.map(String):[];
+const compatible=(compat:unknown,surface:BuilderSurface)=>{const values=arr(compat);return values.length===0||values.some(v=>surfaceNames[surface].includes(v.toLowerCase()));};
+export type BuilderDataSourceOption=Readonly<{id:string;name:string;provider:string;contract:string;authority:string;read_only:boolean;required_capability?:string;fields:readonly string[]}>;
+export type BuilderActionOption=Readonly<{id:string;name:string;authority:string;required_capability?:string;confirmation?:string}>;
+export function builderDataSourceOptions(surface:BuilderSurface):BuilderDataSourceOption[]{return items.filter(x=>x.collection==="data-sources"&&compatible(x.data?.surface_compatibility,surface)).map(x=>({id:x.id,name:String(x.data?.name??x.id),provider:String(x.data?.provider??"unknown"),contract:String(x.data?.contract??""),authority:String(x.data?.authority??"read-only-dto"),read_only:x.data?.read_only!==false,required_capability:x.data?.required_capability?String(x.data.required_capability):undefined,fields:arr(x.data?.fields)}));}
+export function builderActionOptions(surface:BuilderSurface,allowed?:readonly string[]):BuilderActionOption[]{const allow=allowed?.length?new Set(allowed):null;return items.filter(x=>x.collection==="actions"&&(!allow||allow.has(x.id))&&compatible(x.data?.surface_compatibility,surface)).map(x=>({id:x.id,name:String(x.data?.name??x.id),authority:String(x.data?.authority??"declarative-intent"),required_capability:x.data?.required_capability?String(x.data.required_capability):undefined,confirmation:x.data?.confirmation?String(x.data.confirmation):undefined}));}
+export function validateBuilderBinding(surface:BuilderSurface,action:string,dataSource?:string){const a=builderActionOptions(surface).find(x=>x.id===action);if(!a)throw new Error(`Builder action is not compatible with ${surface}: ${action}`);if(dataSource&&!builderDataSourceOptions(surface).some(x=>x.id===dataSource))throw new Error(`Builder data source is not compatible with ${surface}: ${dataSource}`);return {action:a,data_source:dataSource?builderDataSourceOptions(surface).find(x=>x.id===dataSource):undefined,authority_granted:false as const,requires_downstream_authorization:true as const};}

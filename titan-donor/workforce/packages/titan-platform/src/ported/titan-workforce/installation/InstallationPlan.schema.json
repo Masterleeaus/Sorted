@@ -1,0 +1,20 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema",
+  "$id":"titan.workforce.installation-plan.v1",
+  "title":"Titan Workforce Installation Plan",
+  "type":"object",
+  "required":["schema","company_id","installation_plan_id","source_installation_spec_id","state","steps","readiness","automatic_installation","authority_granted","execution_permitted","grants_authority"],
+  "properties":{
+    "schema":{"const":"titan.workforce.installation-plan.v1"},
+    "company_id":{"type":"string","minLength":2,"maxLength":128},
+    "installation_plan_id":{"type":"string","minLength":1},
+    "source_installation_spec_id":{"type":"string","minLength":1},
+    "state":{"enum":["BLOCKED","READY_FOR_GOVERNED_EXECUTION"]},
+    "steps":{"type":"array","items":{"type":"object","required":["step_id","kind","title","depends_on","execution_class","requires_governed_execution","rollback_required","verification_required"],"properties":{"step_id":{"type":"string"},"kind":{"type":"string"},"title":{"type":"string"},"depends_on":{"type":"array","items":{"type":"string"}},"execution_class":{"enum":["REVIEW_ONLY","GOVERNED_CHANGE","VERIFICATION"]},"requires_governed_execution":{"type":"boolean"},"rollback_required":{"type":"boolean"},"verification_required":{"type":"boolean"}}}},
+    "readiness":{"type":"object"},
+    "automatic_installation":{"const":false},
+    "authority_granted":{"const":false},
+    "execution_permitted":{"const":false},
+    "grants_authority":{"const":false}
+  }
+}

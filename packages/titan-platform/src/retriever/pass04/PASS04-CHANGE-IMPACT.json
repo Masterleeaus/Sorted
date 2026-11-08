@@ -1,0 +1,7 @@
+{
+  "schema": "titan-zero-retriever-finish-pass04-change-impact/v1",
+  "packet_id": "TZ-FINISH-RETRIEVER-NATIVE-001",
+  "pass": 4,
+  "impact": "Additive surface adapter inside Builder3 exclusive Retriever namespace. Existing UI components, API routes, package exports and browser donor assets remain unchanged.",
+  "rollback": "Remove surface-bridge.ts, Pass4 test/evidence, and surface bridge export from src/retriever/index.ts."
+}

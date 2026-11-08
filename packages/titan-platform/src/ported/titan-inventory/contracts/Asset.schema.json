@@ -1,0 +1,197 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "titan.inventory.asset.v1",
+  "title": "Titan Inventory Asset",
+  "type": "object",
+  "additionalProperties": true,
+  "required": [
+    "asset_id",
+    "company_id",
+    "asset_type",
+    "name",
+    "lifecycle_state",
+    "condition_state",
+    "provenance"
+  ],
+  "properties": {
+    "asset_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "company_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "asset_type": {
+      "enum": [
+        "equipment",
+        "vehicle",
+        "tool",
+        "ppe_reusable",
+        "container",
+        "other"
+      ]
+    },
+    "catalog_product_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "serial_number": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "lifecycle_state": {
+      "enum": [
+        "registered",
+        "available",
+        "assigned",
+        "in_service",
+        "maintenance_due",
+        "under_maintenance",
+        "damaged",
+        "lost",
+        "retired"
+      ]
+    },
+    "condition_state": {
+      "enum": [
+        "unknown",
+        "new",
+        "good",
+        "fair",
+        "poor",
+        "damaged",
+        "unserviceable"
+      ]
+    },
+    "stock_location_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "assigned_worker_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "assigned_vehicle_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "assigned_site_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "authority": {
+      "type": "object",
+      "properties": {
+        "execution_granted": {
+          "const": false
+        },
+        "business_authority_granted": {
+          "const": false
+        }
+      },
+      "required": [
+        "execution_granted",
+        "business_authority_granted"
+      ]
+    },
+    "provenance": {
+      "$ref": "#/$defs/provenance"
+    }
+  },
+  "$defs": {
+    "provenance": {
+      "type": "object",
+      "required": [
+        "source",
+        "recorded_at",
+        "idempotency_key"
+      ],
+      "properties": {
+        "source": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_ref": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "recorded_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "idempotency_key": {
+          "type": "string",
+          "minLength": 1
+        },
+        "trace_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "correlation_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "not": {
+        "required": [
+          "tenant_id"
+        ]
+      }
+    },
+    {
+      "not": {
+        "required": [
+          "tenant_company_id"
+        ]
+      }
+    },
+    {
+      "not": {
+        "required": [
+          "business_id"
+        ]
+      }
+    },
+    {
+      "not": {
+        "required": [
+          "account_id"
+        ]
+      }
+    },
+    {
+      "not": {
+        "required": [
+          "workspace_id"
+        ]
+      }
+    }
+  ]
+}

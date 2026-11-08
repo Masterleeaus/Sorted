@@ -1,0 +1,390 @@
+import { query, queryOne } from "@/lib/db";
+import {
+  detectGaps,
+  preSelectCandidates,
+  isPrivateLocation,
+  type MilesSource,
+} from "@ai-fsm/domain";
+import { loadHybridMileageForDay } from "@/lib/mileage/hybrid-day";
+
+export type DayReviewPayload = {
+  businessDayId: string;
+  date: string;
+  status: string;
+  reviewPromptedAt: string | null;
+  closedAt: string | null;
+  visits: {
+    id: string;
+    propertyId: string | null;
+    propertyName: string;
+    clientName: string;
+    arrivalTime: string;
+    departureTime: string | null;
+    durationMinutes: number;
+    confidenceScore: number;
+    preSelected: boolean;
+    linkedJobId: string | null;
+    workOrderId: string | null;
+    workOrderTitle: string | null;
+    woResolution: string;
+    classification: string | null;
+    status: string;
+  }[];
+  /** Open WOs per property id for Day Review picker. */
+  openWorkOrdersByProperty: Record<
+    string,
+    { id: string; title: string; scheduledToday: boolean }[]
+  >;
+  segments: {
+    id: string;
+    kind: "stop" | "drive";
+    startedAt: string;
+    endedAt: string;
+    placeLabel: string | null;
+    zone: string | null;
+    status: string;
+    isLikelyNoise: boolean;
+  }[];
+  timeEntries: {
+    id: string;
+    activityType: string;
+    entityLabel: string | null;
+    /** Task label when activity_entries.task_id is set. */
+    taskLabel: string | null;
+    note: string | null;
+    startedAt: string;
+    endedAt: string;
+    durationMinutes: number;
+  }[];
+  gaps: { startsAt: string; endsAt: string; durationMinutes: number }[];
+  mileage: {
+    vehicleSessionId: string | null;
+    vehicleName: string | null;
+    startOdometer: number | null;
+    endOdometer: number | null;
+    odometerMiles: number | null;
+    primarySource: MilesSource | null;
+    gpsMiles: number;
+    deltaPercent: number | null;
+    flagged: boolean;
+    reason: "diverged" | "no_gps_coverage" | "ok" | null;
+  };
+};
+
+export async function getDayReview(
+  accountId: string,
+  date: string,
+): Promise<DayReviewPayload | null> {
+  const day = await queryOne<{
+    id: string;
+    status: string;
+    review_prompted_at: string | null;
+    closed_at: string | null;
+    confidence_threshold: number;
+    min_dwell: number;
+  }>(
+    `SELECT bd.id, bd.status,
+            bd.review_prompted_at::text, bd.closed_at::text,
+            a.visit_confidence_threshold AS confidence_threshold,
+            a.min_stop_dwell_minutes AS min_dwell
+     FROM business_days bd
+     JOIN accounts a ON a.id = bd.account_id
+     WHERE bd.account_id = $1 AND bd.business_date = $2::date`,
+    [accountId, date],
+  );
+  if (!day) return null;
+
+  const candidateRows = await query<{
+    id: string;
+    property_name: string;
+    client_name: string;
+    arrival_time: string;
+    departure_time: string | null;
+    duration_minutes: number | null;
+    confidence_score: number;
+    property_id: string | null;
+    job_id: string | null;
+    work_order_id: string | null;
+    work_order_title: string | null;
+    wo_resolution: string;
+    classification: string | null;
+    status: string;
+  }>(
+    `SELECT vc.id, vc.property_id, p.address AS property_name, c.name AS client_name,
+            vc.arrival_time::text, vc.departure_time::text,
+            vc.duration_minutes, vc.confidence_score,
+            vc.job_id, vc.work_order_id, w.title AS work_order_title,
+            vc.wo_resolution, vc.classification, vc.status
+     FROM visit_candidates vc
+     JOIN properties p ON p.id = vc.property_id
+     JOIN clients c ON c.id = vc.matched_client_id
+     LEFT JOIN work_orders w ON w.id = vc.work_order_id
+     WHERE vc.account_id = $1
+       AND (vc.arrival_time AT TIME ZONE 'America/New_York')::date = $2::date
+       AND vc.status = 'pending'
+     ORDER BY vc.arrival_time ASC`,
+    [accountId, date],
+  );
+
+  const scored = candidateRows.map((r) => ({
+    id: r.id,
+    confidenceScore: r.confidence_score,
+    propertyId: r.property_id,
+    propertyName: r.property_name,
+    clientName: r.client_name,
+    arrivalTime: r.arrival_time,
+    departureTime: r.departure_time,
+    durationMinutes: r.duration_minutes ?? 0,
+    linkedJobId: r.job_id,
+    workOrderId: r.work_order_id,
+    workOrderTitle: r.work_order_title,
+    woResolution: r.wo_resolution ?? "unknown",
+    classification: r.classification,
+    status: r.status,
+  }));
+  const preSelectedIds = new Set(preSelectCandidates(scored, day.confidence_threshold).map((c) => c.id));
+
+  const propertyIds = [
+    ...new Set(scored.map((v) => v.propertyId).filter((id): id is string => !!id)),
+  ];
+  const openWorkOrdersByProperty: DayReviewPayload["openWorkOrdersByProperty"] = {};
+  if (propertyIds.length > 0) {
+    const woRows = await query<{
+      property_id: string;
+      id: string;
+      title: string;
+      scheduled_today: boolean;
+    }>(
+      `SELECT j.property_id::text AS property_id, w.id, w.title,
+              EXISTS (
+                SELECT 1 FROM visits v
+                WHERE v.work_order_id = w.id AND v.status <> 'cancelled'
+                  AND (v.scheduled_start AT TIME ZONE 'America/New_York')::date = $2::date
+              ) AS scheduled_today
+       FROM work_orders w
+       JOIN jobs j ON j.id = w.job_id
+       WHERE w.account_id = $1
+         AND j.property_id = ANY($3::uuid[])
+         AND w.status IN ('draft','ready','scheduled','dispatched','waiting')
+       ORDER BY w.created_at ASC`,
+      [accountId, date, propertyIds],
+    );
+    for (const row of woRows) {
+      const list = openWorkOrdersByProperty[row.property_id] ?? [];
+      list.push({
+        id: row.id,
+        title: row.title,
+        scheduledToday: row.scheduled_today,
+      });
+      openWorkOrdersByProperty[row.property_id] = list;
+    }
+  }
+
+  const segmentRows = await query<{
+    id: string;
+    kind: "stop" | "drive";
+    started_at: string;
+    ended_at: string;
+    place_label: string | null;
+    zone: string | null;
+    status: string;
+    is_likely_noise: boolean;
+  }>(
+    `SELECT id, kind, started_at::text, ended_at::text,
+            place_label, zone, status, is_likely_noise
+     FROM location_segments
+     WHERE account_id = $1 AND segment_date = $2::date AND ended_at IS NOT NULL
+     ORDER BY started_at ASC`,
+    [accountId, date],
+  );
+
+  const entryRows = await query<{
+    id: string;
+    activity_type: string;
+    entity_label: string | null;
+    task_label: string | null;
+    note: string | null;
+    started_at: string;
+    ended_at: string;
+    duration_minutes: number;
+  }>(
+    `SELECT ae.id, ae.activity_type, ae.note,
+            ae.started_at::text AS started_at, ae.ended_at::text AS ended_at,
+            ROUND(EXTRACT(EPOCH FROM (ae.ended_at - ae.started_at)) / 60)::int AS duration_minutes,
+            CASE ae.entity_type
+              WHEN 'job'        THEN j.title
+              WHEN 'visit'      THEN COALESCE(vjob.title, 'Field day')
+              WHEN 'work_order' THEN COALESCE(wo.title, 'Work order')
+              WHEN 'estimate'   THEN 'Estimate ' || COALESCE(est.estimate_number, '')
+              WHEN 'invoice'    THEN 'Invoice ' || COALESCE(inv.invoice_number, '')
+              WHEN 'client'     THEN cli.name
+              ELSE NULL
+            END AS entity_label,
+            t.label AS task_label
+     FROM activity_entries ae
+     LEFT JOIN jobs j        ON ae.entity_type = 'job'        AND j.id   = ae.entity_id AND j.account_id   = ae.account_id
+     LEFT JOIN visits vis    ON ae.entity_type = 'visit'      AND vis.id = ae.entity_id AND vis.account_id = ae.account_id
+     LEFT JOIN jobs vjob     ON vjob.id = vis.job_id AND vjob.account_id = ae.account_id
+     LEFT JOIN work_orders wo ON ae.entity_type = 'work_order' AND wo.id = ae.entity_id AND wo.account_id = ae.account_id
+     LEFT JOIN work_order_tasks t ON t.id = ae.task_id AND t.account_id = ae.account_id
+     LEFT JOIN estimates est ON ae.entity_type = 'estimate' AND est.id = ae.entity_id AND est.account_id = ae.account_id
+     LEFT JOIN invoices inv  ON ae.entity_type = 'invoice'  AND inv.id = ae.entity_id AND inv.account_id = ae.account_id
+     LEFT JOIN clients cli   ON ae.entity_type = 'client'   AND cli.id = ae.entity_id AND cli.account_id = ae.account_id
+     WHERE ae.account_id = $1 AND ae.session_date = $2::date
+       AND ae.voided_at IS NULL AND ae.ended_at IS NOT NULL
+     ORDER BY ae.started_at ASC`,
+    [accountId, date],
+  );
+
+  const reportableSegments = segmentRows.filter((s) => !isPrivateLocation(s.zone, s.place_label));
+
+  const gaps = detectGaps(
+    reportableSegments.map((s) => ({ startedAt: s.started_at, endedAt: s.ended_at })),
+    entryRows.map((e) => ({ startedAt: e.started_at, endedAt: e.ended_at })),
+    day.min_dwell,
+  );
+
+  const hybrid = await loadHybridMileageForDay(accountId, date);
+
+  return {
+    businessDayId: day.id,
+    date,
+    status: day.status,
+    reviewPromptedAt: day.review_prompted_at,
+    closedAt: day.closed_at,
+    visits: scored.map((c) => ({ ...c, preSelected: preSelectedIds.has(c.id) })),
+    openWorkOrdersByProperty,
+    segments: reportableSegments.map((s) => ({
+      id: s.id,
+      kind: s.kind,
+      startedAt: s.started_at,
+      endedAt: s.ended_at,
+      placeLabel: s.place_label,
+      zone: s.zone,
+      status: s.status,
+      isLikelyNoise: s.is_likely_noise,
+    })),
+    timeEntries: entryRows.map((e) => ({
+      id: e.id,
+      activityType: e.activity_type,
+      entityLabel: e.entity_label,
+      taskLabel: e.task_label,
+      note: e.note,
+      startedAt: e.started_at,
+      endedAt: e.ended_at,
+      durationMinutes: e.duration_minutes,
+    })),
+    gaps,
+    mileage: {
+      vehicleSessionId: hybrid.vehicleSessionId,
+      vehicleName: hybrid.vehicleName,
+      startOdometer: hybrid.startOdometer,
+      endOdometer: hybrid.endOdometer,
+      odometerMiles: hybrid.primaryMiles,
+      primarySource: hybrid.primarySource,
+      gpsMiles: hybrid.gpsMiles,
+      deltaPercent: hybrid.deltaPercent,
+      flagged: hybrid.flagged,
+      reason: hybrid.reason,
+    },
+  };
+}
+
+export type DayCompanyBill = {
+  id: string;
+  status: string;
+  houseLabel: string;
+  clientName: string | null;
+};
+
+export type DayCompanyReturn = {
+  when: string | null;
+  houseLabel: string;
+  startHere: string | null;
+};
+
+export type DayCompanyFacts = {
+  bills: DayCompanyBill[];
+  comingBack: DayCompanyReturn[];
+};
+
+/** Today's bills and coming-back houses for the night recap. */
+export async function loadDayCompanyFacts(
+  accountId: string,
+  date: string,
+): Promise<DayCompanyFacts> {
+  const [billRows, returnRows] = await Promise.all([
+    query<{
+      id: string;
+      status: string;
+      house_label: string;
+      client_name: string | null;
+    }>(
+      `SELECT i.id, i.status,
+              COALESCE(p.address, c.name, 'House') AS house_label,
+              c.name AS client_name
+       FROM invoices i
+       LEFT JOIN properties p ON p.id = i.property_id AND p.account_id = i.account_id
+       LEFT JOIN clients c ON c.id = i.client_id AND c.account_id = i.account_id
+       WHERE i.account_id = $1
+         AND i.status NOT IN ('void', 'cancelled')
+         AND i.invoice_kind IN ('final', 'standard')
+         AND (
+           (i.created_at AT TIME ZONE 'America/New_York')::date = $2::date
+           OR (i.sent_at AT TIME ZONE 'America/New_York')::date = $2::date
+         )
+       ORDER BY i.created_at ASC`,
+      [accountId, date],
+    ),
+    query<{
+      house_label: string;
+      next_start: string | null;
+      start_here: string | null;
+    }>(
+      `SELECT COALESCE(p.address, 'House') AS house_label,
+              (
+                SELECT nv.scheduled_start::text
+                FROM visits nv
+                WHERE nv.job_id = v.job_id
+                  AND nv.account_id = v.account_id
+                  AND nv.id <> v.id
+                  AND nv.status NOT IN ('cancelled', 'completed')
+                ORDER BY nv.scheduled_start ASC NULLS LAST
+                LIMIT 1
+              ) AS next_start,
+              (
+                SELECT t.label
+                FROM work_order_tasks t
+                WHERE t.work_order_id = v.work_order_id
+                  AND t.account_id = v.account_id
+                  AND t.completed = false
+                  AND t.status <> 'done'
+                ORDER BY t.sort_order ASC
+                LIMIT 1
+              ) AS start_here
+       FROM visits v
+       JOIN jobs j ON j.id = v.job_id AND j.account_id = v.account_id
+       LEFT JOIN properties p ON p.id = j.property_id AND p.account_id = v.account_id
+       WHERE v.account_id = $1
+         AND v.closeout_kind = 'return'
+         AND v.status = 'completed'
+         AND (COALESCE(v.completed_at, v.scheduled_start) AT TIME ZONE 'America/New_York')::date = $2::date
+       ORDER BY v.completed_at ASC NULLS LAST`,
+      [accountId, date],
+    ),
+  ]);
+
+  return {
+    bills: billRows.map((r) => ({
+      id: r.id,
+      status: r.status,
+      houseLabel: r.house_label,
+      clientName: r.client_name,
+    })),
+    comingBack: returnRows.map((r) => ({
+      when: r.next_start,
+      houseLabel: r.house_label,
+      startHere: r.start_here?.trim() || null,
+    })),
+  };
+}

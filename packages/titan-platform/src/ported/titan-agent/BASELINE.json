@@ -1,0 +1,30 @@
+{
+  "schema": "titan-canonical-baseline/v1",
+  "project": "titan-zero",
+  "artifact_id": "titan-zero-v0.18.2-p0-003-platform-manager-lifecycle-convergence",
+  "version": "0.18.2",
+  "status": "implementation_release_candidate",
+  "parent_artifact_id": "titan-zero-v0.18.1-manager-canonical-convergence",
+  "parent_artifact": "Titan-Zero-v0.18.1-Manager-Canonical-Convergence-CUMULATIVE.zip",
+  "parent_sha256": "b355dfcc9c7c3c676fdd8c76d889962f84b14cd014bba44fb251543089f7cdf7",
+  "artifact_sha256": null,
+  "created_at": "2026-09-05T02:51:06+10:00",
+  "certified": false,
+  "manager_canonical": false,
+  "verification": "titan-agent/VERIFICATION.json",
+  "inherited_manager_completed_tasks": [
+    "TZ-P0-001",
+    "TZ-P0-002",
+    "TZ-P1-004",
+    "TZ-P1-005",
+    "TZ-P1-006"
+  ],
+  "merged_deltas": [
+    "runtime-v2-retained",
+    "transactional-installer-retained",
+    "signed-marketplace-retained",
+    "p0-003-lifecycle-hardening"
+  ],
+  "canonical_authority": "External Titan Zero Manager / Convergence Agent only",
+  "manager_next_action": "independently verify and semantically merge TZ-P0-003 candidate onto v0.18.1 Manager canonical baseline"
+}

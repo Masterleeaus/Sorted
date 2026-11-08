@@ -1,0 +1,44 @@
+{
+  "schema": "titan.zero.chrome-load.workforce-startup-contract.v1",
+  "packet_id": "TZ-FIX-LOAD-STABILITY-001",
+  "pass": 5,
+  "manager_base": {
+    "artifact": "Titan-Zero-CANONICAL-MASTER-2026-09-08-MERGE-39-CHROME-REPAIR10-CONVERGED.zip",
+    "sha256": "c5c5bc321913dfd9f2d56847c43fa9cad3652907be94f163cbeacef9672c23c7"
+  },
+  "canonical_role_catalogue": "titan-workforce/catalogue/installed-client-workforce-master.json",
+  "browser_workforce_runtime": "titan-client-workforce.js",
+  "background_runtime": "runtime/workforce-runtime-background.mjs",
+  "role_router": "titan-workforce/role-router.mjs",
+  "company_boundary": "company_id",
+  "expected_master_role_count": 119,
+  "required_starter_role_targets": [
+    "titan.customer.receptionist",
+    "titan.sales.sales_coordinator",
+    "titan.customer.booking_coordinator",
+    "titan.sales.quote_coordinator",
+    "titan.work.scheduler",
+    "titan.work.dispatcher",
+    "titan.work.job_coordinator",
+    "titan.money.billing_coordinator",
+    "titan.customer.customer_care_coordinator",
+    "titan.work.recurring_services_coordinator"
+  ],
+  "invariants": [
+    "canonical and embedded browser role catalogues remain semantically identical",
+    "every role uses company_id as the sole company boundary",
+    "role activation never confers authority",
+    "role ids are unique and every role declares a non-empty vertical list",
+    "starter worker targets resolve to existing canonical roles rather than duplicate role definitions",
+    "vertical-specific specialist composition remains additive to canonical roles",
+    "legacy tenant aliases are rejected by client workforce composition",
+    "role routing validates company boundary and never treats role identity as authority",
+    "client workforce projection rejects cross-company payloads",
+    "background workforce recovery rejects cross-company active-context operations"
+  ],
+  "authority": {
+    "identity_grants_authority": false,
+    "role_activation_grants_authority": false,
+    "vertical_selection_grants_authority": false
+  }
+}

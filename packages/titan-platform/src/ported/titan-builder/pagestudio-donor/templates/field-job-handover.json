@@ -1,0 +1,14 @@
+{
+  "template": {
+    "id": "field-job-handover",
+    "version": "0.1.0",
+    "name": "Field Job Handover",
+    "status": "draft",
+    "category": "operations",
+    "entry_wizard": "field_job_handover_v1",
+    "capabilities": ["jobs.handover.create", "evidence.attach"],
+    "channels": ["mobile", "tablet", "voice"],
+    "governance": {"authority": "human_acknowledgement", "offline": true},
+    "metadata": {"blocked_by": ["entry_wizard", "owning_provider_capabilities"], "verticals": ["field_services", "home_services", "cleaning"]}
+  }
+}

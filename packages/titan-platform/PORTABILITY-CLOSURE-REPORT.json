@@ -1,0 +1,23 @@
+{
+  "active_code_files_ported": 559,
+  "relative_imports_checked": 552,
+  "missing_relative_imports": 4,
+  "missing": [
+    {
+      "importer": "titan-zero-chat-runtime.compat.ts",
+      "specifier": ".concat(P,"
+    },
+    {
+      "importer": "titan-zero-chat-content.compat.ts",
+      "specifier": ".concat(d,"
+    },
+    {
+      "importer": "retriever-background.iife.ts",
+      "specifier": "./MyComponent"
+    },
+    {
+      "importer": "retriever-background.iife.ts",
+      "specifier": "./MyComponent"
+    }
+  ]
+}

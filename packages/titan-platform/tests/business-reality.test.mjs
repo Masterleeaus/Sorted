@@ -1,0 +1,6 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+import { createBusinessRealityObservation, detectBusinessRealityChange, proposeBusinessRealityReconfiguration } from "../.test-dist/business-reality.js";
+const make=(id,at,value,company_id="company-a")=>createBusinessRealityObservation({observation_id:id,company_id,observed_at:at,source_revision:"rev-1",facts:{capacity:{value,provenance:"field-observation",confidence:0.9}}});
+test("detects fresh meaningful change and emits governed proposal",()=>{const a=make("obs-1","2026-09-29T00:00:00Z",4);const b=make("obs-2","2026-09-29T01:00:00Z",5);const change=detectBusinessRealityChange(a,b);assert.deepEqual(change.changed_fact_keys,["capacity"]);assert.equal(change.freshness,"FRESH");assert.equal(proposeBusinessRealityReconfiguration({proposal_id:"proposal-1",previous:a,current:b}).requires_governed_approval,true);});
+test("rejects cross-company observations and no-op reconfiguration",()=>{const a=make("obs-1","2026-09-29T00:00:00Z",4);const b=make("obs-2","2026-09-29T01:00:00Z",4,"company-b");assert.throws(()=>detectBusinessRealityChange(a,b),{message:"observation-company-mismatch"});assert.throws(()=>proposeBusinessRealityReconfiguration({proposal_id:"proposal-2",previous:a,current:make("obs-3","2026-09-29T01:00:00Z",4)}),{message:"reconfiguration-noop"});});

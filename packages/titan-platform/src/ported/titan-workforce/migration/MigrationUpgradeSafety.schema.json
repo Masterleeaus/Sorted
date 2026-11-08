@@ -1,0 +1,77 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "titan.workforce.migration-upgrade-safety.v1",
+  "title": "Titan Workforce Migration Upgrade Safety",
+  "type": "object",
+  "required": [
+    "schema",
+    "company_id",
+    "migration_run_id",
+    "source_version",
+    "target_version",
+    "phase",
+    "readiness",
+    "recovery",
+    "authority_granted",
+    "execution_permitted",
+    "grants_authority"
+  ],
+  "properties": {
+    "schema": {
+      "const": "titan.workforce.migration-upgrade-safety.v1"
+    },
+    "company_id": {
+      "type": "string",
+      "minLength": 2,
+      "maxLength": 128
+    },
+    "migration_run_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 240
+    },
+    "source_version": {
+      "type": "string"
+    },
+    "target_version": {
+      "type": "string"
+    },
+    "phase": {
+      "enum": [
+        "PREPARED",
+        "APPLYING",
+        "RECOVERY_REQUIRED",
+        "VERIFYING",
+        "ROLLBACK_REQUIRED",
+        "COMPLETED",
+        "ROLLED_BACK",
+        "BLOCKED"
+      ]
+    },
+    "migrations": {
+      "type": "array"
+    },
+    "readiness": {
+      "type": "object"
+    },
+    "recovery": {
+      "type": "object"
+    },
+    "authority_granted": {
+      "const": false
+    },
+    "execution_permitted": {
+      "const": false
+    },
+    "grants_authority": {
+      "const": false
+    },
+    "automatic_effect_replay": {
+      "const": false
+    },
+    "automatic_authority_change": {
+      "const": false
+    }
+  },
+  "additionalProperties": true
+}

@@ -1,0 +1,13 @@
+{
+  "schema":"titan-zero-advanced-intelligence-behaviour-contract/v1",
+  "pass":10,
+  "status":"ACTIVE",
+  "company_boundary":"company_id",
+  "settings_key":"advancedIntelligenceBehaviour",
+  "owner":"titan_intelligence_runtime",
+  "reasoning_depths":["fast","balanced","deep"],
+  "cloud_escalation_policies":["never","when-unresolved","allowed"],
+  "defaults":{"reasoning_depth":"balanced","prefer_deterministic":true,"prefer_local":true,"cloud_escalation":"when-unresolved","minimum_confidence":0.62,"max_challenge_rounds":2,"require_independent_challenge_on_high_risk":true},
+  "invariants":{"identity_grants_authority":false,"settings_grant_execution_authority":false,"settings_can_bypass_runtime_topology":false,"settings_can_disable_high_risk_challenge":false,"settings_can_bypass_budget":false,"settings_can_bypass_entitlement":false,"automatic_authority_change":false},
+  "runtime_sources":["titan-intelligence/core/defaults.mjs","titan-intelligence/core/dynamic-intelligence-topology.mjs","titan-intelligence/core/convergence-intelligence.mjs","titan-intelligence/core/divergence-intelligence.mjs","titan-intelligence/core/high-risk-agreement-challenge.mjs","titan-intelligence/core/zero-synthesis.mjs"]
+}

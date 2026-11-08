@@ -1,0 +1,21 @@
+{
+  "schema": "titan.workforce.pass-manifest/v1",
+  "pass": 36,
+  "title": "Worker Memory Architecture",
+  "company_boundary": "company_id",
+  "memory_contract": "titan.workforce.worker-memory.v1",
+  "changes": [
+    "worker-specific durable memory snapshots",
+    "provenance/confidence/relevance requirements",
+    "expiry and supersession lifecycle",
+    "privacy classification and purpose tags",
+    "company/worker scoped recall",
+    "memory-recall receipts that never grant authority"
+  ],
+  "memory_is_not_truth": true,
+  "memory_is_not_authority": true,
+  "automatic_authority_change": false,
+  "authority_granted": false,
+  "execution_permitted": false,
+  "grants_authority": false
+}
