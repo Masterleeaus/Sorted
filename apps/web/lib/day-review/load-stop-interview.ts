@@ -1,4 +1,4 @@
-import { query, queryOne } from "@/lib/db";
+import { queryForSession, queryOneForSession } from "@/lib/db";
 import {
   defaultStopReason,
   isOpenJobStatus,
@@ -9,6 +9,7 @@ import {
   type HomeFence,
   type StopReason,
 } from "@ai-fsm/domain";
+import type { SessionPayload } from "@/lib/auth/session";
 
 export type StopInterviewCard = {
   segmentId: string;
@@ -46,20 +47,21 @@ export type StopInterviewPayload = {
 };
 
 export async function loadStopInterview(
-  accountId: string,
+  session: SessionPayload,
   date: string,
 ): Promise<StopInterviewPayload> {
+  const accountId = session.accountId;
   const [homeRow, segments, openJobs, closedJobs, receipts, closedOutToday] = await Promise.all([
-    queryOne<{
+    queryOneForSession<{
       home_latitude: number | null;
       home_longitude: number | null;
       home_radius_meters: number | null;
-    }>(
+    }>(session,
       `SELECT home_latitude, home_longitude, home_radius_meters
          FROM accounts WHERE id = $1`,
       [accountId],
     ),
-    query<{
+    queryForSession<{
       id: string;
       started_at: string;
       ended_at: string | null;
@@ -74,7 +76,7 @@ export async function loadStopInterview(
       client_id: string | null;
       client_name: string | null;
       property_address: string | null;
-    }>(
+    }>(session,
       `SELECT s.id, s.started_at::text, s.ended_at::text, s.latitude, s.longitude,
               s.place_label, s.zone,
               s.stop_reason, s.stop_notes,
@@ -93,13 +95,13 @@ export async function loadStopInterview(
        ORDER BY s.started_at ASC`,
       [accountId, date],
     ),
-    query<{
+    queryForSession<{
       id: string;
       property_id: string;
       job_number: string;
       title: string;
       status: string;
-    }>(
+    }>(session,
       `SELECT DISTINCT ON (property_id) id, property_id, job_number, title, status
        FROM jobs
        WHERE account_id = $1
@@ -108,13 +110,13 @@ export async function loadStopInterview(
        ORDER BY property_id, updated_at DESC`,
       [accountId],
     ),
-    query<{
+    queryForSession<{
       id: string;
       property_id: string;
       job_number: string;
       title: string;
       status: string;
-    }>(
+    }>(session,
       `SELECT DISTINCT ON (property_id) id, property_id, job_number, title, status
        FROM jobs
        WHERE account_id = $1
@@ -123,7 +125,7 @@ export async function loadStopInterview(
        ORDER BY property_id, updated_at DESC`,
       [accountId],
     ),
-    query<StopInterviewReceipt & { vendor_name: string; amount_cents: number }>(
+    queryForSession<StopInterviewReceipt & { vendor_name: string; amount_cents: number }>(session,
       `SELECT id, vendor_name, amount_cents, category
        FROM expenses
        WHERE account_id = $1
@@ -133,7 +135,7 @@ export async function loadStopInterview(
        ORDER BY created_at`,
       [accountId, date],
     ),
-    query<{ property_id: string }>(
+    queryForSession<{ property_id: string }>(session,
       `SELECT DISTINCT j.property_id
          FROM visits v
          JOIN jobs j ON j.id = v.job_id AND j.account_id = v.account_id
