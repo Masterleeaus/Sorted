@@ -114,7 +114,7 @@ export function getNavSections(role: Role, _view: "office" | "field" = "field"):
   return fieldSections(role);
 }
 
-/** Compatibility seam for older navigation tests. Titan Go uses a hamburger on mobile. */
+/** Compatibility seam for older navigation tests. Sorted uses a hamburger on mobile. */
 export function getBottomNavItems(role: Role): NavItem[] {
   return role === "tech" ? [NAV_TODAY, NAV_DAY_REVIEW] : [NAV_COMMAND, NAV_JOBS, NAV_SCHEDULE, NAV_WORKFORCE];
 }
@@ -174,7 +174,7 @@ export function AppShell({ role, userName, reviewPending, children }: AppShellPr
   const currentLabel = currentItem?.label ?? "Field";
 
   const nav = (mobile = false) => (
-    <nav className={mobile ? "tg-mobile-nav" : "p7-nav"} aria-label={mobile ? "Titan Go Field menu" : "Titan Zero Field navigation"}>
+    <nav className={mobile ? "tg-mobile-nav" : "p7-nav"} aria-label={mobile ? "Sorted Field menu" : "Sorted Field navigation"}>
       {sections.map((section, sectionIdx) => (
         <div key={`${section.label}-${sectionIdx}`} className={mobile ? "tg-mobile-nav__section" : undefined}>
           {section.label ? <div className={mobile ? "tg-mobile-nav__label" : "p7-nav-section"}>{section.label}</div> : null}
@@ -206,9 +206,9 @@ export function AppShell({ role, userName, reviewPending, children }: AppShellPr
     <ToastProvider>
       <LiveRefresh />
       <div className={`p7-layout tg-field-shell ${collapsed ? "p7-layout-collapsed" : ""}`}>
-        <aside className="p7-sidebar tg-field-sidebar" aria-label="Titan Zero Field navigation">
+        <aside className="p7-sidebar tg-field-sidebar" aria-label="Sorted Field navigation">
           <div className="tg-sidebar-brand-wrap">
-            <Link href={homeHref as Route} className="p7-sidebar-brand tg-field-brand" aria-label="Titan Zero Field home">
+            <Link href={homeHref as Route} className="p7-sidebar-brand tg-field-brand" aria-label="Sorted Field home">
               <img className="tg-field-brand__mark" src="/icons/icon-192.png" alt="" aria-hidden="true" />
               <span className="tg-field-brand__copy">
                 <b>Titan <em>Field</em></b>
@@ -235,9 +235,9 @@ export function AppShell({ role, userName, reviewPending, children }: AppShellPr
 
         <header className="tg-mobile-header">
           <button type="button" className="tg-icon-button" onClick={() => setDrawerOpen(true)} aria-label="Open menu"><IconMenu /></button>
-          <Link href={homeHref as Route} className="tg-mobile-brand" aria-label="Titan Go Field home">
+          <Link href={homeHref as Route} className="tg-mobile-brand" aria-label="Sorted Field home">
             <img src="/icons/icon-192.png" alt="" aria-hidden="true" />
-            <span><b>TITAN GO</b><small><i /> {CURRENT_TITAN_GO_MODE_META.shortLabel.toUpperCase()} MODE</small></span>
+            <span><b>SORTED</b><small><i /> {CURRENT_TITAN_GO_MODE_META.shortLabel.toUpperCase()} MODE</small></span>
           </Link>
           <div className="tg-mobile-header__actions">
             {isAdminOrOwner ? <AttentionBell summary={attention} onChanged={() => void refreshAttention()} /> : null}
@@ -248,12 +248,12 @@ export function AppShell({ role, userName, reviewPending, children }: AppShellPr
         {drawerOpen ? (
           <>
             <button className="tg-mobile-drawer-backdrop" type="button" aria-label="Close menu" onClick={() => setDrawerOpen(false)} />
-            <aside className="tg-mobile-drawer" aria-label="Titan Go Field menu">
+            <aside className="tg-mobile-drawer" aria-label="Sorted Field menu">
               <div className="tg-mobile-drawer__head">
-                <div className="tg-mobile-drawer__brand"><img src="/icons/icon-192.png" alt="" /><span><b>TITAN GO</b><small>{CURRENT_TITAN_GO_MODE_META.shortLabel.toUpperCase()} MODE · {CURRENT_TITAN_GO_MODE_META.outcome.toUpperCase()}.</small></span></div>
+                <div className="tg-mobile-drawer__brand"><img src="/icons/icon-192.png" alt="" /><span><b>SORTED</b><small>{CURRENT_TITAN_GO_MODE_META.shortLabel.toUpperCase()} MODE · {CURRENT_TITAN_GO_MODE_META.outcome.toUpperCase()}.</small></span></div>
                 <button type="button" className="tg-icon-button" onClick={() => setDrawerOpen(false)} aria-label="Close menu"><IconClose /></button>
               </div>
-              <div className="tg-mode-banner"><span>Active mode</span><strong><i /> {CURRENT_TITAN_GO_MODE_META.shortLabel}</strong><small>Titan Go shows only the systems and roles this account can use.</small></div>
+              <div className="tg-mode-banner"><span>Active mode</span><strong><i /> {CURRENT_TITAN_GO_MODE_META.shortLabel}</strong><small>Sorted shows only the field tools available to this account.</small></div>
               {nav(true)}
               <div className="tg-mobile-drawer__footer">
                 <div className="p7-user-chip"><div className="p7-user-avatar">{avatarLetter}</div><div className="p7-user-info"><span className="p7-user-name">{displayName}</span><span className="p7-user-role">{role}</span></div></div>
