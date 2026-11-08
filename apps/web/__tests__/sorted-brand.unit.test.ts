@@ -4,6 +4,7 @@ import { fileURLToPath } from "node:url";
 
 const shellSource = readFileSync(fileURLToPath(new URL("../components/AppShell.tsx", import.meta.url)), "utf8");
 const layoutSource = readFileSync(fileURLToPath(new URL("../app/layout.tsx", import.meta.url)), "utf8");
+const loginSource = readFileSync(fileURLToPath(new URL("../app/(auth)/login/page.tsx", import.meta.url)), "utf8");
 import manifest from "../app/manifest";
 import { CURRENT_TITAN_GO_MODE_META } from "../lib/titan-go/modes";
 
@@ -47,5 +48,14 @@ describe("Sorted Field UI branding", () => {
   it("uses Sorted in server-side metadata", () => {
     expect(layoutSource).toContain('applicationName: "Sorted"');
     expect(layoutSource).toContain('title: "Sorted"');
+  });
+});
+
+describe("Sorted Field login", () => {
+  it("does not advertise an unrelated app or an unavailable multi-mode login", () => {
+    expect(loginSource).toContain("SORTED · FIELD OPERATIONS");
+    expect(loginSource).toContain("Enter Sorted");
+    expect(loginSource).toContain("field operations and assigned work");
+    expect(loginSource).not.toMatch(/TITAN GO|Titan Go|titan-zero-field-lockup/);
   });
 });
