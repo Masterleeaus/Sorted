@@ -165,3 +165,43 @@ test("workforce notification defaults are authority-owned, not supplied by the s
   assert.equal(stored.dispatch_permitted, false);
   assert.equal(stored.settings_can_grant_authority, false);
 });
+
+test("trusted workforce defaults are snapshotted before a caller can mutate their source object", async () => {
+  const workforceGlobalDefaults = {
+    notifications: {
+      max_delivery_attempts: 2,
+      max_escalation_depth: 1,
+      cooldown_ms: 600000,
+      ack_minutes_by_urgency: { HIGH: 15 },
+    },
+  };
+  const authority = createPaymentsCommunicationsSetupAuthority({
+    database: memoryDatabase(),
+    nativeContributions: [{ id: "channel.email", title: "Email" }],
+    workforceGlobalDefaults,
+  });
+
+  // Mutating the retained original object after construction must not
+  // let an untrusted settings writer loosen workforce policy.
+  workforceGlobalDefaults.notifications.max_delivery_attempts = 10;
+  workforceGlobalDefaults.notifications.max_escalation_depth = 5;
+  workforceGlobalDefaults.notifications.cooldown_ms = 1000;
+  workforceGlobalDefaults.notifications.ack_minutes_by_urgency.HIGH = 120;
+
+  await authority.save({ company_id: "company-a" }, {
+    payments: { methods: ["cash"] },
+    communications: { channels: ["channel.email"] },
+    notifications: {
+      max_delivery_attempts: 10,
+      max_escalation_depth: 5,
+      cooldown_ms: 1000,
+      ack_minutes_by_urgency: { HIGH: 120 },
+    },
+  });
+  const notifications = (await authority.read({ company_id: "company-a" })).notifications;
+  assert.equal(notifications.max_delivery_attempts, 2);
+  assert.equal(notifications.max_escalation_depth, 1);
+  assert.equal(notifications.cooldown_ms, 600000);
+  assert.equal(notifications.ack_minutes_by_urgency.HIGH, 15);
+  assert.equal(notifications.execution_permitted, false);
+});
