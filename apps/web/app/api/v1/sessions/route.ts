@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { withAuth } from "@/lib/auth/middleware";
 import type { AuthSession } from "@/lib/auth/middleware";
-import { query, getPool } from "@/lib/db";
+import { getPool, queryForSession } from "@/lib/db";
 import { appendAuditLog } from "@/lib/db/audit";
 import { logger } from "@/lib/logger";
 
@@ -45,7 +45,7 @@ export const GET = withAuth(async (request: NextRequest, session: AuthSession) =
   }
 
   try {
-    const rows = await query(
+    const rows = await queryForSession(session,
       `SELECT s.id, s.session_date::text,
               COALESCE(s.miles, s.end_odometer - s.start_odometer) AS miles,
               s.start_odometer, s.end_odometer, s.notes,

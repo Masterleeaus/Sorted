@@ -3,7 +3,7 @@ import fs from "fs";
 import path from "path";
 import { withAuth } from "../../../../../../../lib/auth/middleware";
 import type { AuthSession } from "../../../../../../../lib/auth/middleware";
-import { getPool, queryOne } from "../../../../../../../lib/db";
+import { getPool, queryOneForSession } from "../../../../../../../lib/db";
 import { logger } from "../../../../../../../lib/logger";
 import { UPLOAD_ROOT, resolveStoredUpload } from "../../../../../../../lib/uploads/paths";
 
@@ -19,7 +19,7 @@ export const DELETE = withAuth(async (request: NextRequest, session: AuthSession
     );
   }
 
-  const item = await queryOne<{ id: string }>(
+  const item = await queryOneForSession<{ id: string }>(session,
     `SELECT id FROM property_vault_items WHERE id = $1 AND account_id = $2`,
     [itemId, session.accountId]
   );
