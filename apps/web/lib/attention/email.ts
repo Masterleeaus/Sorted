@@ -17,6 +17,13 @@ export function emailIdempotencyBucket(now = new Date()): string {
   return String(Math.floor(now.getTime() / ms));
 }
 
+/** Only allow navigations inside the Sorted Field application. */
+function safeAttentionHref(value: string): string {
+  if (!value.startsWith("/") || value.startsWith("//")
+    || value.includes("\\") || /[\x00-\x1f\x7f"'<>]/.test(value)) return "/app";
+  return value;
+}
+
 /**
  * Enqueue owner-facing attention email via notification_queue (worker sends).
  * HIGH priority bypasses client cooldown caps. Never throws.
@@ -54,7 +61,7 @@ export async function enqueueAttentionOwnerEmail(
     }
 
     const bucket = emailIdempotencyBucket();
-    const idempotencyKey = `attention-email:${opts.type}:${opts.entityId}:${bucket}`;
+    const idempotencyKey = `attention-email:v2:${opts.accountId}:${opts.type}:${opts.entityId}:${bucket}`;
 
     const existing = await client.query<{ status: string }>(
       `SELECT status FROM notification_queue WHERE idempotency_key = $1 LIMIT 1`,
@@ -65,7 +72,8 @@ export async function enqueueAttentionOwnerEmail(
     }
 
     const base = appUrl();
-    const link = `${base}${opts.href.startsWith("/") ? opts.href : `/${opts.href}`}`;
+    const href = safeAttentionHref(opts.href);
+    const link = `${base}${href}`;
     const subject = `[Sorted Field] ${opts.title}`;
     const summaryLine = opts.summary
       ? `<p style="color:#57534e;margin:8px 0">${escapeHtml(opts.summary)}</p>`
@@ -74,7 +82,7 @@ export async function enqueueAttentionOwnerEmail(
       <div style="font-family:system-ui,sans-serif;max-width:520px">
         <h2 style="margin:0 0 8px;color:#166534">${escapeHtml(opts.title)}</h2>
         ${summaryLine}
-        <p><a href="${link}" style="color:#166534;font-weight:600">Open in app →</a></p>
+        <p><a href="${escapeHtml(link)}" style="color:#166534;font-weight:600">Open in app →</a></p>
         <p style="font-size:12px;color:#78716c;margin-top:24px">You received this because something needs attention in Sorted Field.</p>
       </div>
     `;
@@ -96,7 +104,7 @@ export async function enqueueAttentionOwnerEmail(
         idempotencyKey,
         opts.entityType,
         opts.entityId,
-        JSON.stringify({ attentionType: opts.type, href: opts.href }),
+        JSON.stringify({ attentionType: opts.type, href }),
       ],
     );
     return "enqueued";
