@@ -196,14 +196,31 @@ export async function POST(
       return unavailableInviteResponse(pool, token);
     }
 
+    // Photo count comes from the server's records, not the client payload.
+    const { rows: photoRows } = await client.query<{ n: number }>(
+      `SELECT count(*)::int AS n FROM intake_media WHERE intake_invite_id = $1`,
+      [invite.id]
+    );
+    const intakeMetadata = {
+      ...input.intake_metadata,
+      photo_count: String(photoRows[0]?.n ?? 0),
+    };
+
     // Re-score routing with the richer description
     const score = scoreSiteVisitProbability({
       service_category: input.service_category,
       service_description: input.service_description,
-      intake_metadata: input.intake_metadata,
+      intake_metadata: intakeMetadata,
     });
 
     if (invite.booking_request_id) {
+      // Link this invite's photos to the request. Same transaction as the claim.
+      await client.query(
+        `UPDATE intake_media SET booking_request_id = $1
+         WHERE intake_invite_id = $2 AND account_id = $3`,
+        [invite.booking_request_id, invite.id, invite.account_id]
+      );
+
       // Update the existing booking request
       await client.query(
         `UPDATE booking_requests
@@ -228,7 +245,7 @@ export async function POST(
         [
           input.service_category,
           input.service_description,
-          JSON.stringify(input.intake_metadata),
+          JSON.stringify(intakeMetadata),
           input.address || null,
           input.city || null,
           input.zip || null,
