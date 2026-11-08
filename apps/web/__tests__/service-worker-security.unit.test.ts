@@ -12,8 +12,9 @@ function createWorkerHarness() {
   const notifications: Array<{ title: string; options: any }> = [];
   const existingClient = {
     focus: vi.fn(() => Promise.resolve()),
-    navigate: vi.fn(() => Promise.resolve()),
+    navigate: vi.fn(async (): Promise<any> => null),
   };
+  existingClient.navigate.mockImplementation(async () => existingClient);
   const openWindow = vi.fn(() => Promise.resolve());
   const self = {
     addEventListener: (name: string, handler: (event: any) => void) => listeners.set(name, handler),
@@ -90,7 +91,7 @@ describe("Sorted service worker notification isolation", () => {
     const worker = createWorkerHarness();
     let completeNavigation: (() => void) | undefined;
     worker.existingClient.navigate.mockImplementationOnce(
-      () => new Promise<void>((resolve) => { completeNavigation = resolve; }),
+      () => new Promise((resolve) => { completeNavigation = () => resolve(worker.existingClient); }),
     );
     let finished = false;
     const pending = worker.click("/app/jobs/456").then(() => { finished = true; });
@@ -125,6 +126,24 @@ describe("Sorted service worker notification isolation", () => {
     worker.clients.matchAll.mockResolvedValueOnce([{ focus: vi.fn() }] as any);
     await worker.click("/app/jobs/123");
     expect(worker.openWindow).toHaveBeenCalledWith("/app/jobs/123");
+  });
+
+  it("opens the destination when navigate resolves without a usable WindowClient", async () => {
+    const worker = createWorkerHarness();
+    worker.existingClient.navigate.mockResolvedValueOnce(null);
+    await worker.click("/app/work-orders");
+    expect(worker.existingClient.focus).not.toHaveBeenCalled();
+    expect(worker.openWindow).toHaveBeenCalledWith("/app/work-orders");
+  });
+
+  it("focuses the navigated client returned by the browser instead of the stale original tab", async () => {
+    const worker = createWorkerHarness();
+    const target = { focus: vi.fn(async () => undefined) };
+    worker.existingClient.navigate.mockResolvedValueOnce(target as any);
+    await worker.click("/app/jobs/789");
+    expect(target.focus).toHaveBeenCalledOnce();
+    expect(worker.existingClient.focus).not.toHaveBeenCalled();
+    expect(worker.openWindow).not.toHaveBeenCalled();
   });
 
   it("opens an app window when no existing client is available", async () => {
