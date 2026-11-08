@@ -30,6 +30,9 @@ const db = vi.hoisted(() => {
     queryCount: 0,
     sqlLog: [] as string[],
     failNextBookingUpdate: false,
+    intakeMediaByInvite: {} as Record<string, number>,
+    lastMetadataJson: null as string | null,
+    linkedMediaInvites: [] as string[],
     lockOwner: null as number | null,
     lockWaiters: [] as Array<() => void>,
     nextTxId: 1,
@@ -81,12 +84,22 @@ const db = vi.hoisted(() => {
       return { rows: [] };
     }
 
+    if (sql.startsWith("SELECT count(*)::int AS n FROM intake_media")) {
+      return { rows: [{ n: state.intakeMediaByInvite[params[0] as string] ?? 0 }] };
+    }
+
+    if (sql.startsWith("UPDATE intake_media")) {
+      state.linkedMediaInvites.push(params[1] as string);
+      return { rows: [] };
+    }
+
     if (sql.startsWith("UPDATE booking_requests")) {
       if (state.failNextBookingUpdate) {
         state.failNextBookingUpdate = false;
         throw new Error("simulated booking update failure");
       }
       tx?.staged.push(params[10] as string);
+      state.lastMetadataJson = params[2] as string;
       return { rows: [] };
     }
 
@@ -338,5 +351,35 @@ describe("intake rate limits", () => {
     const res = await submit("tok-bad-json", "{not json", "192.0.2.12");
     expect(res.status).toBe(400);
     expect((await res.json()).error.code).toBe("INVALID_JSON");
+  });
+});
+
+describe("intake submit with photos", () => {
+  beforeEach(() => {
+    db.state.intakeMediaByInvite = {};
+    db.state.linkedMediaInvites = [];
+    db.state.lastMetadataJson = null;
+  });
+
+  it("sets photo_count from the server's count and links the invite's photos to the request", async () => {
+    seedInvite("tok-photos");
+    db.state.intakeMediaByInvite["invite-tok-photos"] = 3;
+    const res = await submit("tok-photos");
+    expect(res.status).toBe(200);
+    expect(JSON.parse(db.state.lastMetadataJson ?? "{}")).toMatchObject({ photo_count: "3" });
+    expect(db.state.linkedMediaInvites).toEqual(["invite-tok-photos"]);
+  });
+
+  it("ignores a client-supplied photo_count and reports zero when no photos were uploaded", async () => {
+    seedInvite("tok-none");
+    const res = await submit("tok-none", { ...VALID_BODY, intake_metadata: { photo_count: "99" } });
+    expect(res.status).toBe(200);
+    expect(JSON.parse(db.state.lastMetadataJson ?? "{}")).toMatchObject({ photo_count: "0" });
+  });
+
+  it("no longer accepts a numeric photo_count placeholder from the old client", async () => {
+    seedInvite("tok-old-client");
+    const res = await submit("tok-old-client", { ...VALID_BODY, intake_metadata: { photo_count: 0 } });
+    expect(res.status).toBe(400);
   });
 });
