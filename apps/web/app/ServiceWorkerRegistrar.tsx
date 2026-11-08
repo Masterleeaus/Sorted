@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 
 /**
- * Registers the Titan Go service worker and explicitly checks for updates
+ * Registers the Sorted Field service worker and explicitly checks for updates
  * on every production load. updateViaCache:none prevents iOS/iPadOS from
  * holding an old worker script behind an HTTP cache after a deployment.
  */
