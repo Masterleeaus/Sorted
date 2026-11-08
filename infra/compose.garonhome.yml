@@ -68,6 +68,11 @@ services:
       APP_PORT: "3000"
       TZ: America/New_York
       SECURE_COOKIES: "${SECURE_COOKIES:-true}"
+      # Web credential, separate from the worker's. Overrides env_file's DATABASE_URL.
+      # Required (no fallback). Until the web cutover gate in
+      # docs/working/rls-web-tier-flip.md clears, set it to the admin URL (same value
+      # as DATABASE_URL). After the cutover, set it to the ai_fsm_web URL.
+      DATABASE_URL: ${WEB_DATABASE_URL:?WEB_DATABASE_URL is required. See infra/garonhome.env.example}
     depends_on:
       postgres:
         condition: service_healthy
@@ -93,7 +98,8 @@ services:
   # ---------------------------------------------------------------------------
   # worker — background job processor
   # Runs compiled JS (node services/worker/dist/src/index.js).
-  # Handles: visit reminders, overdue invoice follow-ups.
+  # Handles: visit reminders, overdue invoice follow-ups, and other cross-account sweeps.
+  # Connects as ai_fsm_worker (WORKER_DATABASE_URL), not the admin or web role.
   # Internal only — no inbound traffic, not on proxy network.
   # ---------------------------------------------------------------------------
   worker:
@@ -110,6 +116,10 @@ services:
     environment:
       NODE_ENV: production
       TZ: America/New_York
+      # Worker credential: ai_fsm_worker (BYPASSRLS for cross-account sweeps, DML only,
+      # no DDL or superuser). Overrides env_file's DATABASE_URL. Required, no fallback.
+      # Provision the role with scripts/db-provision-runtime.sh before deploying.
+      DATABASE_URL: ${WORKER_DATABASE_URL:?WORKER_DATABASE_URL is required. See infra/garonhome.env.example}
     depends_on:
       postgres:
         condition: service_healthy
