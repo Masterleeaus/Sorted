@@ -65,11 +65,13 @@ jobs:
         run: pnpm typecheck
 
   # ── 3. Build ─────────────────────────────────────────────────────────────
-  # Runs after lint + typecheck. Uses NEXT_PHASE to trigger the build-time
+  # Runs after typecheck. Lint remains independently required for merge; a
+  # pre-existing Knip finding must not mask build regressions.
+  # Uses NEXT_PHASE to trigger the build-time
   # env bypass in apps/web/lib/env.ts so real secrets are not required in CI.
   build:
     name: build
-    needs: [lint, typecheck]
+    needs: [typecheck]
     runs-on: ubuntu-latest
     env:
       # Signal to env.ts that this is a build-time invocation.
@@ -96,7 +98,8 @@ jobs:
         run: pnpm build
 
   # ── 4. Test ──────────────────────────────────────────────────────────────
-  # Runs after lint + typecheck (parallel with build).
+  # Runs after typecheck (parallel with build). Lint remains a required
+  # independent gate; existing unused-file debt must not mask test failures.
   #
   # Environment provided:
   #   DATABASE_URL / TEST_DATABASE_URL  — PostgreSQL 16 service fixture
@@ -105,7 +108,7 @@ jobs:
   # Runs unit, direct-DB, and HTTP integration suites. E2E has its own job.
   test:
     name: test
-    needs: [lint, typecheck]
+    needs: [typecheck]
     runs-on: ubuntu-latest
     services:
       postgres:
