@@ -12,9 +12,11 @@ Deploy root: `/opt/business/ai-fsm/`
 
 | Backup type | Tool | Frequency | Retention |
 |-------------|------|-----------|-----------|
-| Logical (SQL dump) | `pg_dump` | Daily (cron) | 7 days local + 30 days offsite (Google Drive, via rclone) |
-| Uploaded files (`data/uploads/`) | `tar` | Daily (cron) | 7 days local + 30 days offsite |
-| Secrets (`.env`) | `gpg --symmetric` | Daily (cron) | 7 days local + 30 days offsite |
+| Logical (SQL dump) | `pg_dump` → `gpg --symmetric` (AES-256) | Daily (cron) | 7 days local + 30 days offsite (Google Drive, via rclone) |
+| Uploaded files (`data/uploads/`) | `tar` → `gpg --symmetric` (AES-256) | Daily (cron) | 7 days local + 30 days offsite |
+| Secrets (`.env`) | `gpg --symmetric` (AES-256) | Daily (cron) | 7 days local + 30 days offsite |
+
+Every artifact is encrypted before it leaves the pipeline. No plaintext dump, archive or `.env` copy is written to the host or uploaded. See [Encryption and key management](#encryption-and-key-management).
 | WAL archiving | Not configured | — | N/A (MVP) |
 
 > **MVP note**: WAL archiving is deferred for post-MVP. Logical backups are sufficient for a low-write field-service app with acceptable RPO of 24 hours.
@@ -33,7 +35,7 @@ cd /opt/business/ai-fsm/repo
 bash scripts/backup-garonhome.sh
 ```
 
-The script writes a compressed Postgres custom-format dump to `/opt/business/ai-fsm/backups/` and prunes files older than 7 days.
+The script writes an encrypted, compressed Postgres custom-format dump to `/opt/business/ai-fsm/backups/` and prunes files older than 7 days.
 
 ### Automated backup (cron)
 
@@ -45,12 +47,59 @@ Add to crontab (`crontab -e`):
 ```
 
 The backup script (`scripts/backup-garonhome.sh`) performs:
-1. `pg_dump` from the running postgres container to `/opt/business/ai-fsm/backups/ai_fsm_YYYYMMDDTHHMMSSZ.dump`
-2. `tar` of `/opt/business/ai-fsm/data/uploads/` to `ai_fsm_uploads_YYYYMMDDTHHMMSSZ.tar.gz`
-3. `gpg --symmetric` encryption of `.env` to `ai_fsm_env_YYYYMMDDTHHMMSSZ.gpg` (requires a passphrase file — see setup below; skipped with a warning if the file is missing)
-4. Pushes all three files offsite via `rclone`
-5. Prunes local copies of all three older than 7 days
-6. Prunes offsite (Google Drive) copies older than 30 days via `rclone delete --min-age`
+1. `pg_dump` from the running postgres container, encrypted in-stream, to `/opt/business/ai-fsm/backups/ai_fsm_YYYYMMDDTHHMMSSZ.dump.gpg`
+2. `tar` of `/opt/business/ai-fsm/data/uploads/`, encrypted in-stream, to `ai_fsm_uploads_YYYYMMDDTHHMMSSZ.tar.gz.gpg`
+3. `gpg --symmetric` encryption of `.env` to `ai_fsm_env_YYYYMMDDTHHMMSSZ.gpg`
+4. Writes `ai_fsm_YYYYMMDDTHHMMSSZ.sha256` (SHA-256 of the three encrypted files above)
+5. Pushes all four files offsite via `rclone`
+6. Verifies each offsite copy by remote listing (name and byte size) before counting it as stored
+7. Writes the status markers described in [Backup status and alerts](#backup-status-and-alerts)
+8. Prunes local sets older than 7 days, but only sets whose offsite copy is verified (see Retention below)
+9. Prunes offsite (Google Drive) copies older than 30 days via `rclone delete --min-age`, only when this run's set is complete and verified
+
+The run refuses to start (no files written) if the passphrase file is missing or empty, or if it sits inside the backup directory. A run is **complete** only when the database dump, the uploads archive, the `.env` backup and the manifest are all written and all four are verified on Drive. Anything else is **INCOMPLETE**: the script exits non-zero and the status files say why.
+
+### Backup status and alerts
+
+Status lives in `/opt/business/ai-fsm/backups/status/` (not matched by the artifact patterns, so it is never pruned as a backup):
+
+| File | Meaning |
+|------|---------|
+| `last-success.json` | Written only by a complete, verified run. Holds the set timestamp, completion time, and the name, byte size and SHA-256 of each artifact. It is the source of truth for "last good backup". |
+| `last-run.json` | The most recent run, `"status": "ok"` or `"incomplete"`, with the list of failures. |
+| `INCOMPLETE` | Present only while the most recent run was incomplete. Lists the failures. |
+| `verified-<timestamp>` | Marker that a set was verified on Drive. Local sets are pruned only if this marker exists (or if a complete run has just finished). |
+
+**Alert hook: not configured.** The repo has no alert endpoint. The script calls `BACKUP_ALERT_CMD` with the message as its first argument whenever a run is incomplete. Set it in the env file to a command that posts to your chat or email service, for example:
+
+```bash
+# in /opt/business/ai-fsm/env/.env (operator-owned, not in git)
+BACKUP_ALERT_CMD=/opt/business/ai-fsm/bin/notify-backup
+```
+
+If `BACKUP_ALERT_CMD` is unset, the script prints `ALERT (BACKUP_ALERT_CMD not configured; nothing sent)` to stderr and the cron log. That is a missing alert, not a successful one. Until the hook is configured, check the status files daily (see below).
+
+### Operator check: is the last full backup good?
+
+Run this on garonhome, for example in the morning:
+
+```bash
+cd /opt/business/ai-fsm/backups/status
+test ! -e INCOMPLETE && echo "last run: complete" || { echo "last run: INCOMPLETE"; cat INCOMPLETE; }
+cat last-success.json
+# Age in hours of the last verified full set (should be under 26):
+echo $(( ( $(date -u +%s) - $(date -u -d "$(sed -nE 's/.*"completed_at": "([^"]+)".*/\1/p' last-success.json)" +%s) ) / 3600 ))
+```
+
+Then confirm the set is on Drive, using the `set` value from `last-success.json` (replace `<TS>`):
+
+```bash
+rclone lsf --files-only googledrive:ai-fsm-backups | grep "<TS>"
+```
+
+Expect four names: `ai_fsm_<TS>.dump.gpg`, `ai_fsm_uploads_<TS>.tar.gz.gpg`, `ai_fsm_env_<TS>.gpg`, `ai_fsm_<TS>.sha256`.
+
+A `last-success.json` older than about 26 hours, or an `INCOMPLETE` file, means the nightly job did not produce a complete verified set. Fix the cause listed in `INCOMPLETE` (or in `docs/BACKUP_RUNBOOK.md` Known Limitations) and run the script manually.
 
 ### One-time setup: the `.env` backup passphrase
 
@@ -60,13 +109,13 @@ openssl rand -base64 32 > /opt/business/ai-fsm/env/backup.passphrase
 chmod 600 /opt/business/ai-fsm/env/backup.passphrase
 ```
 
-Then store that passphrase value in the company password manager (1Password/Bitwarden) as the durable source of truth — the file on disk and the encrypted `.gpg` backups are both useless without it, and it isn't itself backed up (deliberately, so a stolen backup set alone can't decrypt itself).
+Then store that passphrase value in the company password manager (1Password/Bitwarden) as the durable source of truth — the file on disk and the encrypted `.gpg` backups are both useless without it, and it isn't itself backed up (deliberately, so a stolen backup set alone can't decrypt itself). See [Encryption and key management](#encryption-and-key-management) for placement, recovery, rotation and incident steps.
 
 ---
 
 ## Offsite / Remote Backup
 
-This is already automatic — `scripts/backup-garonhome.sh` pushes every dump/uploads-tar/`.env.gpg` to the `googledrive:ai-fsm-backups` Google Drive folder via `rclone` as part of the nightly cron run, and prunes copies there older than 30 days (`rclone delete --min-age 30d`, configurable via `FSM_BACKUP_REMOTE_RETENTION_DAYS`).
+This is already automatic — `scripts/backup-garonhome.sh` pushes every encrypted dump, uploads archive, `.env` backup and `.sha256` manifest to the `googledrive:ai-fsm-backups` Google Drive folder via `rclone` as part of the nightly cron run. Each copy is checked by remote listing (name and size). Copies older than 30 days are pruned (`rclone delete --min-age 30d`, configurable via `FSM_BACKUP_REMOTE_RETENTION_DAYS`), but only after a complete verified run.
 
 Direct folder link: `https://drive.google.com/drive/folders/1gYp-bXjpAj3DpTKOvF6RZt1ElH4HNT36`
 
@@ -86,16 +135,28 @@ Use the restore script for the full restore sequence:
 
 ```bash
 cd /opt/business/ai-fsm/repo
-bash scripts/restore-garonhome.sh /opt/business/ai-fsm/backups/ai_fsm_YYYYMMDDTHHMMSSZ.dump
+bash scripts/restore-garonhome.sh /opt/business/ai-fsm/backups/ai_fsm_YYYYMMDDTHHMMSSZ.dump.gpg
 ```
 
 The restore script handles the full sequence automatically:
-1. Stops `web` and `worker` containers (prevents writes during restore)
-2. Terminates active DB sessions
-3. Drops and recreates the `ai_fsm` database
-4. Restores from the specified dump file via `pg_restore`
-5. Restarts `web` and `worker`
-6. Verifies the health endpoint
+1. Checks the SHA-256 manifest for the set (when present) and decrypts the dump to `/dev/null` to confirm the passphrase and integrity, before anything is stopped
+2. Stops `web` and `worker` containers (prevents writes during restore)
+3. Terminates active DB sessions
+4. Drops and recreates the `ai_fsm` database
+5. Streams the decrypted dump into `pg_restore` (no plaintext copy is written to disk)
+6. Restarts `web` and `worker`
+7. Verifies the health endpoint
+
+### Restore drill (verification without touching the live database)
+
+Run this after changing keys or scripts, and at least monthly:
+
+```bash
+cd /opt/business/ai-fsm/repo
+bash scripts/verify-backup-garonhome.sh /opt/business/ai-fsm/backups/ai_fsm_YYYYMMDDTHHMMSSZ.dump.gpg
+```
+
+It checks the set's checksums, decrypts all three artifacts into a private temp directory (`FSM_VERIFY_TMPDIR`, default `$TMPDIR` or `/tmp`), restores the dump into a scratch database named `ai_fsm_verify_<pid>`, counts the public tables, and checks the uploads archive and `.env` backup. On exit, success or failure, it drops the scratch database and deletes the temp directory. The last line is `VERIFY OK` or `VERIFY FAILED`.
 
 ### Manual restore steps (if script is unavailable)
 
@@ -123,15 +184,16 @@ SQL
 #### 3. Restore from dump
 
 ```bash
-DUMP_FILE="/opt/business/ai-fsm/backups/ai_fsm_YYYYMMDDTHHMMSSZ.dump"
+DUMP_FILE="/opt/business/ai-fsm/backups/ai_fsm_YYYYMMDDTHHMMSSZ.dump.gpg"
 
-docker exec -i ai-fsm-postgres pg_restore \
+gpg --batch --quiet --decrypt --passphrase-file /path/to/passphrase "$DUMP_FILE" \
+  | docker exec -i ai-fsm-postgres pg_restore \
   --username=postgres \
   --dbname=ai_fsm \
   --verbose \
   --no-owner \
   --no-acl \
-  < "$DUMP_FILE"
+  --no-owner --no-privileges
 ```
 
 #### 4. Restart the application
@@ -153,7 +215,9 @@ Needed for a full disaster-recovery rebuild (new host, or a wiped drive) — the
 ### Restore uploaded files
 
 ```bash
-tar -xzf ai_fsm_uploads_YYYYMMDDTHHMMSSZ.tar.gz -C /opt/business/ai-fsm/data/
+gpg --batch --quiet --decrypt --passphrase-file /path/to/passphrase \
+  ai_fsm_uploads_YYYYMMDDTHHMMSSZ.tar.gz.gpg \
+  | tar -xzf - -C /opt/business/ai-fsm/data/
 ```
 
 ### Restore `.env`
@@ -168,7 +232,9 @@ gpg --batch --yes --decrypt \
 chmod 600 /opt/business/ai-fsm/env/.env
 ```
 
-On a brand-new host, pull all three files (dump, uploads tar, `.gpg`) from the `googledrive:ai-fsm-backups` rclone remote first, then run these restores before `docker compose up`.
+On a brand-new host, pull all four files of the set (dump `.gpg`, uploads `.gpg`, env `.gpg`, `.sha256`) from the `googledrive:ai-fsm-backups` rclone remote first, check them with `sha256sum -c ai_fsm_YYYYMMDDTHHMMSSZ.sha256`, then run these restores before `docker compose up`.
+
+Backups made before the encryption change (`ai_fsm_*.dump` and `ai_fsm_uploads_*.tar.gz`, no `.gpg`) are plaintext. Restore them with `pg_restore` / `tar -xzf` directly.
 
 ---
 
@@ -256,8 +322,9 @@ Append to `docs/DECISION_LOG.md` under a new `DRILL-<date>` entry:
 Quick check that the dump file is not corrupted:
 
 ```bash
-DUMP_FILE="/opt/business/ai-fsm/backups/ai_fsm_<timestamp>.dump"
-pg_restore --list "$DUMP_FILE" | head -20
+DUMP_FILE="/opt/business/ai-fsm/backups/ai_fsm_<timestamp>.dump.gpg"
+gpg --batch --quiet --decrypt --passphrase-file /path/to/passphrase "$DUMP_FILE" \
+  | docker exec -i ai-fsm-postgres pg_restore --list | head -20
 ```
 
 No error output = file is structurally valid.
@@ -278,4 +345,57 @@ No error output = file is structurally valid.
 
 1. **No point-in-time recovery (PITR)** — WAL archiving not configured. Maximum data loss = 24 hours (last backup).
 2. **No replication / standby** — single-node PostgreSQL. If garonhome.local hardware fails, restore from offsite backup to another x86 host.
-3. **DB dump and uploads tar are not encrypted at rest** — only `.env` is encrypted before it leaves the host. If the offsite Google Drive account itself is a concern, add `gpg --encrypt` to the dump and uploads steps too.
+3. **Plaintext backups from before the encryption change remain** on Drive and locally until their retention ends (up to 30 days offsite). Delete them early only after a verified encrypted set exists.
+
+---
+
+## Encryption and key management
+
+All dump, uploads and `.env` artifacts are encrypted with `gpg --symmetric --cipher-algo AES256` (the same tool already used for `.env`, so no new software is needed on garonhome). The key is one passphrase, stored in a file.
+
+### Where each secret lives
+
+| Item | Location | Notes |
+|------|----------|-------|
+| Passphrase (the key) | `/opt/business/ai-fsm/env/backup.passphrase` (chmod 600) | Outside `backups/`. The script refuses to run if the file is inside the backup directory. |
+| Passphrase (durable copy) | Company password manager | The only recovery path if the host is lost. |
+| Encrypted artifacts | `/opt/business/ai-fsm/backups/` and `googledrive:ai-fsm-backups` | Never contain the key. |
+| Passphrase | Never in git, never in Drive, never in the backup set | |
+
+Nothing in this layout puts the decryption key beside the archive it protects. Anyone who gets only the backup set (local copy, Drive account, or a leaked download) cannot decrypt it.
+
+### Recovery
+
+- **Host lost, password manager available**: install the host, write the passphrase to `env/backup.passphrase` (`chmod 600`), copy the set from Drive, verify with `sha256sum -c`, run `scripts/verify-backup-garonhome.sh`, then restore.
+- **Passphrase file lost, password manager available**: recreate the file from the password manager, then run the restore drill to confirm it decrypts a recent set.
+- **Passphrase lost everywhere**: the encrypted sets cannot be opened. Record the loss in `docs/DECISION_LOG.md`, take a fresh backup on a working host with a new key, and rotate the offsite set (see below).
+
+### Rotation (planned, at least yearly or after staff change)
+
+1. Generate a new key: `openssl rand -base64 32 > /opt/business/ai-fsm/env/backup.passphrase.new && chmod 600 ...backup.passphrase.new`.
+2. Save the new value in the password manager, under a new entry name that includes the date.
+3. Move the old file to `env/backup.passphrase.<YYYYMMDD>` (still outside `backups/`), and move the new file into place as `env/backup.passphrase`.
+4. Run a backup, then the restore drill against the new set.
+5. Keep the old passphrase file only until every set encrypted with it has aged out of local and offsite retention (30 days offsite). Then delete it and mark the password-manager entry as retired. To decrypt an old set during that window, pass the old file as `FSM_BACKUP_PASSPHRASE_FILE=...` to the restore or verify script.
+
+### Incident steps (passphrase or backup set suspected exposed)
+
+1. Rotate the key as above, immediately.
+2. Delete the exposed offsite sets (`rclone delete` on the exposed file names) and any local copies, once a backup under the new key is verified.
+3. Check Drive sharing and the Google account's access log for who downloaded the set.
+4. Remember the limit: the old key still decrypts any copy that was already taken. Rotation protects only new backups.
+5. Record the incident and the actions in `docs/DECISION_LOG.md`.
+
+### Retention and deletion
+
+- Local: 7 days, deleted by `backup-garonhome.sh`, and only for a set whose offsite copy is verified (marker `status/verified-<ts>`). An unverified set is kept while Drive is failing. Once a run completes and verifies, older unverified sets are pruned as well, because a complete offsite set now exists. If Drive is down for a long time, local disk use grows by one set per night; the INCOMPLETE alert is the signal to act.
+- Offsite: 30 days (`FSM_BACKUP_REMOTE_RETENTION_DAYS`), deleted by `rclone delete --min-age`.
+- A set is deleted as a unit: its dump, uploads, env and `.sha256` files.
+- Deleting a set does not require rotating the key. Destroying a retired passphrase file makes its remaining copies permanently unreadable, which is the intended deletion for a retired key.
+
+### Integrity
+
+- `ai_fsm_<ts>.sha256` lists SHA-256 for the three encrypted files of a set. Verify with `cd /opt/business/ai-fsm/backups && sha256sum -c ai_fsm_<ts>.sha256`.
+- gpg also authenticates each encrypted file (MDC) when decrypting, so a corrupted or altered file fails to decrypt.
+- Offsite copies are checked after upload when the set is verified; see the offsite section.
+- `scripts/test-backup-garonhome.sh` is a simulation of the backup, verify and restore scripts with a fake `docker` and `rclone` in a temp dir. It needs no host, database or Drive access. Run it after changing any backup script: `bash scripts/test-backup-garonhome.sh`.
