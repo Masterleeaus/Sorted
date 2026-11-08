@@ -289,3 +289,14 @@ Append-only log of technical decisions made by AI agents.
 - Alternatives considered: delete donor copies (rejected: loses evidence without provenance); keep both as editable (rejected: drift risk).
 - Consequences: duplicate content stays on disk until a separate reviewed removal. Drift in integrated copies must be re-hashed in the manifest.
 - Rollback plan: remove the manifest and checker; the tree itself is unchanged.
+
+### ADR-024: Worker runs as ai_fsm_worker (BYPASSRLS, DML only); web cutover deferred
+- Date (UTC): 2026-11-08
+- Agent: claude
+- Task ID: issues #6 and #15 (database runtime roles)
+- Context: The worker is a trusted cross-account sweep processor (migration 185). The provisioner created ai_fsm_worker NOBYPASSRLS, which would filter sweeps by RLS. Web and worker shared one DATABASE_URL. Web cannot move to ai_fsm_web yet: about 102 files make DB calls without account context, and portal, Square webhook and estimate respond are open blockers.
+- Decision: The worker connects as ai_fsm_worker with BYPASSRLS, NOSUPERUSER, and DML on RLS tables only. The provisioner enforces the attribute set. Web keeps its own WEB_DATABASE_URL, which stays on the admin URL until the cutover gate clears.
+- Alternatives considered: per-account job execution (large rewrite of about 15 sweeps); one SECURITY DEFINER function per sweep (more reviewed surface, more upkeep); keeping the shared superuser URL (rejected: no separation).
+- Consequences: The worker bypasses RLS, so each worker write must scope by account_id or be a reviewed cross-account job. Worker table grants are not yet narrowed per table. Migrations are unchanged.
+- Rollback plan: set WORKER_DATABASE_URL to the admin URL and restart the worker. The role can stay.
+

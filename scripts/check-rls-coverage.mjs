@@ -28,8 +28,13 @@ import { fileURLToPath } from "node:url";
  *
  * The WORKER is intentionally out of scope for this guard: it is a trusted
  * cross-tenant batch processor (no job sets per-account context; most already
- * query estimates/invoices/visits across accounts) and bypasses RLS by design
- * (superuser today, or a BYPASSRLS ai_fsm_worker role). See migration 185.
+ * query estimates/invoices/visits across accounts). It connects as the
+ * ai_fsm_worker role, which carries BYPASSRLS and nothing above DML on RLS
+ * tables (scripts/db-provision-runtime.sh enforces that). The web role
+ * ai_fsm_web is NOBYPASSRLS. Migration 185 explains the model; the
+ * operative description is docs/working/rls-web-tier-flip.md. Because the worker
+ * bypasses RLS, a new worker sweep is NOT protected by a policy: it must scope
+ * its own writes by account_id or be a reviewed cross-account job.
  *
  * `_migration_*` internal bookkeeping tables are skipped by pattern, not listed.
  */
