@@ -61,16 +61,17 @@ self.addEventListener("notificationclick", (event) => {
       // Keep this event alive until navigation and focus finish. If a tab
       // cannot navigate, try the next tab or open a new same-origin window.
       for (const client of clients) {
-        if (!("focus" in client)) continue;
-        if ("navigate" in client) {
-          try {
-            await client.navigate(url);
-          } catch {
-            continue;
-          }
+        // Focusing a tab without navigation support would leave the user on
+        // the wrong screen. Try a navigable tab or open a new window instead.
+        if (typeof client.navigate !== "function" || typeof client.focus !== "function") continue;
+        try {
+          await client.navigate(url);
+          await client.focus();
+          return;
+        } catch {
+          // A closed or blocked client must not consume the notification click.
+          continue;
         }
-        await client.focus();
-        return;
       }
       return self.clients.openWindow(url);
     }),
