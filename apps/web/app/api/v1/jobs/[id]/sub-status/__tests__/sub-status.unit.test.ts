@@ -23,7 +23,8 @@ vi.mock("@/lib/auth/middleware", () => ({
 const mockQuery = vi.fn();
 
 vi.mock("@/lib/db", () => ({
-  query: (...args: unknown[]) => mockQuery(...args),
+  withDbSession: (_session: unknown, fn: (client: unknown) => Promise<unknown>) =>
+    fn({ query: async (...args: unknown[]) => ({ rows: await mockQuery(...args) }) }),
 }));
 
 vi.mock("@/lib/logger", () => ({

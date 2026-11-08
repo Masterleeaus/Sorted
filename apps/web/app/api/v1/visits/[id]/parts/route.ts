@@ -7,7 +7,7 @@ import { z } from "zod";
 import type { PoolClient } from "pg";
 import { withAuth } from "../../../../../../lib/auth/middleware";
 import type { AuthSession } from "../../../../../../lib/auth/middleware";
-import { query, queryOne, getPool } from "../../../../../../lib/db";
+import { getPool, withDbSession } from "../../../../../../lib/db";
 import { logger } from "../../../../../../lib/logger";
 
 export const dynamic = "force-dynamic";
@@ -19,11 +19,12 @@ const addPartBody = z.object({
   receipt_media_id: z.string().uuid().nullable().optional(),
 });
 
-async function getVisit(visitId: string, session: AuthSession) {
-  return queryOne<{ id: string; assigned_user_id: string | null }>(
+async function getVisit(client: PoolClient, visitId: string, session: AuthSession) {
+  const result = await client.query<{ id: string; assigned_user_id: string | null }>(
     `SELECT id, assigned_user_id FROM visits WHERE id = $1 AND account_id = $2`,
     [visitId, session.accountId]
   );
+  return result.rows[0] ?? null;
 }
 
 async function recalcJobCost(client: PoolClient, visitId: string, accountId: string) {
@@ -51,29 +52,31 @@ export const GET = withAuth(
       );
     }
 
-    const visit = await getVisit(visitId, session);
-    if (!visit) {
-      return NextResponse.json(
-        { error: { code: "NOT_FOUND", message: "Visit not found", traceId: session.traceId } },
-        { status: 404 }
-      );
-    }
-    if (session.role === "tech" && visit.assigned_user_id !== session.userId) {
-      return NextResponse.json(
-        { error: { code: "FORBIDDEN", message: "Access denied", traceId: session.traceId } },
-        { status: 403 }
-      );
-    }
+    return withDbSession(session, async (client) => {
+      const visit = await getVisit(client, visitId, session);
+      if (!visit) {
+        return NextResponse.json(
+          { error: { code: "NOT_FOUND", message: "Visit not found", traceId: session.traceId } },
+          { status: 404 }
+        );
+      }
+      if (session.role === "tech" && visit.assigned_user_id !== session.userId) {
+        return NextResponse.json(
+          { error: { code: "FORBIDDEN", message: "Access denied", traceId: session.traceId } },
+          { status: 403 }
+        );
+      }
 
-    const rows = await query(
-      `SELECT id, name, quantity, actual_cost_cents, customer_price_cents, receipt_media_id, created_at
-       FROM visit_parts
-       WHERE visit_id = $1 AND account_id = $2
-       ORDER BY created_at`,
-      [visitId, session.accountId]
-    );
+      const result = await client.query(
+        `SELECT id, name, quantity, actual_cost_cents, customer_price_cents, receipt_media_id, created_at
+         FROM visit_parts
+         WHERE visit_id = $1 AND account_id = $2
+         ORDER BY created_at`,
+        [visitId, session.accountId]
+      );
 
-    return NextResponse.json({ data: rows });
+      return NextResponse.json({ data: result.rows });
+    });
   }
 );
 
@@ -87,7 +90,7 @@ export const POST = withAuth(
       );
     }
 
-    const visit = await getVisit(visitId, session);
+    const visit = await withDbSession(session, (client) => getVisit(client, visitId, session));
     if (!visit) {
       return NextResponse.json(
         { error: { code: "NOT_FOUND", message: "Visit not found", traceId: session.traceId } },
