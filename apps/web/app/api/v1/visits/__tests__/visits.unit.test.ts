@@ -20,21 +20,23 @@ vi.mock("../../../../../lib/auth/middleware", () => ({
 // Mock DB layer — no real connections
 // ---------------------------------------------------------------------------
 const mockQuery = vi.fn();
-const mockQueryOne = vi.fn();
 const mockClientQuery = vi.fn();
 const mockClientRelease = vi.fn();
 const mockPool = { connect: vi.fn() };
 
+// Session-scoped reads: the client returns { rows } and records the call on mockQuery.
 vi.mock("../../../../../lib/db", () => ({
   query: (...args: unknown[]) => mockQuery(...args),
-  queryOne: (...args: unknown[]) => mockQueryOne(...args),
+  withDbSession: (_session: unknown, fn: (client: unknown) => Promise<unknown>) =>
+    fn({ query: async (...args: unknown[]) => ({ rows: await mockQuery(...args) }) }),
   getPool: () => mockPool,
 }));
 
 // Also mock the @/ alias path used by lib/visits/checklist.ts
 vi.mock("@/lib/db", () => ({
   query: (...args: unknown[]) => mockQuery(...args),
-  queryOne: (...args: unknown[]) => mockQueryOne(...args),
+  withDbSession: (_session: unknown, fn: (client: unknown) => Promise<unknown>) =>
+    fn({ query: async (...args: unknown[]) => ({ rows: await mockQuery(...args) }) }),
   getPool: () => mockPool,
 }));
 
@@ -308,7 +310,7 @@ describe("POST /api/v1/jobs/[jobId]/visits", () => {
 // ---------------------------------------------------------------------------
 describe("GET /api/v1/visits/[id]", () => {
   it("returns 200 when visit found", async () => {
-    mockQueryOne.mockResolvedValue(SAMPLE_VISIT);
+    mockQuery.mockResolvedValue([SAMPLE_VISIT]);
     const res = await visitGet(makeRequest("GET", `${VISITS_BASE}/${VISIT_ID}`));
     expect(res.status).toBe(200);
     const json = await res.json();
@@ -316,7 +318,7 @@ describe("GET /api/v1/visits/[id]", () => {
   });
 
   it("returns 404 when visit not found", async () => {
-    mockQueryOne.mockResolvedValue(null);
+    mockQuery.mockResolvedValue([]);
     const res = await visitGet(makeRequest("GET", `${VISITS_BASE}/${VISIT_ID}`));
     expect(res.status).toBe(404);
     const json = await res.json();

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { withAuth } from "@/lib/auth/middleware";
-import { getPool } from "@/lib/db";
+import { withDbSession } from "@/lib/db";
 import { logger } from "@/lib/logger";
 import { suggestLineItems, type PriceBookEntry } from "@/lib/estimates/item-suggester";
 import { priceBookCategorySchema } from "@ai-fsm/domain";
@@ -51,7 +51,7 @@ export const POST = withAuth(async (request: NextRequest, session) => {
       params.push(category);
     }
 
-    const { rows: priceBook } = await getPool().query<PriceBookEntry>(
+    const { rows: priceBook } = await withDbSession(session, (db) => db.query<PriceBookEntry>(
       `SELECT id, code, name, category,
               price_min_cents, price_max_cents, default_price_cents, add_on_price_cents,
               unit_type, description, default_labor_hours, requires_materials, upsell_codes,
@@ -61,7 +61,7 @@ export const POST = withAuth(async (request: NextRequest, session) => {
        WHERE ${conditions.join(" AND ")}
        ORDER BY code ASC`,
       params
-    );
+    ));
 
     const suggestions = await suggestLineItems(description, priceBook);
 

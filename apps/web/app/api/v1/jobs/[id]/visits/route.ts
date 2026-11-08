@@ -14,7 +14,7 @@ import {
 } from "../../../../../../lib/work-orders/sync-status";
 import { withAuth, withRole } from "../../../../../../lib/auth/middleware";
 import type { AuthSession } from "../../../../../../lib/auth/middleware";
-import { query, getPool } from "../../../../../../lib/db";
+import { getPool, withDbSession } from "../../../../../../lib/db";
 import { appendAuditLog } from "../../../../../../lib/db/audit";
 import { logger } from "../../../../../../lib/logger";
 import { advanceBookingRequestStage } from "../../../../../../lib/booking-requests/advance-stage";
@@ -51,10 +51,13 @@ export const GET = withAuth(
     const offset = parseInt(searchParams.get("offset") ?? "0");
 
     // RLS automatically scopes tech to assigned visits — no extra filter needed
-    const visits = await query(
-      `SELECT * FROM visits WHERE job_id = $1 AND account_id = $2 ORDER BY scheduled_start ASC LIMIT $3 OFFSET $4`,
-      [jobId, session.accountId, limit, offset]
-    );
+    const visits = await withDbSession(session, async (client) => {
+      const result = await client.query(
+        `SELECT * FROM visits WHERE job_id = $1 AND account_id = $2 ORDER BY scheduled_start ASC LIMIT $3 OFFSET $4`,
+        [jobId, session.accountId, limit, offset]
+      );
+      return result.rows;
+    });
 
     return NextResponse.json({ data: visits, limit, offset });
   }

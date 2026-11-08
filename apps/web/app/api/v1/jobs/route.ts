@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { withAuth, withRole } from "../../../../lib/auth/middleware";
 import type { AuthSession } from "../../../../lib/auth/middleware";
-import { query, getPool } from "../../../../lib/db";
+import { getPool, withDbSession } from "../../../../lib/db";
 import { appendAuditLog } from "../../../../lib/db/audit";
 import { logger } from "../../../../lib/logger";
 import { JOB_ACCEPTANCE_CATEGORIES } from "@ai-fsm/domain";
@@ -52,10 +52,13 @@ export const GET = withAuth(
     params.push(limit, offset);
 
     const orderBy = openOnly ? receiptJobOrderSql() : "created_at DESC";
-    const jobs = await query(
-      `SELECT * FROM jobs WHERE ${where} ORDER BY ${orderBy} LIMIT $${params.length - 1} OFFSET $${params.length}`,
-      params
-    );
+    const jobs = await withDbSession(session, async (client) => {
+      const { rows } = await client.query(
+        `SELECT * FROM jobs WHERE ${where} ORDER BY ${orderBy} LIMIT $${params.length - 1} OFFSET $${params.length}`,
+        params
+      );
+      return rows;
+    });
 
     return NextResponse.json({ data: jobs, limit, offset });
   }

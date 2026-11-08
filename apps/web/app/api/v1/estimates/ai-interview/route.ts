@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { withAuth } from "@/lib/auth/middleware";
-import { getPool } from "@/lib/db";
+import { withDbSession } from "@/lib/db";
 import { logger } from "@/lib/logger";
 import { runInterviewTurn } from "@/lib/estimates/interview-agent";
 
@@ -50,11 +50,11 @@ export const POST = withAuth(async (request: NextRequest, session) => {
   let jobContext: string | undefined;
   if (job_id || client_id) {
     try {
-      const pool = getPool();
       const parts: string[] = [];
 
+      await withDbSession(session, async (db) => {
       if (job_id) {
-        const { rows: jobRows } = await pool.query<{
+        const { rows: jobRows } = await db.query<{
           title: string; notes: string | null; client_id: string; property_id: string | null;
         }>(
           `SELECT j.title, j.notes, j.client_id, j.property_id
@@ -67,7 +67,7 @@ export const POST = withAuth(async (request: NextRequest, session) => {
           if (notes) parts.push(`Notes: ${notes}`);
 
           if (property_id) {
-            const { rows: propRows } = await pool.query<{ address: string; year_built: number | null }>(
+            const { rows: propRows } = await db.query<{ address: string; year_built: number | null }>(
               `SELECT address, year_built FROM properties WHERE id = $1 AND account_id = $2`,
               [property_id, session.accountId]
             );
@@ -79,7 +79,7 @@ export const POST = withAuth(async (request: NextRequest, session) => {
 
           // Recent estimates for this client
           const effectiveClientId = client_id ?? jClientId;
-          const { rows: recentRows } = await pool.query<{ title: string; total_cents: number }>(
+          const { rows: recentRows } = await db.query<{ title: string; total_cents: number }>(
             `SELECT j.title, e.total_cents
              FROM estimates e JOIN jobs j ON j.id = e.job_id
              WHERE e.account_id = $1 AND j.client_id = $2 AND e.status IN ('approved','invoiced','sent')
@@ -91,6 +91,7 @@ export const POST = withAuth(async (request: NextRequest, session) => {
           }
         }
       }
+      });
 
       if (parts.length > 0) jobContext = parts.join('\n');
     } catch (err) {
