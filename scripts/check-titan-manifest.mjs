@@ -8,6 +8,8 @@
  *      exists and still has the recorded sha256. Mismatch or missing = error.
  *   2. Duplicate-content groups under the scanned roots that the manifest
  *      does not declare = warning ("unexpected duplicate").
+ *   3. Bundle-like files under packages/titan-platform/src that are not listed
+ *      in docs/generated/bundled-assets-provenance.md = warning.
  *
  * Usage:
  *   node scripts/check-titan-manifest.mjs [--root <dir>]
@@ -71,6 +73,23 @@ function checkDeclaredPath(root, relPath, expectedSha, label, errors) {
   }
 }
 
+const ASSET_DOC_REL = "docs/generated/bundled-assets-provenance.md";
+const BUNDLE_PATTERNS = [/\.iife\.[^/]+$/, /\/assets\/[^/]+$/, /\.compat\.(ts|js|css)$/, /\.min\.(ts|js|mjs|css)$/, /\.bundle\.json$/];
+const LARGE_FILE_BYTES = 1_000_000;
+
+/** Bundle-like files under the Titan platform source that the provenance inventory does not list. */
+function checkBundleCoverage(root, warnings) {
+  const docPath = path.join(root, ASSET_DOC_REL);
+  const doc = fs.existsSync(docPath) ? fs.readFileSync(docPath, "utf8") : "";
+  for (const abs of walkFiles(path.join(root, "packages/titan-platform/src"))) {
+    const rel = toRel(root, abs);
+    const bundleLike = BUNDLE_PATTERNS.some((re) => re.test(rel)) || fs.statSync(abs).size >= LARGE_FILE_BYTES;
+    if (bundleLike && !doc.includes("`" + rel + "`")) {
+      warnings.push(`unlisted bundle asset (add to ${ASSET_DOC_REL}): ${rel}`);
+    }
+  }
+}
+
 export function runCheck(root) {
   const errors = [];
   const warnings = [];
@@ -113,6 +132,7 @@ export function runCheck(root) {
       byHash.get(h).push(rel);
     }
   }
+  checkBundleCoverage(root, warnings);
   let unexpectedGroups = 0;
   for (const [h, paths] of byHash) {
     if (paths.length < 2) continue;

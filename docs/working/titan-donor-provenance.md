@@ -40,6 +40,7 @@ The manifest also lists 7 `knownInternalDuplicateGroups` inside `packages/titan-
 
 1. Errors (exit 1): a manifest path is missing, or its sha256 no longer matches. A change to an integrated copy is drift on purpose. Re-hash it in the manifest in the same change, and say why in the commit.
 2. Warnings (exit 0): content duplicates under `titan-donor/`, `packages/titan-platform/src/` and `packages/workforce/` that include a file the manifest does not declare.
+3. Warnings (exit 0): a bundle-like file under `packages/titan-platform/src/` (`*.iife.*`, `assets/`, `*.compat.*`, `*.min.*`, `*.bundle.json`, or 1 MB or more) that is not listed in `docs/generated/bundled-assets-provenance.md`. Add its row there in the same change.
 
 Use `--root <dir>` to point it at a copy, for example a fixture in a scratch folder.
 
