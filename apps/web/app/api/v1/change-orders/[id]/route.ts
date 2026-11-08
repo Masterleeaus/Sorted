@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { withAuth, withRole } from "@/lib/auth/middleware";
+import type { AuthSession } from "@/lib/auth/middleware";
 import { appendAuditLog } from "@/lib/db/audit";
-import { getPool, queryOne } from "@/lib/db";
+import { queryOneForSession, queryForSession, withDbSession } from "@/lib/db";
 import { logger } from "@/lib/logger";
 
 export const dynamic = "force-dynamic";
@@ -61,170 +62,161 @@ export const PATCH = withRole(["owner", "admin"], async (request, session) => {
   }
 
   const data = parseResult.data;
-  const pool = getPool();
-  const client = await pool.connect();
 
   try {
-    await client.query("BEGIN");
-
-    const existing = await queryOne<{ id: string; status: string; subtotal_cents: number; tax_cents: number }>(
-      `SELECT id, status, subtotal_cents, tax_cents FROM change_orders WHERE id = $1 AND account_id = $2`,
-      [id, session.accountId]
-    );
-
-    if (!existing) {
-      await client.query("ROLLBACK");
-      return NextResponse.json({ error: { message: "Change order not found", traceId: session.traceId } }, { status: 404 });
-    }
-
-    if (existing.status !== "draft") {
-      await client.query("ROLLBACK");
-      return NextResponse.json(
-        { error: { message: "Only draft change orders can be edited", traceId: session.traceId } },
-        { status: 422 }
+    // Early returns below happen before any write, so a normal return (commit) is safe.
+    const result = await withDbSession(session, async (client) => {
+      const existingResult = await client.query<{ id: string; status: string; subtotal_cents: number; tax_cents: number }>(
+        `SELECT id, status, subtotal_cents, tax_cents FROM change_orders WHERE id = $1 AND account_id = $2`,
+        [id, session.accountId]
       );
-    }
+      const existing = existingResult.rows[0] ?? null;
 
-    const updates: string[] = [];
-    const params: unknown[] = [];
-    let idx = 1;
+      if (!existing) {
+        return { status: 404, body: { error: { message: "Change order not found", traceId: session.traceId } } };
+      }
 
-    if (data.title !== undefined) { updates.push(`title = $${idx++}`); params.push(data.title); }
-    if (data.description !== undefined) { updates.push(`description = $${idx++}`); params.push(data.description); }
-    if (data.notes !== undefined) { updates.push(`notes = $${idx++}`); params.push(data.notes); }
-    updates.push(`updated_at = now()`);
+      if (existing.status !== "draft") {
+        return {
+          status: 422,
+          body: { error: { message: "Only draft change orders can be edited", traceId: session.traceId } },
+        };
+      }
 
-    // Handle line items if provided — push SET params before WHERE params
-    if (data.line_items) {
-      // Delete existing line items
-      await client.query(`DELETE FROM change_order_line_items WHERE change_order_id = $1`, [id]);
+      const updates: string[] = [];
+      const params: unknown[] = [];
+      let idx = 1;
 
-      // Recalculate totals. Fall back to existing effective rate if omitted.
-      const existingRate = existing.subtotal_cents > 0
-        ? (existing.tax_cents / existing.subtotal_cents) * 100
-        : 0;
-      const taxRate = data.tax_rate ?? existingRate;
+      if (data.title !== undefined) { updates.push(`title = $${idx++}`); params.push(data.title); }
+      if (data.description !== undefined) { updates.push(`description = $${idx++}`); params.push(data.description); }
+      if (data.notes !== undefined) { updates.push(`notes = $${idx++}`); params.push(data.notes); }
+      updates.push(`updated_at = now()`);
 
-      const subtotalCents = data.line_items.reduce((sum, item) => {
-        return sum + Math.round(item.quantity * item.unit_price_cents);
-      }, 0);
-      const taxCents = Math.round((subtotalCents * taxRate) / 100);
-      const totalCents = subtotalCents + taxCents;
+      // Handle line items if provided — push SET params before WHERE params
+      if (data.line_items) {
+        // Delete existing line items
+        await client.query(`DELETE FROM change_order_line_items WHERE change_order_id = $1`, [id]);
 
-      updates.push(`subtotal_cents = $${idx++}`, `tax_cents = $${idx++}`, `total_cents = $${idx++}`);
-      params.push(subtotalCents, taxCents, totalCents);
+        // Recalculate totals. Fall back to existing effective rate if omitted.
+        const existingRate = existing.subtotal_cents > 0
+          ? (existing.tax_cents / existing.subtotal_cents) * 100
+          : 0;
+        const taxRate = data.tax_rate ?? existingRate;
 
-      // Insert new line items
-      for (let i = 0; i < data.line_items.length; i++) {
-        const item = data.line_items[i];
+        const subtotalCents = data.line_items.reduce((sum, item) => {
+          return sum + Math.round(item.quantity * item.unit_price_cents);
+        }, 0);
+        const taxCents = Math.round((subtotalCents * taxRate) / 100);
+        const totalCents = subtotalCents + taxCents;
+
+        updates.push(`subtotal_cents = $${idx++}`, `tax_cents = $${idx++}`, `total_cents = $${idx++}`);
+        params.push(subtotalCents, taxCents, totalCents);
+
+        // Insert new line items
+        for (let i = 0; i < data.line_items.length; i++) {
+          const item = data.line_items[i];
+          await client.query(
+            `INSERT INTO change_order_line_items (change_order_id, description, quantity, unit_price_cents, total_cents, sort_order)
+             VALUES ($1, $2, $3, $4, $5, $6)`,
+            [id, item.description, item.quantity, item.unit_price_cents,
+             Math.round(item.quantity * item.unit_price_cents), item.sort_order ?? i]
+          );
+        }
+      }
+
+      // Push WHERE params after all SET params so indices don't collide
+      const whereIdx = idx;
+      params.push(id, session.accountId);
+
+      if (updates.length > 0) {
         await client.query(
-          `INSERT INTO change_order_line_items (change_order_id, description, quantity, unit_price_cents, total_cents, sort_order)
-           VALUES ($1, $2, $3, $4, $5, $6)`,
-          [id, item.description, item.quantity, item.unit_price_cents,
-           Math.round(item.quantity * item.unit_price_cents), item.sort_order ?? i]
+          `UPDATE change_orders SET ${updates.join(", ")} WHERE id = $${whereIdx} AND account_id = $${whereIdx + 1}`,
+          params
         );
       }
-    }
 
-    // Push WHERE params after all SET params so indices don't collide
-    const whereIdx = idx;
-    params.push(id, session.accountId);
+      await appendAuditLog(client, {
+        account_id: session.accountId,
+        entity_type: "change_order",
+        entity_id: id,
+        action: "update",
+        actor_id: session.userId,
+        trace_id: session.traceId,
+        new_value: data,
+      });
 
-    if (updates.length > 0) {
-      await client.query(
-        `UPDATE change_orders SET ${updates.join(", ")} WHERE id = $${whereIdx} AND account_id = $${whereIdx + 1}`,
-        params
-      );
-    }
-
-    await appendAuditLog(client, {
-      account_id: session.accountId,
-      entity_type: "change_order",
-      entity_id: id,
-      action: "update",
-      actor_id: session.userId,
-      trace_id: session.traceId,
-      new_value: data,
+      return { status: 200, body: { success: true } };
     });
-
-    await client.query("COMMIT");
-    return NextResponse.json({ success: true });
+    return NextResponse.json(result.body, { status: result.status });
   } catch (error) {
-    await client.query("ROLLBACK");
     logger.error("PATCH /api/v1/change-orders error", error as Error, { traceId: session.traceId });
     return NextResponse.json(
       { error: { message: "Failed to update change order", traceId: session.traceId } },
       { status: 500 }
     );
-  } finally {
-    client.release();
   }
 });
 
-async function handleAction(id: string, action: string, session: { accountId: string; userId: string; traceId: string }) {
-  const pool = getPool();
-  const client = await pool.connect();
-
+async function handleAction(id: string, action: string, session: AuthSession) {
   try {
-    await client.query("BEGIN");
-
-    const existing = await queryOne<{ id: string; status: string; estimate_id: string; total_cents: number }>(
-      `SELECT id, status, estimate_id, total_cents FROM change_orders WHERE id = $1 AND account_id = $2`,
-      [id, session.accountId]
-    );
-
-    if (!existing) {
-      await client.query("ROLLBACK");
-      return NextResponse.json({ error: { message: "Change order not found", traceId: session.traceId } }, { status: 404 });
-    }
-
-    if (action === "send") {
-      if (existing.status !== "draft") {
-        await client.query("ROLLBACK");
-        return NextResponse.json({ error: { message: "Only draft change orders can be sent", traceId: session.traceId } }, { status: 422 });
-      }
-      await client.query(`UPDATE change_orders SET status = 'sent', updated_at = now() WHERE id = $1`, [id]);
-    } else if (action === "approve") {
-      if (existing.status !== "sent") {
-        await client.query("ROLLBACK");
-        return NextResponse.json({ error: { message: "Only sent change orders can be approved", traceId: session.traceId } }, { status: 422 });
-      }
-      await client.query(
-        `UPDATE change_orders SET status = 'approved', approved_by = $2, approved_at = now(), updated_at = now() WHERE id = $1`,
-        [id, session.userId]
+    // Early returns below happen before any write, so a normal return (commit) is safe.
+    const result = await withDbSession(session, async (client) => {
+      const existingResult = await client.query<{ id: string; status: string; estimate_id: string; total_cents: number }>(
+        `SELECT id, status, estimate_id, total_cents FROM change_orders WHERE id = $1 AND account_id = $2`,
+        [id, session.accountId]
       );
-    } else if (action === "decline") {
-      if (!["draft", "sent"].includes(existing.status)) {
-        await client.query("ROLLBACK");
-        return NextResponse.json({ error: { message: "Only draft or sent change orders can be declined", traceId: session.traceId } }, { status: 422 });
-      }
-      await client.query(
-        `UPDATE change_orders SET status = 'declined', declined_at = now(), updated_at = now() WHERE id = $1`,
-        [id]
-      );
-    }
+      const existing = existingResult.rows[0] ?? null;
 
-    await appendAuditLog(client, {
-      account_id: session.accountId,
-      entity_type: "change_order",
-      entity_id: id,
-      action: "update",
-      actor_id: session.userId,
-      trace_id: session.traceId,
-      new_value: { action, status: action === "approve" ? "approved" : action === "decline" ? "declined" : "sent" },
+      if (!existing) {
+        return { status: 404, body: { error: { message: "Change order not found", traceId: session.traceId } } };
+      }
+
+      if (action === "send") {
+        if (existing.status !== "draft") {
+          return { status: 422, body: { error: { message: "Only draft change orders can be sent", traceId: session.traceId } } };
+        }
+        await client.query(`UPDATE change_orders SET status = 'sent', updated_at = now() WHERE id = $1`, [id]);
+      } else if (action === "approve") {
+        if (existing.status !== "sent") {
+          return { status: 422, body: { error: { message: "Only sent change orders can be approved", traceId: session.traceId } } };
+        }
+        await client.query(
+          `UPDATE change_orders SET status = 'approved', approved_by = $2, approved_at = now(), updated_at = now() WHERE id = $1`,
+          [id, session.userId]
+        );
+      } else if (action === "decline") {
+        if (!["draft", "sent"].includes(existing.status)) {
+          return {
+            status: 422,
+            body: { error: { message: "Only draft or sent change orders can be declined", traceId: session.traceId } },
+          };
+        }
+        await client.query(
+          `UPDATE change_orders SET status = 'declined', declined_at = now(), updated_at = now() WHERE id = $1`,
+          [id]
+        );
+      }
+
+      await appendAuditLog(client, {
+        account_id: session.accountId,
+        entity_type: "change_order",
+        entity_id: id,
+        action: "update",
+        actor_id: session.userId,
+        trace_id: session.traceId,
+        new_value: { action, status: action === "approve" ? "approved" : action === "decline" ? "declined" : "sent" },
+      });
+
+      const status = action === "approve" ? "approved" : action === "decline" ? "declined" : "sent";
+      return { status: 200, body: { success: true, status } };
     });
-
-    await client.query("COMMIT");
-    return NextResponse.json({ success: true, status: action === "approve" ? "approved" : action === "decline" ? "declined" : "sent" });
+    return NextResponse.json(result.body, { status: result.status });
   } catch (error) {
-    await client.query("ROLLBACK");
     logger.error(`PATCH /api/v1/change-orders action=${action} error`, error as Error, { traceId: session.traceId });
     return NextResponse.json(
       { error: { message: `Failed to ${action} change order`, traceId: session.traceId } },
       { status: 500 }
     );
-  } finally {
-    client.release();
   }
 }
 
@@ -238,7 +230,7 @@ export const GET = withAuth(async (request, session) => {
   }
 
   try {
-    const co = await queryOne<{
+    const co = await queryOneForSession<{
       id: string;
       estimate_id: string;
       title: string;
@@ -254,6 +246,7 @@ export const GET = withAuth(async (request, session) => {
       declined_at: string | null;
       created_at: string;
     }>(
+      session,
       `SELECT co.id, co.estimate_id, co.title, co.description, co.status,
               co.subtotal_cents, co.tax_cents, co.total_cents, co.notes,
               u.full_name as created_by_name,
@@ -270,7 +263,8 @@ export const GET = withAuth(async (request, session) => {
       return NextResponse.json({ error: { message: "Change order not found", traceId: session.traceId } }, { status: 404 });
     }
 
-    const { rows: items } = await getPool().query(
+    const items = await queryForSession(
+      session,
       `SELECT id, description, quantity, unit_price_cents, total_cents, sort_order
        FROM change_order_line_items
        WHERE change_order_id = $1
