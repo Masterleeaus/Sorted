@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { withRole } from "@/lib/auth/middleware";
-import { query, queryOne } from "@/lib/db";
+import { withDbSession } from "@/lib/db";
 import { logger } from "@/lib/logger";
 
 export const dynamic = "force-dynamic";
@@ -36,7 +36,7 @@ export const GET = withRole(["owner", "admin", "tech"], async (req: NextRequest,
   try {
     // mileage_only=1 excludes trailers (TASK-093) from drive/session pickers
     const mileageOnly = req.nextUrl.searchParams.get("mileage_only") === "1";
-    const rows = await query<VehicleRow>(
+    const rows = await withDbSession(session, async (client) => (await client.query<VehicleRow>(
       `SELECT v.id, v.nickname, v.make, v.model, v.year, v.plate, v.kind, v.is_active, v.is_default, v.bluetooth_id, v.created_at::text,
               last_s.end_odometer   AS current_odometer,
               last_s.session_date::text AS last_session_date,
@@ -59,7 +59,7 @@ export const GET = withRole(["owner", "admin", "tech"], async (req: NextRequest,
          ${mileageOnly ? "AND v.kind <> 'trailer'" : ""}
        ORDER BY v.is_active DESC, v.nickname ASC`,
       [session.accountId]
-    );
+    )).rows);
     return NextResponse.json({ data: rows });
   } catch (err) {
     logger.error("GET /api/v1/vehicles", err as Error, { traceId: session.traceId });
@@ -75,7 +75,7 @@ export const POST = withRole(["owner", "admin"], async (req: NextRequest, sessio
   }
   const { nickname, make, model, year, plate, kind } = parsed.data;
   try {
-    const row = await queryOne<VehicleRow>(
+    const row = await withDbSession(session, async (client) => (await client.query<VehicleRow>(
       `INSERT INTO vehicles (account_id, nickname, make, model, year, plate, kind)
        VALUES ($1, $2, $3, $4, $5, $6, $7)
        RETURNING id, nickname, make, model, year, plate, kind, is_active, created_at::text`,
@@ -88,7 +88,7 @@ export const POST = withRole(["owner", "admin"], async (req: NextRequest, sessio
         plate ?? null,
         kind ?? "truck",
       ]
-    );
+    )).rows[0] ?? null);
     return NextResponse.json({ data: row }, { status: 201 });
   } catch (err) {
     logger.error("POST /api/v1/vehicles", err as Error, { traceId: session.traceId });

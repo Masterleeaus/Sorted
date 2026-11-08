@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
 import { withRole } from "@/lib/auth/middleware";
-import { queryOne } from "@/lib/db";
+import { queryOneForSession } from "@/lib/db";
 import { logger } from "@/lib/logger";
 import { scoreJobFit } from "@ai-fsm/domain";
 import { INTAKE_QUESTIONS, INTAKE_METADATA_LABELS } from "@/lib/intake/questions";
@@ -53,7 +53,7 @@ export const POST = withRole(["owner", "admin"], async (request: NextRequest, se
     return NextResponse.json({ error: { message: "Missing booking request ID" } }, { status: 400 });
   }
 
-  const br = await queryOne<BookingRow>(
+  const br = await queryOneForSession<BookingRow>(session,
     `SELECT id, name, service_category, service_description, preferred_date,
             address, city, routing_path, walkthrough_score,
             referral_source, referral_name, intake_metadata
