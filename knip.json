@@ -14,9 +14,6 @@
     "enumMembers": "warn",
     "classMembers": "off"
   },
-  "ignoreWorkspaces": [
-    "packages/workforce"
-  ],
   "workspaces": {
     ".": {
       "entry": [
