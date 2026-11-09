@@ -49,12 +49,7 @@ DATA_ROOT="${FSM_DATA_ROOT:-${DEPLOY_ROOT}/data}"
 PASSPHRASE_FILE="${FSM_BACKUP_PASSPHRASE_FILE:-${DEPLOY_ROOT}/env/backup.passphrase}"
 RCLONE_REMOTE="${FSM_RCLONE_REMOTE:-googledrive}"
 RCLONE_DEST="${RCLONE_REMOTE}:ai-fsm-backups"
-sorted_backup_remote "${RCLONE_REMOTE}" || {
-  echo "ERROR: unsafe rclone remote" >&2
-  exit 1
-}
-COPY_TIMEOUT="$(sorted_backup_timeout "${FSM_BACKUP_REMOTE_COPY_TIMEOUT_SEC:-900}" "remote copy timeout")"
-READ_TIMEOUT="$(sorted_backup_timeout "${FSM_BACKUP_REMOTE_READ_TIMEOUT_SEC:-900}" "remote read timeout")"
+# Validate these settings after the fail-closed status machinery is ready.
 
 # ponytail: DB dump and the uploads tar are taken sequentially while web/worker
 # stay live, so an upload deleted between the two can leave a dump row whose file
@@ -149,6 +144,21 @@ on_unexpected_error() {
   finish_run
 }
 trap 'on_unexpected_error ${LINENO}' ERR
+
+# Invalid configuration is a backup failure, not a silent process exit. This
+# status must override the previous good backup in the deployment health gate.
+if ! sorted_backup_remote "${RCLONE_REMOTE}"; then
+  record_failure "unsafe offsite rclone remote name"
+  finish_run
+fi
+if ! COPY_TIMEOUT="$(sorted_backup_timeout "${FSM_BACKUP_REMOTE_COPY_TIMEOUT_SEC:-900}" "remote copy timeout")"; then
+  record_failure "invalid offsite copy timeout"
+  finish_run
+fi
+if ! READ_TIMEOUT="$(sorted_backup_timeout "${FSM_BACKUP_REMOTE_READ_TIMEOUT_SEC:-900}" "remote read timeout")"; then
+  record_failure "invalid offsite read timeout"
+  finish_run
+fi
 
 # Runs a producer command and encrypts its stdout to OUT. The result is renamed
 # into place only if the producer AND gpg both succeed (pipefail), so a failed
