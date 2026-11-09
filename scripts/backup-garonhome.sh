@@ -90,7 +90,7 @@ write_success_marker() {
   local out="${STATUS_DIR}/last-success.json" first=1 f name size sum
   {
     printf '{\n  "status": "ok",\n  "set": "%s",\n  "completed_at": "%s",\n' "${TIMESTAMP}" "${NOW_ISO}"
-    printf '  "offsite": {"remote": "%s", "verified": true},\n  "artifacts": [\n' "$(json_escape "${RCLONE_DEST}")"
+    printf '  "offsite": {"remote": "%s", "verified": true, "verification": "sha256-readback"},\n  "artifacts": [\n' "$(json_escape "${RCLONE_DEST}")"
     for f in "${ARTIFACTS[@]}"; do
       name="$(basename "${f}")"
       size="$(stat -c %s "${f}")"
