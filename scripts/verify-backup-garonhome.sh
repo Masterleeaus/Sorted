@@ -65,7 +65,8 @@ cleanup() {
   local rc=$?
   if (( SCRATCH_CREATED == 1 )); then
     "${COMPOSE[@]}" exec -T postgres psql -U "${POSTGRES_USER}" -d postgres \
-      -c "DROP DATABASE IF EXISTS ${SCRATCH_DB};" >/dev/null 2>&1 \
+      -v ON_ERROR_STOP=1 -v "scratch_db=${SCRATCH_DB}" \
+      -c 'DROP DATABASE IF EXISTS :"scratch_db";' >/dev/null 2>&1 \
       || echo "WARNING: could not drop scratch database ${SCRATCH_DB}" >&2
   fi
   rm -rf -- "${WORK}"
@@ -112,7 +113,14 @@ gpg --batch --quiet --decrypt --passphrase-file "${PASSPHRASE_FILE}" \
 echo "decrypt: ok"
 
 # 3. Uploads archive must be a readable tar with at least one entry.
-UPLOAD_ENTRIES="$(tar -tzf "${WORK}/uploads.tar.gz" | wc -l)"
+# Keep listing private and reject archives with absolute/path-traversal entries
+# before claiming the artifact can be recovered safely on a different host.
+tar -tzf "${WORK}/uploads.tar.gz" > "${WORK}/uploads.entries"
+if grep -E '(^/|(^|/)\.\.(/|$))' "${WORK}/uploads.entries"; then
+  echo "uploads archive contains unsafe traversal or absolute paths" >&2
+  exit 1
+fi
+UPLOAD_ENTRIES="$(wc -l < "${WORK}/uploads.entries")"
 if (( UPLOAD_ENTRIES < 1 )); then
   echo "uploads archive is empty" >&2
   exit 1
@@ -126,7 +134,8 @@ echo "env backup: ok"
 # 5. Restore the dump into a scratch database and count public tables.
 SCRATCH_CREATED=1
 "${COMPOSE[@]}" exec -T postgres psql -U "${POSTGRES_USER}" -d postgres -v ON_ERROR_STOP=1 \
-  -c "CREATE DATABASE ${SCRATCH_DB};" >/dev/null
+  -v "scratch_db=${SCRATCH_DB}" \
+  -c 'CREATE DATABASE :"scratch_db";' >/dev/null
 "${COMPOSE[@]}" exec -T postgres pg_restore -U "${POSTGRES_USER}" -d "${SCRATCH_DB}" \
   --no-owner --no-privileges --exit-on-error < "${WORK}/dump"
 TABLES="$("${COMPOSE[@]}" exec -T postgres psql -U "${POSTGRES_USER}" -d "${SCRATCH_DB}" -tA \
