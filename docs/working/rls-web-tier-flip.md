@@ -25,8 +25,9 @@ more upkeep, and no more protection than a role with a narrow grant set. BYPASSR
 the smallest change that keeps the worker's behaviour. The bypass is confined to
 `ai_fsm_worker`. The provisioner refuses a role whose bypass attribute is wrong, and
 refuses any role with superuser, CREATEDB, CREATEROLE, replication, ownership, or
-membership. The worker has no DDL. Its table grants match the web role's DML set on
-RLS tables. Per-table narrowing for the worker is a follow-up.
+membership. The worker has no DDL. Its table grants are an explicit list in the provisioner
+(ADR-024 addendum, 2026-11-09), checked by `scripts/check-worker-grants.mjs`, not the
+web role's DML set on RLS tables.
 
 Worker rule: because the worker bypasses RLS, a new worker sweep is **not** protected
 by a policy. It must scope its own writes by `account_id`, or it must be a reviewed
@@ -100,6 +101,7 @@ provisioned by the script):
   worker role runs a cross-account sweep. The full worker integration suite also passes
   when run as `ai_fsm_worker`.
 - `node scripts/check-rls-coverage.mjs`: every account table has RLS and a policy.
+- `node scripts/check-worker-grants.mjs`: every table the worker's SQL touches is in its grant list.
 
 Manual, on garonhome, before the cutover (owner):
 
