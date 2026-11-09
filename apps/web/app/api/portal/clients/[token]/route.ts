@@ -18,23 +18,27 @@ export async function GET(
 ) {
   const { token } = await params;
 
-  // Bootstrap: resolves the account from the portal token. No account context
-  // exists yet, so this lookup stays cross-account until the token resolver
-  // exists (docs/working/rls-web-tier-flip.md, blocker 1).
-  const client = await queryOne<ClientRow>(
-    `SELECT c.id, c.account_id, c.name, c.email, a.name AS account_name
-     FROM clients c
-     JOIN accounts a ON a.id = c.account_id
-     WHERE c.portal_token = $1`,
+  // Bootstrap: the portal token resolves to an account through a bounded
+  // resolver (migration 204). Nothing else runs before account context is set.
+  const resolved = await queryOne<{ account_id: string | null }>(
+    `SELECT resolve_portal_client_account($1::uuid) AS account_id`,
     [token]
   );
-
-  if (!client) return NextResponse.json({ error: "Not found" }, { status: 404 });
+  if (!resolved?.account_id) return NextResponse.json({ error: "Not found" }, { status: 404 });
+  const accountId = resolved.account_id;
 
   // Every read below runs in the client's account context, with the account predicate kept.
-  const { estimates, invoices, plans, maintenanceJobs } = await withTokenAccountContext(
-    client.account_id,
+  const loaded = await withTokenAccountContext(
+    accountId,
     async (tx) => {
+      const { rows: [client] } = await tx.query<ClientRow>(
+        `SELECT c.id, c.account_id, c.name, c.email, a.name AS account_name
+         FROM clients c
+         JOIN accounts a ON a.id = c.account_id
+         WHERE c.portal_token = $1 AND c.account_id = $2`,
+        [token, accountId]
+      );
+      if (!client) return null;
       const estimates = await tx.query(
         `SELECT e.id, e.status, e.total_cents, e.sent_at, e.expires_at,
                 e.share_token, p.address AS property_address
@@ -83,6 +87,7 @@ export async function GET(
         [client.id, client.account_id]
       );
       return {
+        client,
         estimates: estimates.rows,
         invoices: invoices.rows,
         plans: plans.rows,
@@ -90,6 +95,8 @@ export async function GET(
       };
     }
   );
+  if (!loaded) return NextResponse.json({ error: "Not found" }, { status: 404 });
+  const { client, estimates, invoices, plans, maintenanceJobs } = loaded;
 
   return NextResponse.json({
     client: { name: client.name, email: client.email, accountName: client.account_name },
