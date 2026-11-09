@@ -135,6 +135,8 @@ sync_repo
 node "${REPO_ROOT}/scripts/check-backup-health.mjs" "${FSM_BACKUP_DIR:-${DEPLOY_ROOT}/backups}" \
   "${FSM_PREDEPLOY_BACKUP_MAX_AGE_HOURS:-26}" \
   || { echo "deploy blocked: a complete recent verified backup is required" >&2; exit 1; }
+node "${REPO_ROOT}/scripts/audit-backup-local.mjs" "${FSM_BACKUP_DIR:-${DEPLOY_ROOT}/backups}" \
+  || { echo "deploy blocked: local encrypted backup bytes do not match the verified set" >&2; exit 1; }
 
 docker compose --env-file "${ENV_FILE}" -f "${COMPOSE_FILE}" up -d postgres
 
