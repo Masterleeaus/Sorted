@@ -59,7 +59,11 @@ The backup source and CLI tests require **cryptographic SHA-256 read-back** for 
 
 The restore preflight additionally checks that an encrypted uploads archive is a readable gzip tar and that the encrypted environment contains PostgreSQL credentials before stopping services. The scratch verification command rejects archive traversal paths and uses SQL-quoted scratch database identifiers. These tests prove validation logic with fixtures, **not** a live Google Drive download, correct encryption, or a successful production restore.
 
-## Recovery approval and bounded transfers
+## Public intake photo security gate
+
+CI and `scripts/gate.sh` now test the public intake photo path: browser preview/upload limits and retry/removal; token-scoped upload and delete rates; MIME signature agreement; exclusive private file creation; invite row locking on both upload and delete; and transactional association with the booking request when the token is submitted. These checks are **source-level regression contracts**, not a claim that a real database-backed end-to-end intake test has passed. Before resolving issue #5, exercise concurrent upload/delete/submit with a disposable PostgreSQL instance, confirm private media access restrictions, and verify file cleanup after failed database writes.
+
+
 
 The recovery regression subgate now checks the shared `scripts/lib/backup-policy.sh` helper for bounded rclone timeouts, safe named remotes, approved destructive restore targets, and uploads-only archive member paths. Both the CI lint job and the local gate run `bash -n` on the helper and the scripts that source it.
 
