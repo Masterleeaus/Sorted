@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from "node:fs";
+import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, symlinkSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
@@ -81,6 +81,23 @@ test("success report must contain exactly the three expected encrypted artifacts
     f.save();
     assert.match(evaluateBackupHealth(f.root, 26, when + 60_000).reason, /artifact metadata/);
   } finally { f.cleanup(); }
+});
+test("symlinked status report or verification marker fails closed",()=>{
+ const f=fixture();
+ try{
+  const reportPath=join(f.status,"last-success.json");
+  const original=readFileSync(reportPath,"utf8");
+  rmSync(reportPath);
+  writeFileSync(join(f.root,"external-status.json"),original);
+  symlinkSync(join(f.root,"external-status.json"),reportPath);
+  assert.equal(evaluateBackupHealth(f.root,26,when+60_000).ok,false);
+  rmSync(reportPath);
+  writeFileSync(reportPath,original);
+  const marker=join(f.status,`verified-${set}`);
+  rmSync(marker);
+  symlinkSync(join(f.root,"external-status.json"),marker);
+  assert.equal(evaluateBackupHealth(f.root,26,when+60_000).ok,false);
+ }finally{f.cleanup();}
 });
 test("wrong set, incomplete metadata, and unverified status fail closed", () => {
   const f = fixture();
