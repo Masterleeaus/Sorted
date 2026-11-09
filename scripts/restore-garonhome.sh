@@ -118,7 +118,7 @@ if ! gpg --batch --quiet --decrypt --passphrase-file "${PASSPHRASE_FILE}" \
 fi
 # Require the encrypted environment backup to contain essential DB credentials.
 if ! gpg --batch --quiet --decrypt --passphrase-file "${PASSPHRASE_FILE}" \
-  "${DUMP_DIR}/${expected[2]}" | grep -q '^POSTGRES_PASSWORD='; then
+  "${DUMP_DIR}/${expected[2]}" | grep '^POSTGRES_PASSWORD=' > /dev/null; then
   echo "ERROR: encrypted environment backup does not contain PostgreSQL credentials" >&2
   exit 1
 fi
