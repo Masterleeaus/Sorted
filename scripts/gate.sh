@@ -98,6 +98,10 @@ node scripts/check-migration-prefixes.mjs
 log "rls coverage"
 node scripts/check-rls-coverage.mjs
 node --test scripts/*.test.mjs
+log "offsite cryptographic verification and encrypted restore contracts"
+node --test scripts/tests/offsite-*.test.mjs \
+  scripts/tests/restore-companion-format.test.mjs \
+  scripts/tests/scratch-restore-safety.test.mjs
 log "backup lifecycle and restore safety"
 node --test scripts/tests/*.test.mjs
 
