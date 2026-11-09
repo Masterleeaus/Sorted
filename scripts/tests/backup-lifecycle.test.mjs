@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
-import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, readdirSync, existsSync, rmSync, utimesSync } from "node:fs";
+import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, readdirSync, existsSync, rmSync, symlinkSync, utimesSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { test } from "node:test";
@@ -139,6 +139,16 @@ test("a successful run removes the ACTIVE marker and leaves status with verified
   assert.equal(existsSync(join(f.backups,"status","ACTIVE")),false);
   const report=JSON.parse(readFileSync(join(f.backups,"status","last-success.json"),"utf8"));
   assert.equal(report.offsite.verification,"sha256-readback");
+ }finally{f.cleanup();}
+});
+test("uploads symlink is rejected without producing an archive or green status", () => {
+ const f=fixture();
+ try {
+  symlinkSync("/etc/passwd",join(f.root,"data","uploads","external"));
+  const run=f.run();
+  assert.equal(run.status,1,run.stderr);
+  assert.match(run.stderr,/unsafe symlinks/);
+  assert.equal(existsSync(join(f.backups,"status","last-success.json")),false);
  }finally{f.cleanup();}
 });
 test("missing uploads reports incomplete and does not claim last-success", () => {
