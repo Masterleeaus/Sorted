@@ -63,7 +63,7 @@ test("restore blocks the postgres system database before any manifest or service
   const f = prepare();
   try {
     const envFile = join(f.root, ".env");
-    writeFileSync(envFile, "POSTGRES_DB=postgres\\nPOSTGRES_USER=test_owner\\n");
+    writeFileSync(envFile, "POSTGRES_DB=postgres\nPOSTGRES_USER=test_owner\n");
     const result = f.run();
     assert.equal(result.status, 1);
     assert.match(result.stderr, /missing or unsafe target database/);
