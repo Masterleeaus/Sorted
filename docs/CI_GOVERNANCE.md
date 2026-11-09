@@ -61,7 +61,7 @@ The restore preflight additionally checks that an encrypted uploads archive is a
 
 ## Executable intake media unit tests (Pass 11)
 
-The lint job and local gate execute `pnpm --filter @ai-fsm/web exec vitest run __tests__/intake-photo-*.test.ts`. These are actual TypeScript unit tests covering file signatures, maximum sizes, storage path validation, exclusive private filesystem writes, symlink rejection and removal. They run independently from the missing native SQLite migration files. The separate source contracts still guard application-route query structure, but **neither suite proves cross-tenant database isolation** until disposable PostgreSQL integration tests have run.
+The lint job and local gate execute `pnpm --filter @ai-fsm/web exec vitest run intake-photo-`. These are actual TypeScript unit tests covering file signatures, maximum sizes, storage path validation, exclusive private filesystem writes, symlink rejection and removal. They run independently from the missing native SQLite migration files. The separate source contracts still guard application-route query structure, but **neither suite proves cross-tenant database isolation** until disposable PostgreSQL integration tests have run.
 
 
 
