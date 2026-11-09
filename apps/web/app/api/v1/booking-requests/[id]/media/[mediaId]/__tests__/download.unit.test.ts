@@ -6,8 +6,13 @@ const state=vi.hoisted(()=>({
   queries:[] as Array<{sql:string;params:unknown[]}>,
 }));
 vi.mock("@/lib/auth/middleware",()=>({withRole:(_roles:unknown,handler:unknown)=>handler}));
-vi.mock("@/lib/db",()=>({withDbSession:async(_session:unknown,cb:(client:unknown)=>Promise<unknown>)=>
- cb({query:async(sql:string,params:unknown[])=>{state.queries.push({sql,params});return {rows:state.photo?[state.photo]:[]}})}))}));
+vi.mock("@/lib/db",()=>({
+  withDbSession:async (_session:unknown,cb:(client:unknown)=>Promise<unknown>) =>
+    cb({query:async(sql:string,params:unknown[])=>{
+      state.queries.push({sql,params});
+      return {rows:state.photo?[state.photo]:[]};
+    }}),
+}));
 vi.mock("@/lib/intake/media-files",()=>({readPrivateIntakeFile:()=>state.bytes}));
 import { GET } from "../route";
 const booking="11111111-1111-4111-8111-111111111111";
