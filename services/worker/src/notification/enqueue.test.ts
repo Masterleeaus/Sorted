@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import type { Client } from "pg";
-import { enqueueNotification } from "./enqueue.js";
+import { enqueueNotification, cancelNotificationsForEntity } from "./enqueue.js";
 
 const base = {
   accountId: "account-a",
@@ -70,4 +70,33 @@ describe("worker notification enqueue ownership and retry", () => {
     const sql = queries.find(q => q.sql.includes("INSERT INTO notification_queue"))!.sql;
     expect(sql).toContain("notification_queue.account_id = EXCLUDED.account_id");
   });
+  it("cancels only a company's pending notifications for the specified entity and event", async () => {
+    const queries: Array<{ sql: string; params: unknown[] }> = [];
+    const client = {
+      query: vi.fn(async (sql: string, params: unknown[]) => {
+        queries.push({ sql, params });
+        return { rowCount: 2 };
+      }),
+    } as unknown as Client;
+    const count = await cancelNotificationsForEntity(
+      client, "account-a", "invoice", "invoice-1", "invoice.paid",
+    );
+    expect(count).toBe(2);
+    expect(queries).toHaveLength(1);
+    expect(queries[0].params).toEqual(["account-a", "invoice", "invoice-1", "invoice.paid"]);
+    expect(queries[0].sql).toContain("WHERE account_id = $1::uuid");
+    expect(queries[0].sql).toContain("AND entity_id   = $3::uuid");
+    expect(queries[0].sql).toContain("AND status      = 'pending'");
+    expect(queries[0].sql).toContain("AND $4 = ANY(cancel_on_events)");
+  });
+
+  it("does not report cancelled messages when the tenant-scoped update matches nothing", async () => {
+    const client = {
+      query: vi.fn(async () => ({ rowCount: 0 })),
+    } as unknown as Client;
+    expect(await cancelNotificationsForEntity(
+      client, "account-b", "invoice", "invoice-1", "invoice.paid",
+    )).toBe(0);
+  });
+
 });
