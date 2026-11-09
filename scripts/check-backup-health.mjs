@@ -6,7 +6,7 @@
  * Usage: node scripts/check-backup-health.mjs [backup-dir] [maximum-age-hours]
  * Exit 0 = healthy, 1 = missing/failed/stale/malformed report.
  */
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, lstatSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
 export function evaluateBackupHealth(backupDir, maxAgeHours = 26, now = Date.now()) {
@@ -22,6 +22,11 @@ export function evaluateBackupHealth(backupDir, maxAgeHours = 26, now = Date.now
   }
   let latest, successful;
   try {
+    for (const name of ["last-run.json", "last-success.json"]) {
+      if (!lstatSync(join(statusDir, name)).isFile()) {
+        return { ok: false, reason: "backup status report is not a regular file" };
+      }
+    }
     latest = JSON.parse(readFileSync(join(statusDir, "last-run.json"), "utf8"));
     successful = JSON.parse(readFileSync(join(statusDir, "last-success.json"), "utf8"));
   } catch {
@@ -38,7 +43,8 @@ export function evaluateBackupHealth(backupDir, maxAgeHours = 26, now = Date.now
   if (successful.offsite?.verified !== true || successful.offsite?.verification !== "sha256-readback") {
     return { ok: false, reason: "offsite verification not recorded" };
   }
-  if (!existsSync(join(statusDir, `verified-${successful.set}`))) {
+  const verifiedPath = join(statusDir, `verified-${successful.set}`);
+  if (!existsSync(verifiedPath) || !lstatSync(verifiedPath).isFile()) {
     return { ok: false, reason: "verified-set marker missing" };
   }
   const expected = [
