@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
+umask 077
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=./lib/backup-policy.sh
+source "${SCRIPT_DIR}/lib/backup-policy.sh"
 
 DEPLOY_ROOT="${FSM_DEPLOY_ROOT:-/opt/business/ai-fsm}"
 REPO_ROOT="${FSM_REPO_ROOT:-${DEPLOY_ROOT}/repo}"
@@ -45,7 +49,12 @@ DATA_ROOT="${FSM_DATA_ROOT:-${DEPLOY_ROOT}/data}"
 PASSPHRASE_FILE="${FSM_BACKUP_PASSPHRASE_FILE:-${DEPLOY_ROOT}/env/backup.passphrase}"
 RCLONE_REMOTE="${FSM_RCLONE_REMOTE:-googledrive}"
 RCLONE_DEST="${RCLONE_REMOTE}:ai-fsm-backups"
-REMOTE_RETENTION_DAYS="${FSM_BACKUP_REMOTE_RETENTION_DAYS:-30}"
+sorted_backup_remote "${RCLONE_REMOTE}" || {
+  echo "ERROR: unsafe rclone remote" >&2
+  exit 1
+}
+COPY_TIMEOUT="$(sorted_backup_timeout "${FSM_BACKUP_REMOTE_COPY_TIMEOUT_SEC:-900}" "remote copy timeout")"
+READ_TIMEOUT="$(sorted_backup_timeout "${FSM_BACKUP_REMOTE_READ_TIMEOUT_SEC:-900}" "remote read timeout")"
 
 # ponytail: DB dump and the uploads tar are taken sequentially while web/worker
 # stay live, so an upload deleted between the two can leave a dump row whose file
@@ -222,7 +231,7 @@ if [[ -f "${MANIFEST_FILE}" ]]; then
   UPLOAD_LIST+=("${MANIFEST_FILE}")
 fi
 for f in "${UPLOAD_LIST[@]}"; do
-  if rclone copy "${f}" "${RCLONE_DEST}/" --log-level INFO; then
+  if timeout "${COPY_TIMEOUT}" rclone copy "${f}" "${RCLONE_DEST}/" --log-level INFO; then
     echo "offsite copy complete: ${RCLONE_DEST}/$(basename "${f}")"
   else
     record_failure "offsite copy failed for $(basename "${f}")"
@@ -233,7 +242,7 @@ done
 # comparing SHA-256 to the original local object. Name+size alone cannot detect
 # corruption or an old same-size object left behind after a broken upload.
 # This includes the manifest itself. A failed read MUST prevent successful status.
-if listing="$(rclone lsf --format sp --separator ';' --files-only "${RCLONE_DEST}" 2>/dev/null)"; then
+if listing="$(timeout "${READ_TIMEOUT}" rclone lsf --format sp --separator ';' --files-only "${RCLONE_DEST}" 2>/dev/null)"; then
   for f in "${UPLOAD_LIST[@]}"; do
     name="$(basename "${f}")"
     local_size="$(stat -c %s "${f}")"
@@ -243,7 +252,7 @@ if listing="$(rclone lsf --format sp --separator ';' --files-only "${RCLONE_DEST
       continue
     fi
     local_sha="$(sha256sum -- "${f}" | cut -d' ' -f1)"
-    if ! remote_sha="$(rclone cat "${RCLONE_DEST}/${name}" | sha256sum | cut -d' ' -f1)"; then
+    if ! remote_sha="$(timeout "${READ_TIMEOUT}" rclone cat "${RCLONE_DEST}/${name}" | sha256sum | cut -d' ' -f1)"; then
       record_failure "offsite hash read failed for ${name}"
     elif [[ "${remote_sha}" != "${local_sha}" ]]; then
       record_failure "offsite SHA-256 mismatch for ${name}"
