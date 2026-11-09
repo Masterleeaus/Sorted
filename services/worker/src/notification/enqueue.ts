@@ -113,8 +113,13 @@ export async function enqueueNotification(
   return queued.rows.length ? "enqueued" : "duplicate";
 }
 
+/**
+ * Cancel pending notifications for an entity owned by a single account.
+ * The account ID is mandatory: entity IDs and event names are not tenant authority.
+ */
 export function cancelNotificationsForEntity(
   client: Client,
+  accountId: string,
   entityType: string,
   entityId: string,
   eventType: string
@@ -122,10 +127,11 @@ export function cancelNotificationsForEntity(
   return client.query(
     `UPDATE notification_queue
         SET status = 'cancelled'
-      WHERE entity_type = $1
-        AND entity_id   = $2::uuid
+      WHERE account_id = $1::uuid
+        AND entity_type = $2
+        AND entity_id   = $3::uuid
         AND status      = 'pending'
-        AND $3 = ANY(cancel_on_events)`,
-    [entityType, entityId, eventType]
+        AND $4 = ANY(cancel_on_events)`,
+    [accountId, entityType, entityId, eventType]
   ).then((r) => r.rowCount ?? 0);
 }
