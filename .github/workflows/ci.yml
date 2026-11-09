@@ -44,6 +44,9 @@ jobs:
         run: node --test scripts/tests/offsite-*.test.mjs scripts/tests/restore-companion-format.test.mjs scripts/tests/scratch-restore-safety.test.mjs
       - name: Backup concurrency and encrypted local integrity regression tests
         run: node --test scripts/tests/backup-lock.test.mjs scripts/tests/audit-backup-local.test.mjs
+      - name: Public intake media security and lifecycle contracts
+        # Guard the token/tenant/photo race and private-upload requirements.
+        run: node --test scripts/tests/intake-photo-*.test.mjs
       - name: Backup and restore failure-path regression tests
         # Independent of the inherited Knip debt; must run on every change.
         run: node --test scripts/tests/*.test.mjs
