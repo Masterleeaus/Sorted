@@ -55,11 +55,21 @@ export async function GET(
 ) {
   const { token } = await params;
 
-  // Bootstrap: the share token resolves the account. This lookup has no account
-  // context yet and stays cross-account until the token resolver exists
-  // (docs/working/rls-web-tier-flip.md, blocker 1).
-  const invoice = await queryOne<InvoiceRow>(
-    `SELECT
+  // Bootstrap: the share token resolves to an account through a bounded resolver
+  // (migration 204). Nothing else reads this invoice before context is set.
+  const resolved = await queryOne<{ account_id: string | null }>(
+    `SELECT resolve_invoice_share_account($1::uuid) AS account_id`,
+    [token]
+  );
+  if (!resolved?.account_id) {
+    return NextResponse.json({ error: "Not found" }, { status: 404 });
+  }
+  const accountId = resolved.account_id;
+
+  // The invoice read runs in the resolved account's context, with the account predicate.
+  const invoice = await withTokenAccountContext(accountId, async (tx) => {
+    const { rows: [row] } = await tx.query<InvoiceRow>(
+      `SELECT
        i.id, i.account_id, i.status, i.invoice_number, i.subtotal_cents, i.tax_cents,
        i.total_cents, i.paid_cents, i.deposit_cents, i.notes, i.due_date,
        i.sent_at, i.paid_at, i.square_payment_link_url,
@@ -73,15 +83,17 @@ export async function GET(
      JOIN accounts a ON a.id = i.account_id
      ${SPONSORED_DOCUMENT_JOIN}
      LEFT JOIN properties p ON p.id = i.property_id
-     WHERE i.share_token = $1`,
-    [token]
-  );
+     WHERE i.share_token = $1 AND i.account_id = $2`,
+      [token, accountId]
+    );
+    return row ?? null;
+  });
 
   if (!invoice) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 
-  const { account_id: accountId, ...publicInvoice } = invoice;
+  const { account_id: _accountId, ...publicInvoice } = invoice;
   const lineItems = await withTokenAccountContext(accountId, async (tx) => {
     const { rows } = await tx.query<LineItemRow>(
       `SELECT id, description, quantity, unit_price_cents, total_cents, sort_order
@@ -101,21 +113,35 @@ export async function GET(
 // client can pay by card. Reuses an existing link if one is already on the
 // invoice; otherwise creates one and records a PENDING payment. The Square
 // webhook marks the invoice paid when the customer completes checkout.
+/** Resolves the share token to its account, then reads the invoice in that context. */
+async function loadInvoiceForPayment(token: string) {
+  const resolved = await queryOne<{ account_id: string | null }>(
+    `SELECT resolve_invoice_share_account($1::uuid) AS account_id`,
+    [token]
+  );
+  if (!resolved?.account_id) return null;
+  const accountId = resolved.account_id;
+  return withTokenAccountContext(accountId, async (tx) => {
+    const { rows: [row] } = await tx.query<InvoiceRow>(
+      `SELECT i.id, i.account_id, i.status, i.invoice_number, i.total_cents,
+            i.paid_cents, i.deposit_cents, i.job_id, i.client_id, i.created_by,
+            i.deposit_type, i.deposit_percentage, i.deposit_fixed_cents,
+            i.square_payment_link_url
+     FROM invoices i
+     WHERE i.share_token = $1 AND i.account_id = $2`,
+      [token, accountId]
+    );
+    return row ?? null;
+  });
+}
+
 export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ token: string }> }
 ) {
   const { token } = await params;
 
-  const invoice = await queryOne<InvoiceRow>(
-    `SELECT i.id, i.account_id, i.status, i.invoice_number, i.total_cents,
-            i.paid_cents, i.deposit_cents, i.job_id, i.client_id, i.created_by,
-            i.deposit_type, i.deposit_percentage, i.deposit_fixed_cents,
-            i.square_payment_link_url
-     FROM invoices i
-     WHERE i.share_token = $1`,
-    [token]
-  );
+  const invoice = await loadInvoiceForPayment(token);
 
   if (!invoice) return NextResponse.json({ error: "Not found" }, { status: 404 });
   if (await isPortalPreview(invoice.client_id)) {
