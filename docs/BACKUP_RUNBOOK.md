@@ -79,6 +79,12 @@ BACKUP_ALERT_CMD=/opt/business/ai-fsm/bin/notify-backup
 
 If `BACKUP_ALERT_CMD` is unset, the script prints `ALERT (BACKUP_ALERT_CMD not configured; nothing sent)` to stderr and the cron log. That is a missing alert, not a successful one. Until the hook is configured, check the status files daily (see below).
 
+### Deployment and monitoring enforcement
+
+Before starting PostgreSQL, applying migrations or rebuilding services, `scripts/deploy-garonhome.sh` now executes the read-only backup health gate with `FSM_PREDEPLOY_BACKUP_MAX_AGE_HOURS` (default 26 hours). A stale, incomplete, missing or mismatched report blocks the deployment; **there is no automatic fallback to a previous apparently successful set**. Take and verify a fresh complete encrypted backup before retrying. A new host with no prior verified backups requires an explicitly designed and reviewed initial-provisioning procedure, not an implicit backup bypass.
+
+`scripts/healthcheck-garonhome.sh` independently evaluates backup status on its monitoring schedule. Web-down and backup-invalid states now return exit code 1 to the scheduler as well as attempting ntfy notification. Configure an external monitoring system to observe that exit status, because network delivery of an alert is not guaranteed. `FSM_BACKUP_MAX_AGE_HOURS` controls the monitor's freshness threshold; do not confuse this with the predeployment threshold.
+
 ### Machine-readable health check
 
 Run the read-only health gate from the repository checkout:
