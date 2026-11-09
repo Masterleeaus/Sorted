@@ -14,7 +14,7 @@ Date: 2026-11-08. Owner decision: scoped exclusion (recorded here, per AGENTS.md
 
 ## Not done (needs a follow-up issue)
 - Repair or remove the 411 unresolved imports. Do not hide them with `ignoreUnresolved` globally.
-- Decide whether `packages/workforce` (retired copy) is kept or removed.
+- ~~Decide whether `packages/workforce` (retired copy) is kept or removed.~~ Decided and done, see the 2026-11-08 retirement note below.
 - Decide whether the 83 non-ported `titan-platform` files are dead or reachable only via generated test output.
 
 ## Update 2026-11-08 (second pass)
@@ -32,7 +32,7 @@ Result: `pnpm knip` exits 0. `scripts/gate.sh` runs this step, so the knip floor
    - `packages/titan-platform/src/workforce-context/source-inventory.ts`
    - `packages/titan-platform/src/workforce-registry/index.ts`, `projection.ts`, `capability-binding.ts`
    Verification: an import-specifier graph (relative paths, `@/` alias, workspace package subpaths, `import()`, `require`), plus a text search of every tracked file for the path and basename, including tests, configs and scripts.
-2. `packages/workforce` (retired copy, 89 unused files) is excluded as a whole workspace with top-level `ignoreWorkspaces`. Owner decision still pending. Nothing in it was touched.
+2. `packages/workforce` (retired copy, 89 unused files) was excluded as a whole workspace with top-level `ignoreWorkspaces`. Superseded by the retirement below: the workspace was deleted and the exclusion removed. Nothing in it was touched in this pass.
 3. Donor-manifest files (26 in `docs/generated/titan-donor-manifest.json` with an `integratedPath` or `otherIdenticalPaths`) are kept and ignored per file. None was deleted.
 4. Other remaining unused files are kept and ignored per file, grouped in `docs/working/knip-unused-review-list.txt`:
    - Read or imported by a test (26). knip does not analyse `tests/**`, `migration-tests/**` or `__tests__`.
@@ -51,3 +51,11 @@ Result: `pnpm knip` exits 0. `scripts/gate.sh` runs this step, so the knip floor
 ### Test results (no increase in failures)
 - `@ai-fsm/web` vitest: 14 failed, 2262 passed, 2276 total, before and after. The same 14 failures in the navigation and vocabulary tests.
 - `@titan-zero/titan-platform` `pnpm test`: 1174 tests, 1096 pass, 76 fail, 2 skipped, before and after. The same 76 failing tests.
+
+## Update 2026-11-08 (packages/workforce retired and deleted)
+
+- Owner decision (2026-11-08): `packages/workforce` (`@titan-zero/workforce-legacy`) is retired and deleted. Its copies remain in `titan-donor/` and in git history (last tracked state: the commit before the retirement commit on branch `issue/retire-workforce`).
+- Before deletion, nothing outside `packages/workforce` imported `@titan-zero/workforce-legacy` or reached into its paths.
+- `knip.json`: the top-level `ignoreWorkspaces` entry for `packages/workforce` is removed. The 89 unused files it hid no longer exist, so they are not reported.
+- Lockfile: the `packages/workforce` importer is removed from `pnpm-lock.yaml`. `pnpm install --frozen-lockfile` passes.
+- The 89 files named in the 2026-11-09 pass are no longer part of the knip count. Figures above are kept as the historical record of that pass.

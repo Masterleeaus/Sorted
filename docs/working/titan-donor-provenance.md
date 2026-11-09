@@ -11,7 +11,7 @@ Check (report only, not in CI): `pnpm check:titan-manifest`.
 | `packages/titan-platform/src/` (incl. `src/ported/`) | **Build source** for the Titan platform package. Its `package.json` exports, its `tsconfig.json` and `apps/web` imports of `@titan-zero/titan-platform` all resolve here. | Yes. All updates go here. |
 | `apps/web/app/titan/`, `apps/web/lib/titan/`, `apps/web/app/api/v1/titan/`, `apps/web/app/app/` | Build source for the web app's Titan surfaces (byte-identical to donor `workforce/apps/web` files, mostly with the `workforce/` prefix dropped). | Yes. |
 | `titan-donor/` | **Preserved evidence only.** Nothing in the repo imports, builds or exports from it (checked by search of all tracked files). | No. Do not edit. Do not delete in this pass. |
-| `packages/workforce/` | **Retired** copy. Its own `package.json` says `status: retired`, `production: false`, canonical owner `services/workforce`. No importers. | No new edits. Removal is a separate decision (see issue #4). |
+| `packages/workforce/` | **Retired and deleted** on 2026-11-08 by owner decision. Its copies remain in `titan-donor/` and git history. The 50 manifest declared copies that pointed there are marked `retired-removed`. | No. The directory no longer exists. |
 
 Evidence for the choice:
 
@@ -30,7 +30,7 @@ One entry per donor file (371 total):
   - `imported-identical-relocated`: 78. Same bytes at another tracked path, mostly under `apps/web`.
   - `not-integrated`: 43. No identical tracked copy. Includes `services/workforce` source (31 files), which is not in this repo, plus a few `ui/` and `postgres-zero-patch-backup/` files.
 - `integratedPath`: the copy builds use, or null.
-- `otherIdenticalPaths`: other tracked copies, including the retired `packages/workforce/` copies.
+- `otherIdenticalPaths`: other tracked copies. Copies under the retired `packages/workforce/` (50 paths, deleted 2026-11-08) keep their entry and sha256, and are marked in `declaredCopyStatus` as `retired-removed`.
 
 The manifest also lists 7 `knownInternalDuplicateGroups` inside `packages/titan-platform/src/ported/` (locale files and two JSON pairs). These are kept, not deleted.
 
@@ -38,8 +38,8 @@ The manifest also lists 7 `knownInternalDuplicateGroups` inside `packages/titan-
 
 `scripts/check-titan-manifest.mjs` (Node built-ins only):
 
-1. Errors (exit 1): a manifest path is missing, or its sha256 no longer matches. A change to an integrated copy is drift on purpose. Re-hash it in the manifest in the same change, and say why in the commit.
-2. Warnings (exit 0): content duplicates under `titan-donor/`, `packages/titan-platform/src/` and `packages/workforce/` that include a file the manifest does not declare.
+1. Errors (exit 1): a manifest path is missing, or its sha256 no longer matches. A change to an integrated copy is drift on purpose. Re-hash it in the manifest in the same change, and say why in the commit. A declared copy with `declaredCopyStatus` `retired-removed` is exempt from the existence check, but its sha256 is kept as history.
+2. Warnings (exit 0): content duplicates under `titan-donor/` and `packages/titan-platform/src/` that include a file the manifest does not declare. `packages/workforce/` is no longer scanned.
 3. Warnings (exit 0): a bundle-like file under `packages/titan-platform/src/` (`*.iife.*`, `assets/`, `*.compat.*`, `*.min.*`, `*.bundle.json`, or 1 MB or more) that is not listed in `docs/generated/bundled-assets-provenance.md`. Add its row there in the same change.
 
 Use `--root <dir>` to point it at a copy, for example a fixture in a scratch folder.
@@ -60,6 +60,6 @@ Use `--root <dir>` to point it at a copy, for example a fixture in a scratch fol
 
 ## Open for the owner
 
-- Keep or retire `packages/workforce/` (issue #4 also covers it).
+- ~~Keep or retire `packages/workforce/`~~ Retired and deleted 2026-11-08 by owner decision.
 - Whether `titan-donor/` should move to a release artifact or stay in git (issue #1).
 - Whether the 7 known duplicate groups inside `src/ported/` should keep one copy.
