@@ -45,6 +45,12 @@ The `lint` job and `pnpm gate` both syntax-check the deployment entrypoint, SSH 
 
 These checks verify source logic and isolated test doubles; they do **not** deploy to `garonhome.local`, prove ntfy message delivery or demonstrate a real PostgreSQL recovery. A release must also pass the complete required test and E2E jobs. For production, run a verified encrypted backup and obtain owner approval before calling the deployment entrypoint.
 
+## Offsite backup integrity release rule
+
+The backup source and CLI tests require **cryptographic SHA-256 read-back** for each encrypted remote artifact and the manifest. An older name/size-only success record is not accepted by `scripts/check-backup-health.mjs`. Local legacy backup files are not rewritten, and historical offsite sets are not deleted by a broad age-only command. Incomplete or corrupt remote copies must remain visible to the operator.
+
+The restore preflight additionally checks that an encrypted uploads archive is a readable gzip tar and that the encrypted environment contains PostgreSQL credentials before stopping services. The scratch verification command rejects archive traversal paths and uses SQL-quoted scratch database identifiers. These tests prove validation logic with fixtures, **not** a live Google Drive download, correct encryption, or a successful production restore.
+
 ## Release Manifest
 
 The browser smoke is scoped by `tests/e2e/core-flow.spec.ts` and the release expectations in this document. If the launch spine changes, update both in the same PR.
