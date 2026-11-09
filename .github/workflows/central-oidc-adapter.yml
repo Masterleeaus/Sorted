@@ -6,7 +6,7 @@ on:
     paths:
       - 'apps/web/lib/auth/central-*.ts'
       - 'apps/web/lib/auth/__tests__/central-*.test.ts'
-      - 'db/migrations/202_central_account_identity_links.sql'
+      - 'docs/pending/202_central_account_identity_links.sql'
       - '.github/workflows/central-oidc-adapter.yml'
 permissions:
   contents: read
