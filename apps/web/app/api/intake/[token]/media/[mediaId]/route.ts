@@ -3,7 +3,7 @@
  * Only rows on the invite that the token resolves to can be removed.
  */
 import { createHash } from "node:crypto";
-import fs from "node:fs";
+import { removePrivateIntakeFile } from "@/lib/intake/media-files";
 import { NextRequest, NextResponse } from "next/server";
 import { getPool } from "@/lib/db";
 import { logger } from "@/lib/logger";
@@ -98,7 +98,7 @@ export async function DELETE(
   // The row is gone. A file that cannot be removed is logged for cleanup, not returned as an error.
   const filePath = intakeMediaFilePath(invite.id, filename);
   if (filePath) {
-    try { fs.unlinkSync(filePath); } catch (err) {
+    try { removePrivateIntakeFile(filePath); } catch (err) {
       logger.warn("[intake media DELETE] file not removed", { err: String(err) });
     }
   }
