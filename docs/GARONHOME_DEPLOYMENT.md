@@ -144,7 +144,7 @@ cd /opt/business/ai-fsm/repo
 bash scripts/backup-garonhome.sh
 ```
 
-This writes an encrypted Postgres custom dump plus mandatory encrypted uploads and environment archives, and a SHA-256 manifest. The deployment entrypoint refuses to start PostgreSQL or run migrations if the latest verified set is stale or incomplete. The standalone monitor also alerts when backup status is invalid. Archives are stored at:
+This writes an encrypted Postgres custom dump plus mandatory encrypted uploads and environment archives, and a SHA-256 manifest. Each remote encrypted artifact and its manifest are downloaded as a stream using `rclone cat` and SHA-256-verified. Older name-and-size-only status cannot satisfy the deployment gate; take a fresh encrypted backup after this update. Automatic age-only offsite deletion is disabled until a per-set audited retention procedure exists. The deployment entrypoint refuses to start PostgreSQL or run migrations if the latest verified set is stale or incomplete. The standalone monitor also alerts when backup status is invalid. Archives are stored at:
 
 ```text
 /opt/business/ai-fsm/backups/
