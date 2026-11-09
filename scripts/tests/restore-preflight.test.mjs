@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
-import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, rmSync } from "node:fs";
+import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, symlinkSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { test } from "node:test";
@@ -50,6 +50,18 @@ test("restore refuses an incomplete set even with a valid dump checksum manifest
     assert.equal(result.status, 1, result.stderr);
     assert.match(result.stderr, /missing required artifact/);
   } finally { f.cleanup(); }
+});
+test("destructive restore rejects a symbolic-link dump before database teardown",()=>{
+ const f=prepare();
+ try{
+  const link=join(f.backups,"ai_fsm_20261109T030303Z.dump.gpg");
+  symlinkSync(f.dump,link);
+  const result=spawnSync("bash",[script,link],{encoding:"utf8",timeout:5000,
+    env:{...process.env,FSM_DEPLOY_ROOT:f.root,FSM_ENV_FILE:join(f.root,".env"),
+      FSM_BACKUP_PASSPHRASE_FILE:f.passphrase}});
+  assert.equal(result.status,1);
+  assert.match(result.stdout+result.stderr,/dump file not found/);
+ }finally{f.cleanup();}
 });
 test("restore SQL uses psql-escaped variables and a literal heredoc", () => {
   const source = readFileSync(script, "utf8");
