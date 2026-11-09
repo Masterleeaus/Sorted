@@ -17,11 +17,13 @@ The `e2e-smoke` job is the release-manifest browser smoke. It runs `tests/e2e/co
 After `e2e-smoke` has run at least once on `main`, update required status checks with:
 
 ```bash
-gh api repos/byesaw13/ai-fsm/branches/main/protection/required_status_checks \
+gh api repos/Masterleeaus/Sorted/branches/main/protection/required_status_checks \
   --method PATCH \
   --field strict=true \
   --field contexts='["lint","typecheck","build","test","e2e-smoke"]'
 ```
+
+The backup CI subgate is also run by `pnpm gate` locally via `node --test scripts/tests/*.test.mjs`. Mocked rclone/Docker/GPG tests verify failure behavior; they do not replace a real encrypted offsite scratch restore.
 
 Do not remove a required check to merge a feature PR. If a required check itself is broken, use a short-lived documented bypass and restore the full list immediately after the fix lands.
 
@@ -29,7 +31,7 @@ Do not remove a required check to merge a feature PR. If a required check itself
 
 | Check | Depends on | Purpose |
 |---|---|---|
-| `lint` | none | ESLint across workspaces, plus `scripts/check-migration-prefixes.mjs` (no new duplicate `NNN_` prefixes). |
+| `lint` | none | Workspace ESLint, backup/restore shell syntax and Node regression tests, Knip, plus migration-prefix checks. A failing backup test blocks lint before Knip runs. |
 | `typecheck` | none | TypeScript `--noEmit` across workspaces. |
 | `build` | `lint`, `typecheck` | Production build with build-time env placeholders only. |
 | `test` | `lint`, `typecheck` | Unit and DB integration tests against PostgreSQL. |
