@@ -14,8 +14,6 @@ sorted_backup_timeout() {
 
 sorted_backup_remote() {
   local remote="${1:-}"
-  # The destination is a fixed folder within an operator-supplied rclone remote.
-  # Do not accept a literal path, whitespace, :/ or arbitrary extra path segments.
   if [[ ! "$remote" =~ ^[A-Za-z][A-Za-z0-9_-]{0,63}$ ]]; then
     echo "unsafe rclone remote name" >&2
     return 1
@@ -31,38 +29,15 @@ sorted_restore_confirm() {
 }
 
 sorted_backup_archive_entries() {
-  # Read tar listing from stdin. The full archive must be parsed before invoking
-  # this helper, so pipeline failures cannot be misread as valid empty input.
+  # Read a complete tar -tzf name listing; only normalized uploads paths pass.
   local entry count=0
   while IFS= read -r entry; do
     [[ -n "$entry" ]] || continue
-    if [[ "$entry" == /* || "$entry" == *\\* || "$entry" == *//* ||
-       "$entry" == *"/./"* || "$entry" == *"/../"* ||
-       "$entry" == */. || "$entry" == */.. ||
-       "$entry" == *
-      echo "invalid uploads archive path: $entry" >&2
-      return 1
-    fi
-    count=$((count + 1))
-  done
-  if (( count < 1 )); then
-    echo "uploads archive has no entries" >&2
-    return 1
-  fi
-}
-\\r'* || "$entry" == *
-      echo "invalid uploads archive path: $entry" >&2
-      return 1
-    fi
-    count=$((count + 1))
-  done
-  if (( count < 1 )); then
-    echo "uploads archive has no entries" >&2
-    return 1
-  fi
-}
-\\t'* ||
-       "$entry" != "uploads" && "$entry" != "uploads/" && "$entry" != uploads/* ]]; then
+    if [[ "$entry" != "uploads" && "$entry" != "uploads/" && "$entry" != uploads/* ]] ||
+       [[ "$entry" == /* || "$entry" == *\\* || "$entry" == *//* ||
+          "$entry" == */./* || "$entry" == */../* ||
+          "$entry" == */. || "$entry" == */.. ]] ||
+       [[ "$entry" == *[[:cntrl:]]* ]]; then
       echo "invalid uploads archive path: $entry" >&2
       return 1
     fi
