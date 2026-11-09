@@ -15,6 +15,9 @@ test("deployment executes migration and registry in one psql transaction", () =>
   assert.match(src, /record-migration.sql/);
   assert.match(src, /pg_exec -X -1 -v ON_ERROR_STOP=1/);
   assert.match(src, /-f -/);
+  assert.match(src, /sql_bundle="\$\(mktemp\)"/);
+  assert.match(src, /trap 'rm -f -- "\$\{sql_bundle\}"' EXIT/);
+  assert.match(src, /-f - < "\$\{sql_bundle\}"/);
 });
 test("no SQL filename values are injected into literal statements", () => {
   assert.match(src, /-v "migration_filename=\$\{filename\}"/);
