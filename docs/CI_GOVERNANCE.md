@@ -76,3 +76,10 @@ The backup script records `INCOMPLETE` on invalid remote settings rather than pr
 ## Release Manifest
 
 The browser smoke is scoped by `tests/e2e/core-flow.spec.ts` and the release expectations in this document. If the launch spine changes, update both in the same PR.
+
+## Public media database and staff-download acceptance gates (Pass 12)
+
+After migrations and the restricted web role are provisioned, the CI test job runs `pnpm --filter @ai-fsm/web exec vitest run --config vitest.integration.config.ts app/api/intake` **before** the native SQLite unit suite. This directly checks the relationship between the database account, invitation and booking IDs, RLS restrictions on the runtime web role, post-submit deletion denial and the public upload cap. The integration command must not be skipped if the native source files are unavailable; report its status independently.
+
+The web Vitest suite separately covers private file reads and authenticated staff media inventory/download handlers. Responses must not include raw storage paths, and downloads must use private no-store and nosniff headers. Passing these tests does not establish tenant isolation on a deployed server or an approved abandoned-file retention procedure. Keep #5 open until the complete acceptance checklist and all required release gates are satisfied.
+
