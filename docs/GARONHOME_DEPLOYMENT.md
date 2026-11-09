@@ -72,7 +72,7 @@ On `garonhome.local`:
 sudo mkdir -p /opt/business
 sudo chown -R "$USER:$USER" /opt/business
 
-git clone https://github.com/byesaw13/ai-fsm.git /opt/business/ai-fsm/repo
+git clone https://github.com/Masterleeaus/Sorted.git /opt/business/ai-fsm/repo
 cd /opt/business/ai-fsm/repo
 
 bash scripts/setup-garonhome.sh
@@ -105,13 +105,13 @@ bash scripts/deploy-garonhome.sh
 
 What the deploy script does:
 
-1. `git pull origin main`
-2. start `postgres`
-3. wait for postgres health
+1. Validate the selected deployment branch and reject any tracked or untracked changes before the canonical checkout sync. The workstation wrapper does not reset Git itself.
+2. Refuse to proceed unless the last encrypted backup status is complete, independently verified and recent (26 hours by default); then start `postgres`
+3. wait for postgres readiness with a configurable bounded timeout
 4. create `schema_migrations` tracking table if absent; apply only new migration files (already-applied files are skipped — no replay on redeploy)
 5. build `web` and `worker` from source
 6. start `web` and `worker`
-7. wait for the web container healthcheck to report `healthy`
+7. wait for the web container healthcheck to report `healthy` within a bounded timeout; fail on `unhealthy` or missing healthcheck
 8. print service status and a container-internal web health response
 
 The deployment is intentionally internal-only. The script does not assume `localhost:3000` is reachable from the host.
@@ -144,7 +144,7 @@ cd /opt/business/ai-fsm/repo
 bash scripts/backup-garonhome.sh
 ```
 
-This writes an encrypted Postgres custom dump plus mandatory encrypted uploads and environment archives, and a SHA-256 manifest to:
+This writes an encrypted Postgres custom dump plus mandatory encrypted uploads and environment archives, and a SHA-256 manifest. The deployment entrypoint refuses to start PostgreSQL or run migrations if the latest verified set is stale or incomplete. The standalone monitor also alerts when backup status is invalid. Archives are stored at:
 
 ```text
 /opt/business/ai-fsm/backups/
