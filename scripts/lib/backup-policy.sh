@@ -36,8 +36,32 @@ sorted_backup_archive_entries() {
   local entry count=0
   while IFS= read -r entry; do
     [[ -n "$entry" ]] || continue
-    if [[ "$entry" == /* || "$entry" == *\\* || "$entry" == "../"* ||
-       "$entry" == */../* || "$entry" == */.. ||
+    if [[ "$entry" == /* || "$entry" == *\\* || "$entry" == *//* ||
+       "$entry" == *"/./"* || "$entry" == *"/../"* ||
+       "$entry" == */. || "$entry" == */.. ||
+       "$entry" == *
+      echo "invalid uploads archive path: $entry" >&2
+      return 1
+    fi
+    count=$((count + 1))
+  done
+  if (( count < 1 )); then
+    echo "uploads archive has no entries" >&2
+    return 1
+  fi
+}
+\\r'* || "$entry" == *
+      echo "invalid uploads archive path: $entry" >&2
+      return 1
+    fi
+    count=$((count + 1))
+  done
+  if (( count < 1 )); then
+    echo "uploads archive has no entries" >&2
+    return 1
+  fi
+}
+\\t'* ||
        "$entry" != "uploads" && "$entry" != "uploads/" && "$entry" != uploads/* ]]; then
       echo "invalid uploads archive path: $entry" >&2
       return 1
