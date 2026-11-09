@@ -167,6 +167,10 @@ for file in "${MIGRATION_FILES[@]}"; do
   echo "applying migration atomically: ${filename}"
   # SQL sources live on the host and are streamed to container psql. -1 keeps
   # lock, pending assertion, schema and bookkeeping in ONE transaction.
+  # Compose the full SQL bundle BEFORE opening the transaction. A broken
+  # source stream must never let psql commit a partial migration.
+  sql_bundle="$(mktemp)"
+  trap 'rm -f -- "${sql_bundle}"' EXIT
   {
     for source in \
       "${REPO_ROOT}/scripts/sql/migration-lock.sql" \
@@ -176,7 +180,10 @@ for file in "${MIGRATION_FILES[@]}"; do
       cat "$source"
       printf '\n'
     done
-  } | pg_exec -X -1 -v ON_ERROR_STOP=1 -v "migration_filename=${filename}" -f -
+  } > "${sql_bundle}"
+  pg_exec -X -1 -v ON_ERROR_STOP=1 -v "migration_filename=${filename}" -f - < "${sql_bundle}"
+  rm -f -- "${sql_bundle}"
+  trap - EXIT
 done
 
 # Provision runtime roles after migrations so grants cover the current RLS tables.
