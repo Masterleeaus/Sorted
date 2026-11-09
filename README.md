@@ -72,6 +72,12 @@ node scripts/check-backup-health.mjs /opt/business/ai-fsm/backups 26
 
 A nonzero exit indicates a stale, missing or incomplete verified backup, and should trigger operator investigation. The health file alone is not proof of a successful scratch restore.
 
+## Safe deployment and service monitoring
+
+The sole host deployment entrypoint is `scripts/deploy-garonhome.sh`; `scripts/deploy.sh` passes a validated branch over SSH without resetting the worktree itself. The production runner refuses dirty checkouts, enforces an independently verified recent encrypted backup and bounds the PostgreSQL and web-readiness checks.
+
+`scripts/healthcheck-garonhome.sh` also tests the verified backup status, attempts a notification on stale/incomplete backups, and returns nonzero to the scheduler for a web or backup failure. Set the maximum-age and timeout values in the host environment using `infra/garonhome.env.example`. Never treat source-level mocks as evidence of a real encrypted restore or authorized production deployment; see [deployment](DEPLOY.md) and [backup operations](docs/BACKUP_RUNBOOK.md).
+
 ## Production Target
 
 Production runs on garonhome.local using `infra/compose.garonhome.yml` and deploy root `/opt/business/ai-fsm`. The runbook is [DEPLOY.md](DEPLOY.md). Do not deploy to `/home/admin/apps/ai-fsm`; that path is legacy.
