@@ -11,7 +11,9 @@ sudo mkdir -p \
   "${DEPLOY_ROOT}/repo" \
   "${DEPLOY_ROOT}/env" \
   "${DEPLOY_ROOT}/data/postgres" \
+  "${DEPLOY_ROOT}/data/uploads" \
   "${DEPLOY_ROOT}/backups" \
+  "${DEPLOY_ROOT}/backups/status" \
   "${DEPLOY_ROOT}/scripts"
 
 sudo chown -R "${USER}:${USER}" "${DEPLOY_ROOT}"
@@ -36,5 +38,7 @@ Next steps:
 2. Edit ${ENV_TARGET}
 3. Connect nginx-proxy-manager to ${PROXY_NETWORK} if you want internal-only routing:
    docker network connect ${PROXY_NETWORK} nginx-proxy-manager
-4. Run scripts/deploy-garonhome.sh
+4. Configure backup.passphrase outside the backup directory and save the key in a password manager.
+5. After first deployment, run scripts/backup-garonhome.sh and confirm
+   scripts/check-backup-health.mjs exits 0 before treating the system as backed up.
 EOF
