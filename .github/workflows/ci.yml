@@ -177,6 +177,10 @@ jobs:
           RUNTIME_DB_PASSWORD: ci-runtime-only
         run: bash scripts/db-provision-runtime.sh
 
+      - name: Verify intake media tenant constraints and public-photo lifecycle against PostgreSQL
+        # Execute before the native SQLite suite. Missing native donor SQL must
+        # not hide a failed cross-tenant PostgreSQL regression.
+        run: pnpm --filter @ai-fsm/web exec vitest run --config vitest.integration.config.ts app/api/intake
       - name: Diagnose attested SQLite source availability
         # Diagnostic only. The required unit test gate still runs unmodified.
         continue-on-error: true
