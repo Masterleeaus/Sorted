@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { queryOne } from "@/lib/db";
+import { withTokenAccountContext, resolveOwnerAccountId } from "../../_lib/account-context";
 import { businessToday } from "@/lib/operations/business-day";
 import { sendPushToOwners } from "@/lib/push/send";
 
@@ -12,26 +12,34 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const row = await queryOne<{
-    account_id: string;
-    suppress_weekend_start_prompt: boolean;
-    has_open_mileage_today: boolean;
-  }>(
-    `SELECT a.id AS account_id,
-            a.suppress_weekend_start_prompt,
-            EXISTS (
-              SELECT 1 FROM vehicle_sessions vs
-              WHERE vs.account_id = a.id
-                AND vs.session_date = $1::date
-                AND vs.end_odometer IS NULL
-                AND vs.miles IS NULL
-            ) AS has_open_mileage_today
-     FROM accounts a
-     JOIN users u ON u.account_id = a.id
-     WHERE u.role = 'owner'
-     ORDER BY u.created_at LIMIT 1`,
-    [businessToday()],
-  );
+  // The owner account resolves through a bounded resolver (migration 204). The
+  // prompt reads run in that account's context as its owner.
+  const accountId = await resolveOwnerAccountId();
+  const row = accountId
+    ? await withTokenAccountContext(accountId, async (tx) => {
+        const { rows } = await tx.query<{
+          account_id: string;
+          suppress_weekend_start_prompt: boolean;
+          has_open_mileage_today: boolean;
+        }>(
+          `SELECT a.id AS account_id,
+                  a.suppress_weekend_start_prompt,
+                  EXISTS (
+                    SELECT 1 FROM vehicle_sessions vs
+                    WHERE vs.account_id = a.id
+                      AND vs.session_date = $1::date
+                      AND vs.end_odometer IS NULL
+                      AND vs.miles IS NULL
+                  ) AS has_open_mileage_today
+           FROM accounts a
+           JOIN users u ON u.account_id = a.id
+           WHERE u.role = 'owner' AND a.id = $2
+           ORDER BY u.created_at LIMIT 1`,
+          [businessToday(), accountId],
+        );
+        return rows[0] ?? null;
+      }, "owner")
+    : null;
 
   if (!row) return NextResponse.json({ signal: "no_action" });
   // Clock-in opens the business day but does not start mileage tracking — only
