@@ -56,6 +56,25 @@ test("an incomplete marker overrides historical success", () => {
     assert.match(evaluateBackupHealth(f.root, 26, when + 60_000).reason, /incomplete/);
   } finally { f.cleanup(); }
 });
+test("legacy size-only verification cannot satisfy the cryptographic backup gate", () => {
+  const f = fixture();
+  try {
+    delete f.successful.offsite.verification;
+    f.save();
+    assert.match(evaluateBackupHealth(f.root, 26, when + 60_000).reason, /offsite verification/);
+    f.successful.offsite.verification = "name-size";
+    f.save();
+    assert.equal(evaluateBackupHealth(f.root, 26, when + 60_000).ok, false);
+  } finally { f.cleanup(); }
+});
+test("success report must contain exactly the three expected encrypted artifacts", () => {
+  const f = fixture();
+  try {
+    f.successful.artifacts.push({ name:"untrusted.dump", bytes:10, sha256:"0".repeat(64) });
+    f.save();
+    assert.match(evaluateBackupHealth(f.root, 26, when + 60_000).reason, /artifact metadata/);
+  } finally { f.cleanup(); }
+});
 test("wrong set, incomplete metadata, and unverified status fail closed", () => {
   const f = fixture();
   try {
