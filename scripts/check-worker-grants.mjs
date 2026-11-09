@@ -30,7 +30,7 @@ const NON_TABLE_WORDS = new Set(["set", "skip", "the", "lateral", "only", "value
 const SQL_LIKE = /\b(select|insert|update|delete|with)\b[\s\S]*\b(from|into|update|set|join|values)\b/i;
 // `(?![ \t]*\()` skips function calls such as `from generate_series(`, but not
 // `insert into t` followed by a column list on the next line.
-const TABLE_AFTER_KEYWORD = /\b(?:from|join|into|update|delete\s+from)\s+([a-z_][a-z0-9_]*)\b(?![ \t]*\()/gi;
+const TABLE_AFTER_KEYWORD = /\b(?:from|join|into|update|using|delete\s+from)\s+([a-z_][a-z0-9_]*)\b(?![ \t]*\()/gi;
 
 /**
  * @param {{ name: string, text: string }[]} files worker source files (non-test)
