@@ -375,7 +375,13 @@ No error output = file is structurally valid.
 
 ---
 
-## Backup concurrency and local integrity (Pass 8)
+## Upload archive safety and recovery validation (Pass 9)
+
+Backups fail closed when `data/uploads` is symlinked or contains symlinks. The encrypted uploads archive cannot silently include references outside the uploads tree. Both production restore preflight and the scratch restore drill validate full tar member paths and verbose member types. Only ordinary files and directories under `uploads/` are permitted; links, special devices, traversal segments, doubled separators and noncanonical paths are rejected **before database restoration**. A scratch drill that fails to drop its temporary PostgreSQL database now returns an error and requires manual cleanup.
+
+The local encrypted artifact audit refuses symlinked local files and SHA-256 manifests. Backup health also rejects symlinked status and verified-marker files. These checks protect the local verification boundary from incorrectly trusting redirected files; they do not replace a real full restore rehearsal, credential protection, or remote permissions review.
+
+
 
 A backup runner now acquires a nonblocking Linux `flock` under `backups/status/.backup.lock` before reading environment configuration or writing status. Only one runner can publish status or prune verified local archives. It creates an `ACTIVE` record and removes it only after finalizing success or incomplete status. Unexpected termination may leave a stale `ACTIVE` file; the health monitor then fails closed. Inspect that runner, local encrypted artifacts, and the latest report before clearing an orphaned record. Do **not** clear an active record while a backup is still running.
 
