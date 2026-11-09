@@ -114,6 +114,8 @@ Worker rollback: set `WORKER_DATABASE_URL` to the admin URL and run `$COMPOSE up
 
 Web cutover (not part of this deploy): set `WEB_DATABASE_URL` to the `ai_fsm_web` URL only after every blocker and verification item in `docs/working/rls-web-tier-flip.md` is closed and checked on a staging copy.
 
+Remote backup timeouts: `FSM_BACKUP_REMOTE_COPY_TIMEOUT_SEC` and `FSM_BACKUP_REMOTE_READ_TIMEOUT_SEC` default to 900 seconds and require values between 5 and 3600. Invalid remote names or timeouts write an `INCOMPLETE` status that blocks future deployment. The alert hook setting `BACKUP_ALERT_CMD` accepts one executable path, not arbitrary shell code.
+
 ## 5. Health checks
 
 Run on the host from `/opt/business/ai-fsm/repo`:
@@ -173,10 +175,10 @@ Migrations are forward-only. Old code must tolerate the newer additive schema.
 
 ```bash
 cd /opt/business/ai-fsm/repo
-bash scripts/restore-garonhome.sh /opt/business/ai-fsm/backups/ai_fsm_<pre-deploy-ts>.dump.gpg
+FSM_RESTORE_CONFIRM_DB=ai_fsm bash scripts/restore-garonhome.sh /opt/business/ai-fsm/backups/ai_fsm_<pre-deploy-ts>.dump.gpg
 ```
 
-The restore requires the full encrypted set and SHA-256 manifest, and checks all three artifacts before stopping services or replacing a database. It then stops `web` and `worker`, drops and recreates the database, restores the dump, and restarts the services. Never use a partial backup set for destructive rollback.
+The restore requires a typed `FSM_RESTORE_CONFIRM_DB` equal to the target database name, plus the full encrypted set and SHA-256 manifest. The preflight checks all three artifacts and validates archive member paths before stopping services or replacing a database. Restore health checks are bounded (`FSM_RESTORE_WEB_ATTEMPTS`, default 30 attempts). The example name `ai_fsm` must be replaced if the deployment uses another `POSTGRES_DB`. It then stops `web` and `worker`, drops and recreates the database, restores the dump, and restarts the services. Never use a partial backup set for destructive rollback.
 
 Unverified — confirm on host: a restore drill has been run recently.
 
