@@ -80,10 +80,10 @@ export async function findEligibleVisits(
             p.address AS property_address,
             u.full_name AS tech_name
      FROM visits v
-     JOIN jobs j ON j.id = v.job_id
-     JOIN clients c ON c.id = j.client_id
-     LEFT JOIN properties p ON p.id = j.property_id
-     LEFT JOIN users u ON u.id = v.assigned_user_id
+     JOIN jobs j ON j.id = v.job_id AND j.account_id = v.account_id
+     JOIN clients c ON c.id = j.client_id AND c.account_id = v.account_id
+     LEFT JOIN properties p ON p.id = j.property_id AND p.account_id = v.account_id
+     LEFT JOIN users u ON u.id = v.assigned_user_id AND u.account_id = v.account_id
      WHERE v.account_id = $1
        AND v.status = 'scheduled'
        AND v.scheduled_start > now()
