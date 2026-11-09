@@ -37,19 +37,19 @@ command="$1"; shift
 case "$command" in
   copy)
     [[ "\${MOCK_RCLONE_FAIL_COPY:-0}" != "1" ]] || exit 7
-    cp -- "$1" "\${MOCK_REMOTE_DIR}/"
+    cp -- "$1" "\\${MOCK_REMOTE_DIR}/"
     ;;
   lsf)
-    for file in "\${MOCK_REMOTE_DIR}"/*; do
+    for file in "\\${MOCK_REMOTE_DIR}"/*; do
       [[ -f "$file" ]] || continue
       printf '%s;%s\\n' "$(stat -c %s "$file")" "$(basename "$file")"
     done
     ;;
   cat)
-    name="${1##*/}"
-    [[ "${MOCK_RCLONE_CORRUPT:-0}" != "1" ]] || { printf 'tampered remote data'; exit 0; }
-    [[ "${MOCK_RCLONE_CAT_FAIL:-0}" != "1" ]] || { echo 'remote stream failed' >&2; exit 5; }
-    /bin/cat -- "${MOCK_REMOTE_DIR}/${name}"
+    name="\${1##*/}"
+    [[ "\${MOCK_RCLONE_CORRUPT:-0}" != "1" ]] || { printf 'tampered remote data'; exit 0; }
+    [[ "\${MOCK_RCLONE_CAT_FAIL:-0}" != "1" ]] || { echo 'remote stream failed' >&2; exit 5; }
+    /bin/cat -- "\${MOCK_REMOTE_DIR}/\${name}"
     ;;
   delete) echo "unsafe remote purge attempted" >&2; exit 17 ;;
   *) exit 9 ;;
