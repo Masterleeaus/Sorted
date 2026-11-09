@@ -108,5 +108,5 @@ Production runs on garonhome.local using `infra/compose.garonhome.yml` and deplo
 
 Private intake photos can now be listed and downloaded by authenticated owner/admin sessions using `/api/v1/booking-requests/{requestId}/media` and `/api/v1/booking-requests/{requestId}/media/{mediaId}`. These endpoints bind the booking and media to the session account; they do not expose filesystem paths or unauthenticated URLs. The download boundary refuses symlinks, missing/oversized files and serves non-cacheable attachments.
 
-Migration 204 adds database-level same-account foreign keys for intake invite and booking associations, strengthening tenant isolation even when the application uses a privileged connection. The new PostgreSQL integration checks execute before the native SQLite unit suite in CI. Review the migration's existing-data audit and the unresolved orphan-file retention policy before deployment.
+Migration 209 adds database-level same-account foreign keys for intake invite and booking associations, strengthening tenant isolation even when the application uses a privileged connection. The new PostgreSQL integration checks execute before the native SQLite unit suite in CI. Review the migration's existing-data audit and the unresolved orphan-file retention policy before deployment.
 
