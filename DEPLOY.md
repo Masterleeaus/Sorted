@@ -44,7 +44,7 @@ Check the dump before continuing:
 ssh garonhome 'ls -lh /opt/business/ai-fsm/backups | tail -5'
 ```
 
-If the dump is missing or zero bytes, stop. Do not deploy.
+If the dump is missing or zero bytes, stop. Do not deploy. Confirm `node scripts/check-backup-health.mjs /opt/business/ai-fsm/backups 26` exits 0. The deployment script now enforces this read-only check before any database changes; it cannot replace a real scratch restore drill.
 
 Unverified — confirm on host: the nightly cron `0 2 * * *` for the backup script, and the rclone remote `googledrive`.
 
@@ -65,12 +65,12 @@ DEPLOY_BRANCH=main bash scripts/deploy-garonhome.sh
 
 What `deploy-garonhome.sh` does, in order:
 
-1. Syncs the checkout to `origin/<branch>` with a hard reset. If the host had local commits not on origin, they are saved to a `deploy-backup/<sha>-<ts>` branch first.
-2. Starts `postgres` and waits for `pg_isready`.
+1. Validates the branch reference and refuses any tracked **or untracked** checkout changes. Syncs to `origin/<branch>`; divergent local commits receive a `deploy-backup/<sha>-<ts>` branch before the canonical runner resets. The workstation wrapper no longer performs its own Git checkout/reset.
+2. Runs `node scripts/check-backup-health.mjs` against the last encrypted verified backup and **aborts before starting services or migrations** on missing, stale or incomplete status. Then starts `postgres`, with a bounded readiness wait (`FSM_DEPLOY_DB_ATTEMPTS`, default 60 checks, 2 seconds apart).
 3. Validates migration names and history, creates `schema_migrations` if missing, then applies each unrecorded migration in filename order with `ON_ERROR_STOP=1`. The explicitly named `002_seed_dev.sql` is excluded. Each SQL file and its tracking INSERT run in one transaction with a database advisory lock and a concurrent-replay guard. A populated schema with no tracking history now **aborts** instead of silently marking files applied; reconcile its actual migration history before deploying.
 4. Builds `web` and `worker`.
 5. Runs `up -d web worker`.
-6. Waits until the web container reports `healthy`. The wait loop has no timeout. If it hangs, check `docker compose ... ps` from another shell.
+6. Waits for a healthy web container with a bounded check (`FSM_DEPLOY_WEB_ATTEMPTS`, default 60, 2 seconds apart). A missing healthcheck, unhealthy status, or timeout fails deployment instead of hanging indefinitely.
 7. Prints service status and the `/api/health` response.
 
 Migrations run inside this script. `scripts/db-migrate.sh` is a separate runner for local use with `MIGRATION_DATABASE_URL`. Do not use it for garonhome.
