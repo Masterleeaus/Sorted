@@ -42,6 +42,7 @@ export function evaluateBackupHealth(backupDir, maxAgeHours = 26, now = Date.now
     `ai_fsm_env_${successful.set}.gpg`,
   ];
   if (!Array.isArray(successful.artifacts) ||
+      successful.artifacts.length !== expected.length ||
       !expected.every(name => successful.artifacts.some(a =>
         a?.name === name && Number.isSafeInteger(a.bytes) && a.bytes > 0 &&
         typeof a.sha256 === "string" && /^[a-f0-9]{64}$/.test(a.sha256)))) {
