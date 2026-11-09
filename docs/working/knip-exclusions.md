@@ -20,3 +20,34 @@ Date: 2026-11-08. Owner decision: scoped exclusion (recorded here, per AGENTS.md
 ## Update 2026-11-08 (second pass)
 - `knip.json`: `packages/titan-platform` also ignores `tests/**`, `migration-tests/**` and `**/.test-dist/**`. These test trees import modules that are not in this tree (donor residue), so knip reported 298 unresolved files from them. Unresolved imports are now 0. The tests themselves are unchanged and run as before.
 - Remaining knip failure: 202 unused files. Full list (87 candidates not in the donor manifest, plus the manifest-listed ones knip also flags) is in `docs/working/knip-unused-review-list.txt`. Text search cannot prove these are unreferenced (generic file names), so they are not deleted. Decision needed: delete them after a knip-reachability review, or keep them excluded with a reason.
+
+## Update 2026-11-09 (third pass, issue #4 lane s-knip2)
+
+Result: `pnpm knip` exits 0. `scripts/gate.sh` runs this step, so the knip floor passes. Unused exports (201), unused exported types (377) and one duplicate export (`packages/money/src/index.ts`, `formatCents`) are still reported as warnings only, which do not fail the run. They are not addressed here.
+
+### Decisions
+1. Deleted 8 files that knip reports unused and that have no importer, test read, script or config reference (`259bf1a`):
+   - `apps/web/app/app/settings/WorkforceHierarchyPanel.tsx`
+   - `apps/web/components/FloatingActionButton.tsx`, `QuickLeadModal.tsx`, `WorkspaceAutoRoute.tsx`
+   - `packages/titan-platform/src/workforce-context/source-inventory.ts`
+   - `packages/titan-platform/src/workforce-registry/index.ts`, `projection.ts`, `capability-binding.ts`
+   Verification: an import-specifier graph (relative paths, `@/` alias, workspace package subpaths, `import()`, `require`), plus a text search of every tracked file for the path and basename, including tests, configs and scripts.
+2. `packages/workforce` (retired copy, 89 unused files) is excluded as a whole workspace with top-level `ignoreWorkspaces`. Owner decision still pending. Nothing in it was touched.
+3. Donor-manifest files (26 in `docs/generated/titan-donor-manifest.json` with an `integratedPath` or `otherIdenticalPaths`) are kept and ignored per file. None was deleted.
+4. Other remaining unused files are kept and ignored per file, grouped in `docs/working/knip-unused-review-list.txt`:
+   - Read or imported by a test (26). knip does not analyse `tests/**`, `migration-tests/**` or `__tests__`.
+   - Named in `packages/titan-platform/tsconfig.json` (2).
+   - Named only by `titan-donor/` copies, which are not built (10).
+   - Imported by live code the knip graph does not follow (1): `packages/titan-platform/src/workforce-lifecycle/index.ts` is imported by `apps/web/app/app/workforce/page.tsx` through `apps/web/app/app/settings/workforce-lifecycle-data.ts`, a cross-workspace relative import.
+   - Imported only by files in the groups above (38).
+   - Basename-only matches (2): `verticals/licensed-trades/index.ts` (tests load a compiled folder) and `apps/web/components/CaptureLink.tsx` (an apps/web test reads it with `readFileSync`).
+5. No deletion was made where only a test references the file, even when that test is currently broken (see below).
+
+### Findings that need an owner decision
+- Many titan-platform tests cannot load. They import build outputs that `pnpm test` does not generate: `.cleaning-test-dist`, `.licensed-trades-test-dist`, `.test-dist/src/...`, and a missing `apps/directadmin/zero-core/cockpit.mjs`. The baseline has 76 failing titan-platform tests, and many of the load errors are "Cannot find module". So the test references that keep the files in the review list are weaker than they look. Either repair the test harness, or delete those files and their tests.
+- `packages/titan-platform/src/verticals/licensed-trades/` (10 modules) is only referenced by tests that import `.licensed-trades-test-dist`, which no script builds. Owner should decide keep or remove.
+- Interpretation used for the deletion rule: "no importers outside itself" was applied as "no importers outside the set being removed, and no non-code references", with iterative rounds. Nothing was deleted on that basis in this pass beyond the 8 files above, because all other candidates had a test, config, donor or manifest reference.
+
+### Test results (no increase in failures)
+- `@ai-fsm/web` vitest: 14 failed, 2262 passed, 2276 total, before and after. The same 14 failures in the navigation and vocabulary tests.
+- `@titan-zero/titan-platform` `pnpm test`: 1174 tests, 1096 pass, 76 fail, 2 skipped, before and after. The same 76 failing tests.
