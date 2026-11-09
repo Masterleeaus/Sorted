@@ -7,8 +7,7 @@
  * re-checks the invite and the photo cap.
  */
 import { createHash, randomUUID } from "node:crypto";
-import fs from "node:fs";
-import path from "node:path";
+import { writePrivateIntakeFile, removePrivateIntakeFile } from "@/lib/intake/media-files";
 import { NextRequest, NextResponse } from "next/server";
 import { getPool } from "@/lib/db";
 import { logger } from "@/lib/logger";
@@ -104,9 +103,9 @@ export async function POST(
     // Lock the invite row so a submit and two photo adds cannot interleave the cap check.
     const { rows: locked } = await client.query<{ id: string }>(
       `SELECT id FROM intake_invites
-       WHERE id = $1 AND used_at IS NULL AND expires_at > now()
+       WHERE id = $1 AND account_id = $2 AND used_at IS NULL AND expires_at > now()
        FOR UPDATE`,
-      [invite.id],
+      [invite.id, invite.account_id],
     );
     if (locked.length === 0) {
       await client.query("ROLLBACK");
@@ -114,18 +113,15 @@ export async function POST(
     }
 
     const { rows: countRows } = await client.query<{ n: number }>(
-      `SELECT count(*)::int AS n FROM intake_media WHERE intake_invite_id = $1`,
-      [invite.id],
+      `SELECT count(*)::int AS n FROM intake_media WHERE intake_invite_id = $1 AND account_id = $2`,
+      [invite.id, invite.account_id],
     );
     if ((countRows[0]?.n ?? 0) >= MAX_INTAKE_PHOTOS) {
       await client.query("ROLLBACK");
       return errorJson(422, "VALIDATION_ERROR", `You can attach up to ${MAX_INTAKE_PHOTOS} photos to one request.`);
     }
 
-    fs.mkdirSync(path.dirname(filePath), { recursive: true, mode: 0o700 });
-    // Exclusive creation prevents overwriting a pre-existing file, including
-    // a symlink occupying the unpredictable generated filename.
-    fs.writeFileSync(filePath, bytes, { flag: "wx", mode: 0o600 });
+    writePrivateIntakeFile(filePath, bytes);
     written = true;
 
     const { rows } = await client.query<{
@@ -143,7 +139,9 @@ export async function POST(
   } catch (err) {
     await client.query("ROLLBACK").catch(() => undefined);
     if (written) {
-      try { fs.unlinkSync(filePath); } catch { /* already gone */ }
+      try { removePrivateIntakeFile(filePath); } catch (cleanupError) {
+        logger.error("[intake media POST] failed to clean up uncommitted file", cleanupError as Error);
+      }
     }
     logger.error("[intake media POST] failed", err as Error);
     return errorJson(500, "INTERNAL_ERROR", "Failed to save photo. Please try again.");
