@@ -106,6 +106,8 @@ log "backup process coordination and local artifact integrity"
 node --test scripts/tests/backup-lock.test.mjs scripts/tests/audit-backup-local.test.mjs
 log "executable intake media validation and private filesystem tests"
 pnpm --filter @ai-fsm/web exec vitest run intake-photo-
+log "intake and staff photo route unit tests"
+pnpm --filter @ai-fsm/web exec vitest run media.unit.test.ts list.unit.test.ts download.unit.test.ts
 log "public intake media lifecycle and security"
 node --test scripts/tests/intake-photo-*.test.mjs
 log "backup lifecycle and restore safety"
