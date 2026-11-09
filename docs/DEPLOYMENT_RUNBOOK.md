@@ -113,7 +113,7 @@ cd /opt/business/ai-fsm/repo
 bash scripts/backup-garonhome.sh
 ```
 
-Writes a compressed Postgres custom dump to `/opt/business/ai-fsm/backups/`.
+Writes a required encrypted `.dump.gpg` database backup, encrypted uploads and `.env` archives, and a SHA-256 manifest to `/opt/business/ai-fsm/backups/`. Offsite upload/size verification is mandatory; inspect `backups/status/last-run.json` and do not deploy if the backup reports `incomplete`. The canonical process is in `docs/BACKUP_RUNBOOK.md`.
 
 Recommended cron (run as the deploy user):
 
@@ -127,10 +127,10 @@ Recommended cron (run as the deploy user):
 
 ```bash
 cd /opt/business/ai-fsm/repo
-bash scripts/restore-garonhome.sh /opt/business/ai-fsm/backups/ai_fsm_YYYYMMDDTHHMMSSZ.dump
+bash scripts/restore-garonhome.sh /opt/business/ai-fsm/backups/ai_fsm_YYYYMMDDTHHMMSSZ.dump.gpg
 ```
 
-The restore script: stops web/worker → terminates DB sessions → drops and recreates DB → restores dump → restarts web/worker → verifies health.
+The restore script: verifies the full encrypted set and checksum manifest → checks decryption → stops web/worker → terminates DB sessions → safely drops and recreates the named DB → restores dump → restarts web/worker → verifies health. Missing companions or manifest cause a fail-closed preflight.
 
 ---
 
@@ -146,7 +146,7 @@ git checkout <previous-commit>
 bash scripts/deploy-garonhome.sh
 
 # Option B — restore from pre-release backup
-bash scripts/restore-garonhome.sh /opt/business/ai-fsm/backups/ai_fsm_<pre-release-ts>.dump
+bash scripts/restore-garonhome.sh /opt/business/ai-fsm/backups/ai_fsm_<pre-release-ts>.dump.gpg
 ```
 
 Log rollbacks in `docs/DECISION_LOG.md` using the ROLLBACK entry format.
