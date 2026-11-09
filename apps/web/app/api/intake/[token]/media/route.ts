@@ -75,6 +75,11 @@ export async function POST(
   const bytes = new Uint8Array(await file.arrayBuffer());
   const mime = sniffIntakePhotoMime(bytes);
   if (!mime) return errorJson(422, "VALIDATION_ERROR", "This file is not a supported photo.");
+  // Both declared MIME and file signature must agree. A signature-only test
+  // otherwise accepts a disguised image with misleading client metadata.
+  if (mime !== file.type) {
+    return errorJson(422, "VALIDATION_ERROR", "Photo type does not match its file contents.");
+  }
 
   const filename = `${randomUUID()}.${INTAKE_PHOTO_EXTENSION[mime]}`;
   const filePath = intakeMediaFilePath(invite.id, filename);
@@ -111,8 +116,10 @@ export async function POST(
       return errorJson(422, "VALIDATION_ERROR", `You can attach up to ${MAX_INTAKE_PHOTOS} photos to one request.`);
     }
 
-    fs.mkdirSync(path.dirname(filePath), { recursive: true });
-    fs.writeFileSync(filePath, bytes);
+    fs.mkdirSync(path.dirname(filePath), { recursive: true, mode: 0o700 });
+    // Exclusive creation prevents overwriting a pre-existing file, including
+    // a symlink occupying the unpredictable generated filename.
+    fs.writeFileSync(filePath, bytes, { flag: "wx", mode: 0o600 });
     written = true;
 
     const { rows } = await client.query<{
