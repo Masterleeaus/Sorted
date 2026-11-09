@@ -4,6 +4,8 @@ umask 077
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=./lib/backup-policy.sh
 source "${SCRIPT_DIR}/lib/backup-policy.sh"
+# shellcheck source=./lib/backup-archive-safety.sh
+source "${SCRIPT_DIR}/lib/backup-archive-safety.sh"
 # shellcheck source=./lib/backup-run-lock.sh
 source "${SCRIPT_DIR}/lib/backup-run-lock.sh"
 
@@ -225,7 +227,9 @@ fi
 
 # 2. Uploaded files (receipts, job photos), not covered by the DB dump (required)
 if [[ -d "${DATA_ROOT}/uploads" ]]; then
-  if ! encrypt_command_to "${UPLOADS_FILE}" tar -czf - -C "${DATA_ROOT}" uploads; then
+  if ! sorted_backup_no_source_links "${DATA_ROOT}/uploads"; then
+    record_failure "uploads contain unsafe symlinks; archive not written"
+  elif ! encrypt_command_to "${UPLOADS_FILE}" tar -czf - -C "${DATA_ROOT}" uploads; then
     record_failure "uploads archive failed for ${DATA_ROOT}/uploads"
   else
     echo "backup written (encrypted): ${UPLOADS_FILE}"
