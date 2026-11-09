@@ -1,10 +1,10 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { assembleWorkforceContext } from "../../.tmp-wf-context-build/assembler.js";
-import { projectWorkforceContextForTask } from "../../.tmp-wf-context-build/projection.js";
-import { advanceWorkforceTaskCheckpoint, createWorkforceTaskCheckpoint } from "../../.tmp-wf-context-build/checkpoint.js";
-import { createWorkforceContextHandoff } from "../../.tmp-wf-context-build/handoff.js";
-import { WORKFORCE_CONTINUITY_FLOW, verifyWorkforceContextContinuity } from "../../.tmp-wf-context-build/continuity.js";
+import { assembleWorkforceContext } from "../.context-test-dist/assembler.js";
+import { projectWorkforceContextForTask } from "../.context-test-dist/projection.js";
+import { advanceWorkforceTaskCheckpoint, createWorkforceTaskCheckpoint } from "../.context-test-dist/checkpoint.js";
+import { createWorkforceContextHandoff } from "../.context-test-dist/handoff.js";
+import { WORKFORCE_CONTINUITY_FLOW, verifyWorkforceContextContinuity } from "../.context-test-dist/continuity.js";
 
 function baseProjection(stage, worker) {
   const ctx = assembleWorkforceContext({
