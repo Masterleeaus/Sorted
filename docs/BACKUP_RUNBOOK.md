@@ -12,9 +12,9 @@ Deploy root: `/opt/business/ai-fsm/`
 
 | Backup type | Tool | Frequency | Retention |
 |-------------|------|-----------|-----------|
-| Logical (SQL dump) | `pg_dump` → `gpg --symmetric` (AES-256) | Daily (cron) | 7 days local + 30 days offsite (Google Drive, via rclone) |
-| Uploaded files (`data/uploads/`) | `tar` → `gpg --symmetric` (AES-256) | Daily (cron) | 7 days local + 30 days offsite |
-| Secrets (`.env`) | `gpg --symmetric` (AES-256) | Daily (cron) | 7 days local + 30 days offsite |
+| Logical (SQL dump) | `pg_dump` → `gpg --symmetric` (AES-256) | Daily (cron) | 7 days local; offsite retained until audited per-set deletion exists |
+| Uploaded files (`data/uploads/`) | `tar` → `gpg --symmetric` (AES-256) | Daily (cron) | 7 days local; offsite retained until audited per-set deletion exists |
+| Secrets (`.env`) | `gpg --symmetric` (AES-256) | Daily (cron) | 7 days local; offsite retained until audited per-set deletion exists |
 
 Every artifact is encrypted before it leaves the pipeline. No plaintext dump, archive or `.env` copy is written to the host or uploaded. See [Encryption and key management](#encryption-and-key-management).
 | WAL archiving | Not configured | — | N/A (MVP) |
@@ -52,12 +52,18 @@ The backup script (`scripts/backup-garonhome.sh`) performs:
 3. `gpg --symmetric` encryption of `.env` to `ai_fsm_env_YYYYMMDDTHHMMSSZ.gpg`
 4. Writes `ai_fsm_YYYYMMDDTHHMMSSZ.sha256` (SHA-256 of the three encrypted files above)
 5. Pushes all four files offsite via `rclone`
-6. Verifies each offsite copy by remote listing (name and byte size) before counting it as stored
+6. Reads every offsite object back with `rclone cat` and verifies its SHA-256 checksum against the original local object, including the manifest (size check remains an early diagnostic). A failed stream or differing hash makes the entire run incomplete
 7. Writes the status markers described in [Backup status and alerts](#backup-status-and-alerts)
 8. Prunes local sets older than 7 days, but only sets whose offsite copy is verified (see Retention below)
-9. Prunes offsite (Google Drive) copies older than 30 days via `rclone delete --min-age`, only when this run's set is complete and verified
+9. Does **not** prune offsite objects automatically: a broad age-based delete can remove incomplete and independently unverified historical recovery sets. Set-by-set audited retention needs a separate implementation and restore evidence
 
-The run refuses to start (no files written) if the passphrase file is missing or empty, or if it sits inside the backup directory. A run is **complete** only when the database dump, the uploads archive, the `.env` backup and the manifest are all written and all four are verified on Drive by name and size. Remote byte-size verification does not prove remote content integrity; perform a periodic independent download and SHA-256 restore drill. Anything else is **INCOMPLETE**: the script exits non-zero and the status files say why.
+The run refuses to start (no files written) if the passphrase file is missing or empty, or if it sits inside the backup directory. A run is **complete** only when the database dump, the uploads archive, the `.env` backup and the manifest are all written and all four are verified on Drive by SHA-256 read-back, not just name and size. A successful checksum is an integrity check on encrypted bytes, **not** proof that PostgreSQL can restore the dump or that archives are operationally usable. Perform periodic independent scratch restores. Anything else is **INCOMPLETE**: the script exits non-zero and the status files say why.
+
+### Cryptographic offsite verification and retention
+
+The backup job now compares the SHA-256 of each local encrypted object with the bytes read back from remote storage using `rclone cat`, including the checksum manifest. Its `last-success.json` report records `offsite.verification: "sha256-readback"`; the read-only backup health gate **rejects older name/size-only reports**. Recreate a verified backup after upgrading the backup script before relying on the deployment health gate.
+
+Remote age-only pruning has been disabled. Remote backups may accumulate until a per-set audited retention procedure is implemented. Do not reintroduce `rclone delete --min-age` without demonstrating that each historical set selected for deletion is complete, individually verified, restorable, and no longer required by the recovery policy.
 
 ### Backup status and alerts
 
