@@ -14,7 +14,7 @@ test("scratch restore drill requires and verifies all three encrypted artifacts"
 test("scratch drill cleans temporary plaintext and its disposable database", () => {
   assert.match(script, /trap cleanup EXIT/);
   assert.match(script, /rm -rf -- "\$\{WORK\}"/);
-  assert.match(script, /DROP DATABASE IF EXISTS \$\{SCRATCH_DB\}/);
+  assert.match(script, /DROP DATABASE IF EXISTS :"scratch_db"/);
 });
 test("scratch drill refuses nonconforming backup identifiers", () => {
   assert.match(script, /invalid encrypted backup filename or timestamp/);
