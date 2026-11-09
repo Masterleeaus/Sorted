@@ -138,54 +138,40 @@ pg_exec() {
     psql -U "${POSTGRES_USER}" -d "${POSTGRES_DB}" "$@"
 }
 
-# Ensure migration tracking table exists
-pg_exec -v ON_ERROR_STOP=1 -c "
-  CREATE TABLE IF NOT EXISTS schema_migrations (
-    filename   TEXT PRIMARY KEY,
+# The legacy migration runner stays fail-closed until Central's canonical
+# company_id migration authority replaces this chain (issue #26).
+# shellcheck source=./lib/migration-safety.sh
+source "${REPO_ROOT}/scripts/lib/migration-safety.sh"
+files_text="$(sorted_migration_files "${REPO_ROOT}/db/migrations")"
+mapfile -t MIGRATION_FILES <<< "$files_text"
+sorted_validate_db_identity "${POSTGRES_DB}" "${POSTGRES_USER}"
+
+pg_exec -X -v ON_ERROR_STOP=1 -c "
+  CREATE TABLE IF NOT EXISTS public.schema_migrations (
+    filename TEXT PRIMARY KEY,
     applied_at TIMESTAMPTZ DEFAULT now()
-  )
-"
+  )"
+state="$(pg_exec -X -q -tA -v ON_ERROR_STOP=1 -f - < "${REPO_ROOT}/scripts/sql/migration-state.sql")"
+sorted_assert_tracking_state "$state"
 
-# Detect transition case: existing schema with no tracking history
-# If schema_migrations is empty AND the core schema already exists,
-# seed every migration filename as applied (they ran before tracking was added).
-MIGRATE_MODE="$(pg_exec -tAc "
-  SELECT CASE
-    WHEN (SELECT COUNT(*) FROM schema_migrations) = 0
-         AND EXISTS (
-           SELECT 1 FROM information_schema.tables
-           WHERE table_schema = 'public' AND table_name = 'clients'
-         )
-    THEN 'seed'
-    ELSE 'migrate'
-  END
-" 2>/dev/null | tr -d '[:space:]' || echo 'migrate')"
+for file in "${MIGRATION_FILES[@]}"; do
+  filename="${file##*/}"
+  applied="$(pg_exec -X -q -tA -v ON_ERROR_STOP=1 \
+    -v "migration_filename=${filename}" -f - < "${REPO_ROOT}/scripts/sql/is-migration-applied.sql")"
+  case "$applied" in
+    1) echo "skipping (already applied): ${filename}"; continue ;;
+    0) ;;
+    *) echo "invalid migration tracking count for ${filename}: ${applied}" >&2; exit 1 ;;
+  esac
 
-echo "migration mode: ${MIGRATE_MODE}"
-
-for file in "${REPO_ROOT}"/db/migrations/*.sql; do
-  filename="$(basename "${file}")"
-  if [[ "${filename}" == *"seed"* ]]; then
-    continue
-  fi
-
-  if [[ "${MIGRATE_MODE}" == "seed" ]]; then
-    echo "seeding tracking record (pre-existing migration): ${filename}"
-    pg_exec -c "INSERT INTO schema_migrations (filename) VALUES ('${filename}') ON CONFLICT DO NOTHING"
-    continue
-  fi
-
-  applied="$(pg_exec -tAc "SELECT COUNT(*) FROM schema_migrations WHERE filename = '${filename}'" \
-    | tr -d '[:space:]')"
-
-  if [[ "${applied}" == "1" ]]; then
-    echo "skipping (already applied): ${filename}"
-    continue
-  fi
-
-  echo "applying migration: ${filename}"
-  pg_exec -v ON_ERROR_STOP=1 < "${file}"
-  pg_exec -c "INSERT INTO schema_migrations (filename) VALUES ('${filename}')"
+  echo "applying migration atomically: ${filename}"
+  # SQL sources live on the host and are streamed to container psql. -1 keeps
+  # lock, pending assertion, schema and bookkeeping in ONE transaction.
+  cat "${REPO_ROOT}/scripts/sql/migration-lock.sql" \
+      "${REPO_ROOT}/scripts/sql/assert-migration-pending.sql" \
+      "$file" \
+      "${REPO_ROOT}/scripts/sql/record-migration.sql" |
+    pg_exec -X -1 -v ON_ERROR_STOP=1 -v "migration_filename=${filename}" -f -
 done
 
 # Provision runtime roles after migrations so grants cover the current RLS tables.
