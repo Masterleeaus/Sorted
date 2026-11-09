@@ -8,6 +8,6 @@ describe("private intake media path",()=>{
   expect(intakeMediaFilePath(id,filename)).toBe(path.join(INTAKE_MEDIA_ROOT,id,filename));
   expect(INTAKE_MEDIA_ROOT).not.toContain("/public/");
  });
- it.each(["../etc/passwd","../../other","not-an-invite","5b6277c8-00fd-4a2f-85e3-922307ef68cc"])("rejects invalid invite IDs: %s",(candidate)=>expect(intakeMediaFilePath(candidate,filename)).toBeNull());
+ it.each(["../etc/passwd","../../other","not-an-invite","5b6277c8-00fd-4a2f-85e3-922307ef68c"])("rejects invalid invite IDs: %s",(candidate)=>expect(intakeMediaFilePath(candidate,filename)).toBeNull());
  it.each(["../../etc/passwd","a.jpg","5b6277c8-00fd-4a2f-85e3-922307ef68cc.exe","/etc/passwd"])("rejects untrusted filenames: %s",(candidate)=>expect(intakeMediaFilePath(id,candidate)).toBeNull());
 });
