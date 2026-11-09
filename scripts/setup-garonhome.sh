@@ -14,12 +14,14 @@ sudo mkdir -p \
   "${DEPLOY_ROOT}/data/uploads" \
   "${DEPLOY_ROOT}/backups" \
   "${DEPLOY_ROOT}/backups/status" \
+  "${DEPLOY_ROOT}/logs" \
   "${DEPLOY_ROOT}/scripts"
 
 sudo chown -R "${USER}:${USER}" "${DEPLOY_ROOT}"
 
 if [[ ! -f "${ENV_TARGET}" ]]; then
   cp "${REPO_ROOT}/infra/garonhome.env.example" "${ENV_TARGET}"
+  chmod 600 "${ENV_TARGET}"
   echo "created ${ENV_TARGET} from infra/garonhome.env.example"
 else
   echo "env file already exists at ${ENV_TARGET}"
@@ -39,6 +41,8 @@ Next steps:
 3. Connect nginx-proxy-manager to ${PROXY_NETWORK} if you want internal-only routing:
    docker network connect ${PROXY_NETWORK} nginx-proxy-manager
 4. Configure backup.passphrase outside the backup directory and save the key in a password manager.
-5. After first deployment, run scripts/backup-garonhome.sh and confirm
+5. Configure backup monitoring cron/systemd for scripts/healthcheck-garonhome.sh;
+   an incomplete or stale backup causes an exit code of 1 and a notification attempt.
+6. After first deployment, run scripts/backup-garonhome.sh and confirm
    scripts/check-backup-health.mjs exits 0 before treating the system as backed up.
 EOF
