@@ -35,17 +35,12 @@ export async function POST(request: NextRequest) {
   const db = await getPool().connect();
   try {
     await db.query("BEGIN");
+    // Consumes the pending-email link through a bounded resolver (migration 204).
     const { rows } = await db.query<{
       client_id: string; email: string; old_email: string | null; portal_token: string; account_id: string;
     }>(
-      `UPDATE portal_magic_links ml
-       SET used_at = now()
-       FROM clients c
-       WHERE ml.token = $1 AND ml.pending_email IS NOT NULL
-         AND ml.used_at IS NULL AND ml.expires_at > now()
-         AND c.id = ml.client_id
-       RETURNING ml.client_id::text, ml.pending_email AS email, c.email AS old_email,
-                 c.portal_token::text, c.account_id::text`,
+      `SELECT client_id::text, email, old_email, portal_token::text, account_id::text
+       FROM consume_portal_email_change($1::uuid)`,
       [token],
     );
     const row = rows[0];
@@ -53,6 +48,12 @@ export async function POST(request: NextRequest) {
       await db.query("ROLLBACK");
       return NextResponse.redirect(new URL("/portal/login?error=expired", appUrl()));
     }
+    // The account now comes from the consumed link. Set context before the
+    // re-check and the write, so both run under RLS.
+    await db.query(
+      `SELECT set_config('app.current_account_id', $1, true), set_config('app.current_role', 'owner', true)`,
+      [row.account_id],
+    );
     // Re-check: another client may have taken the address since the request.
     const taken = await db.query(
       `SELECT 1 FROM clients WHERE account_id = $1 AND id <> $2 AND lower(email) = lower($3)`,
@@ -62,10 +63,6 @@ export async function POST(request: NextRequest) {
       await db.query("ROLLBACK");
       return NextResponse.redirect(new URL(`/portal/${row.portal_token}?email=conflict`, appUrl()));
     }
-    await db.query(
-      `SELECT set_config('app.current_account_id', $1, true), set_config('app.current_role', 'owner', true)`,
-      [row.account_id],
-    );
     await db.query(`UPDATE clients SET email = $2, updated_at = now() WHERE id = $1`, [row.client_id, row.email]);
     await appendAuditLog(db, {
       account_id: row.account_id,

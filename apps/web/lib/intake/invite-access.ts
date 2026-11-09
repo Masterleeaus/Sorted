@@ -18,17 +18,16 @@ export async function resolveOpenInvite(
 ): Promise<{ ok: true; invite: OpenInvite } | { ok: false; response: NextResponse }> {
   const { rows } = await pool.query<OpenInvite>(
     `SELECT id, account_id, booking_request_id
-     FROM intake_invites
-     WHERE token = $1 AND used_at IS NULL AND expires_at > now()`,
+     FROM resolve_open_intake_invite($1::uuid)`,
     [token],
   );
   if (rows[0]) return { ok: true, invite: rows[0] };
 
-  const { rows: check } = await pool.query<{ used_at: string | null }>(
-    `SELECT used_at FROM intake_invites WHERE token = $1`,
+  const { rows: check } = await pool.query<{ is_used: boolean }>(
+    `SELECT is_used FROM resolve_intake_invite_state($1::uuid)`,
     [token],
   );
-  if (check[0]?.used_at) {
+  if (check[0]?.is_used) {
     return {
       ok: false,
       response: NextResponse.json(

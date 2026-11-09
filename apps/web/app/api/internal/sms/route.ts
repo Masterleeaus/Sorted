@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { query, queryOne } from "@/lib/db";
+import { withTokenAccountContext } from "../../_lib/account-context";
 import { logger } from "@/lib/logger";
 import { randomUUID } from "crypto";
 import { normalizePhone } from "@/lib/phone";
@@ -85,7 +86,7 @@ async function handleSmsKeyword(opts: {
   }
 
   // Claim idempotency BEFORE consent updates / auto-reply (same pattern as normal path).
-  const claimId = await logCommunication({
+  const claimId = await withTokenAccountContext(accountId, (db) => logCommunication(db, {
     accountId,
     channel: "sms",
     direction: "inbound",
@@ -94,7 +95,7 @@ async function handleSmsKeyword(opts: {
     jobId: null,
     bodyPreview: message.slice(0, 1000),
     externalId: externalId ?? null,
-  });
+  }));
   if (externalId && claimId === null) {
     logger.info("SMS keyword duplicate ignored (claim)", { traceId, externalId, keyword });
     return NextResponse.json({ duplicate: true });
@@ -140,13 +141,13 @@ async function handleSmsKeyword(opts: {
     const sendResult = await sendSmsViaGateway({ phone, message: reply });
     autoReplied = sendResult.ok;
     if (sendResult.ok) {
-      await logOutboundSms({
+      await withTokenAccountContext(accountId, (db) => logOutboundSms(db, {
         accountId,
         clientId,
         bodyPreview: reply.slice(0, 1000),
         outcome: "sent",
         externalId: sendResult.messageId,
-      });
+      }));
     } else {
       logger.warn("SMS keyword auto-reply failed", {
         traceId,
@@ -345,7 +346,7 @@ export async function POST(req: NextRequest) {
   // those remain conversational and are not treated as STOP.
   // Still log the inbound and notify the owner so human follow-up is possible.
   if (existing && existing.sms_consent === false && existing.sms_consent_at != null) {
-    const claimId = await logCommunication({
+    const claimId = await withTokenAccountContext(accountId, (db) => logCommunication(db, {
       accountId,
       channel: "sms",
       direction: "inbound",
@@ -354,7 +355,7 @@ export async function POST(req: NextRequest) {
       jobId: null,
       bodyPreview: message.slice(0, 1000),
       externalId: external_id ?? null,
-    });
+    }));
     if (external_id && claimId === null) {
       return NextResponse.json({ duplicate: true });
     }
@@ -425,7 +426,7 @@ export async function POST(req: NextRequest) {
   // job linkage yet). If a concurrent delivery of the same external_id already
   // claimed it, bail before creating jobs/action items. The job_id is back-
   // filled after routing.
-  const commsId = await logCommunication({
+  const commsId = await withTokenAccountContext(accountId, (db) => logCommunication(db, {
     accountId,
     channel: "sms",
     direction: "inbound",
@@ -435,7 +436,7 @@ export async function POST(req: NextRequest) {
     jobId: null,
     bodyPreview: message.slice(0, 1000),
     externalId: external_id ?? null,
-  });
+  }));
   if (external_id && commsId === null) {
     logger.info("SMS duplicate ignored (claim)", { traceId, external_id });
     return NextResponse.json({ duplicate: true });

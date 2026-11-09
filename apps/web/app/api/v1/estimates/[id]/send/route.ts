@@ -215,7 +215,7 @@ export const POST = withRole(["owner", "admin"], async (request, session) => {
       });
 
       if (!emailResult.ok) {
-        await logCommunication({
+        await logCommunication(client, {
           accountId: session.accountId,
           channel: "email",
           direction: "outbound",
@@ -228,7 +228,7 @@ export const POST = withRole(["owner", "admin"], async (request, session) => {
         return { status: 502, message: `Email send failed: ${emailResult.error}` };
       }
 
-      await logCommunication({
+      await logCommunication(client, {
         accountId: session.accountId,
         channel: "email",
         direction: "outbound",

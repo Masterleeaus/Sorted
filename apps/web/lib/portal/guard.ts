@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { queryOne } from "@/lib/db";
+import { withTokenAccountContext } from "@/app/api/_lib/account-context";
 import { getPortalSession, PREVIEW_READ_ONLY_MESSAGE } from "./session";
 
 export interface PortalClient extends Record<string, unknown> {
@@ -21,11 +22,22 @@ export async function requirePortalClient(
   clientToken: string,
   opts: { write: boolean },
 ): Promise<{ client: PortalClient } | { response: NextResponse }> {
-  const client = await queryOne<PortalClient>(
-    `SELECT id::text, account_id::text, name, email, phone, preferred_contact, sms_consent
-     FROM clients WHERE portal_token = $1`,
+  // The portal token resolves to an account first (migration 204); the client
+  // row is then read inside that account's context.
+  const resolved = await queryOne<{ account_id: string | null }>(
+    `SELECT resolve_portal_client_account($1::uuid) AS account_id`,
     [clientToken],
   );
+  const client = resolved?.account_id
+    ? await withTokenAccountContext(resolved.account_id, async (tx) => {
+        const { rows } = await tx.query<PortalClient>(
+          `SELECT id::text, account_id::text, name, email, phone, preferred_contact, sms_consent
+           FROM clients WHERE portal_token = $1 AND account_id = $2`,
+          [clientToken, resolved.account_id],
+        );
+        return rows[0] ?? null;
+      })
+    : null;
   const session = await getPortalSession();
   if (!client || !session || session.clientId !== client.id) {
     return { response: NextResponse.json({ error: "Not signed in" }, { status: 401 }) };

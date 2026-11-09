@@ -3,6 +3,7 @@ import { randomUUID } from "crypto";
 import { z } from "zod";
 import { portalMagicLinkHtml } from "@ai-fsm/email-templates";
 import { query } from "@/lib/db";
+import { withTokenAccountContext } from "../../../_lib/account-context";
 import { sendEmail, appUrl } from "@/lib/email/mailer";
 import { normalizePhone } from "@/lib/phone";
 import { isSmsGatewayConfigured, sendSmsViaGateway } from "@/lib/sms/gateway";
@@ -78,12 +79,17 @@ export async function POST(request: NextRequest) {
 
   if ("email" in parsed.data) {
     const email = parsed.data.email;
-    const matches = await query<ClientMatch>(
-      `SELECT c.id, c.name, ${CAN_TEXT_SQL} AS can_text FROM clients c
-       WHERE lower(c.email) = lower($1) AND c.account_id = $2::uuid
-       LIMIT 2`,
-      [email, accountId]
-    );
+    // The account comes from server config (BOOKING_ACCOUNT_ID), not the request,
+    // so the lookup runs inside that account's context.
+    const matches = await withTokenAccountContext(accountId, async (tx) => {
+      const { rows } = await tx.query<ClientMatch>(
+        `SELECT c.id, c.name, ${CAN_TEXT_SQL} AS can_text FROM clients c
+         WHERE lower(c.email) = lower($1) AND c.account_id = $2::uuid
+         LIMIT 2`,
+        [email, accountId]
+      );
+      return rows;
+    });
     const client = singleMatch(matches, traceId, "email");
     if (client) {
       const verifyUrl = await createLoginLink(client.id);
@@ -107,13 +113,16 @@ export async function POST(request: NextRequest) {
     const phone = normalizePhone(parsed.data.phone);
     if (phone && isSmsGatewayConfigured()) {
       const last10 = phone.replace(/\D/g, "").slice(-10);
-      const matches = await query<ClientMatch>(
-        `SELECT c.id, c.name, ${CAN_TEXT_SQL} AS can_text FROM clients c
-         WHERE right(regexp_replace(coalesce(c.phone, ''), '\\D', '', 'g'), 10) = $1
-           AND c.account_id = $2::uuid
-         LIMIT 2`,
-        [last10, accountId]
-      );
+      const matches = await withTokenAccountContext(accountId, async (tx) => {
+        const { rows } = await tx.query<ClientMatch>(
+          `SELECT c.id, c.name, ${CAN_TEXT_SQL} AS can_text FROM clients c
+           WHERE right(regexp_replace(coalesce(c.phone, ''), '\\D', '', 'g'), 10) = $1
+             AND c.account_id = $2::uuid
+           LIMIT 2`,
+          [last10, accountId]
+        );
+        return rows;
+      });
       const client = singleMatch(matches, traceId, "phone");
       if (client?.can_text) {
         const verifyUrl = await createLoginLink(client.id);

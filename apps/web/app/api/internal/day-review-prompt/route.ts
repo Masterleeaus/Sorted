@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { queryOne } from "@/lib/db";
+import { withTokenAccountContext, resolveOwnerAccountId } from "../../_lib/account-context";
 import { businessToday, businessMinutesNow } from "@/lib/operations/business-day";
 import { sendPushToOwners } from "@/lib/push/send";
 
@@ -12,26 +12,34 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const row = await queryOne<{
-    account_id: string;
-    business_day_id: string | null;
-    cutoff_time: string;
-    already_prompted: boolean;
-  }>(
-    `SELECT a.id AS account_id,
-            bd.id AS business_day_id,
-            a.day_review_cutoff_time::text AS cutoff_time,
-            (bd.review_prompted_at IS NOT NULL) AS already_prompted
-     FROM accounts a
-     JOIN users u ON u.account_id = a.id
-     LEFT JOIN business_days bd
-       ON bd.account_id = a.id
-       AND bd.business_date = $1::date
-       AND bd.status NOT IN ('CLOSED')
-     WHERE u.role = 'owner'
-     ORDER BY u.created_at LIMIT 1`,
-    [businessToday()],
-  );
+  // The owner account resolves through a bounded resolver (migration 204). The
+  // business-day read and update run in that account's context as its owner.
+  const accountId = await resolveOwnerAccountId();
+  const row = accountId
+    ? await withTokenAccountContext(accountId, async (tx) => {
+        const { rows } = await tx.query<{
+          account_id: string;
+          business_day_id: string | null;
+          cutoff_time: string;
+          already_prompted: boolean;
+        }>(
+          `SELECT a.id AS account_id,
+                  bd.id AS business_day_id,
+                  a.day_review_cutoff_time::text AS cutoff_time,
+                  (bd.review_prompted_at IS NOT NULL) AS already_prompted
+           FROM accounts a
+           JOIN users u ON u.account_id = a.id
+           LEFT JOIN business_days bd
+             ON bd.account_id = a.id
+             AND bd.business_date = $1::date
+             AND bd.status NOT IN ('CLOSED')
+           WHERE u.role = 'owner' AND a.id = $2
+           ORDER BY u.created_at LIMIT 1`,
+          [businessToday(), accountId],
+        );
+        return rows[0] ?? null;
+      }, "owner")
+    : null;
 
   if (!row?.business_day_id) {
     return NextResponse.json({ result: "skipped", reason: "no_open_day" });
@@ -47,10 +55,13 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ result: "skipped", reason: "before_cutoff" });
   }
 
-  await queryOne(
-    `UPDATE business_days SET review_prompted_at = now(), updated_at = now() WHERE id = $1`,
-    [row.business_day_id],
-  );
+  const businessDayId = row.business_day_id;
+  await withTokenAccountContext(row.account_id, async (tx) => {
+    await tx.query(
+      `UPDATE business_days SET review_prompted_at = now(), updated_at = now() WHERE id = $1`,
+      [businessDayId],
+    );
+  }, "owner");
 
   await sendPushToOwners(row.account_id, {
     title: "Walk today’s stops",

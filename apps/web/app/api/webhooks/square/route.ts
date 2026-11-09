@@ -62,17 +62,15 @@ export async function POST(request: NextRequest) {
   const pool = getPool();
 
   // Bootstrap: resolves the account and signing key from the location id before
-  // any account context exists. Stays cross-account until a bounded resolver
-  // exists (docs/working/rls-web-tier-flip.md, blocker 2).
+  // any account context exists. Goes through a bounded resolver (migration 204).
   const settingsRow = await pool.query<{
     account_id: string;
     enabled: boolean;
     secrets: Buffer | null;
     webhook_url: string | null;
   }>(
-    `SELECT account_id, enabled, secrets, config->>'webhookUrl' AS webhook_url
-     FROM integration_settings
-     WHERE provider = 'square' AND config->>'locationId' = $1`,
+    `SELECT account_id, enabled, secrets, webhook_url
+     FROM resolve_square_location_settings($1)`,
     [locationId]
   );
   if (settingsRow.rowCount === 0) {

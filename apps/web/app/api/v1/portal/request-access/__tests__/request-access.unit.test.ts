@@ -9,7 +9,19 @@ const h = vi.hoisted(() => ({
   logger: { warn: vi.fn(), error: vi.fn(), info: vi.fn() },
 }));
 
-vi.mock("@/lib/db", () => ({ query: h.query }));
+vi.mock("@/lib/db", () => ({
+  query: h.query,
+  getPool: () => ({
+    connect: async () => ({
+      // Account-context transaction: set_config and BEGIN/COMMIT are no-ops; reads go to h.query.
+      query: async (sql: string, params?: unknown[]) =>
+        sql.startsWith("SELECT set_config") || sql === "BEGIN" || sql === "COMMIT" || sql === "ROLLBACK"
+          ? { rows: [] }
+          : { rows: await h.query(sql, params) },
+      release: () => {},
+    }),
+  }),
+}));
 vi.mock("@/lib/email/mailer", () => ({
   sendEmail: h.sendEmail,
   appUrl: () => "https://app.example.test",
