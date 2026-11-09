@@ -139,6 +139,8 @@ Expected:
 
 ## Backup
 
+The backup script takes an exclusive process lock and writes an `ACTIVE` marker until it finalizes. A second scheduled/manual run cannot race the first; an interrupted run must be investigated before the marker is manually reconciled. The deployment entrypoint first checks the verified offsite status, then independently streams and hashes the recent local encrypted artifacts against the manifest and success metadata. Keep the complete recent set on the host for deployment preflight.
+
 ```bash
 cd /opt/business/ai-fsm/repo
 bash scripts/backup-garonhome.sh
