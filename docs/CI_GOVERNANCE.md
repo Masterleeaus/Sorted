@@ -39,6 +39,12 @@ Do not remove a required check to merge a feature PR. If a required check itself
 | `test` | `lint`, `typecheck` | Unit and DB integration tests against PostgreSQL. |
 | `e2e-smoke` | `build`, `test` | Required release spine: login, client, job, visit, estimate, invoice, payment. |
 
+## Deployment and Monitoring Safety Gate
+
+The `lint` job and `pnpm gate` both syntax-check the deployment entrypoint, SSH wrapper, healthcheck monitor, backup/restore scripts and deployment helper. The existing `node --test scripts/tests/*.test.mjs` suite includes runtime tests for safe branch arguments, bounded web readiness, production backup preflight, and explicit failed monitoring status.
+
+These checks verify source logic and isolated test doubles; they do **not** deploy to `garonhome.local`, prove ntfy message delivery or demonstrate a real PostgreSQL recovery. A release must also pass the complete required test and E2E jobs. For production, run a verified encrypted backup and obtain owner approval before calling the deployment entrypoint.
+
 ## Release Manifest
 
 The browser smoke is scoped by `tests/e2e/core-flow.spec.ts` and the release expectations in this document. If the launch spine changes, update both in the same PR.
