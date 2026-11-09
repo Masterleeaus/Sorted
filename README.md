@@ -72,7 +72,11 @@ node scripts/check-backup-health.mjs /opt/business/ai-fsm/backups 26
 
 A nonzero exit indicates a stale, missing or incomplete verified backup, and should trigger operator investigation. Only backup status reports attesting `sha256-readback` of every encrypted offsite artifact and its manifest are accepted; old size-only success reports require a new backup. Remote age-only deletion is disabled to preserve independently unverified historical recovery sets. The health file alone is not proof of a successful scratch restore.
 
-## Recovery safety boundaries
+## Backup integrity verification
+
+Scheduled and manual encrypted backups are serialized by a kernel `flock`. An `ACTIVE` status marker blocks the health gate during an active or interrupted job. Before any production database mutation, the deployment runner also performs streaming SHA-256 checks of the local encrypted dump, uploads, environment, and manifest against the latest attested success record. This is an integrity preflight, not a decryption or PostgreSQL restore test. Never clear an interrupted marker without reviewing the previous run.
+
+
 
 Backup creation uses private file permissions, rejects unsafe rclone remote names, and applies configurable finite timeouts to offsite copies and SHA-256 verification reads. Any misconfiguration is recorded as `INCOMPLETE`. The backup alert hook must be a single executable path, not a shell command.
 
