@@ -1,5 +1,5 @@
 # Files knip reports as unused that are kept. Updated 2026-11-09.
-# Retired packages/workforce (89 files) is excluded as a whole workspace (owner decision pending).
+# Retired packages/workforce (89 files) was deleted 2026-11-08 by owner decision; its copies remain in titan-donor/ and git history.
 # Reasons per group: see docs/working/knip-exclusions.md.
 
 ## Donor manifest: integratedPath or otherIdenticalPaths in docs/generated/titan-donor-manifest.json. Kept.
