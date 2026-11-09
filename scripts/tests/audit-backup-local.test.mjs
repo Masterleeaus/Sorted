@@ -28,22 +28,22 @@ test("tampering a local encrypted artifact fails closed",async()=>{
  const f=fixture();
  try{
   writeFileSync(join(f.root,names[1]),"tampered encrypted payload");
-  assert.match(await auditLocalBackup(f.root).reason,/size mismatch|SHA-256 mismatch/);
+  assert.match((await auditLocalBackup(f.root)).reason,/size mismatch|SHA-256 mismatch/);
  }finally{f.cleanup();}
 });
 test("status tampering and absent manifest are rejected",async()=>{
  const f=fixture();
  try{
   f.report.artifacts[0].sha256="f".repeat(64);f.save();
-  assert.match(await auditLocalBackup(f.root).reason,/status\/manifest mismatch/);
+  assert.match((await auditLocalBackup(f.root)).reason,/status\/manifest mismatch/);
   writeFileSync(join(f.root,`ai_fsm_${stamp}.sha256`),"untrusted manifest");
-  assert.match(await auditLocalBackup(f.root).reason,/SHA-256 manifest/);
+  assert.match((await auditLocalBackup(f.root)).reason,/SHA-256 manifest/);
  }finally{f.cleanup();}
 });
 test("duplicated artifact metadata cannot satisfy the audit",async()=>{
  const f=fixture();
  try{
   f.report.artifacts.push(f.report.artifacts[0]);f.save();
-  assert.match(await auditLocalBackup(f.root).reason,/incomplete or duplicated/);
+  assert.match((await auditLocalBackup(f.root)).reason,/incomplete or duplicated/);
  }finally{f.cleanup();}
 });
