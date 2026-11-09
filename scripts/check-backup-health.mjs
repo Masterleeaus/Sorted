@@ -30,7 +30,7 @@ export function evaluateBackupHealth(backupDir, maxAgeHours = 26, now = Date.now
   if (latest.set !== successful.set || !/^[0-9]{8}T[0-9]{6}Z$/.test(successful.set ?? "")) {
     return { ok: false, reason: "most recent run does not match verified backup" };
   }
-  if (successful.offsite?.verified !== true) {
+  if (successful.offsite?.verified !== true || successful.offsite?.verification !== "sha256-readback") {
     return { ok: false, reason: "offsite verification not recorded" };
   }
   if (!existsSync(join(statusDir, `verified-${successful.set}`))) {
