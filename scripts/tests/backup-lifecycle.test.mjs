@@ -45,7 +45,13 @@ case "$command" in
       printf '%s;%s\\n' "$(stat -c %s "$file")" "$(basename "$file")"
     done
     ;;
-  delete) ;;
+  cat)
+    name="${1##*/}"
+    [[ "${MOCK_RCLONE_CORRUPT:-0}" != "1" ]] || { printf 'tampered remote data'; exit 0; }
+    [[ "${MOCK_RCLONE_CAT_FAIL:-0}" != "1" ]] || { echo 'remote stream failed' >&2; exit 5; }
+    /bin/cat -- "${MOCK_REMOTE_DIR}/${name}"
+    ;;
+  delete) echo "unsafe remote purge attempted" >&2; exit 17 ;;
   *) exit 9 ;;
 esac
 `);
@@ -105,6 +111,24 @@ test("failed offsite copies emit INCOMPLETE and never prune historical verified 
     const last = JSON.parse(readFileSync(join(f.backups, "status", "last-run.json"), "utf8"));
     assert.equal(last.status, "incomplete");
     assert.equal(existsSync(join(f.backups, "status", "INCOMPLETE")), true);
+  } finally { f.cleanup(); }
+});
+test("same-size remote corruption causes incomplete status and no retention", () => {
+  const f = fixture();
+  try {
+    const run = f.run({ MOCK_RCLONE_CORRUPT: "1" });
+    assert.equal(run.status, 1, run.stderr);
+    assert.match(run.stderr, /SHA-256 mismatch/);
+    assert.equal(existsSync(join(f.backups, "status", "INCOMPLETE")), true);
+  } finally { f.cleanup(); }
+});
+test("failed remote read causes incomplete status rather than a false verified marker", () => {
+  const f = fixture();
+  try {
+    const run = f.run({ MOCK_RCLONE_CAT_FAIL: "1" });
+    assert.equal(run.status, 1, run.stderr);
+    assert.match(run.stderr, /offsite hash read failed/);
+    assert.equal(existsSync(join(f.backups, "status", "last-success.json")), false);
   } finally { f.cleanup(); }
 });
 test("missing uploads reports incomplete and does not claim last-success", () => {
