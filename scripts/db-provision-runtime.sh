@@ -82,11 +82,48 @@ SELECT format('GRANT CONNECT ON DATABASE %I TO %I', current_database(), :'runtim
 REVOKE CREATE ON SCHEMA public FROM PUBLIC;
 GRANT USAGE ON SCHEMA public TO :"runtime_role";
 -- No schema CREATE, TRUNCATE, REFERENCES, migration-table or non-RLS table grants.
--- Both roles get the same DML set on RLS tables; the worker's only extra privilege is
--- BYPASSRLS. Per-table narrowing for the worker is a follow-up (see the flip runbook).
+-- Web: DML on every RLS table (RLS policies fence the web tier).
+-- Worker: no broad grant. It gets the explicit table list below and nothing else.
 SELECT format('GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.%I TO %I', c.relname, :'runtime_role')
 FROM pg_class c JOIN pg_namespace n ON n.oid = c.relnamespace
-WHERE n.nspname = 'public' AND c.relkind IN ('r', 'p') AND c.relrowsecurity \gexec
+WHERE n.nspname = 'public' AND c.relkind IN ('r', 'p') AND c.relrowsecurity
+  AND :'runtime_role' = 'ai_fsm_web' \gexec
+-- Worker grants (ADR-024 addendum, issue #15). The worker bypasses RLS, so its table
+-- list is explicit and checked by scripts/check-worker-grants.mjs against the worker
+-- source. Add a line here, and nowhere else, when the worker starts touching a new table.
+SELECT (:'runtime_role' = 'ai_fsm_worker') AS is_worker \gset
+\if :is_worker
+REVOKE ALL ON ALL TABLES IN SCHEMA public FROM ai_fsm_worker;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.attention_events TO ai_fsm_worker;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.audit_log TO ai_fsm_worker;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.automation_settings TO ai_fsm_worker;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.automations TO ai_fsm_worker;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.booking_requests TO ai_fsm_worker;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.capture_evidence TO ai_fsm_worker;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.clients TO ai_fsm_worker;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.communications_log TO ai_fsm_worker;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.estimates TO ai_fsm_worker;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.expenses TO ai_fsm_worker;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.invoices TO ai_fsm_worker;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.jobs TO ai_fsm_worker;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.location_events TO ai_fsm_worker;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.maintenance_plans TO ai_fsm_worker;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.notification_cooldowns TO ai_fsm_worker;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.notification_queue TO ai_fsm_worker;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.properties TO ai_fsm_worker;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.property_issues TO ai_fsm_worker;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.status_history TO ai_fsm_worker;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.users TO ai_fsm_worker;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.vehicle_loans TO ai_fsm_worker;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.vehicle_renewals TO ai_fsm_worker;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.vehicle_service_records TO ai_fsm_worker;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.vehicle_service_schedules TO ai_fsm_worker;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.vehicle_sessions TO ai_fsm_worker;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.vehicles TO ai_fsm_worker;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.visit_checklist_items TO ai_fsm_worker;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.visits TO ai_fsm_worker;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.workflow_events TO ai_fsm_worker;
+\endif
 GRANT USAGE ON ALL SEQUENCES IN SCHEMA public TO :"runtime_role";
 -- Login-only SECURITY DEFINER lookups are granted to the web role only.
 SELECT format('GRANT EXECUTE ON FUNCTION public.app_login_candidates(text) TO %I', :'runtime_role')
