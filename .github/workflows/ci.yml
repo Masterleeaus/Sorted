@@ -69,6 +69,8 @@ jobs:
         run: pnpm --filter @ai-fsm/web exec vitest run __tests__/service-worker-security.unit.test.ts lib/push/__tests__/payload.unit.test.ts
       - name: Verify Sorted Field owner-alert email identity independently of storage migrations
         run: pnpm --filter @ai-fsm/web exec vitest run lib/attention/__tests__/email.unit.test.ts
+      - name: Verify worker queue tenant isolation and failed delivery retries
+        run: pnpm --filter @ai-fsm/worker exec vitest run src/notification/enqueue.test.ts
 
   # ── 3. Build ─────────────────────────────────────────────────────────────
   # Runs after typecheck. Lint remains independently required for merge; a
