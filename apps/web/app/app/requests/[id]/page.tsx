@@ -8,6 +8,7 @@ import type { StatusVariant } from "@/components/ui";
 import { ReviewActions } from "./ReviewActions";
 import { IntakeSummary } from "./IntakeSummary";
 import { INTAKE_QUESTIONS, INTAKE_METADATA_LABELS } from "@/lib/intake/questions";
+import { listRequestIntakePhotos } from "@/lib/intake/request-photos";
 import { PRICING_MODE_LABELS, scoreJobFit } from "@ai-fsm/domain";
 import { FUNNEL_STEPS, funnelStepIndex, getRequestGuidance } from "../request-guidance";
 import { MarkEntityAttentionRead } from "@/components/attention/MarkEntityAttentionRead";
@@ -117,6 +118,9 @@ export default async function BookingRequestDetailPage({
   );
 
   if (!br) notFound();
+
+  // Customer photos linked to this request. Read-only list; no file URLs.
+  const intakePhotos = (await listRequestIntakePhotos(session, id)) ?? [];
 
   const duplicateIds = br.duplicate_candidate_ids ?? [];
   const duplicateRows = duplicateIds.length > 0
@@ -381,6 +385,27 @@ export default async function BookingRequestDetailPage({
                 </div>
               )}
             </dl>
+          </Card>
+
+          <Card data-testid="request-photos">
+            <SectionHeader title="Customer photos" />
+            {intakePhotos.length === 0 ? (
+              <p style={{ margin: 0, fontSize: "var(--text-sm)", color: "var(--fg-muted)" }}>
+                No photos were attached to this request.
+              </p>
+            ) : (
+              <ul style={{ margin: 0, paddingLeft: 0, listStyle: "none", display: "flex", flexDirection: "column", gap: "var(--space-2)" }}>
+                {intakePhotos.map((photo) => (
+                  <li key={photo.id} style={{ fontSize: "var(--text-sm)", overflowWrap: "anywhere" }}>
+                    <span>{photo.original_name}</span>{" "}
+                    <span style={{ color: "var(--fg-muted)" }}>
+                      ({Math.max(1, Math.round(photo.size_bytes / 1024))} KB,{" "}
+                      {new Date(photo.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })})
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            )}
           </Card>
 
           <Card>
