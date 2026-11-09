@@ -144,7 +144,7 @@ cd /opt/business/ai-fsm/repo
 bash scripts/backup-garonhome.sh
 ```
 
-This writes a compressed Postgres custom dump to:
+This writes an encrypted Postgres custom dump plus mandatory encrypted uploads and environment archives, and a SHA-256 manifest to:
 
 ```text
 /opt/business/ai-fsm/backups/
@@ -160,17 +160,18 @@ Recommended cron:
 
 ```bash
 cd /opt/business/ai-fsm/repo
-bash scripts/restore-garonhome.sh /opt/business/ai-fsm/backups/ai_fsm_YYYYMMDDTHHMMSSZ.dump
+bash scripts/restore-garonhome.sh /opt/business/ai-fsm/backups/ai_fsm_YYYYMMDDTHHMMSSZ.dump.gpg
 ```
 
 The restore script:
 
-1. stops `web` and `worker`
-2. terminates active DB sessions
-3. drops and recreates the application database
-4. restores the dump
-5. restarts `web` and `worker`
-6. verifies the web health endpoint
+1. verifies the checksum manifest and all three encrypted backup artifacts; missing pieces fail before any services are stopped
+2. stops `web` and `worker`
+3. terminates active DB sessions
+4. drops and recreates the application database with SQL identifier quoting
+5. restores the dump
+6. restarts `web` and `worker`
+7. verifies the web health endpoint
 
 ## Relocating to another machine
 
