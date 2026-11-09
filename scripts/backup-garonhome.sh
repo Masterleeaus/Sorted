@@ -83,8 +83,11 @@ json_escape() {
 alert() {
   local msg="$1"
   if [[ -n "${BACKUP_ALERT_CMD:-}" ]]; then
-    bash -c "${BACKUP_ALERT_CMD} \"\$1\"" _ "${msg}" \
-      || echo "WARNING: BACKUP_ALERT_CMD failed; alert not delivered" >&2
+    # Treat the alert hook as one executable path, not an interpolated shell
+    # command. A failure message must never be executed as shell source.
+    if [[ ! -x "${BACKUP_ALERT_CMD}" ]] || ! "${BACKUP_ALERT_CMD}" "${msg}"; then
+      echo "WARNING: BACKUP_ALERT_CMD missing/non-executable or failed; alert not delivered" >&2
+    fi
   else
     echo "ALERT (BACKUP_ALERT_CMD not configured; nothing sent): ${msg}" >&2
   fi
