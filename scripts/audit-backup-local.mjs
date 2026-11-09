@@ -4,11 +4,11 @@
  * success metadata. This is not an offsite read and cannot prove recoverability.
  */
 import { createHash } from "node:crypto";
-import { readFileSync, statSync } from "node:fs";
+import { createReadStream, readFileSync, statSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
-export function auditLocalBackup(backupDir) {
+export async function auditLocalBackup(backupDir) {
   let report;
   try {
     report = JSON.parse(readFileSync(join(backupDir, "status", "last-success.json"), "utf8"));
@@ -44,16 +44,20 @@ export function auditLocalBackup(backupDir) {
         metadata.bytes <= 0) {
       return { ok: false, reason: `status/manifest mismatch: ${name}` };
     }
-    let bytes, stats;
+    let stats;
     try {
       const p = join(backupDir, name);
       stats = statSync(p);
       if (!stats.isFile() || stats.size !== metadata.bytes) {
         return { ok: false, reason: `local artifact size mismatch: ${name}` };
       }
-      bytes = readFileSync(p);
+
     } catch { return { ok: false, reason: `local encrypted artifact missing: ${name}` }; }
-    const actual = createHash("sha256").update(bytes).digest("hex");
+    const digest = createHash("sha256");
+    try {
+      for await (const chunk of createReadStream(join(backupDir, name))) digest.update(chunk);
+    } catch { return { ok: false, reason: `local artifact unreadable: ${name}` }; }
+    const actual = digest.digest("hex");
     if (actual !== expected) return { ok: false, reason: `local artifact SHA-256 mismatch: ${name}` };
   }
   return { ok: true, set, checked: names.length };
@@ -61,7 +65,7 @@ export function auditLocalBackup(backupDir) {
 
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   const root = process.argv[2] ?? process.env.FSM_BACKUP_DIR ?? "/opt/business/ai-fsm/backups";
-  const result = auditLocalBackup(root);
+  const result = await auditLocalBackup(root);
   process.stdout.write(JSON.stringify(result) + "\n");
   process.exitCode = result.ok ? 0 : 1;
 }
