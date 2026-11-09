@@ -62,6 +62,16 @@ For faster local static/unit feedback:
 pnpm gate:fast
 ```
 
+## Backup safety checks
+
+The encrypted backup and restore procedures are in [Backup Runbook](docs/BACKUP_RUNBOOK.md). For a read-only production backup health signal:
+
+```bash
+node scripts/check-backup-health.mjs /opt/business/ai-fsm/backups 26
+```
+
+A nonzero exit indicates a stale, missing or incomplete verified backup, and should trigger operator investigation. The health file alone is not proof of a successful scratch restore.
+
 ## Production Target
 
 Production runs on garonhome.local using `infra/compose.garonhome.yml` and deploy root `/opt/business/ai-fsm`. The runbook is [DEPLOY.md](DEPLOY.md). Do not deploy to `/home/admin/apps/ai-fsm`; that path is legacy.
