@@ -167,11 +167,16 @@ for file in "${MIGRATION_FILES[@]}"; do
   echo "applying migration atomically: ${filename}"
   # SQL sources live on the host and are streamed to container psql. -1 keeps
   # lock, pending assertion, schema and bookkeeping in ONE transaction.
-  cat "${REPO_ROOT}/scripts/sql/migration-lock.sql" \
+  {
+    for source in \
+      "${REPO_ROOT}/scripts/sql/migration-lock.sql" \
       "${REPO_ROOT}/scripts/sql/assert-migration-pending.sql" \
       "$file" \
-      "${REPO_ROOT}/scripts/sql/record-migration.sql" |
-    pg_exec -X -1 -v ON_ERROR_STOP=1 -v "migration_filename=${filename}" -f -
+      "${REPO_ROOT}/scripts/sql/record-migration.sql"; do
+      cat "$source"
+      printf '\n'
+    done
+  } | pg_exec -X -1 -v ON_ERROR_STOP=1 -v "migration_filename=${filename}" -f -
 done
 
 # Provision runtime roles after migrations so grants cover the current RLS tables.
