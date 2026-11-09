@@ -93,14 +93,19 @@ done
 
 cd "${REPO_ROOT}"
 
+# shellcheck source=./lib/deploy-safety.sh
+source "${REPO_ROOT}/scripts/lib/deploy-safety.sh"
 DEPLOY_BRANCH="${DEPLOY_BRANCH:-main}"
+sorted_validate_deploy_branch "${DEPLOY_BRANCH}"
+DB_ATTEMPTS="$(sorted_wait_attempts "${FSM_DEPLOY_DB_ATTEMPTS:-60}" "database attempts")"
+WEB_ATTEMPTS="$(sorted_wait_attempts "${FSM_DEPLOY_WEB_ATTEMPTS:-60}" "web attempts")"
 
 sync_repo() {
   echo "syncing repo to origin/${DEPLOY_BRANCH}"
 
   git fetch origin "${DEPLOY_BRANCH}"
 
-  if ! git diff --quiet || ! git diff --cached --quiet; then
+  if [[ -n "$(git status --porcelain)" ]]; then
     echo "deploy checkout has uncommitted changes; refusing to overwrite:" >&2
     git status --short >&2
     echo "Commit, stash, or remove those changes before deploying." >&2
@@ -125,12 +130,17 @@ sync_repo() {
 
 sync_repo
 
+# A successful recent offsite-verified backup must precede any database/startup
+# mutation. This is a read-only status gate, not a replacement for restore drills.
+node "${REPO_ROOT}/scripts/check-backup-health.mjs" "${FSM_BACKUP_DIR:-${DEPLOY_ROOT}/backups}" \
+  "${FSM_PREDEPLOY_BACKUP_MAX_AGE_HOURS:-26}" \
+  || { echo "deploy blocked: a complete recent verified backup is required" >&2; exit 1; }
+
 docker compose --env-file "${ENV_FILE}" -f "${COMPOSE_FILE}" up -d postgres
 
-while ! docker compose --env-file "${ENV_FILE}" -f "${COMPOSE_FILE}" exec -T postgres \
-  sh -lc 'pg_isready -U "$POSTGRES_USER" -d "$POSTGRES_DB"' >/dev/null 2>&1; do
-  sleep 2
-done
+sorted_wait_for_postgres "${DB_ATTEMPTS}" 2 \
+  docker compose --env-file "${ENV_FILE}" -f "${COMPOSE_FILE}" exec -T postgres \
+  sh -lc 'pg_isready -U "$POSTGRES_USER" -d "$POSTGRES_DB"'
 
 # Helper: run psql inside the postgres container
 pg_exec() {
@@ -208,9 +218,7 @@ if [[ -z "${WEB_CONTAINER_ID}" ]]; then
   exit 1
 fi
 
-until [[ "$(docker inspect --format '{{if .State.Health}}{{.State.Health.Status}}{{else}}no-healthcheck{{end}}' "${WEB_CONTAINER_ID}")" == "healthy" ]]; do
-  sleep 2
-done
+sorted_wait_for_web_health "${WEB_ATTEMPTS}" 2 "${WEB_CONTAINER_ID}"
 
 docker compose --env-file "${ENV_FILE}" -f "${COMPOSE_FILE}" ps
 docker compose --env-file "${ENV_FILE}" -f "${COMPOSE_FILE}" exec -T web \
