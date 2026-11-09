@@ -48,6 +48,10 @@ jobs:
         # Real Vitest execution of validation and private-file helpers; does not
         # depend on the currently missing native SQLite SQL donor files.
         run: pnpm --filter @ai-fsm/web exec vitest run intake-photo-
+      - name: Public intake and staff photo route unit suites
+        # Exercises existing upload/delete tests and authenticated staff APIs
+        # independently of the native SQLite storage test blocker.
+        run: pnpm --filter @ai-fsm/web exec vitest run media.unit.test.ts list.unit.test.ts download.unit.test.ts
       - name: Public intake media security and lifecycle contracts
         # Guard the token/tenant/photo race and private-upload requirements.
         run: node --test scripts/tests/intake-photo-*.test.mjs
