@@ -16,6 +16,11 @@ test("scratch drill cleans temporary plaintext and its disposable database", () 
   assert.match(script, /rm -rf -- "\$\{WORK\}"/);
   assert.match(script, /DROP DATABASE IF EXISTS :"scratch_db"/);
 });
+test("scratch drill rejects symlinked dump inputs and unsafe archive links",()=>{
+ assert.match(script,/\[\[ ! -f "\$\{DUMP_GPG\}" \|\| -L "\$\{DUMP_GPG\}" \]\]/);
+ assert.match(script,/sorted_backup_archive_types/);
+ assert.match(script,/manual cleanup required/);
+});
 test("scratch drill refuses nonconforming backup identifiers", () => {
   assert.match(script, /invalid encrypted backup filename or timestamp/);
 });
