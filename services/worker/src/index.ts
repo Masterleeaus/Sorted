@@ -4,6 +4,7 @@ import { expireEstimates } from "./expire-estimates.js";
 import { closeStaleBookingRequests } from "./stale-booking-requests.js";
 import { pruneLocationEvents } from "./prune-location-events.js";
 import { pruneAttentionEvents } from "./prune-attention-events.js";
+import { pruneAbandonedIntakeMedia } from "./prune-abandoned-intake-media.js";
 import { processWorkflowEvents } from "./workflow-events.js";
 import { dispatchNotificationQueue } from "./notification/dispatch.js";
 import { runVehicleMaintenanceReminders } from "./vehicle-maintenance-reminder.js";
@@ -63,6 +64,12 @@ async function runPollIteration(client: Client): Promise<void> {
     const attentionPrune = await pruneAttentionEvents(client);
     if (attentionPrune.deleted > 0) {
       logger.info("prune-attention-events complete", { deleted: attentionPrune.deleted });
+    }
+
+    // Intake photos on never-submitted invites, past the 30-day retention window
+    const intakeMediaPrune = await pruneAbandonedIntakeMedia(client);
+    if (intakeMediaPrune.deleted > 0 || intakeMediaPrune.errors > 0) {
+      logger.info("prune-abandoned-intake-media complete", { ...intakeMediaPrune });
     }
 
     // TASK-093: vehicle service/renewal attention + monthly loan payment expenses
