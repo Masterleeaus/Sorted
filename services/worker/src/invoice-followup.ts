@@ -124,8 +124,8 @@ export async function findOverdueInvoices(
             i.status, i.total_cents, i.paid_cents,
             i.due_date::text, c.name AS client_name, c.email AS client_email
      FROM invoices i
-     JOIN clients c ON c.id = i.client_id
-     LEFT JOIN jobs j ON j.id = i.job_id
+     JOIN clients c ON c.id = i.client_id AND c.account_id = i.account_id
+     LEFT JOIN jobs j ON j.id = i.job_id AND j.account_id = i.account_id
      WHERE i.account_id = $1
        AND i.status IN ('overdue', 'sent', 'partial')
        AND i.due_date IS NOT NULL
