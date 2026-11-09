@@ -45,7 +45,11 @@ The `lint` job and `pnpm gate` both syntax-check the deployment entrypoint, SSH 
 
 These checks verify source logic and isolated test doubles; they do **not** deploy to `garonhome.local`, prove ntfy message delivery or demonstrate a real PostgreSQL recovery. A release must also pass the complete required test and E2E jobs. For production, run a verified encrypted backup and obtain owner approval before calling the deployment entrypoint.
 
-## Offsite backup integrity release rule
+## Serialized backup run and local artifact release rule
+
+CI and the local quality gate exercise the process lock, active/interrupted status markers, successful status cleanup, and streaming verification of each local encrypted artifact against its recorded manifest. The deployment preflight invokes that local integrity audit after the backup freshness gate and before any PostgreSQL mutation. These read-only tests reject mismatched, missing or duplicated artifact metadata. Local mock-based verification remains separate from real offsite restore-drill approval.
+
+
 
 The backup source and CLI tests require **cryptographic SHA-256 read-back** for each encrypted remote artifact and the manifest. An older name/size-only success record is not accepted by `scripts/check-backup-health.mjs`. Local legacy backup files are not rewritten, and historical offsite sets are not deleted by a broad age-only command. Incomplete or corrupt remote copies must remain visible to the operator.
 
