@@ -83,8 +83,10 @@ pnpm lint
 
 log "migration and backup shell syntax"
 bash -n scripts/db-migrate.sh scripts/deploy-garonhome.sh scripts/db-seed.sh \
-  scripts/lib/migration-safety.sh scripts/backup-garonhome.sh \
-  scripts/restore-garonhome.sh scripts/verify-backup-garonhome.sh
+  scripts/lib/migration-safety.sh scripts/lib/deploy-safety.sh \
+  scripts/deploy.sh scripts/healthcheck-garonhome.sh \
+  scripts/backup-garonhome.sh scripts/restore-garonhome.sh \
+  scripts/verify-backup-garonhome.sh
 
 log "dead code (knip)"
 # Fails on unused files / dependencies (the floor that stops replacements leaving
