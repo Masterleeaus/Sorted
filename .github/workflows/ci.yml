@@ -24,9 +24,9 @@ jobs:
     name: lint
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
         with:
           node-version: 20
           cache: pnpm
@@ -43,6 +43,10 @@ jobs:
           TEST_DATABASE_URL: postgresql://knip:knip@localhost:5432/knip
           TEST_BASE_URL: http://localhost:3000
         run: pnpm knip
+      - name: Verify Node 24 GitHub Actions major versions
+        run: |
+          node scripts/check-action-runtime.mjs
+          node --test scripts/check-action-runtime.test.mjs
       - name: Reject new duplicate migration prefixes
         run: |
           node scripts/check-migration-prefixes.mjs
@@ -53,9 +57,9 @@ jobs:
     name: typecheck
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
         with:
           node-version: 20
           cache: pnpm
@@ -90,9 +94,9 @@ jobs:
       # Real secrets are NOT needed during `next build` (pages are force-dynamic).
       NEXT_PHASE: phase-production-build
     steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
         with:
           node-version: 20
           cache: pnpm
@@ -146,9 +150,9 @@ jobs:
       TEST_BASE_URL: http://localhost:3000
       E2E_SKIP_EMAIL_DELIVERY: "1"
     steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
         with:
           node-version: 20
           cache: pnpm
@@ -217,9 +221,9 @@ jobs:
       E2E_DISABLE_LOGIN_RATE_LIMIT: "1"
       E2E_SKIP_EMAIL_DELIVERY: "1"
     steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
         with:
           node-version: 20
           cache: pnpm
@@ -254,7 +258,7 @@ jobs:
       - name: Run required release smoke
         run: pnpm exec playwright test tests/e2e/core-flow.spec.ts --reporter=list
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: playwright-smoke-report
