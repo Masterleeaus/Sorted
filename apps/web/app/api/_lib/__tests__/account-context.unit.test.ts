@@ -44,6 +44,7 @@ describe("withTokenAccountContext", () => {
     expect(result).toBe(42);
     expect(client.calls[0].text).toBe("BEGIN");
     expect(client.calls[1].text).toContain("set_config('app.current_account_id'");
+    expect(client.calls[1].text).toContain("set_config('app.company_id', $1, true)");
     expect(client.calls[1].params).toEqual([ACCOUNT, "public"]);
     expect(client.calls[2].text).toBe("SELECT 1");
     expect(client.calls.at(-1)?.text).toBe("COMMIT");
