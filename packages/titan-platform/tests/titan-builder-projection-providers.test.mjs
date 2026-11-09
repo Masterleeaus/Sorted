@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { builderProjectionOwner, createCapabilityOwnedBuilderProjectionProvider } from "../dist-test/titan-builder/projection-providers.js";
+import { builderProjectionOwner, createCapabilityOwnedBuilderProjectionProvider } from "../.test-dist/titan-builder/projection-providers.js";
 
 const context={company_id:"co-1",product_surface:"go",user_id:"u1",roles:["field"],capabilities:["crm.field.offline"]};
 const request={schema:"titan.builder.projection-request/v1",company_id:"co-1",surface:"go",source:"crm-field-assigned-work",contract:"crm.field.assigned-work",fields:["id","reference","status"],required_capability:"crm.field.offline",read_only:true,purpose:"builder-preview",authority_granted:false};
