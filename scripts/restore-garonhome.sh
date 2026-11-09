@@ -4,6 +4,8 @@ umask 077
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=./lib/backup-policy.sh
 source "${SCRIPT_DIR}/lib/backup-policy.sh"
+# shellcheck source=./lib/backup-archive-safety.sh
+source "${SCRIPT_DIR}/lib/backup-archive-safety.sh"
 # shellcheck source=./lib/deploy-safety.sh
 source "${SCRIPT_DIR}/lib/deploy-safety.sh"
 
@@ -126,6 +128,13 @@ if ! gpg --batch --quiet --decrypt --passphrase-file "${PASSPHRASE_FILE}" \
   exit 1
 fi
 sorted_backup_archive_entries < "${ARCHIVE_ENTRIES}"
+# A path under uploads/ can still be a symlink pointing outside uploads.
+# Validate GNU tar member types as well, before any destructive DB actions.
+if ! gpg --batch --quiet --decrypt --passphrase-file "${PASSPHRASE_FILE}" \
+  "${DUMP_DIR}/${expected[1]}" | tar -tvzf - | sorted_backup_archive_types; then
+  echo "ERROR: unsafe uploads archive entry type; restore aborted" >&2
+  exit 1
+fi
 rm -f -- "${ARCHIVE_ENTRIES}"
 trap - EXIT
 # Require the encrypted environment backup to contain essential DB credentials.
