@@ -10,6 +10,12 @@ test("destructive restore checks a fully listed archive before stopping services
  assert.ok(list>0 && check>list && stop>check);
  assert.match(restore,/trap 'rm -f -- "\$\{ARCHIVE_ENTRIES\}"' EXIT/);
 });
+test("destructive restore and scratch drill reject tar link and special member types",()=>{
+ assert.match(restore,/tar -tvzf - \| sorted_backup_archive_types/);
+ assert.match(drill,/tar -tvzf "\$\{WORK\}\/uploads\.tar\.gz" \| sorted_backup_archive_types/);
+ assert.match(restore,/backup-archive-safety\.sh/);
+ assert.match(drill,/backup-archive-safety\.sh/);
+});
 test("scratch restore shares the exact archive-path policy",()=>{
  assert.match(drill,/source "\$\{SCRIPT_DIR\}\/lib\/backup-policy.sh"/);
  assert.match(drill,/sorted_backup_archive_entries < "\$\{WORK\}\/uploads\.entries"/);
