@@ -131,6 +131,16 @@ test("failed remote read causes incomplete status rather than a false verified m
     assert.equal(existsSync(join(f.backups, "status", "last-success.json")), false);
   } finally { f.cleanup(); }
 });
+test("a successful run removes the ACTIVE marker and leaves status with verified hash method",()=>{
+ const f=fixture();
+ try{
+  const run=f.run();
+  assert.equal(run.status,0,run.stderr);
+  assert.equal(existsSync(join(f.backups,"status","ACTIVE")),false);
+  const report=JSON.parse(readFileSync(join(f.backups,"status","last-success.json"),"utf8"));
+  assert.equal(report.offsite.verification,"sha256-readback");
+ }finally{f.cleanup();}
+});
 test("missing uploads reports incomplete and does not claim last-success", () => {
   const f = fixture();
   try {
