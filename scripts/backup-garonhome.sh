@@ -4,6 +4,8 @@ umask 077
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=./lib/backup-policy.sh
 source "${SCRIPT_DIR}/lib/backup-policy.sh"
+# shellcheck source=./lib/backup-run-lock.sh
+source "${SCRIPT_DIR}/lib/backup-run-lock.sh"
 
 DEPLOY_ROOT="${FSM_DEPLOY_ROOT:-/opt/business/ai-fsm}"
 REPO_ROOT="${FSM_REPO_ROOT:-${DEPLOY_ROOT}/repo}"
@@ -22,10 +24,16 @@ MANIFEST_FILE="${BACKUP_DIR}/ai_fsm_${TIMESTAMP}.sha256"
 # unreadable .env exited under set -e without writing a machine-readable status.
 # Monitoring must see the failure even when the alert hook is not configured.
 mkdir -p "${STATUS_DIR}"
+# Only one runner may write shared status or prune historical artifacts.
+# A failed concurrent invocation must not overwrite the active runner's status.
+if ! sorted_backup_lock_start "${STATUS_DIR}" "${TIMESTAMP}" "${NOW_ISO}"; then
+  exit 1
+fi
 if [[ ! -f "${ENV_FILE}" || ! -r "${ENV_FILE}" ]]; then
   printf '{"status":"incomplete","set":"%s","finished_at":"%s","failures":["environment file missing or unreadable"]}\n' \
     "${TIMESTAMP}" "${NOW_ISO}" > "${STATUS_DIR}/last-run.json"
   printf 'INCOMPLETE backup set %s: environment file missing or unreadable\n' "${TIMESTAMP}" > "${STATUS_DIR}/INCOMPLETE"
+  sorted_backup_lock_finish "${STATUS_DIR}"
   echo "ERROR: backup configuration unavailable; see ${STATUS_DIR}/last-run.json" >&2
   exit 1
 fi
@@ -37,6 +45,7 @@ if ! source "${ENV_FILE}"; then
   printf '{"status":"incomplete","set":"%s","finished_at":"%s","failures":["environment file could not be loaded"]}\n' \
     "${TIMESTAMP}" "${NOW_ISO}" > "${STATUS_DIR}/last-run.json"
   printf 'INCOMPLETE backup set %s: environment file could not be loaded\n' "${TIMESTAMP}" > "${STATUS_DIR}/INCOMPLETE"
+  sorted_backup_lock_finish "${STATUS_DIR}"
   echo "ERROR: backup configuration invalid; see ${STATUS_DIR}/last-run.json" >&2
   exit 1
 fi
@@ -121,6 +130,7 @@ finish_run() {
     printf '{"status": "ok", "set": "%s", "finished_at": "%s", "failures": []}\n' \
       "${TIMESTAMP}" "${NOW_ISO}" > "${STATUS_DIR}/last-run.json"
     rm -f -- "${STATUS_DIR}/INCOMPLETE"
+    sorted_backup_lock_finish "${STATUS_DIR}"
     echo "backup set ${TIMESTAMP} complete and verified offsite"
     exit 0
   fi
@@ -135,6 +145,7 @@ finish_run() {
     echo "INCOMPLETE backup set ${TIMESTAMP} at ${NOW_ISO}"
     for r in "${FAILURES[@]}"; do echo "- ${r}"; done
   } > "${STATUS_DIR}/INCOMPLETE"
+  sorted_backup_lock_finish "${STATUS_DIR}"
   alert "backup set ${TIMESTAMP} INCOMPLETE: ${FAILURES[*]}"
   echo "ERROR: backup set ${TIMESTAMP} is INCOMPLETE; see ${STATUS_DIR}" >&2
   exit 1
@@ -147,6 +158,14 @@ on_unexpected_error() {
   finish_run
 }
 trap 'on_unexpected_error ${LINENO}' ERR
+# Preserve failed status for interrupted backups. SIGKILL intentionally leaves
+# ACTIVE in place for investigation; it cannot run a trap.
+on_backup_signal() {
+  trap - INT TERM
+  record_failure "backup interrupted by signal"
+  finish_run
+}
+trap on_backup_signal INT TERM
 
 # Invalid configuration is a backup failure, not a silent process exit. This
 # status must override the previous good backup in the deployment health gate.
