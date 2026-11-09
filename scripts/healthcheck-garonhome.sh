@@ -30,7 +30,13 @@ if [[ -n "${NTFY_TOKEN:-}" ]]; then
   NTFY_BASE="${NTFY_HOST_PORT}"
   NTFY_AUTH="Authorization: Bearer ${NTFY_TOKEN}"
 fi
-NTFY_URL_BASE="http://${NTFY_BASE}"
+# Public ntfy.sh requires HTTPS; only the operator-controlled loopback
+# listener uses HTTP.
+if [[ "${NTFY_BASE}" == "ntfy.sh" ]]; then
+  NTFY_URL_BASE="https://ntfy.sh"
+else
+  NTFY_URL_BASE="http://${NTFY_BASE}"
+fi
 
 # Check if container is running
 if ! docker inspect --format='{{.State.Running}}' "${WEB_CONTAINER}" 2>/dev/null | grep -q true; then
