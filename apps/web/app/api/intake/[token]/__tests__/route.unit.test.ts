@@ -60,14 +60,11 @@ const db = vi.hoisted(() => {
       return { rows: inv ? [inv] : [] };
     }
 
-    if (sql.startsWith("SELECT used_at, expires_at")) {
+    if (sql.includes("resolve_intake_invite_state")) {
+      // Bounded resolver (migration 204): runs on the pool, before any account is known.
       state.statusReadContext.push((tx as (Tx & { ctx?: string }) | null)?.ctx ?? "none");
       const inv = state.invites.find((i) => i.token === params[0]);
-      return {
-        rows: inv
-          ? [{ used_at: inv.used ? "2026-01-01T00:00:00Z" : null, expires_at: "2099-01-01T00:00:00Z" }]
-          : [],
-      };
+      return { rows: inv ? [{ is_used: inv.used }] : [] };
     }
 
     if (sql.startsWith("UPDATE intake_invites")) {
@@ -239,9 +236,9 @@ describe("intake invite claim (atomic consume)", () => {
 
     const loser = a.status === 409 ? a : b;
     expect((await loser.json()).error.code).toBe("ALREADY_USED");
-    // The loser's status read runs inside the invite's account context, not on a bare pool.
-    expect(db.state.statusReadContext).toContain(invite.account_id);
-    expect(db.state.statusReadContext).not.toContain("none");
+    // The loser's status read goes through the bounded resolver on the pool.
+    expect(db.state.statusReadContext.length).toBeGreaterThan(0);
+    expect(db.state.statusReadContext.every((ctx) => ctx === "none")).toBe(true);
 
     // Exactly one booking update was committed, and the invite is consumed.
     expect(db.state.committedBookingNames).toHaveLength(1);
