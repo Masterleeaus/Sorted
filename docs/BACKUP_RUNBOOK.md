@@ -375,6 +375,22 @@ No error output = file is structurally valid.
 
 ---
 
+## Recovery execution controls (Pass 7)
+
+Before an operator triggers a destructive database restore, `scripts/restore-garonhome.sh` now requires `FSM_RESTORE_CONFIRM_DB` to equal **the exact target `POSTGRES_DB` name**. This guards against accidental one-argument database replacement. The preflight checks the encrypted dump and both companion files, validates archive contents against the required `uploads/` path prefix, and only then asks for the typed confirmation before stopping services. Health waits after restore are bounded by `FSM_RESTORE_WEB_ATTEMPTS` (default 30 attempts at 2 seconds). It does **not** automatically restore the uploads directory or overwrite the running host `.env`; those require a separately reviewed recovery procedure.
+
+Backups run with `umask 077` and the rclone destination must be a simple configured remote name, not an arbitrary path. Transfers and hash read-back use `timeout` with configurable `FSM_BACKUP_REMOTE_COPY_TIMEOUT_SEC` and `FSM_BACKUP_REMOTE_READ_TIMEOUT_SEC` (defaults 900 seconds, allowed 5–3600). Invalid values record a machine-readable `INCOMPLETE` failure. `BACKUP_ALERT_CMD` is a **single executable path**, called with the failure message as an argument; it is never interpreted by `bash -c`.
+
+Example destructive restore after separately completing the scratch restore drill:
+
+```bash
+cd /opt/business/ai-fsm/repo
+FSM_RESTORE_CONFIRM_DB=ai_fsm bash scripts/restore-garonhome.sh \
+  /opt/business/ai-fsm/backups/ai_fsm_YYYYMMDDTHHMMSSZ.dump.gpg
+```
+
+This confirmation does not replace operator approval, a verified recovery plan, or an actual scratch restore. Never run this on production without explicit release/recovery authorization.
+
 ## Encryption and key management
 
 All dump, uploads and `.env` artifacts are encrypted with `gpg --symmetric --cipher-algo AES256` (the same tool already used for `.env`, so no new software is needed on garonhome). The key is one passphrase, stored in a file.
@@ -402,7 +418,7 @@ Nothing in this layout puts the decryption key beside the archive it protects. A
 2. Save the new value in the password manager, under a new entry name that includes the date.
 3. Move the old file to `env/backup.passphrase.<YYYYMMDD>` (still outside `backups/`), and move the new file into place as `env/backup.passphrase`.
 4. Run a backup, then the restore drill against the new set.
-5. Keep the old passphrase file only until every set encrypted with it has aged out of local and offsite retention (30 days offsite). Then delete it and mark the password-manager entry as retired. To decrypt an old set during that window, pass the old file as `FSM_BACKUP_PASSPHRASE_FILE=...` to the restore or verify script.
+5. Keep the old passphrase accessible until every set encrypted with it has been individually retired under a reviewed retention policy. **Offsite auto-prune is disabled**, so elapsed time alone is not evidence it is safe to destroy old keys. To decrypt an old set during that window, pass the old file as `FSM_BACKUP_PASSPHRASE_FILE=...` to the restore or verify script.
 
 ### Incident steps (passphrase or backup set suspected exposed)
 
@@ -414,8 +430,8 @@ Nothing in this layout puts the decryption key beside the archive it protects. A
 
 ### Retention and deletion
 
-- Local: 7 days, deleted by `backup-garonhome.sh`, and only for a set whose offsite copy is verified (marker `status/verified-<ts>`). An unverified set is kept while Drive is failing. Once a run completes and verifies, older unverified sets are pruned as well, because a complete offsite set now exists. If Drive is down for a long time, local disk use grows by one set per night; the INCOMPLETE alert is the signal to act.
-- Offsite: 30 days (`FSM_BACKUP_REMOTE_RETENTION_DAYS`), deleted by `rclone delete --min-age`.
+- Local: 7 days, deleted by `backup-garonhome.sh`, and only for a set whose offsite copy is verified (marker `status/verified-<ts>`). An unverified set is kept while Drive is failing. Older unverified sets are **never** removed merely because a new set is verified. If Drive is down for a long time, local disk use grows by one set per night; the INCOMPLETE alert is the signal to act.
+- Offsite: no automatic age-based deletion; retain individually unverified or incomplete sets pending an audited per-set retention process. `FSM_BACKUP_REMOTE_RETENTION_DAYS` is no longer acted on by the backup runner.
 - A set is deleted as a unit: its dump, uploads, env and `.sha256` files.
 - Deleting a set does not require rotating the key. Destroying a retired passphrase file makes its remaining copies permanently unreadable, which is the intended deletion for a retired key.
 
