@@ -138,6 +138,8 @@ cd /opt/business/ai-fsm/repo
 bash scripts/restore-garonhome.sh /opt/business/ai-fsm/backups/ai_fsm_YYYYMMDDTHHMMSSZ.dump.gpg
 ```
 
+The restore helper intentionally accepts **only** encrypted `*.dump.gpg` sets, refuses reserved PostgreSQL system database names, requires a usable decryption passphrase, and stops before any destructive operation if the manifest or any companion archive is missing. Old plaintext/partial sets must be migrated through a separate, explicitly reviewed recovery procedure rather than passed to the production restore command.
+
 The restore script handles the full sequence automatically:
 1. Requires the SHA-256 manifest and all three encrypted artifacts, checks the full set, and decrypts the dump to `/dev/null` to confirm passphrase and integrity before anything is stopped
 2. Stops `web` and `worker` containers (prevents writes during restore)
