@@ -14,7 +14,7 @@ function fixture() {
   const artifact = name => ({ name, bytes: 15, sha256: "a".repeat(64) });
   const successful = {
     status: "ok", set, completed_at: new Date(when).toISOString(),
-    offsite: { verified: true },
+    offsite: { verified: true, verification: "sha256-readback" },
     artifacts: [
       artifact(`ai_fsm_${set}.dump.gpg`),
       artifact(`ai_fsm_uploads_${set}.tar.gz.gpg`),
