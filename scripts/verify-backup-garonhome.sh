@@ -22,6 +22,10 @@ SET_DIR="$(cd "$(dirname "${DUMP_GPG}")" && pwd)"
 SET_TS="$(basename "${DUMP_GPG}")"
 SET_TS="${SET_TS#ai_fsm_}"
 SET_TS="${SET_TS%.dump.gpg}"
+if [[ "${DUMP_GPG}" != *.dump.gpg || ! "${SET_TS}" =~ ^[0-9]{8}T[0-9]{6}Z$ ]]; then
+  echo "invalid encrypted backup filename or timestamp" >&2
+  exit 1
+fi
 UPLOADS_GPG="${SET_DIR}/ai_fsm_uploads_${SET_TS}.tar.gz.gpg"
 ENV_GPG="${SET_DIR}/ai_fsm_env_${SET_TS}.gpg"
 MANIFEST="${SET_DIR}/ai_fsm_${SET_TS}.sha256"
@@ -74,7 +78,27 @@ cleanup() {
 }
 trap cleanup EXIT
 
-# 1. Checksums of every encrypted artifact in the set.
+# 1. Require checksums for all three known artifacts, exactly once each.
+# sha256sum -c alone accepts a dump-only or unrelated-file manifest.
+expected=("$(basename "${DUMP_GPG}")" "$(basename "${UPLOADS_GPG}")" "$(basename "${ENV_GPG}")")
+mapfile -t manifest_lines < "${MANIFEST}"
+if (( ${#manifest_lines[@]} != 3 )); then
+  echo "invalid manifest: expected exactly three artifact checksums" >&2
+  exit 1
+fi
+for required in "${expected[@]}"; do
+  matches=0
+  for entry in "${manifest_lines[@]}"; do
+    if [[ "${entry}" =~ ^[0-9a-f]{64}[[:space:]][[:space:]] ]] &&
+       [[ "${entry:66}" == "${required}" ]]; then
+      matches=$((matches + 1))
+    fi
+  done
+  if (( matches != 1 )); then
+    echo "invalid manifest entry for ${required}" >&2
+    exit 1
+  fi
+done
 (cd "${SET_DIR}" && sha256sum -c --quiet "$(basename "${MANIFEST}")")
 echo "checksums: ok"
 
@@ -104,7 +128,7 @@ SCRATCH_CREATED=1
 "${COMPOSE[@]}" exec -T postgres psql -U "${POSTGRES_USER}" -d postgres -v ON_ERROR_STOP=1 \
   -c "CREATE DATABASE ${SCRATCH_DB};" >/dev/null
 "${COMPOSE[@]}" exec -T postgres pg_restore -U "${POSTGRES_USER}" -d "${SCRATCH_DB}" \
-  --no-owner --no-privileges < "${WORK}/dump"
+  --no-owner --no-privileges --exit-on-error < "${WORK}/dump"
 TABLES="$("${COMPOSE[@]}" exec -T postgres psql -U "${POSTGRES_USER}" -d "${SCRATCH_DB}" -tA \
   -c "SELECT count(*) FROM information_schema.tables WHERE table_schema = 'public';")"
 TABLES="${TABLES//[[:space:]]/}"
