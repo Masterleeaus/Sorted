@@ -1,5 +1,5 @@
 -- =============================================================================
--- 205_notification_queue_account_idempotency.sql
+-- 208_notification_queue_account_idempotency.sql
 --
 -- Scopes notification idempotency keys to an account. The worker's enqueue
 -- path now looks up and upserts by (account_id, idempotency_key).
