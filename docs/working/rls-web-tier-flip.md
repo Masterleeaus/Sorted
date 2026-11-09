@@ -75,6 +75,36 @@ The auth login path is RLS-safe (`app_login_candidates`). The rest is not:
 Booking and intake already `set_config` in-transaction. `attention_events` INSERT is
 permissive so portal first-open telemetry is not dropped (migration 185).
 
+## Token resolvers (migration 204, issue #6 lane)
+
+Code status for blockers 1 to 3 and the internal prompts. Nothing here changes a
+connection string or env default.
+
+- Migration `204_token_resolvers.sql` adds narrow SECURITY DEFINER functions:
+  `resolve_portal_client_account`, `resolve_estimate_share_account`,
+  `resolve_invoice_share_account`, `resolve_open_intake_invite`,
+  `resolve_intake_invite_state`, `resolve_square_location_settings`,
+  `resolve_owner_account_id`, `resolve_visit_candidate_account`,
+  `consume_portal_magic_link`, `consume_portal_email_change`. EXECUTE goes to
+  `ai_fsm_web` only (`scripts/db-provision-runtime.sh`). Rollback is in the migration.
+- Routes converted: portal client, estimate and invoice token routes (GET and
+  payment or respond POST), `requirePortalClient`, portal confirm and verify-email
+  POST, request-access (booking account from env, run in its context), intake invite
+  submit and media routes, Square webhook location lookup, arrival, start-day and
+  day-review prompts.
+- `portal/auth/verify` and `verify-email` GET read only `portal_magic_links` and
+  `portal_sessions`, which are permissive by design (migration 184). No change needed.
+- `intake_invites` SELECT is permissive (migration 183), so the web role can already
+  read it. The resolver is still used to keep the lookup narrow.
+- Still open: `api/internal/sms` (inbound keyword flow, unscoped client and job writes),
+  `api/internal/sms/outbound` client writes outside the comms insert,
+  `api/internal/push/day-review-reminder` (cross-account sweep over open days),
+  `api/internal/location` (large, unscoped reads), and the raw-query files in blocker 4.
+- Owner decision: the resolver functions are owned by the migration role, the same
+  as `app_login_candidates` and `portal_job_report_account`. Their tables use FORCE
+  RLS, so the owner needs BYPASSRLS for the lookup to see rows. The boundary is the
+  EXECUTE grant, the fixed SQL body and the search_path pin.
+
 ## Change 1, 2, 3: already implemented, but web stays on the admin URL
 
 - Env: `WEB_DATABASE_URL` equals `DATABASE_URL` (admin) until the cutover. The cutover
