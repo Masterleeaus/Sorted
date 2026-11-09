@@ -14,9 +14,28 @@ UPLOADS_FILE="${BACKUP_DIR}/ai_fsm_uploads_${TIMESTAMP}.tar.gz.gpg"
 ENV_FILE_BACKUP="${BACKUP_DIR}/ai_fsm_env_${TIMESTAMP}.gpg"
 MANIFEST_FILE="${BACKUP_DIR}/ai_fsm_${TIMESTAMP}.sha256"
 
+# Record startup failures before loading configuration. Previously a missing or
+# unreadable .env exited under set -e without writing a machine-readable status.
+# Monitoring must see the failure even when the alert hook is not configured.
+mkdir -p "${STATUS_DIR}"
+if [[ ! -f "${ENV_FILE}" || ! -r "${ENV_FILE}" ]]; then
+  printf '{"status":"incomplete","set":"%s","finished_at":"%s","failures":["environment file missing or unreadable"]}\n' \
+    "${TIMESTAMP}" "${NOW_ISO}" > "${STATUS_DIR}/last-run.json"
+  printf 'INCOMPLETE backup set %s: environment file missing or unreadable\n' "${TIMESTAMP}" > "${STATUS_DIR}/INCOMPLETE"
+  echo "ERROR: backup configuration unavailable; see ${STATUS_DIR}/last-run.json" >&2
+  exit 1
+fi
+
 set -a
 # shellcheck disable=SC1090
-source "${ENV_FILE}"
+if ! source "${ENV_FILE}"; then
+  set +a
+  printf '{"status":"incomplete","set":"%s","finished_at":"%s","failures":["environment file could not be loaded"]}\n' \
+    "${TIMESTAMP}" "${NOW_ISO}" > "${STATUS_DIR}/last-run.json"
+  printf 'INCOMPLETE backup set %s: environment file could not be loaded\n' "${TIMESTAMP}" > "${STATUS_DIR}/INCOMPLETE"
+  echo "ERROR: backup configuration invalid; see ${STATUS_DIR}/last-run.json" >&2
+  exit 1
+fi
 set +a
 
 # Resolve AFTER sourcing .env so FSM_DATA_ROOT / FSM_BACKUP_PASSPHRASE_FILE set
