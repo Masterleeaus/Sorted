@@ -19,7 +19,7 @@ if [[ $# -ne 1 ]]; then
 fi
 
 DUMP_GPG="$1"
-if [[ ! -f "${DUMP_GPG}" ]]; then
+if [[ ! -f "${DUMP_GPG}" || -L "${DUMP_GPG}" ]]; then
   echo "dump not found: ${DUMP_GPG}" >&2
   exit 1
 fi
