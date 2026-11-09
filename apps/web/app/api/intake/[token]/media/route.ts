@@ -65,6 +65,12 @@ export async function POST(
   }
   if (!multipart.ok) return errorJson(422, "VALIDATION_ERROR", "Expected multipart form data");
 
+  // Public uploads accept one and only one file field. Multiple or unknown
+  // multipart parts otherwise consume memory without becoming retained media.
+  if (Array.from(multipart.formData.keys()).some((key) => key !== "file") ||
+      multipart.formData.getAll("file").length !== 1) {
+    return errorJson(422, "VALIDATION_ERROR", "Upload exactly one photo per request.");
+  }
   const entry = multipart.formData.get("file");
   if (!entry || typeof entry === "string") return errorJson(422, "VALIDATION_ERROR", "file is required");
   const file = entry as File;
