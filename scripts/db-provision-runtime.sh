@@ -133,6 +133,21 @@ SELECT format('GRANT EXECUTE ON FUNCTION public.app_login_candidates(text) TO %I
 WHERE :'runtime_role' = 'ai_fsm_web' \gexec
 SELECT format('GRANT EXECUTE ON FUNCTION public.portal_job_report_account(uuid) TO %I', :'runtime_role')
 WHERE :'runtime_role' = 'ai_fsm_web' \gexec
+-- Token resolvers (migration 204): bounded pre-account lookups, web role only.
+SELECT format('GRANT EXECUTE ON FUNCTION public.%s TO %I', fn, :'runtime_role')
+FROM (VALUES
+  ('resolve_portal_client_account(uuid)'),
+  ('resolve_estimate_share_account(uuid)'),
+  ('resolve_invoice_share_account(uuid)'),
+  ('resolve_open_intake_invite(uuid)'),
+  ('resolve_intake_invite_state(uuid)'),
+  ('resolve_square_location_settings(text)'),
+  ('resolve_owner_account_id()'),
+  ('resolve_visit_candidate_account(uuid)'),
+  ('consume_portal_magic_link(uuid)'),
+  ('consume_portal_email_change(uuid)')
+) AS t(fn)
+WHERE :'runtime_role' = 'ai_fsm_web' \gexec
 COMMIT;
 -- Verification: print the attributes the owner should see before wiring the URL.
 SELECT rolname, rolsuper, rolbypassrls, rolcreatedb, rolcreaterole

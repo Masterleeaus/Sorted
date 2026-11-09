@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
-import { getPool } from "@/lib/db";
+import { queryOne } from "@/lib/db";
+import { withTokenAccountContext } from "../../_lib/account-context";
 
 export const dynamic = "force-dynamic";
 
@@ -25,21 +26,29 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Invalid body" }, { status: 400 });
   }
 
-  const client = await getPool().connect();
-  try {
-    // Resolve account from candidate (internal key is account-agnostic single-tenant deploy).
-    const { rows } = await client.query<{ id: string; live_prompted_at: string | null }>(
+  // The candidate resolves to its account through a bounded resolver (migration
+  // 204). The ack then runs in that account's context as its owner, because the
+  // visit_candidates UPDATE policy needs owner, admin or tech.
+  const candidate = await queryOne<{ account_id: string | null }>(
+    `SELECT resolve_visit_candidate_account($1::uuid) AS account_id`,
+    [parsed.data.candidate_id],
+  );
+  if (!candidate?.account_id) {
+    return NextResponse.json({ ok: false, reason: "not_found" }, { status: 404 });
+  }
+  const accountId = candidate.account_id;
+  const rows = await withTokenAccountContext(accountId, async (tx) => {
+    const { rows: updated } = await tx.query<{ id: string; live_prompted_at: string | null }>(
       `UPDATE visit_candidates
        SET live_prompted_at = COALESCE(live_prompted_at, now()), updated_at = now()
-       WHERE id = $1 AND status = 'pending'
+       WHERE id = $1 AND account_id = $2 AND status = 'pending'
        RETURNING id, live_prompted_at::text`,
-      [parsed.data.candidate_id],
+      [parsed.data.candidate_id, accountId],
     );
-    if (!rows[0]) {
-      return NextResponse.json({ ok: false, reason: "not_found" }, { status: 404 });
-    }
-    return NextResponse.json({ ok: true, already: Boolean(rows[0].live_prompted_at) });
-  } finally {
-    client.release();
+    return updated;
+  }, "owner");
+  if (!rows[0]) {
+    return NextResponse.json({ ok: false, reason: "not_found" }, { status: 404 });
   }
+  return NextResponse.json({ ok: true, already: Boolean(rows[0].live_prompted_at) });
 }

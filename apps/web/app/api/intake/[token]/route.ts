@@ -3,7 +3,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import type { Pool } from "pg";
 import { getPool } from "@/lib/db";
-import { withTokenAccountContext } from "../../_lib/account-context";
 import { logger } from "@/lib/logger";
 import { scoreSiteVisitProbability } from "@ai-fsm/domain";
 import {
@@ -104,32 +103,19 @@ async function readJsonBody(
  * Response for a token that cannot be claimed. Used both when the pre-check
  * finds nothing usable and when the conditional claim matches zero rows.
  *
- * When `accountId` is known from the invite row, the status read runs inside
- * that account's context. Without it, the lookup is by token alone and runs
- * on the pool. That lookup has no account to set yet, so it stays cross-account
- * until the token resolver in docs/working/rls-web-tier-flip.md (blocker 1) exists.
  */
 async function unavailableInviteResponse(
   pool: Pool,
   token: string,
-  accountId?: string
 ): Promise<NextResponse> {
-  // Check if it exists but is expired or used, to give a better message
-  const checkRows = accountId
-    ? await withTokenAccountContext(accountId, async (client) => {
-        const { rows } = await client.query<{ used_at: string | null; expires_at: string }>(
-          `SELECT used_at, expires_at FROM intake_invites WHERE token = $1 AND account_id = $2`,
-          [token, accountId]
-        );
-        return rows;
-      })
-    : (
-        await pool.query<{ used_at: string | null; expires_at: string }>(
-          `SELECT used_at, expires_at FROM intake_invites WHERE token = $1`,
-          [token]
-        )
-      ).rows;
-  if (checkRows[0]?.used_at) {
+  // Check if it exists but is expired or used, to give a better message. The
+  // state read goes through a bounded resolver (migration 204), so no account
+  // context is needed before the token is resolved.
+  const { rows: checkRows } = await pool.query<{ is_used: boolean }>(
+    `SELECT is_used FROM resolve_intake_invite_state($1::uuid)`,
+    [token],
+  );
+  if (checkRows[0]?.is_used) {
     return NextResponse.json({ error: { code: "ALREADY_USED", message: "This form has already been submitted." } }, { status: 409 });
   }
   if (checkRows[0]) {
@@ -178,8 +164,7 @@ export async function POST(
     lead_name: string; lead_email: string;
   }>(
     `SELECT id, account_id, booking_request_id, lead_name, lead_email
-     FROM intake_invites
-     WHERE token = $1 AND used_at IS NULL AND expires_at > now()`,
+     FROM resolve_open_intake_invite($1::uuid)`,
     [token]
   );
 
@@ -213,7 +198,7 @@ export async function POST(
     );
     if (claimedRows.length === 0) {
       await client.query("ROLLBACK");
-      return unavailableInviteResponse(pool, token, invite.account_id);
+      return unavailableInviteResponse(pool, token);
     }
 
     // Photo count comes from the server's records, not the client payload.

@@ -23,6 +23,7 @@ const fakeClient = vi.hoisted(() => ({
     if (sql === "BEGIN") state.open = true;
     if (sql === "COMMIT" || sql === "ROLLBACK") state.open = false;
     if (sql.includes("FROM estimate_line_items")) return { rows: [{ id: "li-1" }] };
+    if (sql.includes("FROM estimates") && state.estimate) return { rows: [state.estimate] };
     return { rows: [] };
   },
   release: () => {},
@@ -33,6 +34,10 @@ vi.mock("@/lib/db", () => ({
   query: vi.fn(),
   queryOne: async (sql: string, params?: unknown[]) => {
     state.log.push({ sql, params });
+    // The bootstrap resolver returns only the account id, as the migration does.
+    if (sql.includes("resolve_estimate_share_account")) {
+      return state.estimate ? { account_id: state.estimate.account_id } : null;
+    }
     return state.estimate;
   },
 }));

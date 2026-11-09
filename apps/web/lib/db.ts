@@ -5,6 +5,9 @@ import type { SessionPayload } from "./auth/session";
 
 let pool: Pool | null = null;
 
+/** A query target that is a pooled client or a transaction client. Helpers take one, never the bare pool. */
+export type DbClient = Pick<PoolClient, "query">;
+
 export function getPool(): Pool {
   if (!pool) {
     const env = getEnv();

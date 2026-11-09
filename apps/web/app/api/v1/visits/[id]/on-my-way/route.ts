@@ -80,7 +80,7 @@ export const POST = withAuth(
           }),
         });
         if (!emailResult.ok) {
-          await logCommunication({
+          await withDbSession(session, (db) => logCommunication(db, {
             accountId: session.accountId,
             channel: "email",
             direction: "outbound",
@@ -91,7 +91,7 @@ export const POST = withAuth(
             bodyPreview: `On My Way — ${visit.job_title}`,
             initiatedBy: session.userId,
             externalId: emailResult.error ?? null,
-          });
+          }));
           logger.warn("[on-my-way] email send failed", { visitId: id, error: emailResult.error });
           return NextResponse.json(
             {
@@ -104,7 +104,7 @@ export const POST = withAuth(
             { status: 502 }
           );
         }
-        await logCommunication({
+        await withDbSession(session, (db) => logCommunication(db, {
           accountId: session.accountId,
           channel: "email",
           direction: "outbound",
@@ -114,7 +114,7 @@ export const POST = withAuth(
           visitId: id,
           bodyPreview: `On My Way — ${visit.job_title}`,
           initiatedBy: session.userId,
-        });
+        }));
       }
 
       await withDbSession(session, (db) =>

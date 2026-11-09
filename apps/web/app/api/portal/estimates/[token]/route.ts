@@ -45,11 +45,21 @@ export async function GET(
 ) {
   const { token } = await params;
 
-  // Bootstrap: the share token resolves the account. No account context exists
-  // yet, so this lookup stays cross-account until the token resolver exists
-  // (docs/working/rls-web-tier-flip.md, blocker 3).
-  const estimate = await queryOne<EstimateRow>(
-    `SELECT
+  // Bootstrap: the share token resolves to an account through a bounded resolver
+  // (migration 204). Nothing else reads this estimate before context is set.
+  const resolved = await queryOne<{ account_id: string | null }>(
+    `SELECT resolve_estimate_share_account($1::uuid) AS account_id`,
+    [token]
+  );
+  if (!resolved?.account_id) {
+    return NextResponse.json({ error: "Not found" }, { status: 404 });
+  }
+  const accountId = resolved.account_id;
+
+  // The estimate read runs in the resolved account's context, with the account predicate.
+  const estimate = await withTokenAccountContext(accountId, async (tx) => {
+    const { rows: [row] } = await tx.query<EstimateRow>(
+      `SELECT
        e.id, e.account_id, e.status, e.subtotal_cents, e.tax_cents, e.total_cents,
        e.deposit_cents, e.notes, e.expires_at, e.sent_at, e.responded_at,
        e.client_approved_name,
@@ -61,15 +71,18 @@ export async function GET(
      JOIN clients c ON c.id = e.client_id
      JOIN accounts a ON a.id = e.account_id
      LEFT JOIN properties p ON p.id = e.property_id
-     WHERE e.share_token = $1`,
-    [token]
-  );
+     WHERE e.share_token = $1 AND e.account_id = $2`,
+      [token, accountId]
+    );
+    return row ?? null;
+  });
 
   if (!estimate) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 
-  const { account_id: accountId, ...publicEstimate } = estimate;
+  const { account_id: _accountId, ...publicEstimate } = estimate;
+
   const lineItems = await withTokenAccountContext(accountId, async (tx) => {
     const { rows } = await tx.query<LineItemRow>(
       `SELECT id, description, quantity, unit_price_cents, total_cents, sort_order
@@ -91,21 +104,32 @@ const respondBody = z.object({
   signature_svg: z.string().optional(),
 });
 
+/** Resolves the share token to its account, then reads the estimate in that context. */
+async function loadEstimateForRespond(token: string) {
+  const resolved = await queryOne<{ account_id: string | null }>(
+    `SELECT resolve_estimate_share_account($1::uuid) AS account_id`,
+    [token]
+  );
+  if (!resolved?.account_id) return null;
+  const accountId = resolved.account_id;
+  return withTokenAccountContext(accountId, async (tx) => {
+    const { rows: [row] } = await tx.query<{
+      id: string; status: string; account_id: string; client_id: string;
+    }>(
+      `SELECT id, status, account_id, client_id FROM estimates WHERE share_token = $1 AND account_id = $2`,
+      [token, accountId]
+    );
+    return row ?? null;
+  });
+}
+
 export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ token: string }> }
 ) {
   const { token } = await params;
 
-  const estimate = await queryOne<{
-    id: string;
-    status: string;
-    account_id: string;
-    client_id: string;
-  } & Record<string, unknown>>(
-    `SELECT id, status, account_id, client_id FROM estimates WHERE share_token = $1`,
-    [token]
-  );
+  const estimate = await loadEstimateForRespond(token);
 
   if (!estimate) return NextResponse.json({ error: "Not found" }, { status: 404 });
   if (await isPortalPreview(estimate.client_id)) {
