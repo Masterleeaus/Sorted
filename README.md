@@ -76,7 +76,7 @@ A nonzero exit indicates a stale, missing or incomplete verified backup, and sho
 
 The upload route and delete route now share a private file boundary that checks existing parent-directory segments with `lstat`, refuses symlinks, creates new photo files exclusively with `0600` permissions and deletes only regular files. Invite claiming, photo counting and request updates carry explicit tenant predicates even after setting transaction-local tenant context. The browser retains photos whose server deletion fails, exposing a retry instead of pretending the photo was removed, and clears in-flight removed items on upload failures.
 
-Run `pnpm --filter @ai-fsm/web exec vitest run __tests__/intake-photo-*.test.ts` for executable filesystem/format checks, plus `node --test scripts/tests/intake-photo-*.test.mjs` for route contracts. Database-backed tests and customer media retention/deletion policy remain required before treating issue #5 as complete.
+Run `pnpm --filter @ai-fsm/web exec vitest run intake-photo-` for executable filesystem/format checks, plus `node --test scripts/tests/intake-photo-*.test.mjs` for route contracts. Database-backed tests and customer media retention/deletion policy remain required before treating issue #5 as complete.
 
 
 
