@@ -36,7 +36,7 @@ The deploy script does not take a backup. Run this first:
 ssh garonhome 'cd /opt/business/ai-fsm/repo && bash scripts/backup-garonhome.sh'
 ```
 
-It writes three mandatory **encrypted** artifacts (`ai_fsm_<ts>.dump.gpg`, `ai_fsm_uploads_<ts>.tar.gz.gpg`, and `ai_fsm_env_<ts>.gpg`) plus a SHA-256 manifest. The complete set is uploaded and verified by remote filename and byte size before a run is successful. Missing uploads, passphrase or offsite copies make the run fail with `backups/status/INCOMPLETE`; do not deploy after an incomplete pre-deploy backup.
+It writes three mandatory **encrypted** artifacts (`ai_fsm_<ts>.dump.gpg`, `ai_fsm_uploads_<ts>.tar.gz.gpg`, and `ai_fsm_env_<ts>.gpg`) plus a SHA-256 manifest. The complete set is uploaded, then every remote object is read back and SHA-256-verified, including the manifest, before a run is successful. Old size-only status reports do not satisfy the deployment gate; generate a fresh backup after upgrading. Missing uploads, passphrase or offsite copies make the run fail with `backups/status/INCOMPLETE`; do not deploy after an incomplete pre-deploy backup.
 
 Check the dump before continuing:
 
