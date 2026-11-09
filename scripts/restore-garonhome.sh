@@ -108,6 +108,21 @@ for artifact in "${expected[@]:1}"; do
   fi
 done
 
+# Validate the encrypted uploads as a readable tar BEFORE stopping services.
+# A decryptable random file is not a usable uploads archive. Never extract the
+# archive here; this is a read-only format and entry-list verification.
+if ! gpg --batch --quiet --decrypt --passphrase-file "${PASSPHRASE_FILE}" \
+  "${DUMP_DIR}/${expected[1]}" | tar -tzf - >/dev/null; then
+  echo "ERROR: uploads archive is not a readable compressed tar; restore aborted" >&2
+  exit 1
+fi
+# Require the encrypted environment backup to contain essential DB credentials.
+if ! gpg --batch --quiet --decrypt --passphrase-file "${PASSPHRASE_FILE}" \
+  "${DUMP_DIR}/${expected[2]}" | grep -q '^POSTGRES_PASSWORD='; then
+  echo "ERROR: encrypted environment backup does not contain PostgreSQL credentials" >&2
+  exit 1
+fi
+
 docker compose --env-file "${ENV_FILE}" -f "${COMPOSE_FILE}" stop web worker
 
 # Pass names as psql variables, using identifier/literal quoting rather than
