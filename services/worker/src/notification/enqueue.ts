@@ -25,8 +25,9 @@ export async function enqueueNotification(
 ): Promise<EnqueueResult> {
   // Check idempotency — skip if any non-failed row exists for this key
   const existing = await client.query<{ status: string }>(
-    `SELECT status FROM notification_queue WHERE idempotency_key = $1 LIMIT 1`,
-    [opts.idempotencyKey]
+    `SELECT status FROM notification_queue
+      WHERE account_id = $1 AND idempotency_key = $2 LIMIT 1`,
+    [opts.accountId, opts.idempotencyKey]
   );
   if (existing.rows.length > 0 && existing.rows[0].status !== "failed") {
     return "duplicate";
@@ -79,7 +80,7 @@ export async function enqueueNotification(
         subject, html_body, idempotency_key, entity_type, entity_id,
         cancel_on_events, next_attempt_at, metadata)
      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13)
-     ON CONFLICT (idempotency_key) DO UPDATE
+     ON CONFLICT (account_id, idempotency_key) DO UPDATE
        SET status          = 'pending',
            attempt_count   = 0,
            failure_reason  = NULL,
@@ -108,15 +109,17 @@ export function cancelNotificationsForEntity(
   client: Client,
   entityType: string,
   entityId: string,
-  eventType: string
+  eventType: string,
+  accountId: string
 ): Promise<number> {
   return client.query(
     `UPDATE notification_queue
         SET status = 'cancelled'
-      WHERE entity_type = $1
+      WHERE account_id  = $4
+        AND entity_type = $1
         AND entity_id   = $2::uuid
         AND status      = 'pending'
         AND $3 = ANY(cancel_on_events)`,
-    [entityType, entityId, eventType]
+    [entityType, entityId, eventType, accountId]
   ).then((r) => r.rowCount ?? 0);
 }
