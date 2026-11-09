@@ -99,6 +99,16 @@ test("restore rejects a dump-only checksum manifest even when companion files ex
     assert.match(result.stderr, /exactly three artifact checksums/);
   } finally { f.cleanup(); }
 });
+test("restore rejects invalid decrypted uploads and missing env credentials before stopping services", () => {
+  const source = readFileSync(script, "utf8");
+  const stopAt = source.indexOf("stop web worker");
+  const tarAt = source.indexOf("tar -tzf -");
+  const envAt = source.indexOf("grep '^POSTGRES_PASSWORD='");
+  assert.ok(tarAt > 0 && tarAt < stopAt);
+  assert.ok(envAt > tarAt && envAt < stopAt);
+  assert.match(source, /uploads archive is not a readable compressed tar/);
+  assert.match(source, /encrypted environment backup does not contain PostgreSQL credentials/);
+});
 test("restore checks companion decryption and aborts on failure before database teardown", () => {
   const source = readFileSync(script, "utf8");
   assert.match(source, /for artifact in "\$\{expected\[@\]:1\}"/);
