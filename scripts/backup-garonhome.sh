@@ -229,7 +229,10 @@ for f in "${UPLOAD_LIST[@]}"; do
   fi
 done
 
-# 5. Verify each offsite copy by remote listing (name and size) before counting it as stored.
+# 5. Verify every remote object by reading its bytes back with rclone cat and
+# comparing SHA-256 to the original local object. Name+size alone cannot detect
+# corruption or an old same-size object left behind after a broken upload.
+# This includes the manifest itself. A failed read MUST prevent successful status.
 if listing="$(rclone lsf --format sp --separator ';' --files-only "${RCLONE_DEST}" 2>/dev/null)"; then
   for f in "${UPLOAD_LIST[@]}"; do
     name="$(basename "${f}")"
@@ -237,6 +240,13 @@ if listing="$(rclone lsf --format sp --separator ';' --files-only "${RCLONE_DEST
     remote_size="$(awk -F';' -v n="${name}" '$2 == n { print $1; exit }' <<<"${listing}")"
     if [[ "${remote_size}" != "${local_size}" ]]; then
       record_failure "offsite verify failed for ${name} (remote size '${remote_size:-missing}', local ${local_size})"
+      continue
+    fi
+    local_sha="$(sha256sum -- "${f}" | cut -d' ' -f1)"
+    if ! remote_sha="$(rclone cat "${RCLONE_DEST}/${name}" | sha256sum | cut -d' ' -f1)"; then
+      record_failure "offsite hash read failed for ${name}"
+    elif [[ "${remote_sha}" != "${local_sha}" ]]; then
+      record_failure "offsite SHA-256 mismatch for ${name}"
     fi
   done
 else
@@ -269,17 +279,10 @@ for m in "${STATUS_DIR}"/verified-*; do
 done
 echo "local backup retention evaluated (only individually verified sets older than 7 days)"
 
-# 7. Offsite prune (older than the documented retention). Only when this run's set
-# is stored and verified, so old offsite copies are not removed while the newest
-# set is missing from Drive.
-if (( ${#FAILURES[@]} == 0 )); then
-  if rclone delete "${RCLONE_DEST}" --min-age "${REMOTE_RETENTION_DAYS}d" --log-level INFO; then
-    echo "old offsite backups pruned (older than ${REMOTE_RETENTION_DAYS}d)"
-  else
-    echo "WARNING: offsite prune failed (rclone exit $?)" >&2
-  fi
-else
-  echo "offsite prune skipped: this run is incomplete"
-fi
+# 7. Offsite retention is deliberately NOT a broad rclone delete.
+# Age-only deletion can destroy old but unverified or incomplete recovery sets
+# and their companion manifests. Retain remotely until a separate per-set,
+# explicitly reviewed retention command exists and has completed restore drills.
+echo "offsite prune deferred: no destructive age-only delete is permitted"
 
 finish_run
