@@ -57,7 +57,7 @@ interface PhotoItem {
   key: string;
   file: File;
   previewUrl: string;
-  status: "uploading" | "done" | "failed";
+  status: "uploading" | "done" | "failed" | "removing" | "delete_failed";
   /** Server id of the stored photo, set once the upload succeeds. */
   mediaId?: string;
   error?: string;
@@ -137,7 +137,7 @@ export function IntakeClientForm({ token, leadName, leadEmail, leadPhone }: Inta
 
       if (removedWhileUploading.current.has(item.key)) {
         removedWhileUploading.current.delete(item.key);
-        void fetch(`/api/intake/${token}/media/${json.data.id}`, { method: "DELETE" }).catch(() => undefined);
+        await deleteStoredPhoto(item.key, json.data.id);
         return;
       }
       patchPhoto(item.key, { status: "done", mediaId: json.data.id });
@@ -146,6 +146,20 @@ export function IntakeClientForm({ token, leadName, leadEmail, leadPhone }: Inta
         status: "failed",
         error: "Network error. Check your connection and try again.",
       });
+    }
+  }
+
+  async function deleteStoredPhoto(key: string, mediaId: string) {
+    try {
+      const res = await fetch(`/api/intake/${token}/media/${mediaId}`, { method: "DELETE" });
+      if (!res.ok) throw new Error("delete failed");
+      const current = photosRef.current.find((p) => p.key === key);
+      if (current) URL.revokeObjectURL(current.previewUrl);
+      photosRef.current = photosRef.current.filter((p) => p.key !== key);
+      setPhotos(photosRef.current);
+    } catch {
+      patchPhoto(key, { status: "delete_failed", mediaId, error: "Photo removal failed. Try removing it again." });
+      setPhotoError("A photo could not be removed. Please retry before submitting.");
     }
   }
 
@@ -189,14 +203,14 @@ export function IntakeClientForm({ token, leadName, leadEmail, leadPhone }: Inta
     setPhotoError(null);
     if (item.status === "uploading") {
       removedWhileUploading.current.add(item.key);
-    } else if (item.status === "done" && item.mediaId) {
-      try {
-        const res = await fetch(`/api/intake/${token}/media/${item.mediaId}`, { method: "DELETE" });
-        if (!res.ok) throw new Error("delete failed");
-      } catch {
-        setPhotoError("That photo could not be removed. Please try again.");
-        return;
-      }
+      patchPhoto(item.key, { status: "removing", error: undefined });
+      return;
+    }
+    if (item.status === "removing") return;
+    if ((item.status === "done" || item.status === "delete_failed") && item.mediaId) {
+      patchPhoto(item.key, { status: "removing", error: undefined });
+      await deleteStoredPhoto(item.key, item.mediaId);
+      return;
     }
     URL.revokeObjectURL(item.previewUrl);
     photosRef.current = photosRef.current.filter((p) => p.key !== item.key);
@@ -381,7 +395,7 @@ export function IntakeClientForm({ token, leadName, leadEmail, leadPhone }: Inta
                   />
                   <span style={{ fontSize: 14, wordBreak: "break-all" }}>{p.file.name}</span>
                   <span style={{ fontSize: 14, color: p.status === "failed" ? "#dc2626" : "#52525b" }}>
-                    {p.status === "uploading" ? "Uploading…" : p.status === "done" ? "Added" : "Upload failed"}
+                    {p.status === "uploading" ? "Uploading…" : p.status === "removing" ? "Removing…" : p.status === "delete_failed" ? "Removal failed" : p.status === "done" ? "Added" : "Upload failed"}
                   </span>
                   {p.error && <span style={{ fontSize: 14, color: "#dc2626" }}>{p.error}</span>}
                   {p.status === "failed" && (
@@ -389,8 +403,8 @@ export function IntakeClientForm({ token, leadName, leadEmail, leadPhone }: Inta
                       Try again
                     </button>
                   )}
-                  <button type="button" onClick={() => void removePhoto(p)} style={photoButtonStyle}>
-                    Remove photo
+                  <button type="button" onClick={() => void removePhoto(p)} disabled={p.status === "removing"} style={photoButtonStyle}>
+                    {p.status === "delete_failed" ? "Retry removal" : "Remove photo"}
                   </button>
                 </li>
               ))}
