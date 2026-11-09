@@ -144,6 +144,9 @@ if [[ "${STATUS}" != "ok" ]]; then
     "${NTFY_URL_BASE:-ntfy.sh}/${NTFY_TOPIC}" > /dev/null || true
 fi
 
+# Backup status becomes unhealthy during an ACTIVE run and after abrupt
+# interruption. Investigate stale markers before clearing them; do not infer
+# that a prior green report is current while another backup is executing.
 # Backups require independent alerting even when the web app is healthy.
 # A previously completed backup does not mask a newer failed/incomplete run.
 if ! node "${DEPLOY_ROOT}/repo/scripts/check-backup-health.mjs" \
