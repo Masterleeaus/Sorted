@@ -10,6 +10,8 @@ umask 077
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=./lib/backup-policy.sh
 source "${SCRIPT_DIR}/lib/backup-policy.sh"
+# shellcheck source=./lib/backup-archive-safety.sh
+source "${SCRIPT_DIR}/lib/backup-archive-safety.sh"
 
 if [[ $# -ne 1 ]]; then
   echo "usage: $0 /path/to/ai_fsm_YYYYMMDDTHHMMSSZ.dump.gpg" >&2
@@ -71,7 +73,7 @@ cleanup() {
     "${COMPOSE[@]}" exec -T postgres psql -U "${POSTGRES_USER}" -d postgres \
       -v ON_ERROR_STOP=1 -v "scratch_db=${SCRATCH_DB}" \
       -c 'DROP DATABASE IF EXISTS :"scratch_db";' >/dev/null 2>&1 \
-      || echo "WARNING: could not drop scratch database ${SCRATCH_DB}" >&2
+      || { echo "ERROR: could not drop scratch database ${SCRATCH_DB}; manual cleanup required" >&2; rc=1; }
   fi
   rm -rf -- "${WORK}"
   if (( rc == 0 )); then
@@ -120,6 +122,7 @@ echo "decrypt: ok"
 # Parse the full archive and validate member paths against a shared rule.
 tar -tzf "${WORK}/uploads.tar.gz" > "${WORK}/uploads.entries"
 sorted_backup_archive_entries < "${WORK}/uploads.entries"
+tar -tvzf "${WORK}/uploads.tar.gz" | sorted_backup_archive_types
 UPLOAD_ENTRIES="$(wc -l < "${WORK}/uploads.entries")"
 if (( UPLOAD_ENTRIES < 1 )); then
   echo "uploads archive is empty" >&2
