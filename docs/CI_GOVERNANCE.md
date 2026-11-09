@@ -59,7 +59,11 @@ The backup source and CLI tests require **cryptographic SHA-256 read-back** for 
 
 The restore preflight additionally checks that an encrypted uploads archive is a readable gzip tar and that the encrypted environment contains PostgreSQL credentials before stopping services. The scratch verification command rejects archive traversal paths and uses SQL-quoted scratch database identifiers. These tests prove validation logic with fixtures, **not** a live Google Drive download, correct encryption, or a successful production restore.
 
-## Public intake photo security gate
+## Executable intake media unit tests (Pass 11)
+
+The lint job and local gate execute `pnpm --filter @ai-fsm/web exec vitest run __tests__/intake-photo-*.test.ts`. These are actual TypeScript unit tests covering file signatures, maximum sizes, storage path validation, exclusive private filesystem writes, symlink rejection and removal. They run independently from the missing native SQLite migration files. The separate source contracts still guard application-route query structure, but **neither suite proves cross-tenant database isolation** until disposable PostgreSQL integration tests have run.
+
+
 
 CI and `scripts/gate.sh` now test the public intake photo path: browser preview/upload limits and retry/removal; token-scoped upload and delete rates; MIME signature agreement; exclusive private file creation; invite row locking on both upload and delete; and transactional association with the booking request when the token is submitted. These checks are **source-level regression contracts**, not a claim that a real database-backed end-to-end intake test has passed. Before resolving issue #5, exercise concurrent upload/delete/submit with a disposable PostgreSQL instance, confirm private media access restrictions, and verify file cleanup after failed database writes.
 
