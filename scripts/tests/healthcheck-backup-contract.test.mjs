@@ -15,4 +15,6 @@ test("monitoring failures return nonzero to supervising cron or systemd",()=>{
 });
 test("external ntfy endpoints include URL scheme",()=>{
  assert.doesNotMatch(code,/\s"ntfy\.sh\/\$\{NTFY_TOPIC\}"/);
+ assert.match(code,/NTFY_URL_BASE="https:\/\/ntfy\.sh"/);
+ assert.match(code,/NTFY_URL_BASE="http:\/\/\$\{NTFY_BASE\}"/);
 });
