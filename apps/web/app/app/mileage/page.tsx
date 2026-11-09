@@ -1,3 +1,10 @@
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Mileage",
+  description: "Review work travel and mileage in Sorted Field.",
+};
+
 import { Fragment } from "react";
 import { redirect } from "next/navigation";
 import Link from "next/link";
