@@ -1,4 +1,4 @@
-import { query } from "@/lib/db";
+import type { DbClient } from "@/lib/db";
 
 export interface LogCommunicationOpts {
   accountId: string;
@@ -19,9 +19,15 @@ export interface LogCommunicationOpts {
  * duplicate (same account_id + external_id). The dedup only applies when
  * external_id is set; see migration 100. Callers use the id both to detect
  * duplicates and to back-fill linkage (e.g. job_id) afterwards.
+ *
+ * `db` must already carry the account context (withDbSession or
+ * withTokenAccountContext), so the insert runs under RLS.
  */
-export async function logCommunication(opts: LogCommunicationOpts): Promise<string | null> {
-  const rows = await query<{ id: string }>(
+export async function logCommunication(
+  db: DbClient,
+  opts: LogCommunicationOpts,
+): Promise<string | null> {
+  const { rows } = await db.query<{ id: string }>(
     `INSERT INTO communications_log
        (account_id, channel, direction, outcome, client_id, booking_request_id,
         job_id, visit_id, body_preview, initiated_by, external_id)
