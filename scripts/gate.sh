@@ -104,6 +104,8 @@ node --test scripts/tests/offsite-*.test.mjs \
   scripts/tests/scratch-restore-safety.test.mjs
 log "backup process coordination and local artifact integrity"
 node --test scripts/tests/backup-lock.test.mjs scripts/tests/audit-backup-local.test.mjs
+log "public intake media lifecycle and security"
+node --test scripts/tests/intake-photo-*.test.mjs
 log "backup lifecycle and restore safety"
 node --test scripts/tests/*.test.mjs
 
