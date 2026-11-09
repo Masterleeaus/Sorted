@@ -24,6 +24,22 @@ set +a
 
 PASSPHRASE_FILE="${FSM_BACKUP_PASSPHRASE_FILE:-${DEPLOY_ROOT}/env/backup.passphrase}"
 
+# A restore is destructive. Refuse legacy plaintext input and reserved system
+# databases, even if a caller supplies a checksum manifest for them.
+if [[ "${DUMP_FILE}" != *.dump.gpg ]]; then
+  echo "ERROR: restore accepts only encrypted *.dump.gpg backup sets" >&2
+  exit 1
+fi
+if [[ -z "${POSTGRES_DB:-}" || -z "${POSTGRES_USER:-}" ]] ||
+   [[ "${POSTGRES_DB}" == "postgres" || "${POSTGRES_DB}" == "template0" || "${POSTGRES_DB}" == "template1" ]]; then
+  echo "ERROR: missing or unsafe target database/owner; refusing destructive restore" >&2
+  exit 1
+fi
+if [[ ! -s "${PASSPHRASE_FILE}" ]]; then
+  echo "ERROR: backup decryption passphrase unavailable; refusing destructive restore" >&2
+  exit 1
+fi
+
 # Verify the set's checksum manifest when present (written by backup-garonhome.sh).
 DUMP_DIR="$(cd "$(dirname "${DUMP_FILE}")" && pwd)"
 DUMP_BASE="$(basename "${DUMP_FILE}")"
@@ -56,11 +72,7 @@ fi
 # the passphrase and gpg's integrity check before web/worker are stopped or the
 # database is dropped.
 dump_stream() {
-  if [[ "${DUMP_FILE}" == *.gpg ]]; then
-    gpg --batch --quiet --decrypt --passphrase-file "${PASSPHRASE_FILE}" "${DUMP_FILE}"
-  else
-    cat "${DUMP_FILE}"
-  fi
+  gpg --batch --quiet --decrypt --passphrase-file "${PASSPHRASE_FILE}" "${DUMP_FILE}"
 }
 dump_stream > /dev/null
 
