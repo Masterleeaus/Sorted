@@ -18,9 +18,11 @@ test("migration replay guard follows a database advisory lock", () => {
   assert.match(guard, /RAISE EXCEPTION 'migration already applied/);
   assert.match(guard, /current_setting\('sorted.migration_filename'\)/);
 });
-test("untracked history with an existing clients schema is not treated as fresh", () => {
+test("any untracked user table prevents treating a database as fresh", () => {
   const state = sql("migration-state");
-  assert.match(state, /to_regclass\('public.clients'\)/);
+  assert.match(state, /pg_catalog\.pg_tables/);
+  assert.match(state, /schemaname = 'public'/);
+  assert.match(state, /tablename <> 'schema_migrations'/);
   assert.match(state, /THEN 'untracked'/);
   assert.match(state, /ELSE 'fresh'/);
 });
