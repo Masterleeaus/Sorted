@@ -45,7 +45,11 @@ The `lint` job and `pnpm gate` both syntax-check the deployment entrypoint, SSH 
 
 These checks verify source logic and isolated test doubles; they do **not** deploy to `garonhome.local`, prove ntfy message delivery or demonstrate a real PostgreSQL recovery. A release must also pass the complete required test and E2E jobs. For production, run a verified encrypted backup and obtain owner approval before calling the deployment entrypoint.
 
-## Serialized backup run and local artifact release rule
+## Encrypted archive provenance and symlink safety
+
+The CI backup subgate exercises genuine GNU tar fixtures containing ordinary uploaded files and external symlinks. Both destructive and scratch restore scripts reject tar link/special member types and require normalized paths under `uploads/`. Backup creation rejects symlinked source uploads, while the local artifact verifier and health gate refuse symlinked evidence files. The scratch restore cleanup path must also signal failure if its temporary database could not be deleted. These are regression checks; actual production restore approval still requires a real PostgreSQL drill.
+
+
 
 CI and the local quality gate exercise the process lock, active/interrupted status markers, successful status cleanup, and streaming verification of each local encrypted artifact against its recorded manifest. The deployment preflight invokes that local integrity audit after the backup freshness gate and before any PostgreSQL mutation. These read-only tests reject mismatched, missing or duplicated artifact metadata. Local mock-based verification remains separate from real offsite restore-drill approval.
 
