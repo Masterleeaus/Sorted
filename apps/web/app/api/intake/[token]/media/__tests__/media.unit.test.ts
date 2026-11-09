@@ -45,9 +45,9 @@ const db = vi.hoisted(() => {
       const inv = unusedInvite(params[0] as string);
       return { rows: inv ? [inv] : [] };
     }
-    if (sql.startsWith("SELECT used_at FROM intake_invites")) {
+    if (sql.includes("resolve_intake_invite_state")) {
       const inv = state.invites.find((i) => i.token === params[0]);
-      return { rows: inv ? [{ used_at: inv.used ? "2026-01-01T00:00:00Z" : null }] : [] };
+      return { rows: inv ? [{ is_used: inv.used }] : [] };
     }
     if (sql.includes("FROM intake_invites") && sql.includes("FOR UPDATE")) {
       const inv = state.invites.find((i) => i.id === params[0] && !i.used && !i.expired);
