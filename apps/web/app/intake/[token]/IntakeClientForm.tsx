@@ -110,7 +110,11 @@ export function IntakeClientForm({ token, leadName, leadEmail, leadPhone }: Inta
   }, []);
 
   function patchPhoto(key: string, patch: Partial<PhotoItem>) {
-    setPhotos((prev) => prev.map((p) => (p.key === key ? { ...p, ...patch } : p)));
+    // Keep status in sync before a submit gesture can race with React renders.
+    photosRef.current = photosRef.current.map((p) =>
+      p.key === key ? { ...p, ...patch } : p
+    );
+    setPhotos(photosRef.current);
   }
 
   async function uploadPhoto(item: PhotoItem) {
