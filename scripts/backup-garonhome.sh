@@ -248,17 +248,18 @@ if (( ${#FAILURES[@]} == 0 )); then
   echo "offsite set verified: ${TIMESTAMP}"
 fi
 
-# 6. Local prune (runs after verification, never before). A set is removed after
-# 7 days only if its offsite copy was verified. Unverified sets are kept, unless
-# this run completed and verified, which proves a complete offsite set now exists.
+# 6. Local prune: only after this run succeeds, and only remove each
+# individually verified set after seven days. A newly successful backup does
+# NOT attest the safety of a different historical set; incomplete/unverified
+# older sets must survive for investigation and possible recovery.
 # Legacy plaintext names are matched by the same rule.
 while IFS= read -r -d '' f; do
   ts="$(sed -nE 's/^ai_fsm_(uploads_|env_)?([0-9]{8}T[0-9]{6}Z).*/\2/p' <<<"$(basename "${f}")")"
   [[ -n "${ts}" ]] || continue
-  if [[ -f "${STATUS_DIR}/verified-${ts}" ]] || [[ -f "${STATUS_DIR}/verified-${TIMESTAMP}" ]]; then
+  if (( ${#FAILURES[@]} == 0 )) && [[ -f "${STATUS_DIR}/verified-${ts}" ]]; then
     rm -f -- "${f}"
   fi
-done < <(find "${BACKUP_DIR}" -maxdepth 1 -type f -name 'ai_fsm_*' -mtime +7 -print0)
+done < <(find "${BACKUP_DIR}" -maxdepth 1 -type f -name 'ai_fsm_*' -mmin +10080 -print0)
 for m in "${STATUS_DIR}"/verified-*; do
   [[ -e "${m}" ]] || continue
   ts="${m##*verified-}"
@@ -266,7 +267,7 @@ for m in "${STATUS_DIR}"/verified-*; do
     rm -f -- "${m}"
   fi
 done
-echo "old local backups pruned (verified sets older than 7 days)"
+echo "local backup retention evaluated (only individually verified sets older than 7 days)"
 
 # 7. Offsite prune (older than the documented retention). Only when this run's set
 # is stored and verified, so old offsite copies are not removed while the newest
