@@ -6,6 +6,10 @@
 #
 # Usage: verify-backup-garonhome.sh /path/to/ai_fsm_YYYYMMDDTHHMMSSZ.dump.gpg
 set -euo pipefail
+umask 077
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=./lib/backup-policy.sh
+source "${SCRIPT_DIR}/lib/backup-policy.sh"
 
 if [[ $# -ne 1 ]]; then
   echo "usage: $0 /path/to/ai_fsm_YYYYMMDDTHHMMSSZ.dump.gpg" >&2
@@ -113,13 +117,9 @@ gpg --batch --quiet --decrypt --passphrase-file "${PASSPHRASE_FILE}" \
 echo "decrypt: ok"
 
 # 3. Uploads archive must be a readable tar with at least one entry.
-# Keep listing private and reject archives with absolute/path-traversal entries
-# before claiming the artifact can be recovered safely on a different host.
+# Parse the full archive and validate member paths against a shared rule.
 tar -tzf "${WORK}/uploads.tar.gz" > "${WORK}/uploads.entries"
-if grep -E '(^/|(^|/)\.\.(/|$))' "${WORK}/uploads.entries"; then
-  echo "uploads archive contains unsafe traversal or absolute paths" >&2
-  exit 1
-fi
+sorted_backup_archive_entries < "${WORK}/uploads.entries"
 UPLOAD_ENTRIES="$(wc -l < "${WORK}/uploads.entries")"
 if (( UPLOAD_ENTRIES < 1 )); then
   echo "uploads archive is empty" >&2
