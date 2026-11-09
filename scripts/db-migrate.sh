@@ -31,7 +31,10 @@ psql_cmd() {
 # Validate inputs BEFORE the first database modification.
 files_text="$(sorted_migration_files "$MIGRATIONS_DIR")"
 mapfile -t MIGRATION_FILES <<< "$files_text"
-sorted_validate_db_identity "${POSTGRES_DB:-ai_fsm}" "${POSTGRES_USER:-ai_fsm}"
+# Check the actual connected database, not a possibly unrelated POSTGRES_DB
+# environment value. This prevents accidental migrations of system databases.
+connected_db="$(psql_cmd -X -q -tA -v ON_ERROR_STOP=1 -c 'SELECT current_database()')"
+sorted_validate_db_identity "$connected_db" "migration-runner"
 
 psql_cmd -X -v ON_ERROR_STOP=1 -c "
   CREATE TABLE IF NOT EXISTS public.schema_migrations (
