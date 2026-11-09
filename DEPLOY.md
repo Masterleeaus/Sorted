@@ -30,6 +30,10 @@ These paths are NOT the production path: `/home/admin/apps/ai-fsm`, the systemd 
 
 ## 3. Backup (run before every deploy)
 
+Archive integrity preflight: the uploader refuses symlinked uploads, and both restore paths validate normalized archive entries and tar member types. Never attempt to extract or recover archives containing symlinks, hardlinks, special devices or paths outside `uploads/`. The local backup auditor also refuses symlinked encrypted artifacts or manifests, and the health gate rejects symlinked status files. Run the scratch restore drill and verify cleanup before authorizing destructive recovery.
+
+
+
 The backup lock and `ACTIVE` marker prevent overlapping cron/manual runs from publishing contradictory health reports. An interrupted run leaves a marker that blocks deployment until it is investigated and reconciled. The production deploy checks both fresh offsite verification status and the actual local encrypted byte hashes (`scripts/audit-backup-local.mjs`) before starting PostgreSQL; ensure a full local encrypted set and `.sha256` manifest remain available for each deployment. Do not bypass these checks or assume a historical offsite status proves current local integrity.
 
 The deploy script does not take a backup. Run this first:
