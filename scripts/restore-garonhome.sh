@@ -1,5 +1,11 @@
 #!/usr/bin/env bash
 set -euo pipefail
+umask 077
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=./lib/backup-policy.sh
+source "${SCRIPT_DIR}/lib/backup-policy.sh"
+# shellcheck source=./lib/deploy-safety.sh
+source "${SCRIPT_DIR}/lib/deploy-safety.sh"
 
 if [[ $# -ne 1 ]]; then
   echo "usage: $0 /path/to/ai_fsm_YYYYMMDDTHHMMSSZ.dump.gpg"
@@ -111,11 +117,17 @@ done
 # Validate the encrypted uploads as a readable tar BEFORE stopping services.
 # A decryptable random file is not a usable uploads archive. Never extract the
 # archive here; this is a read-only format and entry-list verification.
+# A complete tar stream must be listed before validating its member names.
+ARCHIVE_ENTRIES="$(mktemp)"
+trap 'rm -f -- "${ARCHIVE_ENTRIES}"' EXIT
 if ! gpg --batch --quiet --decrypt --passphrase-file "${PASSPHRASE_FILE}" \
-  "${DUMP_DIR}/${expected[1]}" | tar -tzf - >/dev/null; then
+  "${DUMP_DIR}/${expected[1]}" | tar -tzf - > "${ARCHIVE_ENTRIES}"; then
   echo "ERROR: uploads archive is not a readable compressed tar; restore aborted" >&2
   exit 1
 fi
+sorted_backup_archive_entries < "${ARCHIVE_ENTRIES}"
+rm -f -- "${ARCHIVE_ENTRIES}"
+trap - EXIT
 # Require the encrypted environment backup to contain essential DB credentials.
 if ! gpg --batch --quiet --decrypt --passphrase-file "${PASSPHRASE_FILE}" \
   "${DUMP_DIR}/${expected[2]}" | grep '^POSTGRES_PASSWORD=' > /dev/null; then
@@ -123,6 +135,9 @@ if ! gpg --batch --quiet --decrypt --passphrase-file "${PASSPHRASE_FILE}" \
   exit 1
 fi
 
+# Confirmation is validated only after safe read-only preflight. Do not allow
+# unattended one-argument commands to destroy a live database by accident.
+sorted_restore_confirm "${POSTGRES_DB}" "${FSM_RESTORE_CONFIRM_DB:-}"
 docker compose --env-file "${ENV_FILE}" -f "${COMPOSE_FILE}" stop web worker
 
 # Pass names as psql variables, using identifier/literal quoting rather than
@@ -148,13 +163,8 @@ docker compose --env-file "${ENV_FILE}" -f "${COMPOSE_FILE}" up -d web worker
 # (host port 3000 may be occupied by another service)
 WEB_CONTAINER=$(docker compose --env-file "${ENV_FILE}" -f "${COMPOSE_FILE}" ps -q web)
 echo "waiting for web to be healthy..."
-for _ in $(seq 1 30); do
-  STATUS=$(docker inspect --format='{{.State.Health.Status}}' "${WEB_CONTAINER}" 2>/dev/null || echo "unknown")
-  if [[ "${STATUS}" == "healthy" ]]; then
-    break
-  fi
-  sleep 2
-done
+RESTORE_WEB_ATTEMPTS="$(sorted_wait_attempts "${FSM_RESTORE_WEB_ATTEMPTS:-30}" "restore web attempts")"
+sorted_wait_for_web_health "${RESTORE_WEB_ATTEMPTS}" 2 "${WEB_CONTAINER}"
 
 docker exec "${WEB_CONTAINER}" wget -qO- http://127.0.0.1:3000/api/health
 echo ""
