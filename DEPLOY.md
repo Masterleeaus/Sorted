@@ -36,7 +36,7 @@ The deploy script does not take a backup. Run this first:
 ssh garonhome 'cd /opt/business/ai-fsm/repo && bash scripts/backup-garonhome.sh'
 ```
 
-It writes `ai_fsm_<ts>.dump` (pg_dump, custom format), `ai_fsm_uploads_<ts>.tar.gz`, and an encrypted `.env` copy (`ai_fsm_env_<ts>.gpg`, only if the passphrase file exists). It then tries an offsite copy with rclone; a failed copy is non-fatal.
+It writes three mandatory **encrypted** artifacts (`ai_fsm_<ts>.dump.gpg`, `ai_fsm_uploads_<ts>.tar.gz.gpg`, and `ai_fsm_env_<ts>.gpg`) plus a SHA-256 manifest. The complete set is uploaded and verified by remote filename and byte size before a run is successful. Missing uploads, passphrase or offsite copies make the run fail with `backups/status/INCOMPLETE`; do not deploy after an incomplete pre-deploy backup.
 
 Check the dump before continuing:
 
@@ -173,10 +173,10 @@ Migrations are forward-only. Old code must tolerate the newer additive schema.
 
 ```bash
 cd /opt/business/ai-fsm/repo
-bash scripts/restore-garonhome.sh /opt/business/ai-fsm/backups/ai_fsm_<pre-deploy-ts>.dump
+bash scripts/restore-garonhome.sh /opt/business/ai-fsm/backups/ai_fsm_<pre-deploy-ts>.dump.gpg
 ```
 
-The restore stops `web` and `worker`, drops and recreates the database, restores the dump, and restarts the services.
+The restore requires the full encrypted set and SHA-256 manifest, and checks all three artifacts before stopping services or replacing a database. It then stops `web` and `worker`, drops and recreates the database, restores the dump, and restarts the services. Never use a partial backup set for destructive rollback.
 
 Unverified — confirm on host: a restore drill has been run recently.
 
