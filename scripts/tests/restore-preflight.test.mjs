@@ -43,7 +43,9 @@ test("restore refuses an incomplete set even with a valid dump checksum manifest
     const hash = spawnSync("sha256sum", [f.dump], { encoding: "utf8" });
     assert.equal(hash.status, 0);
     writeFileSync(join(f.backups, "ai_fsm_20260101T010101Z.sha256"),
-      hash.stdout.replace(f.dump, "ai_fsm_20260101T010101Z.dump.gpg"));
+      hash.stdout.replace(f.dump, "ai_fsm_20260101T010101Z.dump.gpg") +
+      "a".repeat(64) + "  ai_fsm_uploads_20260101T010101Z.tar.gz.gpg\n" +
+      "b".repeat(64) + "  ai_fsm_env_20260101T010101Z.gpg\n");
     const result = f.run();
     assert.equal(result.status, 1, result.stderr);
     assert.match(result.stderr, /missing required artifact/);
@@ -81,4 +83,25 @@ test("restore blocks unencrypted dumps before any database teardown", () => {
     assert.equal(result.status, 1);
     assert.match(result.stderr, /only encrypted/);
   } finally { f.cleanup(); }
+});
+
+test("restore rejects a dump-only checksum manifest even when companion files exist", () => {
+  const f = prepare();
+  try {
+    const ts = "20260101T010101Z";
+    writeFileSync(join(f.backups, `ai_fsm_uploads_${ts}.tar.gz.gpg`), "fixture");
+    writeFileSync(join(f.backups, `ai_fsm_env_${ts}.gpg`), "fixture");
+    const hash = spawnSync("sha256sum", [f.dump], { encoding: "utf8" });
+    writeFileSync(join(f.backups, `ai_fsm_${ts}.sha256`),
+      hash.stdout.replace(f.dump, `ai_fsm_${ts}.dump.gpg`));
+    const result = f.run();
+    assert.equal(result.status, 1);
+    assert.match(result.stderr, /exactly three artifact checksums/);
+  } finally { f.cleanup(); }
+});
+test("restore checks companion decryption and aborts on failure before database teardown", () => {
+  const source = readFileSync(script, "utf8");
+  assert.match(source, /for artifact in "\$\{expected\[@\]:1\}"/);
+  assert.match(source, /cannot decrypt companion archive/);
+  assert.match(source, /--exit-on-error/);
 });
