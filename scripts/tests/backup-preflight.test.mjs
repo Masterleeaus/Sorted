@@ -43,7 +43,7 @@ test("invalid sourced environment emits persistent incomplete health", () => {
   const root = mkdtempSync(join(tmpdir(), "sorted-invalid-env-"));
   try {
     const file = join(root, "broken.env");
-    writeFileSync(file, "return 1\\n");
+    writeFileSync(file, "return 1\n");
     const report = runPreflight(file);
     assert.match(report.failures[0], /could not be loaded/);
   } finally {
