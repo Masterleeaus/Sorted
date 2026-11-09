@@ -79,6 +79,18 @@ BACKUP_ALERT_CMD=/opt/business/ai-fsm/bin/notify-backup
 
 If `BACKUP_ALERT_CMD` is unset, the script prints `ALERT (BACKUP_ALERT_CMD not configured; nothing sent)` to stderr and the cron log. That is a missing alert, not a successful one. Until the hook is configured, check the status files daily (see below).
 
+### Machine-readable health check
+
+Run the read-only health gate from the repository checkout:
+
+```bash
+node scripts/check-backup-health.mjs /opt/business/ai-fsm/backups 26
+```
+
+It prints one JSON record and exits **0** only when the most recent run succeeded, its set matches the individually verified backup, the three required artifacts have valid metadata, the verification marker exists, and the success timestamp is recent. All missing, stale, invalid, incomplete, and inconsistent states exit **1**. The check reads status files only: it does not connect to the production database or decrypt backup data. It is suitable for a local monitoring scheduler, but **does not independently verify the remote content or prove that a restore will succeed**. Continue regular offsite-download and scratch-restore drills.
+
+If the environment file is absent or fails to source, the backup script still writes `last-run.json` and `INCOMPLETE` before exiting. External monitoring should alert on the health check's non-zero exit; a `BACKUP_ALERT_CMD` inside a missing environment file cannot be relied upon for this failure case.
+
 ### Operator check: is the last full backup good?
 
 Run this on garonhome, for example in the morning:
