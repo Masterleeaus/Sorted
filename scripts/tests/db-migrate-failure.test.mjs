@@ -15,6 +15,7 @@ function fixture(state = "fresh") {
   writeFileSync(psql, `#!/usr/bin/env bash
 printf '%s\\n' "$*" >> "$MOCK_PSQL_LOG"
 case "$*" in
+  *current_database*) echo aifsm_test; exit 0 ;;
   *migration-state.sql*) printf '%s\\n' "$MOCK_MIGRATION_STATE"; exit 0 ;;
   *is-migration-applied.sql*) echo 0; exit 0 ;;
 esac
