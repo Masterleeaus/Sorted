@@ -1,6 +1,6 @@
 export * from "./types.js";
 
-export { BRAND, btn, wrap } from "./layout.js";
+export { BRAND, btn, wrap, escapeEmailText, safeEmailHref } from "./layout.js";
 
 export {
   invoiceEmailHtml,

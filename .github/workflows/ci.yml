@@ -71,6 +71,10 @@ jobs:
         run: pnpm --filter @ai-fsm/web exec vitest run lib/attention/__tests__/email.unit.test.ts
       - name: Verify worker queue tenant isolation and failed delivery retries
         run: pnpm --filter @ai-fsm/worker exec vitest run src/notification/enqueue.test.ts src/workflow-events.test.ts
+      - name: Verify customer HTML emails and portal login escaping without storage migrations
+        run: |
+          pnpm --filter @ai-fsm/email-templates test
+          pnpm --filter @ai-fsm/web exec vitest run lib/email/__tests__/portal-magic-link.test.ts
 
   # ── 3. Build ─────────────────────────────────────────────────────────────
   # Runs after typecheck. Lint remains independently required for merge; a
