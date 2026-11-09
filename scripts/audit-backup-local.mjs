@@ -4,7 +4,7 @@
  * success metadata. This is not an offsite read and cannot prove recoverability.
  */
 import { createHash } from "node:crypto";
-import { createReadStream, readFileSync, statSync } from "node:fs";
+import { createReadStream, readFileSync, lstatSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -27,7 +27,11 @@ export async function auditLocalBackup(backupDir) {
     return { ok: false, reason: "incomplete or duplicated artifact metadata" };
   }
   let manifest;
-  try { manifest = readFileSync(join(backupDir, `ai_fsm_${set}.sha256`), "utf8"); }
+  try {
+    const manifestPath = join(backupDir, `ai_fsm_${set}.sha256`);
+    if (!lstatSync(manifestPath).isFile()) throw new Error("not a regular manifest");
+    manifest = readFileSync(manifestPath, "utf8");
+  }
   catch { return { ok: false, reason: "local SHA-256 manifest unavailable" }; }
   const entries = manifest.trimEnd().split("\n").map(line => {
     const m = /^([0-9a-f]{64})  (ai_fsm_[A-Za-z0-9_.-]+)$/.exec(line);
@@ -47,7 +51,7 @@ export async function auditLocalBackup(backupDir) {
     let stats;
     try {
       const p = join(backupDir, name);
-      stats = statSync(p);
+      stats = lstatSync(p);
       if (!stats.isFile() || stats.size !== metadata.bytes) {
         return { ok: false, reason: `local artifact size mismatch: ${name}` };
       }
