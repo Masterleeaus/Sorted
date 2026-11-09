@@ -25,9 +25,12 @@ export async function withTokenAccountContext<T>(
   const client = await getPool().connect();
   try {
     await client.query("BEGIN");
+    // company_id equals account_id during the dual-column period (migration 205).
+    // Both come from the same validated value above.
     await client.query(
       `SELECT set_config('app.current_user_id', '', true),
               set_config('app.current_account_id', $1, true),
+              set_config('app.company_id', $1, true),
               set_config('app.current_role', $2, true)`,
       [accountId, role],
     );

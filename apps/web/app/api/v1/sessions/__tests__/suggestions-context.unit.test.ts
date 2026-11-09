@@ -43,7 +43,12 @@ describe("GET /api/v1/sessions/suggestions account context", () => {
     const calls = mockClientQuery.mock.calls.map((c) => String(c[0]));
     expect(calls[0]).toBe("BEGIN");
     expect(calls[1]).toContain("set_config('app.current_account_id'");
-    expect(mockClientQuery.mock.calls[1]?.[1]).toEqual([mockSession.userId, mockSession.accountId, mockSession.role]);
+    expect(mockClientQuery.mock.calls[1]?.[1]).toEqual([
+      mockSession.userId,
+      mockSession.accountId,
+      mockSession.accountId,
+      mockSession.role,
+    ]);
     expect(calls.at(-1)).toBe("COMMIT");
     expect(mockClientRelease).toHaveBeenCalled();
   });
