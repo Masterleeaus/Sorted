@@ -72,7 +72,13 @@ node scripts/check-backup-health.mjs /opt/business/ai-fsm/backups 26
 
 A nonzero exit indicates a stale, missing or incomplete verified backup, and should trigger operator investigation. Only backup status reports attesting `sha256-readback` of every encrypted offsite artifact and its manifest are accepted; old size-only success reports require a new backup. Remote age-only deletion is disabled to preserve independently unverified historical recovery sets. The health file alone is not proof of a successful scratch restore.
 
-## Backup integrity verification
+## Public intake photo security
+
+Customer intake photos are uploaded one at a time to a private, server-managed directory. The upload route checks declared file size/type against image signatures, rejects duplicate multipart fields, enforces invite-locked photo limits, and creates files exclusively with owner-only permissions. Deletion rechecks and locks the active invite in the same transaction as row deletion, blocking post-submit races. Photos are associated to their booking request when the invite is claimed; the count is calculated from database rows rather than a browser-supplied value. The server-side storage root is not a publicly guessable URL.
+
+The `scripts/tests/intake-photo-*.test.mjs` quality subgate guards those cross-layer contracts, but real PostgreSQL and browser integration remain mandatory before issue #5 can be closed.
+
+
 
 Scheduled and manual encrypted backups are serialized by a kernel `flock`. An `ACTIVE` status marker blocks the health gate during an active or interrupted job. Before any production database mutation, the deployment runner also performs streaming SHA-256 checks of the local encrypted dump, uploads, environment, and manifest against the latest attested success record. This is an integrity preflight, not a decryption or PostgreSQL restore test. Never clear an interrupted marker without reviewing the previous run.
 
