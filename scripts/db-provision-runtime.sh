@@ -106,6 +106,8 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.communications_log TO ai_fs
 GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.estimates TO ai_fsm_worker;
 GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.expenses TO ai_fsm_worker;
 GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.invoices TO ai_fsm_worker;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.intake_invites TO ai_fsm_worker;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.intake_media TO ai_fsm_worker;
 GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.jobs TO ai_fsm_worker;
 GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.location_events TO ai_fsm_worker;
 GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.maintenance_plans TO ai_fsm_worker;
