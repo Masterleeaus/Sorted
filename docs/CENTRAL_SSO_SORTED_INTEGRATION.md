@@ -4,7 +4,9 @@ email or the legacy `field` assumption. This pass adds a real Sorted-side
 read-only mapping query, migration 202, verification contracts and test cases.
 
 **No public SSO route has been enabled.** Preserve Sorted's existing native
-login, account RLS, session cookies and API contract. An operator must
+login, account RLS, session cookies and API contract. The candidate SQL is parked under `docs/pending/` because existing
+user/account RLS and function ownership privileges require review.
+An operator must
 independently provision exact (issuer, subject, account, user) mappings and
 grant the trusted read function only to the dedicated Sorted runtime role.
 The Central company UUID must be mapped to exactly one Sorted account UUID;
