@@ -35,7 +35,7 @@ jobs:
       - name: Run ESLint across all workspaces
         run: pnpm lint
       - name: Validate backup, restore and restore-drill shell syntax
-        run: bash -n scripts/backup-garonhome.sh scripts/restore-garonhome.sh scripts/verify-backup-garonhome.sh scripts/lib/backup-policy.sh
+        run: bash -n scripts/backup-garonhome.sh scripts/restore-garonhome.sh scripts/verify-backup-garonhome.sh scripts/lib/backup-policy.sh scripts/lib/backup-archive-safety.sh
       - name: Validate migration and seed shell syntax
         run: bash -n scripts/db-migrate.sh scripts/deploy-garonhome.sh scripts/deploy.sh scripts/healthcheck-garonhome.sh scripts/db-seed.sh scripts/lib/migration-safety.sh scripts/lib/deploy-safety.sh
       - name: Cryptographic offsite verification and restore safety regressions
