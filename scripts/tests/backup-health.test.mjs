@@ -36,6 +36,13 @@ test("complete recent verified set is healthy", () => {
     assert.equal(evaluateBackupHealth(f.root, 26, when + 60_000).ok, true);
   } finally { f.cleanup(); }
 });
+test("an in-progress or crashed backup blocks all historical green markers", () => {
+  const f = fixture();
+  try {
+    writeFileSync(join(f.status, "ACTIVE"), JSON.stringify({status:"running",set}));
+    assert.match(evaluateBackupHealth(f.root,26,when+60_000).reason,/running or previously interrupted/);
+  } finally { f.cleanup(); }
+});
 test("missing or malformed reports fail closed", () => {
   const f = fixture();
   try {
