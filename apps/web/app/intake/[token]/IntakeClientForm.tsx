@@ -117,6 +117,15 @@ export function IntakeClientForm({ token, leadName, leadEmail, leadPhone }: Inta
     setPhotos(photosRef.current);
   }
 
+  function discardRemovedUpload(key: string): boolean {
+    if (!removedWhileUploading.current.delete(key)) return false;
+    const current = photosRef.current.find((p) => p.key === key);
+    if (current) URL.revokeObjectURL(current.previewUrl);
+    photosRef.current = photosRef.current.filter((p) => p.key !== key);
+    setPhotos(photosRef.current);
+    return true;
+  }
+
   async function uploadPhoto(item: PhotoItem) {
     patchPhoto(item.key, { status: "uploading", error: undefined });
     try {
@@ -128,6 +137,7 @@ export function IntakeClientForm({ token, leadName, leadEmail, leadPhone }: Inta
         | null;
 
       if (!res.ok || !json?.data?.id) {
+        if (discardRemovedUpload(item.key)) return;
         patchPhoto(item.key, {
           status: "failed",
           error: json?.error?.message ?? "This photo could not be uploaded. Please try again.",
@@ -142,6 +152,7 @@ export function IntakeClientForm({ token, leadName, leadEmail, leadPhone }: Inta
       }
       patchPhoto(item.key, { status: "done", mediaId: json.data.id });
     } catch {
+      if (discardRemovedUpload(item.key)) return;
       patchPhoto(item.key, {
         status: "failed",
         error: "Network error. Check your connection and try again.",
