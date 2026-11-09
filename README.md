@@ -72,7 +72,13 @@ node scripts/check-backup-health.mjs /opt/business/ai-fsm/backups 26
 
 A nonzero exit indicates a stale, missing or incomplete verified backup, and should trigger operator investigation. Only backup status reports attesting `sha256-readback` of every encrypted offsite artifact and its manifest are accepted; old size-only success reports require a new backup. Remote age-only deletion is disabled to preserve independently unverified historical recovery sets. The health file alone is not proof of a successful scratch restore.
 
-## Public intake photo security
+## Intake media storage and lifecycle (Pass 11)
+
+The upload route and delete route now share a private file boundary that checks existing parent-directory segments with `lstat`, refuses symlinks, creates new photo files exclusively with `0600` permissions and deletes only regular files. Invite claiming, photo counting and request updates carry explicit tenant predicates even after setting transaction-local tenant context. The browser retains photos whose server deletion fails, exposing a retry instead of pretending the photo was removed, and clears in-flight removed items on upload failures.
+
+Run `pnpm --filter @ai-fsm/web exec vitest run __tests__/intake-photo-*.test.ts` for executable filesystem/format checks, plus `node --test scripts/tests/intake-photo-*.test.mjs` for route contracts. Database-backed tests and customer media retention/deletion policy remain required before treating issue #5 as complete.
+
+
 
 Customer intake photos are uploaded one at a time to a private, server-managed directory. The upload route checks declared file size/type against image signatures, rejects duplicate multipart fields, enforces invite-locked photo limits, and creates files exclusively with owner-only permissions. Deletion rechecks and locks the active invite in the same transaction as row deletion, blocking post-submit races. Photos are associated to their booking request when the invite is claimed; the count is calculated from database rows rather than a browser-supplied value. The server-side storage root is not a publicly guessable URL.
 
