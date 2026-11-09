@@ -81,6 +81,11 @@ wait_http() {
 log "lint"
 pnpm lint
 
+log "migration and backup shell syntax"
+bash -n scripts/db-migrate.sh scripts/deploy-garonhome.sh scripts/db-seed.sh \
+  scripts/lib/migration-safety.sh scripts/backup-garonhome.sh \
+  scripts/restore-garonhome.sh scripts/verify-backup-garonhome.sh
+
 log "dead code (knip)"
 # Fails on unused files / dependencies (the floor that stops replacements leaving
 # corpses). Unused exports/types are warn-only — see knip.json rules.
