@@ -35,7 +35,7 @@ cd /opt/business/ai-fsm/repo
 bash scripts/backup-garonhome.sh
 ```
 
-The script writes an encrypted, compressed Postgres custom-format dump to `/opt/business/ai-fsm/backups/` and prunes files older than 7 days.
+The script writes an encrypted, compressed Postgres custom-format dump to `/opt/business/ai-fsm/backups/`. It only prunes individually verified backup files older than seven days after a successful run, and never prunes an unverified historical set solely because a newer backup succeeded.
 
 ### Automated backup (cron)
 
@@ -57,7 +57,7 @@ The backup script (`scripts/backup-garonhome.sh`) performs:
 8. Prunes local sets older than 7 days, but only sets whose offsite copy is verified (see Retention below)
 9. Prunes offsite (Google Drive) copies older than 30 days via `rclone delete --min-age`, only when this run's set is complete and verified
 
-The run refuses to start (no files written) if the passphrase file is missing or empty, or if it sits inside the backup directory. A run is **complete** only when the database dump, the uploads archive, the `.env` backup and the manifest are all written and all four are verified on Drive. Anything else is **INCOMPLETE**: the script exits non-zero and the status files say why.
+The run refuses to start (no files written) if the passphrase file is missing or empty, or if it sits inside the backup directory. A run is **complete** only when the database dump, the uploads archive, the `.env` backup and the manifest are all written and all four are verified on Drive by name and size. Remote byte-size verification does not prove remote content integrity; perform a periodic independent download and SHA-256 restore drill. Anything else is **INCOMPLETE**: the script exits non-zero and the status files say why.
 
 ### Backup status and alerts
 
@@ -68,7 +68,7 @@ Status lives in `/opt/business/ai-fsm/backups/status/` (not matched by the artif
 | `last-success.json` | Written only by a complete, verified run. Holds the set timestamp, completion time, and the name, byte size and SHA-256 of each artifact. It is the source of truth for "last good backup". |
 | `last-run.json` | The most recent run, `"status": "ok"` or `"incomplete"`, with the list of failures. |
 | `INCOMPLETE` | Present only while the most recent run was incomplete. Lists the failures. |
-| `verified-<timestamp>` | Marker that a set was verified on Drive. Local sets are pruned only if this marker exists (or if a complete run has just finished). |
+| `verified-<timestamp>` | Marker that a set was verified on Drive. Local sets are pruned only if their **own** marker exists and the current run succeeds. A fresh successful set never authorizes deleting an unrelated unverified old set. |
 
 **Alert hook: not configured.** The repo has no alert endpoint. The script calls `BACKUP_ALERT_CMD` with the message as its first argument whenever a run is incomplete. Set it in the env file to a command that posts to your chat or email service, for example:
 
@@ -99,7 +99,7 @@ rclone lsf --files-only googledrive:ai-fsm-backups | grep "<TS>"
 
 Expect four names: `ai_fsm_<TS>.dump.gpg`, `ai_fsm_uploads_<TS>.tar.gz.gpg`, `ai_fsm_env_<TS>.gpg`, `ai_fsm_<TS>.sha256`.
 
-A `last-success.json` older than about 26 hours, or an `INCOMPLETE` file, means the nightly job did not produce a complete verified set. Fix the cause listed in `INCOMPLETE` (or in `docs/BACKUP_RUNBOOK.md` Known Limitations) and run the script manually.
+A `last-success.json` older than about 26 hours, or an `INCOMPLETE` file, means the nightly job did not produce a complete verified set. Startup failures such as a missing or malformed `.env` now persist an incomplete status as well. Fix the cause listed in `INCOMPLETE` (or in `docs/BACKUP_RUNBOOK.md` Known Limitations) and run the script manually.
 
 ### One-time setup: the `.env` backup passphrase
 
@@ -139,7 +139,7 @@ bash scripts/restore-garonhome.sh /opt/business/ai-fsm/backups/ai_fsm_YYYYMMDDTH
 ```
 
 The restore script handles the full sequence automatically:
-1. Checks the SHA-256 manifest for the set (when present) and decrypts the dump to `/dev/null` to confirm the passphrase and integrity, before anything is stopped
+1. Requires the SHA-256 manifest and all three encrypted artifacts, checks the full set, and decrypts the dump to `/dev/null` to confirm passphrase and integrity before anything is stopped
 2. Stops `web` and `worker` containers (prevents writes during restore)
 3. Terminates active DB sessions
 4. Drops and recreates the `ai_fsm` database
