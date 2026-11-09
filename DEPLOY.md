@@ -67,7 +67,7 @@ What `deploy-garonhome.sh` does, in order:
 
 1. Syncs the checkout to `origin/<branch>` with a hard reset. If the host had local commits not on origin, they are saved to a `deploy-backup/<sha>-<ts>` branch first.
 2. Starts `postgres` and waits for `pg_isready`.
-3. Creates `schema_migrations` if missing. Applies each `db/migrations/*.sql` not yet recorded, in filename order, with `ON_ERROR_STOP=1`. Files with `seed` in the name are skipped. On the first run against an existing database with an empty tracking table, every file is recorded as applied without being run.
+3. Validates migration names and history, creates `schema_migrations` if missing, then applies each unrecorded migration in filename order with `ON_ERROR_STOP=1`. The explicitly named `002_seed_dev.sql` is excluded. Each SQL file and its tracking INSERT run in one transaction with a database advisory lock and a concurrent-replay guard. A populated schema with no tracking history now **aborts** instead of silently marking files applied; reconcile its actual migration history before deploying.
 4. Builds `web` and `worker`.
 5. Runs `up -d web worker`.
 6. Waits until the web container reports `healthy`. The wait loop has no timeout. If it hangs, check `docker compose ... ps` from another shell.
@@ -75,7 +75,7 @@ What `deploy-garonhome.sh` does, in order:
 
 Migrations run inside this script. `scripts/db-migrate.sh` is a separate runner for local use with `MIGRATION_DATABASE_URL`. Do not use it for garonhome.
 
-Migration rules: files are additive. Applied filenames are immutable (see `ai/INVARIANTS.md`).
+Migration rules: files are additive. Applied filenames are immutable (see `ai/INVARIANTS.md`). The legacy chain does not claim to be Titan Central's eventual canonical company-ID migration history. See [migration safety and source recovery](docs/working/legacy-migration-safety.md); do not apply this chain to an already-Central-managed shared database without reconciliation. `scripts/db-seed.sh` rejects declared production environments.
 
 ### 4a. Database runtime roles
 
