@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
-import { mkdtempSync, mkdirSync, readFileSync, writeFileSync, rmSync } from "node:fs";
+import { mkdtempSync, mkdirSync, readFileSync, writeFileSync, rmSync, symlinkSync, renameSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
@@ -38,6 +38,21 @@ test("status tampering and absent manifest are rejected",async()=>{
   assert.match((await auditLocalBackup(f.root)).reason,/status\/manifest mismatch/);
   writeFileSync(join(f.root,`ai_fsm_${stamp}.sha256`),"untrusted manifest");
   assert.match((await auditLocalBackup(f.root)).reason,/SHA-256 manifest/);
+ }finally{f.cleanup();}
+});
+test("symlinked encrypted backup or manifest is not a valid local audit input",async()=>{
+ const f=fixture();
+ try{
+  const shadow=join(f.root,"shadow");
+  renameSync(join(f.root,names[0]),shadow);
+  symlinkSync(shadow,join(f.root,names[0]));
+  assert.match((await auditLocalBackup(f.root)).reason,/size mismatch/);
+  rmSync(join(f.root,names[0]));
+  renameSync(shadow,join(f.root,names[0]));
+  const manifestPath=join(f.root,`ai_fsm_${stamp}.sha256`);
+  renameSync(manifestPath,shadow);
+  symlinkSync(shadow,manifestPath);
+  assert.match((await auditLocalBackup(f.root)).reason,/manifest unavailable/);
  }finally{f.cleanup();}
 });
 test("duplicated artifact metadata cannot satisfy the audit",async()=>{
