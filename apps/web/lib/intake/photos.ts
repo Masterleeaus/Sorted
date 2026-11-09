@@ -31,7 +31,7 @@ export function isIntakePhotoMime(value: string): value is IntakePhotoMime {
  * checks the file's first bytes.
  */
 export function validateIntakePhotoMeta(meta: { type: string; size: number }): string | null {
-  if (meta.size <= 0) return "This photo is empty. Please choose another file.";
+  if (!Number.isSafeInteger(meta.size) || meta.size <= 0) return "This photo is empty or invalid. Please choose another file.";
   if (meta.size > MAX_INTAKE_PHOTO_BYTES) return "This photo is larger than 10 MB. Please choose a smaller photo.";
   if (!isIntakePhotoMime(meta.type)) return "Only photos (JPG, PNG, WebP, GIF, HEIC) can be attached.";
   return null;
