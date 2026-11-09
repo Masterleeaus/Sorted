@@ -18,6 +18,13 @@ test("destructive restore confirmation must equal exact database name",()=>{
   assert.notEqual(invoke('sorted_restore_confirm "$1" "$2"',["ai_fsm",""]).status,0);
   assert.notEqual(invoke('sorted_restore_confirm "$1" "$2"',["ai_fsm","postgres"]).status,0);
 });
+test("noncanonical upload paths fail before recovery",()=>{
+ const invalid=["uploads//double.jpg","uploads/./dot","uploads/nested/../escape","uploads/trailing/.","uploads/picture\\u0009.jpg","uploads\\u000d/file"];
+ for(const entry of invalid){
+  const x=invoke("sorted_backup_archive_entries",[],"uploads/\\n"+entry+"\\n");
+  assert.notEqual(x.status,0,JSON.stringify(entry));
+ }
+});
 test("only names below uploads/ may occur in an archive",()=>{
   const valid="uploads/\nuploads/receipt.png\nuploads/2026/job-1.jpg\n";
   assert.equal(invoke("sorted_backup_archive_entries",[],valid).status,0);
