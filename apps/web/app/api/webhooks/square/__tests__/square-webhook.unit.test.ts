@@ -253,6 +253,18 @@ describe("POST /api/webhooks/square — guards", () => {
     expect(mockPool.connect).not.toHaveBeenCalled();
   });
 
+  it("looks up the location through the bounded resolver, before any account context", async () => {
+    settingsFound();
+    mockVerify.mockResolvedValue(false);
+    await POST(
+      req({ type: "payment.updated", data: { object: { payment: { id: "P1", status: "COMPLETED", location_id: "LOC9" } } } })
+    );
+    const [sql, params] = mockPoolQuery.mock.calls[0];
+    expect(String(sql).replace(/\s+/g, " ")).toMatch(/FROM resolve_square_location_settings\(\$1\)/);
+    expect(String(sql)).not.toMatch(/FROM integration_settings/);
+    expect(params).toEqual(["LOC9"]);
+  });
+
   it("400 when the signature fails verification", async () => {
     settingsFound();
     mockVerify.mockResolvedValue(false);
