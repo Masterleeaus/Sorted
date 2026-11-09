@@ -14,6 +14,9 @@ export function evaluateBackupHealth(backupDir, maxAgeHours = 26, now = Date.now
   if (!Number.isFinite(maxAgeHours) || maxAgeHours <= 0) {
     return { ok: false, reason: "invalid maximum age" };
   }
+  if (existsSync(join(statusDir, "ACTIVE"))) {
+    return { ok: false, reason: "backup running or previously interrupted; status not final" };
+  }
   if (existsSync(join(statusDir, "INCOMPLETE"))) {
     return { ok: false, reason: "latest run is incomplete" };
   }
@@ -27,7 +30,9 @@ export function evaluateBackupHealth(backupDir, maxAgeHours = 26, now = Date.now
   if (latest?.status !== "ok" || successful?.status !== "ok") {
     return { ok: false, reason: "no verified successful backup" };
   }
-  if (latest.set !== successful.set || !/^[0-9]{8}T[0-9]{6}Z$/.test(successful.set ?? "")) {
+  if (latest.set !== successful.set ||
+      !/^[0-9]{8}T[0-9]{6}Z$/.test(successful.set ?? "") ||
+      (latest.finished_at && !Number.isFinite(Date.parse(latest.finished_at)))) {
     return { ok: false, reason: "most recent run does not match verified backup" };
   }
   if (successful.offsite?.verified !== true || successful.offsite?.verification !== "sha256-readback") {
