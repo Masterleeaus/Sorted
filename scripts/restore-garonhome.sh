@@ -51,14 +51,37 @@ if [[ ! -f "${MANIFEST}" ]]; then
   echo "Recover the verified manifest before proceeding (see docs/BACKUP_RUNBOOK.md)." >&2
   exit 1
 fi
-# Check the entire encrypted backup set, not just the dump. An incomplete
-# offsite copy must never be used to overwrite a working database.
-for required in \
-  "ai_fsm_${SET_TS}.dump.gpg" \
-  "ai_fsm_uploads_${SET_TS}.tar.gz.gpg" \
-  "ai_fsm_env_${SET_TS}.gpg"; do
+# Require exactly the three known encrypted artifacts, each represented
+# once in the manifest. Without this, sha256sum -c can pass a dump-only
+# manifest while two companion files are present but unverified.
+if [[ ! "${SET_TS}" =~ ^[0-9]{8}T[0-9]{6}Z$ ]]; then
+  echo "ERROR: invalid backup set identifier" >&2
+  exit 1
+fi
+expected=(
+  "ai_fsm_${SET_TS}.dump.gpg"
+  "ai_fsm_uploads_${SET_TS}.tar.gz.gpg"
+  "ai_fsm_env_${SET_TS}.gpg"
+)
+mapfile -t manifest_lines < "${MANIFEST}"
+if (( ${#manifest_lines[@]} != 3 )); then
+  echo "ERROR: backup manifest must contain exactly three artifact checksums" >&2
+  exit 1
+fi
+for required in "${expected[@]}"; do
   if [[ ! -f "${DUMP_DIR}/${required}" ]]; then
     echo "ERROR: backup set missing required artifact: ${required}" >&2
+    exit 1
+  fi
+  matched=0
+  for entry in "${manifest_lines[@]}"; do
+    if [[ "${entry}" =~ ^[0-9a-f]{64}[[:space:]][[:space:]] ]] &&
+       [[ "${entry:66}" == "${required}" ]]; then
+      matched=$((matched + 1))
+    fi
+  done
+  if (( matched != 1 )); then
+    echo "ERROR: missing or duplicate checksum entry for ${required}" >&2
     exit 1
   fi
 done
@@ -75,6 +98,15 @@ dump_stream() {
   gpg --batch --quiet --decrypt --passphrase-file "${PASSPHRASE_FILE}" "${DUMP_FILE}"
 }
 dump_stream > /dev/null
+# The companion archives must decrypt successfully too; a valid SHA-256 file
+# alone is insufficient to establish recoverability with the current key.
+for artifact in "${expected[@]:1}"; do
+  if ! gpg --batch --quiet --decrypt --passphrase-file "${PASSPHRASE_FILE}" \
+    "${DUMP_DIR}/${artifact}" > /dev/null; then
+    echo "ERROR: cannot decrypt companion archive ${artifact}; restore aborted" >&2
+    exit 1
+  fi
+done
 
 docker compose --env-file "${ENV_FILE}" -f "${COMPOSE_FILE}" stop web worker
 
@@ -93,7 +125,7 @@ CREATE DATABASE :"target_db" OWNER :"target_owner";
 SQL
 
 dump_stream | docker compose --env-file "${ENV_FILE}" -f "${COMPOSE_FILE}" exec -T postgres \
-  pg_restore -U "${POSTGRES_USER}" -d "${POSTGRES_DB}" --no-owner --no-privileges
+  pg_restore -U "${POSTGRES_USER}" -d "${POSTGRES_DB}" --no-owner --no-privileges --exit-on-error
 
 docker compose --env-file "${ENV_FILE}" -f "${COMPOSE_FILE}" up -d web worker
 
