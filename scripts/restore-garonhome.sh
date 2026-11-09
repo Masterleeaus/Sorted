@@ -30,13 +30,25 @@ DUMP_BASE="$(basename "${DUMP_FILE}")"
 SET_TS="${DUMP_BASE#ai_fsm_}"
 SET_TS="${SET_TS%.dump*}"
 MANIFEST="${DUMP_DIR}/ai_fsm_${SET_TS}.sha256"
-if [[ -f "${MANIFEST}" ]]; then
-  if ! (cd "${DUMP_DIR}" && grep -F "  ${DUMP_BASE}" "$(basename "${MANIFEST}")" | sha256sum -c -); then
-    echo "ERROR: checksum mismatch for ${DUMP_FILE}; nothing was stopped or dropped" >&2
+if [[ ! -f "${MANIFEST}" ]]; then
+  echo "ERROR: checksum manifest missing: ${MANIFEST}; refusing destructive restore" >&2
+  echo "Recover the verified manifest before proceeding (see docs/BACKUP_RUNBOOK.md)." >&2
+  exit 1
+fi
+# Check the entire encrypted backup set, not just the dump. An incomplete
+# offsite copy must never be used to overwrite a working database.
+for required in \
+  "ai_fsm_${SET_TS}.dump.gpg" \
+  "ai_fsm_uploads_${SET_TS}.tar.gz.gpg" \
+  "ai_fsm_env_${SET_TS}.gpg"; do
+  if [[ ! -f "${DUMP_DIR}/${required}" ]]; then
+    echo "ERROR: backup set missing required artifact: ${required}" >&2
     exit 1
   fi
-else
-  echo "WARNING: no checksum manifest at ${MANIFEST}; skipping checksum check" >&2
+done
+if ! (cd "${DUMP_DIR}" && sha256sum -c "$(basename "${MANIFEST}")"); then
+  echo "ERROR: backup checksum verification failed; nothing was stopped or dropped" >&2
+  exit 1
 fi
 
 # Encrypted sets (*.dump.gpg) stream from gpg straight into pg_restore, so no
@@ -54,14 +66,18 @@ dump_stream > /dev/null
 
 docker compose --env-file "${ENV_FILE}" -f "${COMPOSE_FILE}" stop web worker
 
+# Pass names as psql variables, using identifier/literal quoting rather than
+# interpolating environment values into SQL. Quote the heredoc delimiter so
+# the shell cannot expand or execute SQL source text.
 docker compose --env-file "${ENV_FILE}" -f "${COMPOSE_FILE}" exec -T postgres \
-  psql -U "${POSTGRES_USER:-ai_fsm}" -d postgres -v ON_ERROR_STOP=1 <<SQL
+  psql -U "${POSTGRES_USER:-ai_fsm}" -d postgres -v ON_ERROR_STOP=1 \
+  -v "target_db=${POSTGRES_DB}" -v "target_owner=${POSTGRES_USER}" <<'SQL'
 SELECT pg_terminate_backend(pid)
 FROM pg_stat_activity
-WHERE datname = '${POSTGRES_DB}'
+WHERE datname = :'target_db'
   AND pid <> pg_backend_pid();
-DROP DATABASE IF EXISTS ${POSTGRES_DB};
-CREATE DATABASE ${POSTGRES_DB} OWNER ${POSTGRES_USER};
+DROP DATABASE IF EXISTS :"target_db";
+CREATE DATABASE :"target_db" OWNER :"target_owner";
 SQL
 
 dump_stream | docker compose --env-file "${ENV_FILE}" -f "${COMPOSE_FILE}" exec -T postgres \
