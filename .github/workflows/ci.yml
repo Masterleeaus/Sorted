@@ -34,6 +34,9 @@ jobs:
         run: pnpm install --frozen-lockfile
       - name: Run ESLint across all workspaces
         run: pnpm lint
+      - name: Backup and restore failure-path regression tests
+        # Independent of the inherited Knip debt; must run on every change.
+        run: node --test scripts/tests/*.test.mjs
       - name: Dead-code check (knip)
         # Enforces the dead-code floor inside a required check, not only local gate.sh:
         # unused files/dependencies fail here so a bypassed local gate can't merge them.
