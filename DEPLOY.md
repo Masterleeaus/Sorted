@@ -84,7 +84,7 @@ Each service connects with its own role. `DATABASE_URL` in the env file is the a
 | Variable | Role | Attributes | Status |
 |---|---|---|---|
 | `WEB_DATABASE_URL` | `ai_fsm` (admin) until the web cutover gate clears, then `ai_fsm_web` | `ai_fsm_web` is NOBYPASSRLS | Web still bypasses RLS. Cutover is blocked (see the flip runbook). |
-| `WORKER_DATABASE_URL` | `ai_fsm_worker` | BYPASSRLS, DML on RLS tables, no DDL, no superuser | Active after this deploy. |
+| `WORKER_DATABASE_URL` | `ai_fsm_worker` | BYPASSRLS, DML on the explicit table list in `scripts/db-provision-runtime.sh` (SELECT on `accounts`), no DDL, no superuser | Active after this deploy. |
 
 `scripts/deploy-garonhome.sh` provisions the roles after migrations and before web and worker start:
 - `ai_fsm_worker` every deploy, using `AI_FSM_WORKER_PASSWORD` (required).
@@ -109,6 +109,15 @@ $COMPOSE exec -T postgres sh -lc \
   'psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -c "SELECT rolname, rolsuper, rolbypassrls, rolcreatedb, rolcreaterole FROM pg_roles WHERE rolname LIKE '"'"'ai_fsm%'"'"' ORDER BY 1"'
 # expect ai_fsm_worker: rolsuper f, rolbypassrls t. ai_fsm_web (if provisioned): rolbypassrls f.
 ```
+
+Worker grant check (ADR-024 addendum, issue #15). Expect 30 tables with a worker privilege (29 with DML, plus `accounts` with SELECT):
+
+```bash
+$COMPOSE exec -T postgres sh -lc \
+  'psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -tAc "SELECT count(DISTINCT table_name) FROM information_schema.role_table_grants WHERE grantee = '"'"'ai_fsm_worker'"'"' AND table_schema = '"'"'public'"'"'"'
+```
+
+The worker's table list lives only in the worker block of `scripts/db-provision-runtime.sh`. That script runs on every deploy (`deploy-garonhome.sh`) before the worker starts, and it revokes every other table privilege from `ai_fsm_worker`. To add a table, add a `GRANT ... TO ai_fsm_worker` line there and run `node scripts/check-worker-grants.mjs`. Do not grant the worker by hand: the next deploy removes it.
 
 Worker rollback: set `WORKER_DATABASE_URL` to the admin URL and run `$COMPOSE up -d worker`. The role stays in place and does no harm.
 

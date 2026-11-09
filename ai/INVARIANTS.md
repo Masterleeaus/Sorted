@@ -45,8 +45,8 @@ Roles (provisioned by `scripts/db-provision-runtime.sh`, deployed by `DEPLOY.md`
   the location ingest route, `lib/push/send.ts`) and **every query scopes by `account_id`**.
   Keep both. About 100 web files make DB calls without setting account context, so do not
   flip the web URL early.
-- **Worker** (`WORKER_DATABASE_URL`): `ai_fsm_worker`, BYPASSRLS, NOSUPERUSER, DML on RLS
-  tables, no DDL or ownership. Cross-account sweeps need this bypass. Policies do not
+- **Worker** (`WORKER_DATABASE_URL`): `ai_fsm_worker`, BYPASSRLS, NOSUPERUSER, DML on the
+  explicit table list in `scripts/db-provision-runtime.sh` (SELECT only on `accounts`), no DDL or ownership. Cross-account sweeps need this bypass. Policies do not
   protect worker writes, so each worker job must scope by `account_id` or be a reviewed
   cross-account job. Decision record: ADR-024.
 
