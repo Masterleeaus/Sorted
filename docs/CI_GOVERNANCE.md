@@ -51,6 +51,12 @@ The backup source and CLI tests require **cryptographic SHA-256 read-back** for 
 
 The restore preflight additionally checks that an encrypted uploads archive is a readable gzip tar and that the encrypted environment contains PostgreSQL credentials before stopping services. The scratch verification command rejects archive traversal paths and uses SQL-quoted scratch database identifiers. These tests prove validation logic with fixtures, **not** a live Google Drive download, correct encryption, or a successful production restore.
 
+## Recovery approval and bounded transfers
+
+The recovery regression subgate now checks the shared `scripts/lib/backup-policy.sh` helper for bounded rclone timeouts, safe named remotes, approved destructive restore targets, and uploads-only archive member paths. Both the CI lint job and the local gate run `bash -n` on the helper and the scripts that source it.
+
+The backup script records `INCOMPLETE` on invalid remote settings rather than preserving a misleading green status. Alert hook messages are passed as discrete arguments to an executable path; they are never evaluated as shell commands. A destructive restore requires `FSM_RESTORE_CONFIRM_DB` to equal the target database and fails before stopping services when absent or wrong. Fixture-based tests cannot substitute for an operator-approved recovery rehearsal using real encryption, PostgreSQL, and offsite reads.
+
 ## Release Manifest
 
 The browser smoke is scoped by `tests/e2e/core-flow.spec.ts` and the release expectations in this document. If the launch spine changes, update both in the same PR.
