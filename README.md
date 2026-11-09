@@ -70,7 +70,7 @@ The encrypted backup and restore procedures are in [Backup Runbook](docs/BACKUP_
 node scripts/check-backup-health.mjs /opt/business/ai-fsm/backups 26
 ```
 
-A nonzero exit indicates a stale, missing or incomplete verified backup, and should trigger operator investigation. The health file alone is not proof of a successful scratch restore.
+A nonzero exit indicates a stale, missing or incomplete verified backup, and should trigger operator investigation. Only backup status reports attesting `sha256-readback` of every encrypted offsite artifact and its manifest are accepted; old size-only success reports require a new backup. Remote age-only deletion is disabled to preserve independently unverified historical recovery sets. The health file alone is not proof of a successful scratch restore.
 
 ## Safe deployment and service monitoring
 
