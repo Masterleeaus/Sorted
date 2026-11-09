@@ -37,10 +37,10 @@ command="$1"; shift
 case "$command" in
   copy)
     [[ "\${MOCK_RCLONE_FAIL_COPY:-0}" != "1" ]] || exit 7
-    cp -- "$1" "\\${MOCK_REMOTE_DIR}/"
+    cp -- "$1" "\${MOCK_REMOTE_DIR}/"
     ;;
   lsf)
-    for file in "\\${MOCK_REMOTE_DIR}"/*; do
+    for file in "\${MOCK_REMOTE_DIR}"/*; do
       [[ -f "$file" ]] || continue
       printf '%s;%s\\n' "$(stat -c %s "$file")" "$(basename "$file")"
     done
