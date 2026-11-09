@@ -37,7 +37,7 @@ jobs:
       - name: Validate backup, restore and restore-drill shell syntax
         run: bash -n scripts/backup-garonhome.sh scripts/restore-garonhome.sh scripts/verify-backup-garonhome.sh
       - name: Validate migration and seed shell syntax
-        run: bash -n scripts/db-migrate.sh scripts/deploy-garonhome.sh scripts/db-seed.sh scripts/lib/migration-safety.sh
+        run: bash -n scripts/db-migrate.sh scripts/deploy-garonhome.sh scripts/deploy.sh scripts/healthcheck-garonhome.sh scripts/db-seed.sh scripts/lib/migration-safety.sh scripts/lib/deploy-safety.sh
       - name: Backup and restore failure-path regression tests
         # Independent of the inherited Knip debt; must run on every change.
         run: node --test scripts/tests/*.test.mjs
