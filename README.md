@@ -72,6 +72,12 @@ node scripts/check-backup-health.mjs /opt/business/ai-fsm/backups 26
 
 A nonzero exit indicates a stale, missing or incomplete verified backup, and should trigger operator investigation. Only backup status reports attesting `sha256-readback` of every encrypted offsite artifact and its manifest are accepted; old size-only success reports require a new backup. Remote age-only deletion is disabled to preserve independently unverified historical recovery sets. The health file alone is not proof of a successful scratch restore.
 
+## Recovery safety boundaries
+
+Backup creation uses private file permissions, rejects unsafe rclone remote names, and applies configurable finite timeouts to offsite copies and SHA-256 verification reads. Any misconfiguration is recorded as `INCOMPLETE`. The backup alert hook must be a single executable path, not a shell command.
+
+A destructive PostgreSQL restore requires `FSM_RESTORE_CONFIRM_DB` equal to the target `POSTGRES_DB`. Both the destructive restore and scratch-restore drill reject unexpected uploads archive paths. The destructive path is **database-only**; it does not automatically overwrite host environment files or unpack uploads. See [Backup Runbook](docs/BACKUP_RUNBOOK.md) for required companion recovery and restore approval.
+
 ## Safe deployment and service monitoring
 
 The sole host deployment entrypoint is `scripts/deploy-garonhome.sh`; `scripts/deploy.sh` passes a validated branch over SSH without resetting the worktree itself. The production runner refuses dirty checkouts, enforces an independently verified recent encrypted backup and bounds the PostgreSQL and web-readiness checks.
