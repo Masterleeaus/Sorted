@@ -15,7 +15,7 @@ if [[ $# -ne 1 ]]; then
 fi
 
 DUMP_FILE="$1"
-if [[ ! -f "${DUMP_FILE}" ]]; then
+if [[ ! -f "${DUMP_FILE}" || -L "${DUMP_FILE}" ]]; then
   echo "dump file not found: ${DUMP_FILE}"
   exit 1
 fi
