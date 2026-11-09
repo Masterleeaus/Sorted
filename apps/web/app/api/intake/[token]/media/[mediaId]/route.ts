@@ -57,6 +57,21 @@ export async function DELETE(
               set_config('app.current_role', 'owner', true)`,
       [invite.account_id],
     );
+    // Serialize deletion with intake submission and uploads. A token resolved
+    // before submission is not enough: the invite can be claimed meanwhile.
+    const { rows: active } = await client.query<{ id: string }>(
+      `SELECT id FROM intake_invites
+       WHERE id = $1 AND account_id = $2 AND used_at IS NULL AND expires_at > now()
+       FOR UPDATE`,
+      [invite.id, invite.account_id],
+    );
+    if (active.length === 0) {
+      await client.query("ROLLBACK");
+      return NextResponse.json(
+        { error: { code: "ALREADY_USED", message: "This intake link no longer accepts edits." } },
+        { status: 409 },
+      );
+    }
     const { rows } = await client.query<{ filename: string }>(
       `DELETE FROM intake_media
        WHERE id = $1 AND intake_invite_id = $2 AND account_id = $3
