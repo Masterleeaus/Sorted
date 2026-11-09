@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { withRole } from "@/lib/auth/middleware";
-import { queryForSession } from "@/lib/db";
+import { queryForSession, withDbSession } from "@/lib/db";
 import { logger } from "@/lib/logger";
 import { sendEmail, appUrl, isEmailConfigured } from "@/lib/email/mailer";
 import { intakeInviteEmailHtml, intakeInviteEmailText } from "@ai-fsm/email-templates";
@@ -114,7 +114,7 @@ export const POST = withRole(["owner", "admin"], async (request: NextRequest, se
           text: intakeInviteEmailText({ leadName: br.name, intakeUrl, expiresHours: 168 }),
         });
 
-        await logCommunication({
+        await withDbSession(session, (db) => logCommunication(db, {
           accountId: session.accountId,
           clientId: br.client_id ?? undefined,
           bookingRequestId,
@@ -123,11 +123,11 @@ export const POST = withRole(["owner", "admin"], async (request: NextRequest, se
           outcome: "sent",
           bodyPreview: `Intake form sent to ${email}`,
           initiatedBy: session.userId,
-        });
+        }));
       } catch (err) {
         logger.error("send-intake: email send failed", err as Error, { traceId: session.traceId });
 
-        await logCommunication({
+        await withDbSession(session, (db) => logCommunication(db, {
           accountId: session.accountId,
           clientId: br.client_id ?? undefined,
           bookingRequestId,
@@ -136,7 +136,7 @@ export const POST = withRole(["owner", "admin"], async (request: NextRequest, se
           outcome: "failed",
           bodyPreview: `Intake form failed to send to ${email}`,
           initiatedBy: session.userId,
-        });
+        }));
 
         return NextResponse.json(
           { error: { code: "EMAIL_FAILED", message: "Intake invite created but email failed to send. Copy the link below and share manually.", traceId: session.traceId }, token, intake_url: intakeUrl },

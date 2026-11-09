@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { randomUUID } from "crypto";
 import { queryOne } from "@/lib/db";
+import { withTokenAccountContext } from "../../../_lib/account-context";
 import { logger } from "@/lib/logger";
 import { normalizePhone } from "@/lib/phone";
 import {
@@ -168,7 +169,7 @@ export async function POST(req: NextRequest) {
 
   // Delivery/failure updates for a message we already logged as sent
   if (externalId && (outcome === "delivered" || outcome === "failed")) {
-    const updated = await updateOutboundSmsOutcome(accountId, externalId, outcome);
+    const updated = await withTokenAccountContext(accountId, (db) => updateOutboundSmsOutcome(db, accountId, externalId, outcome));
     if (updated) {
       logger.info("outbound SMS outcome updated", { traceId, externalId, outcome });
       return NextResponse.json({ updated: true, outcome, external_id: externalId });
@@ -176,11 +177,11 @@ export async function POST(req: NextRequest) {
     // Fall through to insert if we never saw the send (e.g. only delivery webhook)
   }
 
-  const client = await findClientByPhone(accountId, normalized);
+  const client = await withTokenAccountContext(accountId, (db) => findClientByPhone(db, accountId, normalized));
   const clientId = client?.id ?? null;
   let jobId: string | null = null;
   if (clientId) {
-    jobId = await findActiveJobForClient(accountId, clientId);
+    jobId = await withTokenAccountContext(accountId, (db) => findActiveJobForClient(db, accountId, clientId));
   }
 
   const bodyPreview =
@@ -189,19 +190,19 @@ export async function POST(req: NextRequest) {
       ? "SMS failed (text not provided by gateway)"
       : "SMS sent from phone (text not provided by gateway)");
 
-  const commsId = await logOutboundSms({
+  const commsId = await withTokenAccountContext(accountId, (db) => logOutboundSms(db, {
     accountId,
     clientId,
     jobId,
     bodyPreview,
     outcome: outcome === "delivered" ? "delivered" : outcome === "failed" ? "failed" : "sent",
     externalId,
-  });
+  }));
 
   if (externalId && commsId === null) {
     // Duplicate send event — if this is a later status, try update
     if (outcome === "delivered" || outcome === "failed") {
-      await updateOutboundSmsOutcome(accountId, externalId, outcome);
+      await withTokenAccountContext(accountId, (db) => updateOutboundSmsOutcome(db, accountId, externalId, outcome));
     }
     return NextResponse.json({ duplicate: true, external_id: externalId });
   }

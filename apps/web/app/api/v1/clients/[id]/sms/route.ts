@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { withRole } from "@/lib/auth/middleware";
 import type { AuthSession } from "@/lib/auth/middleware";
-import { queryOneForSession } from "@/lib/db";
+import { queryOneForSession, withDbSession } from "@/lib/db";
 import { logger } from "@/lib/logger";
 import { normalizePhone } from "@/lib/phone";
 import { isSmsGatewayConfigured, sendSmsViaGateway } from "@/lib/sms/gateway";
@@ -140,14 +140,14 @@ export const POST = withRole(
         );
       }
     } else {
-      jobId = await findActiveJobForClient(session.accountId, clientId);
+      jobId = await withDbSession(session, (db) => findActiveJobForClient(db, session.accountId, clientId));
     }
 
     const message = parsed.data.message.trim();
     const sendResult = await sendSmsViaGateway({ phone, message });
 
     if (!sendResult.ok) {
-      await logOutboundSms({
+      await withDbSession(session, (db) => logOutboundSms(db, {
         accountId: session.accountId,
         clientId,
         jobId,
@@ -155,7 +155,7 @@ export const POST = withRole(
         outcome: "failed",
         externalId: null,
         initiatedBy: session.userId,
-      });
+      }));
       logger.warn("[clients sms] gateway send failed", {
         traceId: session.traceId,
         clientId,
@@ -174,7 +174,7 @@ export const POST = withRole(
       );
     }
 
-    const commsId = await logOutboundSms({
+    const commsId = await withDbSession(session, (db) => logOutboundSms(db, {
       accountId: session.accountId,
       clientId,
       jobId,
@@ -182,7 +182,7 @@ export const POST = withRole(
       outcome: "sent",
       externalId: sendResult.messageId,
       initiatedBy: session.userId,
-    });
+    }));
 
     logger.info("[clients sms] sent", {
       traceId: session.traceId,
