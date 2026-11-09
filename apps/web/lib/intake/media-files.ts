@@ -1,4 +1,5 @@
 import fs from "node:fs";
+import { MAX_INTAKE_PHOTO_BYTES } from "./photos";
 import path from "node:path";
 
 /**
@@ -24,6 +25,31 @@ export function writePrivateIntakeFile(filePath: string, bytes: Uint8Array): voi
     }
   }
   fs.writeFileSync(filePath, bytes, { flag: "wx", mode: 0o600 });
+}
+
+/** Read only bounded regular files beneath real (non-symlinked) parent directories.
+ * The caller must first enforce authenticated tenant and booking ownership.
+ */
+export function readPrivateIntakeFile(filePath: string): Uint8Array | null {
+  const resolved = path.resolve(filePath);
+  let directory = path.dirname(resolved);
+  while (true) {
+    try {
+      const stat = fs.lstatSync(directory);
+      if (!stat.isDirectory() || stat.isSymbolicLink()) return null;
+    } catch { return null; }
+    const parent = path.dirname(directory);
+    if (parent === directory) break;
+    directory = parent;
+  }
+  let fd: number | undefined;
+  try {
+    fd = fs.openSync(resolved, fs.constants.O_RDONLY | fs.constants.O_NOFOLLOW);
+    const stat = fs.fstatSync(fd);
+    if (!stat.isFile() || stat.size < 1 || stat.size > MAX_INTAKE_PHOTO_BYTES) return null;
+    return new Uint8Array(fs.readFileSync(fd));
+  } catch { return null; }
+  finally { if (fd !== undefined) fs.closeSync(fd); }
 }
 
 /** Only a real, regular file is removable; never follow a symlink. */
