@@ -14,13 +14,15 @@ function prepare() {
   writeFileSync(dump, "fixture-only");
   const envFile = join(root, ".env");
   writeFileSync(envFile, "POSTGRES_DB=test_database\nPOSTGRES_USER=test_owner\n");
+  const passphrase = join(root, "backup.passphrase");
+  writeFileSync(passphrase, "test-only-passphrase");
   return {
-    root, backups, dump,
+    root, backups, dump, passphrase,
     run() {
       return spawnSync("bash", [script, dump], {
         encoding: "utf8",
         timeout: 10_000,
-        env: { ...process.env, FSM_DEPLOY_ROOT: root, FSM_ENV_FILE: envFile },
+        env: { ...process.env, FSM_DEPLOY_ROOT: root, FSM_ENV_FILE: envFile, FSM_BACKUP_PASSPHRASE_FILE: passphrase },
       });
     },
     cleanup() { rmSync(root, { recursive: true, force: true }); },
@@ -55,4 +57,28 @@ test("restore SQL uses psql-escaped variables and a literal heredoc", () => {
   assert.match(source, /DROP DATABASE IF EXISTS :"target_db"/);
   assert.match(source, /OWNER :"target_owner"/);
   assert.doesNotMatch(source, /DROP DATABASE IF EXISTS \$\{POSTGRES_DB\}/);
+});
+
+test("restore blocks the postgres system database before any manifest or service teardown", () => {
+  const f = prepare();
+  try {
+    const envFile = join(f.root, ".env");
+    writeFileSync(envFile, "POSTGRES_DB=postgres\\nPOSTGRES_USER=test_owner\\n");
+    const result = f.run();
+    assert.equal(result.status, 1);
+    assert.match(result.stderr, /missing or unsafe target database/);
+  } finally { f.cleanup(); }
+});
+test("restore blocks unencrypted dumps before any database teardown", () => {
+  const f = prepare();
+  try {
+    const plain = join(f.backups, "ai_fsm_20260101T010101Z.dump");
+    writeFileSync(plain, "plain");
+    const result = spawnSync("bash", [script, plain], {
+      encoding: "utf8", timeout: 10_000,
+      env: { ...process.env, FSM_DEPLOY_ROOT: f.root, FSM_ENV_FILE: join(f.root, ".env"), FSM_BACKUP_PASSPHRASE_FILE: f.passphrase },
+    });
+    assert.equal(result.status, 1);
+    assert.match(result.stderr, /only encrypted/);
+  } finally { f.cleanup(); }
 });
