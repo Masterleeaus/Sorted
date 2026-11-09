@@ -94,6 +94,7 @@ WHERE n.nspname = 'public' AND c.relkind IN ('r', 'p') AND c.relrowsecurity
 SELECT (:'runtime_role' = 'ai_fsm_worker') AS is_worker \gset
 \if :is_worker
 REVOKE ALL ON ALL TABLES IN SCHEMA public FROM ai_fsm_worker;
+GRANT SELECT ON TABLE public.accounts TO ai_fsm_worker;
 GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.attention_events TO ai_fsm_worker;
 GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.audit_log TO ai_fsm_worker;
 GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.automation_settings TO ai_fsm_worker;
