@@ -375,7 +375,13 @@ No error output = file is structurally valid.
 
 ---
 
-## Recovery execution controls (Pass 7)
+## Backup concurrency and local integrity (Pass 8)
+
+A backup runner now acquires a nonblocking Linux `flock` under `backups/status/.backup.lock` before reading environment configuration or writing status. Only one runner can publish status or prune verified local archives. It creates an `ACTIVE` record and removes it only after finalizing success or incomplete status. Unexpected termination may leave a stale `ACTIVE` file; the health monitor then fails closed. Inspect that runner, local encrypted artifacts, and the latest report before clearing an orphaned record. Do **not** clear an active record while a backup is still running.
+
+Before any production database or container mutation, `deploy-garonhome.sh` now performs two separate read-only gates: `check-backup-health.mjs` checks the latest completed verified offsite status, and `audit-backup-local.mjs` streams every recent encrypted artifact, verifies its SHA-256 against the three-entry manifest, and reconciles manifest digests and byte lengths with the success report. This local check requires all three encrypted artifacts and their manifest to remain on the deploy host; absence or byte mismatch aborts. Neither check decrypts data or establishes that PostgreSQL can restore the backup, so retain the scratch restore drill.
+
+
 
 Before an operator triggers a destructive database restore, `scripts/restore-garonhome.sh` now requires `FSM_RESTORE_CONFIRM_DB` to equal **the exact target `POSTGRES_DB` name**. This guards against accidental one-argument database replacement. The preflight checks the encrypted dump and both companion files, validates archive contents against the required `uploads/` path prefix, and only then asks for the typed confirmation before stopping services. Health waits after restore are bounded by `FSM_RESTORE_WEB_ATTEMPTS` (default 30 attempts at 2 seconds). It does **not** automatically restore the uploads directory or overwrite the running host `.env`; those require a separately reviewed recovery procedure.
 
