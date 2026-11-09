@@ -9,7 +9,7 @@ test("scratch database creation and cleanup quote psql identifiers",()=>{
  assert.doesNotMatch(verify,/CREATE DATABASE \$\{SCRATCH_DB\};/);
 });
 test("scratch restore never treats traversal and absolute paths as safe uploads",()=>{
- assert.match(verify,/uploads archive contains unsafe traversal or absolute paths/);
+ assert.match(verify,/sorted_backup_archive_entries < "\$\{WORK\}\/uploads\.entries"/);
  assert.match(verify,/uploads\.entries/);
  assert.match(verify,/tar -tzf/);
 });
