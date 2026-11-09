@@ -23,7 +23,9 @@ gh api repos/Masterleeaus/Sorted/branches/main/protection/required_status_checks
   --field contexts='["lint","typecheck","build","test","e2e-smoke"]'
 ```
 
-The backup CI subgate is also run by `pnpm gate` locally via `node --test scripts/tests/*.test.mjs`. Mocked rclone/Docker/GPG tests verify failure behavior; they do not replace a real encrypted offsite scratch restore.
+The backup, SQL migration and seed safety subgate is also run by `pnpm gate` locally via `node --test scripts/tests/*.test.mjs`. Shell syntax is checked for the production deploy and migration scripts. Mocked rclone/Docker/GPG and psql tests verify failure handling and transaction invocation; they do not replace real encrypted offsite scratch restores or PostgreSQL migration integration tests.
+
+The required `test` job still runs the complete original storage test suite. A separate diagnostic step reports whether the four SHA-256-pinned SQLite migration sources are missing or modified; it uses `continue-on-error` **only for diagnostics**, not for the unit tests. Missing donor/native SQL is a source-recovery blocker, not an acceptable reason to fabricate migrations, relax integrity hashes, or declare CI green. See `docs/working/legacy-migration-safety.md`.
 
 Do not remove a required check to merge a feature PR. If a required check itself is broken, use a short-lived documented bypass and restore the full list immediately after the fix lands.
 
