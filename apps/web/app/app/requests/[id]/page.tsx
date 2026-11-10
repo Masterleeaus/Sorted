@@ -144,9 +144,9 @@ export default async function BookingRequestDetailPage({
   const inviteRows = await queryForSession<{ token: string; used_at: string | null; expires_at: string; created_at: string }>(session,
     `SELECT token::text, used_at, expires_at, created_at
      FROM intake_invites
-     WHERE booking_request_id = $1
+     WHERE booking_request_id = $1 AND account_id = $2
      ORDER BY created_at DESC LIMIT 1`,
-    [id]
+    [id, session.accountId]
   );
   const latestInvite = inviteRows[0] ?? null;
 
