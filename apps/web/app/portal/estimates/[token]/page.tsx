@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
-import { queryOne, query, getPool } from "@/lib/db";
 import { EstimatePortalClient } from "./EstimatePortalClient";
 import { isPortalPreview } from "@/lib/portal/session";
+import { withPortalTokenPage } from "@/lib/portal/token-page";
 
 export const dynamic = "force-dynamic";
 
@@ -57,32 +57,57 @@ export default async function EstimatePortalPage({
 }) {
   const { token } = await params;
 
-  const estimate = await queryOne<EstimateRow>(
-    `SELECT
-       e.id, e.account_id, e.client_id, e.status, e.presentation_mode, e.subtotal_cents, e.tax_cents, e.total_cents,
-       e.deposit_cents, e.notes, e.scope_assumptions, e.expires_at, e.responded_at,
-       e.client_approved_name,
-       c.name AS client_name,
-       p.address AS property_address, p.city AS property_city,
-       p.state AS property_state, p.zip AS property_zip,
-       a.name AS account_name
-     FROM estimates e
-     JOIN clients c ON c.id = e.client_id
-     JOIN accounts a ON a.id = e.account_id
-     LEFT JOIN properties p ON p.id = e.property_id
-     WHERE e.share_token = $1`,
-    [token]
-  );
+  // The share token resolves to an account first (migration 204). The estimate and its
+  // line items and options are read in that account's RLS context.
+  const loaded = await withPortalTokenPage("resolve_estimate_share_account", token, async (tx, accountId) => {
+    const q = <T extends Record<string, unknown>>(text: string, params?: unknown[]) =>
+      tx.query<T>(text, params).then((r) => r.rows);
+    const rows = await q<EstimateRow>(
+      `SELECT
+         e.id, e.account_id, e.client_id, e.status, e.presentation_mode, e.subtotal_cents, e.tax_cents, e.total_cents,
+         e.deposit_cents, e.notes, e.scope_assumptions, e.expires_at, e.responded_at,
+         e.client_approved_name,
+         c.name AS client_name,
+         p.address AS property_address, p.city AS property_city,
+         p.state AS property_state, p.zip AS property_zip,
+         a.name AS account_name
+       FROM estimates e
+       JOIN clients c ON c.id = e.client_id
+       JOIN accounts a ON a.id = e.account_id
+       LEFT JOIN properties p ON p.id = e.property_id
+       WHERE e.share_token = $1 AND e.account_id = $2`,
+      [token, accountId]
+    );
+    const estimate = rows[0] ?? null;
+    if (!estimate) return null;
 
-  if (!estimate) notFound();
+    const lineItems = await q<LineItemRow>(
+      `SELECT id, estimate_id, option_id, description, quantity, unit_price_cents, total_cents, sort_order
+       FROM estimate_line_items
+       WHERE estimate_id = $1 AND (visible_to_customer IS NULL OR visible_to_customer = true)
+       ORDER BY sort_order`,
+      [estimate.id]
+    );
 
-  // First portal open → attention event (dedupe handles reloads).
+    const options = await q<OptionRow>(
+      `SELECT id, estimate_id, label, description, sort_order, subtotal_cents, tax_cents, total_cents, is_recommended
+       FROM estimate_options
+       WHERE estimate_id = $1
+       ORDER BY sort_order`,
+      [estimate.id]
+    );
+    return { estimate, lineItems, options };
+  });
+
+  if (!loaded) notFound();
+  const { estimate, lineItems, options } = loaded;
+
+  // First portal open → attention event (dedupe handles reloads). Advisory: its own
+  // transaction, so a failure never blocks the page.
   try {
     const { emitAttentionEvent } = await import("@/lib/attention");
-    const pool = getPool();
-    const client = await pool.connect();
-    try {
-      await emitAttentionEvent(client, {
+    await withPortalTokenPage("resolve_estimate_share_account", token, (tx) =>
+      emitAttentionEvent(tx, {
         accountId: estimate.account_id,
         type: "estimate.opened",
         entityType: "estimate",
@@ -91,29 +116,11 @@ export default async function EstimatePortalPage({
         summary: estimate.client_name,
         href: `/app/estimates/${estimate.id}`,
         dedupeKey: `estimate.opened:${estimate.id}`,
-      });
-    } finally {
-      client.release();
-    }
+      }),
+    );
   } catch {
     // advisory
   }
-
-  const lineItems = await query<LineItemRow>(
-    `SELECT id, estimate_id, option_id, description, quantity, unit_price_cents, total_cents, sort_order
-     FROM estimate_line_items
-     WHERE estimate_id = $1 AND (visible_to_customer IS NULL OR visible_to_customer = true)
-     ORDER BY sort_order`,
-    [estimate.id]
-  );
-
-  const options = await query<OptionRow>(
-    `SELECT id, estimate_id, label, description, sort_order, subtotal_cents, tax_cents, total_cents, is_recommended
-     FROM estimate_options
-     WHERE estimate_id = $1
-     ORDER BY sort_order`,
-    [estimate.id]
-  );
 
   const optionsWithItems = options.map((opt) => ({
     ...opt,

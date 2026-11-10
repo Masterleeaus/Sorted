@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { getPool, queryOne } from "@/lib/db";
+import { withPortalTokenPage } from "@/lib/portal/token-page";
 import { loadItemizedReceipts } from "@/lib/invoices/itemized-receipts";
 
 export const dynamic = "force-dynamic";
@@ -21,24 +21,31 @@ function fmtDate(d: string) {
 
 export default async function InvoiceReceiptsPage({ params }: { params: Promise<{ token: string }> }) {
   const { token } = await params;
-  const invoice = await queryOne<{
-    id: string;
-    account_id: string;
-    job_id: string | null;
-    invoice_number: string;
-    account_name: string;
-    property_address: string | null;
-  }>(
-    `SELECT i.id, i.account_id, i.job_id, i.invoice_number, a.name AS account_name, p.address AS property_address
-     FROM invoices i
-     JOIN accounts a ON a.id = i.account_id
-     LEFT JOIN properties p ON p.id = i.property_id
-     WHERE i.share_token = $1 AND i.show_itemized_receipts = true AND i.status <> 'void'`,
-    [token],
-  );
-  if (!invoice?.job_id) notFound();
-
-  const { receipts, total_cents } = await loadItemizedReceipts(getPool(), invoice.account_id, invoice.job_id, invoice.id);
+  // The share token resolves to an account first (migration 204); the invoice and its
+  // itemized receipts are read in that account's RLS context.
+  const loaded = await withPortalTokenPage("resolve_invoice_share_account", token, async (tx, accountId) => {
+    const { rows } = await tx.query<{
+      id: string;
+      account_id: string;
+      job_id: string | null;
+      invoice_number: string;
+      account_name: string;
+      property_address: string | null;
+    }>(
+      `SELECT i.id, i.account_id, i.job_id, i.invoice_number, a.name AS account_name, p.address AS property_address
+       FROM invoices i
+       JOIN accounts a ON a.id = i.account_id
+       LEFT JOIN properties p ON p.id = i.property_id
+       WHERE i.share_token = $1 AND i.account_id = $2 AND i.show_itemized_receipts = true AND i.status <> 'void'`,
+      [token, accountId],
+    );
+    const invoice = rows[0] ?? null;
+    if (!invoice?.job_id) return null;
+    const receipts = await loadItemizedReceipts(tx, accountId, invoice.job_id, invoice.id);
+    return { invoice, receipts };
+  });
+  if (!loaded) notFound();
+  const { invoice, receipts: { receipts, total_cents } } = loaded;
 
   const cell = { padding: "6px 16px", fontSize: 13 } as const;
   return (

@@ -1,9 +1,9 @@
 import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
-import { getPool, queryOne, query } from "@/lib/db";
 import { derivePortalStage, CUSTOMER_STAGE_ORDER, CUSTOMER_STAGE_LABELS, CUSTOMER_STAGE_COLORS } from "@ai-fsm/domain";
 import { SmsOptOutButton } from "./SmsOptOutButton";
 import { getPortalSession } from "@/lib/portal/session";
+import { withPortalTokenPage } from "@/lib/portal/token-page";
 import PortalLogoutButton from "./PortalLogoutButton";
 import { loadSponsoredInvoices, type SponsoredInvoiceRow } from "@/lib/portal/sponsored-invoices";
 import { SPONSORED_PURPOSE_LABELS } from "@/lib/invoices/sponsored";
@@ -92,26 +92,26 @@ export default async function ClientPortalPage({
   const { clientToken } = await params;
   const { email: emailResult } = await searchParams;
 
-  const [portalSession, client] = await Promise.all([
+  // The token resolves to an account first (migration 204); the client row and every
+  // read below run in that account's RLS context.
+  const [portalSession, loaded] = await Promise.all([
     getPortalSession(),
-    queryOne<ClientRow>(
-      `SELECT c.id, c.name, c.email, c.phone, c.account_id, c.preferred_contact, c.sms_consent,
-              a.name AS account_name
-       FROM clients c
-       JOIN accounts a ON a.id = c.account_id
-       WHERE c.portal_token = $1`,
-      [clientToken]
-    ),
-  ]);
-
-  if (!client) notFound();
-
-  if (!portalSession || portalSession.clientId !== client.id) {
-    redirect(`/portal/login`);
-  }
+    withPortalTokenPage("resolve_portal_client_account", clientToken, async (tx) => {
+      const q = <T extends Record<string, unknown>>(text: string, params?: unknown[]) =>
+        tx.query<T>(text, params).then((r) => r.rows);
+      const clientRows = await q<ClientRow>(
+        `SELECT c.id, c.name, c.email, c.phone, c.account_id, c.preferred_contact, c.sms_consent,
+                a.name AS account_name
+         FROM clients c
+         JOIN accounts a ON a.id = c.account_id
+         WHERE c.portal_token = $1`,
+        [clientToken]
+      );
+      const client = clientRows[0] ?? null;
+      if (!client) return null;
 
   const [estimates, invoices, plans, maintenanceJobs, activeVisitRows, recentComms, properties, sponsored, reports] = await Promise.all([
-    query<EstimateRow>(
+    q<EstimateRow>(
       `SELECT e.id, e.status, e.total_cents, e.sent_at, e.expires_at,
               e.share_token, p.address AS property_address
        FROM estimates e
@@ -120,7 +120,7 @@ export default async function ClientPortalPage({
        ORDER BY e.created_at DESC`,
       [client.id]
     ),
-    query<InvoiceRow>(
+    q<InvoiceRow>(
       `SELECT i.id, i.invoice_number, i.status, i.total_cents, i.paid_cents,
               i.due_date, i.share_token, i.deposit_cents, i.paid_at, i.sent_at,
               -- What the work was: summary's first line, else job title, else first line item.
@@ -140,14 +140,14 @@ export default async function ClientPortalPage({
        ORDER BY i.created_at DESC`,
       [client.id]
     ),
-    query<PlanRow>(
+    q<PlanRow>(
       `SELECT id, name, frequency, services, price_cents, status, next_scheduled_date, notes
        FROM maintenance_plans
        WHERE client_id = $1
        ORDER BY status, created_at DESC`,
       [client.id]
     ),
-    query<JobRow>(
+    q<JobRow>(
       `SELECT j.id, j.title, j.status,
               p.address AS property_address,
               MAX(v.completed_at)::text AS completed_at,
@@ -170,14 +170,14 @@ export default async function ClientPortalPage({
       [client.id]
     ),
     // Active (non-completed) visits for any job — used to derive scheduled stage
-    query<{ id: string }>(
+    q<{ id: string }>(
       `SELECT v.id FROM visits v
        JOIN jobs j ON j.id = v.job_id
        WHERE j.client_id = $1 AND v.status IN ('scheduled','arrived','in_progress')
        LIMIT 1`,
       [client.id]
     ),
-    query<CommRow>(
+    q<CommRow>(
       `SELECT channel, outcome, body_preview, created_at
        FROM communications_log
        WHERE client_id = $1 AND direction = 'outbound'
@@ -185,7 +185,7 @@ export default async function ClientPortalPage({
        LIMIT 5`,
       [client.id]
     ),
-    query<{ id: string; name: string | null; address: string; open_issue_count: number }>(
+    q<{ id: string; name: string | null; address: string; open_issue_count: number }>(
       `SELECT p.id, p.name, p.address,
               COUNT(pi.id) FILTER (WHERE pi.status IN ('open','monitoring'))::int AS open_issue_count
        FROM properties p
@@ -195,9 +195,9 @@ export default async function ClientPortalPage({
        ORDER BY p.address`,
       [client.id, client.account_id]
     ),
-    loadSponsoredInvoices(getPool(), client.id),
+    loadSponsoredInvoices(tx, client.id),
     // TASK-162: published Job Reports to this client (sponsored ones stay out of their own history).
-    query<{ title: string; share_token: string; published_at: string; address: string | null; photo_count: number }>(
+    q<{ title: string; share_token: string; published_at: string; address: string | null; photo_count: number }>(
       `SELECT r.title, r.share_token::text, p.address,
               COALESCE((SELECT max(v.completed_at) FROM visits v WHERE v.job_id = r.job_id), r.published_at)::text AS published_at,
               cardinality(r.media_ids)::int AS photo_count
@@ -209,6 +209,16 @@ export default async function ClientPortalPage({
       [client.id, client.account_id]
     ),
   ]);
+      return { client, estimates, invoices, plans, maintenanceJobs, activeVisitRows, recentComms, properties, sponsored, reports };
+    }),
+  ]);
+
+  if (!loaded) notFound();
+  const { client, estimates, invoices, plans, maintenanceJobs, activeVisitRows, recentComms, properties, sponsored, reports } = loaded;
+
+  if (!portalSession || portalSession.clientId !== client.id) {
+    redirect(`/portal/login`);
+  }
 
   // Sponsored rows count toward what this payer owes, but never add properties.
   const billed = [...invoices, ...sponsored];
