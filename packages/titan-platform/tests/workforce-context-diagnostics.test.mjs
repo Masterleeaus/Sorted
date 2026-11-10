@@ -1,10 +1,10 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { assembleWorkforceContext } from "../../.tmp-wf-context-build/assembler.js";
-import { projectWorkforceContextForTask } from "../../.tmp-wf-context-build/projection.js";
-import { applyWorkforceContextPermissions } from "../../.tmp-wf-context-build/access.js";
-import { checkWorkforceContextFreshness } from "../../.tmp-wf-context-build/freshness.js";
-import { buildWorkforceContextDiagnostics } from "../../.tmp-wf-context-build/diagnostics.js";
+import { assembleWorkforceContext } from "../.context-test-dist/assembler.js";
+import { projectWorkforceContextForTask } from "../.context-test-dist/projection.js";
+import { applyWorkforceContextPermissions } from "../.context-test-dist/access.js";
+import { checkWorkforceContextFreshness } from "../.context-test-dist/freshness.js";
+import { buildWorkforceContextDiagnostics } from "../.context-test-dist/diagnostics.js";
 
 function setup() {
   const context = assembleWorkforceContext({

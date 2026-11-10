@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createTitanInterfaceRuntime } from '../.tmp-builder-bridge/interface-runtime.js';
-import { TitanBuilderWorkspace, createBuilderProposalFromPresentationIntent, previewBuilderThroughRuntimes, createBuilderPublishedHandoff } from '../.tmp-builder-bridge/titan-builder/index.js';
+import { createTitanInterfaceRuntime } from '../.test-dist/interface-runtime.js';
+import { TitanBuilderWorkspace, createBuilderProposalFromPresentationIntent, previewBuilderThroughRuntimes, createBuilderPublishedHandoff } from '../.test-dist/titan-builder/index.js';
 
 const runtime=createTitanInterfaceRuntime();
 const context=runtime.createContext({company_id:'co-1',user_id:'user-1',product_surface:'zero',domain:'business'});
