@@ -24,9 +24,9 @@ jobs:
     name: lint
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
         with:
           node-version: 20
           cache: pnpm
@@ -53,32 +53,50 @@ jobs:
     name: typecheck
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
         with:
           node-version: 20
           cache: pnpm
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+      - name: Verify Node 24 GitHub Actions major versions
+        run: |
+          node scripts/check-action-runtime.mjs
+          node --test scripts/check-action-runtime.test.mjs
       - name: Run tsc --noEmit across all workspaces
         run: pnpm typecheck
+      - name: Verify onboarding runtime contract independently of storage migrations
+        run: pnpm --filter @titan-zero/onboarding test
+      - name: Verify notification redirect isolation independently of storage migrations
+        run: pnpm --filter @ai-fsm/web exec vitest run __tests__/service-worker-security.unit.test.ts lib/push/__tests__/payload.unit.test.ts
+      - name: Verify Sorted Field owner-alert email identity independently of storage migrations
+        run: pnpm --filter @ai-fsm/web exec vitest run lib/attention/__tests__/email.unit.test.ts
+      - name: Verify worker queue tenant isolation and failed delivery retries
+        run: pnpm --filter @ai-fsm/worker exec vitest run src/notification/enqueue.test.ts src/workflow-events.test.ts
+      - name: Verify customer HTML emails and portal login escaping without storage migrations
+        run: |
+          pnpm --filter @ai-fsm/email-templates test
+          pnpm --filter @ai-fsm/web exec vitest run lib/email/__tests__/portal-magic-link.test.ts
 
   # ── 3. Build ─────────────────────────────────────────────────────────────
-  # Runs after lint + typecheck. Uses NEXT_PHASE to trigger the build-time
+  # Runs after typecheck. Lint remains independently required for merge; a
+  # pre-existing Knip finding must not mask build regressions.
+  # Uses NEXT_PHASE to trigger the build-time
   # env bypass in apps/web/lib/env.ts so real secrets are not required in CI.
   build:
     name: build
-    needs: [lint, typecheck]
+    needs: [typecheck]
     runs-on: ubuntu-latest
     env:
       # Signal to env.ts that this is a build-time invocation.
       # Real secrets are NOT needed during `next build` (pages are force-dynamic).
       NEXT_PHASE: phase-production-build
     steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
         with:
           node-version: 20
           cache: pnpm
@@ -96,7 +114,8 @@ jobs:
         run: pnpm build
 
   # ── 4. Test ──────────────────────────────────────────────────────────────
-  # Runs after lint + typecheck (parallel with build).
+  # Runs after typecheck (parallel with build). Lint remains a required
+  # independent gate; existing unused-file debt must not mask test failures.
   #
   # Environment provided:
   #   DATABASE_URL / TEST_DATABASE_URL  — PostgreSQL 16 service fixture
@@ -105,7 +124,7 @@ jobs:
   # Runs unit, direct-DB, and HTTP integration suites. E2E has its own job.
   test:
     name: test
-    needs: [lint, typecheck]
+    needs: [typecheck]
     runs-on: ubuntu-latest
     services:
       postgres:
@@ -131,9 +150,9 @@ jobs:
       TEST_BASE_URL: http://localhost:3000
       E2E_SKIP_EMAIL_DELIVERY: "1"
     steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
         with:
           node-version: 20
           cache: pnpm
@@ -202,9 +221,9 @@ jobs:
       E2E_DISABLE_LOGIN_RATE_LIMIT: "1"
       E2E_SKIP_EMAIL_DELIVERY: "1"
     steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
         with:
           node-version: 20
           cache: pnpm
@@ -239,7 +258,7 @@ jobs:
       - name: Run required release smoke
         run: pnpm exec playwright test tests/e2e/core-flow.spec.ts --reporter=list
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: playwright-smoke-report

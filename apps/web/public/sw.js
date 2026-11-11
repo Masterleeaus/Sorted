@@ -1,4 +1,4 @@
-// Minimal service worker for Titan Go.
+// Minimal service worker for Sorted Field.
 //
 // Scope: installability only. Chromium gates the install prompt on the presence
 // of a service worker with a fetch handler; this provides exactly that and
@@ -21,6 +21,14 @@ self.addEventListener("fetch", (event) => {
   event.respondWith(fetch(event.request));
 });
 
+// Defensive redirect validation: push data may come from older senders.
+// Only same-origin app paths may be used for notification navigation.
+function safeNotificationPath(value) {
+  if (typeof value !== "string" || !value.startsWith("/") || value.startsWith("//")
+    || value.includes("\\") || /[\x00-\x1f\x7f]/.test(value)) return "/";
+  return value;
+}
+
 // --- Web Push (TASK-118) -----------------------------------------------------
 // The web tier sends a JSON body shaped by lib/push/payload.ts:
 //   { title, body, tag, data: { url } }
@@ -28,16 +36,17 @@ self.addEventListener("fetch", (event) => {
 self.addEventListener("push", (event) => {
   let msg = {};
   try {
-    msg = event.data ? event.data.json() : {};
+    const parsed = event.data ? event.data.json() : {};
+    msg = parsed && typeof parsed === "object" && !Array.isArray(parsed) ? parsed : {};
   } catch {
-    msg = { title: "Titan Go", body: event.data ? event.data.text() : "" };
+    msg = { title: "Sorted", body: event.data ? event.data.text() : "" };
   }
-  const title = msg.title || "Titan Go";
+  const title = msg.title || "Sorted";
   event.waitUntil(
     self.registration.showNotification(title, {
       body: msg.body || "",
       tag: msg.tag || undefined,
-      data: { url: (msg.data && msg.data.url) || "/" },
+      data: { url: safeNotificationPath(msg.data && msg.data.url) },
       icon: "/icons/icon-192.png",
       badge: "/icons/icon-192.png",
     }),
@@ -46,15 +55,26 @@ self.addEventListener("push", (event) => {
 
 self.addEventListener("notificationclick", (event) => {
   event.notification.close();
-  const url = (event.notification.data && event.notification.data.url) || "/";
+  const url = safeNotificationPath(event.notification.data && event.notification.data.url);
   event.waitUntil(
-    self.clients.matchAll({ type: "window", includeUncontrolled: true }).then((clients) => {
-      // Focus an existing tab on the same origin and navigate it; else open one.
+    self.clients.matchAll({ type: "window", includeUncontrolled: true }).then(async (clients) => {
+      // Keep this event alive until navigation and focus finish. If a tab
+      // cannot navigate, try the next tab or open a new same-origin window.
       for (const client of clients) {
-        if ("focus" in client) {
-          client.focus();
-          if ("navigate" in client) client.navigate(url).catch(() => {});
+        // Focusing a tab without navigation support would leave the user on
+        // the wrong screen. Try a navigable tab or open a new window instead.
+        if (typeof client.navigate !== "function" || typeof client.focus !== "function") continue;
+        try {
+          const navigated = await client.navigate(url);
+          // The platform can resolve navigate() with null when a client
+          // closes or the target cannot be represented as a WindowClient.
+          // A null result is not proof that the destination was opened.
+          if (!navigated) continue;
+          await navigated.focus();
           return;
+        } catch {
+          // A closed or blocked client must not consume the notification click.
+          continue;
         }
       }
       return self.clients.openWindow(url);

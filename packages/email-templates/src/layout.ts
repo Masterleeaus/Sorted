@@ -1,5 +1,27 @@
 export const BRAND = "Dovetails Services LLC";
 
+
+/** Encode untrusted business text in HTML text or quoted attribute context. */
+export function escapeEmailText(value: unknown): string {
+  return String(value ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+}
+
+/** Validate email links: HTTPS hosts, loopback HTTP or safe same-origin paths. */
+export function safeEmailHref(value: unknown): string {
+  if (typeof value !== "string" || !value ||
+      /[\\\x00-\x20\x7f]/.test(value)) return "#";
+  if (value.startsWith("/") && !value.startsWith("//")) return value;
+  try {
+    const url = new URL(value);
+    if (url.username || url.password || !url.hostname) return "#";
+    if (url.protocol === "https:") return value;
+    if (url.protocol === "http:" &&
+      ["localhost", "127.0.0.1", "[::1]"].includes(url.hostname)) return value;
+  } catch {}
+  return "#";
+}
+
 export function wrap(body: string): string {
   return `<!DOCTYPE html>
 <html lang="en">
@@ -23,5 +45,5 @@ export function wrap(body: string): string {
 
 export function btn(href: string, label: string, variant: "primary" | "success" | "danger" = "primary"): string {
   const bg = variant === "success" ? "#16a34a" : variant === "danger" ? "#dc2626" : "#0f172a";
-  return `<a href="${href}" style="display:inline-block;background:${bg};color:#fff;padding:12px 24px;border-radius:6px;text-decoration:none;font-weight:600;font-size:14px;margin:4px 4px 4px 0;">${label}</a>`;
+  return `<a href="${escapeEmailText(safeEmailHref(href))}" style="display:inline-block;background:${bg};color:#fff;padding:12px 24px;border-radius:6px;text-decoration:none;font-weight:600;font-size:14px;margin:4px 4px 4px 0;">${escapeEmailText(label)}</a>`;
 }

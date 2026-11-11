@@ -41,6 +41,7 @@ export async function processWorkflowEvents(client: Client): Promise<number> {
       if (CANCEL_TRIGGERS.has(event.event_type)) {
         const cancelled = await cancelNotificationsForEntity(
           client,
+          event.account_id,
           event.entity_type,
           event.entity_id,
           event.event_type

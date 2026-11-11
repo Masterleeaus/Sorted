@@ -61,6 +61,28 @@ afterEach(async () => {
   await Promise.all(tempDirs.splice(0).map(path => rm(path, { recursive: true, force: true })));
 });
 
+describe("native schema migration source integrity", () => {
+  it("fails closed without writing schema objects if the attested source is unavailable", async () => {
+    // A restored SQL source should exercise the full migration tests below;
+    // this guard covers the missing-source case without assuming the file is
+    // permanently absent from the repository.
+    const firstSource = companyNativeWorkOrdersVisitsManifest.migrations[0]!;
+    const present = await readFile(new URL(`../../../${firstSource.path}`, import.meta.url))
+      .then(() => true, () => false);
+    if (present) return;
+
+    const storage = memoryStore();
+    await expect(initializeFreshCompanyNativeStore({
+      storage, placement, company_profile: companyProfile,
+    })).rejects.toMatchObject({ code: "company-native-schema-migration-source-mismatch" });
+
+    const objects = (await storage.query<{ name: string }>(
+      "SELECT name FROM sqlite_master WHERE name NOT GLOB 'sqlite_*'",
+    )).rows;
+    expect(objects).toEqual([]);
+  });
+});
+
 describe("fresh native-work-orders-visits-v2 schema producer", () => {
   it("pins donor migration bytes and the new native migrations independently", async () => {
     for (const source of companyNativeWorkOrdersVisitsManifest.source_provenance) {

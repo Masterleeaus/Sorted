@@ -17,6 +17,13 @@ export function emailIdempotencyBucket(now = new Date()): string {
   return String(Math.floor(now.getTime() / ms));
 }
 
+/** Only allow navigations inside the Sorted Field application. */
+function safeAttentionHref(value: string): string {
+  if (!value.startsWith("/") || value.startsWith("//")
+    || value.includes("\\") || /[\x00-\x1f\x7f"'<>]/.test(value)) return "/app";
+  return value;
+}
+
 /**
  * Enqueue owner-facing attention email via notification_queue (worker sends).
  * HIGH priority bypasses client cooldown caps. Never throws.
@@ -54,7 +61,7 @@ export async function enqueueAttentionOwnerEmail(
     }
 
     const bucket = emailIdempotencyBucket();
-    const idempotencyKey = `attention-email:${opts.type}:${opts.entityId}:${bucket}`;
+    const idempotencyKey = `attention-email:v2:${opts.accountId}:${opts.type}:${opts.entityId}:${bucket}`;
 
     const existing = await client.query<{ status: string }>(
       `SELECT status FROM notification_queue WHERE idempotency_key = $1 LIMIT 1`,
@@ -65,8 +72,9 @@ export async function enqueueAttentionOwnerEmail(
     }
 
     const base = appUrl();
-    const link = `${base}${opts.href.startsWith("/") ? opts.href : `/${opts.href}`}`;
-    const subject = `[Dovetails] ${opts.title}`;
+    const href = safeAttentionHref(opts.href);
+    const link = `${base}${href}`;
+    const subject = `[Sorted Field] ${opts.title}`;
     const summaryLine = opts.summary
       ? `<p style="color:#57534e;margin:8px 0">${escapeHtml(opts.summary)}</p>`
       : "";
@@ -74,19 +82,32 @@ export async function enqueueAttentionOwnerEmail(
       <div style="font-family:system-ui,sans-serif;max-width:520px">
         <h2 style="margin:0 0 8px;color:#166534">${escapeHtml(opts.title)}</h2>
         ${summaryLine}
-        <p><a href="${link}" style="color:#166534;font-weight:600">Open in app →</a></p>
-        <p style="font-size:12px;color:#78716c;margin-top:24px">You received this because something needs attention in Dovetails.</p>
+        <p><a href="${escapeHtml(link)}" style="color:#166534;font-weight:600">Open in app →</a></p>
+        <p style="font-size:12px;color:#78716c;margin-top:24px">You received this because something needs attention in Sorted Field.</p>
       </div>
     `;
 
     // priority 30 = HIGH (bypass cooldown/daily cap for owner alerts)
-    await client.query(
+    const queued = await client.query<{ id: string }>(
       `INSERT INTO notification_queue
          (account_id, client_id, automation_type, priority, to_address,
           subject, html_body, idempotency_key, entity_type, entity_id,
           next_attempt_at, metadata)
        VALUES ($1, NULL, $2, 30, $3, $4, $5, $6, $7, $8, now(), $9)
-       ON CONFLICT (idempotency_key) DO NOTHING`,
+       ON CONFLICT (idempotency_key) DO UPDATE
+         SET status = 'pending',
+             attempt_count = 0,
+             failed_at = NULL,
+             failure_reason = NULL,
+             sent_at = NULL,
+             next_attempt_at = now(),
+             to_address = EXCLUDED.to_address,
+             subject = EXCLUDED.subject,
+             html_body = EXCLUDED.html_body,
+             metadata = EXCLUDED.metadata
+       WHERE notification_queue.status = 'failed'
+         AND notification_queue.account_id = EXCLUDED.account_id
+       RETURNING id`,
       [
         opts.accountId,
         `attention.${opts.type}`,
@@ -96,10 +117,12 @@ export async function enqueueAttentionOwnerEmail(
         idempotencyKey,
         opts.entityType,
         opts.entityId,
-        JSON.stringify({ attentionType: opts.type, href: opts.href }),
+        JSON.stringify({ attentionType: opts.type, href }),
       ],
     );
-    return "enqueued";
+    // A simultaneous enqueue can win between the initial SELECT and INSERT.
+    // Never report success when the unique key did not insert or reset.
+    return queued.rows.length ? "enqueued" : "duplicate";
   } catch (err) {
     logger.error("enqueueAttentionOwnerEmail failed (non-fatal)", err, {
       type: opts.type,

@@ -11,14 +11,14 @@ const archivo = Archivo({
 
 export const metadata: Metadata = {
   title: {
-    default: "Titan Go · Field",
-    template: "%s · Titan Go",
+    default: "Sorted · Field",
+    template: "%s · Sorted",
   },
-  description: "Titan Go — Field mode. Run the work.",
-  applicationName: "Titan Go",
+  description: "Sorted — field service operations. Run the work.",
+  applicationName: "Sorted",
   appleWebApp: {
     capable: true,
-    title: "Titan Go",
+    title: "Sorted",
     statusBarStyle: "black-translucent",
   },
   icons: {
@@ -28,7 +28,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#070708",
+  themeColor: "#17365d",
   colorScheme: "dark light",
 };
 
