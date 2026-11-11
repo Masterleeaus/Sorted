@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { withRole } from "@/lib/auth/middleware";
 import type { AuthSession } from "@/lib/auth/middleware";
-import { getPool, query } from "@/lib/db";
+import { getPool, withDbSession } from "@/lib/db";
 import { appendAuditLog } from "@/lib/db/audit";
 import { logger } from "@/lib/logger";
 
@@ -38,20 +38,23 @@ export const GET = withRole(["owner", "admin"], async (request: NextRequest, ses
   }
   params.push(limit);
 
-  const rows = await query(
-    `SELECT p.*, c.name AS client_name,
-            COUNT(DISTINCT j.id)::int AS job_count,
-            COUNT(DISTINCT v.id)::int AS visit_count
-     FROM properties p
-     LEFT JOIN clients c ON c.id = p.client_id AND c.account_id = p.account_id
-     LEFT JOIN jobs j ON j.property_id = p.id AND j.account_id = p.account_id
-     LEFT JOIN visits v ON v.job_id = j.id AND v.account_id = p.account_id
-     WHERE ${conditions.join(" AND ")}
-     GROUP BY p.id, c.name
-     ORDER BY COALESCE(c.name, '') ASC, p.address ASC
-     LIMIT $${idx}`,
-    params
-  );
+  const rows = await withDbSession(session, async (client) => {
+    const result = await client.query(
+      `SELECT p.*, c.name AS client_name,
+              COUNT(DISTINCT j.id)::int AS job_count,
+              COUNT(DISTINCT v.id)::int AS visit_count
+       FROM properties p
+       LEFT JOIN clients c ON c.id = p.client_id AND c.account_id = p.account_id
+       LEFT JOIN jobs j ON j.property_id = p.id AND j.account_id = p.account_id
+       LEFT JOIN visits v ON v.job_id = j.id AND v.account_id = p.account_id
+       WHERE ${conditions.join(" AND ")}
+       GROUP BY p.id, c.name
+       ORDER BY COALESCE(c.name, '') ASC, p.address ASC
+       LIMIT $${idx}`,
+      params
+    );
+    return result.rows;
+  });
 
   return NextResponse.json({ data: rows, limit });
 });

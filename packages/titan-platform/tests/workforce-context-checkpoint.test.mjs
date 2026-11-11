@@ -1,12 +1,12 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { assembleWorkforceContext } from "../../.tmp-wf-context-build/assembler.js";
-import { projectWorkforceContextForTask } from "../../.tmp-wf-context-build/projection.js";
+import { assembleWorkforceContext } from "../.context-test-dist/assembler.js";
+import { projectWorkforceContextForTask } from "../.context-test-dist/projection.js";
 import {
   advanceWorkforceTaskCheckpoint,
   createWorkforceTaskCheckpoint,
   restoreWorkforceTaskCheckpoint,
-} from "../../.tmp-wf-context-build/checkpoint.js";
+} from "../.context-test-dist/checkpoint.js";
 
 function projection() {
   const context = assembleWorkforceContext({

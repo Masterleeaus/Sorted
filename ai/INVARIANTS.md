@@ -16,11 +16,17 @@ Trusting the local checkout mis-reported feature status **twice**. Always branch
 new work off `origin/main`, not the local HEAD.
 
 ## Deploy
-`bash scripts/deploy.sh` → ssh garonhome → reset `/opt` to `origin/main` → run
-SQL migrations (idempotent, tracked in `schema_migrations`) → rebuild web+worker
-→ wait for `/api/health`. Deploying is prod and gated; do it only on explicit
-say-so. After merging, the phone/PWA (`app.mydovetails.com`) does not change
-until this runs.
+Production procedure: `DEPLOY.md` (authoritative). Entrypoint:
+`bash scripts/deploy.sh [branch]` → ssh garonhome → reset `/opt/business/ai-fsm/repo`
+to `origin/<branch>` → `scripts/deploy-garonhome.sh` runs SQL migrations (idempotent,
+tracked in `schema_migrations`) → rebuilds web+worker → waits for `/api/health`.
+The deploy script does **not** take a backup; run `scripts/backup-garonhome.sh` first.
+Deploying is prod and gated; do it only on explicit say-so. After merging, the
+phone/PWA (`app.mydovetails.com`) does not change until this runs.
+
+**Not the production path:** `/home/admin/apps/ai-fsm`, the systemd unit `ai-fsm`,
+`start-production.sh`, and any UI-ZIP overlay. These are legacy (see `DEPLOY.md` §6).
+Never deploy by copying files into them.
 
 ## Two runtimes, asymmetric egress
 The **worker** container is on the `internal: true` network and has **no
@@ -30,12 +36,21 @@ its own pooled connection; do not route external sends through the
 worker-drained `notification_queue`. Email works from the worker only because it
 targets a LAN SMTP relay.
 
-## DB role is a superuser → RLS is bypassed today
-The app DB role (`ai_fsm`) is `rolsuper`+`rolbypassrls` in dev and garonhome
-prod, so RLS is effectively off. Code still sets
-`app.current_account_id/user_id/role` defensively (`withDbSession`, the location
-ingest route, `lib/push/send.ts`) and **every query still scopes by
-`account_id`** — keep both. Don't assume RLS is enforcing isolation.
+## DB roles: web is still superuser-bound; the worker has its own role
+Roles (provisioned by `scripts/db-provision-runtime.sh`, deployed by `DEPLOY.md` section 4a):
+- **Admin** `ai_fsm`: superuser. Migrations, provisioning, scripts. `DATABASE_URL`.
+- **Web** (`WEB_DATABASE_URL`): still the admin URL. `ai_fsm_web` is provisioned NOBYPASSRLS
+  but is not in use. Until the cutover gate in `docs/working/rls-web-tier-flip.md` clears,
+  RLS is bypassed for web queries. Code sets `app.current_account_id` (`withDbSession`,
+  the location ingest route, `lib/push/send.ts`) and **every query scopes by `account_id`**.
+  Keep both. About 100 web files make DB calls without setting account context, so do not
+  flip the web URL early.
+- **Worker** (`WORKER_DATABASE_URL`): `ai_fsm_worker`, BYPASSRLS, NOSUPERUSER, DML on the
+  explicit table list in `scripts/db-provision-runtime.sh` (SELECT only on `accounts`), no DDL or ownership. Cross-account sweeps need this bypass. Policies do not
+  protect worker writes, so each worker job must scope by `account_id` or be a reviewed
+  cross-account job. Decision record: ADR-024.
+
+Do not assume RLS isolates web requests until the web cutover has run.
 
 ## garonhome also runs Home Assistant
 Scheduled interrupts (RAM start-day, home-arrival + 8 PM day-review) are **HA

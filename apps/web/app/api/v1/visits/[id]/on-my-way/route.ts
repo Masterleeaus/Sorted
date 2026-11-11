@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { withAuth } from "../../../../../../lib/auth/middleware";
 import type { AuthSession } from "../../../../../../lib/auth/middleware";
-import { getPool } from "../../../../../../lib/db";
+import { withDbSession } from "../../../../../../lib/db";
 import { appendAuditLog } from "../../../../../../lib/db/audit";
 import { logger } from "../../../../../../lib/logger";
 import { sendEmail, isEmailConfigured } from "../../../../../../lib/email/mailer";
@@ -21,25 +21,25 @@ export const POST = withAuth(
       );
     }
 
-    const pool = getPool();
-    const client = await pool.connect();
-
     try {
-      const { rows } = await client.query(
-        `SELECT v.id, v.account_id, v.status, v.scheduled_start, v.scheduled_end,
-                j.id AS job_id, j.title AS job_title,
-                c.id AS client_id,
-                c.name AS client_name, c.email AS client_email,
-                p.address AS property_address,
-                u.full_name AS tech_name
-         FROM visits v
-         JOIN jobs j ON j.id = v.job_id
-         JOIN clients c ON c.id = j.client_id
-         LEFT JOIN properties p ON p.id = j.property_id
-         LEFT JOIN users u ON u.id = $2
-         WHERE v.id = $1 AND v.account_id = $3`,
-        [id, session.userId, session.accountId]
-      );
+      const rows = await withDbSession(session, async (db) => {
+        const result = await db.query(
+          `SELECT v.id, v.account_id, v.status, v.scheduled_start, v.scheduled_end,
+                  j.id AS job_id, j.title AS job_title,
+                  c.id AS client_id,
+                  c.name AS client_name, c.email AS client_email,
+                  p.address AS property_address,
+                  u.full_name AS tech_name
+           FROM visits v
+           JOIN jobs j ON j.id = v.job_id
+           JOIN clients c ON c.id = j.client_id
+           LEFT JOIN properties p ON p.id = j.property_id
+           LEFT JOIN users u ON u.id = $2
+           WHERE v.id = $1 AND v.account_id = $3`,
+          [id, session.userId, session.accountId]
+        );
+        return result.rows;
+      });
 
       const visit = rows[0];
 
@@ -80,7 +80,7 @@ export const POST = withAuth(
           }),
         });
         if (!emailResult.ok) {
-          await logCommunication({
+          await withDbSession(session, (db) => logCommunication(db, {
             accountId: session.accountId,
             channel: "email",
             direction: "outbound",
@@ -91,7 +91,7 @@ export const POST = withAuth(
             bodyPreview: `On My Way — ${visit.job_title}`,
             initiatedBy: session.userId,
             externalId: emailResult.error ?? null,
-          });
+          }));
           logger.warn("[on-my-way] email send failed", { visitId: id, error: emailResult.error });
           return NextResponse.json(
             {
@@ -104,7 +104,7 @@ export const POST = withAuth(
             { status: 502 }
           );
         }
-        await logCommunication({
+        await withDbSession(session, (db) => logCommunication(db, {
           accountId: session.accountId,
           channel: "email",
           direction: "outbound",
@@ -114,19 +114,21 @@ export const POST = withAuth(
           visitId: id,
           bodyPreview: `On My Way — ${visit.job_title}`,
           initiatedBy: session.userId,
-        });
+        }));
       }
 
-      await appendAuditLog(client, {
-        account_id: session.accountId,
-        entity_type: "on_my_way",
-        entity_id: id,
-        action: "insert",
-        actor_id: session.userId,
-        trace_id: session.traceId,
-        old_value: null,
-        new_value: { sent_at: new Date().toISOString(), client_email: visit.client_email },
-      });
+      await withDbSession(session, (db) =>
+        appendAuditLog(db, {
+          account_id: session.accountId,
+          entity_type: "on_my_way",
+          entity_id: id,
+          action: "insert",
+          actor_id: session.userId,
+          trace_id: session.traceId,
+          old_value: null,
+          new_value: { sent_at: new Date().toISOString(), client_email: visit.client_email },
+        })
+      );
 
       return NextResponse.json({ data: { sent: true } });
     } catch (err) {
@@ -141,8 +143,6 @@ export const POST = withAuth(
         },
         { status: 500 }
       );
-    } finally {
-      client.release();
     }
   }
 );

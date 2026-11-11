@@ -1,4 +1,4 @@
-import { query, queryOne } from "@/lib/db";
+import type { DbClient } from "@/lib/db";
 import { logCommunication } from "@/lib/communications-log";
 import { normalizePhone } from "@/lib/phone";
 
@@ -20,6 +20,7 @@ export type OutboundSmsOutcome = "sent" | "delivered" | "failed";
  * Resolve a client by phone for the account (E.164-normalized match).
  */
 export async function findClientByPhone(
+  db: DbClient,
   accountId: string,
   rawPhone: string
 ): Promise<{ id: string; name: string; phone: string | null } | null> {
@@ -30,7 +31,7 @@ export async function findClientByPhone(
   const digits = phone.replace(/\D/g, "");
   const last10 = digits.length >= 10 ? digits.slice(-10) : digits;
 
-  const row = await queryOne<{ id: string; name: string; phone: string | null }>(
+  const { rows: [row = null] } = await db.query<{ id: string; name: string; phone: string | null }>(
     `SELECT id, name, phone FROM clients
      WHERE account_id = $1
        AND (
@@ -51,10 +52,11 @@ export async function findClientByPhone(
  * Pick the best open job to attach an outbound SMS to (active statuses first).
  */
 export async function findActiveJobForClient(
+  db: DbClient,
   accountId: string,
   clientId: string
 ): Promise<string | null> {
-  const row = await queryOne<{ id: string }>(
+  const { rows: [row] } = await db.query<{ id: string }>(
     `SELECT id FROM jobs
      WHERE account_id = $1 AND client_id = $2
        AND status IN ('draft', 'quoted', 'scheduled', 'in_progress')
@@ -77,7 +79,7 @@ export async function findActiveJobForClient(
  * Log an outbound SMS. Idempotent when externalId is set.
  * Returns the communications_log id, or null if duplicate.
  */
-export async function logOutboundSms(opts: {
+export async function logOutboundSms(db: DbClient, opts: {
   accountId: string;
   clientId: string | null;
   jobId?: string | null;
@@ -86,7 +88,7 @@ export async function logOutboundSms(opts: {
   externalId?: string | null;
   initiatedBy?: string | null;
 }): Promise<string | null> {
-  return logCommunication({
+  return logCommunication(db, {
     accountId: opts.accountId,
     channel: "sms",
     direction: "outbound",
@@ -104,11 +106,12 @@ export async function logOutboundSms(opts: {
  * (e.g. delivered/failed from gateway webhooks).
  */
 export async function updateOutboundSmsOutcome(
+  db: DbClient,
   accountId: string,
   externalId: string,
   outcome: OutboundSmsOutcome
 ): Promise<boolean> {
-  const rows = await query<{ id: string }>(
+  const { rows } = await db.query<{ id: string }>(
     `UPDATE communications_log
      SET outcome = $3
      WHERE account_id = $1

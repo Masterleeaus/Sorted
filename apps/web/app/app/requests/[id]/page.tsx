@@ -2,12 +2,13 @@ import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
 import type { Route } from "next";
 import { getSession } from "@/lib/auth/session";
-import { query, queryOne } from "@/lib/db";
+import { queryForSession, queryOneForSession } from "@/lib/db";
 import { PageContainer, PageHeader, Card, SectionHeader, StatusBadge, LinkButton } from "@/components/ui";
 import type { StatusVariant } from "@/components/ui";
 import { ReviewActions } from "./ReviewActions";
 import { IntakeSummary } from "./IntakeSummary";
 import { INTAKE_QUESTIONS, INTAKE_METADATA_LABELS } from "@/lib/intake/questions";
+import { listRequestIntakePhotos } from "@/lib/intake/request-photos";
 import { PRICING_MODE_LABELS, scoreJobFit } from "@ai-fsm/domain";
 import { FUNNEL_STEPS, funnelStepIndex, getRequestGuidance } from "../request-guidance";
 import { MarkEntityAttentionRead } from "@/components/attention/MarkEntityAttentionRead";
@@ -106,7 +107,7 @@ export default async function BookingRequestDetailPage({
   if (!session) redirect("/login");
   if (session.role === "tech") redirect("/app");
 
-  const br = await queryOne<BookingRow>(
+  const br = await queryOneForSession<BookingRow>(session,
     `SELECT br.*, u.full_name AS reviewed_by_name,
             j.title AS job_title, j.status AS job_status
      FROM booking_requests br
@@ -118,9 +119,12 @@ export default async function BookingRequestDetailPage({
 
   if (!br) notFound();
 
+  // Customer photos linked to this request. Read-only list; no file URLs.
+  const intakePhotos = (await listRequestIntakePhotos(session, id)) ?? [];
+
   const duplicateIds = br.duplicate_candidate_ids ?? [];
   const duplicateRows = duplicateIds.length > 0
-    ? await query<DuplicateBookingRow>(
+    ? await queryForSession<DuplicateBookingRow>(session,
       `SELECT id, name, created_at, status
        FROM booking_requests
        WHERE account_id = $1 AND id = ANY($2::uuid[])
@@ -137,12 +141,12 @@ export default async function BookingRequestDetailPage({
   });
 
   // Load latest invite to determine next-step banner state
-  const inviteRows = await query<{ token: string; used_at: string | null; expires_at: string; created_at: string }>(
+  const inviteRows = await queryForSession<{ token: string; used_at: string | null; expires_at: string; created_at: string }>(session,
     `SELECT token::text, used_at, expires_at, created_at
      FROM intake_invites
-     WHERE booking_request_id = $1
+     WHERE booking_request_id = $1 AND account_id = $2
      ORDER BY created_at DESC LIMIT 1`,
-    [id]
+    [id, session.accountId]
   );
   const latestInvite = inviteRows[0] ?? null;
 
@@ -381,6 +385,27 @@ export default async function BookingRequestDetailPage({
                 </div>
               )}
             </dl>
+          </Card>
+
+          <Card data-testid="request-photos">
+            <SectionHeader title="Customer photos" />
+            {intakePhotos.length === 0 ? (
+              <p style={{ margin: 0, fontSize: "var(--text-sm)", color: "var(--fg-muted)" }}>
+                No photos were attached to this request.
+              </p>
+            ) : (
+              <ul style={{ margin: 0, paddingLeft: 0, listStyle: "none", display: "flex", flexDirection: "column", gap: "var(--space-2)" }}>
+                {intakePhotos.map((photo) => (
+                  <li key={photo.id} style={{ fontSize: "var(--text-sm)", overflowWrap: "anywhere" }}>
+                    <span>{photo.original_name}</span>{" "}
+                    <span style={{ color: "var(--fg-muted)" }}>
+                      ({Math.max(1, Math.round(photo.size_bytes / 1024))} KB,{" "}
+                      {new Date(photo.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })})
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            )}
           </Card>
 
           <Card>

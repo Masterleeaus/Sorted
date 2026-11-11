@@ -22,6 +22,8 @@ const mockPool = {
 
 vi.mock("../../../../../lib/db", () => ({
   query: (...args: unknown[]) => mockQuery(...args),
+  // GET routes run through the session helper: (session, sql, params)
+  queryForSession: (_session: unknown, ...args: unknown[]) => mockQuery(...args),
   getPool: () => mockPool,
 }));
 

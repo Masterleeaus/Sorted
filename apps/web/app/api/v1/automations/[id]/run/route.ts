@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { withRole } from "../../../../../../lib/auth/middleware";
 import type { AuthSession } from "../../../../../../lib/auth/middleware";
-import { query, getPool } from "../../../../../../lib/db";
+import { queryForSession, withDbSession } from "../../../../../../lib/db";
 import { logger } from "../../../../../../lib/logger";
 import {
   triggerAutomation,
@@ -14,12 +14,13 @@ import {
 export const dynamic = "force-dynamic";
 
 async function getAutomation(
+  session: AuthSession,
   automationId: string,
-  accountId: string
 ): Promise<AutomationRecord | null> {
-  const rows = await query<AutomationRecord>(
+  const rows = await queryForSession<AutomationRecord>(
+    session,
     `SELECT id, type, account_id, enabled FROM automations WHERE id = $1 AND account_id = $2`,
-    [automationId, accountId]
+    [automationId, session.accountId]
   );
   return rows[0] ?? null;
 }
@@ -43,7 +44,7 @@ export const POST = withRole(
       );
     }
 
-    const automation = await getAutomation(automationId, session.accountId);
+    const automation = await getAutomation(session, automationId);
 
     if (!automation) {
       return NextResponse.json(
@@ -69,24 +70,18 @@ export const POST = withRole(
       );
     }
 
-    const pool = getPool();
-    const client = await pool.connect();
-
     try {
-      await client.query("BEGIN");
-
-      await triggerAutomation(client, automationId, automation, {
-        accountId: session.accountId,
-        userId: session.userId,
-        traceId: session.traceId,
-      });
-
-      await client.query("COMMIT");
+      await withDbSession(session, (client) =>
+        triggerAutomation(client, automationId, automation, {
+          accountId: session.accountId,
+          userId: session.userId,
+          traceId: session.traceId,
+        })
+      );
 
       const result = buildSuccessResponse(automationId, automation.type);
       return NextResponse.json({ data: result });
     } catch (err) {
-      await client.query("ROLLBACK");
       logger.error("[automations run POST]", err, { traceId: session.traceId });
       return NextResponse.json(
         {
@@ -97,8 +92,6 @@ export const POST = withRole(
         },
         { status: 500 }
       );
-    } finally {
-      client.release();
     }
   }
 );

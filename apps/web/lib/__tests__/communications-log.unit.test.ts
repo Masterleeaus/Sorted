@@ -1,10 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mockQuery = vi.fn();
-
-vi.mock("@/lib/db", () => ({
-  query: (...args: unknown[]) => mockQuery(...args),
-}));
+// The caller's account-context client. logCommunication must use this, not a pool.
+const db = { query: (...args: unknown[]) => mockQuery(...args) };
 
 import { logCommunication } from "../communications-log";
 
@@ -14,9 +12,9 @@ describe("logCommunication", () => {
   });
 
   it("maps communication fields to insert parameters", async () => {
-    mockQuery.mockResolvedValueOnce([]);
+    mockQuery.mockResolvedValueOnce({ rows: [] });
 
-    await logCommunication({
+    await logCommunication(db, {
       accountId: "account-1",
       channel: "email",
       direction: "outbound",
@@ -47,10 +45,21 @@ describe("logCommunication", () => {
     ]);
   });
 
-  it("defaults optional ids and metadata to null", async () => {
-    mockQuery.mockResolvedValueOnce([]);
+  it("returns the inserted id, or null when the dedup insert returns no row", async () => {
+    mockQuery.mockResolvedValueOnce({ rows: [{ id: "comm-1" }] });
+    await expect(
+      logCommunication(db, { accountId: "account-1", channel: "sms", direction: "outbound", outcome: "sent", externalId: "e1" }),
+    ).resolves.toBe("comm-1");
+    mockQuery.mockResolvedValueOnce({ rows: [] });
+    await expect(
+      logCommunication(db, { accountId: "account-1", channel: "sms", direction: "outbound", outcome: "sent", externalId: "e1" }),
+    ).resolves.toBeNull();
+  });
 
-    await logCommunication({
+  it("defaults optional ids and metadata to null", async () => {
+    mockQuery.mockResolvedValueOnce({ rows: [] });
+
+    await logCommunication(db, {
       accountId: "account-1",
       channel: "phone",
       direction: "outbound",

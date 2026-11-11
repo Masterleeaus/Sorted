@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { withAuth } from "../../../../../lib/auth/middleware";
 import type { AuthSession } from "../../../../../lib/auth/middleware";
-import { queryOne, getPool } from "../../../../../lib/db";
+import { getPool, withDbSession } from "../../../../../lib/db";
 import { appendAuditLog } from "../../../../../lib/db/audit";
 import { logger } from "../../../../../lib/logger";
 import { computeCapStatus } from "../../../../../lib/visits/membership-cap";
@@ -59,10 +59,13 @@ export const GET = withAuth(
       );
     }
 
-    const visit = await queryOne(
-      `SELECT * FROM visits WHERE id = $1 AND account_id = $2`,
-      [id, session.accountId]
-    );
+    const visit = await withDbSession(session, async (client) => {
+      const result = await client.query(
+        `SELECT * FROM visits WHERE id = $1 AND account_id = $2`,
+        [id, session.accountId]
+      );
+      return result.rows[0] ?? null;
+    });
 
     if (!visit) {
       return NextResponse.json(

@@ -8,44 +8,41 @@ import path from "path";
 import { randomUUID } from "crypto";
 import { withAuth } from "../../../../../../lib/auth/middleware";
 import type { AuthSession } from "../../../../../../lib/auth/middleware";
-import { query, queryOne, getPool } from "../../../../../../lib/db";
+import type { PoolClient } from "pg";
+import { getPool, withDbSession } from "../../../../../../lib/db";
 import { logger } from "../../../../../../lib/logger";
+import { declaredLengthExceeds, payloadTooLargeResponse, readMultipartWithLimit, UPLOAD_BODY_LIMITS } from "../../../../../../lib/uploads/body-limit";
+import {
+  UPLOAD_ROOT,
+  imageExtensionForMime,
+  isSafePathSegment,
+  resolveStoredUpload,
+  sanitizeDisplayName,
+} from "../../../../../../lib/uploads/paths";
 
 export const dynamic = "force-dynamic";
 
+const VISIT_MEDIA_ROOT = path.join(UPLOAD_ROOT, "visits");
 const MAX_SIZE_BYTES = 10 * 1024 * 1024; // 10 MB
 const ALLOWED_MIME_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif", "image/heic", "image/heif"];
 const VALID_CATEGORIES = ["before", "after", "receipt", "assessment"] as const;
 type MediaCategory = typeof VALID_CATEGORIES[number];
 
-async function getVisit(visitId: string, session: AuthSession) {
-  return queryOne<{ id: string; assigned_user_id: string | null }>(
+async function getVisit(client: PoolClient, visitId: string, session: AuthSession) {
+  const result = await client.query<{ id: string; assigned_user_id: string | null }>(
     `SELECT id, assigned_user_id FROM visits WHERE id = $1 AND account_id = $2`,
     [visitId, session.accountId]
   );
+  return result.rows[0] ?? null;
 }
 
 export const GET = withAuth(
   async (request: NextRequest, session: AuthSession) => {
     const visitId = request.url.match(/\/visits\/([^/]+)\/media/)?.[1];
-    if (!visitId) {
+    if (!visitId || !isSafePathSegment(visitId)) {
       return NextResponse.json(
         { error: { code: "NOT_FOUND", message: "Visit not found", traceId: session.traceId } },
         { status: 404 }
-      );
-    }
-
-    const visit = await getVisit(visitId, session);
-    if (!visit) {
-      return NextResponse.json(
-        { error: { code: "NOT_FOUND", message: "Visit not found", traceId: session.traceId } },
-        { status: 404 }
-      );
-    }
-    if (session.role === "tech" && visit.assigned_user_id !== session.userId) {
-      return NextResponse.json(
-        { error: { code: "FORBIDDEN", message: "Access denied", traceId: session.traceId } },
-        { status: 403 }
       );
     }
 
@@ -59,29 +56,50 @@ export const GET = withAuth(
       params.push(category);
     }
 
-    const rows = await query(
-      `SELECT id, visit_id, category, original_name, mime_type, size_bytes, created_at
-       FROM visit_media
-       WHERE visit_id = $1 AND account_id = $2${categoryClause}
-       ORDER BY created_at`,
-      params
-    );
+    return withDbSession(session, async (client) => {
+      const visit = await getVisit(client, visitId, session);
+      if (!visit) {
+        return NextResponse.json(
+          { error: { code: "NOT_FOUND", message: "Visit not found", traceId: session.traceId } },
+          { status: 404 }
+        );
+      }
+      if (session.role === "tech" && visit.assigned_user_id !== session.userId) {
+        return NextResponse.json(
+          { error: { code: "FORBIDDEN", message: "Access denied", traceId: session.traceId } },
+          { status: 403 }
+        );
+      }
 
-    return NextResponse.json({ data: rows });
+      const result = await client.query(
+        `SELECT id, visit_id, category, original_name, mime_type, size_bytes, created_at
+         FROM visit_media
+         WHERE visit_id = $1 AND account_id = $2${categoryClause}
+         ORDER BY created_at`,
+        params
+      );
+
+      return NextResponse.json({ data: result.rows });
+    });
   }
 );
 
 export const POST = withAuth(
   async (request: NextRequest, session: AuthSession) => {
     const visitId = request.url.match(/\/visits\/([^/]+)\/media/)?.[1];
-    if (!visitId) {
+    if (!visitId || !isSafePathSegment(visitId)) {
       return NextResponse.json(
         { error: { code: "NOT_FOUND", message: "Visit not found", traceId: session.traceId } },
         { status: 404 }
       );
     }
 
-    const visit = await getVisit(visitId, session);
+    // Declared oversize bodies are refused before any DB lookup, parsing or writes (#16).
+    if (declaredLengthExceeds(request, UPLOAD_BODY_LIMITS.mediaPhoto)) {
+      return payloadTooLargeResponse(session.traceId, UPLOAD_BODY_LIMITS.mediaPhoto);
+    }
+
+    const visit = await withDbSession(session, (client) => getVisit(client, visitId, session));
     if (!visit) {
       return NextResponse.json(
         { error: { code: "NOT_FOUND", message: "Visit not found", traceId: session.traceId } },
@@ -95,15 +113,17 @@ export const POST = withAuth(
       );
     }
 
-    let formData: FormData;
-    try {
-      formData = await request.formData();
-    } catch {
+    const multipart = await readMultipartWithLimit(request, UPLOAD_BODY_LIMITS.mediaPhoto);
+    if (!multipart.ok && multipart.reason === "too_large") {
+      return payloadTooLargeResponse(session.traceId, UPLOAD_BODY_LIMITS.mediaPhoto);
+    }
+    if (!multipart.ok) {
       return NextResponse.json(
         { error: { code: "VALIDATION_ERROR", message: "Expected multipart form data", traceId: session.traceId } },
         { status: 422 }
       );
     }
+    const formData = multipart.formData;
 
     const file = formData.get("file") as File | null;
     const category = formData.get("category") as string | null;
@@ -133,11 +153,17 @@ export const POST = withAuth(
       );
     }
 
-    const ext = file.name.split(".").pop() ?? "jpg";
-    const uuid = randomUUID();
-    const filename = `${uuid}.${ext}`;
-    const uploadDir = path.join("/app/uploads/visits", visitId);
-    const filePath = path.join(uploadDir, filename);
+    // Stored name is server-generated; the extension comes from the allowlist, not from file.name.
+    const ext = imageExtensionForMime(file.type);
+    const filePath = ext ? resolveStoredUpload(VISIT_MEDIA_ROOT, visitId, `${randomUUID()}.${ext}`) : null;
+    if (!filePath) {
+      return NextResponse.json(
+        { error: { code: "VALIDATION_ERROR", message: "Only image files are allowed", traceId: session.traceId } },
+        { status: 422 }
+      );
+    }
+    const uploadDir = path.dirname(filePath);
+    const filename = path.basename(filePath);
 
     try {
       fs.mkdirSync(uploadDir, { recursive: true });
@@ -166,7 +192,7 @@ export const POST = withAuth(
         `INSERT INTO visit_media (account_id, visit_id, category, filename, original_name, mime_type, size_bytes, created_by)
          VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
          RETURNING id, visit_id, category, original_name, mime_type, size_bytes, created_at`,
-        [session.accountId, visitId, category, filename, file.name, file.type, file.size, session.userId]
+        [session.accountId, visitId, category, filename, sanitizeDisplayName(file.name), file.type, file.size, session.userId]
       );
 
       await client.query("COMMIT");

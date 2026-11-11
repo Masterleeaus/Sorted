@@ -6,6 +6,7 @@ import {
   type AttentionEmailType,
   type AttentionEventType,
 } from "./types";
+import { escapeHtml, hrefAttr } from "@ai-fsm/email-templates";
 
 function isEmailType(t: string): t is AttentionEmailType {
   return (ATTENTION_EMAIL_TYPES as readonly string[]).includes(t);
@@ -74,7 +75,7 @@ export async function enqueueAttentionOwnerEmail(
       <div style="font-family:system-ui,sans-serif;max-width:520px">
         <h2 style="margin:0 0 8px;color:#166534">${escapeHtml(opts.title)}</h2>
         ${summaryLine}
-        <p><a href="${link}" style="color:#166534;font-weight:600">Open in app →</a></p>
+        <p><a href="${hrefAttr(link)}" style="color:#166534;font-weight:600">Open in app →</a></p>
         <p style="font-size:12px;color:#78716c;margin-top:24px">You received this because something needs attention in Dovetails.</p>
       </div>
     `;
@@ -109,10 +110,3 @@ export async function enqueueAttentionOwnerEmail(
   }
 }
 
-function escapeHtml(s: string): string {
-  return s
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
-}

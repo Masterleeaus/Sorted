@@ -3,7 +3,7 @@ import { z } from "zod";
 import { hash, compare } from "bcryptjs";
 import { withAuth } from "@/lib/auth/middleware";
 import type { AuthSession } from "@/lib/auth/middleware";
-import { getPool, queryOne } from "@/lib/db";
+import { queryOneForSession, withDbSession } from "@/lib/db";
 import { logger } from "@/lib/logger";
 
 export const dynamic = "force-dynamic";
@@ -43,7 +43,8 @@ export const POST = withAuth(async (request: NextRequest, session: AuthSession) 
     );
   }
 
-  const user = await queryOne<{ id: string; password_hash: string }>(
+  const user = await queryOneForSession<{ id: string; password_hash: string }>(
+    session,
     `SELECT id, password_hash FROM users WHERE id = $1 AND account_id = $2`,
     [id, session.accountId]
   );
@@ -66,12 +67,12 @@ export const POST = withAuth(async (request: NextRequest, session: AuthSession) 
 
   const new_hash = await hash(new_password, 12);
 
-  const pool = getPool();
-  const client = await pool.connect();
   try {
-    await client.query(
-      `UPDATE users SET password_hash = $1, updated_at = now() WHERE id = $2 AND account_id = $3`,
-      [new_hash, id, session.accountId]
+    await withDbSession(session, (client) =>
+      client.query(
+        `UPDATE users SET password_hash = $1, updated_at = now() WHERE id = $2 AND account_id = $3`,
+        [new_hash, id, session.accountId]
+      )
     );
     return NextResponse.json({ updated: true });
   } catch (error) {
@@ -80,7 +81,5 @@ export const POST = withAuth(async (request: NextRequest, session: AuthSession) 
       { error: { code: "INTERNAL_ERROR", message: "Failed to update password", traceId: session.traceId } },
       { status: 500 }
     );
-  } finally {
-    client.release();
   }
 });

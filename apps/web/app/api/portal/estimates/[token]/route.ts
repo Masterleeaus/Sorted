@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { isPortalPreview, PREVIEW_READ_ONLY_MESSAGE } from "@/lib/portal/session";
 import { z } from "zod";
-import { queryOne, query, getPool } from "@/lib/db";
+import { queryOne, getPool } from "@/lib/db";
+import { withTokenAccountContext } from "../../../_lib/account-context";
 import { createJobFromEstimate, getAccountOwnerUserId } from "@/lib/estimates/create-job-db";
 import { createApprovalArtifacts } from "@/lib/estimates/approve";
 import { logger } from "@/lib/logger";
@@ -10,6 +11,7 @@ export const dynamic = "force-dynamic";
 
 interface EstimateRow extends Record<string, unknown> {
   id: string;
+  account_id: string;
   status: string;
   subtotal_cents: number;
   tax_cents: number;
@@ -43,9 +45,22 @@ export async function GET(
 ) {
   const { token } = await params;
 
-  const estimate = await queryOne<EstimateRow>(
-    `SELECT
-       e.id, e.status, e.subtotal_cents, e.tax_cents, e.total_cents,
+  // Bootstrap: the share token resolves to an account through a bounded resolver
+  // (migration 204). Nothing else reads this estimate before context is set.
+  const resolved = await queryOne<{ account_id: string | null }>(
+    `SELECT resolve_estimate_share_account($1::uuid) AS account_id`,
+    [token]
+  );
+  if (!resolved?.account_id) {
+    return NextResponse.json({ error: "Not found" }, { status: 404 });
+  }
+  const accountId = resolved.account_id;
+
+  // The estimate read runs in the resolved account's context, with the account predicate.
+  const estimate = await withTokenAccountContext(accountId, async (tx) => {
+    const { rows: [row] } = await tx.query<EstimateRow>(
+      `SELECT
+       e.id, e.account_id, e.status, e.subtotal_cents, e.tax_cents, e.total_cents,
        e.deposit_cents, e.notes, e.expires_at, e.sent_at, e.responded_at,
        e.client_approved_name,
        c.name AS client_name,
@@ -56,23 +71,31 @@ export async function GET(
      JOIN clients c ON c.id = e.client_id
      JOIN accounts a ON a.id = e.account_id
      LEFT JOIN properties p ON p.id = e.property_id
-     WHERE e.share_token = $1`,
-    [token]
-  );
+     WHERE e.share_token = $1 AND e.account_id = $2`,
+      [token, accountId]
+    );
+    return row ?? null;
+  });
 
   if (!estimate) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 
-  const lineItems = await query<LineItemRow>(
-    `SELECT id, description, quantity, unit_price_cents, total_cents, sort_order
-     FROM estimate_line_items
-     WHERE estimate_id = $1 AND visible_to_customer = true
-     ORDER BY sort_order`,
-    [estimate.id]
-  );
+  const { account_id: _accountId, ...publicEstimate } = estimate;
 
-  return NextResponse.json({ estimate, lineItems });
+  const lineItems = await withTokenAccountContext(accountId, async (tx) => {
+    const { rows } = await tx.query<LineItemRow>(
+      `SELECT id, description, quantity, unit_price_cents, total_cents, sort_order
+       FROM estimate_line_items
+       WHERE estimate_id = $1 AND visible_to_customer = true
+         AND EXISTS (SELECT 1 FROM estimates e WHERE e.id = estimate_line_items.estimate_id AND e.account_id = $2)
+       ORDER BY sort_order`,
+      [estimate.id, accountId]
+    );
+    return rows;
+  });
+
+  return NextResponse.json({ estimate: publicEstimate, lineItems });
 }
 
 const respondBody = z.object({
@@ -81,21 +104,32 @@ const respondBody = z.object({
   signature_svg: z.string().optional(),
 });
 
+/** Resolves the share token to its account, then reads the estimate in that context. */
+async function loadEstimateForRespond(token: string) {
+  const resolved = await queryOne<{ account_id: string | null }>(
+    `SELECT resolve_estimate_share_account($1::uuid) AS account_id`,
+    [token]
+  );
+  if (!resolved?.account_id) return null;
+  const accountId = resolved.account_id;
+  return withTokenAccountContext(accountId, async (tx) => {
+    const { rows: [row] } = await tx.query<{
+      id: string; status: string; account_id: string; client_id: string;
+    }>(
+      `SELECT id, status, account_id, client_id FROM estimates WHERE share_token = $1 AND account_id = $2`,
+      [token, accountId]
+    );
+    return row ?? null;
+  });
+}
+
 export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ token: string }> }
 ) {
   const { token } = await params;
 
-  const estimate = await queryOne<{
-    id: string;
-    status: string;
-    account_id: string;
-    client_id: string;
-  } & Record<string, unknown>>(
-    `SELECT id, status, account_id, client_id FROM estimates WHERE share_token = $1`,
-    [token]
-  );
+  const estimate = await loadEstimateForRespond(token);
 
   if (!estimate) return NextResponse.json({ error: "Not found" }, { status: 404 });
   if (await isPortalPreview(estimate.client_id)) {
@@ -127,6 +161,14 @@ export async function POST(
   const dbClient = await pool.connect();
   try {
     await dbClient.query("BEGIN");
+    // Account context from the resolved estimate, before the write. Role owner:
+    // the estimates UPDATE policy needs owner or admin under RLS.
+    await dbClient.query(
+      `SELECT set_config('app.current_user_id', '', true),
+              set_config('app.current_account_id', $1, true),
+              set_config('app.current_role', 'owner', true)`,
+      [estimate.account_id]
+    );
 
     await dbClient.query(
       `UPDATE estimates
@@ -135,8 +177,8 @@ export async function POST(
            client_signature_svg = $3,
            responded_at = now(),
            updated_at = now()
-       WHERE id = $4`,
-      [newStatus, name ?? null, signature_svg ?? null, estimate.id]
+       WHERE id = $4 AND account_id = $5`,
+      [newStatus, name ?? null, signature_svg ?? null, estimate.id, estimate.account_id]
     );
 
     // On approval: set RLS context then create job + deposit invoice artifacts,

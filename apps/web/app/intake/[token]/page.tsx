@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
-import { getPool } from "@/lib/db";
+import { queryOne } from "@/lib/db";
+import { withTokenAccountContext } from "@/app/api/_lib/account-context";
 import { IntakeClientForm } from "./IntakeClientForm";
 
 export const dynamic = "force-dynamic";
@@ -23,17 +24,38 @@ export default async function PublicIntakePage({
 }) {
   const { token } = await params;
 
-  let rows: InviteRow[] = [];
+  // Open invites resolve to an account through migration 204 (unused and unexpired).
+  // The lead's phone is read inside that account's RLS context.
+  let invite: InviteRow | null = null;
+  let state: "open" | "used" | "expired" | "missing" = "missing";
   try {
-    const pool = getPool();
-    const result = await pool.query<InviteRow>(
-      `SELECT id, account_id, booking_request_id, token::text AS token,
-              lead_name, lead_email, lead_phone, expires_at, used_at
-       FROM intake_invites
-       WHERE token = $1`,
+    const open = await queryOne<{ id: string; account_id: string }>(
+      `SELECT id, account_id FROM resolve_open_intake_invite($1::uuid)`,
       [token]
     );
-    rows = result.rows;
+    if (open) {
+      state = "open";
+      const rows = await withTokenAccountContext(open.account_id, (tx) =>
+        tx
+          .query<InviteRow>(
+            `SELECT id, account_id, booking_request_id, token::text AS token,
+                    lead_name, lead_email, lead_phone, expires_at, used_at
+             FROM intake_invites
+             WHERE id = $1 AND account_id = $2`,
+            [open.id, open.account_id]
+          )
+          .then((r) => r.rows)
+      );
+      invite = rows[0] ?? null;
+      if (!invite) state = "missing";
+    } else {
+      // Not open: the state resolver tells a used link from an expired or unknown one.
+      const check = await queryOne<{ is_used: boolean }>(
+        `SELECT is_used FROM resolve_intake_invite_state($1::uuid)`,
+        [token]
+      );
+      state = check ? (check.is_used ? "used" : "expired") : "missing";
+    }
   } catch {
     return (
       <div style={containerStyle}>
@@ -46,10 +68,9 @@ export default async function PublicIntakePage({
     );
   }
 
-  const invite = rows[0];
-  if (!invite) return notFound();
+  if (state === "missing") return notFound();
 
-  if (invite.used_at) {
+  if (state === "used") {
     return (
       <div style={containerStyle}>
         <h1 style={headingStyle}>Already submitted</h1>
@@ -63,7 +84,7 @@ export default async function PublicIntakePage({
     );
   }
 
-  if (new Date(invite.expires_at) < new Date()) {
+  if (state === "expired" || !invite) {
     return (
       <div style={containerStyle}>
         <h1 style={headingStyle}>Link expired</h1>

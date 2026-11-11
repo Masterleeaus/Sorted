@@ -5,7 +5,8 @@
  * Flat rate: approved estimate line items (caller may pass estimate id).
  * Quick-book jobs have no estimate or booking — they default to hourly.
  */
-import { query, getPool } from "@/lib/db";
+import { getPool, queryForSession } from "@/lib/db";
+import type { SessionPayload } from "@/lib/auth/session";
 import {
   roundedQuarterHoursFromMinutes,
   trackedLaborMinutesFromActivityEntries,
@@ -44,15 +45,16 @@ export function jobPricingModeFromSources(
 }
 
 export async function resolveJobPricingMode(
-  accountId: string,
+  session: SessionPayload,
   jobId: string,
 ): Promise<JobPricingMode | null> {
-  const rows = await query<{
+  const accountId = session.accountId;
+  const rows = await queryForSession<{
     job_pricing_mode: string | null;
     estimate_pricing_mode: string | null;
     booking_pricing_mode: string | null;
     has_booking: boolean;
-  }>(
+  }>(session,
     `SELECT
        (SELECT pricing_mode FROM jobs
         WHERE id = $1 AND account_id = $2) AS job_pricing_mode,

@@ -1,6 +1,6 @@
 import { redirect, notFound } from "next/navigation";
 import { getSession } from "@/lib/auth/session";
-import { query, queryOne } from "@/lib/db";
+import { queryForSession, queryOneForSession } from "@/lib/db";
 import { buildClientDocumentFilename } from "@/lib/estimates/guardrails";
 import { PrintButton } from "./PrintButton";
 import { formatBusinessTime } from "@/lib/time/business-tz";
@@ -101,7 +101,7 @@ export default async function VisitReportPrintPage({
   const session = await getSession();
   if (!session) redirect("/login");
 
-  const visit = await queryOne<VisitReportRow>(
+  const visit = await queryOneForSession<VisitReportRow>(session,
     `SELECT
        v.id, v.status, v.assigned_user_id,
        v.scheduled_start, v.scheduled_end, v.completed_at,
@@ -139,7 +139,7 @@ export default async function VisitReportPrintPage({
     (visit.job_type === "maintenance" && visit.membership_visit_phase === "reporting");
   if (!isReportable) notFound();
 
-  const checklistItems = await query<ChecklistRow>(
+  const checklistItems = await queryForSession<ChecklistRow>(session,
     `SELECT id, label, disposition, note, section, sort_order
      FROM visit_checklist_items
      WHERE visit_id = $1 AND account_id = $2

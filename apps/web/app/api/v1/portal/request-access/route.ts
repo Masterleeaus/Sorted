@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { randomUUID } from "crypto";
 import { z } from "zod";
+import { portalMagicLinkHtml } from "@ai-fsm/email-templates";
 import { query } from "@/lib/db";
+import { withTokenAccountContext } from "../../../_lib/account-context";
 import { sendEmail, appUrl } from "@/lib/email/mailer";
 import { normalizePhone } from "@/lib/phone";
 import { isSmsGatewayConfigured, sendSmsViaGateway } from "@/lib/sms/gateway";
@@ -15,6 +17,25 @@ const schema = z.union([
 ]);
 
 type ClientMatch = { id: string; name: string; can_text: boolean };
+
+const BOOKING_ACCOUNT_ID_SCHEMA = z.string().uuid();
+
+// Sign-in only ever resolves clients inside the live booking account. A missing
+// or malformed setting returns null and the caller fails closed.
+function getPortalAccountId(): string | null {
+  const parsed = BOOKING_ACCOUNT_ID_SCHEMA.safeParse(process.env.BOOKING_ACCOUNT_ID?.trim());
+  return parsed.success ? parsed.data : null;
+}
+
+// Lookups fetch at most two rows so a duplicate match can be detected. Zero or
+// several matches mean no link is issued (fail closed).
+function singleMatch(rows: ClientMatch[], traceId: string, channel: "email" | "phone"): ClientMatch | null {
+  if (rows.length === 1) return rows[0];
+  if (rows.length > 1) {
+    logger.warn("portal sign-in ambiguous match; no link issued", { traceId, channel });
+  }
+  return null;
+}
 
 // A client who texted STOP or opted out in the portal never gets a sign-in text.
 const CAN_TEXT_SQL = CLIENT_CAN_RECEIVE_REQUESTED_SMS_SQL;
@@ -49,23 +70,33 @@ export async function POST(request: NextRequest) {
   }
 
   // The historical-import account shares names/emails with live clients; only
-  // the live (booking) account signs in when it is configured.
-  const accountId = process.env.BOOKING_ACCOUNT_ID || null;
+  // the live (booking) account signs in. Without a valid account ID, issue nothing.
+  const accountId = getPortalAccountId();
+  if (!accountId) {
+    logger.error("portal sign-in disabled: BOOKING_ACCOUNT_ID is missing or not a UUID", { traceId });
+    return NextResponse.json({ ok: true });
+  }
 
   if ("email" in parsed.data) {
     const email = parsed.data.email;
-    const [client] = await query<ClientMatch>(
-      `SELECT c.id, c.name, ${CAN_TEXT_SQL} AS can_text FROM clients c
-       WHERE lower(c.email) = lower($1) AND ($2::uuid IS NULL OR c.account_id = $2)
-       ORDER BY c.created_at LIMIT 1`,
-      [email, accountId]
-    );
+    // The account comes from server config (BOOKING_ACCOUNT_ID), not the request,
+    // so the lookup runs inside that account's context.
+    const matches = await withTokenAccountContext(accountId, async (tx) => {
+      const { rows } = await tx.query<ClientMatch>(
+        `SELECT c.id, c.name, ${CAN_TEXT_SQL} AS can_text FROM clients c
+         WHERE lower(c.email) = lower($1) AND c.account_id = $2::uuid
+         LIMIT 2`,
+        [email, accountId]
+      );
+      return rows;
+    });
+    const client = singleMatch(matches, traceId, "email");
     if (client) {
       const verifyUrl = await createLoginLink(client.id);
       await sendEmail({
         to: email,
         subject: "Your Dovetails portal link",
-        html: magicLinkHtml(client.name, verifyUrl),
+        html: portalMagicLinkHtml(client.name, verifyUrl),
         text: [
           `Hi ${client.name},`,
           "",
@@ -82,13 +113,17 @@ export async function POST(request: NextRequest) {
     const phone = normalizePhone(parsed.data.phone);
     if (phone && isSmsGatewayConfigured()) {
       const last10 = phone.replace(/\D/g, "").slice(-10);
-      const [client] = await query<ClientMatch>(
-        `SELECT c.id, c.name, ${CAN_TEXT_SQL} AS can_text FROM clients c
-         WHERE right(regexp_replace(coalesce(c.phone, ''), '\\D', '', 'g'), 10) = $1
-           AND ($2::uuid IS NULL OR c.account_id = $2)
-         ORDER BY c.created_at LIMIT 1`,
-        [last10, accountId]
-      );
+      const matches = await withTokenAccountContext(accountId, async (tx) => {
+        const { rows } = await tx.query<ClientMatch>(
+          `SELECT c.id, c.name, ${CAN_TEXT_SQL} AS can_text FROM clients c
+           WHERE right(regexp_replace(coalesce(c.phone, ''), '\\D', '', 'g'), 10) = $1
+             AND c.account_id = $2::uuid
+           LIMIT 2`,
+          [last10, accountId]
+        );
+        return rows;
+      });
+      const client = singleMatch(matches, traceId, "phone");
       if (client?.can_text) {
         const verifyUrl = await createLoginLink(client.id);
         // ponytail: not logged to communications_log — the body is a live login token.
@@ -113,26 +148,4 @@ async function createLoginLink(clientId: string): Promise<string> {
     [clientId]
   );
   return `${appUrl()}/api/v1/portal/auth/verify?token=${links[0].token}`;
-}
-
-function magicLinkHtml(name: string, url: string): string {
-  const firstName = name.split(" ")[0];
-  return `<!DOCTYPE html>
-<html lang="en">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
-<body style="margin:0;padding:0;background:#f9fafb;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
-  <div style="max-width:520px;margin:48px auto;background:#fff;border-radius:10px;border:1px solid #e5e7eb;padding:40px;">
-    <h1 style="margin:0 0 6px;font-size:22px;font-weight:700;color:#111;">Your portal link</h1>
-    <p style="margin:0 0 24px;color:#6b7280;font-size:15px;">Hi ${firstName}, click below to access your account.</p>
-    <a href="${url}"
-       style="display:inline-block;background:#111;color:#fff;text-decoration:none;padding:13px 28px;border-radius:7px;font-size:15px;font-weight:600;letter-spacing:.01em;">
-      Open my portal
-    </a>
-    <p style="margin:28px 0 0;font-size:12px;color:#9ca3af;line-height:1.5;">
-      This link expires in 1 hour and can only be used once.<br>
-      If you didn't request this, no action is needed.
-    </p>
-  </div>
-</body>
-</html>`;
 }

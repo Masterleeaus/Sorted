@@ -53,13 +53,13 @@ export async function findEligibleJobs(
      FROM jobs j
      JOIN clients c ON c.id = j.client_id
      LEFT JOIN (
-       SELECT DISTINCT ON (v.job_id) v.job_id, u2.full_name
+       SELECT DISTINCT ON (v.job_id) v.job_id, u2.id AS user_id
        FROM visits v
-       JOIN users u2 ON u2.id = v.assigned_user_id
+       JOIN users u2 ON u2.id = v.assigned_user_id AND u2.account_id = v.account_id
        WHERE v.account_id = $1
        ORDER BY v.job_id, v.completed_at DESC NULLS LAST
      ) recent_tech ON recent_tech.job_id = j.id
-     LEFT JOIN users u ON u.full_name = recent_tech.full_name
+     LEFT JOIN users u ON u.id = recent_tech.user_id AND u.account_id = j.account_id
      WHERE j.account_id = $1
        AND j.status = 'completed'
        AND j.updated_at >= now() - ($2 || ' days')::interval - interval '1 day'

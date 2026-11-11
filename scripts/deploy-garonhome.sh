@@ -82,6 +82,15 @@ require_uuid_env() {
 
 require_uuid_env BOOKING_ACCOUNT_ID
 
+# Separate DB credentials per service (infra/compose.garonhome.yml). Checked here so a
+# missing value fails before migrations run, not inside docker compose.
+for name in WEB_DATABASE_URL WORKER_DATABASE_URL AI_FSM_WORKER_PASSWORD; do
+  if [[ -z "${!name:-}" ]]; then
+    echo "${name} is required in ${ENV_FILE}. See infra/garonhome.env.example and DEPLOY.md section 4a" >&2
+    exit 1
+  fi
+done
+
 cd "${REPO_ROOT}"
 
 DEPLOY_BRANCH="${DEPLOY_BRANCH:-main}"
@@ -178,6 +187,19 @@ for file in "${REPO_ROOT}"/db/migrations/*.sql; do
   pg_exec -v ON_ERROR_STOP=1 < "${file}"
   pg_exec -c "INSERT INTO schema_migrations (filename) VALUES ('${filename}')"
 done
+
+# Provision runtime roles after migrations so grants cover the current RLS tables.
+# Idempotent. Runs before web/worker start so they never connect with a missing role.
+provision_runtime_role() {
+  local role="$1" password="$2"
+  PROVISION_VIA_COMPOSE=1 FSM_ENV_FILE="${ENV_FILE}" FSM_COMPOSE_FILE="${COMPOSE_FILE}" \
+    RUNTIME_DB_ROLE="${role}" RUNTIME_DB_PASSWORD="${password}" \
+    bash "${REPO_ROOT}/scripts/db-provision-runtime.sh"
+}
+provision_runtime_role ai_fsm_worker "${AI_FSM_WORKER_PASSWORD}"
+if [[ -n "${AI_FSM_WEB_PASSWORD:-}" ]]; then
+  provision_runtime_role ai_fsm_web "${AI_FSM_WEB_PASSWORD}"
+fi
 
 docker compose --env-file "${ENV_FILE}" -f "${COMPOSE_FILE}" build web worker
 docker compose --env-file "${ENV_FILE}" -f "${COMPOSE_FILE}" up -d web worker

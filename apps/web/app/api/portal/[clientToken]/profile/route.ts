@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
-import { getPool, query, queryOne } from "@/lib/db";
+import { getPool } from "@/lib/db";
 import { appUrl, sendEmail } from "@/lib/email/mailer";
 import { normalizePhone } from "@/lib/phone";
 import { emitAttentionEvent } from "@/lib/attention";
@@ -9,6 +9,8 @@ import { checkRateLimit, getClientIp, SENSITIVE_RATE_LIMIT } from "@/lib/rate-li
 import { logger } from "@/lib/logger";
 import { BUSINESS_PHONE_DISPLAY, SMS_CONSENT_TEXT } from "@/lib/sms/consent";
 import { appendAuditLog } from "@/lib/db/audit";
+import { withTokenAccountContext } from "../../../_lib/account-context";
+import { escapeHtml, hrefAttr } from "@ai-fsm/email-templates";
 
 export const dynamic = "force-dynamic";
 
@@ -79,27 +81,34 @@ export async function PATCH(
   let emailPending = false;
   const newEmail = data.email?.trim().toLowerCase();
   if (newEmail && newEmail !== client.email?.toLowerCase()) {
-    const taken = await queryOne(
-      `SELECT 1 FROM clients WHERE account_id = $1 AND id <> $2 AND lower(email) = $3`,
-      [client.account_id, client.id, newEmail],
-    );
+    // Reads run in the portal client's account context (client id and account come from the guard).
+    const taken = await withTokenAccountContext(client.account_id, async (tx) => {
+      const { rows } = await tx.query(
+        `SELECT 1 FROM clients WHERE account_id = $1 AND id <> $2 AND lower(email) = $3`,
+        [client.account_id, client.id, newEmail],
+      );
+      return rows[0] ?? null;
+    });
     if (taken) {
       return NextResponse.json(
         { error: "We can't switch to that email online. Please call or text us." },
         { status: 409 },
       );
     }
-    const [link] = await query<{ token: string }>(
-      `INSERT INTO portal_magic_links (client_id, expires_at, pending_email)
-       VALUES ($1, now() + interval '1 hour', $2) RETURNING token::text`,
-      [client.id, newEmail],
-    );
+    const [link] = await withTokenAccountContext(client.account_id, async (tx) => {
+      const { rows } = await tx.query<{ token: string }>(
+        `INSERT INTO portal_magic_links (client_id, expires_at, pending_email)
+         VALUES ($1, now() + interval '1 hour', $2) RETURNING token::text`,
+        [client.id, newEmail],
+      );
+      return rows;
+    }, "owner");
     const verifyUrl = `${appUrl()}/api/v1/portal/auth/verify-email?token=${link.token}`;
     const sent = await sendEmail({
       to: newEmail,
       subject: "Confirm your new email for Dovetails",
       text: `Hi ${client.name},\n\nConfirm this is your new email for your Dovetails account:\n${verifyUrl}\n\nThe link expires in 1 hour. If you didn't ask for this, ignore this email.`,
-      html: `<p>Hi ${escapeHtml(client.name)},</p><p>Confirm this is your new email for your Dovetails account:</p><p><a href="${verifyUrl}">Confirm my email</a></p><p style="color:#6b7280;font-size:12px">The link expires in 1 hour. If you didn't ask for this, ignore this email.</p>`,
+      html: `<p>Hi ${escapeHtml(client.name)},</p><p>Confirm this is your new email for your Dovetails account:</p><p><a href="${hrefAttr(verifyUrl)}">Confirm my email</a></p><p style="color:#6b7280;font-size:12px">The link expires in 1 hour. If you didn't ask for this, ignore this email.</p>`,
     });
     if (!sent.ok) {
       logger.warn("portal email-change verify send failed", { error: sent.error });
@@ -176,6 +185,3 @@ export async function PATCH(
   return NextResponse.json({ ok: true, emailPending });
 }
 
-function escapeHtml(s: string): string {
-  return s.replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`);
-}

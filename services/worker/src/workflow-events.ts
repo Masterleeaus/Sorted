@@ -43,7 +43,8 @@ export async function processWorkflowEvents(client: Client): Promise<number> {
           client,
           event.entity_type,
           event.entity_id,
-          event.event_type
+          event.event_type,
+          event.account_id
         );
         if (cancelled > 0) {
           logger.info("workflow-events: cancelled pending notifications", {

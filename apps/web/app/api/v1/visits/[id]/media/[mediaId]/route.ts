@@ -6,8 +6,9 @@ import fs from "fs";
 import path from "path";
 import { withAuth } from "../../../../../../../lib/auth/middleware";
 import type { AuthSession } from "../../../../../../../lib/auth/middleware";
-import { queryOne, getPool } from "../../../../../../../lib/db";
+import { getPool, withDbSession } from "../../../../../../../lib/db";
 import { logger } from "../../../../../../../lib/logger";
+import { UPLOAD_ROOT, resolveStoredUpload } from "../../../../../../../lib/uploads/paths";
 
 export const dynamic = "force-dynamic";
 
@@ -32,10 +33,13 @@ export const DELETE = withAuth(
     }
 
     // Verify visit ownership
-    const visit = await queryOne(
-      `SELECT id FROM visits WHERE id = $1 AND account_id = $2`,
-      [visitId, session.accountId]
-    );
+    const visit = await withDbSession(session, async (client) => {
+      const result = await client.query(
+        `SELECT id FROM visits WHERE id = $1 AND account_id = $2`,
+        [visitId, session.accountId]
+      );
+      return result.rows[0] ?? null;
+    });
     if (!visit) {
       return NextResponse.json(
         { error: { code: "NOT_FOUND", message: "Visit not found", traceId: session.traceId } },
@@ -72,8 +76,10 @@ export const DELETE = withAuth(
       await client.query("COMMIT");
 
       // Delete file from disk (best effort)
-      const filePath = path.join("/app/uploads/visits", visitId, rows[0].filename);
-      try { fs.unlinkSync(filePath); } catch (err) {
+      const filePath = resolveStoredUpload(path.join(UPLOAD_ROOT, "visits"), visitId, rows[0].filename);
+      if (!filePath) {
+        logger.warn("[media DELETE] rejected stored filename", { visitId, mediaId });
+      } else try { fs.unlinkSync(filePath); } catch (err) {
         logger.warn("[media DELETE] file not found on disk", { filePath, err });
       }
 

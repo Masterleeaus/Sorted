@@ -279,3 +279,34 @@ Append-only log of technical decisions made by AI agents.
 - Health check: ok ({"status":"ok","service":"web","checks":{"db":"ok"}})
 - Login smoke test: skipped (no seed password on garonhome)
 - Notes: Port 3000 is occupied by Open WebUI on the host; health check must be run from inside the web container (`docker exec ai-fsm-web-1 wget -qO- http://localhost:3000/api/health`). Restore script's final wget fails because web port is not exposed to host — this is expected on garonhome. All containers healthy post-restore.
+
+### ADR-023: packages/titan-platform/src is the Titan build source; titan-donor is preserved evidence
+- Date (UTC): 2026-11-08
+- Agent: claude
+- Task ID: issue #9 (titan donor provenance)
+- Context: 250 donor files under titan-donor/ are byte-identical to files in packages/titan-platform/src/ported/. No tracked file imports titan-donor/.
+- Decision: packages/titan-platform/src is the canonical build and update tree. titan-donor/ is read-only evidence. Provenance is recorded in docs/generated/titan-donor-manifest.json and checked by scripts/check-titan-manifest.mjs (report only). No duplicates deleted.
+- Alternatives considered: delete donor copies (rejected: loses evidence without provenance); keep both as editable (rejected: drift risk).
+- Consequences: duplicate content stays on disk until a separate reviewed removal. Drift in integrated copies must be re-hashed in the manifest.
+- Rollback plan: remove the manifest and checker; the tree itself is unchanged.
+
+### ADR-024: Worker runs as ai_fsm_worker (BYPASSRLS, DML only); web cutover deferred
+- Date (UTC): 2026-11-08
+- Agent: claude
+- Task ID: issues #6 and #15 (database runtime roles)
+- Context: The worker is a trusted cross-account sweep processor (migration 185). The provisioner created ai_fsm_worker NOBYPASSRLS, which would filter sweeps by RLS. Web and worker shared one DATABASE_URL. Web cannot move to ai_fsm_web yet: about 102 files make DB calls without account context, and portal, Square webhook and estimate respond are open blockers.
+- Decision: The worker connects as ai_fsm_worker with BYPASSRLS, NOSUPERUSER, and DML on RLS tables only. The provisioner enforces the attribute set. Web keeps its own WEB_DATABASE_URL, which stays on the admin URL until the cutover gate clears.
+- Alternatives considered: per-account job execution (large rewrite of about 15 sweeps); one SECURITY DEFINER function per sweep (more reviewed surface, more upkeep); keeping the shared superuser URL (rejected: no separation).
+- Consequences: The worker bypasses RLS, so each worker write must scope by account_id or be a reviewed cross-account job. Worker table grants are not yet narrowed per table. Migrations are unchanged.
+- Rollback plan: set WORKER_DATABASE_URL to the admin URL and restart the worker. The role can stay.
+
+#### ADR-024 addendum (2026-11-09): explicit worker table grants
+- Date (UTC): 2026-11-09
+- Agent: claude
+- Task ID: issue #15 (worker grants)
+- Context: The consequences above left worker table grants broad (DML on every RLS table). Issue #15 asked for per-table grants.
+- Decision: The worker's table privileges are an explicit list in `scripts/db-provision-runtime.sh`: DML on the 29 tables its SQL touches, and SELECT only on `accounts` (used by prune-location-events for retention). The provisioner revokes all table privileges from `ai_fsm_worker` before granting, so the list is the whole worker grant set. The broad DML loop now applies to `ai_fsm_web` only. `scripts/check-worker-grants.mjs` (in the gate) fails when worker SQL names an ungranted table, when a grant names a table no migration creates, or when `.query()` gets non-literal SQL.
+- Alternatives considered: per-operation grants (SELECT vs DML per table) were not used. Deriving them from the SQL is possible, but a missed privilege would fail in production sweeps that the tests do not all cover. Table-level DML is the smaller change. No SQL parser dependency was added: the TypeScript parser already in devDependencies reads the SQL literals.
+- Consequences: Adding a worker query on a new table now needs a line in the provisioner, or the gate fails. Provisioning on deploy narrows the existing role. Tables outside the list lose access. No migration was needed. The worker still bypasses RLS, so the account_id scoping rule above still applies.
+- Rollback plan: re-run the provisioner with the previous script (`git show` the prior revision), or set WORKER_DATABASE_URL to the admin URL as before.
+

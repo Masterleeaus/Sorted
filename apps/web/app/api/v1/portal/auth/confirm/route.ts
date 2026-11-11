@@ -15,16 +15,11 @@ export async function POST(request: NextRequest) {
     return NextResponse.redirect(new URL("/portal/login?error=invalid", appUrl()));
   }
 
+  // Consumes the link in one statement through a bounded resolver (migration 204),
+  // because clients is RLS-protected and no account is known yet.
   const rows = await query<{ client_id: string; portal_token: string }>(
-    `UPDATE portal_magic_links ml
-     SET used_at = now()
-     FROM clients c
-     WHERE ml.token = $1
-       AND ml.used_at IS NULL
-       AND ml.expires_at > now()
-       AND ml.pending_email IS NULL
-       AND c.id = ml.client_id
-     RETURNING ml.client_id::text, c.portal_token::text`,
+    `SELECT client_id::text, portal_token::text
+     FROM consume_portal_magic_link($1::uuid)`,
     [token]
   );
 

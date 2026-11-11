@@ -164,13 +164,21 @@ export const POST = withRole(["owner", "admin"], async (request, session) => {
         [invoiceId, link.orderId, link.paymentLinkId, link.url]
       );
 
-      // Record a PENDING payment. external_payment_id stays NULL until the
-      // webhook delivers the actual Square payment id (matched via order id).
+      // Record a PENDING payment keyed to this link's Square order. The webhook
+      // matches the completed payment by external_order_id, so each link has its
+      // own row. external_payment_id stays NULL until the webhook delivers it.
+      if (!link.orderId) {
+        throw new Error("Square did not return an order id for the payment link");
+      }
       const inserted = await client.query<{ id: string }>(
         `INSERT INTO payments
            (account_id, invoice_id, job_id, customer_id, amount_cents, method,
-            payment_type, status, external_provider, external_checkout_url, created_by)
-         VALUES ($1, $2, $3, $4, $5, 'square', $6, 'pending', 'square', $7, $8)
+            payment_type, status, external_provider, external_checkout_url, created_by,
+            external_order_id, external_link_id)
+         VALUES ($1, $2, $3, $4, $5, 'square', $6, 'pending', 'square', $7, $8, $9, $10)
+         ON CONFLICT (external_provider, external_order_id)
+           WHERE external_provider IS NOT NULL AND external_order_id IS NOT NULL
+           DO NOTHING
          RETURNING id`,
         [
           session.accountId,
@@ -181,8 +189,15 @@ export const POST = withRole(["owner", "admin"], async (request, session) => {
           paymentType,
           link.url,
           session.userId,
+          link.orderId,
+          link.paymentLinkId,
         ]
       );
+      // Square returns the same link for a repeated idempotency key. Do not
+      // record a second pending row for it; roll back and report the conflict.
+      if (inserted.rowCount === 0) {
+        throw Object.assign(new Error("This payment link is already recorded"), { code: "CONFLICT" });
+      }
 
       await appendAuditLog(client, {
         account_id: session.accountId,
@@ -216,6 +231,7 @@ export const POST = withRole(["owner", "admin"], async (request, session) => {
       INVALID_TRANSITION: 400,
       VALIDATION_ERROR: 400,
       PRECONDITION_FAILED: 412,
+      CONFLICT: 409,
     };
     if (err.code && map[err.code]) {
       return NextResponse.json(

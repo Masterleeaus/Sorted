@@ -51,7 +51,7 @@ Complete requested tasks end-to-end while preserving reliability, traceability, 
 3. Never store secrets in code; use `.env`.
 4. Migrations must be additive and reversible unless a migration plan is explicit.
 5. Business logic changes must include tests or an explicit documented test gap.
-6. Production runs on garonhome.local using `infra/compose.garonhome.yml`.
+6. Production runs on garonhome.local using `infra/compose.garonhome.yml` at `/opt/business/ai-fsm`. The deploy procedure is `DEPLOY.md`.
 7. Do not use archived or generated planning documents as product instructions.
 8. Do not start new work unless it maps to an existing `docs/backlog/` task, or a new task is added to `docs/backlog/` first.
 

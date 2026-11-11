@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth/session";
 import { canCreateEstimates } from "@/lib/auth/permissions";
-import { query } from "@/lib/db";
+import { queryForSession } from "@/lib/db";
 import { PageContainer, PageHeader } from "@/components/ui";
 import { QuickEstimateWizard } from "./QuickEstimateWizard";
 
@@ -52,12 +52,12 @@ export default async function QuickEstimatePage({ searchParams }: PageProps) {
   const { client_id } = await searchParams;
 
   const [clients, services] = await Promise.all([
-    query<Client>(
+    queryForSession<Client>(session,
       `SELECT id, name, phone, email FROM clients WHERE account_id = $1 ORDER BY name ASC`,
       [session.accountId]
     ),
     // Price book is global (not per-account); pull active services.
-    query<Service>(
+    queryForSession<Service>(session,
       `SELECT id, code, name, category, price_min_cents, price_max_cents,
               default_price_cents, description
        FROM price_book

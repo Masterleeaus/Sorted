@@ -1,7 +1,7 @@
 import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
-import { queryOne, query } from "@/lib/db";
 import { getPortalSession } from "@/lib/portal/session";
+import { withPortalTokenPage } from "@/lib/portal/token-page";
 
 export const dynamic = "force-dynamic";
 
@@ -31,42 +31,43 @@ export default async function PortalPropertyPage({
 }) {
   const { clientToken, propertyId } = await params;
 
-  // Validate token → client
-  const client = await queryOne<{ id: string; name: string; account_id: string; account_name: string }>(
-    `SELECT c.id, c.name, c.account_id, a.name AS account_name
-     FROM clients c
-     JOIN accounts a ON a.id = c.account_id
-     WHERE c.portal_token = $1`,
-    [clientToken]
-  );
-  if (!client) notFound();
+  // The token resolves to an account first (migration 204). The client, the property
+  // and the history reads all run in that account's RLS context.
+  const loaded = await withPortalTokenPage("resolve_portal_client_account", clientToken, async (tx) => {
+    const q = <T extends Record<string, unknown>>(text: string, params?: unknown[]) =>
+      tx.query<T>(text, params).then((r) => r.rows);
+    const clientRows = await q<{ id: string; name: string; account_id: string; account_name: string }>(
+      `SELECT c.id, c.name, c.account_id, a.name AS account_name
+       FROM clients c
+       JOIN accounts a ON a.id = c.account_id
+       WHERE c.portal_token = $1`,
+      [clientToken]
+    );
+    const client = clientRows[0] ?? null;
+    if (!client) return null;
 
-  // The portal token alone never grants access: the browser must hold a portal
-  // session for this same client (same rule as the portal home page).
-  const session = await getPortalSession();
-  if (!session || session.clientId !== client.id) redirect("/portal/login");
+    // Validate property belongs to this client
+    const propertyRows = await q<{
+      id: string; name: string | null; address: string;
+      city: string | null; state: string | null; zip: string | null;
+    }>(
+      `SELECT id, name, address, city, state, zip
+       FROM properties
+       WHERE id = $1 AND client_id = $2 AND account_id = $3`,
+      [propertyId, client.id, client.account_id]
+    );
+    const property = propertyRows[0] ?? null;
+    if (!property) return { client, property: null, conditions: [], issues: [], vaultItems: [], recentVisits: [] };
 
-  // Validate property belongs to this client
-  const property = await queryOne<{
-    id: string; name: string | null; address: string;
-    city: string | null; state: string | null; zip: string | null;
-  }>(
-    `SELECT id, name, address, city, state, zip
-     FROM properties
-     WHERE id = $1 AND client_id = $2 AND account_id = $3`,
-    [propertyId, client.id, client.account_id]
-  );
-  if (!property) notFound();
-
-  const [conditions, issues, vaultItems, recentVisits] = await Promise.all([
-    query<{ area: string; condition: string; note: string | null; assessed_at: string }>(
+    const [conditions, issues, vaultItems, recentVisits] = await Promise.all([
+    q<{ area: string; condition: string; note: string | null; assessed_at: string }>(
       `SELECT DISTINCT ON (area) area, condition, note, assessed_at::text AS assessed_at
        FROM property_condition_snapshots
        WHERE account_id = $1 AND property_id = $2
        ORDER BY area, assessed_at DESC`,
       [client.account_id, propertyId]
     ),
-    query<{ id: string; title: string; severity: string; area: string; occurrence_count: number; last_noted_at: string }>(
+    q<{ id: string; title: string; severity: string; area: string; occurrence_count: number; last_noted_at: string }>(
       `SELECT id, title, severity, area, occurrence_count, last_noted_at::text AS last_noted_at
        FROM property_issues
        WHERE account_id = $1 AND property_id = $2
@@ -77,7 +78,7 @@ export default async function PortalPropertyPage({
        LIMIT 10`,
       [client.account_id, propertyId]
     ),
-    query<{ name: string; category: string; manufacturer: string | null; model_number: string | null; install_date: string | null; last_serviced_date: string | null }>(
+    q<{ name: string; category: string; manufacturer: string | null; model_number: string | null; install_date: string | null; last_serviced_date: string | null }>(
       `SELECT name, category, manufacturer, model_number,
               install_date::text AS install_date,
               last_serviced_date::text AS last_serviced_date
@@ -86,7 +87,7 @@ export default async function PortalPropertyPage({
        ORDER BY category, name`,
       [client.account_id, propertyId]
     ),
-    query<{ label: string; occurred_at: string; event_type: string; summary: string }>(
+    q<{ label: string; occurred_at: string; event_type: string; summary: string }>(
       `SELECT event_type,
               occurred_at::text AS occurred_at,
               summary,
@@ -99,7 +100,19 @@ export default async function PortalPropertyPage({
        LIMIT 15`,
       [client.account_id, propertyId]
     ),
-  ]);
+    ]);
+    return { client, property, conditions, issues, vaultItems, recentVisits };
+  });
+
+
+  if (!loaded) notFound();
+  const { client, property, conditions, issues, vaultItems, recentVisits } = loaded;
+
+  // The portal token alone never grants access: the browser must hold a portal
+  // session for this same client (same rule as the portal home page).
+  const session = await getPortalSession();
+  if (!session || session.clientId !== client.id) redirect("/portal/login");
+  if (!property) notFound();
 
   const addr = [property.address, property.city, property.state].filter(Boolean).join(", ");
   const title = property.name?.trim() || property.address;
