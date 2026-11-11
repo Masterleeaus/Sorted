@@ -19,7 +19,10 @@ const fsMocks = vi.hoisted(() => ({
   writeFileSync: vi.fn(),
   unlinkSync: vi.fn(),
 }));
-vi.mock("fs", () => ({ default: fsMocks, ...fsMocks }));
+vi.mock("@/lib/intake/media-files", () => ({
+  writePrivateIntakeFile: (filePath: string, bytes: Uint8Array) => fsMocks.writeFileSync(filePath, bytes),
+  removePrivateIntakeFile: (filePath: string) => { fsMocks.unlinkSync(filePath); return "deleted"; },
+}));
 
 describe.skipIf(!TEST_DB)("intake photos against Postgres", () => {
   let admin: Pool;
@@ -103,6 +106,55 @@ describe.skipIf(!TEST_DB)("intake photos against Postgres", () => {
       [inviteId],
     );
     expect(rows[0].n).toBe(8);
+  });
+
+  it("cannot delete a photo belonging to another invite or account", async () => {
+    const otherAccount = randomUUID();
+    const otherInvite = randomUUID();
+    const otherToken = randomUUID();
+    await admin.query("INSERT INTO accounts (id, name) VALUES ($1, 'intake-foreign-tenant')", [otherAccount]);
+    try {
+      await admin.query(
+        `INSERT INTO intake_invites (id, account_id, token, lead_name, lead_email)
+         VALUES ($1, $2, $3, 'Other Lead', 'other@example.com')`,
+        [otherInvite, otherAccount, otherToken],
+      );
+      const { rows } = await admin.query<{ id: string }>(
+        `INSERT INTO intake_media (account_id, intake_invite_id, filename, original_name, mime_type, size_bytes)
+         VALUES ($1, $2, $3, 'foreign.jpg', 'image/jpeg', 10) RETURNING id`,
+        [otherAccount, otherInvite, randomUUID() + ".jpg"],
+      );
+      const mediaId = rows[0].id;
+      const denied = await DELETE(
+        new NextRequest(`http://localhost/api/intake/${token}/media/${mediaId}`, { method: "DELETE" }),
+        { params: Promise.resolve({ token, mediaId }) },
+      );
+      expect(denied.status).toBe(404);
+      const present = await admin.query("SELECT 1 FROM intake_media WHERE id = $1", [mediaId]);
+      expect(present.rowCount).toBe(1);
+    } finally {
+      await admin.query("DELETE FROM accounts WHERE id = $1", [otherAccount]);
+    }
+  });
+
+  it("refuses to delete a previously uploaded photo after invite submission", async () => {
+    const { rows } = await admin.query<{ id: string }>(
+      "SELECT id FROM intake_media WHERE intake_invite_id = $1 LIMIT 1", [inviteId],
+    );
+    expect(rows.length).toBeGreaterThan(0);
+    const mediaId = rows[0].id;
+    await admin.query("UPDATE intake_invites SET used_at = now() WHERE id = $1", [inviteId]);
+    try {
+      const response = await DELETE(
+        new NextRequest(`http://localhost/api/intake/${token}/media/${mediaId}`, { method: "DELETE" }),
+        { params: Promise.resolve({ token, mediaId }) },
+      );
+      expect(response.status).toBe(409);
+      const { rowCount } = await admin.query("SELECT 1 FROM intake_media WHERE id = $1", [mediaId]);
+      expect(rowCount).toBe(1);
+    } finally {
+      await admin.query("UPDATE intake_invites SET used_at = NULL WHERE id = $1", [inviteId]);
+    }
   });
 
   it("refuses new photos once the invite is submitted", async () => {

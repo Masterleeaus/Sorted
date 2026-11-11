@@ -105,3 +105,16 @@ The submit body no longer carries `photo_count`. The old client sent the number 
 - Section 8 (intake): photos supported at first capture, not added later.
 - Section 22 steps 3, 6, 10, 12: no duplicate entry, progress kept per photo, phone-width layout with 44 px touch targets for the photo buttons.
 - Section 23: the next action is still "Submit"; photo problems are shown on the photo that has them.
+
+## Verified access surface and tenant-link constraints (Pass 12)
+
+**Staff-only retrieval:** Owners and administrators can now request `GET /api/v1/booking-requests/[id]/media` for intake-photo metadata, or `GET /api/v1/booking-requests/[id]/media/[mediaId]` to download a single file. The existing authentication wrapper performs session and role checks, and both queries require the session account, booking request and media ID to match. Downloads use private no-store headers, `nosniff`, restrictive CSP and `attachment` disposition. Neither API exposes a raw filesystem path or a public static URL; public invitation-token routes still permit only uploads and pre-submit deletion.
+
+**Database constraints:** Migration `209_intake_media_tenant_integrity.sql` enforces composite foreign keys from `intake_media(intake_invite_id, account_id)` and `intake_media(booking_request_id, account_id)` to their corresponding account-scoped parents. It aborts when existing historical links are inconsistent and must not silently repair or drop data. The new integration tests verify wrong-account inserts and updates fail at the database layer and that the restricted `ai_fsm_web` role cannot cross the RLS boundary.
+
+**Storage:** Reads are restricted to real regular files of 1–10 MiB and reject symlinked parent directories and file symlinks. The staff download endpoint fails closed with 404 if a database row exists but its file is unavailable. Files remain stored at their private location. Access is only available via authenticated API responses; browser preview for the customer remains local.
+
+**Retention decision:** No automatic expired-invite deletion has been authorized or implemented. The previously proposed abandoned-media retention interval remains a decision for the owner. An explicit file/row reconciliation and approved retention schedule are required before closing the issue or claiming operational readiness. On account deletion, row cascades alone do not remove private filesystem content; this requires an audited cleanup process. Avoid an unreviewed destructive cron.
+
+**Test status:** CI now runs PostgreSQL intake integration suites (including relational tenant constraints and restricted-role RLS) before the SQLite unit suite so the missing donor SQL cannot hide these results. Filesystem and authenticated-route unit tests run separately. No live production permission review has been performed.
+

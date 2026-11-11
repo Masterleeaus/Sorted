@@ -192,9 +192,9 @@ export async function POST(
     // fails, the rollback also releases the invite.
     const { rows: claimedRows } = await client.query<{ id: string }>(
       `UPDATE intake_invites SET used_at = now()
-       WHERE id = $1 AND used_at IS NULL AND expires_at > now()
+       WHERE id = $1 AND account_id = $2 AND used_at IS NULL AND expires_at > now()
        RETURNING id`,
-      [invite.id]
+      [invite.id, invite.account_id]
     );
     if (claimedRows.length === 0) {
       await client.query("ROLLBACK");
@@ -203,8 +203,9 @@ export async function POST(
 
     // Photo count comes from the server's records, not the client payload.
     const { rows: photoRows } = await client.query<{ n: number }>(
-      `SELECT count(*)::int AS n FROM intake_media WHERE intake_invite_id = $1`,
-      [invite.id]
+      `SELECT count(*)::int AS n FROM intake_media
+       WHERE intake_invite_id = $1 AND account_id = $2`,
+      [invite.id, invite.account_id]
     );
     const intakeMetadata = {
       ...input.intake_metadata,
@@ -246,7 +247,7 @@ export async function POST(
              referral_name = COALESCE($16, referral_name),
              brokerage_name = COALESCE($17, brokerage_name),
              updated_at = now()
-         WHERE id = $14`,
+         WHERE id = $14 AND account_id = $18`,
         [
           input.service_category,
           input.service_description,
@@ -265,6 +266,7 @@ export async function POST(
           input.referral_source || null,
           input.referral_name || null,
           input.brokerage_name || null,
+          invite.account_id,
         ]
       );
     }

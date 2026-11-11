@@ -93,14 +93,19 @@ done
 
 cd "${REPO_ROOT}"
 
+# shellcheck source=./lib/deploy-safety.sh
+source "${REPO_ROOT}/scripts/lib/deploy-safety.sh"
 DEPLOY_BRANCH="${DEPLOY_BRANCH:-main}"
+sorted_validate_deploy_branch "${DEPLOY_BRANCH}"
+DB_ATTEMPTS="$(sorted_wait_attempts "${FSM_DEPLOY_DB_ATTEMPTS:-60}" "database attempts")"
+WEB_ATTEMPTS="$(sorted_wait_attempts "${FSM_DEPLOY_WEB_ATTEMPTS:-60}" "web attempts")"
 
 sync_repo() {
   echo "syncing repo to origin/${DEPLOY_BRANCH}"
 
   git fetch origin "${DEPLOY_BRANCH}"
 
-  if ! git diff --quiet || ! git diff --cached --quiet; then
+  if [[ -n "$(git status --porcelain)" ]]; then
     echo "deploy checkout has uncommitted changes; refusing to overwrite:" >&2
     git status --short >&2
     echo "Commit, stash, or remove those changes before deploying." >&2
@@ -125,12 +130,19 @@ sync_repo() {
 
 sync_repo
 
+# A successful recent offsite-verified backup must precede any database/startup
+# mutation. This is a read-only status gate, not a replacement for restore drills.
+node "${REPO_ROOT}/scripts/check-backup-health.mjs" "${FSM_BACKUP_DIR:-${DEPLOY_ROOT}/backups}" \
+  "${FSM_PREDEPLOY_BACKUP_MAX_AGE_HOURS:-26}" \
+  || { echo "deploy blocked: a complete recent verified backup is required" >&2; exit 1; }
+node "${REPO_ROOT}/scripts/audit-backup-local.mjs" "${FSM_BACKUP_DIR:-${DEPLOY_ROOT}/backups}" \
+  || { echo "deploy blocked: local encrypted backup bytes do not match the verified set" >&2; exit 1; }
+
 docker compose --env-file "${ENV_FILE}" -f "${COMPOSE_FILE}" up -d postgres
 
-while ! docker compose --env-file "${ENV_FILE}" -f "${COMPOSE_FILE}" exec -T postgres \
-  sh -lc 'pg_isready -U "$POSTGRES_USER" -d "$POSTGRES_DB"' >/dev/null 2>&1; do
-  sleep 2
-done
+sorted_wait_for_postgres "${DB_ATTEMPTS}" 2 \
+  docker compose --env-file "${ENV_FILE}" -f "${COMPOSE_FILE}" exec -T postgres \
+  sh -lc 'pg_isready -U "$POSTGRES_USER" -d "$POSTGRES_DB"'
 
 # Helper: run psql inside the postgres container
 pg_exec() {
@@ -138,54 +150,52 @@ pg_exec() {
     psql -U "${POSTGRES_USER}" -d "${POSTGRES_DB}" "$@"
 }
 
-# Ensure migration tracking table exists
-pg_exec -v ON_ERROR_STOP=1 -c "
-  CREATE TABLE IF NOT EXISTS schema_migrations (
-    filename   TEXT PRIMARY KEY,
+# The legacy migration runner stays fail-closed until Central's canonical
+# company_id migration authority replaces this chain (issue #26).
+# shellcheck source=./lib/migration-safety.sh
+source "${REPO_ROOT}/scripts/lib/migration-safety.sh"
+files_text="$(sorted_migration_files "${REPO_ROOT}/db/migrations")"
+mapfile -t MIGRATION_FILES <<< "$files_text"
+sorted_validate_db_identity "${POSTGRES_DB}" "${POSTGRES_USER}"
+
+pg_exec -X -v ON_ERROR_STOP=1 -c "
+  CREATE TABLE IF NOT EXISTS public.schema_migrations (
+    filename TEXT PRIMARY KEY,
     applied_at TIMESTAMPTZ DEFAULT now()
-  )
-"
+  )"
+state="$(pg_exec -X -q -tA -v ON_ERROR_STOP=1 -f - < "${REPO_ROOT}/scripts/sql/migration-state.sql")"
+sorted_assert_tracking_state "$state"
 
-# Detect transition case: existing schema with no tracking history
-# If schema_migrations is empty AND the core schema already exists,
-# seed every migration filename as applied (they ran before tracking was added).
-MIGRATE_MODE="$(pg_exec -tAc "
-  SELECT CASE
-    WHEN (SELECT COUNT(*) FROM schema_migrations) = 0
-         AND EXISTS (
-           SELECT 1 FROM information_schema.tables
-           WHERE table_schema = 'public' AND table_name = 'clients'
-         )
-    THEN 'seed'
-    ELSE 'migrate'
-  END
-" 2>/dev/null | tr -d '[:space:]' || echo 'migrate')"
+for file in "${MIGRATION_FILES[@]}"; do
+  filename="${file##*/}"
+  applied="$(pg_exec -X -q -tA -v ON_ERROR_STOP=1 \
+    -v "migration_filename=${filename}" -f - < "${REPO_ROOT}/scripts/sql/is-migration-applied.sql")"
+  case "$applied" in
+    1) echo "skipping (already applied): ${filename}"; continue ;;
+    0) ;;
+    *) echo "invalid migration tracking count for ${filename}: ${applied}" >&2; exit 1 ;;
+  esac
 
-echo "migration mode: ${MIGRATE_MODE}"
-
-for file in "${REPO_ROOT}"/db/migrations/*.sql; do
-  filename="$(basename "${file}")"
-  if [[ "${filename}" == *"seed"* ]]; then
-    continue
-  fi
-
-  if [[ "${MIGRATE_MODE}" == "seed" ]]; then
-    echo "seeding tracking record (pre-existing migration): ${filename}"
-    pg_exec -c "INSERT INTO schema_migrations (filename) VALUES ('${filename}') ON CONFLICT DO NOTHING"
-    continue
-  fi
-
-  applied="$(pg_exec -tAc "SELECT COUNT(*) FROM schema_migrations WHERE filename = '${filename}'" \
-    | tr -d '[:space:]')"
-
-  if [[ "${applied}" == "1" ]]; then
-    echo "skipping (already applied): ${filename}"
-    continue
-  fi
-
-  echo "applying migration: ${filename}"
-  pg_exec -v ON_ERROR_STOP=1 < "${file}"
-  pg_exec -c "INSERT INTO schema_migrations (filename) VALUES ('${filename}')"
+  echo "applying migration atomically: ${filename}"
+  # SQL sources live on the host and are streamed to container psql. -1 keeps
+  # lock, pending assertion, schema and bookkeeping in ONE transaction.
+  # Compose the full SQL bundle BEFORE opening the transaction. A broken
+  # source stream must never let psql commit a partial migration.
+  sql_bundle="$(mktemp)"
+  trap 'rm -f -- "${sql_bundle}"' EXIT
+  {
+    for source in \
+      "${REPO_ROOT}/scripts/sql/migration-lock.sql" \
+      "${REPO_ROOT}/scripts/sql/assert-migration-pending.sql" \
+      "$file" \
+      "${REPO_ROOT}/scripts/sql/record-migration.sql"; do
+      cat "$source"
+      printf '\n'
+    done
+  } > "${sql_bundle}"
+  pg_exec -X -1 -v ON_ERROR_STOP=1 -v "migration_filename=${filename}" -f - < "${sql_bundle}"
+  rm -f -- "${sql_bundle}"
+  trap - EXIT
 done
 
 # Provision runtime roles after migrations so grants cover the current RLS tables.
@@ -210,9 +220,7 @@ if [[ -z "${WEB_CONTAINER_ID}" ]]; then
   exit 1
 fi
 
-until [[ "$(docker inspect --format '{{if .State.Health}}{{.State.Health.Status}}{{else}}no-healthcheck{{end}}' "${WEB_CONTAINER_ID}")" == "healthy" ]]; do
-  sleep 2
-done
+sorted_wait_for_web_health "${WEB_ATTEMPTS}" 2 "${WEB_CONTAINER_ID}"
 
 docker compose --env-file "${ENV_FILE}" -f "${COMPOSE_FILE}" ps
 docker compose --env-file "${ENV_FILE}" -f "${COMPOSE_FILE}" exec -T web \

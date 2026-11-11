@@ -72,7 +72,7 @@ On `garonhome.local`:
 sudo mkdir -p /opt/business
 sudo chown -R "$USER:$USER" /opt/business
 
-git clone https://github.com/byesaw13/ai-fsm.git /opt/business/ai-fsm/repo
+git clone https://github.com/Masterleeaus/Sorted.git /opt/business/ai-fsm/repo
 cd /opt/business/ai-fsm/repo
 
 bash scripts/setup-garonhome.sh
@@ -105,13 +105,13 @@ bash scripts/deploy-garonhome.sh
 
 What the deploy script does:
 
-1. `git pull origin main`
-2. start `postgres`
-3. wait for postgres health
+1. Validate the selected deployment branch and reject any tracked or untracked changes before the canonical checkout sync. The workstation wrapper does not reset Git itself.
+2. Refuse to proceed unless the last encrypted backup status is complete, independently verified and recent (26 hours by default); then start `postgres`
+3. wait for postgres readiness with a configurable bounded timeout
 4. create `schema_migrations` tracking table if absent; apply only new migration files (already-applied files are skipped — no replay on redeploy)
 5. build `web` and `worker` from source
 6. start `web` and `worker`
-7. wait for the web container healthcheck to report `healthy`
+7. wait for the web container healthcheck to report `healthy` within a bounded timeout; fail on `unhealthy` or missing healthcheck
 8. print service status and a container-internal web health response
 
 The deployment is intentionally internal-only. The script does not assume `localhost:3000` is reachable from the host.
@@ -139,12 +139,14 @@ Expected:
 
 ## Backup
 
+The backup script takes an exclusive process lock and writes an `ACTIVE` marker until it finalizes. A second scheduled/manual run cannot race the first; an interrupted run must be investigated before the marker is manually reconciled. The deployment entrypoint first checks the verified offsite status, then independently streams and hashes the recent local encrypted artifacts against the manifest and success metadata. Keep the complete recent set on the host for deployment preflight.
+
 ```bash
 cd /opt/business/ai-fsm/repo
 bash scripts/backup-garonhome.sh
 ```
 
-This writes a compressed Postgres custom dump to:
+This writes an encrypted Postgres custom dump plus mandatory encrypted uploads and environment archives, and a SHA-256 manifest. Each remote encrypted artifact and its manifest are downloaded as a stream using `rclone cat` and SHA-256-verified. Older name-and-size-only status cannot satisfy the deployment gate; take a fresh encrypted backup after this update. Automatic age-only offsite deletion is disabled until a per-set audited retention procedure exists. The deployment entrypoint refuses to start PostgreSQL or run migrations if the latest verified set is stale or incomplete. The standalone monitor also alerts when backup status is invalid. Archives are stored at:
 
 ```text
 /opt/business/ai-fsm/backups/
@@ -160,17 +162,20 @@ Recommended cron:
 
 ```bash
 cd /opt/business/ai-fsm/repo
-bash scripts/restore-garonhome.sh /opt/business/ai-fsm/backups/ai_fsm_YYYYMMDDTHHMMSSZ.dump
+FSM_RESTORE_CONFIRM_DB=ai_fsm bash scripts/restore-garonhome.sh /opt/business/ai-fsm/backups/ai_fsm_YYYYMMDDTHHMMSSZ.dump.gpg
 ```
+
+The restore script performs a **destructive database-only recovery**. It does not automatically unpack uploads or overwrite the host environment. Confirm the target name, restore the companion files through a separately reviewed operator procedure, and run a scratch drill first.
 
 The restore script:
 
-1. stops `web` and `worker`
-2. terminates active DB sessions
-3. drops and recreates the application database
-4. restores the dump
-5. restarts `web` and `worker`
-6. verifies the web health endpoint
+1. verifies all three encrypted artifacts, SHA-256 checksums, valid gzip uploads archive and safe `uploads/` member paths
+2. requires `FSM_RESTORE_CONFIRM_DB` to match the exact target database name before stopping `web` and `worker`
+3. terminates active DB sessions
+4. drops and recreates the application database with SQL identifier quoting
+5. restores the dump
+6. restarts `web` and `worker`
+7. verifies the web health endpoint with a bounded wait, failing if unhealthy or missing
 
 ## Relocating to another machine
 
@@ -183,7 +188,7 @@ To move later:
 5. run `scripts/setup-garonhome.sh`
 6. run `docker network connect <proxy-network> nginx-proxy-manager` on the new host if using NPM
 7. run `scripts/deploy-garonhome.sh`
-8. run `scripts/restore-garonhome.sh <dump>`
+8. run `FSM_RESTORE_CONFIRM_DB=<new-host-POSTGRES_DB> scripts/restore-garonhome.sh <dump>` after validating all companions and the target
 9. recreate the proxy host
 
 ## Why this is separate enough

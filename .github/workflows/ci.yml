@@ -34,6 +34,30 @@ jobs:
         run: pnpm install --frozen-lockfile
       - name: Run ESLint across all workspaces
         run: pnpm lint
+      - name: Validate backup, restore and restore-drill shell syntax
+        run: bash -n scripts/backup-garonhome.sh scripts/restore-garonhome.sh scripts/verify-backup-garonhome.sh scripts/lib/backup-policy.sh scripts/lib/backup-archive-safety.sh
+      - name: Validate migration and seed shell syntax
+        run: bash -n scripts/db-migrate.sh scripts/deploy-garonhome.sh scripts/deploy.sh scripts/healthcheck-garonhome.sh scripts/db-seed.sh scripts/lib/migration-safety.sh scripts/lib/deploy-safety.sh
+      - name: Cryptographic offsite verification and restore safety regressions
+        # Independent of unit/integration DB fixtures. Remote hash mismatches
+        # and safe retention require explicit simulated failure coverage.
+        run: node --test scripts/tests/offsite-*.test.mjs scripts/tests/restore-companion-format.test.mjs scripts/tests/scratch-restore-safety.test.mjs
+      - name: Backup concurrency and encrypted local integrity regression tests
+        run: node --test scripts/tests/backup-lock.test.mjs scripts/tests/audit-backup-local.test.mjs
+      - name: Execute public intake media image and filesystem unit tests
+        # Real Vitest execution of validation and private-file helpers; does not
+        # depend on the currently missing native SQLite SQL donor files.
+        run: pnpm --filter @ai-fsm/web exec vitest run intake-photo-
+      - name: Public intake and staff photo route unit suites
+        # Exercises existing upload/delete tests and authenticated staff APIs
+        # independently of the native SQLite storage test blocker.
+        run: pnpm --filter @ai-fsm/web exec vitest run media.unit.test.ts list.unit.test.ts download.unit.test.ts
+      - name: Public intake media security and lifecycle contracts
+        # Guard the token/tenant/photo race and private-upload requirements.
+        run: node --test scripts/tests/intake-photo-*.test.mjs
+      - name: Backup and restore failure-path regression tests
+        # Independent of the inherited Knip debt; must run on every change.
+        run: node --test scripts/tests/*.test.mjs
       - name: Dead-code check (knip)
         # Enforces the dead-code floor inside a required check, not only local gate.sh:
         # unused files/dependencies fail here so a bypassed local gate can't merge them.
@@ -157,6 +181,14 @@ jobs:
           RUNTIME_DB_PASSWORD: ci-runtime-only
         run: bash scripts/db-provision-runtime.sh
 
+      - name: Verify intake media tenant constraints and public-photo lifecycle against PostgreSQL
+        # Execute before the native SQLite suite. Missing native donor SQL must
+        # not hide a failed cross-tenant PostgreSQL regression.
+        run: pnpm --filter @ai-fsm/web exec vitest run --config vitest.integration.config.ts app/api/intake
+      - name: Diagnose attested SQLite source availability
+        # Diagnostic only. The required unit test gate still runs unmodified.
+        continue-on-error: true
+        run: node scripts/check-native-sqlite-provenance.mjs
       - name: Run unit tests
         run: pnpm test:unit
 

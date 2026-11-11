@@ -6,6 +6,12 @@
 #
 # Usage: verify-backup-garonhome.sh /path/to/ai_fsm_YYYYMMDDTHHMMSSZ.dump.gpg
 set -euo pipefail
+umask 077
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=./lib/backup-policy.sh
+source "${SCRIPT_DIR}/lib/backup-policy.sh"
+# shellcheck source=./lib/backup-archive-safety.sh
+source "${SCRIPT_DIR}/lib/backup-archive-safety.sh"
 
 if [[ $# -ne 1 ]]; then
   echo "usage: $0 /path/to/ai_fsm_YYYYMMDDTHHMMSSZ.dump.gpg" >&2
@@ -13,7 +19,7 @@ if [[ $# -ne 1 ]]; then
 fi
 
 DUMP_GPG="$1"
-if [[ ! -f "${DUMP_GPG}" ]]; then
+if [[ ! -f "${DUMP_GPG}" || -L "${DUMP_GPG}" ]]; then
   echo "dump not found: ${DUMP_GPG}" >&2
   exit 1
 fi
@@ -22,6 +28,10 @@ SET_DIR="$(cd "$(dirname "${DUMP_GPG}")" && pwd)"
 SET_TS="$(basename "${DUMP_GPG}")"
 SET_TS="${SET_TS#ai_fsm_}"
 SET_TS="${SET_TS%.dump.gpg}"
+if [[ "${DUMP_GPG}" != *.dump.gpg || ! "${SET_TS}" =~ ^[0-9]{8}T[0-9]{6}Z$ ]]; then
+  echo "invalid encrypted backup filename or timestamp" >&2
+  exit 1
+fi
 UPLOADS_GPG="${SET_DIR}/ai_fsm_uploads_${SET_TS}.tar.gz.gpg"
 ENV_GPG="${SET_DIR}/ai_fsm_env_${SET_TS}.gpg"
 MANIFEST="${SET_DIR}/ai_fsm_${SET_TS}.sha256"
@@ -61,8 +71,9 @@ cleanup() {
   local rc=$?
   if (( SCRATCH_CREATED == 1 )); then
     "${COMPOSE[@]}" exec -T postgres psql -U "${POSTGRES_USER}" -d postgres \
-      -c "DROP DATABASE IF EXISTS ${SCRATCH_DB};" >/dev/null 2>&1 \
-      || echo "WARNING: could not drop scratch database ${SCRATCH_DB}" >&2
+      -v ON_ERROR_STOP=1 -v "scratch_db=${SCRATCH_DB}" \
+      -c 'DROP DATABASE IF EXISTS :"scratch_db";' >/dev/null 2>&1 \
+      || { echo "ERROR: could not drop scratch database ${SCRATCH_DB}; manual cleanup required" >&2; rc=1; }
   fi
   rm -rf -- "${WORK}"
   if (( rc == 0 )); then
@@ -74,7 +85,27 @@ cleanup() {
 }
 trap cleanup EXIT
 
-# 1. Checksums of every encrypted artifact in the set.
+# 1. Require checksums for all three known artifacts, exactly once each.
+# sha256sum -c alone accepts a dump-only or unrelated-file manifest.
+expected=("$(basename "${DUMP_GPG}")" "$(basename "${UPLOADS_GPG}")" "$(basename "${ENV_GPG}")")
+mapfile -t manifest_lines < "${MANIFEST}"
+if (( ${#manifest_lines[@]} != 3 )); then
+  echo "invalid manifest: expected exactly three artifact checksums" >&2
+  exit 1
+fi
+for required in "${expected[@]}"; do
+  matches=0
+  for entry in "${manifest_lines[@]}"; do
+    if [[ "${entry}" =~ ^[0-9a-f]{64}[[:space:]][[:space:]] ]] &&
+       [[ "${entry:66}" == "${required}" ]]; then
+      matches=$((matches + 1))
+    fi
+  done
+  if (( matches != 1 )); then
+    echo "invalid manifest entry for ${required}" >&2
+    exit 1
+  fi
+done
 (cd "${SET_DIR}" && sha256sum -c --quiet "$(basename "${MANIFEST}")")
 echo "checksums: ok"
 
@@ -88,7 +119,11 @@ gpg --batch --quiet --decrypt --passphrase-file "${PASSPHRASE_FILE}" \
 echo "decrypt: ok"
 
 # 3. Uploads archive must be a readable tar with at least one entry.
-UPLOAD_ENTRIES="$(tar -tzf "${WORK}/uploads.tar.gz" | wc -l)"
+# Parse the full archive and validate member paths against a shared rule.
+tar -tzf "${WORK}/uploads.tar.gz" > "${WORK}/uploads.entries"
+sorted_backup_archive_entries < "${WORK}/uploads.entries"
+tar -tvzf "${WORK}/uploads.tar.gz" | sorted_backup_archive_types
+UPLOAD_ENTRIES="$(wc -l < "${WORK}/uploads.entries")"
 if (( UPLOAD_ENTRIES < 1 )); then
   echo "uploads archive is empty" >&2
   exit 1
@@ -102,9 +137,10 @@ echo "env backup: ok"
 # 5. Restore the dump into a scratch database and count public tables.
 SCRATCH_CREATED=1
 "${COMPOSE[@]}" exec -T postgres psql -U "${POSTGRES_USER}" -d postgres -v ON_ERROR_STOP=1 \
-  -c "CREATE DATABASE ${SCRATCH_DB};" >/dev/null
+  -v "scratch_db=${SCRATCH_DB}" \
+  -c 'CREATE DATABASE :"scratch_db";' >/dev/null
 "${COMPOSE[@]}" exec -T postgres pg_restore -U "${POSTGRES_USER}" -d "${SCRATCH_DB}" \
-  --no-owner --no-privileges < "${WORK}/dump"
+  --no-owner --no-privileges --exit-on-error < "${WORK}/dump"
 TABLES="$("${COMPOSE[@]}" exec -T postgres psql -U "${POSTGRES_USER}" -d "${SCRATCH_DB}" -tA \
   -c "SELECT count(*) FROM information_schema.tables WHERE table_schema = 'public';")"
 TABLES="${TABLES//[[:space:]]/}"

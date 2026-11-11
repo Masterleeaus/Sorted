@@ -2,7 +2,13 @@
 set -euo pipefail
 
 if [[ -z "${DATABASE_URL:-}" ]]; then
-  echo "DATABASE_URL is required"
+  echo "DATABASE_URL is required" >&2
+  exit 1
+fi
+# This command creates demo customer/job records. It must never be used as
+# an operational migration or run against a declared production environment.
+if [[ "${NODE_ENV:-}" == "production" || "${FSM_DEPLOY_ENV:-}" == "production" ]]; then
+  echo "demo seed is forbidden in production; use tracked migrations instead" >&2
   exit 1
 fi
 
@@ -11,7 +17,7 @@ REPO_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 
 psql_cmd() {
   if command -v psql >/dev/null 2>&1; then
-    psql "$DATABASE_URL" "$@"
+    psql -X "$DATABASE_URL" "$@"
     return
   fi
 
@@ -21,13 +27,13 @@ psql_cmd() {
   fi
 
   docker run --rm --network host -v "${REPO_ROOT}:${REPO_ROOT}" -w "${REPO_ROOT}" postgres:16 \
-    psql "$DATABASE_URL" "$@"
+    psql -X "$DATABASE_URL" "$@"
 }
 
-psql_cmd -v ON_ERROR_STOP=1 -f db/migrations/002_seed_dev.sql
-psql_cmd -v ON_ERROR_STOP=1 -f db/seeds/price_book_enriched.sql
+psql_cmd -v ON_ERROR_STOP=1 -f "${REPO_ROOT}/db/migrations/002_seed_dev.sql"
+psql_cmd -v ON_ERROR_STOP=1 -f "${REPO_ROOT}/db/seeds/price_book_enriched.sql"
 # Demo fixture (dev/QA only) — a job with tracked time + estimate so the job-detail
 # estimated-vs-actual labor headline is populated out of the box. Must run after 002.
-psql_cmd -v ON_ERROR_STOP=1 -f db/seeds/demo_job.sql
+psql_cmd -v ON_ERROR_STOP=1 -f "${REPO_ROOT}/db/seeds/demo_job.sql"
 
 echo "seed complete"

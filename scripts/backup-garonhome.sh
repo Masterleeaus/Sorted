@@ -1,5 +1,13 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
+umask 077
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=./lib/backup-policy.sh
+source "${SCRIPT_DIR}/lib/backup-policy.sh"
+# shellcheck source=./lib/backup-archive-safety.sh
+source "${SCRIPT_DIR}/lib/backup-archive-safety.sh"
+# shellcheck source=./lib/backup-run-lock.sh
+source "${SCRIPT_DIR}/lib/backup-run-lock.sh"
 
 DEPLOY_ROOT="${FSM_DEPLOY_ROOT:-/opt/business/ai-fsm}"
 REPO_ROOT="${FSM_REPO_ROOT:-${DEPLOY_ROOT}/repo}"
@@ -14,9 +22,35 @@ UPLOADS_FILE="${BACKUP_DIR}/ai_fsm_uploads_${TIMESTAMP}.tar.gz.gpg"
 ENV_FILE_BACKUP="${BACKUP_DIR}/ai_fsm_env_${TIMESTAMP}.gpg"
 MANIFEST_FILE="${BACKUP_DIR}/ai_fsm_${TIMESTAMP}.sha256"
 
+# Record startup failures before loading configuration. Previously a missing or
+# unreadable .env exited under set -e without writing a machine-readable status.
+# Monitoring must see the failure even when the alert hook is not configured.
+mkdir -p "${STATUS_DIR}"
+# Only one runner may write shared status or prune historical artifacts.
+# A failed concurrent invocation must not overwrite the active runner's status.
+if ! sorted_backup_lock_start "${STATUS_DIR}" "${TIMESTAMP}" "${NOW_ISO}"; then
+  exit 1
+fi
+if [[ ! -f "${ENV_FILE}" || ! -r "${ENV_FILE}" ]]; then
+  printf '{"status":"incomplete","set":"%s","finished_at":"%s","failures":["environment file missing or unreadable"]}\n' \
+    "${TIMESTAMP}" "${NOW_ISO}" > "${STATUS_DIR}/last-run.json"
+  printf 'INCOMPLETE backup set %s: environment file missing or unreadable\n' "${TIMESTAMP}" > "${STATUS_DIR}/INCOMPLETE"
+  sorted_backup_lock_finish "${STATUS_DIR}"
+  echo "ERROR: backup configuration unavailable; see ${STATUS_DIR}/last-run.json" >&2
+  exit 1
+fi
+
 set -a
 # shellcheck disable=SC1090
-source "${ENV_FILE}"
+if ! source "${ENV_FILE}"; then
+  set +a
+  printf '{"status":"incomplete","set":"%s","finished_at":"%s","failures":["environment file could not be loaded"]}\n' \
+    "${TIMESTAMP}" "${NOW_ISO}" > "${STATUS_DIR}/last-run.json"
+  printf 'INCOMPLETE backup set %s: environment file could not be loaded\n' "${TIMESTAMP}" > "${STATUS_DIR}/INCOMPLETE"
+  sorted_backup_lock_finish "${STATUS_DIR}"
+  echo "ERROR: backup configuration invalid; see ${STATUS_DIR}/last-run.json" >&2
+  exit 1
+fi
 set +a
 
 # Resolve AFTER sourcing .env so FSM_DATA_ROOT / FSM_BACKUP_PASSPHRASE_FILE set
@@ -26,7 +60,7 @@ DATA_ROOT="${FSM_DATA_ROOT:-${DEPLOY_ROOT}/data}"
 PASSPHRASE_FILE="${FSM_BACKUP_PASSPHRASE_FILE:-${DEPLOY_ROOT}/env/backup.passphrase}"
 RCLONE_REMOTE="${FSM_RCLONE_REMOTE:-googledrive}"
 RCLONE_DEST="${RCLONE_REMOTE}:ai-fsm-backups"
-REMOTE_RETENTION_DAYS="${FSM_BACKUP_REMOTE_RETENTION_DAYS:-30}"
+# Validate these settings after the fail-closed status machinery is ready.
 
 # ponytail: DB dump and the uploads tar are taken sequentially while web/worker
 # stay live, so an upload deleted between the two can leave a dump row whose file
@@ -60,8 +94,11 @@ json_escape() {
 alert() {
   local msg="$1"
   if [[ -n "${BACKUP_ALERT_CMD:-}" ]]; then
-    bash -c "${BACKUP_ALERT_CMD} \"\$1\"" _ "${msg}" \
-      || echo "WARNING: BACKUP_ALERT_CMD failed; alert not delivered" >&2
+    # Treat the alert hook as one executable path, not an interpolated shell
+    # command. A failure message must never be executed as shell source.
+    if [[ ! -x "${BACKUP_ALERT_CMD}" ]] || ! "${BACKUP_ALERT_CMD}" "${msg}"; then
+      echo "WARNING: BACKUP_ALERT_CMD missing/non-executable or failed; alert not delivered" >&2
+    fi
   else
     echo "ALERT (BACKUP_ALERT_CMD not configured; nothing sent): ${msg}" >&2
   fi
@@ -71,7 +108,7 @@ write_success_marker() {
   local out="${STATUS_DIR}/last-success.json" first=1 f name size sum
   {
     printf '{\n  "status": "ok",\n  "set": "%s",\n  "completed_at": "%s",\n' "${TIMESTAMP}" "${NOW_ISO}"
-    printf '  "offsite": {"remote": "%s", "verified": true},\n  "artifacts": [\n' "$(json_escape "${RCLONE_DEST}")"
+    printf '  "offsite": {"remote": "%s", "verified": true, "verification": "sha256-readback"},\n  "artifacts": [\n' "$(json_escape "${RCLONE_DEST}")"
     for f in "${ARTIFACTS[@]}"; do
       name="$(basename "${f}")"
       size="$(stat -c %s "${f}")"
@@ -95,6 +132,7 @@ finish_run() {
     printf '{"status": "ok", "set": "%s", "finished_at": "%s", "failures": []}\n' \
       "${TIMESTAMP}" "${NOW_ISO}" > "${STATUS_DIR}/last-run.json"
     rm -f -- "${STATUS_DIR}/INCOMPLETE"
+    sorted_backup_lock_finish "${STATUS_DIR}"
     echo "backup set ${TIMESTAMP} complete and verified offsite"
     exit 0
   fi
@@ -109,6 +147,7 @@ finish_run() {
     echo "INCOMPLETE backup set ${TIMESTAMP} at ${NOW_ISO}"
     for r in "${FAILURES[@]}"; do echo "- ${r}"; done
   } > "${STATUS_DIR}/INCOMPLETE"
+  sorted_backup_lock_finish "${STATUS_DIR}"
   alert "backup set ${TIMESTAMP} INCOMPLETE: ${FAILURES[*]}"
   echo "ERROR: backup set ${TIMESTAMP} is INCOMPLETE; see ${STATUS_DIR}" >&2
   exit 1
@@ -121,6 +160,29 @@ on_unexpected_error() {
   finish_run
 }
 trap 'on_unexpected_error ${LINENO}' ERR
+# Preserve failed status for interrupted backups. SIGKILL intentionally leaves
+# ACTIVE in place for investigation; it cannot run a trap.
+on_backup_signal() {
+  trap - INT TERM
+  record_failure "backup interrupted by signal"
+  finish_run
+}
+trap on_backup_signal INT TERM
+
+# Invalid configuration is a backup failure, not a silent process exit. This
+# status must override the previous good backup in the deployment health gate.
+if ! sorted_backup_remote "${RCLONE_REMOTE}"; then
+  record_failure "unsafe offsite rclone remote name"
+  finish_run
+fi
+if ! COPY_TIMEOUT="$(sorted_backup_timeout "${FSM_BACKUP_REMOTE_COPY_TIMEOUT_SEC:-900}" "remote copy timeout")"; then
+  record_failure "invalid offsite copy timeout"
+  finish_run
+fi
+if ! READ_TIMEOUT="$(sorted_backup_timeout "${FSM_BACKUP_REMOTE_READ_TIMEOUT_SEC:-900}" "remote read timeout")"; then
+  record_failure "invalid offsite read timeout"
+  finish_run
+fi
 
 # Runs a producer command and encrypts its stdout to OUT. The result is renamed
 # into place only if the producer AND gpg both succeed (pipefail), so a failed
@@ -165,7 +227,9 @@ fi
 
 # 2. Uploaded files (receipts, job photos), not covered by the DB dump (required)
 if [[ -d "${DATA_ROOT}/uploads" ]]; then
-  if ! encrypt_command_to "${UPLOADS_FILE}" tar -czf - -C "${DATA_ROOT}" uploads; then
+  if ! sorted_backup_no_source_links "${DATA_ROOT}/uploads"; then
+    record_failure "uploads contain unsafe symlinks; archive not written"
+  elif ! encrypt_command_to "${UPLOADS_FILE}" tar -czf - -C "${DATA_ROOT}" uploads; then
     record_failure "uploads archive failed for ${DATA_ROOT}/uploads"
   else
     echo "backup written (encrypted): ${UPLOADS_FILE}"
@@ -203,21 +267,31 @@ if [[ -f "${MANIFEST_FILE}" ]]; then
   UPLOAD_LIST+=("${MANIFEST_FILE}")
 fi
 for f in "${UPLOAD_LIST[@]}"; do
-  if rclone copy "${f}" "${RCLONE_DEST}/" --log-level INFO; then
+  if timeout "${COPY_TIMEOUT}" rclone copy "${f}" "${RCLONE_DEST}/" --log-level INFO; then
     echo "offsite copy complete: ${RCLONE_DEST}/$(basename "${f}")"
   else
     record_failure "offsite copy failed for $(basename "${f}")"
   fi
 done
 
-# 5. Verify each offsite copy by remote listing (name and size) before counting it as stored.
-if listing="$(rclone lsf --format sp --separator ';' --files-only "${RCLONE_DEST}" 2>/dev/null)"; then
+# 5. Verify every remote object by reading its bytes back with rclone cat and
+# comparing SHA-256 to the original local object. Name+size alone cannot detect
+# corruption or an old same-size object left behind after a broken upload.
+# This includes the manifest itself. A failed read MUST prevent successful status.
+if listing="$(timeout "${READ_TIMEOUT}" rclone lsf --format sp --separator ';' --files-only "${RCLONE_DEST}" 2>/dev/null)"; then
   for f in "${UPLOAD_LIST[@]}"; do
     name="$(basename "${f}")"
     local_size="$(stat -c %s "${f}")"
     remote_size="$(awk -F';' -v n="${name}" '$2 == n { print $1; exit }' <<<"${listing}")"
     if [[ "${remote_size}" != "${local_size}" ]]; then
       record_failure "offsite verify failed for ${name} (remote size '${remote_size:-missing}', local ${local_size})"
+      continue
+    fi
+    local_sha="$(sha256sum -- "${f}" | cut -d' ' -f1)"
+    if ! remote_sha="$(timeout "${READ_TIMEOUT}" rclone cat "${RCLONE_DEST}/${name}" | sha256sum | cut -d' ' -f1)"; then
+      record_failure "offsite hash read failed for ${name}"
+    elif [[ "${remote_sha}" != "${local_sha}" ]]; then
+      record_failure "offsite SHA-256 mismatch for ${name}"
     fi
   done
 else
@@ -229,17 +303,18 @@ if (( ${#FAILURES[@]} == 0 )); then
   echo "offsite set verified: ${TIMESTAMP}"
 fi
 
-# 6. Local prune (runs after verification, never before). A set is removed after
-# 7 days only if its offsite copy was verified. Unverified sets are kept, unless
-# this run completed and verified, which proves a complete offsite set now exists.
+# 6. Local prune: only after this run succeeds, and only remove each
+# individually verified set after seven days. A newly successful backup does
+# NOT attest the safety of a different historical set; incomplete/unverified
+# older sets must survive for investigation and possible recovery.
 # Legacy plaintext names are matched by the same rule.
 while IFS= read -r -d '' f; do
   ts="$(sed -nE 's/^ai_fsm_(uploads_|env_)?([0-9]{8}T[0-9]{6}Z).*/\2/p' <<<"$(basename "${f}")")"
   [[ -n "${ts}" ]] || continue
-  if [[ -f "${STATUS_DIR}/verified-${ts}" ]] || [[ -f "${STATUS_DIR}/verified-${TIMESTAMP}" ]]; then
+  if (( ${#FAILURES[@]} == 0 )) && [[ -f "${STATUS_DIR}/verified-${ts}" ]]; then
     rm -f -- "${f}"
   fi
-done < <(find "${BACKUP_DIR}" -maxdepth 1 -type f -name 'ai_fsm_*' -mtime +7 -print0)
+done < <(find "${BACKUP_DIR}" -maxdepth 1 -type f -name 'ai_fsm_*' -mmin +10080 -print0)
 for m in "${STATUS_DIR}"/verified-*; do
   [[ -e "${m}" ]] || continue
   ts="${m##*verified-}"
@@ -247,19 +322,12 @@ for m in "${STATUS_DIR}"/verified-*; do
     rm -f -- "${m}"
   fi
 done
-echo "old local backups pruned (verified sets older than 7 days)"
+echo "local backup retention evaluated (only individually verified sets older than 7 days)"
 
-# 7. Offsite prune (older than the documented retention). Only when this run's set
-# is stored and verified, so old offsite copies are not removed while the newest
-# set is missing from Drive.
-if (( ${#FAILURES[@]} == 0 )); then
-  if rclone delete "${RCLONE_DEST}" --min-age "${REMOTE_RETENTION_DAYS}d" --log-level INFO; then
-    echo "old offsite backups pruned (older than ${REMOTE_RETENTION_DAYS}d)"
-  else
-    echo "WARNING: offsite prune failed (rclone exit $?)" >&2
-  fi
-else
-  echo "offsite prune skipped: this run is incomplete"
-fi
+# 7. Offsite retention is deliberately NOT a broad rclone delete.
+# Age-only deletion can destroy old but unverified or incomplete recovery sets
+# and their companion manifests. Retain remotely until a separate per-set,
+# explicitly reviewed retention command exists and has completed restore drills.
+echo "offsite prune deferred: no destructive age-only delete is permitted"
 
 finish_run

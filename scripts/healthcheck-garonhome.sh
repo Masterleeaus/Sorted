@@ -30,14 +30,20 @@ if [[ -n "${NTFY_TOKEN:-}" ]]; then
   NTFY_BASE="${NTFY_HOST_PORT}"
   NTFY_AUTH="Authorization: Bearer ${NTFY_TOKEN}"
 fi
-NTFY_URL_BASE="http://${NTFY_BASE}"
+# Public ntfy.sh requires HTTPS; only the operator-controlled loopback
+# listener uses HTTP.
+if [[ "${NTFY_BASE}" == "ntfy.sh" ]]; then
+  NTFY_URL_BASE="https://ntfy.sh"
+else
+  NTFY_URL_BASE="http://${NTFY_BASE}"
+fi
 
 # Check if container is running
 if ! docker inspect --format='{{.State.Running}}' "${WEB_CONTAINER}" 2>/dev/null | grep -q true; then
   echo "${TIMESTAMP} status=container_down response_ms=-1" >> "${LOG_FILE}"
   curl -s -d "ai-fsm web container is not running on garonhome (${TIMESTAMP})" \
-    "ntfy.sh/${NTFY_TOPIC}" > /dev/null
-  exit 0
+    "https://ntfy.sh/${NTFY_TOPIC}" > /dev/null || true
+  exit 1
 fi
 
 # Check n8n (the SMS gateway / webhook receiver)
@@ -127,7 +133,9 @@ echo "${TIMESTAMP} status=${STATUS} response_ms=${ELAPSED}" >> "${LOG_FILE}"
 # Trim log to last 10000 lines (~35 days at 5-min intervals)
 tail -10000 "${LOG_FILE}" > "${LOG_FILE}.tmp" && mv "${LOG_FILE}.tmp" "${LOG_FILE}"
 
+HEALTHCHECK_FAILED="${HEALTHCHECK_FAILED:-0}"
 if [[ "${STATUS}" != "ok" ]]; then
+  HEALTHCHECK_FAILED=1
   curl -s ${NTFY_AUTH:+-H "$NTFY_AUTH"} \
     -H "Title: ai-fsm DOWN on garonhome" \
     -H "Priority: urgent" \
@@ -136,10 +144,32 @@ if [[ "${STATUS}" != "ok" ]]; then
     "${NTFY_URL_BASE:-ntfy.sh}/${NTFY_TOPIC}" > /dev/null || true
 fi
 
+# Backup status becomes unhealthy during an ACTIVE run and after abrupt
+# interruption. Investigate stale markers before clearing them; do not infer
+# that a prior green report is current while another backup is executing.
+# Backups require independent alerting even when the web app is healthy.
+# A previously completed backup does not mask a newer failed/incomplete run.
+if ! node "${DEPLOY_ROOT}/repo/scripts/check-backup-health.mjs" \
+  "${FSM_BACKUP_DIR:-${DEPLOY_ROOT}/backups}" "${FSM_BACKUP_MAX_AGE_HOURS:-26}"; then
+  echo "${TIMESTAMP} status=backup_missing_stale_or_incomplete" >> "${LOG_FILE}"
+  curl -fsS --max-time 5 ${NTFY_AUTH:+-H "$NTFY_AUTH"} \
+    -H "Title: Sorted verified backup unavailable" \
+    -H "Priority: urgent" \
+    -d "Backup status missing, incomplete, or stale at ${TIMESTAMP}; inspect backups/status" \
+    "${NTFY_URL_BASE}/${NTFY_TOPIC}" >/dev/null || true
+  HEALTHCHECK_FAILED=1
+fi
+
 # Check ntfy (the alert channel itself)
 if ! docker inspect --format='{{.State.Running}}' ntfy 2>/dev/null | grep -q true; then
   echo "${TIMESTAMP} status=ntfy_down" >> "${LOG_FILE}"
   # last resort: try public if internal down
   curl -s -d "ntfy container down - alerts may be lost (${TIMESTAMP})" \
-    "ntfy.sh/${NTFY_TOPIC}" > /dev/null || true
+    "https://ntfy.sh/${NTFY_TOPIC}" > /dev/null || true
+fi
+
+# Nonzero status is essential for cron/systemd monitoring; ntfy delivery may
+# be unavailable during outages and cannot be the only failure signal.
+if [[ "${HEALTHCHECK_FAILED:-0}" == "1" ]]; then
+  exit 1
 fi
