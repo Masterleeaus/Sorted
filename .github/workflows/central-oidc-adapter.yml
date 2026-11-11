@@ -1,0 +1,26 @@
+name: Central SSO adapter focused tests
+on:
+  push:
+    branches: [feat/central-product-oidc-adapter-pass25]
+  pull_request:
+    paths:
+      - 'apps/web/lib/auth/central-*.ts'
+      - 'apps/web/lib/auth/__tests__/central-*.test.ts'
+      - 'docs/pending/202_central_account_identity_links.sql'
+      - '.github/workflows/central-oidc-adapter.yml'
+permissions:
+  contents: read
+jobs:
+  adapter-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Run isolated Sorted Central tenant and session tests
+        run: pnpm --filter @ai-fsm/web exec vitest run lib/auth/__tests__/central-account-resolver.unit.test.ts lib/auth/__tests__/central-session-gate.unit.test.ts
