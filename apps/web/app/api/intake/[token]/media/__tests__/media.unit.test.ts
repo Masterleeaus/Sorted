@@ -50,7 +50,7 @@ const db = vi.hoisted(() => {
       return { rows: inv ? [{ is_used: inv.used }] : [] };
     }
     if (sql.includes("FROM intake_invites") && sql.includes("FOR UPDATE")) {
-      const inv = state.invites.find((i) => i.id === params[0] && !i.used && !i.expired);
+      const inv = state.invites.find((i) => i.id === params[0] && i.company_id === params[1] && !i.used && !i.expired);
       return { rows: inv ? [{ id: inv.id }] : [] };
     }
     if (sql.includes("count(*)") && sql.includes("FROM intake_media")) {
