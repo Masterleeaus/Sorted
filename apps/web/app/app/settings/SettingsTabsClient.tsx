@@ -10,6 +10,8 @@ import { ProfileForm } from "./ProfileForm";
 import { EnableNotifications } from "@/components/push/EnableNotifications";
 import { LocationDaySettings, type LocationDayValues } from "./LocationDaySettings";
 import { TravelSettingsForm } from "./TravelSettingsForm";
+import { WorkforceLifecyclePanel } from "./WorkforceLifecyclePanel";
+import type { WorkforceLifecycleInspectionView } from "@/lib/titan/workforce-lifecycle/inspection";
 
 interface Props {
   role: "owner" | "admin" | "tech";
@@ -18,9 +20,10 @@ interface Props {
   hasAccount: boolean;
   users: TeamMember[];
   locationDay?: LocationDayValues;
+  workforceLifecycle: readonly WorkforceLifecycleInspectionView[];
 }
 
-export function SettingsTabsClient({ role, userId, me, hasAccount, users, locationDay }: Props) {
+export function SettingsTabsClient({ role, userId, me, hasAccount, users, locationDay, workforceLifecycle }: Props) {
   const isAdmin = role === "owner" || role === "admin";
   const isOwner = role === "owner";
 
@@ -33,6 +36,7 @@ export function SettingsTabsClient({ role, userId, me, hasAccount, users, locati
     ...(isOwner && locationDay ? [{ id: "location-day", label: "Location & Day", icon: <LocationDayIcon /> }] : []),
     ...(isAdmin ? [{ id: "system-health", label: "System Health", icon: <HealthIcon /> }] : []),
     ...(isAdmin ? [{ id: "tools", label: "Field Setup", icon: <ToolsIcon /> }] : []),
+    ...(isAdmin ? [{ id: "workforce-lifecycle", label: "Workforce Lifecycle", icon: <ToolsIcon /> }] : []),
   ];
 
   const [activeTab, setActiveTab] = useState(tabs[0].id);
@@ -112,6 +116,16 @@ export function SettingsTabsClient({ role, userId, me, hasAccount, users, locati
         )}
 
 
+
+        {activeTab === "workforce-lifecycle" && isAdmin && (
+          <section>
+            <h2 style={{ fontSize: 20, fontWeight: 700, margin: "0 0 8px 0" }}>Workforce Lifecycle</h2>
+            <p style={{ color: "var(--fg-muted)", fontSize: "var(--text-sm)", marginTop: 0, marginBottom: 24 }}>
+              Read-only lifecycle status for Field agents. Changes go through the governed workforce path.
+            </p>
+            <WorkforceLifecyclePanel agents={workforceLifecycle} />
+          </section>
+        )}
 
         {activeTab === "team" && isAdmin && (
           <section>
