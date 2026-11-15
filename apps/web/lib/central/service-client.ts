@@ -1,19 +1,95 @@
-import { decodeJwt } from "jose";
-import { readServiceConfig } from "./config";
-
 /**
- * Sorted's service client for Titan Central APIs (issue #39).
+ * Server-to-server clients for Central. This file holds two clients that share
+ * the same token-caching pattern but target different Central surfaces:
  *
- * - Obtains a token with the Logto client-credentials grant.
- * - Caches the token and refreshes it before expiry (single-flight).
- * - Refuses any token whose `aud` is not the Sorted product audience.
- * - Never passes organisation_id, tenant or cohort. Central derives the tenant
- *   from the verified token and rejects those fields with 400.
- * - Never logs or echoes token material. Errors carry status codes and codes only.
+ *   1. createServiceTokenProvider (identity and config service): client-credentials
+ *      grant against the product audience (CENTRAL_SERVICE_AUDIENCE). Used by flags.
+ *      The token is cached in memory until 60 seconds before it expires and is
+ *      never logged.
  *
- * Central verifies signature, audience and expiry. The local `aud` check here is
- * a fail-fast guard, not the security boundary.
+ *   2. createCentralServiceClient (Titan Central APIs, issue #39): client-credentials
+ *      grant via TITAN_CENTRAL_* settings.
+ *      - Caches the token and refreshes it before expiry (single-flight).
+ *      - Refuses any token whose `aud` is not the Sorted product audience.
+ *      - Never passes organisation_id, tenant or cohort. Central derives the tenant
+ *        from the verified token and rejects those fields with 400.
+ *      - Never logs or echoes token material. Errors carry status codes and codes only.
+ *      Central verifies signature, audience and expiry. The local `aud` check here is
+ *      a fail-fast guard, not the security boundary.
  */
+
+import { decodeJwt } from "jose";
+import { readCentralServiceConfig, readServiceConfig, type CentralServiceConfig, type EnvSource } from "./config";
+import { fetchDiscovery, type FetchLike, type OidcDiscovery, OidcError } from "./oidc";
+
+export type { FetchLike } from "./oidc";
+
+// ---------------------------------------------------------------------------
+// Identity and config service token provider
+// ---------------------------------------------------------------------------
+
+const REFRESH_MARGIN_MS = 60_000;
+
+interface ServiceClientDeps {
+  readonly fetch: FetchLike;
+  readonly now?: () => number;
+  readonly env?: EnvSource;
+}
+
+export interface ServiceTokenProvider {
+  getToken(): Promise<string>;
+}
+
+export function createServiceTokenProvider(
+  deps: ServiceClientDeps,
+  config: CentralServiceConfig = readCentralServiceConfig(deps.env ?? process.env),
+): ServiceTokenProvider {
+  const now = deps.now ?? Date.now;
+  let discovery: Promise<OidcDiscovery> | null = null;
+  let cached: { token: string; expiresAtMs: number } | null = null;
+
+  return {
+    async getToken(): Promise<string> {
+      if (cached && now() < cached.expiresAtMs - REFRESH_MARGIN_MS) return cached.token;
+
+      discovery ??= fetchDiscovery(config.origin, deps.fetch).catch((error: unknown) => {
+        discovery = null;
+        throw error;
+      });
+      const doc = await discovery;
+
+      const credentials = Buffer.from(
+        `${encodeURIComponent(config.clientId)}:${encodeURIComponent(config.clientSecret)}`,
+      ).toString("base64");
+      const res = await deps.fetch(doc.token_endpoint, {
+        method: "POST",
+        headers: {
+          "content-type": "application/x-www-form-urlencoded",
+          authorization: `Basic ${credentials}`,
+        },
+        body: new URLSearchParams({
+          grant_type: "client_credentials",
+          audience: config.audience,
+        }).toString(),
+        signal: AbortSignal.timeout(10_000),
+      });
+      if (!res.ok) throw new OidcError("service_token_failed", `service token endpoint answered HTTP ${res.status}`);
+      const body = (await res.json()) as { access_token?: unknown; expires_in?: unknown };
+      if (typeof body.access_token !== "string" || body.access_token.length === 0) {
+        throw new OidcError("service_token_failed", "service token response has no access_token");
+      }
+      if (typeof body.expires_in !== "number" || !Number.isFinite(body.expires_in) || body.expires_in <= 0) {
+        throw new OidcError("service_token_failed", "service token response has no usable expires_in");
+      }
+      cached = { token: body.access_token, expiresAtMs: now() + body.expires_in * 1000 };
+      return cached.token;
+    },
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Titan Central service client (issue #39)
+// ---------------------------------------------------------------------------
 
 export type ServiceClientConfig = Readonly<{
   origin: string;
@@ -44,8 +120,6 @@ export class CentralServiceError extends Error {
     this.status = status;
   }
 }
-
-export type FetchLike = (input: string, init?: RequestInit) => Promise<Response>;
 
 export type CentralServiceClientOptions = Readonly<{
   /** Defaults to reading TITAN_CENTRAL_* from the environment on first use. */
