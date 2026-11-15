@@ -100,7 +100,7 @@ export function CommandPalette({ role }: { role: Role }) {
           className="p7-modal-overlay"
           role="dialog"
           aria-modal="true"
-          aria-label="Find in Titan Field"
+          aria-label="Find in Sorted Field"
           data-testid="command-palette"
           onClick={(e) => {
             if (e.target === e.currentTarget) close();
@@ -109,7 +109,7 @@ export function CommandPalette({ role }: { role: Role }) {
           <div className="p7-modal" style={{ maxWidth: 480, width: "min(480px, 100%)" }}>
             <div className="p7-modal-header">
               <h2 className="p7-modal-title" id="command-palette-title">
-                Find in Titan Field
+                Find in Sorted Field
               </h2>
               <button type="button" className="p7-modal-close" onClick={close} aria-label="Close">
                 ×
