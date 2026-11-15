@@ -42,13 +42,13 @@ export async function loadSponsoredInvoices(
             p.name AS property_name, p.address AS property_address,
             COALESCE(contact_client.name, pc.external_name) AS beneficiary_name
      FROM invoices i
-     JOIN properties p ON p.id = i.property_id AND p.account_id = i.account_id
+     JOIN properties p ON p.id = i.property_id AND p.company_id = i.company_id
      LEFT JOIN property_contacts pc
        ON pc.id = i.beneficiary_property_contact_id
       AND pc.property_id = i.property_id
-      AND pc.account_id = i.account_id
+      AND pc.company_id = i.company_id
      LEFT JOIN clients contact_client
-       ON contact_client.id = pc.client_id AND contact_client.account_id = i.account_id
+       ON contact_client.id = pc.client_id AND contact_client.company_id = i.company_id
      WHERE i.client_id = $1
        AND i.billing_context = 'realtor_sponsored'
        AND i.status <> 'draft'

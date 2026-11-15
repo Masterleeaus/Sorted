@@ -90,9 +90,9 @@ async function loadJobPhotoRecap(
   }>(
     `SELECT vm.filename, vm.mime_type, vm.category, vm.visit_id::text
        FROM visit_media vm
-       JOIN visits v ON v.id = vm.visit_id AND v.account_id = vm.account_id
+       JOIN visits v ON v.id = vm.visit_id AND v.company_id = vm.company_id
       WHERE v.job_id = $1
-        AND vm.account_id = $2
+        AND vm.company_id = $2
         AND vm.category IN ('after', 'before')
       ORDER BY CASE vm.category WHEN 'after' THEN 0 ELSE 1 END, vm.created_at DESC
       LIMIT 12`,
@@ -145,10 +145,10 @@ export async function loadInvoicePdf(
             ${SPONSORED_DOCUMENT_SELECT},
             ${documentLocationSelect({ includeEstimateProperty: true })}
      FROM invoices i
-     JOIN accounts a ON a.id = i.account_id
+     JOIN accounts a ON a.id = i.company_id
      ${documentJoins({ root: "i", includeEstimateProperty: true })}
      ${SPONSORED_DOCUMENT_JOIN}
-     WHERE i.id = $1 AND i.account_id = $2`,
+     WHERE i.id = $1 AND i.company_id = $2`,
     [id, accountId],
   );
   if (!rowCount) return null;
@@ -251,9 +251,9 @@ export async function loadEstimatePdf(
             a.name AS account_name, a.settings AS account_settings,
             ${documentLocationSelect()}
      FROM estimates e
-     JOIN accounts a ON a.id = e.account_id
+     JOIN accounts a ON a.id = e.company_id
      ${documentJoins({ root: "e" })}
-     WHERE e.id = $1 AND e.account_id = $2`,
+     WHERE e.id = $1 AND e.company_id = $2`,
     [id, accountId],
   );
   if (!rowCount) return null;

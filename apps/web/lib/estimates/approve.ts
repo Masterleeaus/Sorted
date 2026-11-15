@@ -42,7 +42,7 @@ export async function createApprovalArtifacts(
   if (est && est.deposit_required && est.deposit_cents > 0) {
     const existingDeposit = await client.query<{ id: string }>(
       `SELECT id FROM invoices
-       WHERE estimate_id = $1 AND account_id = $2 AND invoice_kind = 'deposit'
+       WHERE estimate_id = $1 AND company_id = $2 AND invoice_kind = 'deposit'
        LIMIT 1`,
       [estimateId, accountId]
     );

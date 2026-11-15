@@ -84,7 +84,7 @@ export async function PATCH(
     // Reads run in the portal client's account context (client id and account come from the guard).
     const taken = await withTokenAccountContext(client.account_id, async (tx) => {
       const { rows } = await tx.query(
-        `SELECT 1 FROM clients WHERE account_id = $1 AND id <> $2 AND lower(email) = $3`,
+        `SELECT 1 FROM clients WHERE company_id = $1 AND id <> $2 AND lower(email) = $3`,
         [client.account_id, client.id, newEmail],
       );
       return rows[0] ?? null;

@@ -46,7 +46,9 @@
     "./business-reality": "./src/business-reality.ts",
     "./constitution": "./src/constitution.ts",
     "./field-service-lifecycle": "./src/field-service-lifecycle.ts",
-    "./directadmin-plugin": "./src/directadmin-plugin.ts"
+    "./directadmin-plugin": "./src/directadmin-plugin.ts",
+    "./settings/ai-provider-control-centre": "./src/ported/titan-settings/control-plane/ai-provider-control-centre.ts",
+    "./settings/notification-escalation-settings": "./src/ported/titan-settings/control-plane/notification-escalation-settings.ts"
   },
   "dependencies": {
     "@titan-zero/storage": "workspace:*",
@@ -58,10 +60,11 @@
   },
   "scripts": {
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "test": "rm -rf .test-dist && tsc -p tsconfig.test.json --noEmit false --outDir .test-dist --module NodeNext --moduleResolution NodeNext --isolatedModules false && node --test ./tests/*.test.mjs",
+    "test": "node scripts/build-test-outputs.mjs && node --test ./tests/*.test.mjs",
     "test:cleaning": "rm -rf .cleaning-test-dist && tsc --target ES2022 --module NodeNext --moduleResolution NodeNext --strict --skipLibCheck --rootDir src --outDir .cleaning-test-dist src/verticals/cleaning/*.ts && node --test ./tests/cleaning-vertical-pass*.test.mjs",
-    "test:unit": "rm -rf .test-dist && tsc -p tsconfig.test.json --noEmit false --outDir .test-dist --module NodeNext --moduleResolution NodeNext --isolatedModules false && node --test ./tests/*.test.mjs",
+    "test:unit": "node scripts/build-test-outputs.mjs && node --test ./tests/*.test.mjs",
     "test:workforce-native": "node scripts/test-workforce-native.mjs",
-    "build": "tsc -p tsconfig.json --noEmit false --outDir dist --module NodeNext --moduleResolution NodeNext --isolatedModules false"
+    "build": "tsc -p tsconfig.json --noEmit false --outDir dist --module NodeNext --moduleResolution NodeNext --isolatedModules false",
+    "build:test": "node scripts/build-test-outputs.mjs"
   }
 }

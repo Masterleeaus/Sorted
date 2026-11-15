@@ -1,3 +1,10 @@
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "My Work",
+  description: "See assigned field work in Sorted Field.",
+};
+
 import Link from "next/link";
 import type { Route } from "next";
 import { redirect } from "next/navigation";
@@ -111,7 +118,7 @@ export default async function MyWorkPage({ searchParams }: PageProps) {
            v.scheduled_start ASC
          LIMIT 1
        ) face ON true
-       WHERE w.account_id = $1 AND ${todayCoveringTechSql("$2")}
+       WHERE w.company_id = $1 AND ${todayCoveringTechSql("$2")}
          AND w.status NOT IN ('draft','completed','cancelled')
        ORDER BY
          CASE w.status WHEN 'dispatched' THEN 0 WHEN 'scheduled' THEN 1 WHEN 'waiting' THEN 2 ELSE 3 END,
@@ -128,7 +135,7 @@ export default async function MyWorkPage({ searchParams }: PageProps) {
        LEFT JOIN jobs j ON j.id = v.job_id
        LEFT JOIN clients c ON c.id = j.client_id
        LEFT JOIN properties p ON p.id = j.property_id
-       WHERE v.account_id = $1 AND v.assigned_user_id = $2
+       WHERE v.company_id = $1 AND v.assigned_user_id = $2
          AND v.work_order_id IS NULL
          AND v.visit_type = ANY($3::text[])
          AND v.status NOT IN ('completed','cancelled')
@@ -144,14 +151,14 @@ export default async function MyWorkPage({ searchParams }: PageProps) {
               v.materials_needed,
               (SELECT t.label FROM visit_tasks vt
                JOIN work_order_tasks t ON t.id = vt.task_id
-               WHERE vt.visit_id = v.id AND vt.account_id = v.account_id
+               WHERE vt.visit_id = v.id AND vt.company_id = v.company_id
                  AND t.completed = false AND t.status <> 'done'
                ORDER BY t.sort_order ASC LIMIT 1) AS first_up
        FROM visits v
        LEFT JOIN jobs j ON j.id = v.job_id
        LEFT JOIN clients c ON c.id = j.client_id
        LEFT JOIN properties p ON p.id = j.property_id
-       WHERE v.account_id = $1 AND v.assigned_user_id = $2
+       WHERE v.company_id = $1 AND v.assigned_user_id = $2
          AND v.status NOT IN ('completed','cancelled')
        ORDER BY v.scheduled_start ASC
        LIMIT 100`,

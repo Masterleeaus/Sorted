@@ -371,7 +371,7 @@ def main() -> int:
       FROM jobs j
       LEFT JOIN clients c ON c.id = j.client_id
       LEFT JOIN properties p ON p.id = j.property_id
-      WHERE j.account_id = '{ACCOUNT_ID}'
+      WHERE j.company_id = '{ACCOUNT_ID}'
         AND j.status NOT IN ('cancelled')
       ORDER BY j.updated_at DESC
       LIMIT 500
@@ -398,7 +398,7 @@ def main() -> int:
               ORDER BY d.created_at DESC LIMIT 1) AS paperless_doc_id,
              (SELECT count(*) FROM expense_line_items eli WHERE eli.expense_id=e.id) AS line_count
       FROM expenses e
-      WHERE e.account_id = '{ACCOUNT_ID}'
+      WHERE e.company_id = '{ACCOUNT_ID}'
         AND (
           (e.receipt_url IS NOT NULL AND btrim(e.receipt_url) <> '')
           OR EXISTS (
@@ -648,9 +648,9 @@ def main() -> int:
             SELECT set_config('app.current_account_id', '{ACCOUNT_ID}', true);
             SELECT set_config('app.current_user_id', '{OWNER_USER_ID}', true);
             INSERT INTO document_links
-              (account_id, entity_type, entity_id, paperless_doc_id, title, original_filename, created_by, document_type)
+              (account_id, company_id, entity_type, entity_id, paperless_doc_id, title, original_filename, created_by, document_type)
             VALUES
-              ('{ACCOUNT_ID}', 'expense', '{match_exp["id"]}', {did}, '{title_esc}', '{fn}',
+              ('{ACCOUNT_ID}', '{ACCOUNT_ID}', 'expense', '{match_exp["id"]}', {did}, '{title_esc}', '{fn}',
                '{OWNER_USER_ID}', 'receipt')
             ON CONFLICT DO NOTHING;
             """

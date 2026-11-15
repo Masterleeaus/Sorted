@@ -3,7 +3,7 @@ import { z } from "zod";
 import { hash, compare } from "bcryptjs";
 import { withAuth } from "@/lib/auth/middleware";
 import type { AuthSession } from "@/lib/auth/middleware";
-import { queryOneForSession, withDbSession } from "@/lib/db";
+import { queryOneForSession, withDbSession, companyIdFromSession } from "@/lib/db";
 import { logger } from "@/lib/logger";
 
 export const dynamic = "force-dynamic";
@@ -45,8 +45,8 @@ export const POST = withAuth(async (request: NextRequest, session: AuthSession) 
 
   const user = await queryOneForSession<{ id: string; password_hash: string }>(
     session,
-    `SELECT id, password_hash FROM users WHERE id = $1 AND account_id = $2`,
-    [id, session.accountId]
+    `SELECT id, password_hash FROM users WHERE id = $1 AND company_id = $2`,
+    [id, companyIdFromSession(session)]
   );
   if (!user) {
     return NextResponse.json(
@@ -70,8 +70,8 @@ export const POST = withAuth(async (request: NextRequest, session: AuthSession) 
   try {
     await withDbSession(session, (client) =>
       client.query(
-        `UPDATE users SET password_hash = $1, updated_at = now() WHERE id = $2 AND account_id = $3`,
-        [new_hash, id, session.accountId]
+        `UPDATE users SET password_hash = $1, updated_at = now() WHERE id = $2 AND company_id = $3`,
+        [new_hash, id, companyIdFromSession(session)]
       )
     );
     return NextResponse.json({ updated: true });

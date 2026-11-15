@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { assembleWorkforceContext } from "../../.tmp-wf-context-build/assembler.js";
+import { assembleWorkforceContext } from "../.context-test-dist/assembler.js";
 
 const base = () => ({
   company_id: "company-1",

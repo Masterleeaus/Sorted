@@ -1,3 +1,10 @@
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Mileage",
+  description: "Review work travel and mileage in Sorted Field.",
+};
+
 import { Fragment } from "react";
 import { redirect } from "next/navigation";
 import Link from "next/link";
@@ -116,7 +123,7 @@ export default async function MileagePage({ searchParams }: PageProps) {
      LEFT JOIN jobs vj       ON vj.id = vi.job_id
      LEFT JOIN estimates est ON est.id = a.entity_id AND a.entity_type = 'estimate'
      LEFT JOIN jobs ej       ON ej.id = est.job_id
-     WHERE s.account_id = $1
+     WHERE s.company_id = $1
        AND to_char(s.session_date, 'YYYY-MM') = $2
      GROUP BY s.id, v.nickname, v.plate, u.full_name
      ORDER BY s.session_date DESC, s.created_at DESC`,

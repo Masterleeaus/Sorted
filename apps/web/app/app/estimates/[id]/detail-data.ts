@@ -159,7 +159,7 @@ export async function loadEstimateDetail(
        FROM estimates e
        LEFT JOIN clients c ON c.id = e.client_id
        LEFT JOIN jobs j ON j.id = e.job_id
-       WHERE e.id = $1 AND e.account_id = $2`,
+       WHERE e.id = $1 AND e.company_id = $2`,
       [id, session.accountId]
     );
 
@@ -186,7 +186,7 @@ export async function loadEstimateDetail(
               ${documentLocationSelect()}
        FROM estimates e
        ${documentJoins({ root: "e" })}
-       WHERE e.id = $1 AND e.account_id = $2`,
+       WHERE e.id = $1 AND e.company_id = $2`,
       [id, session.accountId]
     );
     const pricingSettings = await loadPricingSettings(client, session.accountId);
@@ -221,10 +221,10 @@ export async function loadEstimateDetail(
       const jobRow = await pool.query<{ status: string; visit_count: string }>(
         `SELECT j.status,
                 (SELECT COUNT(*)::text FROM visits v
-                 WHERE v.job_id = j.id AND v.account_id = j.account_id
+                 WHERE v.job_id = j.id AND v.company_id = j.company_id
                    AND v.status != 'cancelled') AS visit_count
          FROM jobs j
-         WHERE j.id = $1 AND j.account_id = $2`,
+         WHERE j.id = $1 AND j.company_id = $2`,
         [estimate.job_id, session.accountId]
       );
       jobStatus = jobRow.rows[0]?.status ?? null;
@@ -243,7 +243,7 @@ export async function loadEstimateDetail(
       const invRows = await pool.query<EstimateInvoiceRow>(
         `SELECT id, invoice_kind, invoice_number, status, total_cents, balance_cents
          FROM invoices
-         WHERE estimate_id = $1 AND account_id = $2
+         WHERE estimate_id = $1 AND company_id = $2
            AND invoice_kind IN ('deposit','final')
            AND status <> 'void'
          ORDER BY created_at DESC`,
@@ -267,7 +267,7 @@ export async function loadEstimateDetail(
               co.approved_at, co.declined_at, co.created_at
        FROM change_orders co
        LEFT JOIN users u2 ON u2.id = co.approved_by
-       WHERE co.estimate_id = $1 AND co.account_id = $2
+       WHERE co.estimate_id = $1 AND co.company_id = $2
        ORDER BY co.created_at DESC`,
       [id, session.accountId]
     );

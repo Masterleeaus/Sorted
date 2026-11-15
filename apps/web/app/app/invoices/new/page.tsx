@@ -65,23 +65,23 @@ export default async function NewInvoicePage({ searchParams }: PageProps) {
 
   const [clients, jobs, properties, propertyContacts] = await Promise.all([
     queryForSession<Client>(session,
-      `SELECT id, name FROM clients WHERE account_id = $1 ORDER BY name ASC`,
+      `SELECT id, name FROM clients WHERE company_id = $1 ORDER BY name ASC`,
       [session.accountId]
     ),
     queryForSession<Job>(session,
-      `SELECT id, title, client_id FROM jobs WHERE account_id = $1 ORDER BY title ASC`,
+      `SELECT id, title, client_id FROM jobs WHERE company_id = $1 ORDER BY title ASC`,
       [session.accountId]
     ),
     queryForSession<Property>(session,
-      `SELECT id, address, client_id FROM properties WHERE account_id = $1 ORDER BY address ASC`,
+      `SELECT id, address, client_id FROM properties WHERE company_id = $1 ORDER BY address ASC`,
       [session.accountId]
     ),
     queryForSession<PropertyContact>(
       session,
       `SELECT pc.id, pc.property_id, COALESCE(c.name, pc.external_name) AS display_name
        FROM property_contacts pc
-       LEFT JOIN clients c ON c.id = pc.client_id AND c.account_id = pc.account_id
-       WHERE pc.account_id = $1
+       LEFT JOIN clients c ON c.id = pc.client_id AND c.company_id = pc.company_id
+       WHERE pc.company_id = $1
        ORDER BY COALESCE(c.name, pc.external_name) ASC`,
       [session.accountId]
     ),
@@ -109,7 +109,7 @@ export default async function NewInvoicePage({ searchParams }: PageProps) {
        FROM estimate_line_items eli
        JOIN estimates e ON e.id = eli.estimate_id
        WHERE eli.estimate_id = $1
-         AND e.account_id = $2
+         AND e.company_id = $2
          AND e.status = 'approved'
          AND eli.option_id IS NULL
        ORDER BY eli.sort_order ASC`,

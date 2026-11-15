@@ -1,5 +1,5 @@
 import type { PoolClient } from "pg";
-import { getPool } from "@/lib/db";
+import { getPool, queryOne } from "@/lib/db";
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -25,9 +25,12 @@ export async function withTokenAccountContext<T>(
   const client = await getPool().connect();
   try {
     await client.query("BEGIN");
+    // company_id equals account_id during the dual-column period (migration 205).
+    // Both come from the same validated value above.
     await client.query(
       `SELECT set_config('app.current_user_id', '', true),
               set_config('app.current_account_id', $1, true),
+              set_config('app.company_id', $1, true),
               set_config('app.current_role', $2, true)`,
       [accountId, role],
     );
@@ -40,4 +43,16 @@ export async function withTokenAccountContext<T>(
   } finally {
     client.release();
   }
+}
+
+/**
+ * The owner account for single-tenant internal prompts (HA start-day and
+ * day-review). Resolved through the migration 204 resolver, because no account
+ * context exists yet. Returns null when there is no owner.
+ */
+export async function resolveOwnerAccountId(): Promise<string | null> {
+  const row = await queryOne<{ account_id: string | null }>(
+    `SELECT resolve_owner_account_id() AS account_id`,
+  );
+  return row?.account_id ?? null;
 }

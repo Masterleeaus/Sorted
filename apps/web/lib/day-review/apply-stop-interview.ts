@@ -75,8 +75,8 @@ export async function applyStopInterview(
             vc.visit_id, vc.job_id, vc.work_order_id, vc.status AS candidate_status
      FROM location_segments s
      LEFT JOIN visit_candidates vc
-       ON vc.location_segment_id = s.id AND vc.account_id = s.account_id
-     WHERE s.id = $1 AND s.account_id = $2`,
+       ON vc.location_segment_id = s.id AND vc.company_id = s.company_id
+     WHERE s.id = $1 AND s.company_id = $2`,
     [input.segmentId, session.accountId],
   );
   const seg = rows[0];
@@ -148,7 +148,7 @@ export async function applyStopInterview(
   await client.query(
     `UPDATE location_segments
      SET stop_reason = $1, stop_notes = $2, status = 'confirmed', updated_at = now()
-     WHERE id = $3 AND account_id = $4`,
+     WHERE id = $3 AND company_id = $4`,
     [input.reason, notes || null, seg.id, session.accountId],
   );
 
@@ -191,14 +191,14 @@ export async function applyStopInterview(
              confirmed_at = COALESCE(confirmed_at, now()),
              wo_resolution = 'resolved',
              updated_at = now()
-         WHERE id = $3 AND account_id = $4`,
+         WHERE id = $3 AND company_id = $4`,
         [jobId, visitId, seg.candidate_id, session.accountId],
       );
     }
     if (visitId && notes) {
       await client.query(
         `UPDATE visits SET tech_notes = $1, updated_at = now()
-         WHERE id = $2 AND account_id = $3`,
+         WHERE id = $2 AND company_id = $3`,
         [notes, visitId, session.accountId],
       );
     }
@@ -232,13 +232,13 @@ async function detachRejectedStop(
     await client.query(
       `UPDATE activity_entries
        SET voided_at = now()
-       WHERE id = $1 AND account_id = $2 AND voided_at IS NULL`,
+       WHERE id = $1 AND company_id = $2 AND voided_at IS NULL`,
       [seg.activity_entry_id, accountId],
     );
     await client.query(
       `UPDATE location_segments
        SET activity_entry_id = NULL, updated_at = now()
-       WHERE id = $1 AND account_id = $2`,
+       WHERE id = $1 AND company_id = $2`,
       [seg.id, accountId],
     );
   }
@@ -251,7 +251,7 @@ async function detachRejectedStop(
          work_order_id = NULL,
          updated_at = now()
      WHERE location_segment_id = $2
-       AND account_id = $3
+       AND company_id = $3
        AND status IN ('pending', 'confirmed')`,
     [reason, seg.id, accountId],
   );
@@ -265,7 +265,7 @@ async function openJobAtProperty(
   if (!propertyId) return null;
   const { rows } = await client.query<{ id: string }>(
     `SELECT id FROM jobs
-     WHERE account_id = $1 AND property_id = $2
+     WHERE company_id = $1 AND property_id = $2
        AND status IN ('draft', 'quoted', 'scheduled', 'in_progress')
      ORDER BY updated_at DESC LIMIT 1`,
     [accountId, propertyId],
@@ -294,12 +294,12 @@ async function createJobOnProperty(
   const jobId = rows[0].id;
   await client.query(
     `UPDATE jobs SET status = 'scheduled', updated_at = now()
-     WHERE id = $1 AND account_id = $2 AND status = 'draft'`,
+     WHERE id = $1 AND company_id = $2 AND status = 'draft'`,
     [jobId, session.accountId],
   );
   await client.query(
     `UPDATE jobs SET status = 'in_progress', updated_at = now()
-     WHERE id = $1 AND account_id = $2 AND status = 'scheduled'`,
+     WHERE id = $1 AND company_id = $2 AND status = 'scheduled'`,
     [jobId, session.accountId],
   );
   const workOrderId = await createDefaultWorkOrderForJob({
@@ -334,7 +334,7 @@ async function fileReceipts(
   if (jobId) {
     const { rows } = await client.query<{ id: string }>(
       `SELECT id FROM jobs
-       WHERE id = $1 AND account_id = $2
+       WHERE id = $1 AND company_id = $2
          AND status IN (${RECEIPT_LINKABLE_JOB_STATUS_SQL})`,
       [jobId, session.accountId],
     );
@@ -349,7 +349,7 @@ async function fileReceipts(
       `UPDATE expenses
        SET job_id = $1, allocation = 'job', billable = true,
            reviewed_at = now(), updated_at = now()
-       WHERE account_id = $2
+       WHERE company_id = $2
          AND id = ANY($3::uuid[])
          AND job_id IS NULL AND reviewed_at IS NULL`,
       [targetJobId, session.accountId, expenseIds],
@@ -359,7 +359,7 @@ async function fileReceipts(
       `UPDATE expenses
        SET allocation = 'stock', billable = false,
            reviewed_at = now(), updated_at = now()
-       WHERE account_id = $1
+       WHERE company_id = $1
          AND id = ANY($2::uuid[])
          AND job_id IS NULL AND reviewed_at IS NULL`,
       [session.accountId, expenseIds],

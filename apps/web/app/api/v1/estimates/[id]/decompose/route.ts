@@ -24,7 +24,7 @@ export const POST = withRole(["owner", "admin"], async (request: NextRequest, se
   try {
     const input = await withEstimateContext(session, async (client) => {
       const est = await client.query<{ scope_assumptions: string | null; notes: string | null; room_specs: unknown }>(
-        `SELECT scope_assumptions, notes, room_specs FROM estimates WHERE id = $1 AND account_id = $2`,
+        `SELECT scope_assumptions, notes, room_specs FROM estimates WHERE id = $1 AND company_id = $2`,
         [id, session.accountId],
       );
       if (est.rowCount === 0) return null;

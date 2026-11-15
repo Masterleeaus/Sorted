@@ -1,3 +1,10 @@
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Invoices",
+  description: "Review business invoices and payment status in Sorted Field.",
+};
+
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import type { Route } from "next";
@@ -134,11 +141,11 @@ export default async function InvoicesPage({ searchParams }: PageProps) {
        FROM invoices i
        LEFT JOIN clients c ON c.id = i.client_id
        LEFT JOIN jobs j ON j.id = i.job_id
-       LEFT JOIN properties sp ON sp.id = i.property_id AND sp.account_id = i.account_id
+       LEFT JOIN properties sp ON sp.id = i.property_id AND sp.company_id = i.company_id
        LEFT JOIN property_contacts spc
-         ON spc.id = i.beneficiary_property_contact_id AND spc.account_id = i.account_id
-       LEFT JOIN clients spcc ON spcc.id = spc.client_id AND spcc.account_id = i.account_id
-       WHERE i.account_id = $1
+         ON spc.id = i.beneficiary_property_contact_id AND spc.company_id = i.company_id
+       LEFT JOIN clients spcc ON spcc.id = spc.client_id AND spcc.company_id = i.company_id
+       WHERE i.company_id = $1
        ${attentionPred}
        ORDER BY 
          CASE i.status 

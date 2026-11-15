@@ -49,8 +49,8 @@ describe("documentJoins", () => {
     expect(sql).toContain("LEFT JOIN estimates e ON e.id = i.estimate_id");
     expect(sql).toContain("i.property_id");
     expect(sql).toContain("e.property_id");
-    expect(sql).toContain("i.account_id");
-    expect(sql).not.toContain("e.account_id");
+    expect(sql).toContain("i.company_id");
+    expect(sql).not.toContain("e.company_id");
   });
 
   it("prefers the client's explicit main property before the oldest property", () => {
@@ -61,14 +61,14 @@ describe("documentJoins", () => {
     }
   });
 
-  it("estimate joins omit estimate self-join and use e.account_id", () => {
+  it("estimate joins omit estimate self-join and use e.company_id", () => {
     const sql = documentJoins({ root: "e" });
     expect(sql).toContain("JOIN clients c ON c.id = e.client_id");
     expect(sql).toContain("LEFT JOIN jobs j ON j.id = e.job_id");
     expect(sql).not.toMatch(/LEFT JOIN estimates e ON/);
     expect(sql).toContain("e.property_id");
-    expect(sql).toContain("e.account_id");
-    expect(sql).not.toContain("i.account_id");
+    expect(sql).toContain("e.company_id");
+    expect(sql).not.toContain("i.company_id");
   });
 
   it("location select lists client and property columns", () => {

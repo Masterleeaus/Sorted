@@ -30,7 +30,7 @@ export const GET = withAuth(async (request: NextRequest, session: AuthSession) =
   return withDbSession(session, async (client) => {
     const prop = (
       await client.query(
-        `SELECT id FROM properties WHERE id = $1 AND account_id = $2`,
+        `SELECT id FROM properties WHERE id = $1 AND company_id = $2`,
         [pid, session.accountId]
       )
     ).rows[0];
@@ -45,7 +45,7 @@ export const GET = withAuth(async (request: NextRequest, session: AuthSession) =
       await client.query(
         `SELECT id, source, body, pinned, visit_id, created_by, created_at
          FROM property_notes
-         WHERE account_id = $1 AND property_id = $2
+         WHERE company_id = $1 AND property_id = $2
          ORDER BY pinned DESC, created_at DESC
          LIMIT 100`,
         [session.accountId, pid]
@@ -86,7 +86,7 @@ export const POST = withAuth(async (request: NextRequest, session: AuthSession) 
     );
 
     const prop = await client.query(
-      `SELECT id FROM properties WHERE id = $1 AND account_id = $2`,
+      `SELECT id FROM properties WHERE id = $1 AND company_id = $2`,
       [pid, session.accountId]
     );
     if (!prop.rows[0]) {
@@ -100,7 +100,7 @@ export const POST = withAuth(async (request: NextRequest, session: AuthSession) 
     const d = parsed.data;
     const { rows } = await client.query(
       `INSERT INTO property_notes
-         (account_id, property_id, source, body, pinned, visit_id, created_by)
+         (company_id, property_id, source, body, pinned, visit_id, created_by)
        VALUES ($1, $2, $3, $4, $5, $6, $7)
        RETURNING *`,
       [

@@ -49,7 +49,7 @@ export async function loadPendingArrivalProposals(
      LEFT JOIN clients c ON c.id = vc.matched_client_id
      LEFT JOIN work_orders w ON w.id = vc.work_order_id
      LEFT JOIN visits v ON v.id = vc.visit_id
-     WHERE vc.account_id = $1 AND vc.status = 'pending'
+     WHERE vc.company_id = $1 AND vc.status = 'pending'
        AND (vc.arrival_time AT TIME ZONE 'America/New_York')::date = $2::date
        AND (
          v.assigned_user_id = $3
@@ -85,7 +85,7 @@ export async function loadOpenWorkOrdersForProperties(
             ) AS "scheduledToday"
      FROM work_orders w
      JOIN jobs j ON j.id = w.job_id
-     WHERE w.account_id = $1
+     WHERE w.company_id = $1
        AND j.property_id = ANY($3::uuid[])
        AND w.status IN ('draft','ready','scheduled','dispatched','waiting')
      ORDER BY w.created_at ASC`,

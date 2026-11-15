@@ -87,7 +87,7 @@ export async function loadNeedsAttention(session: SessionPayload): Promise<{
       session,
       `SELECT COUNT(*)::text AS count
        FROM invoices
-       WHERE account_id = $1
+       WHERE company_id = $1
          AND status = 'draft'
          AND invoice_kind IN ('final', 'standard')`,
       [accountId],
@@ -96,7 +96,7 @@ export async function loadNeedsAttention(session: SessionPayload): Promise<{
       session,
       `SELECT COUNT(*)::text AS count
        FROM estimates
-       WHERE account_id = $1
+       WHERE company_id = $1
          AND status = 'sent'
          AND (expires_at IS NULL OR expires_at > NOW())`,
       [accountId],
@@ -105,7 +105,7 @@ export async function loadNeedsAttention(session: SessionPayload): Promise<{
       session,
       `SELECT COUNT(*)::text AS count
        FROM estimates
-       WHERE account_id = $1
+       WHERE company_id = $1
          AND status IN ('draft','sent')
          AND expires_at IS NOT NULL
          AND expires_at < NOW() + INTERVAL '7 days'`,
@@ -115,14 +115,14 @@ export async function loadNeedsAttention(session: SessionPayload): Promise<{
       session,
       `SELECT COUNT(*)::text AS count
        FROM estimates
-       WHERE account_id = $1 AND status = 'expired'`,
+       WHERE company_id = $1 AND status = 'expired'`,
       [accountId],
     ),
     queryForSession<CountRow>(
       session,
       `SELECT COUNT(*)::text AS count
        FROM invoices
-       WHERE account_id = $1
+       WHERE company_id = $1
          AND invoice_kind = 'deposit'
          AND status IN ('draft','sent','partial','overdue')`,
       [accountId],
@@ -131,7 +131,7 @@ export async function loadNeedsAttention(session: SessionPayload): Promise<{
       session,
       `SELECT COUNT(*)::text AS count
        FROM jobs
-       WHERE account_id = $1
+       WHERE company_id = $1
          AND status IN ('scheduled','in_progress')
          AND NOT EXISTS (
            SELECT 1 FROM visits
@@ -145,8 +145,8 @@ export async function loadNeedsAttention(session: SessionPayload): Promise<{
       session,
       `SELECT COUNT(DISTINCT e.id)::text AS count
        FROM estimates e
-       JOIN jobs j ON j.id = e.job_id AND j.account_id = e.account_id
-       WHERE e.account_id = $1
+       JOIN jobs j ON j.id = e.job_id AND j.company_id = e.company_id
+       WHERE e.company_id = $1
          AND e.status = 'approved'
          AND j.status IN ('scheduled','in_progress')`,
       [accountId],
@@ -155,8 +155,8 @@ export async function loadNeedsAttention(session: SessionPayload): Promise<{
       session,
       `SELECT e.id, j.id AS job_id, j.title
        FROM estimates e
-       JOIN jobs j ON j.id = e.job_id AND j.account_id = e.account_id
-       WHERE e.account_id = $1
+       JOIN jobs j ON j.id = e.job_id AND j.company_id = e.company_id
+       WHERE e.company_id = $1
          AND e.status = 'approved'
          AND j.status IN ('scheduled','in_progress')
        ORDER BY e.updated_at DESC
@@ -167,7 +167,7 @@ export async function loadNeedsAttention(session: SessionPayload): Promise<{
       session,
       `SELECT COUNT(*)::text AS count
        FROM booking_requests
-       WHERE account_id = $1 AND status = 'pending'`,
+       WHERE company_id = $1 AND status = 'pending'`,
       [accountId],
     ),
     queryForSession<MoneyRow>(
@@ -175,14 +175,14 @@ export async function loadNeedsAttention(session: SessionPayload): Promise<{
       `SELECT COUNT(*)::text AS count,
               COALESCE(SUM(total_cents), 0)::text AS total_cents
        FROM invoices
-       WHERE account_id = $1 AND status = 'overdue'`,
+       WHERE company_id = $1 AND status = 'overdue'`,
       [accountId],
     ),
     queryForSession<ExceptionRow>(
       session,
-      `SELECT 'job' AS kind, COUNT(*)::text AS count FROM jobs WHERE account_id = $1 AND sub_status IS NOT NULL
+      `SELECT 'job' AS kind, COUNT(*)::text AS count FROM jobs WHERE company_id = $1 AND sub_status IS NOT NULL
        UNION ALL
-       SELECT 'visit' AS kind, COUNT(*)::text AS count FROM visits WHERE account_id = $1 AND sub_status IS NOT NULL`,
+       SELECT 'visit' AS kind, COUNT(*)::text AS count FROM visits WHERE company_id = $1 AND sub_status IS NOT NULL`,
       [accountId],
     ),
     queryForSession<OpenOwnerPromiseRow>(

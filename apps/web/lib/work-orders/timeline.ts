@@ -125,7 +125,7 @@ export async function fetchWorkOrderTimeline(
   }>(
     session,
     `SELECT created_at::text, completed_at::text, source_estimate_id
-     FROM work_orders WHERE id = $1 AND account_id = $2`,
+     FROM work_orders WHERE id = $1 AND company_id = $2`,
     [workOrderId, session.accountId],
   );
   const wo = woRows[0];
@@ -135,7 +135,7 @@ export async function fetchWorkOrderTimeline(
     session,
     `SELECT id, scheduled_start::text, arrived_at::text, completed_at::text,
             status, tech_notes
-     FROM visits WHERE work_order_id = $1 AND account_id = $2
+     FROM visits WHERE work_order_id = $1 AND company_id = $2
      ORDER BY scheduled_start ASC`,
     [workOrderId, session.accountId],
   );
@@ -147,7 +147,7 @@ export async function fetchWorkOrderTimeline(
       ? queryForSession<{ updated_at: string }>(
           session,
           `SELECT updated_at::text FROM estimates
-           WHERE id = $1 AND account_id = $2 AND status = 'approved'`,
+           WHERE id = $1 AND company_id = $2 AND status = 'approved'`,
           [wo.source_estimate_id, session.accountId],
         )
       : Promise.resolve([]),
@@ -156,7 +156,7 @@ export async function fetchWorkOrderTimeline(
           session,
           `SELECT entity_id::text AS visit_id, created_at::text
            FROM audit_log
-           WHERE account_id = $1 AND entity_type = 'visit_reminder'
+           WHERE company_id = $1 AND entity_type = 'visit_reminder'
              AND entity_id = ANY($2::uuid[])
            ORDER BY created_at ASC`,
           [session.accountId, visitIds],
@@ -167,7 +167,7 @@ export async function fetchWorkOrderTimeline(
           session,
           `SELECT id::text, event_type, created_at::text, entity_id::text
            FROM workflow_events
-           WHERE account_id = $1 AND entity_type = 'visit'
+           WHERE company_id = $1 AND entity_type = 'visit'
              AND entity_id = ANY($2::uuid[])
              AND event_type IN ('visit.completed', 'visit.cancelled')
            ORDER BY created_at ASC`,

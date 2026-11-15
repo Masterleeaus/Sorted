@@ -7,8 +7,12 @@ vi.hoisted(() => {
 });
 
 const mockQueryOne = vi.fn();
+const mockClientQuery = vi.fn();
 vi.mock("@/lib/db", () => ({
   queryOne: (...a: unknown[]) => mockQueryOne(...a),
+  getPool: () => ({
+    connect: async () => ({ query: (...a: unknown[]) => mockClientQuery(...a), release: () => {} }),
+  }),
 }));
 
 const mockSendPushToOwners = vi.fn();
@@ -46,9 +50,24 @@ function startEligible(over: Partial<{
   };
 }
 
+let ownerRow: ReturnType<typeof startEligible> | null = null;
+
+// The resolver returns only the account id. The owner row is read inside that
+// account's context on the pool client.
+function setOwnerRow(row: ReturnType<typeof startEligible> | null) {
+  ownerRow = row;
+  mockQueryOne.mockResolvedValue(row ? { account_id: row.account_id } : null);
+}
+
 beforeEach(() => {
   vi.resetAllMocks();
+  ownerRow = null;
   mockSendPushToOwners.mockResolvedValue(0);
+  mockClientQuery.mockImplementation(async (sql: string) => {
+    if (/^(BEGIN|COMMIT|ROLLBACK)$/.test(sql) || sql.startsWith("SELECT set_config")) return { rows: [] };
+    if (sql.includes("FROM accounts a")) return { rows: ownerRow ? [ownerRow] : [] };
+    return { rows: [] };
+  });
 });
 
 describe("POST /api/internal/start-day-prompt — auth", () => {
@@ -71,7 +90,7 @@ describe("POST /api/internal/start-day-prompt — auth", () => {
 
 describe("POST /api/internal/start-day-prompt — start push", () => {
   it("returns start and sends Web Push once with the start-day payload", async () => {
-    mockQueryOne.mockResolvedValue(startEligible());
+    setOwnerRow(startEligible());
 
     const res = await POST(req());
     expect(res.status).toBe(200);
@@ -86,7 +105,7 @@ describe("POST /api/internal/start-day-prompt — start push", () => {
   });
 
   it("still returns start when sendPushToOwners delivers 0", async () => {
-    mockQueryOne.mockResolvedValue(startEligible());
+    setOwnerRow(startEligible());
     mockSendPushToOwners.mockResolvedValue(0);
 
     const res = await POST(req());
@@ -95,9 +114,23 @@ describe("POST /api/internal/start-day-prompt — start push", () => {
   });
 });
 
+describe("POST /api/internal/start-day-prompt — context", () => {
+  it("resolves the owner account first, then reads the owner row in that account's context", async () => {
+    setOwnerRow(startEligible());
+    await POST(req());
+    expect(mockQueryOne.mock.calls[0][0]).toMatch(/resolve_owner_account_id\(\)/);
+    const clientSql = mockClientQuery.mock.calls.map((c) => String(c[0]));
+    const ctxIdx = clientSql.findIndex((sql) => sql.startsWith("SELECT set_config"));
+    const readIdx = clientSql.findIndex((sql) => sql.includes("FROM accounts a"));
+    expect(ctxIdx).toBeGreaterThanOrEqual(0);
+    expect(readIdx).toBeGreaterThan(ctxIdx);
+    expect(mockClientQuery.mock.calls[ctxIdx][1]).toEqual([ACCOUNT, "owner"]);
+  });
+});
+
 describe("POST /api/internal/start-day-prompt — no send", () => {
   it("already_started does not send push", async () => {
-    mockQueryOne.mockResolvedValue(startEligible({ has_open_mileage_today: true }));
+    setOwnerRow(startEligible({ has_open_mileage_today: true }));
 
     const res = await POST(req());
     expect(res.status).toBe(200);
@@ -106,7 +139,7 @@ describe("POST /api/internal/start-day-prompt — no send", () => {
   });
 
   it("suppress_weekend does not send push", async () => {
-    mockQueryOne.mockResolvedValue(startEligible({ suppress_weekend_start_prompt: true }));
+    setOwnerRow(startEligible({ suppress_weekend_start_prompt: true }));
 
     const res = await POST(req());
     expect(res.status).toBe(200);
@@ -115,7 +148,7 @@ describe("POST /api/internal/start-day-prompt — no send", () => {
   });
 
   it("no owner row returns no_action and does not send push", async () => {
-    mockQueryOne.mockResolvedValue(null);
+    setOwnerRow(null);
 
     const res = await POST(req());
     expect(res.status).toBe(200);

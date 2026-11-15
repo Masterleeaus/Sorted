@@ -40,11 +40,11 @@ export async function POST(
       [row.account_id]
     );
     await client.query(
-      `UPDATE clients SET sms_consent = false, sms_consent_at = NOW(), sms_consent_source = 'portal_opt_out', preferred_contact = 'email' WHERE id = $1 AND account_id = $2`,
+      `UPDATE clients SET sms_consent = false, sms_consent_at = NOW(), sms_consent_source = 'portal_opt_out', preferred_contact = 'email' WHERE id = $1 AND company_id = $2`,
       [row.id, row.account_id]
     );
     await client.query(
-      `INSERT INTO communications_log (account_id, client_id, channel, direction, outcome, body_preview)
+      `INSERT INTO communications_log (company_id, client_id, channel, direction, outcome, body_preview)
        VALUES ($1, $2, 'sms', 'inbound', 'replied', 'STOP (portal opt-out)')`,
       [row.account_id, row.id]
     );

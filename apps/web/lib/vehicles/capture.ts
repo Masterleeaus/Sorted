@@ -13,11 +13,11 @@ export async function lastKnownOdometer(
   const { rows } = await client.query<{ odo: number | null }>(
     `SELECT GREATEST(
        (SELECT MAX(end_odometer) FROM vehicle_sessions
-         WHERE account_id = $1 AND vehicle_id = $2 AND end_odometer IS NOT NULL),
+         WHERE company_id = $1 AND vehicle_id = $2 AND end_odometer IS NOT NULL),
        (SELECT MAX(odometer) FROM vehicle_fuel_logs
-         WHERE account_id = $1 AND vehicle_id = $2 AND odometer IS NOT NULL AND odometer_suspect = false),
+         WHERE company_id = $1 AND vehicle_id = $2 AND odometer IS NOT NULL AND odometer_suspect = false),
        (SELECT MAX(odometer) FROM vehicle_service_records
-         WHERE account_id = $1 AND vehicle_id = $2 AND odometer IS NOT NULL AND odometer_suspect = false)
+         WHERE company_id = $1 AND vehicle_id = $2 AND odometer IS NOT NULL AND odometer_suspect = false)
      )::int AS odo`,
     [accountId, vehicleId],
   );
@@ -31,7 +31,7 @@ export async function assertVehicleInAccount(
 ): Promise<{ id: string; kind: string; nickname: string } | null> {
   const { rows } = await client.query<{ id: string; kind: string; nickname: string }>(
     `SELECT id, kind, nickname FROM vehicles
-     WHERE id = $1 AND account_id = $2 AND is_active = true`,
+     WHERE id = $1 AND company_id = $2 AND is_active = true`,
     [vehicleId, accountId],
   );
   return rows[0] ?? null;
@@ -269,7 +269,7 @@ export async function createRenewalRecordWithExpense(
     interval_months: number;
   }>(
     `SELECT id, interval_months FROM vehicle_renewals
-     WHERE account_id = $1 AND vehicle_id = $2
+     WHERE company_id = $1 AND vehicle_id = $2
        AND renewal_type = $3 AND is_active = true
      ORDER BY created_at DESC
      LIMIT 1`,
@@ -287,7 +287,7 @@ export async function createRenewalRecordWithExpense(
     await client.query(
       `UPDATE vehicle_renewals
        SET current_due_date = $1::date, updated_at = now()
-       WHERE id = $2 AND account_id = $3`,
+       WHERE id = $2 AND company_id = $3`,
       [nextDueDate, renewalId, opts.accountId],
     );
   } else if (nextDueDate) {

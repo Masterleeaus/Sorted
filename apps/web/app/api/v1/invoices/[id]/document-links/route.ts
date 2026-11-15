@@ -66,7 +66,7 @@ export const PATCH = withRole(["owner", "admin"], async (request, session) => {
       }>(
         `SELECT id, status, client_id, job_id, property_id, billing_context,
                 sponsored_purpose, beneficiary_property_contact_id, business_purpose
-         FROM invoices WHERE id = $1 AND account_id = $2`,
+         FROM invoices WHERE id = $1 AND company_id = $2`,
         [id, session.accountId],
       );
 
@@ -136,7 +136,7 @@ export const PATCH = withRole(["owner", "admin"], async (request, session) => {
       await client.query(
         `UPDATE invoices
          SET client_id = $1, job_id = $2, property_id = $3, updated_at = now()
-         WHERE id = $4 AND account_id = $5`,
+         WHERE id = $4 AND company_id = $5`,
         [next.client_id, next.job_id, next.property_id, id, session.accountId],
       );
 

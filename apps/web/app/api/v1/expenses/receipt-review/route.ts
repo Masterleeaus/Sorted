@@ -16,6 +16,7 @@ import {
 import { formatJobPickerLabel } from "@ai-fsm/domain";
 import { patchForNonJobDestination } from "@/lib/expenses/destinations";
 import type { ReceiptDestination } from "@/lib/expenses/destinations";
+import { companyIdFromSession } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
 
@@ -48,20 +49,20 @@ export const GET = withRole(["owner", "admin"], async (_request: NextRequest, se
                 e.expense_date::text AS expense_date,
                 e.notes, e.category, e.created_at::text AS created_at
          FROM expenses e
-         WHERE e.account_id = $1
+         WHERE e.company_id = $1
            AND e.job_id IS NULL
            AND e.reviewed_at IS NULL
            AND e.category IN ('materials', 'tools')
            AND e.expense_date >= (CURRENT_DATE - interval '180 days')
          ORDER BY e.expense_date DESC, e.created_at DESC
          LIMIT 100`,
-        [session.accountId],
+        [companyIdFromSession(session)],
       );
 
       const jobs = await client.query<OpenJob>(
         `SELECT id, title, job_number, client_id, status
          FROM jobs
-         WHERE account_id = $1
+         WHERE company_id = $1
            AND (
              status IN (${RECEIPT_LINKABLE_JOB_STATUS_SQL})
              OR (
@@ -73,7 +74,7 @@ export const GET = withRole(["owner", "admin"], async (_request: NextRequest, se
            CASE WHEN status IN (${RECEIPT_LINKABLE_JOB_STATUS_SQL}) THEN 0 ELSE 1 END,
            ${receiptJobOrderSql()}
          LIMIT 250`,
-        [session.accountId],
+        [companyIdFromSession(session)],
       );
 
       const items = expenses.rows.map((e) => {
@@ -212,8 +213,8 @@ export const POST = withRole(["owner", "admin"], async (request: NextRequest, se
       }>(
         `SELECT id, job_id, client_id, vendor_name, reviewed_at::text
          FROM expenses
-         WHERE id = $1 AND account_id = $2`,
-        [expense_id, session.accountId],
+         WHERE id = $1 AND company_id = $2`,
+        [expense_id, companyIdFromSession(session)],
       );
       if (expense.rowCount === 0) {
         throw Object.assign(new Error("Expense not found"), { code: "NOT_FOUND" });
@@ -229,8 +230,8 @@ export const POST = withRole(["owner", "admin"], async (request: NextRequest, se
         const filed = await client.query(
           `UPDATE expenses
            SET allocation = $1, category = $2, billable = false, reviewed_at = now(), updated_at = now()
-           WHERE id = $3 AND account_id = $4 AND job_id IS NULL AND reviewed_at IS NULL`,
-          [patch.allocation, patch.category, expense_id, session.accountId],
+           WHERE id = $3 AND company_id = $4 AND job_id IS NULL AND reviewed_at IS NULL`,
+          [patch.allocation, patch.category, expense_id, companyIdFromSession(session)],
         );
         if ((filed.rowCount ?? 0) === 0) {
           throw Object.assign(new Error("Expense already filed"), { code: "CONFLICT" });
@@ -257,8 +258,8 @@ export const POST = withRole(["owner", "admin"], async (request: NextRequest, se
         client_id: string | null;
         status: string;
       }>(
-        `SELECT id, client_id, status FROM jobs WHERE id = $1 AND account_id = $2`,
-        [job_id, session.accountId],
+        `SELECT id, client_id, status FROM jobs WHERE id = $1 AND company_id = $2`,
+        [job_id, companyIdFromSession(session)],
       );
       if (job.rowCount === 0) {
         throw Object.assign(new Error("Job not found"), { code: "NOT_FOUND" });
@@ -280,8 +281,8 @@ export const POST = withRole(["owner", "admin"], async (request: NextRequest, se
         `UPDATE expenses
          SET job_id = $1, client_id = $2, allocation = 'job', billable = $5,
              reviewed_at = now(), updated_at = now()
-         WHERE id = $3 AND account_id = $4 AND job_id IS NULL AND reviewed_at IS NULL`,
-        [job_id, nextClientId, expense_id, session.accountId, !booksOnly],
+         WHERE id = $3 AND company_id = $4 AND job_id IS NULL AND reviewed_at IS NULL`,
+        [job_id, nextClientId, expense_id, companyIdFromSession(session), !booksOnly],
       );
       if ((updated.rowCount ?? 0) === 0) {
         throw Object.assign(new Error("Expense already filed"), {

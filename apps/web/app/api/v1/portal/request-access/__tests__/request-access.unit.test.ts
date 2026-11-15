@@ -9,7 +9,19 @@ const h = vi.hoisted(() => ({
   logger: { warn: vi.fn(), error: vi.fn(), info: vi.fn() },
 }));
 
-vi.mock("@/lib/db", () => ({ query: h.query }));
+vi.mock("@/lib/db", () => ({ companyIdFromSession: (s: { accountId: string }) => s.accountId,
+  query: h.query,
+  getPool: () => ({
+    connect: async () => ({
+      // Account-context transaction: set_config and BEGIN/COMMIT are no-ops; reads go to h.query.
+      query: async (sql: string, params?: unknown[]) =>
+        sql.startsWith("SELECT set_config") || sql === "BEGIN" || sql === "COMMIT" || sql === "ROLLBACK"
+          ? { rows: [] }
+          : { rows: await h.query(sql, params) },
+      release: () => {},
+    }),
+  }),
+}));
 vi.mock("@/lib/email/mailer", () => ({
   sendEmail: h.sendEmail,
   appUrl: () => "https://app.example.test",
@@ -96,7 +108,7 @@ describe("POST /api/v1/portal/request-access: account-scoped lookups", () => {
     await post({ email: "jane@example.test" });
 
     const [sql, params] = h.query.mock.calls[0];
-    expect(sql).toContain("c.account_id = $2::uuid");
+    expect(sql).toContain("c.company_id = $2::uuid");
     expect(sql).not.toContain("IS NULL");
     expect(params).toEqual(["jane@example.test", ACCOUNT_ID]);
   });
@@ -106,7 +118,7 @@ describe("POST /api/v1/portal/request-access: account-scoped lookups", () => {
     await post({ phone: "555-123-4567" });
 
     const [sql, params] = h.query.mock.calls[0];
-    expect(sql).toContain("c.account_id = $2::uuid");
+    expect(sql).toContain("c.company_id = $2::uuid");
     expect(sql).not.toContain("IS NULL");
     expect(params).toEqual(["5551234567", ACCOUNT_ID]);
   });

@@ -29,14 +29,14 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
   await withPublishedReport(token, async (db, accountId) => {
     if (staff?.accountId === accountId) return;
     const { rows } = await db.query<{ client_id: string }>(
-      `SELECT client_id::text FROM portal_job_updates WHERE share_token = $1 AND account_id = $2`,
+      `SELECT client_id::text FROM portal_job_updates WHERE share_token = $1 AND company_id = $2`,
       [token, accountId],
     );
     if (!rows[0] || (await isPortalPreview(rows[0].client_id))) return;
     await db.query(
       `UPDATE portal_job_updates
        SET view_count = view_count + 1, first_viewed_at = COALESCE(first_viewed_at, now())
-       WHERE share_token = $1 AND account_id = $2`,
+       WHERE share_token = $1 AND company_id = $2`,
       [token, accountId],
     );
   });

@@ -84,10 +84,10 @@ export async function loadStopInterview(
               vc.matched_client_id AS client_id,
               c.name AS client_name, p.address AS property_address
        FROM location_segments s
-       LEFT JOIN visit_candidates vc ON vc.location_segment_id = s.id AND vc.account_id = s.account_id
+       LEFT JOIN visit_candidates vc ON vc.location_segment_id = s.id AND vc.company_id = s.company_id
        LEFT JOIN properties p ON p.id = vc.property_id
        LEFT JOIN clients c ON c.id = vc.matched_client_id
-       WHERE s.account_id = $1
+       WHERE s.company_id = $1
          AND s.segment_date = $2::date
          AND s.kind = 'stop'
          AND s.status <> 'dismissed'
@@ -104,7 +104,7 @@ export async function loadStopInterview(
     }>(session,
       `SELECT DISTINCT ON (property_id) id, property_id, job_number, title, status
        FROM jobs
-       WHERE account_id = $1
+       WHERE company_id = $1
          AND property_id IS NOT NULL
          AND status IN ('draft', 'quoted', 'scheduled', 'in_progress')
        ORDER BY property_id, updated_at DESC`,
@@ -119,7 +119,7 @@ export async function loadStopInterview(
     }>(session,
       `SELECT DISTINCT ON (property_id) id, property_id, job_number, title, status
        FROM jobs
-       WHERE account_id = $1
+       WHERE company_id = $1
          AND property_id IS NOT NULL
          AND status IN ('completed', 'invoiced')
        ORDER BY property_id, updated_at DESC`,
@@ -128,7 +128,7 @@ export async function loadStopInterview(
     queryForSession<StopInterviewReceipt & { vendor_name: string; amount_cents: number }>(session,
       `SELECT id, vendor_name, amount_cents, category
        FROM expenses
-       WHERE account_id = $1
+       WHERE company_id = $1
          AND expense_date = $2::date
          AND job_id IS NULL
          AND reviewed_at IS NULL
@@ -138,8 +138,8 @@ export async function loadStopInterview(
     queryForSession<{ property_id: string }>(session,
       `SELECT DISTINCT j.property_id
          FROM visits v
-         JOIN jobs j ON j.id = v.job_id AND j.account_id = v.account_id
-        WHERE v.account_id = $1
+         JOIN jobs j ON j.id = v.job_id AND j.company_id = v.company_id
+        WHERE v.company_id = $1
           AND v.closeout_kind = 'done'
           AND v.status = 'completed'
           AND j.property_id IS NOT NULL

@@ -79,7 +79,7 @@ async function loadActivitiesForVisitIds(
             ae.started_at::text AS started_at, ae.ended_at::text AS ended_at,
             ae.note
      FROM activity_entries ae
-     WHERE ae.account_id = $1
+     WHERE ae.company_id = $1
        AND ae.entity_type = 'visit'
        AND ae.entity_id = ANY($2::uuid[])
        AND ae.voided_at IS NULL
@@ -106,10 +106,10 @@ export async function loadVisitTimeline(
             COALESCE(c.name, 'Client') AS client_name,
             j.title AS job_title
      FROM visits v
-     JOIN jobs j ON j.id = v.job_id AND j.account_id = v.account_id
-     LEFT JOIN properties p ON p.id = j.property_id AND p.account_id = v.account_id
-     LEFT JOIN clients c ON c.id = j.client_id AND c.account_id = v.account_id
-     WHERE v.account_id = $1 AND v.id = $2`,
+     JOIN jobs j ON j.id = v.job_id AND j.company_id = v.company_id
+     LEFT JOIN properties p ON p.id = j.property_id AND p.company_id = v.company_id
+     LEFT JOIN clients c ON c.id = j.client_id AND c.company_id = v.company_id
+     WHERE v.company_id = $1 AND v.id = $2`,
     [session.accountId, visitId],
   );
   const visit = rows[0];
@@ -137,10 +137,10 @@ export async function loadDayVisitTimelines(
             COALESCE(c.name, 'Client') AS client_name,
             j.title AS job_title
      FROM visits v
-     JOIN jobs j ON j.id = v.job_id AND j.account_id = v.account_id
-     LEFT JOIN properties p ON p.id = j.property_id AND p.account_id = v.account_id
-     LEFT JOIN clients c ON c.id = j.client_id AND c.account_id = v.account_id
-     WHERE v.account_id = $1
+     JOIN jobs j ON j.id = v.job_id AND j.company_id = v.company_id
+     LEFT JOIN properties p ON p.id = j.property_id AND p.company_id = v.company_id
+     LEFT JOIN clients c ON c.id = j.client_id AND c.company_id = v.company_id
+     WHERE v.company_id = $1
        AND v.status IS DISTINCT FROM 'cancelled'
        AND (
          (v.scheduled_start AT TIME ZONE '${TZ}')::date = $2::date

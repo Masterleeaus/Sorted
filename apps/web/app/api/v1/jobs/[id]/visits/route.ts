@@ -53,7 +53,7 @@ export const GET = withAuth(
     // RLS automatically scopes tech to assigned visits — no extra filter needed
     const visits = await withDbSession(session, async (client) => {
       const result = await client.query(
-        `SELECT * FROM visits WHERE job_id = $1 AND account_id = $2 ORDER BY scheduled_start ASC LIMIT $3 OFFSET $4`,
+        `SELECT * FROM visits WHERE job_id = $1 AND company_id = $2 ORDER BY scheduled_start ASC LIMIT $3 OFFSET $4`,
         [jobId, session.accountId, limit, offset]
       );
       return result.rows;
@@ -114,19 +114,19 @@ export const POST = withRole(
       );
 
       const { rows: jobRows } = await client.query<{ status: string }>(
-        `SELECT status FROM jobs WHERE id = $1 AND account_id = $2 FOR UPDATE`,
+        `SELECT status FROM jobs WHERE id = $1 AND company_id = $2 FOR UPDATE`,
         [jobId, session.accountId]
       );
       // Only field-active visits block booking — future `scheduled` days must coexist (multi-day).
       const { rows: fieldActiveRows } = await client.query<{ count: string }>(
         `SELECT COUNT(*) FROM visits
-         WHERE job_id = $1 AND account_id = $2
+         WHERE job_id = $1 AND company_id = $2
            AND status = ANY($3::text[])`,
         [jobId, session.accountId, [...FIELD_ACTIVE_VISIT_STATUSES]],
       );
       const { rows: overlapRows } = await client.query<{ count: string }>(
         `SELECT COUNT(*) FROM visits
-         WHERE job_id = $1 AND account_id = $2
+         WHERE job_id = $1 AND company_id = $2
            AND status NOT IN ('cancelled','completed')
            AND scheduled_start < $4::timestamptz
            AND scheduled_end > $3::timestamptz`,
@@ -180,7 +180,7 @@ export const POST = withRole(
       }
 
       const { rows } = await client.query(
-        `INSERT INTO visits (account_id, job_id, work_order_id, assigned_user_id, scheduled_start, scheduled_end, tech_notes, visit_type)
+        `INSERT INTO visits (company_id, job_id, work_order_id, assigned_user_id, scheduled_start, scheduled_end, tech_notes, visit_type)
          VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
          RETURNING *`,
         [
@@ -225,7 +225,7 @@ export const POST = withRole(
         // Must belong to this job (or have no job yet).
         const brCheck = await client.query<{ id: string; job_id: string | null; status: string }>(
           `SELECT id, job_id, status FROM booking_requests
-           WHERE id = $1 AND account_id = $2
+           WHERE id = $1 AND company_id = $2
            FOR UPDATE`,
           [booking_request_id, session.accountId]
         );
@@ -281,7 +281,7 @@ export const POST = withRole(
       if (jobStatus === "draft" || jobStatus === "quoted") {
         await client.query(
           `UPDATE jobs SET status = 'scheduled', updated_at = now()
-           WHERE id = $1 AND account_id = $2`,
+           WHERE id = $1 AND company_id = $2`,
           [jobId, session.accountId]
         );
         await appendAuditLog(client, {

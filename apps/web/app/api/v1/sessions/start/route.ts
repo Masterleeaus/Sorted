@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { withAuth } from "@/lib/auth/middleware";
 import type { AuthSession } from "@/lib/auth/middleware";
-import { getPool } from "@/lib/db";
+import { getPool, companyIdFromSession } from "@/lib/db";
 import { appendAuditLog } from "@/lib/db/audit";
 import {
   findOpenSessionForVehicle,
@@ -65,8 +65,8 @@ export const POST = withAuth(async (request: NextRequest, session: AuthSession) 
 
     if (d.vehicle_id) {
       const vehicle = await client.query<{ id: string }>(
-        `SELECT id FROM vehicles WHERE id = $1 AND account_id = $2 AND is_active = true`,
-        [d.vehicle_id, session.accountId]
+        `SELECT id FROM vehicles WHERE id = $1 AND company_id = $2 AND is_active = true`,
+        [d.vehicle_id, companyIdFromSession(session)]
       );
       if (!vehicle.rows[0]) {
         await client.query("ROLLBACK");
@@ -124,11 +124,11 @@ export const POST = withAuth(async (request: NextRequest, session: AuthSession) 
       start_odometer: number;
     }>(
       `INSERT INTO vehicle_sessions
-         (account_id, vehicle_id, session_date, start_odometer, end_odometer, miles, notes, correction_reason, started_at, created_by)
+         (company_id, vehicle_id, session_date, start_odometer, end_odometer, miles, notes, correction_reason, started_at, created_by)
        VALUES ($1, $2, $3::date, $4, NULL, NULL, $5, $6, now(), $7)
        RETURNING id, session_date::text, vehicle_id, start_odometer`,
       [
-        session.accountId,
+        companyIdFromSession(session),
         d.vehicle_id ?? null,
         sessionDate,
         d.start_odometer,

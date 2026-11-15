@@ -104,15 +104,15 @@ export default async function NewEstimatePage({ searchParams }: PageProps) {
 
   const [clients, jobs, properties, accountRow] = await Promise.all([
     queryForSession<Client>(session,
-      `SELECT id, name FROM clients WHERE account_id = $1 ORDER BY name ASC`,
+      `SELECT id, name FROM clients WHERE company_id = $1 ORDER BY name ASC`,
       [session.accountId]
     ),
     queryForSession<Job>(session,
-      `SELECT id, title, client_id FROM jobs WHERE account_id = $1 AND status NOT IN ('completed','cancelled','invoiced') ORDER BY title ASC`,
+      `SELECT id, title, client_id FROM jobs WHERE company_id = $1 AND status NOT IN ('completed','cancelled','invoiced') ORDER BY title ASC`,
       [session.accountId]
     ),
     queryForSession<Property>(session,
-      `SELECT id, address, client_id FROM properties WHERE account_id = $1 ORDER BY address ASC`,
+      `SELECT id, address, client_id FROM properties WHERE company_id = $1 ORDER BY address ASC`,
       [session.accountId]
     ),
     queryOneForSession<{ settings: { deposit_percent?: number; deposit_terms?: string } | null }>(session,
@@ -128,7 +128,7 @@ export default async function NewEstimatePage({ searchParams }: PageProps) {
   let vaultItemContext: { name: string; category: string; location: string | null } | null = null;
   if (vault_item_id) {
     const rows = await queryForSession<{ name: string; category: string; location: string | null }>(session,
-      `SELECT name, category, location FROM property_vault_items WHERE id = $1 AND account_id = $2`,
+      `SELECT name, category, location FROM property_vault_items WHERE id = $1 AND company_id = $2`,
       [vault_item_id, session.accountId]
     );
     vaultItemContext = rows[0] ?? null;
@@ -141,7 +141,7 @@ export default async function NewEstimatePage({ searchParams }: PageProps) {
       `SELECT id, service_description, service_category,
               property_id, routing_path, referral_source, review_notes
        FROM booking_requests
-       WHERE id = $1 AND account_id = $2`,
+       WHERE id = $1 AND company_id = $2`,
       [booking_request_id, session.accountId]
     );
     bookingRequestContext = rows[0] ?? null;
@@ -157,14 +157,14 @@ export default async function NewEstimatePage({ searchParams }: PageProps) {
     }>(session,
       `SELECT
          (SELECT br.routing_path FROM booking_requests br
-          WHERE br.job_id = $1 AND br.account_id = $2
+          WHERE br.job_id = $1 AND br.company_id = $2
           ORDER BY br.created_at DESC LIMIT 1) AS routing_path,
          (SELECT COUNT(*)::text FROM visits v
-          WHERE v.job_id = $1 AND v.account_id = $2 AND v.visit_type = 'site_visit'
+          WHERE v.job_id = $1 AND v.company_id = $2 AND v.visit_type = 'site_visit'
             AND v.status NOT IN ('cancelled')) AS open_site,
          (SELECT COUNT(*)::text FROM visits v
           JOIN site_visit_assessments sva ON sva.visit_id = v.id
-          WHERE v.job_id = $1 AND v.account_id = $2 AND v.visit_type = 'site_visit'
+          WHERE v.job_id = $1 AND v.company_id = $2 AND v.visit_type = 'site_visit'
             AND sva.completed_at IS NOT NULL) AS completed_assessment`,
       [job_id, session.accountId],
     );
@@ -187,16 +187,16 @@ export default async function NewEstimatePage({ searchParams }: PageProps) {
               c.name AS client_name,
               p.address AS property_address,
               (SELECT COUNT(*)::int FROM visit_media vm
-               WHERE vm.visit_id = v.id AND vm.account_id = v.account_id AND vm.category = 'assessment') AS assessment_photo_count,
+               WHERE vm.visit_id = v.id AND vm.company_id = v.company_id AND vm.category = 'assessment') AS assessment_photo_count,
               (SELECT COUNT(*)::int FROM visit_media vm
-               WHERE vm.visit_id = v.id AND vm.account_id = v.account_id AND vm.category = 'before') AS before_photo_count,
+               WHERE vm.visit_id = v.id AND vm.company_id = v.company_id AND vm.category = 'before') AS before_photo_count,
               (SELECT COUNT(*)::int FROM visit_parts vp
-               WHERE vp.visit_id = v.id AND vp.account_id = v.account_id) AS part_count
+               WHERE vp.visit_id = v.id AND vp.company_id = v.company_id) AS part_count
        FROM visits v
-       LEFT JOIN jobs j ON j.id = v.job_id AND j.account_id = v.account_id
-       LEFT JOIN clients c ON c.id = j.client_id AND c.account_id = v.account_id
-       LEFT JOIN properties p ON p.id = j.property_id AND p.account_id = v.account_id
-       WHERE v.id = $1 AND v.account_id = $2 AND v.visit_type = 'site_visit'`,
+       LEFT JOIN jobs j ON j.id = v.job_id AND j.company_id = v.company_id
+       LEFT JOIN clients c ON c.id = j.client_id AND c.company_id = v.company_id
+       LEFT JOIN properties p ON p.id = j.property_id AND p.company_id = v.company_id
+       WHERE v.id = $1 AND v.company_id = $2 AND v.visit_type = 'site_visit'`,
       [from_visit, session.accountId]
     );
   }
@@ -223,7 +223,7 @@ export default async function NewEstimatePage({ searchParams }: PageProps) {
   if (walkthroughContext) {
     const partRows = await queryForSession<{ name: string; quantity: number | string }>(session,
       `SELECT name, quantity FROM visit_parts
-       WHERE visit_id = $1 AND account_id = $2
+       WHERE visit_id = $1 AND company_id = $2
        ORDER BY created_at ASC`,
       [walkthroughContext.id, session.accountId]
     );
@@ -259,19 +259,19 @@ export default async function NewEstimatePage({ searchParams }: PageProps) {
               p.city AS property_city,
               p.state AS property_state,
               (SELECT v.tech_notes FROM visits v
-                WHERE v.job_id = j.id AND v.account_id = j.account_id
+                WHERE v.job_id = j.id AND v.company_id = j.company_id
                   AND v.tech_notes IS NOT NULL AND TRIM(v.tech_notes) <> ''
                 ORDER BY v.updated_at DESC NULLS LAST, v.created_at DESC
                 LIMIT 1) AS field_notes,
               (SELECT br.service_description FROM booking_requests br
-                WHERE br.job_id = j.id AND br.account_id = j.account_id
+                WHERE br.job_id = j.id AND br.company_id = j.company_id
                 ORDER BY br.created_at DESC LIMIT 1) AS request_description,
               (SELECT br.pricing_mode FROM booking_requests br
-                WHERE br.job_id = j.id AND br.account_id = j.account_id
+                WHERE br.job_id = j.id AND br.company_id = j.company_id
                 ORDER BY br.created_at DESC LIMIT 1) AS pricing_mode
        FROM jobs j
-       LEFT JOIN properties p ON p.id = j.property_id AND p.account_id = j.account_id
-       WHERE j.id = $1 AND j.account_id = $2`,
+       LEFT JOIN properties p ON p.id = j.property_id AND p.company_id = j.company_id
+       WHERE j.id = $1 AND j.company_id = $2`,
       [job_id, session.accountId]
     );
     if (tmSource) {

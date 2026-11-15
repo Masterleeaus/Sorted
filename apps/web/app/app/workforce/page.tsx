@@ -1,3 +1,10 @@
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Workforce",
+  description: "Review field teams and workforce activity in Sorted Field.",
+};
+
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth/session";
 import { queryForSession } from "@/lib/db";
@@ -32,7 +39,7 @@ export default async function WorkforcePage() {
       session,
       `SELECT id, full_name, email, phone
          FROM users
-        WHERE account_id = $1 AND role = 'tech'
+        WHERE company_id = $1 AND role = 'tech'
         ORDER BY full_name`,
       [session.accountId],
     ),

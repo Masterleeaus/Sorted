@@ -67,7 +67,7 @@ export const GET = withAuth(async (request, session) => {
   const offset = (page - 1) * limit;
 
   try {
-    const conditions: string[] = ["e.account_id = $1"];
+    const conditions: string[] = ["e.company_id = $1"];
     const params: unknown[] = [session.accountId];
     let idx = 2;
 
@@ -462,7 +462,7 @@ export const POST = withRole(["owner", "admin"], async (request, session) => {
     const estimate = await withEstimateContext(session, async (client) => {
       // Verify client belongs to account
       const clientRow = await client.query<{ id: string; name: string }>(
-        `SELECT id, name FROM clients WHERE id = $1 AND account_id = $2`,
+        `SELECT id, name FROM clients WHERE id = $1 AND company_id = $2`,
         [client_id, session.accountId]
       );
       if (clientRow.rowCount === 0) {
@@ -471,7 +471,7 @@ export const POST = withRole(["owner", "admin"], async (request, session) => {
 
       const result = await client.query<{ id: string }>(
         `INSERT INTO estimates
-           (account_id, client_id, job_id, property_id, vault_item_id, status, presentation_mode,
+           (company_id, client_id, job_id, property_id, vault_item_id, status, presentation_mode,
             subtotal_cents, tax_cents, total_cents, deposit_cents, balance_cents,
             deposit_required, deposit_type, deposit_percentage, deposit_fixed_cents, deposit_due_trigger,
             terms_scope_accepted, terms_payment_accepted, terms_change_order_accepted,

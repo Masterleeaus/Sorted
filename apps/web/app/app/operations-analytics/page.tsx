@@ -1,3 +1,10 @@
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Operations Analytics",
+  description: "Review operational performance in Sorted Field.",
+};
+
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth/session";
 import { queryForSession } from "@/lib/db";
@@ -38,9 +45,9 @@ export default async function OperationsAnalyticsPage() {
         COUNT(*) FILTER (WHERE v.scheduled_start >= CURRENT_TIMESTAMP - INTERVAL '30 days' AND v.status = 'cancelled')::text AS cancelled_30d,
         COUNT(*) FILTER (WHERE v.scheduled_start >= CURRENT_TIMESTAMP - INTERVAL '30 days' AND v.status IN ('arrived','in_progress'))::text AS in_progress_30d,
         COUNT(*) FILTER (WHERE v.scheduled_start >= CURRENT_TIMESTAMP AND v.scheduled_start < CURRENT_TIMESTAMP + INTERVAL '7 days' AND v.status NOT IN ('completed','cancelled'))::text AS next_7d,
-        (SELECT COUNT(*)::text FROM users u WHERE u.account_id = $1 AND u.role = 'tech') AS field_workers
+        (SELECT COUNT(*)::text FROM users u WHERE u.company_id = $1 AND u.role = 'tech') AS field_workers
        FROM visits v
-       WHERE v.account_id = $1`,
+       WHERE v.company_id = $1`,
       [session.accountId],
     ),
     queryForSession<DayRow>(
@@ -50,7 +57,7 @@ export default async function OperationsAnalyticsPage() {
          COUNT(*)::text AS total,
          COUNT(*) FILTER (WHERE status = 'completed')::text AS completed
        FROM visits
-       WHERE account_id = $1
+       WHERE company_id = $1
          AND scheduled_start >= CURRENT_TIMESTAMP - INTERVAL '6 days'
          AND scheduled_start < CURRENT_TIMESTAMP + INTERVAL '1 day'
        GROUP BY timezone('America/New_York', scheduled_start)::date

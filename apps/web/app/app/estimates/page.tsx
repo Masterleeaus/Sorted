@@ -1,3 +1,10 @@
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Estimates",
+  description: "Manage estimates and approvals in Sorted Field.",
+};
+
 import Link from "next/link";
 import type { Route } from "next";
 import { redirect } from "next/navigation";
@@ -107,7 +114,7 @@ export default async function EstimatesPage({ searchParams }: PageProps) {
   const tierStatuses = activeTier && !statusFilter ? ESTIMATE_TIER_STATUSES[activeTier] : null;
 
   const estimates = await withEstimateContext(session, async (client) => {
-    const conditions: string[] = ["e.account_id = $1"];
+    const conditions: string[] = ["e.company_id = $1"];
     const params: unknown[] = [session.accountId];
     let idx = 2;
 

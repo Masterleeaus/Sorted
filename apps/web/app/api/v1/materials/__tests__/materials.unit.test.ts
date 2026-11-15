@@ -22,7 +22,7 @@ const mockClientQuery = vi.fn();
 const mockClientRelease = vi.fn();
 const mockPool = { connect: vi.fn() };
 
-vi.mock("@/lib/db", () => ({
+vi.mock("@/lib/db", () => ({ companyIdFromSession: (s: { accountId: string }) => s.accountId,
   query: vi.fn(),
   getPool: () => mockPool,
 }));

@@ -8,6 +8,7 @@ import type { StatusVariant } from "@/components/ui";
 import { ReviewActions } from "./ReviewActions";
 import { IntakeSummary } from "./IntakeSummary";
 import { INTAKE_QUESTIONS, INTAKE_METADATA_LABELS } from "@/lib/intake/questions";
+import { listRequestIntakePhotos } from "@/lib/intake/request-photos";
 import { PRICING_MODE_LABELS, scoreJobFit } from "@ai-fsm/domain";
 import { FUNNEL_STEPS, funnelStepIndex, getRequestGuidance } from "../request-guidance";
 import { MarkEntityAttentionRead } from "@/components/attention/MarkEntityAttentionRead";
@@ -112,18 +113,21 @@ export default async function BookingRequestDetailPage({
      FROM booking_requests br
      LEFT JOIN users u ON u.id = br.reviewed_by
      LEFT JOIN jobs j ON j.id = br.job_id
-     WHERE br.id = $1 AND br.account_id = $2`,
+     WHERE br.id = $1 AND br.company_id = $2`,
     [id, session.accountId]
   );
 
   if (!br) notFound();
+
+  // Customer photos linked to this request. Read-only list; no file URLs.
+  const intakePhotos = (await listRequestIntakePhotos(session, id)) ?? [];
 
   const duplicateIds = br.duplicate_candidate_ids ?? [];
   const duplicateRows = duplicateIds.length > 0
     ? await queryForSession<DuplicateBookingRow>(session,
       `SELECT id, name, created_at, status
        FROM booking_requests
-       WHERE account_id = $1 AND id = ANY($2::uuid[])
+       WHERE company_id = $1 AND id = ANY($2::uuid[])
        ORDER BY created_at DESC`,
       [session.accountId, duplicateIds]
     )
@@ -140,9 +144,9 @@ export default async function BookingRequestDetailPage({
   const inviteRows = await queryForSession<{ token: string; used_at: string | null; expires_at: string; created_at: string }>(session,
     `SELECT token::text, used_at, expires_at, created_at
      FROM intake_invites
-     WHERE booking_request_id = $1
+     WHERE booking_request_id = $1 AND company_id = $2
      ORDER BY created_at DESC LIMIT 1`,
-    [id]
+    [id, session.accountId]
   );
   const latestInvite = inviteRows[0] ?? null;
 
@@ -381,6 +385,27 @@ export default async function BookingRequestDetailPage({
                 </div>
               )}
             </dl>
+          </Card>
+
+          <Card data-testid="request-photos">
+            <SectionHeader title="Customer photos" />
+            {intakePhotos.length === 0 ? (
+              <p style={{ margin: 0, fontSize: "var(--text-sm)", color: "var(--fg-muted)" }}>
+                No photos were attached to this request.
+              </p>
+            ) : (
+              <ul style={{ margin: 0, paddingLeft: 0, listStyle: "none", display: "flex", flexDirection: "column", gap: "var(--space-2)" }}>
+                {intakePhotos.map((photo) => (
+                  <li key={photo.id} style={{ fontSize: "var(--text-sm)", overflowWrap: "anywhere" }}>
+                    <span>{photo.original_name}</span>{" "}
+                    <span style={{ color: "var(--fg-muted)" }}>
+                      ({Math.max(1, Math.round(photo.size_bytes / 1024))} KB,{" "}
+                      {new Date(photo.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })})
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            )}
           </Card>
 
           <Card>

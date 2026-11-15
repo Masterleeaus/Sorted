@@ -23,6 +23,7 @@ const fakeClient = vi.hoisted(() => ({
     if (sql === "BEGIN") state.open = true;
     if (sql === "COMMIT" || sql === "ROLLBACK") state.open = false;
     if (sql.includes("FROM estimate_line_items")) return { rows: [{ id: "li-1" }] };
+    if (sql.includes("FROM estimates") && state.estimate) return { rows: [state.estimate] };
     return { rows: [] };
   },
   release: () => {},
@@ -33,6 +34,10 @@ vi.mock("@/lib/db", () => ({
   query: vi.fn(),
   queryOne: async (sql: string, params?: unknown[]) => {
     state.log.push({ sql, params });
+    // The bootstrap resolver returns only the account id, as the migration does.
+    if (sql.includes("resolve_estimate_share_account")) {
+      return state.estimate ? { account_id: state.estimate.account_id } : null;
+    }
     return state.estimate;
   },
 }));
@@ -88,7 +93,7 @@ describe("GET /api/portal/estimates/[token]", () => {
     const ctxIdx = sqls.findIndex((s) => s.includes("set_config('app.current_account_id'"));
     const liIdx = sqls.findIndex((s) => s.includes("FROM estimate_line_items"));
     expect(liIdx).toBeGreaterThan(ctxIdx);
-    expect(state.log[liIdx].sql).toContain("e.account_id = $2");
+    expect(state.log[liIdx].sql).toContain("e.company_id = $2");
     expect(state.log[liIdx].params).toEqual([ESTIMATE, ACCOUNT]);
   });
 });
@@ -113,7 +118,7 @@ describe("POST /api/portal/estimates/[token]", () => {
     expect(ctxIdx).toBeGreaterThan(-1);
     expect(updIdx).toBeGreaterThan(ctxIdx);
     expect(state.log[ctxIdx].params?.[0]).toBe(ACCOUNT);
-    expect(sqls[updIdx]).toContain("account_id = $5");
+    expect(sqls[updIdx]).toContain("company_id = $5");
     expect(state.log[updIdx].params?.[4]).toBe(ACCOUNT);
   });
 

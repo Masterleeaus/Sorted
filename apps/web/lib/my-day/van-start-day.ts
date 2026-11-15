@@ -140,13 +140,13 @@ async function loadPriorWorkAndMileageDates(
   const worked = await client.query<{ last_worked: string | null }>(
     `SELECT MAX(d)::text AS last_worked FROM (
        SELECT session_date AS d FROM vehicle_sessions
-        WHERE account_id = $1 AND created_by = $2 AND session_date < $3::date AND status <> 'voided'
+        WHERE company_id = $1 AND created_by = $2 AND session_date < $3::date AND status <> 'voided'
        UNION ALL
        SELECT clock_in_at::date FROM time_clock_sessions
-        WHERE account_id = $1 AND user_id = $2 AND voided_at IS NULL AND clock_in_at::date < $3::date
+        WHERE company_id = $1 AND user_id = $2 AND voided_at IS NULL AND clock_in_at::date < $3::date
        UNION ALL
        SELECT scheduled_start::date FROM visits
-        WHERE account_id = $1 AND assigned_user_id = $2
+        WHERE company_id = $1 AND assigned_user_id = $2
           AND status NOT IN ('cancelled') AND scheduled_start::date < $3::date
      ) x`,
     [accountId, userId, today],
@@ -154,7 +154,7 @@ async function loadPriorWorkAndMileageDates(
   const ended = await client.query<{ last_ended: string | null }>(
     `SELECT MAX(session_date)::text AS last_ended
        FROM vehicle_sessions
-      WHERE account_id = $1 AND created_by = $2
+      WHERE company_id = $1 AND created_by = $2
         AND end_odometer IS NOT NULL AND session_date < $3::date`,
     [accountId, userId, today],
   );

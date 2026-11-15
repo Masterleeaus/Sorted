@@ -24,7 +24,7 @@ import { fileURLToPath } from "node:url";
 
 const MANIFEST_REL = "docs/generated/titan-donor-manifest.json";
 /** Trees whose content-duplicates are scanned for undeclared copies. */
-const SCAN_ROOTS = ["titan-donor", "packages/titan-platform/src", "packages/workforce"];
+const SCAN_ROOTS = ["titan-donor", "packages/titan-platform/src"];
 const SKIP_DIRS = new Set(["node_modules", ".git", ".test-dist", ".cleaning-test-dist", "dist"]);
 
 function parseArgs(argv) {
@@ -115,6 +115,8 @@ export function runCheck(root) {
     }
     for (const extra of entry.otherIdenticalPaths ?? []) {
       declared.add(extra);
+      // Retired-removed copies keep their history entry but are not required to exist.
+      if (entry.declaredCopyStatus?.[extra] === "retired-removed") continue;
       checkDeclaredPath(root, extra, entry.sha256, "declared copy", errors);
     }
   }

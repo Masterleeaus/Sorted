@@ -70,7 +70,7 @@ describe("resolveJobPricingMode tenant scope", () => {
     expect(queryForSession).toHaveBeenCalledTimes(1);
     const [calledSession, sql, params] = queryForSession.mock.calls[0];
     expect(calledSession).toBe(session);
-    expect(String(sql)).toContain("account_id = $2");
+    expect(String(sql)).toContain("company_id = $2");
     expect(params).toEqual(["job-1", session.accountId]);
   });
 });

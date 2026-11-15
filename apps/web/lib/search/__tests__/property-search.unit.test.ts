@@ -14,7 +14,7 @@ describe("property search", () => {
     expect(PROPERTY_SEARCH_SQL).toContain("a.rooms::text ILIKE");
     expect(PROPERTY_SEARCH_SQL).toContain("i.invoice_number ILIKE");
     expect(PROPERTY_SEARCH_SQL).toContain("LEFT JOIN clients");
-    expect(PROPERTY_SEARCH_SQL).toContain("p.account_id = $1");
+    expect(PROPERTY_SEARCH_SQL).toContain("p.company_id = $1");
   });
 
   it("limits a technician to assigned houses and hides invoice numbers", () => {

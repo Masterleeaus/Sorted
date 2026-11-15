@@ -97,7 +97,7 @@ function fakeDb(state: FakeState) {
     if (/set_config/.test(s)) return none;
 
     // Duplicate check by Square payment id.
-    if (/SELECT 1 FROM payments WHERE account_id = \$1 AND external_provider = 'square' AND external_payment_id = \$2/.test(s)) {
+    if (/SELECT 1 FROM payments WHERE company_id = \$1 AND external_provider = 'square' AND external_payment_id = \$2/.test(s)) {
       const hit = state.payments.filter(
         (p) => p.account_id === params[0] && p.external_payment_id === params[1]
       );
@@ -138,7 +138,7 @@ function fakeDb(state: FakeState) {
     }
 
     // Invoice lookup by current order id (quarantine target).
-    if (/SELECT id FROM invoices WHERE account_id = \$1 AND square_order_id = \$2/.test(s)) {
+    if (/SELECT id FROM invoices WHERE company_id = \$1 AND square_order_id = \$2/.test(s)) {
       const hit = state.invoices.filter((i) => i.account_id === params[0] && i.square_order_id === params[1]);
       return { rows: hit.map((i) => ({ id: i.id })), rowCount: hit.length };
     }
@@ -253,6 +253,18 @@ describe("POST /api/webhooks/square — guards", () => {
     expect(mockPool.connect).not.toHaveBeenCalled();
   });
 
+  it("looks up the location through the bounded resolver, before any account context", async () => {
+    settingsFound();
+    mockVerify.mockResolvedValue(false);
+    await POST(
+      req({ type: "payment.updated", data: { object: { payment: { id: "P1", status: "COMPLETED", location_id: "LOC9" } } } })
+    );
+    const [sql, params] = mockPoolQuery.mock.calls[0];
+    expect(String(sql).replace(/\s+/g, " ")).toMatch(/FROM resolve_square_location_settings\(\$1\)/);
+    expect(String(sql)).not.toMatch(/FROM integration_settings/);
+    expect(params).toEqual(["LOC9"]);
+  });
+
   it("400 when the signature fails verification", async () => {
     settingsFound();
     mockVerify.mockResolvedValue(false);
@@ -311,7 +323,7 @@ describe("POST /api/webhooks/square — payment.updated COMPLETED", () => {
     await POST(req(completedEvent("P1", "ORD2", 7000)));
     const update = mockClientQuery.mock.calls.find((c) => /UPDATE payments/.test(String(c[0])));
     expect(String(update![0])).toMatch(/status = 'paid'/);
-    expect(String(update![0])).toMatch(/WHERE id = \$1 AND account_id = \$3 AND status = 'pending'/);
+    expect(String(update![0])).toMatch(/WHERE id = \$1 AND company_id = \$3 AND status = 'pending'/);
   });
 
   it("multiple links on one invoice: pays the row for the webhook's order, not the oldest", async () => {

@@ -38,7 +38,7 @@ export const GET = withAuth(
 
     const job = await withDbSession(session, async (client) => {
       const result = await client.query(
-        `SELECT * FROM jobs WHERE id = $1 AND account_id = $2`,
+        `SELECT * FROM jobs WHERE id = $1 AND company_id = $2`,
         [id, session.accountId]
       );
       return result.rows[0] ?? null;
@@ -95,7 +95,7 @@ export const PATCH = withRole(
       );
 
       const existing = await client.query(
-        `SELECT * FROM jobs WHERE id = $1 AND account_id = $2 FOR UPDATE`,
+        `SELECT * FROM jobs WHERE id = $1 AND company_id = $2 FOR UPDATE`,
         [id, session.accountId]
       );
 
@@ -125,7 +125,7 @@ export const PATCH = withRole(
       }
 
       const { rows } = await client.query(
-        `UPDATE jobs SET ${fields.join(", ")}, updated_at = now() WHERE id = $1 AND account_id = $2 RETURNING *`,
+        `UPDATE jobs SET ${fields.join(", ")}, updated_at = now() WHERE id = $1 AND company_id = $2 RETURNING *`,
         [id, session.accountId, ...values]
       );
 
@@ -180,7 +180,7 @@ export const DELETE = withRole(
       );
 
       const existing = await client.query(
-        `SELECT * FROM jobs WHERE id = $1 AND account_id = $2 FOR UPDATE`,
+        `SELECT * FROM jobs WHERE id = $1 AND company_id = $2 FOR UPDATE`,
         [id, session.accountId]
       );
 
@@ -213,11 +213,11 @@ export const DELETE = withRole(
       await client.query(
         `UPDATE communications_log
          SET job_id = NULL
-         WHERE job_id = $1 AND account_id = $2`,
+         WHERE job_id = $1 AND company_id = $2`,
         [id, session.accountId],
       );
 
-      await client.query(`DELETE FROM jobs WHERE id = $1 AND account_id = $2`, [id, session.accountId]);
+      await client.query(`DELETE FROM jobs WHERE id = $1 AND company_id = $2`, [id, session.accountId]);
 
       await appendAuditLog(client, {
         account_id: session.accountId,

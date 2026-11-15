@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { withRole } from "@/lib/auth/middleware";
 import type { AuthSession } from "@/lib/auth/middleware";
-import { getPool, queryOneForSession } from "@/lib/db";
+import { getPool, queryOneForSession, companyIdFromSession } from "@/lib/db";
 import { normalizeClientName } from "@/lib/crm/normalization";
 import { appendAuditLog } from "@/lib/db/audit";
 import { logger } from "@/lib/logger";
@@ -54,13 +54,13 @@ export const GET = withRole(["owner", "admin"], async (_request: NextRequest, se
             COUNT(DISTINCT e.id)::int AS estimate_count,
             COUNT(DISTINCT i.id)::int AS invoice_count
      FROM clients c
-     LEFT JOIN properties p ON p.client_id = c.id AND p.account_id = c.account_id
-     LEFT JOIN jobs j ON j.client_id = c.id AND j.account_id = c.account_id
-     LEFT JOIN estimates e ON e.client_id = c.id AND e.account_id = c.account_id
-     LEFT JOIN invoices i ON i.client_id = c.id AND i.account_id = c.account_id
-     WHERE c.id = $1 AND c.account_id = $2
+     LEFT JOIN properties p ON p.client_id = c.id AND p.company_id = c.company_id
+     LEFT JOIN jobs j ON j.client_id = c.id AND j.company_id = c.company_id
+     LEFT JOIN estimates e ON e.client_id = c.id AND e.company_id = c.company_id
+     LEFT JOIN invoices i ON i.client_id = c.id AND i.company_id = c.company_id
+     WHERE c.id = $1 AND c.company_id = $2
      GROUP BY c.id`,
-    [id, session.accountId]
+    [id, companyIdFromSession(session)]
   );
 
   if (!row) {
@@ -100,7 +100,7 @@ export const PATCH = withRole(["owner", "admin"], async (request: NextRequest, s
       [session.userId, session.accountId, session.role]
     );
 
-    const before = await client.query(`SELECT * FROM clients WHERE id = $1 AND account_id = $2`, [id, session.accountId]);
+    const before = await client.query(`SELECT * FROM clients WHERE id = $1 AND company_id = $2`, [id, companyIdFromSession(session)]);
     if (before.rowCount === 0) {
       await client.query("ROLLBACK");
       return NextResponse.json(
@@ -112,8 +112,8 @@ export const PATCH = withRole(["owner", "admin"], async (request: NextRequest, s
     const patch = parsed.data;
     if (patch.primary_property_id) {
       const mainProperty = await client.query(
-        `SELECT id FROM properties WHERE id = $1 AND account_id = $2 AND client_id = $3`,
-        [patch.primary_property_id, session.accountId, id]
+        `SELECT id FROM properties WHERE id = $1 AND company_id = $2 AND client_id = $3`,
+        [patch.primary_property_id, companyIdFromSession(session), id]
       );
       if (mainProperty.rowCount === 0) {
         await client.query("ROLLBACK");
@@ -190,11 +190,11 @@ export const PATCH = withRole(["owner", "admin"], async (request: NextRequest, s
       setClauses.push(`primary_property_id = $${idx++}`);
       params.push(patch.primary_property_id);
     }
-    params.push(id, session.accountId);
+    params.push(id, companyIdFromSession(session));
 
     const result = await client.query(
       `UPDATE clients SET ${setClauses.join(", ")}, updated_at = now()
-       WHERE id = $${idx++} AND account_id = $${idx}
+       WHERE id = $${idx++} AND company_id = $${idx}
        RETURNING *`,
       params
     );
@@ -238,8 +238,8 @@ export const DELETE = withRole(["owner", "admin"], async (request: NextRequest, 
     );
 
     const existing = await client.query<{ id: string; name: string }>(
-      `SELECT id, name FROM clients WHERE id = $1 AND account_id = $2`,
-      [id, session.accountId]
+      `SELECT id, name FROM clients WHERE id = $1 AND company_id = $2`,
+      [id, companyIdFromSession(session)]
     );
     if (existing.rowCount === 0) {
       await client.query("ROLLBACK");

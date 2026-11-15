@@ -24,7 +24,7 @@ export async function seedConditionSnapshots(
   const { rows } = await client.query<{ section: string; disposition: Disposition; note: string | null }>(
     `SELECT section, disposition, note
      FROM visit_checklist_items
-     WHERE visit_id = $1 AND account_id = $2
+     WHERE visit_id = $1 AND company_id = $2
      ORDER BY section, sort_order`,
     [visitId, accountId]
   );

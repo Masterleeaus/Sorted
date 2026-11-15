@@ -76,7 +76,7 @@ export default async function ShoppingListPage({
               e.room_specs, e.shopping_list_json
        FROM estimates e
        LEFT JOIN clients c ON c.id = e.client_id
-       WHERE e.id = $1 AND e.account_id = $2`,
+       WHERE e.id = $1 AND e.company_id = $2`,
       [estimateId, session.accountId]
     ),
     queryForSession<SnapshotRow>(session,

@@ -124,7 +124,7 @@ export default async function VisitReportPrintPage({
      LEFT JOIN users      u ON u.id = v.assigned_user_id
      LEFT JOIN clients    c ON c.id = j.client_id
      LEFT JOIN properties p ON p.id = j.property_id
-     WHERE v.id = $1 AND v.account_id = $2`,
+     WHERE v.id = $1 AND v.company_id = $2`,
     [id, session.accountId]
   );
 
@@ -142,7 +142,7 @@ export default async function VisitReportPrintPage({
   const checklistItems = await queryForSession<ChecklistRow>(session,
     `SELECT id, label, disposition, note, section, sort_order
      FROM visit_checklist_items
-     WHERE visit_id = $1 AND account_id = $2
+     WHERE visit_id = $1 AND company_id = $2
      ORDER BY sort_order ASC`,
     [id, session.accountId]
   );

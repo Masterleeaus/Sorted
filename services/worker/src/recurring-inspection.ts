@@ -8,6 +8,7 @@ import { PRIORITY } from "./notification/priority.js";
 interface InspectionDuePlan {
   id: string;
   account_id: string;
+  company_id: string;
   client_id: string;
   name: string;
   client_name: string | null;
@@ -18,7 +19,7 @@ interface InspectionDuePlan {
 
 export async function findDueRecurringInspections(client: Client): Promise<AutomationRow[]> {
   const { rows } = await client.query<AutomationRow>(
-    `SELECT id, account_id, type, config, enabled, next_run_at::text
+    `SELECT id, account_id, company_id, type, config, enabled, next_run_at::text
      FROM automations
      WHERE type = 'recurring_inspection'
        AND enabled = true
@@ -35,7 +36,7 @@ export async function findPlansNeedingInspection(
 
   const { rows } = await client.query<InspectionDuePlan>(
     `SELECT
-       mp.id, mp.account_id, c.id AS client_id, mp.name,
+       mp.id, mp.account_id, mp.company_id, c.id AS client_id, mp.name,
        c.name AS client_name, c.email AS client_email,
        p.address AS property_address,
        EXTRACT(DAY FROM (now() - COALESCE(
@@ -43,22 +44,22 @@ export async function findPlansNeedingInspection(
           FROM visits v
           JOIN jobs j ON j.id = v.job_id
           WHERE j.client_id = c.id
-            AND j.account_id = mp.account_id
+            AND j.company_id = mp.company_id
             AND v.status = 'completed'
             AND v.generated_from_plan_id = mp.id),
          mp.created_at
        )))::int AS days_since_last_inspection
      FROM maintenance_plans mp
-     JOIN clients c ON c.id = mp.client_id AND c.account_id = mp.account_id
-     LEFT JOIN properties p ON p.client_id = c.id AND p.account_id = mp.account_id
-     WHERE mp.account_id = $1
+     JOIN clients c ON c.id = mp.client_id AND c.company_id = mp.company_id
+     LEFT JOIN properties p ON p.client_id = c.id AND p.company_id = mp.company_id
+     WHERE mp.company_id = $1
        AND mp.status = 'active'
        AND c.email IS NOT NULL
        AND NOT EXISTS (
          SELECT 1 FROM audit_log al
          WHERE al.entity_type = 'recurring_inspection'
            AND al.entity_id = mp.id
-           AND al.account_id = mp.account_id
+           AND al.company_id = mp.company_id
            AND al.created_at > now() - ($2::text || ' days')::interval
        )
        AND EXTRACT(DAY FROM (now() - COALESCE(
@@ -66,14 +67,14 @@ export async function findPlansNeedingInspection(
           FROM visits v2
           JOIN jobs j2 ON j2.id = v2.job_id
           WHERE j2.client_id = c.id
-            AND j2.account_id = mp.account_id
+            AND j2.company_id = mp.company_id
             AND v2.status = 'completed'
             AND v2.generated_from_plan_id = mp.id),
          mp.created_at
        ))) >= $2::int
      ORDER BY days_since_last_inspection DESC
      LIMIT 50`,
-    [automation.account_id, inspectionIntervalDays]
+    [automation.company_id, inspectionIntervalDays]
   );
 
   return rows;
@@ -89,10 +90,10 @@ async function emitRecurringInspection(
     `SELECT 1 FROM audit_log
      WHERE entity_type = 'recurring_inspection'
        AND entity_id = $1
-       AND account_id = $2
+       AND company_id = $2
        AND created_at > now() - ($3 || ' days')::interval
      LIMIT 1`,
-    [plan.id, plan.account_id, intervalDays]
+    [plan.id, plan.company_id, intervalDays]
   );
   if (rowCount && rowCount > 0) return false;
 

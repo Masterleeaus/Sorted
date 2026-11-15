@@ -29,6 +29,7 @@ const fakeClient = vi.hoisted(() => ({
       return { rows: state.pendingAmount === null ? [] : [{ amount_cents: state.pendingAmount }] };
     }
     if (sql.includes("FROM invoice_line_items")) return { rows: [{ id: "li-1", description: "Caulk" }] };
+    if (sql.includes("FROM invoices i") && state.invoice) return { rows: [state.invoice] };
     return { rows: [] };
   },
   release: () => {},
@@ -39,6 +40,10 @@ vi.mock("@/lib/db", () => ({
   query: vi.fn(),
   queryOne: async (sql: string, params?: unknown[]) => {
     state.log.push({ sql, params });
+    // The bootstrap resolver returns only the account id, as the migration does.
+    if (sql.includes("resolve_invoice_share_account")) {
+      return state.invoice ? { account_id: state.invoice.account_id } : null;
+    }
     return state.invoice;
   },
 }));
@@ -121,7 +126,7 @@ describe("GET /api/portal/invoices/[token]", () => {
     const liIdx = sqls.findIndex((s) => s.includes("FROM invoice_line_items"));
     expect(ctxIdx).toBeGreaterThan(-1);
     expect(liIdx).toBeGreaterThan(ctxIdx);
-    expect(state.log[liIdx].sql).toContain("account_id = $2");
+    expect(state.log[liIdx].sql).toContain("company_id = $2");
     expect(state.log[liIdx].params).toEqual([INVOICE, ACCOUNT]);
   });
 
@@ -148,7 +153,7 @@ describe("POST /api/portal/invoices/[token]", () => {
     const pendingIdx = sqls.findIndex((s) => s.startsWith("SELECT amount_cents FROM payments"));
     expect(state.log[ctxIdx].params?.[0]).toBe(ACCOUNT);
     expect(pendingIdx).toBeGreaterThan(ctxIdx);
-    expect(state.log[pendingIdx].sql).toContain("account_id = $2");
+    expect(state.log[pendingIdx].sql).toContain("company_id = $2");
   });
 
   it("returns 422 when Square is not enabled and still closes the transaction", async () => {

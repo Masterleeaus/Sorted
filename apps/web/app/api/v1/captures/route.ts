@@ -8,7 +8,7 @@ import { randomUUID } from "crypto";
 import { z } from "zod";
 import { withRole } from "@/lib/auth/middleware";
 import type { AuthSession } from "@/lib/auth/middleware";
-import { withDbSession } from "@/lib/db";
+import { withDbSession, companyIdFromSession } from "@/lib/db";
 import { logger } from "@/lib/logger";
 import { payloadTooLargeResponse, readMultipartWithLimit, UPLOAD_BODY_LIMITS } from "@/lib/uploads/body-limit";
 import { captureDir, captureFilePath } from "./files";
@@ -142,8 +142,8 @@ export const POST = withRole(["owner", "admin"], async (request: NextRequest, se
 
   const existing = await withDbSession(session, async (client) => {
     const { rows } = await client.query<{ id: string }>(
-      `SELECT id FROM capture_evidence WHERE id = $1 AND account_id = $2`,
-      [clientId, session.accountId],
+      `SELECT id FROM capture_evidence WHERE id = $1 AND company_id = $2`,
+      [clientId, companyIdFromSession(session)],
     );
     return rows[0] ?? null;
   });
@@ -184,7 +184,7 @@ export const POST = withRole(["owner", "admin"], async (request: NextRequest, se
     const row = await withDbSession(session, async (client) => {
       const { rows } = await client.query<{ id: string }>(
         `INSERT INTO capture_evidence (
-           id, account_id, created_by, source,
+           id, company_id, created_by, source,
            audio_filename, audio_original_name, audio_mime_type, audio_size_bytes,
            photo_filename, photo_original_name, photo_mime_type, photo_size_bytes,
            processing_state, transcript
@@ -192,7 +192,7 @@ export const POST = withRole(["owner", "admin"], async (request: NextRequest, se
          RETURNING id`,
         [
           captureId,
-          session.accountId,
+          companyIdFromSession(session),
           session.userId,
           "recorder",
           audioFilename,

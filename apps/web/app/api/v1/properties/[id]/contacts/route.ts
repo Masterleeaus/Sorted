@@ -27,7 +27,7 @@ export const GET = withRole(["owner", "admin"], async (request, session) => {
   const client = await sessionClient(session);
   try {
     const property = await client.query(
-      `SELECT id FROM properties WHERE id = $1 AND account_id = $2`,
+      `SELECT id FROM properties WHERE id = $1 AND company_id = $2`,
       [pid, session.accountId],
     );
     if (!property.rows[0]) {
@@ -40,8 +40,8 @@ export const GET = withRole(["owner", "admin"], async (request, session) => {
     const { rows } = await client.query(
       `SELECT pc.*, c.name AS client_name, c.email AS client_email, c.phone AS client_phone
        FROM property_contacts pc
-       LEFT JOIN clients c ON c.id = pc.client_id AND c.account_id = pc.account_id
-       WHERE pc.property_id = $1 AND pc.account_id = $2
+       LEFT JOIN clients c ON c.id = pc.client_id AND c.company_id = pc.company_id
+       WHERE pc.property_id = $1 AND pc.company_id = $2
        ORDER BY pc.created_at ASC`,
       [pid, session.accountId],
     );
@@ -72,7 +72,7 @@ export const POST = withRole(["owner", "admin"], async (request, session) => {
   const client = await sessionClient(session);
   try {
     const property = await client.query(
-      `SELECT id FROM properties WHERE id = $1 AND account_id = $2`,
+      `SELECT id FROM properties WHERE id = $1 AND company_id = $2`,
       [pid, session.accountId],
     );
     if (!property.rows[0]) {
@@ -85,7 +85,7 @@ export const POST = withRole(["owner", "admin"], async (request, session) => {
     const data = parsed.data;
     if (data.client_id) {
       const registered = await client.query(
-        `SELECT id FROM clients WHERE id = $1 AND account_id = $2`,
+        `SELECT id FROM clients WHERE id = $1 AND company_id = $2`,
         [data.client_id, session.accountId],
       );
       if (!registered.rows[0]) {
@@ -98,7 +98,7 @@ export const POST = withRole(["owner", "admin"], async (request, session) => {
     }
     const { rows } = await client.query(
       `INSERT INTO property_contacts
-         (account_id, property_id, client_id, external_name, external_email, external_phone, notes, role)
+         (company_id, property_id, client_id, external_name, external_email, external_phone, notes, role)
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
        RETURNING *`,
       [

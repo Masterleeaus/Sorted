@@ -37,8 +37,8 @@ export const GET = withAuth(
         }>(
           `SELECT v.id, v.assigned_user_id, v.visit_type, j.job_type
              FROM visits v
-             JOIN jobs   j ON j.id = v.job_id AND j.account_id = v.account_id
-            WHERE v.id = $1 AND v.account_id = $2`,
+             JOIN jobs   j ON j.id = v.job_id AND j.company_id = v.company_id
+            WHERE v.id = $1 AND v.company_id = $2`,
           [id, session.accountId]
         );
 

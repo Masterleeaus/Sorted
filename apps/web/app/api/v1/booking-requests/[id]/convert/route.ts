@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { withRole } from "@/lib/auth/middleware";
-import { getPool } from "@/lib/db";
+import { getPool, companyIdFromSession } from "@/lib/db";
 import { logger } from "@/lib/logger";
 import { recordStatusChange } from "../../../../../../lib/status-history";
 
@@ -45,8 +45,8 @@ export const POST = withRole(["owner", "admin"], async (request: NextRequest, se
 
     // Lock the row to serialize concurrent convert requests
     const { rows: brRows } = await client.query(
-      `SELECT * FROM booking_requests WHERE id = $1 AND account_id = $2 FOR UPDATE`,
-      [id, session.accountId]
+      `SELECT * FROM booking_requests WHERE id = $1 AND company_id = $2 FOR UPDATE`,
+      [id, companyIdFromSession(session)]
     );
     if (brRows.length === 0) {
       await client.query("ROLLBACK");
@@ -80,8 +80,8 @@ export const POST = withRole(["owner", "admin"], async (request: NextRequest, se
     }
 
     const { rows: jobRows } = await client.query(
-      `SELECT status FROM jobs WHERE id = $1 AND account_id = $2 FOR UPDATE`,
-      [br.job_id, session.accountId]
+      `SELECT status FROM jobs WHERE id = $1 AND company_id = $2 FOR UPDATE`,
+      [br.job_id, companyIdFromSession(session)]
     );
     const jobStatus = jobRows[0]?.status ?? null;
     if (!jobStatus) {
@@ -118,11 +118,11 @@ export const POST = withRole(["owner", "admin"], async (request: NextRequest, se
 
     // Create site visit — assess and measure the project before estimating
     const { rows: visitRows } = await client.query(
-      `INSERT INTO visits (account_id, job_id, scheduled_start, scheduled_end, status, visit_type, tech_notes, assigned_user_id)
+      `INSERT INTO visits (company_id, job_id, scheduled_start, scheduled_end, status, visit_type, tech_notes, assigned_user_id)
        VALUES ($1, $2, $3, $4, 'scheduled', 'site_visit', $5, $6)
        RETURNING id`,
       [
-        session.accountId,
+        companyIdFromSession(session),
         br.job_id,
         visitStart.toISOString(),
         visitEnd.toISOString(),
@@ -155,9 +155,9 @@ export const POST = withRole(["owner", "admin"], async (request: NextRequest, se
            reviewed_at = COALESCE(reviewed_at, now()),
            review_notes = COALESCE($5, review_notes),
            updated_at = now()
-       WHERE id = $1 AND account_id = $2
+       WHERE id = $1 AND company_id = $2
        RETURNING *`,
-      [id, session.accountId, visitId, session.userId, parsed.data.review_notes ?? null]
+      [id, companyIdFromSession(session), visitId, session.userId, parsed.data.review_notes ?? null]
     );
 
     if (br.status !== "assessment_booked" && updatedRows[0]?.status === "assessment_booked") {

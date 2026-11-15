@@ -24,7 +24,7 @@ export const POST = withAuth(
     try {
       const rows = await withDbSession(session, async (db) => {
         const result = await db.query(
-          `SELECT v.id, v.account_id, v.status, v.scheduled_start, v.scheduled_end,
+          `SELECT v.id, v.company_id, v.status, v.scheduled_start, v.scheduled_end,
                   j.id AS job_id, j.title AS job_title,
                   c.id AS client_id,
                   c.name AS client_name, c.email AS client_email,
@@ -35,7 +35,7 @@ export const POST = withAuth(
            JOIN clients c ON c.id = j.client_id
            LEFT JOIN properties p ON p.id = j.property_id
            LEFT JOIN users u ON u.id = $2
-           WHERE v.id = $1 AND v.account_id = $3`,
+           WHERE v.id = $1 AND v.company_id = $3`,
           [id, session.userId, session.accountId]
         );
         return result.rows;
@@ -80,7 +80,7 @@ export const POST = withAuth(
           }),
         });
         if (!emailResult.ok) {
-          await logCommunication({
+          await withDbSession(session, (db) => logCommunication(db, {
             accountId: session.accountId,
             channel: "email",
             direction: "outbound",
@@ -91,7 +91,7 @@ export const POST = withAuth(
             bodyPreview: `On My Way — ${visit.job_title}`,
             initiatedBy: session.userId,
             externalId: emailResult.error ?? null,
-          });
+          }));
           logger.warn("[on-my-way] email send failed", { visitId: id, error: emailResult.error });
           return NextResponse.json(
             {
@@ -104,7 +104,7 @@ export const POST = withAuth(
             { status: 502 }
           );
         }
-        await logCommunication({
+        await withDbSession(session, (db) => logCommunication(db, {
           accountId: session.accountId,
           channel: "email",
           direction: "outbound",
@@ -114,7 +114,7 @@ export const POST = withAuth(
           visitId: id,
           bodyPreview: `On My Way — ${visit.job_title}`,
           initiatedBy: session.userId,
-        });
+        }));
       }
 
       await withDbSession(session, (db) =>

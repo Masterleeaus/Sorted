@@ -20,6 +20,23 @@ describe("buildPushPayload", () => {
     expect(buildPushPayload({ title: "x", url: "app/my-work" }).data.url).toBe("/");
   });
 
+  it("rejects protocol-relative, backslash and control-character destinations", () => {
+    for (const unsafe of [
+      "//evil.example/phish",
+      "/\\evil.example/phish",
+      "/app\\evil.example",
+      "/app\nother",
+      "/app\rother",
+      "/app\u007fother",
+    ]) {
+      const payload = buildPushPayload({ title: "Notice", url: unsafe });
+      expect(payload.data.url).toBe("/");
+      expect(payload.tag).toBe("dovetails-/");
+    }
+    expect(buildPushPayload({ title: "Notice", url: "/app/jobs?status=active" }).data.url)
+      .toBe("/app/jobs?status=active");
+  });
+
   it("clamps an overlong title and body", () => {
     const p = buildPushPayload({ title: "T".repeat(200), body: "B".repeat(400) });
     expect(p.title.length).toBeLessThanOrEqual(80);
@@ -28,6 +45,6 @@ describe("buildPushPayload", () => {
   });
 
   it("falls back to a default title", () => {
-    expect(buildPushPayload({ title: "" }).title).toBe("Dovetails");
+    expect(buildPushPayload({ title: "" }).title).toBe("Sorted");
   });
 });

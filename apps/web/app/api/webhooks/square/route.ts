@@ -62,17 +62,15 @@ export async function POST(request: NextRequest) {
   const pool = getPool();
 
   // Bootstrap: resolves the account and signing key from the location id before
-  // any account context exists. Stays cross-account until a bounded resolver
-  // exists (docs/working/rls-web-tier-flip.md, blocker 2).
+  // any account context exists. Goes through a bounded resolver (migration 204).
   const settingsRow = await pool.query<{
     account_id: string;
     enabled: boolean;
     secrets: Buffer | null;
     webhook_url: string | null;
   }>(
-    `SELECT account_id, enabled, secrets, config->>'webhookUrl' AS webhook_url
-     FROM integration_settings
-     WHERE provider = 'square' AND config->>'locationId' = $1`,
+    `SELECT account_id, enabled, secrets, webhook_url
+     FROM resolve_square_location_settings($1)`,
     [locationId]
   );
   if (settingsRow.rowCount === 0) {
@@ -145,7 +143,7 @@ async function quarantineSquarePayment(
   const entityType = target.paymentRowId ? "payment" : target.invoiceId ? "invoice" : "account";
   const entityId = target.paymentRowId ?? target.invoiceId ?? accountId;
   await client.query(
-    `INSERT INTO workflow_events (account_id, event_type, entity_type, entity_id, payload)
+    `INSERT INTO workflow_events (company_id, event_type, entity_type, entity_id, payload)
      VALUES ($1, 'payment.square_quarantined', $2, $3, $4)`,
     [
       accountId,
@@ -191,7 +189,7 @@ async function handleCompletedPayment(
     // Idempotency: bail if we've already recorded this Square payment.
     const dup = await client.query(
       `SELECT 1 FROM payments
-       WHERE account_id = $1 AND external_provider = 'square' AND external_payment_id = $2`,
+       WHERE company_id = $1 AND external_provider = 'square' AND external_payment_id = $2`,
       [accountId, payment.id]
     );
     if (dup.rowCount && dup.rowCount > 0) {
@@ -209,7 +207,7 @@ async function handleCompletedPayment(
       const exact = await client.query<PendingSquareRow>(
         `SELECT id, invoice_id, amount_cents
          FROM payments
-         WHERE account_id = $1 AND external_provider = 'square'
+         WHERE company_id = $1 AND external_provider = 'square'
            AND external_order_id = $2 AND status = 'pending'
          FOR UPDATE`,
         [accountId, orderId]
@@ -225,7 +223,7 @@ async function handleCompletedPayment(
         `SELECT p.id, p.invoice_id, p.amount_cents
          FROM payments p
          JOIN invoices i ON i.id = p.invoice_id
-         WHERE i.account_id = $1 AND i.square_order_id = $2
+         WHERE i.company_id = $1 AND i.square_order_id = $2
            AND p.external_provider = 'square' AND p.status = 'pending'
            AND p.external_order_id IS NULL AND p.external_payment_id IS NULL
          FOR UPDATE OF p`,
@@ -236,7 +234,7 @@ async function handleCompletedPayment(
 
     if (!row) {
       const inv = await client.query<{ id: string }>(
-        `SELECT id FROM invoices WHERE account_id = $1 AND square_order_id = $2`,
+        `SELECT id FROM invoices WHERE company_id = $1 AND square_order_id = $2`,
         [accountId, orderId ?? ""]
       );
       await quarantineSquarePayment(client, accountId, payment, "no_pending_link", {
@@ -269,7 +267,7 @@ async function handleCompletedPayment(
       `UPDATE payments
        SET status = 'paid', external_payment_id = $2,
            paid_at = now(), received_at = now()
-       WHERE id = $1 AND account_id = $3 AND status = 'pending'
+       WHERE id = $1 AND company_id = $3 AND status = 'pending'
        RETURNING id`,
       [row.id, payment.id, accountId]
     );
@@ -285,7 +283,7 @@ async function handleCompletedPayment(
 
     // Daily Operations Log: payment recorded, and invoice.paid if cleared.
     await client.query(
-      `INSERT INTO workflow_events (account_id, event_type, entity_type, entity_id, payload)
+      `INSERT INTO workflow_events (company_id, event_type, entity_type, entity_id, payload)
        VALUES ($1, 'payment.recorded', 'payment', $2, $3)`,
       [
         accountId,
@@ -294,17 +292,17 @@ async function handleCompletedPayment(
       ]
     );
     const inv = await client.query<{ status: string; invoice_number: string }>(
-      `SELECT status, invoice_number FROM invoices WHERE id = $1 AND account_id = $2`,
+      `SELECT status, invoice_number FROM invoices WHERE id = $1 AND company_id = $2`,
       [invoiceId, accountId]
     );
     if (inv.rows[0]?.status === "paid") {
       await client.query(
-        `INSERT INTO workflow_events (account_id, event_type, entity_type, entity_id, payload)
+        `INSERT INTO workflow_events (company_id, event_type, entity_type, entity_id, payload)
          VALUES ($1, 'invoice.paid', 'invoice', $2, $3)`,
         [accountId, invoiceId, JSON.stringify({ amountCents, method: "square" })]
       );
       const jobLink = await client.query<{ job_id: string | null; created_by: string }>(
-        `SELECT job_id, created_by FROM invoices WHERE id = $1 AND account_id = $2`,
+        `SELECT job_id, created_by FROM invoices WHERE id = $1 AND company_id = $2`,
         [invoiceId, accountId],
       );
       if (jobLink.rows[0]?.job_id) {
@@ -375,7 +373,7 @@ async function handleCompletedRefund(
     // on (external_provider, external_payment_id) also guards the INSERT.
     const dup = await client.query(
       `SELECT 1 FROM payments
-       WHERE account_id = $1 AND external_provider = 'square' AND external_payment_id = $2`,
+       WHERE company_id = $1 AND external_provider = 'square' AND external_payment_id = $2`,
       [accountId, refund.id]
     );
     if (dup.rowCount && dup.rowCount > 0) {
@@ -397,7 +395,7 @@ async function handleCompletedRefund(
               i.created_by
        FROM payments p
        JOIN invoices i ON i.id = p.invoice_id
-       WHERE p.account_id = $2 AND i.account_id = $2
+       WHERE p.company_id = $2 AND i.company_id = $2
          AND p.external_provider = 'square' AND p.external_payment_id = $1`,
       [refund.payment_id ?? "", accountId]
     );
@@ -413,7 +411,7 @@ async function handleCompletedRefund(
       }>(
         `SELECT id AS invoice_id, account_id, client_id, job_id, created_by
          FROM invoices
-         WHERE account_id = $1 AND square_order_id = $2`,
+         WHERE company_id = $1 AND square_order_id = $2`,
         [accountId, refund.order_id ?? ""]
       );
       target = inv.rows[0];
@@ -431,7 +429,7 @@ async function handleCompletedRefund(
     const amountCents = refund.amount_money?.amount ?? 0;
     const ins = await client.query<{ id: string }>(
       `INSERT INTO payments
-         (account_id, invoice_id, job_id, customer_id, amount_cents, method,
+         (company_id, invoice_id, job_id, customer_id, amount_cents, method,
           payment_type, status, external_provider, external_payment_id, created_by)
        VALUES ($1, $2, $3, $4, $5, 'square', 'refund', 'refunded', 'square', $6, $7)
        ON CONFLICT (external_provider, external_payment_id)
@@ -454,7 +452,7 @@ async function handleCompletedRefund(
     }
 
     await client.query(
-      `INSERT INTO workflow_events (account_id, event_type, entity_type, entity_id, payload)
+      `INSERT INTO workflow_events (company_id, event_type, entity_type, entity_id, payload)
        VALUES ($1, 'payment.recorded', 'payment', $2, $3)`,
       [
         target.account_id,

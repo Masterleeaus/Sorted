@@ -43,7 +43,12 @@ describe("GET /api/v1/sessions/suggestions account context", () => {
     const calls = mockClientQuery.mock.calls.map((c) => String(c[0]));
     expect(calls[0]).toBe("BEGIN");
     expect(calls[1]).toContain("set_config('app.current_account_id'");
-    expect(mockClientQuery.mock.calls[1]?.[1]).toEqual([mockSession.userId, mockSession.accountId, mockSession.role]);
+    expect(mockClientQuery.mock.calls[1]?.[1]).toEqual([
+      mockSession.userId,
+      mockSession.accountId,
+      mockSession.accountId,
+      mockSession.role,
+    ]);
     expect(calls.at(-1)).toBe("COMMIT");
     expect(mockClientRelease).toHaveBeenCalled();
   });
@@ -53,7 +58,7 @@ describe("GET /api/v1/sessions/suggestions account context", () => {
     const dataCalls = mockClientQuery.mock.calls.filter((c) => /FROM (jobs|visits|estimates)/.test(String(c[0])));
     expect(dataCalls).toHaveLength(3);
     for (const [sql, params] of dataCalls) {
-      expect(String(sql)).toMatch(/account_id = \$1/);
+      expect(String(sql)).toMatch(/company_id = \$1/);
       expect(params).toEqual([mockSession.accountId, "2026-05-04"]);
     }
   });

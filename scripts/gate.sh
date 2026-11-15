@@ -97,6 +97,8 @@ log "migration prefixes"
 node scripts/check-migration-prefixes.mjs
 log "rls coverage"
 node scripts/check-rls-coverage.mjs
+log "worker grants"
+node scripts/check-worker-grants.mjs
 node --test scripts/*.test.mjs
 log "offsite cryptographic verification and encrypted restore contracts"
 node --test scripts/tests/offsite-*.test.mjs \

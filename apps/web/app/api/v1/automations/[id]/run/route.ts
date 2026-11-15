@@ -10,6 +10,7 @@ import {
   buildErrorResponse,
   type AutomationRecord,
 } from "../../../../../../lib/automations/service";
+import { companyIdFromSession } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
 
@@ -19,8 +20,8 @@ async function getAutomation(
 ): Promise<AutomationRecord | null> {
   const rows = await queryForSession<AutomationRecord>(
     session,
-    `SELECT id, type, account_id, enabled FROM automations WHERE id = $1 AND account_id = $2`,
-    [automationId, session.accountId]
+    `SELECT id, type, account_id, enabled FROM automations WHERE id = $1 AND company_id = $2`,
+    [automationId, companyIdFromSession(session)]
   );
   return rows[0] ?? null;
 }

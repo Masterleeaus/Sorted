@@ -341,7 +341,7 @@ export async function getOrSeedChecklist(
 
   // Detect wrong-type seeds based on section signature.
   const existingResult = await client.query<{ section: string }>(
-    `SELECT DISTINCT section FROM visit_checklist_items WHERE visit_id = $1 AND account_id = $2`,
+    `SELECT DISTINCT section FROM visit_checklist_items WHERE visit_id = $1 AND company_id = $2`,
     [visitId, accountId]
   );
   const existingSections = existingResult.rows.map((r) => r.section);
@@ -358,7 +358,7 @@ export async function getOrSeedChecklist(
   if (wrongType) {
     // Clear and re-seed with correct template
     await client.query(
-      `DELETE FROM visit_checklist_items WHERE visit_id = $1 AND account_id = $2`,
+      `DELETE FROM visit_checklist_items WHERE visit_id = $1 AND company_id = $2`,
       [visitId, accountId]
     );
     await seedChecklistItems(client, accountId, visitId, template);
@@ -370,7 +370,7 @@ export async function getOrSeedChecklist(
     `SELECT id, account_id, visit_id, section, item_key, label,
             disposition, note, sort_order, created_at, updated_at
      FROM visit_checklist_items
-     WHERE visit_id = $1 AND account_id = $2
+     WHERE visit_id = $1 AND company_id = $2
      ORDER BY section, sort_order, item_key`,
     [visitId, accountId]
   );
@@ -411,7 +411,7 @@ export async function updateChecklistItem(
   const { rows } = await client.query<VisitChecklistItem>(
     `UPDATE visit_checklist_items
      SET ${fields.join(", ")}, updated_at = now()
-     WHERE id = $1 AND visit_id = $2 AND account_id = $3
+     WHERE id = $1 AND visit_id = $2 AND company_id = $3
      RETURNING id, account_id, visit_id, section, item_key, label,
                disposition, note, sort_order, created_at, updated_at`,
     values

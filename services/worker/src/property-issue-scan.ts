@@ -31,7 +31,7 @@ interface RecurringItem {
 
 export async function findDuePropertyIssueScans(client: Client): Promise<AutomationRow[]> {
   const { rows } = await client.query<AutomationRow>(
-    `SELECT id, account_id, type, config, enabled, next_run_at::text
+    `SELECT id, account_id, company_id, type, config, enabled, next_run_at::text
        FROM automations
       WHERE type = 'property_issue_scan'
         AND enabled = true
@@ -63,9 +63,9 @@ async function findRecurringItems(
          WHERE ci.created_at > now() - interval '12 months'
        )::int AS within_12mo
      FROM visit_checklist_items ci
-     JOIN visits v  ON v.id  = ci.visit_id  AND v.account_id  = ci.account_id
-     JOIN jobs   j  ON j.id  = v.job_id     AND j.account_id  = ci.account_id
-     WHERE ci.account_id = $1
+     JOIN visits v  ON v.id  = ci.visit_id  AND v.company_id  = ci.company_id
+     JOIN jobs   j  ON j.id  = v.job_id     AND j.company_id  = ci.company_id
+     WHERE ci.company_id = $1
        AND ci.disposition IN ('fix_now','monitor')
        AND ci.created_at  > now() - ($2 || ' months')::interval
        AND j.property_id IS NOT NULL
@@ -73,7 +73,7 @@ async function findRecurringItems(
      GROUP BY j.property_id, ci.section, ci.item_key
      HAVING COUNT(DISTINCT ci.visit_id) >= $3
      ORDER BY occurrence_count DESC`,
-    [automation.account_id, lookbackMonths, minOccurrences]
+    [automation.company_id, lookbackMonths, minOccurrences]
   );
 
   return rows;

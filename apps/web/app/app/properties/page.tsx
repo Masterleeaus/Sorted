@@ -1,3 +1,10 @@
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Properties",
+  description: "Manage customer properties and service sites in Sorted Field.",
+};
+
 import Link from "next/link";
 import type { Route } from "next";
 import { redirect } from "next/navigation";
@@ -46,12 +53,12 @@ export default async function PropertiesPage({ searchParams }: PageProps) {
 
   const [{ q, client_id }, clients] = await Promise.all([
     searchParams,
-    queryForSession<ClientOption>(session, `SELECT id, name FROM clients WHERE account_id = $1 ORDER BY name ASC`, [session.accountId]),
+    queryForSession<ClientOption>(session, `SELECT id, name FROM clients WHERE company_id = $1 ORDER BY name ASC`, [session.accountId]),
   ]);
 
   const search = (q ?? "").trim().toLowerCase();
   const params: unknown[] = [session.accountId];
-  const conditions = ["p.account_id = $1"];
+  const conditions = ["p.company_id = $1"];
   let idx = 2;
   if (client_id) {
     conditions.push(`p.client_id = $${idx++}`);
@@ -68,9 +75,9 @@ export default async function PropertiesPage({ searchParams }: PageProps) {
             COUNT(DISTINCT j.id)::int AS job_count,
             COUNT(DISTINCT v.id)::int AS visit_count
      FROM properties p
-     LEFT JOIN clients c ON c.id = p.client_id AND c.account_id = p.account_id
-     LEFT JOIN jobs j ON j.property_id = p.id AND j.account_id = p.account_id
-     LEFT JOIN visits v ON v.job_id = j.id AND v.account_id = p.account_id
+     LEFT JOIN clients c ON c.id = p.client_id AND c.company_id = p.company_id
+     LEFT JOIN jobs j ON j.property_id = p.id AND j.company_id = p.company_id
+     LEFT JOIN visits v ON v.job_id = j.id AND v.company_id = p.company_id
      WHERE ${conditions.join(" AND ")}
      GROUP BY p.id, c.name
      ORDER BY COALESCE(c.name, '') ASC, p.address ASC

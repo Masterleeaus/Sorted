@@ -128,7 +128,7 @@ export async function POST(
       id: string; original_name: string; mime_type: string; size_bytes: number;
     }>(
       `INSERT INTO intake_media
-         (account_id, intake_invite_id, filename, original_name, mime_type, size_bytes)
+         (company_id, intake_invite_id, filename, original_name, mime_type, size_bytes)
        VALUES ($1, $2, $3, $4, $5, $6)
        RETURNING id, original_name, mime_type, size_bytes`,
       [invite.account_id, invite.id, filename, sanitizeDisplayName(file.name), mime, bytes.byteLength],

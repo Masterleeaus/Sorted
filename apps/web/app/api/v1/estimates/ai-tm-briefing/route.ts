@@ -62,7 +62,7 @@ export const POST = withAuth(async (request: NextRequest, session) => {
           property_id: string | null;
         }>(
           `SELECT j.title, j.notes, j.client_id, j.property_id
-           FROM jobs j WHERE j.id = $1 AND j.account_id = $2`,
+           FROM jobs j WHERE j.id = $1 AND j.company_id = $2`,
           [job_id, session.accountId]
         );
         if (jobRows[0]) {
@@ -77,7 +77,7 @@ export const POST = withAuth(async (request: NextRequest, session) => {
               state: string | null;
             }>(
               `SELECT address, city, state FROM properties
-               WHERE id = $1 AND account_id = $2`,
+               WHERE id = $1 AND company_id = $2`,
               [property_id, session.accountId]
             );
             if (propRows[0]) {

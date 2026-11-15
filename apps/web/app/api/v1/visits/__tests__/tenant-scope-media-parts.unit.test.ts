@@ -79,7 +79,7 @@ describe("tenant scoping: visit media and parts routes", () => {
     expect((await res.json()).data).toEqual([{ id: MEDIA_ID }]);
     expect(mockWithDbSession.mock.calls[0][0]).toBe(mockSession);
     for (const [sql, params] of mockClientQuery.mock.calls) {
-      expect(String(sql)).toContain("account_id");
+      expect(String(sql)).toContain("company_id");
       expect(params).toContain(mockSession.accountId);
     }
   });
@@ -102,7 +102,7 @@ describe("tenant scoping: visit media and parts routes", () => {
 
     expect(res.status).toBe(404);
     expect(mockWithDbSession.mock.calls[0][0]).toBe(mockSession);
-    expect(String(mockClientQuery.mock.calls[0][0])).toContain("account_id");
+    expect(String(mockClientQuery.mock.calls[0][0])).toContain("company_id");
     expect(mockClientQuery.mock.calls[0][1]).toContain(mockSession.accountId);
   });
 
@@ -116,7 +116,7 @@ describe("tenant scoping: visit media and parts routes", () => {
     expect(res.status).toBe(404);
     expect(mockWithDbSession).toHaveBeenCalledTimes(2);
     const mediaCall = mockClientQuery.mock.calls[1];
-    expect(String(mediaCall[0])).toContain("account_id");
+    expect(String(mediaCall[0])).toContain("company_id");
     expect(mediaCall[1]).toContain(mockSession.accountId);
   });
 
@@ -166,7 +166,7 @@ describe("tenant scoping: visit media and parts routes", () => {
     for (const [session] of mockWithDbSession.mock.calls) {
       expect(session).toBe(mockSession);
     }
-    expect(String(mockClientQuery.mock.calls[0][0])).toContain("v.account_id = $3");
+    expect(String(mockClientQuery.mock.calls[0][0])).toContain("v.company_id = $3");
     expect(mockClientQuery.mock.calls[0][1]).toContain(mockSession.accountId);
     expect(mockAppendAuditLog).toHaveBeenCalledWith(
       expect.objectContaining({ query: mockClientQuery }),

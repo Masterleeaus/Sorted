@@ -115,7 +115,7 @@ describe("tenant scoping: estimate AI routes", () => {
 
   it("ai-interview loads the job context for the caller's account only", async () => {
     routeSql([
-      [/FROM jobs j WHERE j\.id = \$1 AND j\.account_id = \$2/, [
+      [/FROM jobs j WHERE j\.id = \$1 AND j\.company_id = \$2/, [
         { title: "Fix roof", notes: null, client_id: "client-1", property_id: null },
       ]],
     ]);
@@ -149,7 +149,7 @@ describe("tenant scoping: estimate AI routes", () => {
 
   it("ai-draft loads account-scoped job context and materials through the session", async () => {
     routeSql([
-      [/FROM jobs j WHERE j\.id = \$1 AND j\.account_id = \$2/, [
+      [/FROM jobs j WHERE j\.id = \$1 AND j\.company_id = \$2/, [
         { title: "Kitchen", notes: null, client_id: "client-1", property_id: null },
       ]],
     ]);
@@ -166,7 +166,7 @@ describe("tenant scoping: estimate AI routes", () => {
 
   it("ai-tm-briefing loads job context inside the session and reads pricing settings separately", async () => {
     routeSql([
-      [/FROM jobs j WHERE j\.id = \$1 AND j\.account_id = \$2/, [
+      [/FROM jobs j WHERE j\.id = \$1 AND j\.company_id = \$2/, [
         { title: "Drain repair", notes: null, client_id: "client-1", property_id: null },
       ]],
     ]);
