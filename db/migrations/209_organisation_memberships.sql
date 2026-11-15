@@ -1,5 +1,5 @@
 -- =============================================================================
--- 202_organisation_memberships.sql — durable Central membership mapping (issue #40)
+-- 209_organisation_memberships.sql — durable Central membership mapping (issue #40)
 --
 -- Central owns identity, organisation and membership. This table is Sorted's
 -- durable record of which local account and user a Central identity acts as
