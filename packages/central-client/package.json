@@ -1,0 +1,26 @@
+{
+  "name": "@ai-fsm/central-client",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "main": "src/link-assertion.ts",
+  "types": "src/link-assertion.ts",
+  "exports": {
+    ".": {
+      "types": "./src/link-assertion.ts",
+      "import": "./src/link-assertion.ts",
+      "default": "./src/link-assertion.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "test": "vitest run",
+    "test:unit": "vitest run"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "typescript": "^5.7.2",
+    "vitest": "^3.0.5"
+  }
+}
