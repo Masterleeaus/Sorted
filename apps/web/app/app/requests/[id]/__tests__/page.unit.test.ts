@@ -77,7 +77,7 @@ describe("staff booking request page", () => {
   it("reads the latest intake invite with the session account predicate", async () => {
     await run();
     const invite = state.calls.find((c) => c.sql.includes("FROM intake_invites"));
-    expect(invite?.sql).toContain("account_id = $2");
+    expect(invite?.sql).toContain("company_id = $2");
     expect(invite?.params).toEqual([REQUEST, ACCOUNT]);
   });
 

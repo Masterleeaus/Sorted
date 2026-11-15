@@ -63,7 +63,7 @@ describe("toPromiseToneInput", () => {
 describe("OPEN_OWNER_PROMISES_SQL", () => {
   it("selects open owner_promise rows for the session account", () => {
     expect(OPEN_OWNER_PROMISES_SQL).toMatch(/FROM action_items/i);
-    expect(OPEN_OWNER_PROMISES_SQL).toMatch(/account_id = \$1/);
+    expect(OPEN_OWNER_PROMISES_SQL).toMatch(/company_id = \$1/);
     expect(OPEN_OWNER_PROMISES_SQL).toMatch(/action_type = \$2/);
     expect(OPEN_OWNER_PROMISES_SQL).toMatch(/resolved_at IS NULL/);
     expect(OPEN_OWNER_PROMISES_SQL).not.toMatch(/DELETE/i);
