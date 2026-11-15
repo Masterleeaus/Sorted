@@ -90,8 +90,8 @@ export default async function SettingsPage() {
         title="Settings"
         subtitle={
           isAdmin
-            ? "Titan Go, Field operations, team and system settings"
-            : "Your profile and Titan Go account"
+            ? "Sorted, Field operations, team and system settings"
+            : "Your profile and Sorted account"
         }
       />
       <SettingsTabsClient
