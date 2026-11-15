@@ -56,8 +56,8 @@ export const POST = withRole(["owner", "admin"], async (request: NextRequest, se
       job_title: string | null;
     }>(
       `SELECT e.status, e.client_id, e.job_id, e.property_id, j.title AS job_title
-         FROM estimates e LEFT JOIN jobs j ON j.id = e.job_id AND j.account_id = e.account_id
-        WHERE e.id = $1 AND e.account_id = $2`,
+         FROM estimates e LEFT JOIN jobs j ON j.id = e.job_id AND j.company_id = e.company_id
+        WHERE e.id = $1 AND e.company_id = $2`,
       [estimateId, session.accountId],
     );
     if (est.rowCount === 0) {
@@ -85,7 +85,7 @@ export const POST = withRole(["owner", "admin"], async (request: NextRequest, se
     // (no visits, no logged time) so the breakdown doesn't leave a second packet.
     await client.query(
       `DELETE FROM work_orders wo
-        WHERE wo.account_id = $1 AND wo.source_estimate_id = $2
+        WHERE wo.company_id = $1 AND wo.source_estimate_id = $2
           AND wo.status IN ('draft','ready')
           AND NOT EXISTS (SELECT 1 FROM visits v WHERE v.work_order_id = wo.id)
           AND NOT EXISTS (SELECT 1 FROM activity_entries a WHERE a.entity_type = 'work_order' AND a.entity_id = wo.id)`,
@@ -101,7 +101,7 @@ export const POST = withRole(["owner", "admin"], async (request: NextRequest, se
 
     const ins = await client.query<{ id: string }>(
       `INSERT INTO work_orders
-         (account_id, client_id, job_id, property_id, title, scope, status, completion_criteria, source_estimate_id, created_by)
+         (company_id, client_id, job_id, property_id, title, scope, status, completion_criteria, source_estimate_id, created_by)
        VALUES ($1,$2,$3,$4,$5,$6,$7,$8::jsonb,$9,$10)
        RETURNING id`,
       [

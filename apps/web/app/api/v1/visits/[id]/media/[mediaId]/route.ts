@@ -35,7 +35,7 @@ export const DELETE = withAuth(
     // Verify visit ownership
     const visit = await withDbSession(session, async (client) => {
       const result = await client.query(
-        `SELECT id FROM visits WHERE id = $1 AND account_id = $2`,
+        `SELECT id FROM visits WHERE id = $1 AND company_id = $2`,
         [visitId, session.accountId]
       );
       return result.rows[0] ?? null;
@@ -60,7 +60,7 @@ export const DELETE = withAuth(
 
       const { rows } = await client.query(
         `DELETE FROM visit_media
-         WHERE id = $1 AND visit_id = $2 AND account_id = $3
+         WHERE id = $1 AND visit_id = $2 AND company_id = $3
          RETURNING filename`,
         [mediaId, visitId, session.accountId]
       );

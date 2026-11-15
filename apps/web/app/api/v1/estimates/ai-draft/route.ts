@@ -220,7 +220,7 @@ export const POST = withAuth(async (request: NextRequest, session) => {
         title: string; notes: string | null; client_id: string; property_id: string | null;
       }>(
         `SELECT j.title, j.notes, j.client_id, j.property_id
-         FROM jobs j WHERE j.id = $1 AND j.account_id = $2`,
+         FROM jobs j WHERE j.id = $1 AND j.company_id = $2`,
         [job_id, session.accountId]
       );
       if (jobRows[0]) {
@@ -230,7 +230,7 @@ export const POST = withAuth(async (request: NextRequest, session) => {
 
         if (property_id) {
           const { rows: propRows } = await db.query<{ address: string; year_built: number | null; sqft: number | null }>(
-            `SELECT address, year_built, sqft FROM properties WHERE id = $1 AND account_id = $2`,
+            `SELECT address, year_built, sqft FROM properties WHERE id = $1 AND company_id = $2`,
             [property_id, session.accountId]
           );
           if (propRows[0]) {
@@ -244,7 +244,7 @@ export const POST = withAuth(async (request: NextRequest, session) => {
         const { rows: recentRows } = await db.query<{ title: string; total_cents: number; status: string; created_at: string }>(
           `SELECT j.title, e.total_cents, e.status, e.created_at
            FROM estimates e JOIN jobs j ON j.id = e.job_id
-           WHERE e.account_id = $1 AND j.client_id = $2 AND e.status IN ('approved','invoiced','sent')
+           WHERE e.company_id = $1 AND j.client_id = $2 AND e.status IN ('approved','invoiced','sent')
            ORDER BY e.created_at DESC LIMIT 3`,
           [session.accountId, client_id]
         );
