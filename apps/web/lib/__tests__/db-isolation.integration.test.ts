@@ -27,14 +27,14 @@ describe.skipIf(!enabled)("real restricted runtime database isolation", () => {
     await admin.query("INSERT INTO accounts (id, name) VALUES ($1, 'RLS A'), ($2, 'RLS B')", [accountA, accountB]);
     const passwordHash = await hash("rls-test-password", 4);
     await admin.query(
-      `INSERT INTO users (id, account_id, email, full_name, password_hash, role)
+      `INSERT INTO users (id, company_id, email, full_name, password_hash, role)
        VALUES ($1, $2, $3, 'RLS owner', $4, 'owner'),
               ($5, $2, $6, 'Duplicate A', $4, 'tech'),
               ($7, $8, $6, 'Duplicate B', $4, 'owner')`,
       [userA, accountA, email, passwordHash, randomUUID(), duplicateEmail, randomUUID(), accountB],
     );
     await admin.query(
-      "INSERT INTO clients (id, account_id, name) VALUES ($1, $2, 'Other account client')",
+      "INSERT INTO clients (id, company_id, name) VALUES ($1, $2, 'Other account client')",
       [clientB, accountB],
     );
   });
@@ -72,15 +72,15 @@ describe.skipIf(!enabled)("real restricted runtime database isolation", () => {
 
   it("reads and writes only its account even when queries omit account filters", async () => {
     await withDbSession(session, async (client) => {
-      const own = await client.query("INSERT INTO clients (account_id, name) VALUES ($1, 'Own client') RETURNING id", [accountA]);
-      const { rows } = await client.query("SELECT id, account_id FROM clients");
-      expect(rows).toEqual([{ id: own.rows[0].id, account_id: accountA }]);
+      const own = await client.query("INSERT INTO clients (company_id, name) VALUES ($1, 'Own client') RETURNING id", [accountA]);
+      const { rows } = await client.query("SELECT id, company_id FROM clients");
+      expect(rows).toEqual([{ id: own.rows[0].id, company_id: accountA }]);
       expect((await client.query("UPDATE clients SET name = 'stolen' WHERE id = $1", [clientB])).rowCount).toBe(0);
       expect((await client.query("DELETE FROM clients WHERE id = $1", [clientB])).rowCount).toBe(0);
       expect((await client.query("SELECT id FROM users WHERE id = $1", [userA])).rows).toEqual([{ id: userA }]);
     });
     await expect(withDbSession(session, (client) =>
-      client.query("INSERT INTO clients (account_id, name) VALUES ($1, 'Forbidden')", [accountB]),
+      client.query("INSERT INTO clients (company_id, name) VALUES ($1, 'Forbidden')", [accountB]),
     )).rejects.toMatchObject({ code: "42501" });
   });
 
@@ -91,7 +91,7 @@ describe.skipIf(!enabled)("real restricted runtime database isolation", () => {
     expect((await getPool().query("SELECT app_account_id() AS id, app_user_id() AS user_id, app_role() AS role")).rows[0])
       .toEqual({ id: null, user_id: null, role: null });
     await expect(withDbSession({ ...session, role: "tech" }, (client) =>
-      client.query("INSERT INTO clients (account_id, name) VALUES ($1, 'Forbidden tech write')", [accountA]),
+      client.query("INSERT INTO clients (company_id, name) VALUES ($1, 'Forbidden tech write')", [accountA]),
     )).rejects.toMatchObject({ code: "42501" });
     expect((await getPool().query("SELECT id FROM clients")).rows).toEqual([]);
     await withDbSession({ ...session, accountId: accountB }, async (client) => {

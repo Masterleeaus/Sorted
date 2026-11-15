@@ -110,7 +110,7 @@ Core repo layout:
 2. Never store secrets in code; use `.env`.
 3. Migrations must be additive and reversible unless a migration plan is explicit.
 4. Business logic changes require tests or an explicit documented test gap.
-5. Production runs on garonhome.local via `infra/compose.garonhome.yml`.
+5. Production runs on garonhome.local via `infra/compose.garonhome.yml` (canonical deploy path, see `DEPLOY.md`). `start-production.sh` is deprecated and is not the production path.
 
 ## Decision Policy
 

@@ -26,33 +26,33 @@ describe.skipIf(!RUN)("portal self-service", () => {
   beforeAll(async () => {
     db = new Client({ connectionString: process.env.TEST_DATABASE_URL });
     await db.connect();
-    const admin = await db.query<{ id: string; account_id: string }>(
-      `SELECT id, account_id FROM users WHERE email = 'admin@test.com'`,
+    const admin = await db.query<{ id: string; company_id: string }>(
+      `SELECT id, company_id FROM users WHERE email = 'admin@test.com'`,
     );
-    accountId = admin.rows[0].account_id;
+    accountId = admin.rows[0].company_id;
     ownerId = admin.rows[0].id;
 
     const c = await db.query<{ portal_token: string }>(
-      `INSERT INTO clients (id, account_id, name, email, phone, preferred_contact)
+      `INSERT INTO clients (id, company_id, name, email, phone, preferred_contact)
        VALUES ($1, $2, 'Self Service Client', $3, '+16035550100', 'email') RETURNING portal_token::text`,
       [clientId, accountId, `self-${clientId}@example.com`],
     );
     portalToken = c.rows[0].portal_token;
-    await db.query(`INSERT INTO clients (id, account_id, name) VALUES ($1, $2, 'Other Client')`, [otherClientId, accountId]);
+    await db.query(`INSERT INTO clients (id, company_id, name) VALUES ($1, $2, 'Other Client')`, [otherClientId, accountId]);
     await db.query(
-      `INSERT INTO properties (id, account_id, client_id, name, address) VALUES
+      `INSERT INTO properties (id, company_id, client_id, name, address) VALUES
        ($1, $3, $4, '12 Maple St', '12 Maple St'), ($2, $3, $5, '9 Other Rd', '9 Other Rd')`,
       [propertyId, otherPropertyId, accountId, clientId, otherClientId],
     );
     for (const [i, id] of invoiceIds.entries()) {
       await db.query(
-        `INSERT INTO invoices (id, account_id, client_id, property_id, invoice_number, status, total_cents, created_by)
+        `INSERT INTO invoices (id, company_id, client_id, property_id, invoice_number, status, total_cents, created_by)
          VALUES ($1, $2, $3, $4, $5, 'sent', 5000, $6)`,
         [id, accountId, clientId, propertyId, `SS-${Date.now()}-${i}`, ownerId],
       );
     }
     await db.query(
-      `INSERT INTO invoices (id, account_id, client_id, invoice_number, status, total_cents, created_by)
+      `INSERT INTO invoices (id, company_id, client_id, invoice_number, status, total_cents, created_by)
        VALUES ($1, $2, $3, $4, 'sent', 5000, $5)`,
       [otherInvoiceId, accountId, otherClientId, `SS-${Date.now()}-x`, ownerId],
     );

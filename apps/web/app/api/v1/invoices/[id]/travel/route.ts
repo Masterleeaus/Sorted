@@ -134,7 +134,7 @@ export const POST = withRole(["owner", "admin"], async (request: NextRequest, se
         manual_one_way_minutes: 0,
       });
       snapshot = await insertTravelSnapshot(client, {
-        account_id: session.accountId,
+        company_id: session.accountId,
         origin_address: zeroCalc.origin_address,
         destination_address: zeroCalc.destination_address,
         result: { ...zeroCalc.calculation, total_travel_charge_cents: 0, charge_mode: "waive" },
@@ -151,7 +151,7 @@ export const POST = withRole(["owner", "admin"], async (request: NextRequest, se
     } else if (data.billing_mode === "estimated" && estimateSnapshot && !data.recalculate) {
       chargeCents = estimateSnapshot.total_travel_charge_cents;
       snapshot = await insertTravelSnapshot(client, {
-        account_id: session.accountId,
+        company_id: session.accountId,
         origin_address: estimateSnapshot.origin_address,
         destination_address: estimateSnapshot.destination_address,
         result: {
@@ -232,7 +232,7 @@ export const POST = withRole(["owner", "admin"], async (request: NextRequest, se
       });
       chargeCents = data.custom_total_cents;
       snapshot = await insertTravelSnapshot(client, {
-        account_id: session.accountId,
+        company_id: session.accountId,
         origin_address: calc.origin_address,
         destination_address: calc.destination_address,
         result: calc.calculation,
@@ -355,7 +355,7 @@ export const POST = withRole(["owner", "admin"], async (request: NextRequest, se
       }
 
       snapshot = await insertTravelSnapshot(client, {
-        account_id: session.accountId,
+        company_id: session.accountId,
         origin_address: calc.origin_address,
         destination_address: calc.destination_address,
         result: calc.calculation,
@@ -384,7 +384,7 @@ export const POST = withRole(["owner", "admin"], async (request: NextRequest, se
     });
 
     await appendAuditLog(client, {
-      account_id: session.accountId,
+      company_id: session.accountId,
       entity_type: "invoice",
       entity_id: invoiceId,
       action: "update",

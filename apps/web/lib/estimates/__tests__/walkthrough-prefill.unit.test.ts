@@ -25,6 +25,13 @@ describe("buildWalkthroughScopeNotes", () => {
     expect(out).toMatch(/Apr 10, 2026/);
   });
 
+  it("dates the visit in the business timezone, not the host timezone", () => {
+    // 02:00 UTC on Apr 10 is still Apr 9 in America/New_York (BUSINESS_TIMEZONE).
+    // A host-zone formatter prints Apr 10 on UTC and Apr 10 in Melbourne, so this fails there.
+    const out = buildWalkthroughScopeNotes({ ...empty, techNotes: "x", visitDate: "2026-04-10T02:00:00Z" });
+    expect(out).toContain("(site visit Apr 9, 2026)");
+  });
+
   it("lists parts with quantities", () => {
     const out = buildWalkthroughScopeNotes({
       ...empty,

@@ -91,7 +91,7 @@ export async function enqueueAttentionOwnerEmail(
     // priority 30 = HIGH (bypass cooldown/daily cap for owner alerts)
     const queued = await client.query<{ id: string }>(
       `INSERT INTO notification_queue
-         (account_id, client_id, automation_type, priority, to_address,
+         (company_id, client_id, automation_type, priority, to_address,
           subject, html_body, idempotency_key, entity_type, entity_id,
           next_attempt_at, metadata)
        VALUES ($1, NULL, $2, 30, $3, $4, $5, $6, $7, $8, now(), $9)
@@ -107,7 +107,7 @@ export async function enqueueAttentionOwnerEmail(
              html_body = EXCLUDED.html_body,
              metadata = EXCLUDED.metadata
        WHERE notification_queue.status = 'failed'
-         AND notification_queue.account_id = EXCLUDED.account_id
+         AND notification_queue.company_id = EXCLUDED.company_id
        RETURNING id`,
       [
         opts.accountId,

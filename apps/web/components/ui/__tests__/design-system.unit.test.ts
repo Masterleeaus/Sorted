@@ -139,7 +139,7 @@ function flattenSections(sections: ReturnType<typeof getNavSections>) {
   return sections.flatMap((s) => s.items);
 }
 
-describe("getNavSections (Titan Field)", () => {
+describe("getNavSections (Sorted Field)", () => {
   it("returns Field product sections for owner/admin", () => {
     const sections = getNavSections("admin");
     expect(sections.map((section) => section.label).filter(Boolean)).toEqual([

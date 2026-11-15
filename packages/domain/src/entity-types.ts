@@ -34,7 +34,7 @@ export type Account = {
 
 export type User = {
   id: string;
-  account_id: string;
+  company_id: string;
   email: string;
   full_name: string;
   phone?: string | null;
@@ -45,7 +45,7 @@ export type User = {
 
 export type Client = {
   id: string;
-  account_id: string;
+  company_id: string;
   name: string;
   email?: string | null;
   phone?: string | null;
@@ -61,7 +61,7 @@ export type Client = {
 
 export type Property = {
   id: string;
-  account_id: string;
+  company_id: string;
   client_id: string;
   name?: string | null;
   address: string;
@@ -75,7 +75,7 @@ export type Property = {
 
 export type Job = {
   id: string;
-  account_id: string;
+  company_id: string;
   client_id: string;
   property_id?: string | null;
   title: string;
@@ -95,7 +95,7 @@ export type Job = {
 
 export type Visit = {
   id: string;
-  account_id: string;
+  company_id: string;
   job_id: string;
   assigned_user_id?: string | null;
   status: VisitStatus;
@@ -143,7 +143,7 @@ export type EstimateOption = {
 
 export type Estimate = {
   id: string;
-  account_id: string;
+  company_id: string;
   client_id: string;
   job_id?: string | null;
   property_id?: string | null;
@@ -204,7 +204,7 @@ export type InvoiceLineItem = {
 
 export type Invoice = {
   id: string;
-  account_id: string;
+  company_id: string;
   client_id: string;
   job_id?: string | null;
   estimate_id?: string | null;
@@ -231,7 +231,7 @@ export type Invoice = {
 
 export type Payment = {
   id: string;
-  account_id: string;
+  company_id: string;
   invoice_id: string;
   amount_cents: number;
   method: PaymentMethod;
@@ -245,7 +245,7 @@ export type Payment = {
 
 export type Automation = {
   id: string;
-  account_id: string;
+  company_id: string;
   type: AutomationType;
   enabled: boolean;
   config: Record<string, unknown>;
@@ -259,7 +259,7 @@ export type Automation = {
 
 export type AuditLog = {
   id: string;
-  account_id: string;
+  company_id: string;
   entity_type: string;
   entity_id: string;
   action: AuditAction;
@@ -271,7 +271,7 @@ export type AuditLog = {
 
 export type PeriodClose = {
   id: string;
-  account_id: string;
+  company_id: string;
   period_month: string;
   closed_by: string;
   closed_at: string;
@@ -307,7 +307,7 @@ export type DocumentLinkEntityType =
 
 export type DocumentLink = {
   id: string;
-  account_id: string;
+  company_id: string;
   entity_type: DocumentLinkEntityType;
   entity_id: string;
   paperless_doc_id: number;
@@ -325,7 +325,7 @@ export type AssetLinkStatus = "planned" | "on_site" | "returned";
 
 export type AssetLink = {
   id: string;
-  account_id: string;
+  company_id: string;
   entity_type: AssetLinkEntityType;
   entity_id: string;
   homebox_item_id: string;

@@ -31,7 +31,7 @@ vi.mock("@/lib/portal/guard", () => ({
   requirePortalClient: async () => ({
     client: {
       id: CLIENT,
-      account_id: ACCOUNT,
+      company_id: ACCOUNT,
       name: "Pat Portal",
       email: "old@example.com",
       phone: null,

@@ -52,7 +52,7 @@ export const DELETE = withRole(
         await deleteDocumentLink(client, session.accountId, id);
 
         await appendAuditLog(client, {
-          account_id: session.accountId,
+          company_id: session.accountId,
           entity_type: "document_link",
           entity_id: id,
           action: "delete",

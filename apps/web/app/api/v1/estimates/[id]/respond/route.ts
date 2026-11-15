@@ -82,7 +82,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     );
 
     if (rows.length > 0) {
-      const { company_id: account_id } = rows[0];
+      const { company_id: company_id } = rows[0];
       const eventType = action === "approve" ? "estimate.approved" : "estimate.declined";
 
       // Audit log + workflow event (non-critical)
@@ -92,14 +92,14 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
              (company_id, entity_type, entity_id, action, actor_id, old_value, new_value)
            VALUES ($1, 'estimate', $2, 'update', NULL, $3, $4)`,
           [
-            account_id,
+            company_id,
             id,
             JSON.stringify({ status: "draft_or_sent" }),
             JSON.stringify({ status: newStatus, responded_at: new Date().toISOString(), via: "email_link" }),
           ]
         ),
         writeWorkflowEvent(client, {
-          accountId: account_id,
+          accountId: company_id,
           eventType,
           entityType: "estimate",
           entityId: id,
@@ -108,7 +108,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
       const { emitAttentionEvent } = await import("@/lib/attention");
       await emitAttentionEvent(client, {
-        accountId: account_id,
+        accountId: company_id,
         type: action === "approve" ? "estimate.approved" : "estimate.declined",
         entityType: "estimate",
         entityId: id,
@@ -121,20 +121,20 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       // admin paths. Uses savepoints so artifact failures never block the
       // customer's approval confirmation.
       if (action === "approve") {
-        const ownerId = await getAccountOwnerUserId(client, account_id);
+        const ownerId = await getAccountOwnerUserId(client, company_id);
         if (ownerId) {
           // Set RLS session context so INSERT policies on jobs/invoices pass.
           await client.query(
             `SELECT set_config('app.current_user_id', $1, true),
                     set_config('app.current_account_id', $2, true),
                     set_config('app.current_role', 'owner', true)`,
-            [ownerId, account_id]
+            [ownerId, company_id]
           );
 
           // Auto-create or link job (non-fatal). CLIENT_RECENT_WORK skips spawn.
           await client.query("SAVEPOINT before_auto_job");
           try {
-            await createJobFromEstimate({ client, estimateId: id, accountId: account_id, createdBy: ownerId });
+            await createJobFromEstimate({ client, estimateId: id, accountId: company_id, createdBy: ownerId });
             await client.query("RELEASE SAVEPOINT before_auto_job");
           } catch (jobErr) {
             await client.query("ROLLBACK TO SAVEPOINT before_auto_job");
@@ -153,7 +153,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
           // Create deposit invoice + action item (non-fatal)
           await client.query("SAVEPOINT before_artifacts");
           try {
-            await createApprovalArtifacts(client, { estimateId: id, accountId: account_id, userId: ownerId });
+            await createApprovalArtifacts(client, { estimateId: id, accountId: company_id, userId: ownerId });
             await client.query("RELEASE SAVEPOINT before_artifacts");
           } catch (artifactErr) {
             await client.query("ROLLBACK TO SAVEPOINT before_artifacts");
@@ -163,7 +163,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
           // Won: convert linked booking request
           await advanceBookingRequestForEstimate(client, {
-            accountId: account_id,
+            accountId: company_id,
             estimateId: id,
             target: "converted",
             actorId: ownerId,
@@ -174,7 +174,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         }
       } else if (action === "decline") {
         await advanceBookingRequestForEstimate(client, {
-          accountId: account_id,
+          accountId: company_id,
           estimateId: id,
           target: "lost",
           closedReason: "estimate_declined",

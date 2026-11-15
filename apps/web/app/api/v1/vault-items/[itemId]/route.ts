@@ -92,7 +92,7 @@ export const PATCH = withAuth(
       );
 
       await appendAuditLog(client, {
-        account_id: session.accountId, entity_type: "vault_item", entity_id: id,
+        company_id: session.accountId, entity_type: "vault_item", entity_id: id,
         action: "update", actor_id: session.userId, trace_id: session.traceId,
         old_value: old, new_value: rows[0],
       });
@@ -139,7 +139,7 @@ export const DELETE = withAuth(
       await client.query(`DELETE FROM property_vault_items WHERE id = $1`, [id]);
 
       await appendAuditLog(client, {
-        account_id: session.accountId, entity_type: "vault_item", entity_id: id,
+        company_id: session.accountId, entity_type: "vault_item", entity_id: id,
         action: "delete", actor_id: session.userId, trace_id: session.traceId,
         old_value: existing.rows[0],
       });

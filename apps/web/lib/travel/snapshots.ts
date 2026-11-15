@@ -10,7 +10,7 @@ import {
 
 export interface TravelSnapshotRow {
   id: string;
-  account_id: string;
+  company_id: string;
   origin_address: string;
   destination_address: string;
   one_way_miles: number;
@@ -53,7 +53,7 @@ export interface TravelSnapshotRow {
 }
 
 export interface InsertSnapshotInput {
-  account_id: string;
+  company_id: string;
   origin_address: string;
   destination_address: string;
   result: TravelCalculationResult;
@@ -81,7 +81,7 @@ export async function insertTravelSnapshot(
   const kind = input.kind ?? "estimate";
   const q = await client.query<TravelSnapshotRow>(
     `INSERT INTO travel_calculation_snapshots (
-       account_id, origin_address, destination_address,
+       company_id, origin_address, destination_address,
        one_way_miles, round_trip_miles, one_way_minutes, round_trip_minutes,
        total_miles, total_minutes, included_miles, billable_miles,
        mileage_rate_cents, mileage_charge_cents,
@@ -113,7 +113,7 @@ export async function insertTravelSnapshot(
      )
      RETURNING *`,
     [
-      input.account_id,
+      input.company_id,
       input.origin_address,
       input.destination_address,
       r.one_way_miles,

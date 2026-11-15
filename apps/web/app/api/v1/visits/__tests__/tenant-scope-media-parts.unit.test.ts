@@ -145,7 +145,7 @@ describe("tenant scoping: visit media and parts routes", () => {
     mockClientQuery.mockResolvedValueOnce({
       rows: [{
         id: VISIT_ID,
-        account_id: mockSession.accountId,
+        company_id: mockSession.accountId,
         status: "scheduled",
         scheduled_start: new Date().toISOString(),
         scheduled_end: new Date().toISOString(),
@@ -170,7 +170,7 @@ describe("tenant scoping: visit media and parts routes", () => {
     expect(mockClientQuery.mock.calls[0][1]).toContain(mockSession.accountId);
     expect(mockAppendAuditLog).toHaveBeenCalledWith(
       expect.objectContaining({ query: mockClientQuery }),
-      expect.objectContaining({ account_id: mockSession.accountId, entity_type: "on_my_way" }),
+      expect.objectContaining({ company_id: mockSession.accountId, entity_type: "on_my_way" }),
     );
   });
 });

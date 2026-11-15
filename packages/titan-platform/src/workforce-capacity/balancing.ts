@@ -38,6 +38,18 @@ function utilization(model: CapacitySubjectModel): number {
   return Math.max(...values);
 }
 
+// Utilization of a target if `extra` more work items were added on top of its
+// current committed concurrency. Other budget dimensions are not projected.
+function projectedUtilization(model: CapacitySubjectModel, extra: number): number {
+  const limit = model.concurrency.limit;
+  const others = [model.time_budget.utilization, model.cost_budget.utilization]
+    .filter((value): value is number => value != null && Number.isFinite(value));
+  if (limit == null) return utilization(model);
+  if (limit === 0) return 1;
+  const concurrent = (model.concurrency.committed + extra) / limit;
+  return Math.max(concurrent, ...others);
+}
+
 function qualityScore(subjectId: string, scores: Record<string, number | null | undefined>): number {
   const n = Number(scores[subjectId]);
   return Number.isFinite(n) ? Math.max(0, Math.min(1, n)) : 0.5;
@@ -80,6 +92,9 @@ export function buildSupervisorBalancingPlan(input: SupervisorBalancingInput) {
 
   const proposals: Array<Record<string, unknown>> = [];
   const skipped: Array<Record<string, unknown>> = [];
+  // Work already proposed to each target in this plan, so later proposals see
+  // the load they add and do not all land on the same lowest-utilization worker.
+  const projectedAdded = new Map<string, number>();
 
   const work = [...(Array.isArray(input.work) ? input.work : [])].sort((a, b) => {
     const priorityDelta = bounded(b.priority_score, 0, 100, 0) - bounded(a.priority_score, 0, 100, 0);
@@ -116,12 +131,17 @@ export function buildSupervisorBalancingPlan(input: SupervisorBalancingInput) {
       .filter((candidate) => candidate.subject_id !== source.subject_id)
       .filter((candidate) => !scope.size || scope.has(candidate.subject_id))
       .filter(eligibleTarget)
-      .map((candidate) => ({
-        candidate,
-        utilization: utilization(candidate),
-        quality: qualityScore(candidate.subject_id, quality_scores),
-      }))
+      .map((candidate) => {
+        const added = projectedAdded.get(candidate.subject_id) ?? 0;
+        return {
+          candidate,
+          utilization: projectedUtilization(candidate, added),
+          utilization_after_move: projectedUtilization(candidate, added + 1),
+          quality: qualityScore(candidate.subject_id, quality_scores),
+        };
+      })
       .filter(({ utilization: candidateUtilization }) => candidateUtilization < sourceUtilization)
+      .filter(({ utilization_after_move }) => utilization_after_move <= 1)
       .sort((a, b) => {
         if (a.utilization !== b.utilization) return a.utilization - b.utilization;
         if (a.quality !== b.quality) return b.quality - a.quality;
@@ -133,6 +153,7 @@ export function buildSupervisorBalancingPlan(input: SupervisorBalancingInput) {
       skipped.push({ work_id, reason: 'NO_ELIGIBLE_LOWER_LOAD_TARGET' });
       continue;
     }
+    projectedAdded.set(target.candidate.subject_id, (projectedAdded.get(target.candidate.subject_id) ?? 0) + 1);
 
     const reasons = [...source.blockers];
     if (source.concurrency.queued > 0) reasons.push('QUEUE_PRESSURE');
@@ -148,6 +169,7 @@ export function buildSupervisorBalancingPlan(input: SupervisorBalancingInput) {
       source_utilization: Number(sourceUtilization.toFixed(4)),
       target_state: target.candidate.state,
       target_utilization: Number(target.utilization.toFixed(4)),
+      projected_target_utilization_after_move: Number(target.utilization_after_move.toFixed(4)),
       target_quality_score: target.quality,
       reasons: unique(reasons),
       source_refs: unique(item.source_refs),
@@ -166,6 +188,7 @@ export function buildSupervisorBalancingPlan(input: SupervisorBalancingInput) {
     company_id,
     supervisor_id: supervisor.subject_id,
     supervisor_scope: [...scope].sort(),
+    projected_load_accounting: true,
     proposals,
     skipped,
     summary: {

@@ -7,7 +7,6 @@ import { PRIORITY } from "./notification/priority.js";
 
 interface InactiveClient {
   id: string;
-  account_id: string;
   company_id: string;
   name: string | null;
   email: string;
@@ -16,7 +15,7 @@ interface InactiveClient {
 
 export async function findDueClientReactivations(client: Client): Promise<AutomationRow[]> {
   const { rows } = await client.query<AutomationRow>(
-    `SELECT id, account_id, company_id, type, config, enabled, next_run_at::text
+    `SELECT id, company_id, company_id, type, config, enabled, next_run_at::text
      FROM automations
      WHERE type = 'client_reactivation'
        AND enabled = true
@@ -33,7 +32,7 @@ export async function findInactiveClients(
   const year = new Date().getFullYear();
 
   const { rows } = await client.query<InactiveClient>(
-    `SELECT c.id, c.account_id, c.company_id, c.name,
+    `SELECT c.id, c.company_id, c.company_id, c.name,
             c.email,
             EXTRACT(MONTH FROM (now() - MAX(j.updated_at)))::int AS months_since_last_job
      FROM clients c
@@ -47,7 +46,7 @@ export async function findInactiveClients(
            AND al.company_id = c.company_id
            AND (al.new_value->>'year')::int = $3
        )
-     GROUP BY c.id, c.account_id, c.name, c.email
+     GROUP BY c.id, c.company_id, c.name, c.email
      HAVING MAX(j.updated_at) < now() - ($2 || ' days')::interval
          OR MAX(j.updated_at) IS NULL
      ORDER BY MAX(j.updated_at) ASC NULLS FIRST
@@ -79,7 +78,7 @@ async function emitClientReactivation(
   if (inactive.name) {
     const months = Math.max(1, inactive.months_since_last_job);
     const enqueueResult = await enqueueNotification(client, {
-      accountId: inactive.account_id,
+      accountId: inactive.company_id,
       clientId: inactive.id,
       automationType: "client_reactivation",
       priority: PRIORITY.LOW,
@@ -102,10 +101,10 @@ async function emitClientReactivation(
 
   await client.query(
     `INSERT INTO audit_log
-       (account_id, entity_type, entity_id, action, actor_id, old_value, new_value)
+       (company_id, entity_type, entity_id, action, actor_id, old_value, new_value)
      VALUES ($1, 'client_reactivation', $2, 'insert', $3, NULL, $4)`,
     [
-      inactive.account_id,
+      inactive.company_id,
       inactive.id,
       automationId,
       JSON.stringify({
@@ -126,7 +125,7 @@ export async function processClientReactivation(
 ): Promise<RunResult> {
   const result: RunResult = {
     automationId: automation.id,
-    accountId: automation.account_id,
+    accountId: automation.company_id,
     sent: 0,
     skipped: 0,
     errors: 0,

@@ -64,12 +64,12 @@ export async function POST(request: NextRequest) {
   // Bootstrap: resolves the account and signing key from the location id before
   // any account context exists. Goes through a bounded resolver (migration 204).
   const settingsRow = await pool.query<{
-    account_id: string;
+    company_id: string;
     enabled: boolean;
     secrets: Buffer | null;
     webhook_url: string | null;
   }>(
-    `SELECT account_id, enabled, secrets, webhook_url
+    `SELECT company_id, enabled, secrets, webhook_url
      FROM resolve_square_location_settings($1)`,
     [locationId]
   );
@@ -77,13 +77,13 @@ export async function POST(request: NextRequest) {
     logger.error("Square webhook: no account for location", { locationId });
     return NextResponse.json({ received: true });
   }
-  const { account_id, secrets, webhook_url } = settingsRow.rows[0];
+  const { company_id, secrets, webhook_url } = settingsRow.rows[0];
   const decrypted: SquareSecrets = secrets
     ? decryptJson<SquareSecrets>(secrets)
     : { accessToken: null, webhookSignatureKey: null };
 
   if (!decrypted.webhookSignatureKey) {
-    logger.error("Square webhook: no signature key configured", { account_id });
+    logger.error("Square webhook: no signature key configured", { company_id });
     return NextResponse.json({ error: "Webhook not configured" }, { status: 400 });
   }
 
@@ -98,7 +98,7 @@ export async function POST(request: NextRequest) {
     notificationUrl,
   });
   if (!valid) {
-    logger.error("Square webhook: signature verification failed", { account_id });
+    logger.error("Square webhook: signature verification failed", { company_id });
     return NextResponse.json({ error: "Invalid signature" }, { status: 400 });
   }
 
@@ -109,9 +109,9 @@ export async function POST(request: NextRequest) {
 
   try {
     if (isPaymentEvent && payment?.status === "COMPLETED" && payment.id) {
-      await handleCompletedPayment(pool, account_id, payment);
+      await handleCompletedPayment(pool, company_id, payment);
     } else if (isRefundEvent && refund?.status === "COMPLETED" && refund.id) {
-      await handleCompletedRefund(pool, account_id, refund);
+      await handleCompletedRefund(pool, company_id, refund);
     }
   } catch (err) {
     logger.error("Square webhook: failed to process event", err);
@@ -386,12 +386,12 @@ async function handleCompletedRefund(
     // (refund.payment_id); fall back to matching the invoice by order id.
     const orig = await client.query<{
       invoice_id: string;
-      account_id: string;
+      company_id: string;
       client_id: string | null;
       job_id: string | null;
       created_by: string;
     }>(
-      `SELECT p.invoice_id, p.account_id, p.customer_id AS client_id, p.job_id,
+      `SELECT p.invoice_id, p.company_id, p.customer_id AS client_id, p.job_id,
               i.created_by
        FROM payments p
        JOIN invoices i ON i.id = p.invoice_id
@@ -404,12 +404,12 @@ async function handleCompletedRefund(
     if (!target) {
       const inv = await client.query<{
         invoice_id: string;
-        account_id: string;
+        company_id: string;
         client_id: string;
         job_id: string | null;
         created_by: string;
       }>(
-        `SELECT id AS invoice_id, account_id, client_id, job_id, created_by
+        `SELECT id AS invoice_id, company_id, client_id, job_id, created_by
          FROM invoices
          WHERE company_id = $1 AND square_order_id = $2`,
         [accountId, refund.order_id ?? ""]
@@ -437,7 +437,7 @@ async function handleCompletedRefund(
          DO NOTHING
        RETURNING id`,
       [
-        target.account_id,
+        target.company_id,
         target.invoice_id,
         target.job_id,
         target.client_id,
@@ -455,7 +455,7 @@ async function handleCompletedRefund(
       `INSERT INTO workflow_events (company_id, event_type, entity_type, entity_id, payload)
        VALUES ($1, 'payment.recorded', 'payment', $2, $3)`,
       [
-        target.account_id,
+        target.company_id,
         ins.rows[0].id,
         JSON.stringify({
           invoiceId: target.invoice_id,

@@ -22,7 +22,7 @@ export async function createDefaultWorkOrderForJob({
   createdBy: string;
 }): Promise<string> {
   const { rows } = await client.query<{ id: string }>(
-    `INSERT INTO work_orders (account_id, client_id, job_id, title, scope, status, created_by)
+    `INSERT INTO work_orders (company_id, client_id, job_id, title, scope, status, created_by)
      VALUES ($1, $2, $3, $4, $5, 'ready', $6)
      RETURNING id`,
     [accountId, clientId, jobId, title, scope ?? null, createdBy],

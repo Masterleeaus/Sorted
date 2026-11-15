@@ -95,7 +95,7 @@ export async function upsertSegmentVisitCandidate(
 
   const { rows } = await client.query<{ id: string }>(
     `INSERT INTO visit_candidates
-       (account_id, location_segment_id, property_id, matched_client_id, job_id, visit_id,
+       (company_id, location_segment_id, property_id, matched_client_id, job_id, visit_id,
         confidence_score, arrival_time, departure_time, duration_minutes, status, source)
      VALUES ($1, $2, $3, $4, $5, $6, 100, $7, $8, $9, 'pending', 'manual')
      ON CONFLICT (location_segment_id) DO UPDATE SET

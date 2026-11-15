@@ -69,7 +69,7 @@ export const dynamic = "force-dynamic";
 
 interface InvoiceRow {
   id: string;
-  account_id: string;
+  company_id: string;
   client_id: string;
   job_id: string | null;
   estimate_id: string | null;

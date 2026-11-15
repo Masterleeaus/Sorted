@@ -39,27 +39,27 @@ describe.skipIf(!RUN)("completeAssessmentCascade (integration)", () => {
       [ACCOUNT],
     );
     await client.query(
-      `INSERT INTO users (id, account_id, email, full_name, password_hash, role)
+      `INSERT INTO users (id, company_id, email, full_name, password_hash, role)
        VALUES ($1, $2, 'cascade-owner@test.local', 'Cascade Owner', 'x', 'owner')
        ON CONFLICT (id) DO NOTHING`,
       [OWNER, ACCOUNT],
     );
 
     const c = await client.query<{ id: string }>(
-      `INSERT INTO clients (account_id, name) VALUES ($1,'cascade-test client') RETURNING id`,
+      `INSERT INTO clients (company_id, name) VALUES ($1,'cascade-test client') RETURNING id`,
       [ACCOUNT],
     );
     const clientId = c.rows[0].id;
 
     const job = await client.query<{ id: string }>(
-      `INSERT INTO jobs (account_id, client_id, title, status, job_type, created_by)
+      `INSERT INTO jobs (company_id, client_id, title, status, job_type, created_by)
        VALUES ($1,$2,'Cascade test project','draft','custom',$3) RETURNING id`,
       [ACCOUNT, clientId, OWNER],
     );
     jobId = job.rows[0].id;
 
     const visit = await client.query<{ id: string }>(
-      `INSERT INTO visits (account_id, job_id, scheduled_start, scheduled_end, visit_type, status)
+      `INSERT INTO visits (company_id, job_id, scheduled_start, scheduled_end, visit_type, status)
        VALUES ($1,$2, now(), now() + interval '1 hour', 'site_visit', 'in_progress')
        RETURNING id`,
       [ACCOUNT, jobId],
@@ -67,7 +67,7 @@ describe.skipIf(!RUN)("completeAssessmentCascade (integration)", () => {
     visitId = visit.rows[0].id;
 
     await client.query(
-      `INSERT INTO site_visit_assessments (visit_id, account_id, rooms, scope_notes, created_by)
+      `INSERT INTO site_visit_assessments (visit_id, company_id, rooms, scope_notes, created_by)
        VALUES ($1, $2, $3, 'Initial scope', $4)`,
       [
         visitId,
@@ -132,14 +132,14 @@ describe.skipIf(!RUN)("completeAssessmentCascade (integration)", () => {
     // The visits transition trigger forbids rewinding completed → scheduled,
     // so this pattern gets its own fresh scheduled visit.
     const fresh = await client.query<{ id: string }>(
-      `INSERT INTO visits (account_id, job_id, scheduled_start, scheduled_end, visit_type, status)
+      `INSERT INTO visits (company_id, job_id, scheduled_start, scheduled_end, visit_type, status)
        VALUES ($1,$2, now(), now() + interval '1 hour', 'site_visit', 'scheduled')
        RETURNING id`,
       [ACCOUNT, jobId],
     );
     const scheduledVisitId = fresh.rows[0].id;
     await client.query(
-      `INSERT INTO site_visit_assessments (visit_id, account_id, rooms, scope_notes, created_by)
+      `INSERT INTO site_visit_assessments (visit_id, company_id, rooms, scope_notes, created_by)
        VALUES ($1, $2, $3, 'Joseph pattern scope', $4)`,
       [
         scheduledVisitId,
@@ -215,27 +215,27 @@ describe.skipIf(!RUN)("sendEstimateCascade (integration)", () => {
       [ACCOUNT],
     );
     await client.query(
-      `INSERT INTO users (id, account_id, email, full_name, password_hash, role)
+      `INSERT INTO users (id, company_id, email, full_name, password_hash, role)
        VALUES ($1, $2, 'cascade-send-owner@test.local', 'Cascade Send Owner', 'x', 'owner')
        ON CONFLICT (id) DO NOTHING`,
       [OWNER, ACCOUNT],
     );
 
     const c = await client.query<{ id: string }>(
-      `INSERT INTO clients (account_id, name) VALUES ($1,'cascade-send client') RETURNING id`,
+      `INSERT INTO clients (company_id, name) VALUES ($1,'cascade-send client') RETURNING id`,
       [ACCOUNT],
     );
     const clientId = c.rows[0].id;
 
     const job = await client.query<{ id: string }>(
-      `INSERT INTO jobs (account_id, client_id, title, status, job_type, created_by)
+      `INSERT INTO jobs (company_id, client_id, title, status, job_type, created_by)
        VALUES ($1,$2,'Send cascade test project','draft','custom',$3) RETURNING id`,
       [ACCOUNT, clientId, OWNER],
     );
     jobId = job.rows[0].id;
 
     const estimate = await client.query<{ id: string }>(
-      `INSERT INTO estimates (account_id, client_id, job_id, status, subtotal_cents, total_cents, created_by)
+      `INSERT INTO estimates (company_id, client_id, job_id, status, subtotal_cents, total_cents, created_by)
        VALUES ($1,$2,$3,'draft',10000,10000,$4) RETURNING id`,
       [ACCOUNT, clientId, jobId, OWNER],
     );

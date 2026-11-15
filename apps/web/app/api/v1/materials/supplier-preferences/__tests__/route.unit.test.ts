@@ -54,7 +54,7 @@ describe("PUT /api/v1/materials/supplier-preferences", () => {
     }));
     expect(response.status).toBe(200);
     expect(mockClientQuery).toHaveBeenCalledWith(
-      expect.stringContaining("ON CONFLICT (account_id, supplier_normalized)"),
+      expect.stringContaining("ON CONFLICT (company_id, supplier_normalized)"),
       [mockSession.accountId, "Home Depot", "home depot", "Somerville", "75 Mystic Ave"],
     );
   });

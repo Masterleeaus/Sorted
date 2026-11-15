@@ -305,7 +305,7 @@ export async function seedChecklistItems(
 
   await client.query(
     `INSERT INTO visit_checklist_items
-       (account_id, visit_id, section, item_key, label, sort_order)
+       (company_id, visit_id, section, item_key, label, sort_order)
      VALUES ${placeholders.join(", ")}
      ON CONFLICT (visit_id, item_key) DO NOTHING`,
     values
@@ -367,7 +367,7 @@ export async function getOrSeedChecklist(
   }
 
   const { rows } = await client.query<VisitChecklistItem>(
-    `SELECT id, account_id, visit_id, section, item_key, label,
+    `SELECT id, company_id, visit_id, section, item_key, label,
             disposition, note, sort_order, created_at, updated_at
      FROM visit_checklist_items
      WHERE visit_id = $1 AND company_id = $2
@@ -412,7 +412,7 @@ export async function updateChecklistItem(
     `UPDATE visit_checklist_items
      SET ${fields.join(", ")}, updated_at = now()
      WHERE id = $1 AND visit_id = $2 AND company_id = $3
-     RETURNING id, account_id, visit_id, section, item_key, label,
+     RETURNING id, company_id, visit_id, section, item_key, label,
                disposition, note, sort_order, created_at, updated_at`,
     values
   );

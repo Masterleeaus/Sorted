@@ -160,10 +160,10 @@ export async function POST(
   // Load the invite (only unused, non-expired). This read is not a claim: it
   // only resolves the account for RLS context. The claim below decides.
   const { rows: inviteRows } = await pool.query<{
-    id: string; account_id: string; booking_request_id: string | null;
+    id: string; company_id: string; booking_request_id: string | null;
     lead_name: string; lead_email: string;
   }>(
-    `SELECT id, account_id, booking_request_id, lead_name, lead_email
+    `SELECT id, company_id, booking_request_id, lead_name, lead_email
      FROM resolve_open_intake_invite($1::uuid)`,
     [token]
   );
@@ -183,7 +183,7 @@ export async function POST(
     await client.query(
       `SELECT set_config('app.current_account_id', $1, true),
               set_config('app.current_role', 'owner', true)`,
-      [invite.account_id]
+      [invite.company_id]
     );
 
     // Atomic claim. Concurrent submissions block on the row lock; once the
@@ -224,7 +224,7 @@ export async function POST(
       await client.query(
         `UPDATE intake_media SET booking_request_id = $1
          WHERE intake_invite_id = $2 AND company_id = $3`,
-        [invite.booking_request_id, invite.id, invite.account_id]
+        [invite.booking_request_id, invite.id, invite.company_id]
       );
 
       // Update the existing booking request
@@ -276,7 +276,7 @@ export async function POST(
     logger.info("intake submit: client completed intake form", {
       inviteId: invite.id,
       bookingRequestId: invite.booking_request_id,
-      accountId: invite.account_id,
+      accountId: invite.company_id,
       routingPath: score.path,
       score: score.score,
     });

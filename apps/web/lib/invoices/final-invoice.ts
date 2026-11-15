@@ -416,7 +416,7 @@ export async function createDraftFinalInvoiceForJob(
 
   const invoiceRes = await client.query<{ id: string }>(
     `INSERT INTO invoices
-       (account_id, client_id, job_id, estimate_id, property_id,
+       (company_id, client_id, job_id, estimate_id, property_id,
         status, invoice_kind, invoice_number,
         subtotal_cents, tax_cents, total_cents, paid_cents, deposit_cents,
         notes, due_date, created_by, travel_snapshot_id, travel_billing_mode)
@@ -588,7 +588,7 @@ export async function createDraftFinalInvoiceForJob(
 
   // ── Audit log ────────────────────────────────────────────────────────────
   await appendAuditLog(client, {
-    account_id: accountId,
+    company_id: accountId,
     entity_type: "invoice",
     entity_id: invoiceId,
     action: "insert",

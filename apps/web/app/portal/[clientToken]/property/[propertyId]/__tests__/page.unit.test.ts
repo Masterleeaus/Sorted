@@ -39,7 +39,7 @@ vi.mock("next/navigation", () => ({
 
 vi.mock("@/lib/db", () => ({
   queryOne: async (sql: string) => {
-    if (sql.includes("resolve_portal_client_account")) return { account_id: state.resolvedAccount };
+    if (sql.includes("resolve_portal_client_account")) return { company_id: state.resolvedAccount };
     throw new Error(`unexpected queryOne: ${sql}`);
   },
   query: async () => {
@@ -75,7 +75,7 @@ const run = () =>
 
 beforeEach(() => {
   state.resolvedAccount = ACCOUNT;
-  state.client = { id: CLIENT, name: "Pat Portal", account_id: ACCOUNT, account_name: "Dovetails" };
+  state.client = { id: CLIENT, name: "Pat Portal", company_id: ACCOUNT, account_name: "Dovetails" };
   state.property = { id: PROPERTY, name: null, address: "1 Main St", city: null, state: null, zip: null };
   state.session = { clientId: CLIENT, isPreview: false };
   state.contexts = [];

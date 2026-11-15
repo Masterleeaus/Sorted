@@ -15,7 +15,7 @@ export const metadata: Metadata = {
 
 interface ReportView extends Record<string, unknown> {
   id: string;
-  account_id: string;
+  company_id: string;
   client_id: string;
   title: string;
   summary: string;
@@ -37,7 +37,7 @@ export default async function JobReportPage({ params }: { params: Promise<{ toke
   // Staff/preview checks use their own connections — resolve them first.
   const loaded = await withPublishedReport(token, async (db, accountId) => {
       const { rows } = await db.query<ReportView>(
-        `SELECT r.id::text, r.account_id::text, r.client_id::text, r.title, r.summary, r.area, r.work_type,
+        `SELECT r.id::text, r.company_id::text, r.client_id::text, r.title, r.summary, r.area, r.work_type,
                 r.media_ids::text[] AS media_ids, r.records, r.published_at, p.address, a.name AS business,
                 (SELECT max(v.completed_at) FROM visits v WHERE v.job_id = r.job_id)::text AS finished_at
          FROM portal_job_updates r

@@ -270,7 +270,7 @@ export async function insertBuyListLines(
   for (const line of lines) {
     await client.query(
       `INSERT INTO job_material_lines
-         (account_id, job_id, name, quantity, unit_label, store_section,
+         (company_id, job_id, name, quantity, unit_label, store_section,
           status, source, catalog_material_id, sku, notes, sort_order,
           supplier, aisle, bay)
        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15)`,

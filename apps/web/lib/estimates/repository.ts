@@ -205,7 +205,7 @@ export async function updateEstimateById(
         [patch.internal_notes, id]
       );
       await appendAuditLog(client, {
-        account_id: session.accountId,
+        company_id: session.accountId,
         entity_type: "estimate",
         entity_id: id,
         action: "update",
@@ -481,7 +481,7 @@ export async function updateEstimateById(
   }
 
   await appendAuditLog(client, {
-    account_id: session.accountId,
+    company_id: session.accountId,
     entity_type: "estimate",
     entity_id: id,
     action: "update",
@@ -544,7 +544,7 @@ export async function deleteEstimateById(
   await client.query(`DELETE FROM estimates WHERE id = $1`, [id]);
 
   await appendAuditLog(client, {
-    account_id: session.accountId,
+    company_id: session.accountId,
     entity_type: "estimate",
     entity_id: id,
     action: "delete",

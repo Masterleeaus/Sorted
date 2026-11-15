@@ -18,11 +18,11 @@ export async function POST(req: NextRequest) {
   const row = accountId
     ? await withTokenAccountContext(accountId, async (tx) => {
         const { rows } = await tx.query<{
-          account_id: string;
+          company_id: string;
           suppress_weekend_start_prompt: boolean;
           has_open_mileage_today: boolean;
         }>(
-          `SELECT a.id AS account_id,
+          `SELECT a.id AS company_id,
                   a.suppress_weekend_start_prompt,
                   EXISTS (
                     SELECT 1 FROM vehicle_sessions vs
@@ -54,7 +54,7 @@ export async function POST(req: NextRequest) {
   }
 
   // Native Web Push (TASK-116). sendPushToOwners never throws; HA JSON is unchanged.
-  await sendPushToOwners(row.account_id, {
+  await sendPushToOwners(row.company_id, {
     title: "Start your day?",
     body: "RAM connected — tap to open Today.",
     url: "/app/my-work",

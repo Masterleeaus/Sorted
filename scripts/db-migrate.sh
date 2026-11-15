@@ -24,7 +24,7 @@ psql_cmd() {
     echo "psql is required (or Docker with postgres:16 as client)" >&2
     return 1
   fi
-  docker run --rm -i --network host -v "${REPO_ROOT}:${REPO_ROOT}" -w "${REPO_ROOT}" postgres:16 \
+  docker run --rm -i --network host -e PGPASSWORD -v "${REPO_ROOT}:${REPO_ROOT}" -w "${REPO_ROOT}" postgres:16 \
     psql "$DATABASE_URL" "$@"
 }
 

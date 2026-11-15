@@ -18,7 +18,7 @@
 -- Operator runs manually — review Step 1 before uncommenting BEGIN/COMMIT:
 --   psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f db/scripts/repair-stuck-site-visits.sql
 --
--- Recommended: add AND visits.account_id = '<main-account-uuid>' to both queries
+-- Recommended: add AND visits.company_id = '<main-account-uuid>' to both queries
 -- before running in production. After repair, create/send estimates for affected
 -- jobs if still missing.
 -- ============================================================================
@@ -28,7 +28,7 @@
 -- ----------------------------------------------------------------------------
 SELECT
   v.id              AS visit_id,
-  v.account_id,
+  v.company_id,
   v.job_id,
   v.status          AS visit_status,
   v.completed_at    AS visit_completed_at,
@@ -40,7 +40,7 @@ LEFT JOIN jobs j ON j.id = v.job_id
 WHERE v.visit_type = 'site_visit'
   AND v.status NOT IN ('completed', 'cancelled')
   AND sva.completed_at IS NOT NULL
-ORDER BY v.account_id, sva.completed_at;
+ORDER BY v.company_id, sva.completed_at;
 
 -- ----------------------------------------------------------------------------
 -- Step 2: Repair — complete visits whose assessments are already done
@@ -58,7 +58,7 @@ WHERE visits.id = sva.visit_id
   AND visits.visit_type = 'site_visit'
   AND visits.status NOT IN ('completed', 'cancelled')
   AND sva.completed_at IS NOT NULL;
-  -- Optional: AND visits.account_id = '<your-main-account-uuid>';
+  -- Optional: AND visits.company_id = '<your-main-account-uuid>';
 
 -- COMMIT;
 -- ROLLBACK;  -- use instead of COMMIT if preview looks wrong

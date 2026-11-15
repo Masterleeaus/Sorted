@@ -12,8 +12,8 @@ export async function GET(
 ) {
   const { token } = await params;
 
-  const row = await queryOne<{ account_id: string; settings: CompanyProfileSettings }>(
-    `SELECT i.account_id, a.settings
+  const row = await queryOne<{ company_id: string; settings: CompanyProfileSettings }>(
+    `SELECT i.company_id, a.settings
      FROM invoices i
      JOIN accounts a ON a.id = i.company_id
      WHERE i.share_token = $1`,
@@ -23,7 +23,7 @@ export async function GET(
     return new NextResponse(null, { status: 404 });
   }
 
-  const filePath = path.join(accountLogoDir(row.account_id), path.basename(row.settings.logo_filename));
+  const filePath = path.join(accountLogoDir(row.company_id), path.basename(row.settings.logo_filename));
   if (!fs.existsSync(filePath)) {
     return new NextResponse(null, { status: 404 });
   }

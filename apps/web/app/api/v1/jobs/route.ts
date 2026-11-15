@@ -117,7 +117,7 @@ export const POST = withRole(
       const job = rows[0];
 
       await appendAuditLog(client, {
-        account_id: session.accountId,
+        company_id: session.accountId,
         entity_type: "job",
         entity_id: job.id,
         action: "insert",

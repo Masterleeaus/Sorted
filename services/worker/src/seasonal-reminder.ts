@@ -15,7 +15,6 @@ const SEASON_MONTHS: Record<Season, number[]> = {
 
 interface SeasonalClient {
   id: string;
-  account_id: string;
   company_id: string;
   name: string | null;
   email: string;
@@ -51,7 +50,7 @@ async function findDueSeasonalRemindersForType(
   type: string
 ): Promise<AutomationRow[]> {
   const { rows } = await client.query<AutomationRow>(
-    `SELECT id, account_id, company_id, type, config, enabled, next_run_at::text
+    `SELECT id, company_id, company_id, type, config, enabled, next_run_at::text
      FROM automations
      WHERE type = $1
        AND enabled = true
@@ -69,7 +68,7 @@ async function findEligibleSeasonalClients(
   const auditEntityType = automation.type; // 'seasonal_reminder_spring' or 'seasonal_reminder_fall'
 
   const { rows } = await client.query<SeasonalClient>(
-    `SELECT c.id, c.account_id, c.company_id, c.name, c.email
+    `SELECT c.id, c.company_id, c.company_id, c.name, c.email
      FROM clients c
      WHERE c.company_id = $1
        AND c.email IS NOT NULL
@@ -109,7 +108,7 @@ async function emitSeasonalReminder(
 
   if (seasonClient.name) {
     const enqueueResult = await enqueueNotification(client, {
-      accountId: seasonClient.account_id,
+      accountId: seasonClient.company_id,
       clientId: seasonClient.id,
       automationType: automation.type,
       priority: PRIORITY.LOW,
@@ -134,10 +133,10 @@ async function emitSeasonalReminder(
 
   await client.query(
     `INSERT INTO audit_log
-       (account_id, entity_type, entity_id, action, actor_id, old_value, new_value)
+       (company_id, entity_type, entity_id, action, actor_id, old_value, new_value)
      VALUES ($1, $2, $3, 'insert', $4, NULL, $5)`,
     [
-      seasonClient.account_id,
+      seasonClient.company_id,
       automation.type,
       seasonClient.id,
       automation.id,
@@ -159,7 +158,7 @@ export async function processSeasonalReminder(
 ): Promise<RunResult> {
   const result: RunResult = {
     automationId: automation.id,
-    accountId: automation.account_id,
+    accountId: automation.company_id,
     sent: 0,
     skipped: 0,
     errors: 0,

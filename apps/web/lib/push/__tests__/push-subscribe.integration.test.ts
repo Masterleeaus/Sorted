@@ -51,7 +51,7 @@ describe.skipIf(!RUN_INTEGRATION)("web push subscribe/unsubscribe", () => {
     withDirectDb(async (c) => {
       const { rows } = await c.query(
         `SELECT COUNT(*)::int AS n FROM push_subscriptions
-          WHERE account_id = $1 AND user_id = $2 AND endpoint = $3`,
+          WHERE company_id = $1 AND user_id = $2 AND endpoint = $3`,
         [SEED_ACCOUNT, SEED_OWNER, endpoint],
       );
       return rows[0].n as number;

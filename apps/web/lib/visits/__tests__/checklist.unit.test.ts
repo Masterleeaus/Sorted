@@ -239,7 +239,7 @@ describe("getOrSeedChecklist", () => {
       disposition: null,
       note: null,
       sort_order: 0,
-      account_id: ACCOUNT_ID,
+      company_id: ACCOUNT_ID,
       visit_id: VISIT_ID,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),

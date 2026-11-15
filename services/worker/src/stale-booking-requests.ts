@@ -15,7 +15,7 @@ export async function closeStaleBookingRequests(
   client: Client
 ): Promise<StaleBookingRequestsResult> {
   try {
-    const result = await client.query<{ id: string; account_id: string }>(
+    const result = await client.query<{ id: string; company_id: string }>(
       `UPDATE booking_requests
        SET status = 'lost',
            closed_reason = 'stale',
@@ -23,7 +23,7 @@ export async function closeStaleBookingRequests(
            updated_at = now()
        WHERE status IN ('pending', 'needs_info', 'reviewed', 'assessment_booked', 'estimated')
          AND updated_at < now() - interval '60 days'
-       RETURNING id, account_id`
+       RETURNING id, company_id`
     );
 
     const closed = result.rowCount ?? 0;
@@ -38,9 +38,9 @@ export async function closeStaleBookingRequests(
         try {
           await client.query(
             `INSERT INTO status_history
-               (account_id, entity_type, entity_id, from_status, to_status, changed_by, note)
+               (company_id, entity_type, entity_id, from_status, to_status, changed_by, note)
              VALUES ($1, 'booking_request', $2, NULL, 'lost', NULL, 'closed_reason=stale')`,
-            [row.account_id, row.id]
+            [row.company_id, row.id]
           );
         } catch {
           /* ignore history failures */

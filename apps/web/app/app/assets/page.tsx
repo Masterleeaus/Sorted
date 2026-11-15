@@ -58,7 +58,7 @@ export default async function AssetsPage() {
           <span className="tg-kicker">ASSETS & SUPPLY</span>
           <h2>Know what is allocated, where it is, and which work depends on it.</h2>
           <p>
-            Titan Field keeps equipment links attached to Jobs and Visits so custody and readiness stay traceable through execution and evidence.
+            Sorted Field keeps equipment links attached to Jobs and Visits so custody and readiness stay traceable through execution and evidence.
           </p>
         </div>
         <div className="tg-assets-metrics">

@@ -98,7 +98,7 @@ describe("createFuelLogWithExpense", () => {
     expect(expenseIdx).toBeLessThan(fuelIdx);
 
     const expenseCall = calls[expenseIdx];
-    // account_id, vendor, category, amount, date, notes, created_by, vehicle_id
+    // company_id, vendor, category, amount, date, notes, created_by, vehicle_id
     expect(expenseCall.params[0]).toBe(ACCOUNT_ID);
     expect(expenseCall.params[1]).toBe("Shell");
     expect(expenseCall.params[2]).toBe("vehicle_fuel");

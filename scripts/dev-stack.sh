@@ -24,7 +24,10 @@ cd "$(dirname "$0")/.."
 # prod/remote URL in the environment must not be able to migrate or seed it.
 # (Constructed from 127.0.0.1, so it can only ever reach the local container.)
 DEV_DB_PORT="${POSTGRES_PORT:-5432}"
-export DATABASE_URL="postgresql://ai_fsm:ai_fsm_dev_password@127.0.0.1:${DEV_DB_PORT}/ai_fsm"
+: "${DEV_DB_PASSWORD:?Set DEV_DB_PASSWORD to the local dev Postgres password (the POSTGRES_PASSWORD used by infra/compose.dev.yml)}"
+# The password travels in PGPASSWORD, not in the URL, so it never lands in logs.
+export PGPASSWORD="$DEV_DB_PASSWORD"
+export DATABASE_URL="postgresql://ai_fsm@127.0.0.1:${DEV_DB_PORT}/ai_fsm"
 export MIGRATION_DATABASE_URL="$DATABASE_URL"
 COMPOSE=(docker compose -f infra/compose.dev.yml)
 
@@ -44,7 +47,7 @@ up() {
   wait_for_pg
   pnpm db:migrate
   pnpm db:seed
-  echo "✓ dev stack up + migrated + seeded  (DATABASE_URL=$DATABASE_URL)"
+  echo "✓ dev stack up + migrated + seeded  (DATABASE_URL=$DATABASE_URL, password from DEV_DB_PASSWORD)"
 }
 
 case "${1:-up}" in

@@ -21,7 +21,7 @@ export async function recordStatusChange(
 ): Promise<void> {
   await client.query(
     `INSERT INTO status_history
-       (account_id, entity_type, entity_id, from_status, to_status, changed_by, note)
+       (company_id, entity_type, entity_id, from_status, to_status, changed_by, note)
      VALUES ($1, $2, $3, $4, $5, $6, $7)`,
     [
       opts.accountId,

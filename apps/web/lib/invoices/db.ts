@@ -48,7 +48,7 @@ export async function withInvoiceContext<T>(
  *
  * Allocates from the highest existing suffix + 1 (not a row count): a
  * count-based sequence reuses a live number after a non-latest invoice is
- * removed/voided and collides with the (account_id, invoice_number) unique
+ * removed/voided and collides with the (company_id, invoice_number) unique
  * index. Gaps are acceptable. Must run inside a transaction to avoid races.
  */
 export async function generateInvoiceNumber(

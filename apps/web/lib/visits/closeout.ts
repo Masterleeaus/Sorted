@@ -189,7 +189,7 @@ async function completeVisitRow(
   );
 
   await appendAuditLog(client, {
-    account_id: session.accountId,
+    company_id: session.accountId,
     entity_type: "visit",
     entity_id: visitId,
     action: "update",
@@ -249,7 +249,7 @@ async function createFirstUpTask(
 ): Promise<string> {
   const { rows } = await client.query<{ id: string }>(
     `INSERT INTO work_order_tasks
-       (account_id, work_order_id, label, required, completed, status, sort_order, source, note)
+       (company_id, work_order_id, label, required, completed, status, sort_order, source, note)
      VALUES (
        $1, $2, $3, true, false, 'open',
        (SELECT COALESCE(MAX(sort_order), -1) + 1 FROM work_order_tasks WHERE work_order_id = $2),
@@ -327,7 +327,7 @@ async function scheduleReturnVisit(
 
   const { rows } = await client.query<{ id: string }>(
     `INSERT INTO visits
-       (account_id, job_id, work_order_id, assigned_user_id, scheduled_start, scheduled_end, visit_type, status)
+       (company_id, job_id, work_order_id, assigned_user_id, scheduled_start, scheduled_end, visit_type, status)
      VALUES ($1, $2, $3, $4, $5, $6, 'standard', 'scheduled')
      RETURNING id`,
     [

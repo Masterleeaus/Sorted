@@ -64,13 +64,13 @@ export async function recordInvoicePortalView(
   shareToken: string,
 ): Promise<{ updated: boolean; firstOpen: boolean; invoice?: {
   id: string;
-  account_id: string;
+  company_id: string;
   invoice_number: string;
   client_name: string | null;
 } }> {
   // Capture prior first_viewed_at so we only emit attention on first open.
   const before = await queryFn(
-    `SELECT i.id, i.account_id, i.invoice_number, i.first_viewed_at, c.name AS client_name
+    `SELECT i.id, i.company_id, i.invoice_number, i.first_viewed_at, c.name AS client_name
      FROM invoices i
      LEFT JOIN clients c ON c.id = i.client_id
      WHERE i.share_token = $1
@@ -80,7 +80,7 @@ export async function recordInvoicePortalView(
   const row = before.rows?.[0] as
     | {
         id: string;
-        account_id: string;
+        company_id: string;
         invoice_number: string;
         first_viewed_at: string | null;
         client_name: string | null;
@@ -107,7 +107,7 @@ export async function recordInvoicePortalView(
     firstOpen: updated && wasFirst,
     invoice: {
       id: row.id,
-      account_id: row.account_id,
+      company_id: row.company_id,
       invoice_number: row.invoice_number,
       client_name: row.client_name,
     },

@@ -34,7 +34,7 @@ vi.mock("next/navigation", () => ({
 
 vi.mock("@/lib/db", () => ({
   queryOne: async (sql: string) => {
-    if (sql.includes("resolve_estimate_share_account")) return { account_id: state.resolvedAccount };
+    if (sql.includes("resolve_estimate_share_account")) return { company_id: state.resolvedAccount };
     throw new Error(`unexpected queryOne: ${sql}`);
   },
 }));
@@ -74,7 +74,7 @@ const run = () => EstimatePortalPage({ params: Promise.resolve({ token: TOKEN })
 beforeEach(() => {
   state.resolvedAccount = ACCOUNT;
   state.estimate = {
-    id: ESTIMATE, account_id: ACCOUNT, client_id: CLIENT, client_name: "Pat Portal", status: "sent",
+    id: ESTIMATE, company_id: ACCOUNT, client_id: CLIENT, client_name: "Pat Portal", status: "sent",
   };
   state.contexts = [];
   state.log = [];

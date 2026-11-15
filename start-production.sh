@@ -1,4 +1,9 @@
 #!/bin/bash
+#
+# DEPRECATED: this script is no longer the production path.
+# Production runs on garonhome.local via infra/compose.garonhome.yml
+# (see DEPLOY.md, section 1). This file is kept for reference only and is
+# not deleted. Do not run it to deploy.
 
 export PATH="/home/admin/.nvm/versions/node/v20.20.2/bin:/usr/local/bin:/usr/bin:/bin"
 

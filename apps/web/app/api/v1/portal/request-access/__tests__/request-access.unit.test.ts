@@ -169,7 +169,7 @@ describe("POST /api/v1/portal/request-access: ambiguous matches fail closed", ()
   });
 
   it("does not send to a duplicate from another account because the SQL is account-scoped", async () => {
-    // Duplicates across accounts are excluded by the account_id predicate, so the
+    // Duplicates across accounts are excluded by the company_id predicate, so the
     // query returns only the configured account's row. Verify the configured ID is used.
     mockLookup([{ id: "c1", name: "Jane Doe", can_text: false }]);
     process.env.BOOKING_ACCOUNT_ID = OTHER_ACCOUNT_ID;

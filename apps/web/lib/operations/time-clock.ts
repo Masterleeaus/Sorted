@@ -69,9 +69,9 @@ export async function clockIn(
   // 23505 → 500); we then re-read and return the winner's clock idempotently.
   const { rows } = await client.query<TimeClockRow>(
     `INSERT INTO time_clock_sessions
-       (account_id, user_id, business_day_id, status, pay_type, hourly_rate_snapshot_cents, notes, created_by)
+       (company_id, user_id, business_day_id, status, pay_type, hourly_rate_snapshot_cents, notes, created_by)
      VALUES ($1, $2, $3, 'open', $4, $5, $6, $2)
-     ON CONFLICT (account_id, user_id) WHERE status = 'open' AND voided_at IS NULL DO NOTHING
+     ON CONFLICT (company_id, user_id) WHERE status = 'open' AND voided_at IS NULL DO NOTHING
      RETURNING ${COLS}`,
     [
       accountId,
@@ -150,9 +150,9 @@ export async function correctClock(
 
   const { rows } = await client.query<TimeClockRow>(
     `INSERT INTO time_clock_sessions
-       (account_id, user_id, business_day_id, clock_in_at, clock_out_at, status,
+       (company_id, user_id, business_day_id, clock_in_at, clock_out_at, status,
         pay_type, hourly_rate_snapshot_cents, notes, created_by)
-     SELECT account_id, user_id, business_day_id, $3::timestamptz, $4::timestamptz,
+     SELECT company_id, user_id, business_day_id, $3::timestamptz, $4::timestamptz,
             CASE WHEN $4 IS NULL THEN 'open' ELSE 'closed' END,
             pay_type, hourly_rate_snapshot_cents, notes, $5
        FROM time_clock_sessions WHERE id = $1 AND company_id = $2

@@ -55,7 +55,7 @@ export async function replaceExpenseLineItems(
     const qty = item.quantity ?? 1;
     const inserted = await client.query<ExpenseLineItemRow>(
       `INSERT INTO expense_line_items
-         (account_id, expense_id, name, quantity, unit_cost_cents, sku, sort_order, billable)
+         (company_id, expense_id, name, quantity, unit_cost_cents, sku, sort_order, billable)
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
        RETURNING id, expense_id, name, quantity::float8 AS quantity,
                  unit_cost_cents, sku, sort_order, billable`,

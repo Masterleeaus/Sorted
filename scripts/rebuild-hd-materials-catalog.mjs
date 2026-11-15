@@ -402,10 +402,10 @@ upd AS (
   RETURNING m.id
 )
 INSERT INTO materials_price_book
-  (account_id, company_id, name, category, unit, unit_cost_cents, supplier, sku,
+  (company_id, name, category, unit, unit_cost_cents, supplier, sku,
    last_purchased_at, avg_paid_cents, purchase_count, notes, is_active)
 SELECT
-  ${sqlLiteral(accountId)}, ${sqlLiteral(accountId)}, btrim(${name}), ${cat}, 'each', ${r.unit_cost_cents},
+  ${sqlLiteral(accountId)}, btrim(${name}), ${cat}, 'each', ${r.unit_cost_cents},
   'Home Depot', ${sku}, ${lastDate}::date, ${r.avg_paid_cents}, ${r.purchase_count},
   ${notes}, true
 WHERE NOT EXISTS (SELECT 1 FROM upd)

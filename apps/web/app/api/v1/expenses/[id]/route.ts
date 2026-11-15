@@ -237,7 +237,7 @@ export const PATCH = withRole(["owner", "admin"], async (request, session) => {
       }
 
       await appendAuditLog(client, {
-        account_id: session.accountId,
+        company_id: session.accountId,
         entity_type: "expense",
         entity_id: id,
         action: "update",
@@ -304,7 +304,7 @@ export const DELETE = withRole(["owner", "admin"], async (request, session) => {
       await client.query(`DELETE FROM expenses WHERE id = $1 AND company_id = $2`, [id, companyIdFromSession(session)]);
 
       await appendAuditLog(client, {
-        account_id: session.accountId,
+        company_id: session.accountId,
         entity_type: "expense",
         entity_id: id,
         action: "delete",

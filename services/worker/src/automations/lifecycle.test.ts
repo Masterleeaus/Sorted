@@ -24,7 +24,6 @@ function mockClient(): Client {
 
 const AUTOMATION: AutomationRow = {
   id: "auto-1",
-  account_id: "acct-1",
   company_id: "acct-1",
   type: "visit_reminder",
   config: {},
@@ -34,7 +33,7 @@ const AUTOMATION: AutomationRow = {
 
 const RESULT: RunResult = {
   automationId: AUTOMATION.id,
-  accountId: AUTOMATION.account_id,
+  accountId: AUTOMATION.company_id,
   sent: 0,
   skipped: 0,
   errors: 0,

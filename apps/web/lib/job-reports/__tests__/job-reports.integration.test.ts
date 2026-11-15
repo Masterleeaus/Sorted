@@ -48,29 +48,29 @@ describe.skipIf(!RUN)("job reports", () => {
 
     db = new Client({ connectionString: process.env.TEST_DATABASE_URL });
     await db.connect();
-    const admin = await db.query<{ id: string; account_id: string }>(
-      `SELECT id, account_id FROM users WHERE email = 'admin@test.com'`,
+    const admin = await db.query<{ id: string; company_id: string }>(
+      `SELECT id, company_id FROM users WHERE email = 'admin@test.com'`,
     );
-    accountId = admin.rows[0].account_id;
+    accountId = admin.rows[0].company_id;
     ownerId = admin.rows[0].id;
 
-    await db.query(`INSERT INTO clients (id, account_id, name) VALUES ($1, $3, 'Report Homeowner'), ($2, $3, 'Report Realtor')`, [clientId, realtorId, accountId]);
-    await db.query(`INSERT INTO properties (id, account_id, client_id, name, address) VALUES ($1, $2, $3, '12 Maple St', '12 Maple St')`, [propertyId, accountId, clientId]);
+    await db.query(`INSERT INTO clients (id, company_id, name) VALUES ($1, $3, 'Report Homeowner'), ($2, $3, 'Report Realtor')`, [clientId, realtorId, accountId]);
+    await db.query(`INSERT INTO properties (id, company_id, client_id, name, address) VALUES ($1, $2, $3, '12 Maple St', '12 Maple St')`, [propertyId, accountId, clientId]);
     await db.query(
-      `INSERT INTO jobs (id, account_id, client_id, property_id, title, status, job_type, created_by) VALUES
+      `INSERT INTO jobs (id, company_id, client_id, property_id, title, status, job_type, created_by) VALUES
        ($1, $4, $5, $6, 'Hall repaint', 'completed', 'painting', $7),
        ($2, $4, $5, $6, 'No invoice yet', 'completed', 'custom', $7),
        ($3, $4, $8, $6, 'Listing prep', 'completed', 'custom', $7)`,
       [jobId, bareJobId, sponsoredJobId, accountId, clientId, propertyId, ownerId, realtorId],
     );
     await db.query(
-      `INSERT INTO visits (id, account_id, job_id, scheduled_start, scheduled_end, visit_type, status) VALUES
+      `INSERT INTO visits (id, company_id, job_id, scheduled_start, scheduled_end, visit_type, status) VALUES
        ($1, $3, $4, now(), now() + interval '1 hour', 'site_visit', 'completed'),
        ($2, $3, $5, now(), now() + interval '1 hour', 'site_visit', 'completed')`,
       [visitId, sponsoredVisitId, accountId, jobId, sponsoredJobId],
     );
     await db.query(
-      `INSERT INTO visit_media (id, account_id, visit_id, category, filename, original_name, mime_type, size_bytes, created_by) VALUES
+      `INSERT INTO visit_media (id, company_id, visit_id, category, filename, original_name, mime_type, size_bytes, created_by) VALUES
        ($1, $5, $6, 'after',   'a.jpg', 'a.jpg', 'image/jpeg', 1, $8),
        ($2, $5, $6, 'before',  'b.jpg', 'b.jpg', 'image/jpeg', 1, $8),
        ($3, $5, $6, 'receipt', 'r.jpg', 'r.jpg', 'image/jpeg', 1, $8),
@@ -78,12 +78,12 @@ describe.skipIf(!RUN)("job reports", () => {
       [media.after, media.before, media.receipt, media.sponsoredAfter, accountId, visitId, sponsoredVisitId, ownerId],
     );
     await db.query(
-      `INSERT INTO invoices (account_id, client_id, job_id, property_id, invoice_number, status, total_cents, created_by)
+      `INSERT INTO invoices (company_id, client_id, job_id, property_id, invoice_number, status, total_cents, created_by)
        VALUES ($1, $2, $3, $4, $5, 'sent', 50000, $6)`,
       [accountId, clientId, jobId, propertyId, `JR-${Date.now()}`, ownerId],
     );
     await db.query(
-      `INSERT INTO invoices (account_id, client_id, job_id, property_id, invoice_number, status, total_cents,
+      `INSERT INTO invoices (company_id, client_id, job_id, property_id, invoice_number, status, total_cents,
                              billing_context, sponsored_purpose, created_by)
        VALUES ($1, $2, $3, $4, $5, 'sent', 30000, 'realtor_sponsored', 'pre_listing', $6)`,
       [accountId, realtorId, sponsoredJobId, propertyId, `JRS-${Date.now()}`, ownerId],
@@ -186,19 +186,19 @@ describe.skipIf(!RUN)("job reports", () => {
     // An older job at an address that sorts ahead of "12 Maple St" descending.
     const oldJob = randomUUID();
     const oldProp = randomUUID();
-    await db.query(`INSERT INTO properties (id, account_id, client_id, name, address) VALUES ($1, $2, $3, 'Z Rd', '9 Zebra Rd')`, [oldProp, accountId, clientId]);
+    await db.query(`INSERT INTO properties (id, company_id, client_id, name, address) VALUES ($1, $2, $3, 'Z Rd', '9 Zebra Rd')`, [oldProp, accountId, clientId]);
     await db.query(
-      `INSERT INTO jobs (id, account_id, client_id, property_id, title, status, job_type, created_by)
+      `INSERT INTO jobs (id, company_id, client_id, property_id, title, status, job_type, created_by)
        VALUES ($1, $2, $3, $4, 'Older gutter job', 'completed', 'custom', $5)`,
       [oldJob, accountId, clientId, oldProp, ownerId],
     );
     await db.query(
-      `INSERT INTO visits (account_id, job_id, scheduled_start, scheduled_end, visit_type, status, completed_at)
+      `INSERT INTO visits (company_id, job_id, scheduled_start, scheduled_end, visit_type, status, completed_at)
        VALUES ($1, $2, now() - interval '1 year', now() - interval '1 year', 'site_visit', 'completed', now() - interval '1 year')`,
       [accountId, oldJob],
     );
     await db.query(
-      `INSERT INTO invoices (account_id, client_id, job_id, property_id, invoice_number, status, total_cents, created_by)
+      `INSERT INTO invoices (company_id, client_id, job_id, property_id, invoice_number, status, total_cents, created_by)
        VALUES ($1, $2, $3, $4, $5, 'paid', 1000, $6)`,
       [accountId, clientId, oldJob, oldProp, `JRO-${Date.now()}`, ownerId],
     );

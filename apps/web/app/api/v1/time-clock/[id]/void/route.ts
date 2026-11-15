@@ -34,7 +34,7 @@ export const POST = withAuth(async (request: NextRequest, session) => {
       const row = await voidClock(client, session.accountId, id, parsed.data.reason);
       if (row) {
         await appendAuditLog(client, {
-          account_id: session.accountId,
+          company_id: session.accountId,
           entity_type: "time_clock_session",
           entity_id: id,
           action: "update",

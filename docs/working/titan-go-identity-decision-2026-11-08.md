@@ -1,16 +1,24 @@
-# Decision: Titan Go is a UI layer inside Dovetails FSM (2026-11-08)
+# Decision: the Field PWA is a UI layer inside Dovetails FSM (2026-11-08)
 
 Issue: #8. Docs and package description only. No code behaviour changed.
 
+> **Dated note (2026-11-15):** The owner decided that the Field PWA is named **Sorted**. Sorted is the name in `apps/web/app/manifest.ts` and in the brand test. "Titan Go" is kept below only as the historical name used when this decision was written on 2026-11-08. Where the body says "Titan Go", read it as the Field PWA, now named Sorted.
+
 ## Decision
 
-- Titan Go (the installable PWA, "Titan Go Field" mode) is an imported UI layer and deployment surface inside this app.
+- The Field PWA (named Sorted; historically "Titan Go", the installable PWA in "Field" mode) is an imported UI layer and deployment surface inside this app.
 - It is not a product identity change. The product is Dovetails FSM, a residential handyman and home maintenance operating system.
 - `docs/canonical/` stays authoritative for product, domain and architecture. The canonical docs do not mention Titan as a product, and this decision does not add it.
 - Titan-branded modes, Zero chat and workforce screens are presentation and runtime surfaces. They do not define scope.
 - Root `package.json` description changed from "AI-first Field Service Management MVP" to the canonical product identity. The canonical "Product Boundaries" exclude AI-first and generic FSM positioning.
 
 Owner to confirm: that Titan Go stays a UI layer and the prototype surfaces below are not promoted to production.
+
+## Update 2026-11-15: name confirmed
+
+- Owner confirmed Titan Go as the name of the Field PWA.
+- `docs/canonical/PRODUCT_VISION.md` now records this under "Field App Name". This is a naming decision only. Product identity remains Dovetails FSM.
+- Open point: the Decision section above says Titan Go is "a UI layer" and "not a separate PWA product". The name confirmation does not settle whether the Field PWA is a separate installable app or a mode of the main app. Owner to confirm.
 
 ## Why
 

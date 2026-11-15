@@ -67,7 +67,7 @@ describe.skipIf(!shouldRun)("cross-account isolation (worker)", () => {
 
     // Both tenants have a technician with the same full name.
     const user = await admin.query<{ id: string }>(
-      `INSERT INTO users (account_id, email, password_hash, full_name, role)
+      `INSERT INTO users (company_id, email, password_hash, full_name, role)
        VALUES ($1, $2, 'hash', 'Sam Tech', 'owner') RETURNING id`,
       [accountId, `${label}-${tag}-${accountId}@iso.test`]
     );
@@ -75,19 +75,19 @@ describe.skipIf(!shouldRun)("cross-account isolation (worker)", () => {
 
     const clientName = `Client ${label} ${tag}`;
     const cl = await admin.query<{ id: string }>(
-      `INSERT INTO clients (account_id, name, email)
+      `INSERT INTO clients (company_id, name, email)
        VALUES ($1, $2, $3) RETURNING id`,
       [accountId, clientName, `client-${label}-${tag}@iso.test`]
     );
 
     const propertyAddress = `${label} Street ${tag}`;
     const prop = await admin.query<{ id: string }>(
-      `INSERT INTO properties (account_id, address) VALUES ($1, $2) RETURNING id`,
+      `INSERT INTO properties (company_id, address) VALUES ($1, $2) RETURNING id`,
       [accountId, propertyAddress]
     );
 
     const job = await admin.query<{ id: string }>(
-      `INSERT INTO jobs (account_id, client_id, property_id, title, status, created_by, updated_at)
+      `INSERT INTO jobs (company_id, client_id, property_id, title, status, created_by, updated_at)
        VALUES ($1, $2, $3, $4, 'completed', $5, now() - interval '36 hours')
        RETURNING id`,
       [accountId, cl.rows[0].id, prop.rows[0].id, `${label} job ${tag}`, userId]
@@ -107,7 +107,6 @@ describe.skipIf(!shouldRun)("cross-account isolation (worker)", () => {
   function automationFor(t: Tenant, type: string, config: Record<string, unknown> = {}): AutomationRow {
     return {
       id: randomUUID(),
-      account_id: t.accountId,
       company_id: t.accountId,
       type,
       config,
@@ -127,7 +126,7 @@ describe.skipIf(!shouldRun)("cross-account isolation (worker)", () => {
     if (!admin) return;
     const ids = [a?.accountId, b?.accountId].filter(Boolean);
     if (ids.length) {
-      await admin.query(`DELETE FROM notification_queue WHERE account_id = ANY($1)`, [ids]);
+      await admin.query(`DELETE FROM notification_queue WHERE company_id = ANY($1)`, [ids]);
       await admin.query(`DELETE FROM accounts WHERE id = ANY($1)`, [ids]);
     }
     await worker.end();
@@ -140,7 +139,7 @@ describe.skipIf(!shouldRun)("cross-account isolation (worker)", () => {
   describe("review-request technician join", () => {
     it("returns one row for a job and the same-account technician name", async () => {
       await admin.query(
-        `INSERT INTO visits (account_id, job_id, assigned_user_id, status, scheduled_start,
+        `INSERT INTO visits (company_id, job_id, assigned_user_id, status, scheduled_start,
                              scheduled_end, completed_at, visit_type)
          VALUES ($1, $2, $3, 'completed', now() - interval '31 hours',
                  now() - interval '30 hours', now() - interval '30 hours', 'site_visit')`,
@@ -157,7 +156,7 @@ describe.skipIf(!shouldRun)("cross-account isolation (worker)", () => {
 
     it("omits the technician name when the job has no same-account technician", async () => {
       const noVisitJob = await admin.query<{ id: string }>(
-        `INSERT INTO jobs (account_id, client_id, property_id, title, status, created_by, updated_at)
+        `INSERT INTO jobs (company_id, client_id, property_id, title, status, created_by, updated_at)
          VALUES ($1, $2, $3, $4, 'completed', $5, now() - interval '36 hours') RETURNING id`,
         [a.accountId, a.clientId, a.propertyId, `no-visit job ${tag}`, a.userId]
       );
@@ -176,12 +175,12 @@ describe.skipIf(!shouldRun)("cross-account isolation (worker)", () => {
   describe("booking-confirmed joins", () => {
     it("does not supply a client from another account", async () => {
       const crossJob = await admin.query<{ id: string }>(
-        `INSERT INTO jobs (account_id, client_id, title, status, created_by)
+        `INSERT INTO jobs (company_id, client_id, title, status, created_by)
          VALUES ($1, $2, $3, 'scheduled', $4) RETURNING id`,
         [a.accountId, b.clientId, `cross-client job ${tag}`, a.userId]
       );
       const visit = await admin.query<{ id: string }>(
-        `INSERT INTO visits (account_id, job_id, assigned_user_id, status, scheduled_start, scheduled_end, visit_type)
+        `INSERT INTO visits (company_id, job_id, assigned_user_id, status, scheduled_start, scheduled_end, visit_type)
          VALUES ($1, $2, $3, 'scheduled', now() + interval '12 hours', now() + interval '13 hours', 'site_visit')
          RETURNING id`,
         [a.accountId, crossJob.rows[0].id, a.userId]
@@ -196,12 +195,12 @@ describe.skipIf(!shouldRun)("cross-account isolation (worker)", () => {
 
     it("does not supply a property address from another account", async () => {
       const crossJob = await admin.query<{ id: string }>(
-        `INSERT INTO jobs (account_id, client_id, property_id, title, status, created_by)
+        `INSERT INTO jobs (company_id, client_id, property_id, title, status, created_by)
          VALUES ($1, $2, $3, $4, 'scheduled', $5) RETURNING id`,
         [a.accountId, a.clientId, b.propertyId, `cross-property job ${tag}`, a.userId]
       );
       const visit = await admin.query<{ id: string }>(
-        `INSERT INTO visits (account_id, job_id, assigned_user_id, status, scheduled_start, scheduled_end, visit_type)
+        `INSERT INTO visits (company_id, job_id, assigned_user_id, status, scheduled_start, scheduled_end, visit_type)
          VALUES ($1, $2, $3, 'scheduled', now() + interval '12 hours', now() + interval '13 hours', 'site_visit')
          RETURNING id`,
         [a.accountId, crossJob.rows[0].id, a.userId]
@@ -217,12 +216,12 @@ describe.skipIf(!shouldRun)("cross-account isolation (worker)", () => {
   describe("visit-reminder joins", () => {
     it("does not supply a client from another account", async () => {
       const crossJob = await admin.query<{ id: string }>(
-        `INSERT INTO jobs (account_id, client_id, title, status, created_by)
+        `INSERT INTO jobs (company_id, client_id, title, status, created_by)
          VALUES ($1, $2, $3, 'scheduled', $4) RETURNING id`,
         [a.accountId, b.clientId, `reminder cross-client ${tag}`, a.userId]
       );
       const visit = await admin.query<{ id: string }>(
-        `INSERT INTO visits (account_id, job_id, assigned_user_id, status, scheduled_start, scheduled_end, visit_type)
+        `INSERT INTO visits (company_id, job_id, assigned_user_id, status, scheduled_start, scheduled_end, visit_type)
          VALUES ($1, $2, $3, 'scheduled', now() + interval '12 hours', now() + interval '13 hours', 'site_visit')
          RETURNING id`,
         [a.accountId, crossJob.rows[0].id, a.userId]
@@ -236,12 +235,12 @@ describe.skipIf(!shouldRun)("cross-account isolation (worker)", () => {
 
     it("does not supply a property address from another account", async () => {
       const crossJob = await admin.query<{ id: string }>(
-        `INSERT INTO jobs (account_id, client_id, property_id, title, status, created_by)
+        `INSERT INTO jobs (company_id, client_id, property_id, title, status, created_by)
          VALUES ($1, $2, $3, $4, 'scheduled', $5) RETURNING id`,
         [a.accountId, a.clientId, b.propertyId, `reminder cross-property ${tag}`, a.userId]
       );
       const visit = await admin.query<{ id: string }>(
-        `INSERT INTO visits (account_id, job_id, assigned_user_id, status, scheduled_start, scheduled_end, visit_type)
+        `INSERT INTO visits (company_id, job_id, assigned_user_id, status, scheduled_start, scheduled_end, visit_type)
          VALUES ($1, $2, $3, 'scheduled', now() + interval '12 hours', now() + interval '13 hours', 'site_visit')
          RETURNING id`,
         [a.accountId, crossJob.rows[0].id, a.userId]
@@ -257,7 +256,7 @@ describe.skipIf(!shouldRun)("cross-account isolation (worker)", () => {
   describe("invoice-followup joins", () => {
     it("does not supply a client from another account", async () => {
       const invId = await insertInvoiceFixture(
-        `INSERT INTO invoices (account_id, client_id, invoice_number, status, due_date, total_cents, created_by)
+        `INSERT INTO invoices (company_id, client_id, invoice_number, status, due_date, total_cents, created_by)
          VALUES ($1, $2, $3, 'overdue', (now() - interval '10 days')::date, 1000, $4) RETURNING id`,
         [a.accountId, b.clientId, `CROSS-C-${tag}`, a.userId]
       );
@@ -269,7 +268,7 @@ describe.skipIf(!shouldRun)("cross-account isolation (worker)", () => {
     it("does not let another account's job status gate an invoice", async () => {
       // B's job is completed, so it would pass the job-status check if the join ignored account.
       const invId = await insertInvoiceFixture(
-        `INSERT INTO invoices (account_id, client_id, job_id, invoice_number, status, due_date, total_cents, created_by)
+        `INSERT INTO invoices (company_id, client_id, job_id, invoice_number, status, due_date, total_cents, created_by)
          VALUES ($1, $2, $3, $4, 'overdue', (now() - interval '10 days')::date, 1000, $5) RETURNING id`,
         [a.accountId, a.clientId, b.jobId, `CROSS-J-${tag}`, a.userId]
       );
@@ -293,7 +292,7 @@ describe.skipIf(!shouldRun)("cross-account isolation (worker)", () => {
     ): Promise<string> {
       const r = await admin.query<{ id: string }>(
         `INSERT INTO notification_queue
-           (account_id, automation_type, to_address, subject, html_body, idempotency_key,
+           (company_id, automation_type, to_address, subject, html_body, idempotency_key,
             status, entity_type, entity_id, cancel_on_events)
          VALUES ($1, 'review_request', 'x@iso.test', $2, '<p>x</p>', $3, $4,
                  CASE WHEN $5::uuid IS NULL THEN NULL ELSE 'job' END, $5::uuid, $6)
@@ -336,11 +335,11 @@ describe.skipIf(!shouldRun)("cross-account isolation (worker)", () => {
       }
 
       expect(outcome).not.toBe("duplicate");
-      const rows = await admin.query<{ account_id: string; subject: string; status: string }>(
-        `SELECT account_id, subject, status FROM notification_queue WHERE idempotency_key = $1`,
+      const rows = await admin.query<{ company_id: string; subject: string; status: string }>(
+        `SELECT company_id, subject, status FROM notification_queue WHERE idempotency_key = $1`,
         [key]
       );
-      const bRow = rows.rows.find((r) => r.account_id === b.accountId);
+      const bRow = rows.rows.find((r) => r.company_id === b.accountId);
       expect(bRow?.subject).toBe("B existing");
       expect(bRow?.status).toBe("pending");
     });
@@ -355,11 +354,11 @@ describe.skipIf(!shouldRun)("cross-account isolation (worker)", () => {
         // Fail closed: the insert is rejected rather than overwriting B's row.
       }
 
-      const rows = await admin.query<{ account_id: string; status: string }>(
-        `SELECT account_id, status FROM notification_queue WHERE idempotency_key = $1`,
+      const rows = await admin.query<{ company_id: string; status: string }>(
+        `SELECT company_id, status FROM notification_queue WHERE idempotency_key = $1`,
         [key]
       );
-      const bRow = rows.rows.find((r) => r.account_id === b.accountId);
+      const bRow = rows.rows.find((r) => r.company_id === b.accountId);
       expect(bRow?.status).toBe("failed");
     });
 

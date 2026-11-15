@@ -209,7 +209,7 @@ export const POST = withRole(
           });
         }
         await appendAuditLog(client, {
-          account_id: session.accountId,
+          company_id: session.accountId,
           entity_type: "visit",
           entity_id: visit.id,
           action: "insert",
@@ -227,7 +227,7 @@ export const POST = withRole(
           [jobId, session.accountId],
         );
         await appendAuditLog(client, {
-          account_id: session.accountId,
+          company_id: session.accountId,
           entity_type: "job",
           entity_id: jobId,
           action: "update",

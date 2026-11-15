@@ -67,7 +67,7 @@ export async function createAssetLink(
 ): Promise<AssetLinkRow> {
   const res = await client.query<AssetLinkRow>(
     `INSERT INTO asset_links
-       (account_id, entity_type, entity_id, homebox_item_id,
+       (company_id, entity_type, entity_id, homebox_item_id,
         cached_name, cached_location, status, created_by)
      VALUES ($1, $2, $3, $4, $5, $6, 'planned', $7)
      RETURNING id, entity_type, entity_id, homebox_item_id,

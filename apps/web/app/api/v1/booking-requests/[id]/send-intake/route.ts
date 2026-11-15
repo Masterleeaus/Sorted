@@ -40,10 +40,10 @@ export const POST = withRole(["owner", "admin"], async (request: NextRequest, se
 
     // Load the booking request
     const brRows = await queryForSession<{
-      id: string; account_id: string; name: string; email: string | null;
+      id: string; company_id: string; name: string; email: string | null;
       phone: string | null; client_id: string | null;
     }>(session,
-      `SELECT id, account_id, name, email, phone, client_id
+      `SELECT id, company_id, name, email, phone, client_id
        FROM booking_requests
        WHERE id = $1 AND company_id = $2`,
       [bookingRequestId, companyIdFromSession(session)]

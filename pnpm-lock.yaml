@@ -20,6 +20,9 @@ importers:
 
   apps/web:
     dependencies:
+      '@ai-fsm/central-client':
+        specifier: workspace:*
+        version: link:../../packages/central-client
       '@ai-fsm/domain':
         specifier: workspace:*
         version: link:../../packages/domain

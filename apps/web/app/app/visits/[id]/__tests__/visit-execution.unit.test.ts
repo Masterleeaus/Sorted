@@ -387,10 +387,10 @@ describe("Visit completion visibility", () => {
 // ---------------------------------------------------------------------------
 
 describe("Multi-tenant isolation", () => {
-  it("all property context queries require property_id AND account_id", () => {
-    const requiredFilters = ["property_id", "account_id"];
+  it("all property context queries require property_id AND company_id", () => {
+    const requiredFilters = ["property_id", "company_id"];
     expect(requiredFilters).toContain("property_id");
-    expect(requiredFilters).toContain("account_id");
+    expect(requiredFilters).toContain("company_id");
   });
 
   it("needsPropertyContext guard prevents queries when no property_id", () => {

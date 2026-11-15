@@ -35,7 +35,7 @@ export const PUT = withAuth(async (request: NextRequest, session: AuthSession) =
         `INSERT INTO account_supplier_preferences
            (company_id, supplier, supplier_normalized, branch_label, address)
          VALUES ($1, $2, $3, $4, $5)
-         ON CONFLICT (account_id, supplier_normalized) DO UPDATE
+         ON CONFLICT (company_id, supplier_normalized) DO UPDATE
          SET supplier = EXCLUDED.supplier,
              branch_label = EXCLUDED.branch_label,
              address = EXCLUDED.address

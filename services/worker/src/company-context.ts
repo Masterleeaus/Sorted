@@ -6,7 +6,7 @@
  * image does not ship @ai-fsm/domain (see invoice-followup.ts).
  *
  * The worker role is BYPASSRLS (ADR-024), so this setting does not enforce
- * isolation by itself. Each job must still scope its SQL by company_id or account_id.
+ * isolation by itself. Each job must still scope its SQL by company_id.
  * No sweep uses this helper yet.
  */
 

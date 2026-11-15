@@ -15,7 +15,7 @@ export async function pruneLocationEvents(client: Client): Promise<PruneLocation
     const result = await client.query(
       `DELETE FROM location_events le
        USING accounts a
-       WHERE le.account_id = a.id
+       WHERE le.company_id = a.id
          AND le.occurred_at < now() - (a.location_retention_days || ' days')::interval`,
     );
     const deleted = result.rowCount ?? 0;

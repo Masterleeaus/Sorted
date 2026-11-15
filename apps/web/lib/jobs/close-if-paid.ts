@@ -71,7 +71,7 @@ export async function closeJobIfFullyPaid(
   if (to === from) return null;
 
   await appendAuditLog(client, {
-    account_id: opts.accountId,
+    company_id: opts.accountId,
     entity_type: "job",
     entity_id: opts.jobId,
     action: "update",

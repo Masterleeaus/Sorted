@@ -21,7 +21,6 @@ import { PRIORITY } from "./notification/priority.js";
 
 interface EligibleJob {
   id: string;
-  account_id: string;
   company_id: string;
   client_id: string;
   title: string | null;
@@ -32,7 +31,7 @@ interface EligibleJob {
 
 export async function findDueReviewRequests(client: Client): Promise<AutomationRow[]> {
   const { rows } = await client.query<AutomationRow>(
-    `SELECT id, account_id, company_id, type, config, enabled, next_run_at::text
+    `SELECT id, company_id, company_id, type, config, enabled, next_run_at::text
      FROM automations
      WHERE type = 'review_request'
        AND enabled = true
@@ -48,7 +47,7 @@ export async function findEligibleJobs(
   const daysAfter = (automation.config as { days_after?: number }).days_after ?? 1;
 
   const { rows } = await client.query<EligibleJob>(
-    `SELECT j.id, j.account_id, j.company_id, c.id AS client_id, j.title,
+    `SELECT j.id, j.company_id, j.company_id, c.id AS client_id, j.title,
             c.name AS client_name, c.email AS client_email,
             u.full_name AS tech_name
      FROM jobs j
@@ -99,7 +98,7 @@ async function emitReviewRequest(
 
   if (job.client_email && job.client_name && job.title) {
     const enqueueResult = await enqueueNotification(client, {
-      accountId: job.account_id,
+      accountId: job.company_id,
       clientId: job.client_id,
       automationType: "review_request",
       priority: PRIORITY.LOW,
@@ -123,10 +122,10 @@ async function emitReviewRequest(
 
   await client.query(
     `INSERT INTO audit_log
-       (account_id, entity_type, entity_id, action, actor_id, old_value, new_value)
+       (company_id, entity_type, entity_id, action, actor_id, old_value, new_value)
      VALUES ($1, 'review_request', $2, 'insert', $3, NULL, $4)`,
     [
-      job.account_id,
+      job.company_id,
       job.id,
       automationId,
       JSON.stringify({
@@ -147,7 +146,7 @@ export async function processReviewRequests(
 ): Promise<RunResult> {
   const result: RunResult = {
     automationId: automation.id,
-    accountId: automation.account_id,
+    accountId: automation.company_id,
     sent: 0,
     skipped: 0,
     errors: 0,

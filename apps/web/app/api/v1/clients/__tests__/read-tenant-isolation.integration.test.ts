@@ -50,16 +50,16 @@ describe.skipIf(!enabled)("client, user and material reads: tenant isolation", (
   beforeAll(async () => {
     await admin.query("INSERT INTO accounts (id, name) VALUES ($1, 'Read Iso A'), ($2, 'Read Iso B')", [accountA, accountB]);
     await admin.query(
-      `INSERT INTO users (id, account_id, email, full_name, password_hash, role)
+      `INSERT INTO users (id, company_id, email, full_name, password_hash, role)
        VALUES ($1, $2, $3, 'Owner A', 'x', 'owner'), ($4, $5, $6, 'Owner B', 'x', 'owner')`,
       [ownerA, accountA, `read-a-${ownerA}@test.invalid`, ownerB, accountB, `read-b-${ownerB}@test.invalid`],
     );
     await admin.query(
-      `INSERT INTO clients (id, account_id, name) VALUES ($1, $2, 'Read client A'), ($3, $4, $5)`,
+      `INSERT INTO clients (id, company_id, name) VALUES ($1, $2, 'Read client A'), ($3, $4, $5)`,
       [clientA, accountA, clientB, accountB, nameB],
     );
     await admin.query(
-      `INSERT INTO materials_price_book (id, account_id, name) VALUES ($1, $2, 'Material A'), ($3, $4, 'Material B')`,
+      `INSERT INTO materials_price_book (id, company_id, name) VALUES ($1, $2, 'Material A'), ($3, $4, 'Material B')`,
       [materialA, accountA, materialB, accountB],
     );
     session.current = { userId: ownerA, accountId: accountA, role: "owner" };

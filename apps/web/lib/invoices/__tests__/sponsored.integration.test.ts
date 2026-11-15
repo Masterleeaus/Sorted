@@ -30,19 +30,19 @@ describe.skipIf(!RUN)("realtor-sponsored property constraints", () => {
     );
     await db.query(`INSERT INTO accounts (id, name) VALUES ($1, 'Sponsored Test B')`, [accountB]);
     await db.query(
-      `INSERT INTO users (id, account_id, email, full_name, password_hash, role)
+      `INSERT INTO users (id, company_id, email, full_name, password_hash, role)
        VALUES ($1, $2, $3, 'Sponsored Owner B', 'test', 'owner')`,
       [ownerB, accountB, `sponsored-${accountB}@example.com`],
     );
     await db.query(
-      `INSERT INTO clients (id, account_id, name) VALUES
+      `INSERT INTO clients (id, company_id, name) VALUES
        ($1, $4, 'Sponsored Payer A'),
        ($2, $4, 'Sponsored Other A'),
        ($3, $5, 'Sponsored Client B')`,
       [clientA, otherClientA, clientB, ACCOUNT_A, accountB],
     );
     await db.query(
-      `INSERT INTO properties (id, account_id, client_id, address) VALUES
+      `INSERT INTO properties (id, company_id, client_id, address) VALUES
        ($1, $4, $5, '10 Same Account Way'),
        ($2, $4, $6, '20 Other Client Way'),
        ($3, $7, $8, '30 Foreign Account Way')`,
@@ -50,7 +50,7 @@ describe.skipIf(!RUN)("realtor-sponsored property constraints", () => {
     );
     await db.query(
       `INSERT INTO invoices
-         (id, account_id, client_id, property_id, invoice_number, created_by)
+         (id, company_id, client_id, property_id, invoice_number, created_by)
        VALUES ($1, $2, $3, $4, $5, $6)`,
       [invoiceA, ACCOUNT_A, clientA, propertyA, `SP-${Date.now()}`, OWNER_A],
     );
@@ -90,12 +90,12 @@ describe.skipIf(!RUN)("realtor-sponsored property constraints", () => {
     const ownerless = randomUUID();
     createdProperties.push(ownerless);
     await db.query(
-      `INSERT INTO properties (id, account_id, client_id, address)
+      `INSERT INTO properties (id, company_id, client_id, address)
        VALUES ($1, $2, NULL, '96 Richardson Road')`,
       [ownerless, ACCOUNT_A],
     );
     const contact = await db.query<{ id: string }>(
-      `INSERT INTO property_contacts (account_id, property_id, external_name, role)
+      `INSERT INTO property_contacts (company_id, property_id, external_name, role)
        VALUES ($1, $2, 'Emma', 'beneficiary') RETURNING id`,
       [ACCOUNT_A, ownerless],
     );
@@ -106,14 +106,14 @@ describe.skipIf(!RUN)("realtor-sponsored property constraints", () => {
     await expect(
       db.query(
         `INSERT INTO property_contacts
-           (account_id, property_id, client_id, external_name, role)
+           (company_id, property_id, client_id, external_name, role)
          VALUES ($1, $2, $3, 'Emma', 'beneficiary')`,
         [ACCOUNT_A, propertyA, clientA],
       ),
     ).rejects.toThrow(/property_contact_one_identity/);
     await expect(
       db.query(
-        `INSERT INTO property_contacts (account_id, property_id, external_name, role)
+        `INSERT INTO property_contacts (company_id, property_id, external_name, role)
          VALUES ($1, $2, ' ', 'beneficiary')`,
         [ACCOUNT_A, propertyA],
       ),
@@ -123,14 +123,14 @@ describe.skipIf(!RUN)("realtor-sponsored property constraints", () => {
   it("rejects cross-account property contacts", async () => {
     await expect(
       db.query(
-        `INSERT INTO property_contacts (account_id, property_id, client_id, role)
+        `INSERT INTO property_contacts (company_id, property_id, client_id, role)
          VALUES ($1, $2, $3, 'realtor')`,
         [ACCOUNT_A, propertyB, clientA],
       ),
     ).rejects.toThrow(/property_contacts must reference a property in the same account/);
     await expect(
       db.query(
-        `INSERT INTO property_contacts (account_id, property_id, client_id, role)
+        `INSERT INTO property_contacts (company_id, property_id, client_id, role)
          VALUES ($1, $2, $3, 'realtor')`,
         [ACCOUNT_A, propertyA, clientB],
       ),
@@ -139,7 +139,7 @@ describe.skipIf(!RUN)("realtor-sponsored property constraints", () => {
 
   it("requires a sponsored beneficiary on the selected property", async () => {
     const onOtherProperty = await db.query<{ id: string }>(
-      `INSERT INTO property_contacts (account_id, property_id, external_name, role)
+      `INSERT INTO property_contacts (company_id, property_id, external_name, role)
        VALUES ($1, $2, 'Other beneficiary', 'beneficiary') RETURNING id`,
       [ACCOUNT_A, otherPropertyA],
     );
@@ -154,7 +154,7 @@ describe.skipIf(!RUN)("realtor-sponsored property constraints", () => {
     ).rejects.toThrow(/sponsored beneficiary must belong to selected property/);
 
     const onSelectedProperty = await db.query<{ id: string }>(
-      `INSERT INTO property_contacts (account_id, property_id, external_name, role)
+      `INSERT INTO property_contacts (company_id, property_id, external_name, role)
        VALUES ($1, $2, 'Selected beneficiary', 'beneficiary') RETURNING id`,
       [ACCOUNT_A, propertyA],
     );
@@ -177,7 +177,7 @@ describe.skipIf(!RUN)("realtor-sponsored property constraints", () => {
     const noBeneficiary = randomUUID();
     await db.query(
       `INSERT INTO invoices
-         (id, account_id, client_id, property_id, invoice_number, created_by,
+         (id, company_id, client_id, property_id, invoice_number, created_by,
           billing_context, sponsored_purpose)
        VALUES ($1, $2, $3, $4, $5, $6, 'realtor_sponsored', 'pre_listing')`,
       [noBeneficiary, ACCOUNT_A, clientA, otherPropertyA, `SPNB-${Date.now()}`, OWNER_A],

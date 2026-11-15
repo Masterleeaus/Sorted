@@ -4,7 +4,7 @@ import { appendAuditLog } from "../db/audit";
 export type AutomationRecord = {
   id: string;
   type: string;
-  account_id: string;
+  company_id: string;
   enabled: boolean;
   [key: string]: unknown;
 };
@@ -47,7 +47,7 @@ export async function triggerAutomation(
   );
 
   await appendAuditLog(client, {
-    account_id: context.accountId,
+    company_id: context.accountId,
     entity_type: "automation_run",
     entity_id: automationId,
     action: "insert",

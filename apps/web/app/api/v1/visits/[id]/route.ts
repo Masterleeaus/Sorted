@@ -284,7 +284,7 @@ export const PATCH = withAuth(
       }
 
       await appendAuditLog(client, {
-        account_id: session.accountId,
+        company_id: session.accountId,
         entity_type: "visit",
         entity_id: id,
         action: "update",
@@ -368,7 +368,7 @@ export const DELETE = withAuth(
       await client.query(`DELETE FROM visits WHERE id = $1 AND company_id = $2`, [id, session.accountId]);
 
       await appendAuditLog(client, {
-        account_id: session.accountId,
+        company_id: session.accountId,
         entity_type: "visit",
         entity_id: id,
         action: "delete",

@@ -15,7 +15,7 @@ export const dynamic = "force-dynamic";
 
 interface InvoiceRow extends Record<string, unknown> {
   id: string;
-  account_id: string;
+  company_id: string;
   status: string;
   invoice_number: string;
   subtotal_cents: number;
@@ -65,7 +65,7 @@ export default async function InvoicePortalPage({
       tx.query<T>(text, params).then((r) => r.rows);
     const rows = await q<InvoiceRow>(
       `SELECT
-         i.id, i.account_id, i.client_id, i.status, i.invoice_number, i.subtotal_cents, i.tax_cents,
+         i.id, i.company_id, i.client_id, i.status, i.invoice_number, i.subtotal_cents, i.tax_cents,
          i.total_cents, i.paid_cents, i.deposit_cents, i.notes, i.due_date,
          i.work_summary, i.show_itemized_receipts,
          i.paid_at, i.deposit_type, i.deposit_percentage, i.deposit_fixed_cents,
@@ -106,7 +106,7 @@ export default async function InvoicePortalPage({
     isPortalPreview(invoice.client_id as string),
     getSession(),
   ]);
-  const staffViewer = preview || staffSession?.accountId === invoice.account_id;
+  const staffViewer = preview || staffSession?.accountId === invoice.company_id;
 
   // Best-effort: stamp client open so owners see Unread vs Viewed + attention feed.
   // Never block the portal render if the stamp fails.
@@ -126,7 +126,7 @@ export default async function InvoicePortalPage({
       const attention = view.invoice;
       await withPortalTokenPage("resolve_invoice_share_account", token, (tx) =>
         emitAttentionEvent(tx, {
-          accountId: attention.account_id,
+          accountId: attention.company_id,
           type: "invoice.opened",
           entityType: "invoice",
           entityId: attention.id,

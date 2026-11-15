@@ -119,7 +119,7 @@ export const POST = withAuth(
 
       await withDbSession(session, (db) =>
         appendAuditLog(db, {
-          account_id: session.accountId,
+          company_id: session.accountId,
           entity_type: "on_my_way",
           entity_id: id,
           action: "insert",

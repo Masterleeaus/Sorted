@@ -41,7 +41,7 @@ describe.skipIf(!RUN)("activity_entries close clamp (migration 167)", () => {
       // A private user avoids the one-active-timer constraint on the shared owner.
       const userId = randomUUID();
       await client.query(
-        `INSERT INTO users (id, account_id, email, full_name, password_hash, role)
+        `INSERT INTO users (id, company_id, email, full_name, password_hash, role)
          VALUES ($1, $2, $3, 'Timer test', 'unused', 'tech')`,
         [userId, SEED_ACCOUNT, `timer-${userId}@test.invalid`],
       );
@@ -49,7 +49,7 @@ describe.skipIf(!RUN)("activity_entries close clamp (migration 167)", () => {
       // Open timer starting 5 minutes in the future — the crash scenario.
       const { rows: ins } = await client.query<{ id: string }>(
         `INSERT INTO activity_entries
-           (account_id, user_id, session_date, activity_type, category, source, started_at)
+           (company_id, user_id, session_date, activity_type, category, source, started_at)
          VALUES ($1, $2, current_date, 'job_work', 'revenue', 'manual', now() + interval '5 minutes')
          RETURNING id`,
         [SEED_ACCOUNT, userId],

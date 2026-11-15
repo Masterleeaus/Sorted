@@ -44,7 +44,7 @@ describe.skipIf(!shouldRun)("invoice-followup integration", () => {
 
     // Create test user
     const userRes = await client.query(
-      `INSERT INTO users (account_id, email, password_hash, full_name, role)
+      `INSERT INTO users (company_id, email, password_hash, full_name, role)
        VALUES ($1, 'followup-test@test.com', 'hash', 'Test User', 'owner') RETURNING id`,
       [accountId]
     );
@@ -52,7 +52,7 @@ describe.skipIf(!shouldRun)("invoice-followup integration", () => {
 
     // Create test client entity
     const clientRes = await client.query(
-      `INSERT INTO clients (account_id, name, email)
+      `INSERT INTO clients (company_id, name, email)
        VALUES ($1, 'Follow-Up Test Client', 'followup@client.com') RETURNING id`,
       [accountId]
     );
@@ -60,7 +60,7 @@ describe.skipIf(!shouldRun)("invoice-followup integration", () => {
 
     // Create an overdue invoice (due 10 days ago)
     const invRes = await client.query(
-      `INSERT INTO invoices (account_id, client_id, invoice_number, status, total_cents, paid_cents, due_date, created_by)
+      `INSERT INTO invoices (company_id, client_id, invoice_number, status, total_cents, paid_cents, due_date, created_by)
        VALUES ($1, $2, 'INV-FU-001', 'overdue', 50000, 10000, now() - interval '10 days', $3) RETURNING id`,
       [accountId, clientEntityId, userId]
     );
@@ -68,7 +68,7 @@ describe.skipIf(!shouldRun)("invoice-followup integration", () => {
 
     // Create invoice_followup automation (due now)
     const autoRes = await client.query(
-      `INSERT INTO automations (account_id, type, config, next_run_at)
+      `INSERT INTO automations (company_id, type, config, next_run_at)
        VALUES ($1, 'invoice_followup', '{"days_overdue": [7, 14, 30]}'::jsonb, now() - interval '1 minute') RETURNING id`,
       [accountId]
     );
@@ -78,12 +78,12 @@ describe.skipIf(!shouldRun)("invoice-followup integration", () => {
   afterAll(async () => {
     if (client) {
       // Clean up in reverse dependency order
-      await client.query(`DELETE FROM audit_log WHERE account_id = $1`, [accountId]);
-      await client.query(`DELETE FROM automations WHERE account_id = $1`, [accountId]);
-      await client.query(`DELETE FROM invoices WHERE account_id = $1`, [accountId]);
-      await client.query(`DELETE FROM jobs WHERE account_id = $1`, [accountId]);
-      await client.query(`DELETE FROM clients WHERE account_id = $1`, [accountId]);
-      await client.query(`DELETE FROM users WHERE account_id = $1`, [accountId]);
+      await client.query(`DELETE FROM audit_log WHERE company_id = $1`, [accountId]);
+      await client.query(`DELETE FROM automations WHERE company_id = $1`, [accountId]);
+      await client.query(`DELETE FROM invoices WHERE company_id = $1`, [accountId]);
+      await client.query(`DELETE FROM jobs WHERE company_id = $1`, [accountId]);
+      await client.query(`DELETE FROM clients WHERE company_id = $1`, [accountId]);
+      await client.query(`DELETE FROM users WHERE company_id = $1`, [accountId]);
       await client.query(`DELETE FROM accounts WHERE id = $1`, [accountId]);
       await client.end();
     }
@@ -99,7 +99,6 @@ describe.skipIf(!shouldRun)("invoice-followup integration", () => {
   it("findOverdueInvoices returns the overdue invoice", async () => {
     const automation: AutomationRow = {
       id: automationId,
-      account_id: accountId,
       company_id: accountId,
       type: "invoice_followup",
       config: { days_overdue: [7, 14, 30] },
@@ -119,21 +118,21 @@ describe.skipIf(!shouldRun)("invoice-followup integration", () => {
     // a standard/final invoice must NOT be dunned — but a deposit is due now and
     // MUST stay eligible even on the same open job.
     const jobRes = await client.query(
-      `INSERT INTO jobs (account_id, client_id, title, status, job_type, created_by)
+      `INSERT INTO jobs (company_id, client_id, title, status, job_type, created_by)
        VALUES ($1, $2, 'Open job', 'in_progress', 'custom', $3) RETURNING id`,
       [accountId, clientEntityId, userId],
     );
     const openJobId = jobRes.rows[0].id;
 
     const stdRes = await client.query(
-      `INSERT INTO invoices (account_id, client_id, job_id, invoice_number, invoice_kind, status,
+      `INSERT INTO invoices (company_id, client_id, job_id, invoice_number, invoice_kind, status,
                              total_cents, paid_cents, due_date, created_by)
        VALUES ($1, $2, $3, 'INV-FU-STD', 'standard', 'overdue', 50000, 0, now() - interval '10 days', $4)
        RETURNING id`,
       [accountId, clientEntityId, openJobId, userId],
     );
     const depRes = await client.query(
-      `INSERT INTO invoices (account_id, client_id, job_id, invoice_number, invoice_kind, status,
+      `INSERT INTO invoices (company_id, client_id, job_id, invoice_number, invoice_kind, status,
                              total_cents, paid_cents, due_date, created_by)
        VALUES ($1, $2, $3, 'INV-FU-DEP', 'deposit', 'overdue', 15000, 0, now() - interval '10 days', $4)
        RETURNING id`,
@@ -142,7 +141,6 @@ describe.skipIf(!shouldRun)("invoice-followup integration", () => {
 
     const automation: AutomationRow = {
       id: automationId,
-      account_id: accountId,
       company_id: accountId,
       type: "invoice_followup",
       config: { days_overdue: [7, 14, 30] },
@@ -158,7 +156,6 @@ describe.skipIf(!shouldRun)("invoice-followup integration", () => {
   it("emitInvoiceFollowup creates an audit_log entry", async () => {
     const invoice: OverdueInvoice = {
       id: invoiceId,
-      account_id: accountId,
       company_id: accountId,
       client_id: clientEntityId,
       invoice_number: "INV-FU-001",
@@ -185,7 +182,6 @@ describe.skipIf(!shouldRun)("invoice-followup integration", () => {
   it("emitInvoiceFollowup is idempotent (no duplicate for same cadence step)", async () => {
     const invoice: OverdueInvoice = {
       id: invoiceId,
-      account_id: accountId,
       company_id: accountId,
       client_id: clientEntityId,
       invoice_number: "INV-FU-001",
@@ -211,7 +207,7 @@ describe.skipIf(!shouldRun)("invoice-followup integration", () => {
 
   it("runAutomationType updates automation timestamps", async () => {
     // Clean audit log for fresh run
-    await client.query(`DELETE FROM audit_log WHERE account_id = $1 AND entity_type = 'invoice_followup'`, [accountId]);
+    await client.query(`DELETE FROM audit_log WHERE company_id = $1 AND entity_type = 'invoice_followup'`, [accountId]);
     // Reset automation
     await client.query(
       `UPDATE automations SET next_run_at = now() - interval '1 minute', last_run_at = NULL WHERE id = $1`,
@@ -233,7 +229,7 @@ describe.skipIf(!shouldRun)("invoice-followup integration", () => {
 
   it("runAutomationType processes end-to-end", async () => {
     // Clean audit log for fresh run
-    await client.query(`DELETE FROM audit_log WHERE account_id = $1 AND entity_type = 'invoice_followup'`, [accountId]);
+    await client.query(`DELETE FROM audit_log WHERE company_id = $1 AND entity_type = 'invoice_followup'`, [accountId]);
     // Reset automation
     await client.query(
       `UPDATE automations SET next_run_at = now() - interval '1 minute', last_run_at = NULL WHERE id = $1`,
