@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import {
   EntitlementError,
   SORTED_CENTRAL_APPLICATION,
@@ -114,6 +114,57 @@ describe('Sorted entitlement reader', () => {
     await expect(reader(fetchFn).read('not-a-uuid; drop')).rejects.toBeInstanceOf(EntitlementError);
     await expect(reader(fetchFn).read('')).rejects.toMatchObject({ code: 'invalid_organisation' });
     expect(calls).toHaveLength(0);
+  });
+
+  it('invalidates the cached token on 401 so the next check uses a fresh one', async () => {
+    let issued = 0;
+    const accessToken = async () => `token-${++issued}`;
+    const invalidate = vi.fn();
+    let answered = 0;
+    const { fetchFn, calls } = stub(() => {
+      answered += 1;
+      return answered === 1 ? json(401, { error: 'unauthenticated' }) : json(200, { allowed: true });
+    });
+    const entitlements = createEntitlementReader({
+      origin: ORIGIN,
+      accessToken,
+      invalidateAccessToken: invalidate,
+      fetch: fetchFn,
+    });
+
+    const first = await entitlements.read(ORG);
+    expect(first['jobs:read']).toEqual({ allowed: false, reason: 'unauthenticated' });
+    expect(invalidate).toHaveBeenCalledTimes(1);
+
+    const second = await entitlements.read(ORG);
+    expect(second['jobs:read']).toEqual({ allowed: true, reason: 'allowed' });
+    const authHeaders = calls.map((c) => (c.init?.headers as Record<string, string>).Authorization);
+    expect(authHeaders[authHeaders.length - 1]).toBe('Bearer token-' + issued);
+    expect(issued).toBeGreaterThan(1);
+  });
+
+  it('does not invalidate the token on 403 or 5xx', async () => {
+    const invalidate = vi.fn();
+    const { fetchFn } = stub(() => json(403, { allowed: false, reason: 'feature_denied' }));
+    await createEntitlementReader({ origin: ORIGIN, accessToken: async () => TOKEN, invalidateAccessToken: invalidate, fetch: fetchFn }).read(ORG);
+    const server = stub(() => json(503, { error: 'access_unavailable' }));
+    await createEntitlementReader({ origin: ORIGIN, accessToken: async () => TOKEN, invalidateAccessToken: invalidate, fetch: server.fetchFn }).read(ORG);
+
+    expect(invalidate).not.toHaveBeenCalled();
+  });
+
+  it('keeps denying on 401 even when invalidation throws', async () => {
+    const { fetchFn } = stub(() => json(401, { error: 'unauthenticated' }));
+    const result = await createEntitlementReader({
+      origin: ORIGIN,
+      accessToken: async () => TOKEN,
+      invalidateAccessToken: () => {
+        throw new Error('cache gone');
+      },
+      fetch: fetchFn,
+    }).read(ORG);
+
+    expect(result['visits:read']).toEqual({ allowed: false, reason: 'unauthenticated' });
   });
 
   it('refuses a non-https origin at construction', () => {
