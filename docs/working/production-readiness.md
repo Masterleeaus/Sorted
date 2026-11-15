@@ -46,7 +46,7 @@ Everything in this group is in commits on `issue/prod-readiness-doc`. It reaches
 
 ## C. Owner decisions still open
 
-- #12 License and distribution boundary. No LICENSE file exists in the repo (checked). Owner decision needed.
+- #12 License and distribution boundary. Decided: MIT (ADR-025, `docs/DECISION_LOG.md`). `LICENSE`, the `package.json` license field and the README License section are on main. Owner work left: confirm rights to the imported donor code in `docs/working/titan-donor-provenance.md` before redistribution. Not changed here: licence files.
 - #4 Knip findings. `docs/working/knip-exclusions.md` lists two open decisions: delete the 202 unused files after review, or keep them excluded with a reason (`docs/working/knip-unused-review-list.txt`). Also: keep or remove the 10 `verticals/licensed-trades` modules, which only tests that no script builds can load.
 - Titan known failures: each of the 18 entries needs one of three things: a missing module restored from a checksummed source, a product spec, or a decision to delete the test (`docs/working/titan-known-failures.md`, last section).
 - #6 and #15 web cutover go or no-go. Owner decision once the blockers in group E are closed and verified on a staging copy (`docs/working/rls-web-tier-flip.md`, "Blockers" and "Verification").
