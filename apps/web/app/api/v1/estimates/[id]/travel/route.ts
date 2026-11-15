@@ -166,7 +166,7 @@ export const POST = withRole(["owner", "admin"], async (request: NextRequest, se
     }
 
     const snapshot = await insertTravelSnapshot(client, {
-      account_id: session.accountId,
+      company_id: session.accountId,
       origin_address: calc.origin_address,
       destination_address: calc.destination_address,
       result: calc.calculation,
@@ -191,7 +191,7 @@ export const POST = withRole(["owner", "admin"], async (request: NextRequest, se
     });
 
     await appendAuditLog(client, {
-      account_id: session.accountId,
+      company_id: session.accountId,
       entity_type: "estimate",
       entity_id: estimateId,
       action: "update",

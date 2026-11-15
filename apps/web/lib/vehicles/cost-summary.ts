@@ -3,7 +3,7 @@
  */
 
 export type VehicleCostSummaryRow = {
-  account_id: string;
+  company_id: string;
   vehicle_id: string;
   period_month: string; // YYYY-MM-DD (first of month)
   category: string;

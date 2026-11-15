@@ -82,7 +82,7 @@ export const POST = withRole(["owner", "admin"], async (request: NextRequest, se
     const newUser = rows[0];
 
     await appendAuditLog(client, {
-      account_id: session.accountId,
+      company_id: session.accountId,
       entity_type: "user",
       entity_id: newUser.id as string,
       action: "insert",

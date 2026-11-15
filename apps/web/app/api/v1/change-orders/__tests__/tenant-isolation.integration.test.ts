@@ -49,21 +49,21 @@ describe.skipIf(!enabled)("change-order routes: tenant isolation", () => {
   beforeAll(async () => {
     await admin.query("INSERT INTO accounts (id, name) VALUES ($1, 'CO Iso A'), ($2, 'CO Iso B')", [accountA, accountB]);
     await admin.query(
-      `INSERT INTO users (id, account_id, email, full_name, password_hash, role)
+      `INSERT INTO users (id, company_id, email, full_name, password_hash, role)
        VALUES ($1, $2, $3, 'Owner A', 'x', 'owner'), ($4, $5, $6, 'Owner B', 'x', 'owner')`,
       [ownerA, accountA, `co-a-${ownerA}@test.invalid`, ownerB, accountB, `co-b-${ownerB}@test.invalid`],
     );
     await admin.query(
-      `INSERT INTO clients (id, account_id, name) VALUES ($1, $2, 'CO client A'), ($3, $4, 'CO client B')`,
+      `INSERT INTO clients (id, company_id, name) VALUES ($1, $2, 'CO client A'), ($3, $4, 'CO client B')`,
       [clientA, accountA, clientB, accountB],
     );
     await admin.query(
-      `INSERT INTO estimates (id, account_id, client_id, status, created_by)
+      `INSERT INTO estimates (id, company_id, client_id, status, created_by)
        VALUES ($1, $2, $3, 'approved', $4), ($5, $6, $7, 'approved', $8)`,
       [estimateA, accountA, clientA, ownerA, estimateB, accountB, clientB, ownerB],
     );
     await admin.query(
-      `INSERT INTO change_orders (id, estimate_id, account_id, title, status, created_by)
+      `INSERT INTO change_orders (id, estimate_id, company_id, title, status, created_by)
        VALUES ($1, $2, $3, $4, 'draft', $5)`,
       [coB, estimateB, accountB, titleB, ownerB],
     );

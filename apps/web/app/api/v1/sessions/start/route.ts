@@ -143,7 +143,7 @@ export const POST = withAuth(async (request: NextRequest, session: AuthSession) 
     });
 
     await appendAuditLog(client, {
-      account_id: session.accountId,
+      company_id: session.accountId,
       entity_type: "vehicle_session",
       entity_id: rows[0].id,
       action: "insert",

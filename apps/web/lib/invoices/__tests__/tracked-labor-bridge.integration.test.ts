@@ -45,7 +45,7 @@ describe.skipIf(!RUN)("invoice labor bridge — activity_entries source of truth
   async function jobWorkOnVisit(visitId: string, startISO: string, min: number) {
     await client.query(
       `INSERT INTO activity_entries
-         (account_id, user_id, session_date, activity_type, category,
+         (company_id, user_id, session_date, activity_type, category,
           started_at, ended_at, entity_type, entity_id, source)
        VALUES ($1,$2,$3::date,'job_work','revenue',
           $3::timestamptz, $3::timestamptz + ($4 || ' minutes')::interval, 'visit', $5, 'auto_visit')`,
@@ -64,7 +64,7 @@ describe.skipIf(!RUN)("invoice labor bridge — activity_entries source of truth
   }) {
     await client.query(
       `INSERT INTO activity_entries
-         (account_id, user_id, session_date, activity_type, category,
+         (company_id, user_id, session_date, activity_type, category,
           started_at, ended_at, entity_type, entity_id, source, voided_at)
        VALUES ($1,$2,$3::date,$4,'office',
           $3::timestamptz, $3::timestamptz + ($5 || ' minutes')::interval, $6, $7, 'manual', $8)`,
@@ -77,13 +77,13 @@ describe.skipIf(!RUN)("invoice labor bridge — activity_entries source of truth
 
   async function mkVisit(jobId: string): Promise<string> {
     const workOrder = await client.query<{ id: string }>(
-      `INSERT INTO work_orders (account_id, client_id, job_id, title, created_by, status)
-       SELECT account_id, client_id, id, 'Bridge work', created_by, 'ready'
+      `INSERT INTO work_orders (company_id, client_id, job_id, title, created_by, status)
+       SELECT company_id, client_id, id, 'Bridge work', created_by, 'ready'
        FROM jobs WHERE id = $1 RETURNING id`,
       [jobId],
     );
     const r = await client.query<{ id: string }>(
-      `INSERT INTO visits (account_id, job_id, work_order_id, scheduled_start, scheduled_end, visit_type)
+      `INSERT INTO visits (company_id, job_id, work_order_id, scheduled_start, scheduled_end, visit_type)
        VALUES ($1,$2,$3, now(), now() + interval '1 hour', 'standard') RETURNING id`,
       [ACCOUNT, jobId, workOrder.rows[0].id],
     );
@@ -111,26 +111,26 @@ describe.skipIf(!RUN)("invoice labor bridge — activity_entries source of truth
       [ACCOUNT],
     );
     await client.query(
-      `INSERT INTO users (id, account_id, email, full_name, password_hash, role)
+      `INSERT INTO users (id, company_id, email, full_name, password_hash, role)
        VALUES ($1, $2, 'bridge-owner@test.local', 'Bridge Owner', 'x', 'owner')
        ON CONFLICT (id) DO NOTHING`,
       [OWNER, ACCOUNT],
     );
 
     const c = await client.query<{ id: string }>(
-      `INSERT INTO clients (account_id, name) VALUES ($1,'bridge-test client') RETURNING id`,
+      `INSERT INTO clients (company_id, name) VALUES ($1,'bridge-test client') RETURNING id`,
       [ACCOUNT],
     );
     const clientId = c.rows[0].id;
     const p = await client.query<{ id: string }>(
-      `INSERT INTO properties (account_id, client_id, address) VALUES ($1,$2,'1 Bridge Way') RETURNING id`,
+      `INSERT INTO properties (company_id, client_id, address) VALUES ($1,$2,'1 Bridge Way') RETURNING id`,
       [ACCOUNT, clientId],
     );
     const propertyId = p.rows[0].id;
 
     const mkJob = async (title: string) => {
       const r = await client.query<{ id: string }>(
-        `INSERT INTO jobs (account_id, client_id, property_id, title, created_by)
+        `INSERT INTO jobs (company_id, client_id, property_id, title, created_by)
          VALUES ($1,$2,$3,$4,$5) RETURNING id`,
         [ACCOUNT, clientId, propertyId, title, OWNER],
       );
@@ -141,7 +141,7 @@ describe.skipIf(!RUN)("invoice labor bridge — activity_entries source of truth
     jobEmpty = await mkJob("bridge job empty");
 
     const inv = await client.query<{ id: string }>(
-      `INSERT INTO invoices (account_id, client_id, job_id, invoice_number, created_by)
+      `INSERT INTO invoices (company_id, client_id, job_id, invoice_number, created_by)
        VALUES ($1,$2,$3,'BRIDGE-TEST-1',$4) RETURNING id`,
       [ACCOUNT, clientId, jobA, OWNER],
     );
@@ -165,7 +165,7 @@ describe.skipIf(!RUN)("invoice labor bridge — activity_entries source of truth
 
     // Assessment time is not billable production labor.
     const assessment = await client.query<{ id: string }>(
-      `INSERT INTO visits (account_id, job_id, scheduled_start, scheduled_end, visit_type)
+      `INSERT INTO visits (company_id, job_id, scheduled_start, scheduled_end, visit_type)
        VALUES ($1,$2, now(), now() + interval '1 hour', 'site_visit') RETURNING id`,
       [ACCOUNT, jobA],
     );

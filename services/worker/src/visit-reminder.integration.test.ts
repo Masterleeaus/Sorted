@@ -43,7 +43,7 @@ describe.skipIf(!shouldRun)("Visit Reminder Integration Tests", () => {
 
     // Create test client
     const clientRes = await client.query<{ id: string }>(
-      `INSERT INTO clients (account_id, name, email)
+      `INSERT INTO clients (company_id, name, email)
        VALUES ($1, 'Reminder Test Client', 'reminder-test@example.com')
        RETURNING id`,
       [ACCOUNT_A]
@@ -52,7 +52,7 @@ describe.skipIf(!shouldRun)("Visit Reminder Integration Tests", () => {
 
     // Create test job
     const jobRes = await client.query<{ id: string }>(
-      `INSERT INTO jobs (account_id, client_id, title, status, created_by)
+      `INSERT INTO jobs (company_id, client_id, title, status, created_by)
        VALUES ($1, $2, 'Reminder Test Job', 'scheduled', $3)
        RETURNING id`,
       [ACCOUNT_A, testClientId, OWNER_A]
@@ -60,7 +60,7 @@ describe.skipIf(!shouldRun)("Visit Reminder Integration Tests", () => {
     testJobId = jobRes.rows[0].id;
 
     const workOrder = await client.query<{ id: string }>(
-      `INSERT INTO work_orders (account_id, client_id, job_id, title, created_by, status)
+      `INSERT INTO work_orders (company_id, client_id, job_id, title, created_by, status)
        VALUES ($1, $2, $3, 'Reminder work', $4, 'ready') RETURNING id`,
       [ACCOUNT_A, testClientId, testJobId, OWNER_A],
     );
@@ -68,7 +68,7 @@ describe.skipIf(!shouldRun)("Visit Reminder Integration Tests", () => {
 
     // Create a visit scheduled 12 hours from now (within 24h reminder window)
     const visitRes = await client.query<{ id: string }>(
-      `INSERT INTO visits (account_id, job_id, assigned_user_id, status, scheduled_start, scheduled_end, work_order_id)
+      `INSERT INTO visits (company_id, job_id, assigned_user_id, status, scheduled_start, scheduled_end, work_order_id)
        VALUES ($1, $2, $3, 'scheduled', now() + interval '12 hours', now() + interval '13 hours', $4)
        RETURNING id`,
       [ACCOUNT_A, testJobId, TECH_A, testWorkOrderId]
@@ -77,7 +77,7 @@ describe.skipIf(!shouldRun)("Visit Reminder Integration Tests", () => {
 
     // Create a visit_reminder automation for Account A, due now
     const autoRes = await client.query<{ id: string }>(
-      `INSERT INTO automations (account_id, type, enabled, config, next_run_at)
+      `INSERT INTO automations (company_id, type, enabled, config, next_run_at)
        VALUES ($1, 'visit_reminder', true, '{"hours_before": 24}', now() - interval '1 minute')
        RETURNING id`,
       [ACCOUNT_A]
@@ -88,7 +88,7 @@ describe.skipIf(!shouldRun)("Visit Reminder Integration Tests", () => {
   afterEach(async () => {
     // Clean up any reminder audit entries created by tests
     await client.query(
-      `DELETE FROM audit_log WHERE entity_type = 'visit_reminder' AND account_id = $1`,
+      `DELETE FROM audit_log WHERE entity_type = 'visit_reminder' AND company_id = $1`,
       [ACCOUNT_A]
     );
   });
@@ -120,13 +120,12 @@ describe.skipIf(!shouldRun)("Visit Reminder Integration Tests", () => {
     const found = automations.find((a) => a.id === testAutomationId);
     expect(found).toBeDefined();
     expect(found!.type).toBe("visit_reminder");
-    expect(found!.account_id).toBe(ACCOUNT_A);
+    expect(found!.company_id).toBe(ACCOUNT_A);
   });
 
   it("findEligibleVisits returns visits within the reminder window", async () => {
     const automation: AutomationRow = {
       id: testAutomationId,
-      account_id: ACCOUNT_A,
       company_id: ACCOUNT_A,
       type: "visit_reminder",
       config: { hours_before: 24 },
@@ -146,7 +145,6 @@ describe.skipIf(!shouldRun)("Visit Reminder Integration Tests", () => {
   it("findEligibleVisits excludes visits outside the window", async () => {
     const automation: AutomationRow = {
       id: testAutomationId,
-      account_id: ACCOUNT_A,
       company_id: ACCOUNT_A,
       type: "visit_reminder",
       config: { hours_before: 1 }, // Only 1 hour window — our visit is 12h away
@@ -162,7 +160,6 @@ describe.skipIf(!shouldRun)("Visit Reminder Integration Tests", () => {
   it("emitVisitReminder creates audit_log entry", async () => {
     const visit: EligibleVisit = {
       id: testVisitId,
-      account_id: ACCOUNT_A,
       company_id: ACCOUNT_A,
       job_id: testJobId,
       client_id: testClientId,
@@ -197,7 +194,6 @@ describe.skipIf(!shouldRun)("Visit Reminder Integration Tests", () => {
   it("emitVisitReminder is idempotent — skips duplicate", async () => {
     const visit: EligibleVisit = {
       id: testVisitId,
-      account_id: ACCOUNT_A,
       company_id: ACCOUNT_A,
       job_id: testJobId,
       client_id: testClientId,

@@ -44,12 +44,12 @@ describe.skipIf(!enabled)("send-intake route: tenant isolation", () => {
   beforeAll(async () => {
     await admin.query("INSERT INTO accounts (id, name) VALUES ($1, 'Intake Send A'), ($2, 'Intake Send B')", [accountA, accountB]);
     await admin.query(
-      `INSERT INTO users (id, account_id, email, full_name, password_hash, role)
+      `INSERT INTO users (id, company_id, email, full_name, password_hash, role)
        VALUES ($1, $2, $3, 'Owner A', 'x', 'owner'), ($4, $5, $6, 'Owner B', 'x', 'owner')`,
       [ownerA, accountA, `isend-a-${ownerA}@test.invalid`, ownerB, accountB, `isend-b-${ownerB}@test.invalid`],
     );
     await admin.query(
-      `INSERT INTO booking_requests (id, account_id, name, email, service_description, routing_path, preferred_contact, sms_consent, status)
+      `INSERT INTO booking_requests (id, company_id, name, email, service_description, routing_path, preferred_contact, sms_consent, status)
        VALUES ($1, $2, 'Lead A', 'lead-a@test.invalid', 'Fix gate', 'site_visit', 'email', false, 'pending'),
               ($3, $4, 'Lead B', 'lead-b@test.invalid', 'Fix fence', 'site_visit', 'email', false, 'pending')`,
       [brA, accountA, brB, accountB],
@@ -80,10 +80,10 @@ describe.skipIf(!enabled)("send-intake route: tenant isolation", () => {
     const res = await sendIntake(request(brA));
     expect(res.status).not.toBe(404);
     const invites = await admin.query(
-      "SELECT account_id FROM intake_invites WHERE booking_request_id = $1",
+      "SELECT company_id FROM intake_invites WHERE booking_request_id = $1",
       [brA],
     );
     expect(invites.rowCount).toBeGreaterThan(0);
-    expect(invites.rows[0]?.account_id).toBe(accountA);
+    expect(invites.rows[0]?.company_id).toBe(accountA);
   });
 });

@@ -42,7 +42,7 @@ vi.mock("@/lib/db", () => ({
     state.log.push({ sql, params });
     // The bootstrap resolver returns only the account id, as the migration does.
     if (sql.includes("resolve_invoice_share_account")) {
-      return state.invoice ? { account_id: state.invoice.account_id } : null;
+      return state.invoice ? { company_id: state.invoice.company_id } : null;
     }
     return state.invoice;
   },
@@ -74,7 +74,7 @@ const ctx = { params: Promise.resolve({ token: "share-tok" }) };
 function baseInvoice(overrides: Record<string, unknown> = {}) {
   return {
     id: INVOICE,
-    account_id: ACCOUNT,
+    company_id: ACCOUNT,
     client_id: CLIENT,
     job_id: null,
     created_by: USER,
@@ -113,11 +113,11 @@ beforeEach(() => {
 });
 
 describe("GET /api/portal/invoices/[token]", () => {
-  it("reads line items inside the invoice account context and omits account_id from the response", async () => {
+  it("reads line items inside the invoice account context and omits company_id from the response", async () => {
     const res = await GET(new NextRequest("http://localhost:3000/api/portal/invoices/t"), ctx);
     expect(res.status).toBe(200);
     const body = await res.json();
-    expect(body.invoice).not.toHaveProperty("account_id");
+    expect(body.invoice).not.toHaveProperty("company_id");
     expect(body.invoice.invoice_number).toBe("INV-100");
     expect(body.lineItems).toEqual([{ id: "li-1", description: "Caulk" }]);
 

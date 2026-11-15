@@ -271,7 +271,7 @@ describe("documentLinkEntityTypeSchema", () => {
 describe("documentLinkSchema", () => {
   const validLink = {
     id: "00000000-0000-0000-0000-000000000001",
-    account_id: "00000000-0000-0000-0000-000000000002",
+    company_id: "00000000-0000-0000-0000-000000000002",
     entity_type: "expense" as const,
     entity_id: "00000000-0000-0000-0000-000000000003",
     paperless_doc_id: 42,

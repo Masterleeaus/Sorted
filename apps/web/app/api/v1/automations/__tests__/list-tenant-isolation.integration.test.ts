@@ -42,12 +42,12 @@ describe.skipIf(!enabled)("automations list: tenant isolation", () => {
   beforeAll(async () => {
     await admin.query("INSERT INTO accounts (id, name) VALUES ($1, 'Auto List A'), ($2, 'Auto List B')", [accountA, accountB]);
     await admin.query(
-      `INSERT INTO users (id, account_id, email, full_name, password_hash, role)
+      `INSERT INTO users (id, company_id, email, full_name, password_hash, role)
        VALUES ($1, $2, $3, 'Owner A', 'x', 'owner'), ($4, $5, $6, 'Owner B', 'x', 'owner')`,
       [ownerA, accountA, `auto-list-a-${ownerA}@test.invalid`, ownerB, accountB, `auto-list-b-${ownerB}@test.invalid`],
     );
     await admin.query(
-      `INSERT INTO automations (id, account_id, type, enabled, next_run_at)
+      `INSERT INTO automations (id, company_id, type, enabled, next_run_at)
        VALUES ($1, $2, 'stale_job_nudge', true, now()), ($3, $4, 'stale_job_nudge', true, now())`,
       [autoA, accountA, autoB, accountB],
     );

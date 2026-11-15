@@ -33,7 +33,7 @@ export type ChecklistSection = (typeof CHECKLIST_SECTIONS)[number];
 
 export const visitChecklistItemSchema = z.object({
   id: uuidField,
-  account_id: uuidField,
+  company_id: uuidField,
   visit_id: uuidField,
   section: z.string().min(1),
   item_key: z.string().min(1),

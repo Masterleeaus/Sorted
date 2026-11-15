@@ -59,7 +59,7 @@ const CLIENT_ID = "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb";
 
 const SAMPLE_JOB = {
   id: JOB_ID,
-  account_id: mockSession.accountId,
+  company_id: mockSession.accountId,
   client_id: CLIENT_ID,
   title: "Fix roof",
   status: "draft",

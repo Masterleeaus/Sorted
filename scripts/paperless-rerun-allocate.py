@@ -648,10 +648,9 @@ def main() -> int:
             SELECT set_config('app.current_account_id', '{ACCOUNT_ID}', true);
             SELECT set_config('app.current_user_id', '{OWNER_USER_ID}', true);
             INSERT INTO document_links
-              (account_id, company_id, entity_type, entity_id, paperless_doc_id, title, original_filename, created_by, document_type)
+              (company_id, entity_type, entity_id, paperless_doc_id, title, original_filename, created_by, document_type)
             VALUES
-              ('{ACCOUNT_ID}', '{ACCOUNT_ID}', 'expense', '{match_exp["id"]}', {did}, '{title_esc}', '{fn}',
-               '{OWNER_USER_ID}', 'receipt')
+              ('{ACCOUNT_ID}', 'expense', '{match_exp["id"]}', {did}, '{title_esc}', '{fn}', '{OWNER_USER_ID}', 'receipt')
             ON CONFLICT DO NOTHING;
             """
             try:

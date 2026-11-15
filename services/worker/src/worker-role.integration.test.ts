@@ -44,7 +44,7 @@ describe.skipIf(!shouldRun)("worker runtime role (ai_fsm_worker)", () => {
     );
     const entityId = randomUUID();
     const { rows } = await admin.query<{ id: string; title: string }>(
-      `INSERT INTO attention_events (account_id, type, entity_type, entity_id, title, href, created_at)
+      `INSERT INTO attention_events (company_id, type, entity_type, entity_id, title, href, created_at)
        VALUES ($1, 'worker_test', 'job', $3, 'stale A', '/test', now() - interval '200 days'),
               ($2, 'worker_test', 'job', $3, 'stale B', '/test', now() - interval '200 days'),
               ($1, 'worker_test', 'job', $3, 'fresh A', '/test', now())
@@ -58,7 +58,7 @@ describe.skipIf(!shouldRun)("worker runtime role (ai_fsm_worker)", () => {
   });
 
   afterAll(async () => {
-    await admin.query("DELETE FROM attention_events WHERE account_id = ANY($1::uuid[])", [[accountA, accountB]]);
+    await admin.query("DELETE FROM attention_events WHERE company_id = ANY($1::uuid[])", [[accountA, accountB]]);
     await admin.query("DELETE FROM accounts WHERE id = ANY($1::uuid[])", [[accountA, accountB]]);
     await admin.end();
     await worker.end();
@@ -93,10 +93,10 @@ describe.skipIf(!shouldRun)("worker runtime role (ai_fsm_worker)", () => {
     );
     expect(stale).toEqual([]);
     const { rows: fresh } = await admin.query(
-      "SELECT id, account_id FROM attention_events WHERE id = $1",
+      "SELECT id, company_id FROM attention_events WHERE id = $1",
       [freshId],
     );
-    expect(fresh).toEqual([{ id: freshId, account_id: accountA }]);
+    expect(fresh).toEqual([{ id: freshId, company_id: accountA }]);
   });
 });
 
@@ -127,64 +127,64 @@ describe.skipIf(!shouldRun)("worker runtime role: other cross-account sweeps", (
       "INSERT INTO accounts (id, name) VALUES ($1, 'Worker sweep C'), ($2, 'Worker sweep D')",
       accounts,
     );
-    const users = await admin.query<{ id: string; account_id: string }>(
-      `INSERT INTO users (account_id, email, password_hash, full_name, role)
+    const users = await admin.query<{ id: string; company_id: string }>(
+      `INSERT INTO users (company_id, email, password_hash, full_name, role)
        VALUES ($1, 'worker-sweep-c@test.com', 'hash', 'Sweep C', 'owner'),
               ($2, 'worker-sweep-d@test.com', 'hash', 'Sweep D', 'owner')
-       RETURNING id, account_id`,
+       RETURNING id, company_id`,
       accounts,
     );
-    userA = users.rows.find((r) => r.account_id === accountA)!.id;
-    userB = users.rows.find((r) => r.account_id === accountB)!.id;
-    const clients = await admin.query<{ id: string; account_id: string }>(
-      `INSERT INTO clients (account_id, name, email)
+    userA = users.rows.find((r) => r.company_id === accountA)!.id;
+    userB = users.rows.find((r) => r.company_id === accountB)!.id;
+    const clients = await admin.query<{ id: string; company_id: string }>(
+      `INSERT INTO clients (company_id, name, email)
        VALUES ($1, 'Sweep client C', 'c@sweep.test'), ($2, 'Sweep client D', 'd@sweep.test')
-       RETURNING id, account_id`,
+       RETURNING id, company_id`,
       accounts,
     );
-    clientA = clients.rows.find((r) => r.account_id === accountA)!.id;
-    clientB = clients.rows.find((r) => r.account_id === accountB)!.id;
+    clientA = clients.rows.find((r) => r.company_id === accountA)!.id;
+    clientB = clients.rows.find((r) => r.company_id === accountB)!.id;
 
     const one = async (sql: string, params: unknown[]) =>
       (await admin.query<{ id: string }>(`${sql} RETURNING id`, params)).rows[0].id;
     expiredEstimateA = await one(
-      `INSERT INTO estimates (account_id, client_id, created_by, status, expires_at)
+      `INSERT INTO estimates (company_id, client_id, created_by, status, expires_at)
        VALUES ($1, $2, $3, 'sent', now() - interval '3 days')`, [accountA, clientA, userA]);
     expiredEstimateB = await one(
-      `INSERT INTO estimates (account_id, client_id, created_by, status, expires_at)
+      `INSERT INTO estimates (company_id, client_id, created_by, status, expires_at)
        VALUES ($1, $2, $3, 'sent', now() - interval '3 days')`, [accountB, clientB, userB]);
     liveEstimateA = await one(
-      `INSERT INTO estimates (account_id, client_id, created_by, status, expires_at)
+      `INSERT INTO estimates (company_id, client_id, created_by, status, expires_at)
        VALUES ($1, $2, $3, 'sent', now() + interval '30 days')`, [accountA, clientA, userA]);
 
     staleBrA = await one(
-      `INSERT INTO booking_requests (account_id, name, service_description, status, updated_at)
+      `INSERT INTO booking_requests (company_id, name, service_description, status, updated_at)
        VALUES ($1, 'stale A', 'faucet', 'pending', now() - interval '90 days')`, [accountA]);
     staleBrB = await one(
-      `INSERT INTO booking_requests (account_id, name, service_description, status, updated_at)
+      `INSERT INTO booking_requests (company_id, name, service_description, status, updated_at)
        VALUES ($1, 'stale B', 'faucet', 'pending', now() - interval '90 days')`, [accountB]);
     freshBrA = await one(
-      `INSERT INTO booking_requests (account_id, name, service_description, status, updated_at)
+      `INSERT INTO booking_requests (company_id, name, service_description, status, updated_at)
        VALUES ($1, 'fresh A', 'faucet', 'pending', now())`, [accountA]);
 
     oldLocA = await one(
-      `INSERT INTO location_events (account_id, occurred_at, kind)
+      `INSERT INTO location_events (company_id, occurred_at, kind)
        VALUES ($1, now() - interval '200 days', 'location_update')`, [accountA]);
     oldLocB = await one(
-      `INSERT INTO location_events (account_id, occurred_at, kind)
+      `INSERT INTO location_events (company_id, occurred_at, kind)
        VALUES ($1, now() - interval '200 days', 'location_update')`, [accountB]);
     newLocA = await one(
-      `INSERT INTO location_events (account_id, occurred_at, kind)
+      `INSERT INTO location_events (company_id, occurred_at, kind)
        VALUES ($1, now(), 'location_update')`, [accountA]);
   });
 
   afterAll(async () => {
-    await admin.query("DELETE FROM status_history WHERE account_id = ANY($1::uuid[])", [accounts]);
-    await admin.query("DELETE FROM location_events WHERE account_id = ANY($1::uuid[])", [accounts]);
-    await admin.query("DELETE FROM booking_requests WHERE account_id = ANY($1::uuid[])", [accounts]);
-    await admin.query("DELETE FROM estimates WHERE account_id = ANY($1::uuid[])", [accounts]);
-    await admin.query("DELETE FROM clients WHERE account_id = ANY($1::uuid[])", [accounts]);
-    await admin.query("DELETE FROM users WHERE account_id = ANY($1::uuid[])", [accounts]);
+    await admin.query("DELETE FROM status_history WHERE company_id = ANY($1::uuid[])", [accounts]);
+    await admin.query("DELETE FROM location_events WHERE company_id = ANY($1::uuid[])", [accounts]);
+    await admin.query("DELETE FROM booking_requests WHERE company_id = ANY($1::uuid[])", [accounts]);
+    await admin.query("DELETE FROM estimates WHERE company_id = ANY($1::uuid[])", [accounts]);
+    await admin.query("DELETE FROM clients WHERE company_id = ANY($1::uuid[])", [accounts]);
+    await admin.query("DELETE FROM users WHERE company_id = ANY($1::uuid[])", [accounts]);
     await admin.query("DELETE FROM accounts WHERE id = ANY($1::uuid[])", [accounts]);
     await admin.end();
     await worker.end();

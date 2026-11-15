@@ -7,7 +7,7 @@ export const dynamic = "force-dynamic";
 
 interface EstimateRow extends Record<string, unknown> {
   id: string;
-  account_id: string;
+  company_id: string;
   status: string;
   presentation_mode: "standard" | "multi_option";
   subtotal_cents: number;
@@ -64,7 +64,7 @@ export default async function EstimatePortalPage({
       tx.query<T>(text, params).then((r) => r.rows);
     const rows = await q<EstimateRow>(
       `SELECT
-         e.id, e.account_id, e.client_id, e.status, e.presentation_mode, e.subtotal_cents, e.tax_cents, e.total_cents,
+         e.id, e.company_id, e.client_id, e.status, e.presentation_mode, e.subtotal_cents, e.tax_cents, e.total_cents,
          e.deposit_cents, e.notes, e.scope_assumptions, e.expires_at, e.responded_at,
          e.client_approved_name,
          c.name AS client_name,
@@ -108,7 +108,7 @@ export default async function EstimatePortalPage({
     const { emitAttentionEvent } = await import("@/lib/attention");
     await withPortalTokenPage("resolve_estimate_share_account", token, (tx) =>
       emitAttentionEvent(tx, {
-        accountId: estimate.account_id,
+        accountId: estimate.company_id,
         type: "estimate.opened",
         entityType: "estimate",
         entityId: estimate.id,

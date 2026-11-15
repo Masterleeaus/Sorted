@@ -76,11 +76,11 @@ export async function enqueueNotification(
   const nextAttemptAt = opts.scheduledFor ?? new Date();
   const queued = await client.query<{ id: string }>(
     `INSERT INTO notification_queue
-       (account_id, client_id, automation_type, priority, to_address,
+       (company_id, client_id, automation_type, priority, to_address,
         subject, html_body, idempotency_key, entity_type, entity_id,
         cancel_on_events, next_attempt_at, metadata)
      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13)
-     ON CONFLICT (account_id, idempotency_key) DO UPDATE
+     ON CONFLICT (company_id, idempotency_key) DO UPDATE
        SET status          = 'pending',
            attempt_count   = 0,
            failure_reason  = NULL,
@@ -92,7 +92,7 @@ export async function enqueueNotification(
            html_body       = EXCLUDED.html_body,
            metadata        = EXCLUDED.metadata
      WHERE notification_queue.status = 'failed'
-       AND notification_queue.account_id = EXCLUDED.account_id
+       AND notification_queue.company_id = EXCLUDED.company_id
      RETURNING id`,
     [
       opts.accountId,

@@ -33,13 +33,13 @@ export function estimateAttentionPredicate(alias = ""): string {
   AND (${p}expires_at IS NULL OR ${p}expires_at >= CURRENT_DATE)`;
 }
 
-/** Full WHERE for invoice attention counts. Params: account_id as $1. */
+/** Full WHERE for invoice attention counts. Params: company_id as $1. */
 export const INVOICE_ATTENTION_WHERE = `
   company_id = $1
   AND ${invoiceAttentionPredicate()}
 `;
 
-/** Full WHERE for estimate attention counts. Params: account_id as $1. */
+/** Full WHERE for estimate attention counts. Params: company_id as $1. */
 export const ESTIMATE_ATTENTION_WHERE = `
   company_id = $1
   AND ${estimateAttentionPredicate()}

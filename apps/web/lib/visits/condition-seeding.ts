@@ -49,7 +49,7 @@ export async function seedConditionSnapshots(
 
     await client.query(
       `INSERT INTO property_condition_snapshots
-         (account_id, property_id, visit_id, area, condition, note, assessed_at)
+         (company_id, property_id, visit_id, area, condition, note, assessed_at)
        VALUES ($1, $2, $3, $4, $5, $6, now())
        ON CONFLICT (visit_id, area) DO UPDATE
          SET condition = EXCLUDED.condition,

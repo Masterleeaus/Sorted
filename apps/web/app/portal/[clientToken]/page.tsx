@@ -69,7 +69,7 @@ interface ClientRow extends Record<string, unknown> {
   name: string;
   email: string | null;
   phone: string | null;
-  account_id: string;
+  company_id: string;
   account_name: string;
   preferred_contact: string;
   sms_consent: boolean;
@@ -100,7 +100,7 @@ export default async function ClientPortalPage({
       const q = <T extends Record<string, unknown>>(text: string, params?: unknown[]) =>
         tx.query<T>(text, params).then((r) => r.rows);
       const clientRows = await q<ClientRow>(
-        `SELECT c.id, c.name, c.email, c.phone, c.account_id, c.preferred_contact, c.sms_consent,
+        `SELECT c.id, c.name, c.email, c.phone, c.company_id, c.preferred_contact, c.sms_consent,
                 a.name AS account_name
          FROM clients c
          JOIN accounts a ON a.id = c.company_id
@@ -193,7 +193,7 @@ export default async function ClientPortalPage({
        WHERE p.client_id = $1 AND p.company_id = $2
        GROUP BY p.id
        ORDER BY p.address`,
-      [client.id, client.account_id]
+      [client.id, client.company_id]
     ),
     loadSponsoredInvoices(tx, client.id),
     // TASK-162: published Job Reports to this client (sponsored ones stay out of their own history).
@@ -206,7 +206,7 @@ export default async function ClientPortalPage({
        WHERE r.client_id = $1 AND r.company_id = $2 AND r.status = 'published' AND NOT r.sponsored
        ORDER BY published_at DESC
        LIMIT 50`,
-      [client.id, client.account_id]
+      [client.id, client.company_id]
     ),
   ]);
       return { client, estimates, invoices, plans, maintenanceJobs, activeVisitRows, recentComms, properties, sponsored, reports };

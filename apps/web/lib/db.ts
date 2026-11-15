@@ -37,7 +37,7 @@ const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/
 /**
  * Validates a company id (canonical tenant key, issue #26). Fails closed: a
  * missing or malformed value throws before any connection is opened.
- * During the dual-column period (migration 205) company_id equals account_id.
+ * company_id is the tenant column on every tenant table (migration 209 renamed account_id).
  */
 export function assertCompanyId(value: unknown): string {
   if (typeof value !== "string" || !UUID_RE.test(value)) {

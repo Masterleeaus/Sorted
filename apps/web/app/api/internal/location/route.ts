@@ -83,13 +83,13 @@ const bodySchema = z.object({
 let _accountId: string | null = null;
 async function getOwnerAccountId(): Promise<string> {
   if (_accountId) return _accountId;
-  const row = await queryOne<{ account_id: string }>(
-    `SELECT a.id AS account_id
+  const row = await queryOne<{ company_id: string }>(
+    `SELECT a.id AS company_id
      FROM accounts a JOIN users u ON u.company_id = a.id
      WHERE u.role = 'owner' ORDER BY u.created_at LIMIT 1`,
   );
   if (!row) throw new Error("No owner account found in database");
-  _accountId = row.account_id;
+  _accountId = row.company_id;
   return _accountId;
 }
 

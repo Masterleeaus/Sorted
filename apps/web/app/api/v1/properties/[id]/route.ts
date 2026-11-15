@@ -141,7 +141,7 @@ export const PATCH = withRole(["owner", "admin"], async (request: NextRequest, s
     const updated = result.rows[0];
 
     await appendAuditLog(client, {
-      account_id: session.accountId,
+      company_id: session.accountId,
       entity_type: "property",
       entity_id: id,
       action: "update",

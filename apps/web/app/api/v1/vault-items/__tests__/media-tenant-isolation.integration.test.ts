@@ -51,26 +51,26 @@ describe.skipIf(!enabled)("vault item media routes: tenant isolation", () => {
   beforeAll(async () => {
     await admin.query("INSERT INTO accounts (id, name) VALUES ($1, 'Vault Media A'), ($2, 'Vault Media B')", [accountA, accountB]);
     await admin.query(
-      `INSERT INTO users (id, account_id, email, full_name, password_hash, role)
+      `INSERT INTO users (id, company_id, email, full_name, password_hash, role)
        VALUES ($1, $2, $3, 'Owner A', 'x', 'owner'), ($4, $5, $6, 'Owner B', 'x', 'owner')`,
       [ownerA, accountA, `vmedia-a-${ownerA}@test.invalid`, ownerB, accountB, `vmedia-b-${ownerB}@test.invalid`],
     );
     await admin.query(
-      `INSERT INTO clients (id, account_id, name) VALUES ($1, $2, 'VM client A'), ($3, $4, 'VM client B')`,
+      `INSERT INTO clients (id, company_id, name) VALUES ($1, $2, 'VM client A'), ($3, $4, 'VM client B')`,
       [clientA, accountA, clientB, accountB],
     );
     await admin.query(
-      `INSERT INTO properties (id, account_id, client_id, address)
+      `INSERT INTO properties (id, company_id, client_id, address)
        VALUES ($1, $2, $3, '1 VM Way'), ($4, $5, $6, '2 VM Way')`,
       [propertyA, accountA, clientA, propertyB, accountB, clientB],
     );
     await admin.query(
-      `INSERT INTO property_vault_items (id, account_id, property_id, category, name, created_by)
+      `INSERT INTO property_vault_items (id, company_id, property_id, category, name, created_by)
        VALUES ($1, $2, $3, 'other', 'VM Item A', $4), ($5, $6, $7, 'other', 'VM Item B', $8)`,
       [itemA, accountA, propertyA, ownerA, itemB, accountB, propertyB, ownerB],
     );
     await admin.query(
-      `INSERT INTO property_vault_item_media (id, account_id, vault_item_id, filename, original_name, mime_type, size_bytes, created_by)
+      `INSERT INTO property_vault_item_media (id, company_id, vault_item_id, filename, original_name, mime_type, size_bytes, created_by)
        VALUES ($1, $2, $3, 'vm-a.jpg', 'a.jpg', 'image/jpeg', 10, $4),
               ($5, $6, $7, 'vm-b.jpg', 'b.jpg', 'image/jpeg', 10, $8)`,
       [mediaA, accountA, itemA, ownerA, mediaB, accountB, itemB, ownerB],

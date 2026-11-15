@@ -9,7 +9,7 @@ import {
 } from "@ai-fsm/domain";
 
 export interface TravelSettingsRow extends TravelSettings {
-  account_id: string;
+  company_id: string;
 }
 
 function num(v: unknown, fallback: number): number {
@@ -84,8 +84,8 @@ export async function loadTravelSettings(
   }
 
   await client.query(
-    `INSERT INTO business_travel_settings (account_id) VALUES ($1)
-     ON CONFLICT (account_id) DO NOTHING`,
+    `INSERT INTO business_travel_settings (company_id) VALUES ($1)
+     ON CONFLICT (company_id) DO NOTHING`,
     [accountId]
   );
   const seeded = await client.query(

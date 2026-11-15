@@ -71,7 +71,7 @@ export async function completeAssessmentCascade(
   );
 
   await appendAuditLog(client, {
-    account_id: ctx.accountId,
+    company_id: ctx.accountId,
     entity_type: "visit",
     entity_id: ctx.visitId,
     action: "update",
@@ -174,7 +174,7 @@ export async function sendEstimateCascade(
   }
 
   await appendAuditLog(client, {
-    account_id: ctx.accountId,
+    company_id: ctx.accountId,
     entity_type: "job",
     entity_id: ctx.jobId,
     action: "update",

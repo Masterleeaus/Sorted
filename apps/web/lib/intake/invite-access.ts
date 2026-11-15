@@ -3,7 +3,7 @@ import type { Pool } from "pg";
 
 export interface OpenInvite {
   id: string;
-  account_id: string;
+  company_id: string;
   booking_request_id: string | null;
 }
 
@@ -17,7 +17,7 @@ export async function resolveOpenInvite(
   token: string,
 ): Promise<{ ok: true; invite: OpenInvite } | { ok: false; response: NextResponse }> {
   const { rows } = await pool.query<OpenInvite>(
-    `SELECT id, account_id, booking_request_id
+    `SELECT id, company_id, booking_request_id
      FROM resolve_open_intake_invite($1::uuid)`,
     [token],
   );

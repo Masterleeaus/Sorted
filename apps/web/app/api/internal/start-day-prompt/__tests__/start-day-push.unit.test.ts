@@ -38,12 +38,12 @@ function req(key: string | null = "test-key"): NextRequest {
 }
 
 function startEligible(over: Partial<{
-  account_id: string;
+  company_id: string;
   suppress_weekend_start_prompt: boolean;
   has_open_mileage_today: boolean;
 }> = {}) {
   return {
-    account_id: ACCOUNT,
+    company_id: ACCOUNT,
     suppress_weekend_start_prompt: false,
     has_open_mileage_today: false,
     ...over,
@@ -56,7 +56,7 @@ let ownerRow: ReturnType<typeof startEligible> | null = null;
 // account's context on the pool client.
 function setOwnerRow(row: ReturnType<typeof startEligible> | null) {
   ownerRow = row;
-  mockQueryOne.mockResolvedValue(row ? { account_id: row.account_id } : null);
+  mockQueryOne.mockResolvedValue(row ? { company_id: row.company_id } : null);
 }
 
 beforeEach(() => {

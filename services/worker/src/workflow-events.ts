@@ -4,7 +4,7 @@ import { cancelNotificationsForEntity } from "./notification/enqueue.js";
 
 interface WorkflowEvent {
   id: string;
-  account_id: string;
+  company_id: string;
   event_type: string;
   entity_type: string;
   entity_id: string;
@@ -25,7 +25,7 @@ const CANCEL_TRIGGERS = new Set([
 
 export async function processWorkflowEvents(client: Client): Promise<number> {
   const { rows } = await client.query<WorkflowEvent>(
-    `SELECT id, account_id, event_type, entity_type, entity_id, payload
+    `SELECT id, company_id, event_type, entity_type, entity_id, payload
      FROM workflow_events
      WHERE processed = false
      ORDER BY created_at ASC
@@ -44,7 +44,7 @@ export async function processWorkflowEvents(client: Client): Promise<number> {
           event.entity_type,
           event.entity_id,
           event.event_type,
-          event.account_id
+          event.company_id
         );
         if (cancelled > 0) {
           logger.info("workflow-events: cancelled pending notifications", {

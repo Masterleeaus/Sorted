@@ -20,7 +20,7 @@ async function getAutomation(
 ): Promise<AutomationRecord | null> {
   const rows = await queryForSession<AutomationRecord>(
     session,
-    `SELECT id, type, account_id, enabled FROM automations WHERE id = $1 AND company_id = $2`,
+    `SELECT id, type, company_id, enabled FROM automations WHERE id = $1 AND company_id = $2`,
     [automationId, companyIdFromSession(session)]
   );
   return rows[0] ?? null;

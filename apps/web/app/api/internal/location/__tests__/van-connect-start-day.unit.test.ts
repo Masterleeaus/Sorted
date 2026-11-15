@@ -83,7 +83,7 @@ beforeEach(() => {
   });
   mockQueryOne.mockImplementation((sql: string) => {
     if (sql.includes("FROM accounts a JOIN users u")) {
-      return Promise.resolve({ account_id: ACCOUNT });
+      return Promise.resolve({ company_id: ACCOUNT });
     }
     if (sql.includes("location_tracking_enabled")) {
       return Promise.resolve({ enabled: true, paused: false, active_session: false });
@@ -157,7 +157,7 @@ describe("POST /api/internal/location — van connect starts the company day", (
   it("does not start the company day on GPS or disconnect", async () => {
     mockQueryOne.mockImplementation((sql: string) => {
       if (sql.includes("FROM accounts a JOIN users u")) {
-        return Promise.resolve({ account_id: ACCOUNT });
+        return Promise.resolve({ company_id: ACCOUNT });
       }
       if (sql.includes("location_tracking_enabled")) {
         return Promise.resolve({ enabled: true, paused: false, active_session: true });

@@ -42,7 +42,7 @@ vi.mock("@/lib/db", () => ({
   },
   queryOne: async (sql: string) => {
     if (sql.includes("resolve_portal_client_account")) {
-      return { account_id: state.resolvedAccount };
+      return { company_id: state.resolvedAccount };
     }
     throw new Error(`unexpected queryOne: ${sql}`);
   },
@@ -84,7 +84,7 @@ beforeEach(() => {
     name: "Pat Portal",
     email: "pat@example.com",
     phone: null,
-    account_id: ACCOUNT,
+    company_id: ACCOUNT,
     account_name: "Dovetails",
     preferred_contact: "email",
     sms_consent: false,

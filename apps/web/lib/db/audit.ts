@@ -1,7 +1,7 @@
 import type { PoolClient } from "pg";
 
 export interface AuditEntry {
-  account_id: string;
+  company_id: string;
   entity_type: string;
   entity_id: string;
   action: "insert" | "update" | "delete";
@@ -16,7 +16,7 @@ export interface AuditEntry {
  *
  * Must be called inside a transaction that already has the app.* session
  * variables set (app_account_id, app_user_id, app_role) so RLS allows the
- * INSERT. The RLS audit_log_insert policy requires account_id = app_account_id().
+ * INSERT. The RLS audit_log_insert policy requires company_id = app_account_id().
  */
 export async function appendAuditLog(
   client: PoolClient,
@@ -24,13 +24,10 @@ export async function appendAuditLog(
 ): Promise<void> {
   await client.query(
     `INSERT INTO audit_log
-       (account_id, company_id, entity_type, entity_id, action, actor_id, trace_id, old_value, new_value)
-     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
+       (company_id, entity_type, entity_id, action, actor_id, trace_id, old_value, new_value)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
     [
-      entry.account_id,
-      // Canonical tenant key (issue #26). Equal to account_id during the dual-column
-      // period (migration 205); written explicitly so new rows do not rely on the trigger.
-      entry.account_id,
+      entry.company_id,
       entry.entity_type,
       entry.entity_id,
       entry.action,

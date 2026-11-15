@@ -273,7 +273,7 @@ export const POST = withRole(["owner", "admin"], async (request, session) => {
 
       // Audit log for payment creation
       await appendAuditLog(client, {
-        account_id: session.accountId,
+        company_id: session.accountId,
         entity_type: "payment",
         entity_id: paymentId,
         action: "insert",
@@ -308,7 +308,7 @@ export const POST = withRole(["owner", "admin"], async (request, session) => {
       const newInv = updatedInvoice.rows[0];
       if (newInv.status !== invoice.status) {
         await appendAuditLog(client, {
-          account_id: session.accountId,
+          company_id: session.accountId,
           entity_type: "invoice",
           entity_id: invoiceId,
           action: "update",

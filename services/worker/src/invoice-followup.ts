@@ -79,7 +79,6 @@ export type { AutomationRow, RunResult };
 
 export interface OverdueInvoice {
   id: string;
-  account_id: string;
   company_id: string;
   client_id: string;
   invoice_number: string;
@@ -98,7 +97,7 @@ const DEFAULT_DAYS_OVERDUE = [7, 14, 30];
  */
 export async function findDueFollowups(client: Client): Promise<AutomationRow[]> {
   const { rows } = await client.query<AutomationRow>(
-    `SELECT id, account_id, company_id, type, config, enabled, next_run_at::text
+    `SELECT id, company_id, company_id, type, config, enabled, next_run_at::text
      FROM automations
      WHERE type = 'invoice_followup'
        AND enabled = true
@@ -121,7 +120,7 @@ export async function findOverdueInvoices(
   automation: AutomationRow
 ): Promise<OverdueInvoice[]> {
   const { rows } = await client.query<OverdueInvoice>(
-    `SELECT i.id, i.account_id, i.company_id, i.client_id, i.invoice_number,
+    `SELECT i.id, i.company_id, i.company_id, i.client_id, i.invoice_number,
             i.status, i.total_cents, i.paid_cents,
             i.due_date::text, c.name AS client_name, c.email AS client_email
      FROM invoices i
@@ -202,7 +201,7 @@ export async function emitInvoiceFollowup(
     const balanceCents = invoice.total_cents - invoice.paid_cents;
     const viewUrl = `${appUrl()}/app/invoices/${invoice.id}`;
     const enqueueResult = await enqueueNotification(client, {
-      accountId: invoice.account_id,
+      accountId: invoice.company_id,
       clientId: invoice.client_id,
       automationType: "invoice_followup",
       priority: PRIORITY.HIGH,
@@ -230,10 +229,10 @@ export async function emitInvoiceFollowup(
 
   await client.query(
     `INSERT INTO audit_log
-       (account_id, entity_type, entity_id, action, actor_id, old_value, new_value)
+       (company_id, entity_type, entity_id, action, actor_id, old_value, new_value)
      VALUES ($1, 'invoice_followup', $2, 'insert', $3, NULL, $4)`,
     [
-      invoice.account_id,
+      invoice.company_id,
       invoice.id,
       automationId,
       JSON.stringify({
@@ -270,7 +269,7 @@ export async function processInvoiceFollowup(
 ): Promise<RunResult> {
   const result: RunResult = {
     automationId: automation.id,
-    accountId: automation.account_id,
+    accountId: automation.company_id,
     sent: 0,
     skipped: 0,
     errors: 0,

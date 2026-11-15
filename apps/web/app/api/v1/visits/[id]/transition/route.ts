@@ -286,7 +286,7 @@ export const POST = withAuth(
       }
 
       await appendAuditLog(client, {
-        account_id: session.accountId,
+        company_id: session.accountId,
         entity_type: "visit",
         entity_id: id,
         action: "update",
@@ -329,7 +329,7 @@ export const POST = withAuth(
               [updated.job_id, session.accountId]
             );
             await appendAuditLog(client, {
-              account_id: session.accountId,
+              company_id: session.accountId,
               entity_type: "job",
               entity_id: updated.job_id,
               action: "update",
@@ -350,7 +350,7 @@ export const POST = withAuth(
               [updated.job_id, session.accountId]
             );
             await appendAuditLog(client, {
-              account_id: session.accountId,
+              company_id: session.accountId,
               entity_type: "job",
               entity_id: updated.job_id,
               action: "update",
@@ -393,7 +393,7 @@ export const POST = withAuth(
                 [updated.job_id, session.accountId]
               );
               await appendAuditLog(client, {
-                account_id: session.accountId,
+                company_id: session.accountId,
                 entity_type: "job",
                 entity_id: updated.job_id,
                 action: "update",

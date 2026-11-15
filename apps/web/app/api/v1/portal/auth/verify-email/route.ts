@@ -37,9 +37,9 @@ export async function POST(request: NextRequest) {
     await db.query("BEGIN");
     // Consumes the pending-email link through a bounded resolver (migration 204).
     const { rows } = await db.query<{
-      client_id: string; email: string; old_email: string | null; portal_token: string; account_id: string;
+      client_id: string; email: string; old_email: string | null; portal_token: string; company_id: string;
     }>(
-      `SELECT client_id::text, email, old_email, portal_token::text, account_id::text
+      `SELECT client_id::text, email, old_email, portal_token::text, company_id::text
        FROM consume_portal_email_change($1::uuid)`,
       [token],
     );
@@ -52,12 +52,12 @@ export async function POST(request: NextRequest) {
     // re-check and the write, so both run under RLS.
     await db.query(
       `SELECT set_config('app.current_account_id', $1, true), set_config('app.current_role', 'owner', true)`,
-      [row.account_id],
+      [row.company_id],
     );
     // Re-check: another client may have taken the address since the request.
     const taken = await db.query(
       `SELECT 1 FROM clients WHERE company_id = $1 AND id <> $2 AND lower(email) = lower($3)`,
-      [row.account_id, row.client_id, row.email],
+      [row.company_id, row.client_id, row.email],
     );
     if (taken.rowCount) {
       await db.query("ROLLBACK");
@@ -65,7 +65,7 @@ export async function POST(request: NextRequest) {
     }
     await db.query(`UPDATE clients SET email = $2, updated_at = now() WHERE id = $1`, [row.client_id, row.email]);
     await appendAuditLog(db, {
-      account_id: row.account_id,
+      company_id: row.company_id,
       entity_type: "client",
       entity_id: row.client_id,
       action: "update",

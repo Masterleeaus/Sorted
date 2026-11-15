@@ -10,7 +10,7 @@ export const dynamic = "force-dynamic";
 
 type AutomationRow = {
   id: string;
-  account_id: string;
+  company_id: string;
   type: "visit_reminder" | "invoice_followup";
   enabled: boolean;
   config: Record<string, unknown>;
@@ -28,7 +28,7 @@ export const GET = withAuth(
   async (request: NextRequest, session: AuthSession) => {
     const automations = await queryForSession<AutomationRow>(
       session,
-      `SELECT id, account_id, type, enabled, config, 
+      `SELECT id, company_id, type, enabled, config, 
               next_run_at::text, last_run_at::text
        FROM automations
        WHERE company_id = $1
@@ -141,14 +141,14 @@ export const POST = withRole(
       const { rows } = await client.query(
         `INSERT INTO automations (company_id, type, enabled, config, next_run_at)
          VALUES ($1, $2, true, $3, now())
-         RETURNING id, account_id, type, enabled, config, next_run_at::text, last_run_at::text`,
+         RETURNING id, company_id, type, enabled, config, next_run_at::text, last_run_at::text`,
         [companyIdFromSession(session), type, JSON.stringify(config ?? {})]
       );
 
       const automation = rows[0];
 
       await appendAuditLog(client, {
-        account_id: session.accountId,
+        company_id: session.accountId,
         entity_type: "automation",
         entity_id: automation.id,
         action: "insert",

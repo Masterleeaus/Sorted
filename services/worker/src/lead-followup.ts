@@ -24,7 +24,6 @@ import { PRIORITY } from "./notification/priority.js";
 
 interface StaleLead {
   id: string;
-  account_id: string;
   company_id: string;
   name: string;
   hours_pending: number;
@@ -33,7 +32,7 @@ interface StaleLead {
 
 export async function findDueLeadFollowups(client: Client): Promise<AutomationRow[]> {
   const { rows } = await client.query<AutomationRow>(
-    `SELECT id, account_id, company_id, type, config, enabled, next_run_at::text
+    `SELECT id, company_id, company_id, type, config, enabled, next_run_at::text
        FROM automations
       WHERE type = 'lead_followup'
         AND enabled = true
@@ -49,7 +48,7 @@ export async function findStaleLeads(
   const hoursThreshold = (automation.config as { hours_threshold?: number }).hours_threshold ?? 24;
 
   const { rows } = await client.query<StaleLead>(
-    `SELECT br.id, br.account_id, br.company_id, br.name,
+    `SELECT br.id, br.company_id, br.company_id, br.name,
             EXTRACT(EPOCH FROM (now() - br.created_at)) / 3600 AS hours_pending,
             (SELECT u.email FROM users u
               WHERE u.company_id = br.company_id AND u.role = 'owner'
@@ -103,7 +102,7 @@ async function emitLeadFollowup(
   }
 
   const enqueueResult = await enqueueNotification(client, {
-    accountId: lead.account_id,
+    accountId: lead.company_id,
     clientId: null, // owner-facing reminder — bypasses client cooldown/daily cap
     automationType: "lead_followup",
     priority: PRIORITY.HIGH,
@@ -123,10 +122,10 @@ async function emitLeadFollowup(
   // Record the send so the lead is not re-selected on the next run.
   await client.query(
     `INSERT INTO audit_log
-       (account_id, entity_type, entity_id, action, actor_id, old_value, new_value)
+       (company_id, entity_type, entity_id, action, actor_id, old_value, new_value)
      VALUES ($1, 'lead_followup', $2, 'insert', $3, NULL, $4)`,
     [
-      lead.account_id,
+      lead.company_id,
       lead.id,
       automationId,
       JSON.stringify({
@@ -143,7 +142,7 @@ async function emitLeadFollowup(
 export async function processLeadFollowups(client: Client, automation: AutomationRow): Promise<RunResult> {
   const result: RunResult = {
     automationId: automation.id,
-    accountId: automation.account_id,
+    accountId: automation.company_id,
     sent: 0,
     skipped: 0,
     errors: 0,

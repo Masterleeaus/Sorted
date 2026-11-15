@@ -13,8 +13,8 @@ export async function POST(
   const client = await pool.connect();
   try {
     await client.query("BEGIN");
-    const { rows } = await client.query<{ id: string; account_id: string; sms_consent: boolean }>(
-      `SELECT id, account_id, sms_consent FROM clients WHERE portal_token = $1`,
+    const { rows } = await client.query<{ id: string; company_id: string; sms_consent: boolean }>(
+      `SELECT id, company_id, sms_consent FROM clients WHERE portal_token = $1`,
       [clientToken]
     );
     if (rows.length === 0) {
@@ -37,16 +37,16 @@ export async function POST(
       `SELECT set_config('app.current_user_id', '', true),
               set_config('app.current_account_id', $1, true),
               set_config('app.current_role', 'owner', true)`,
-      [row.account_id]
+      [row.company_id]
     );
     await client.query(
       `UPDATE clients SET sms_consent = false, sms_consent_at = NOW(), sms_consent_source = 'portal_opt_out', preferred_contact = 'email' WHERE id = $1 AND company_id = $2`,
-      [row.id, row.account_id]
+      [row.id, row.company_id]
     );
     await client.query(
       `INSERT INTO communications_log (company_id, client_id, channel, direction, outcome, body_preview)
        VALUES ($1, $2, 'sms', 'inbound', 'replied', 'STOP (portal opt-out)')`,
-      [row.account_id, row.id]
+      [row.company_id, row.id]
     );
     await client.query("COMMIT");
     return NextResponse.json({ ok: true });

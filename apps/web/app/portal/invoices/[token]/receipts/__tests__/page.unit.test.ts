@@ -32,7 +32,7 @@ vi.mock("next/navigation", () => ({
 
 vi.mock("@/lib/db", () => ({
   queryOne: async (sql: string) => {
-    if (sql.includes("resolve_invoice_share_account")) return { account_id: state.resolvedAccount };
+    if (sql.includes("resolve_invoice_share_account")) return { company_id: state.resolvedAccount };
     throw new Error(`unexpected queryOne: ${sql}`);
   },
 }));
@@ -64,7 +64,7 @@ const run = () => InvoiceReceiptsPage({ params: Promise.resolve({ token: TOKEN }
 beforeEach(() => {
   state.resolvedAccount = ACCOUNT;
   state.invoice = {
-    id: INVOICE, account_id: ACCOUNT, job_id: JOB, invoice_number: "1001",
+    id: INVOICE, company_id: ACCOUNT, job_id: JOB, invoice_number: "1001",
     account_name: "Dovetails", property_address: "1 Main St",
   };
   state.contexts = [];

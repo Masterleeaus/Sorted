@@ -37,7 +37,7 @@ describe("enqueueNotification account scoping", () => {
     await enqueueNotification(client, OPTS);
 
     const insert = query.mock.calls.find(([sql]) => String(sql).includes("INSERT INTO notification_queue"));
-    expect(insert?.[0]).toContain("ON CONFLICT (account_id, idempotency_key)");
+    expect(insert?.[0]).toContain("ON CONFLICT (company_id, idempotency_key)");
   });
 });
 
@@ -87,7 +87,7 @@ describe("worker notification enqueue ownership and retry", () => {
     expect(await enqueueNotification(client, base)).toBe("enqueued");
     const insert = queries.find(q => q.sql.includes("INSERT INTO notification_queue"))!;
     expect(insert.sql).toContain("WHERE notification_queue.status = 'failed'");
-    expect(insert.sql).toContain("notification_queue.account_id = EXCLUDED.account_id");
+    expect(insert.sql).toContain("notification_queue.company_id = EXCLUDED.company_id");
     expect(insert.sql).toContain("RETURNING id");
     expect(insert.params?.[0]).toBe("account-a");
     expect(insert.params?.[7]).toBe("invoice:account-a:invoice-1");
@@ -121,7 +121,7 @@ describe("worker notification enqueue ownership and retry", () => {
       ...base, accountId: "account-b", idempotencyKey: "shared-key",
     })).toBe("duplicate");
     const sql = queries.find(q => q.sql.includes("INSERT INTO notification_queue"))!.sql;
-    expect(sql).toContain("notification_queue.account_id = EXCLUDED.account_id");
+    expect(sql).toContain("notification_queue.company_id = EXCLUDED.company_id");
   });
 });
 

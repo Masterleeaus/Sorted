@@ -25,7 +25,7 @@ type UserRow = {
   email: string;
   full_name: string;
   role: string;
-  account_id: string;
+  company_id: string;
   password_hash: string;
   [key: string]: unknown;
 };
@@ -147,7 +147,7 @@ export async function POST(request: NextRequest) {
     // Create session
     const token = await createSession({
       userId: user.id,
-      accountId: user.account_id,
+      accountId: user.company_id,
       role: roleParse.data,
     });
 
@@ -159,7 +159,7 @@ export async function POST(request: NextRequest) {
         email: user.email,
         full_name: user.full_name,
         role: user.role,
-        account_id: user.account_id,
+        company_id: user.company_id,
       },
     });
   } catch (error) {

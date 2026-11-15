@@ -21,7 +21,7 @@ vi.hoisted(() => {
 });
 
 const state = vi.hoisted(() => ({
-  open: null as null | { id: string; account_id: string },
+  open: null as null | { id: string; company_id: string },
   check: null as null | { is_used: boolean },
   failOpen: false,
   invite: null as null | Record<string, unknown>,
@@ -76,11 +76,11 @@ function textOf(node: unknown): string {
 }
 
 beforeEach(() => {
-  state.open = { id: INVITE, account_id: ACCOUNT };
+  state.open = { id: INVITE, company_id: ACCOUNT };
   state.check = null;
   state.failOpen = false;
   state.invite = {
-    id: INVITE, account_id: ACCOUNT, booking_request_id: null, token: TOKEN,
+    id: INVITE, company_id: ACCOUNT, booking_request_id: null, token: TOKEN,
     lead_name: "Pat", lead_email: "pat@example.com", lead_phone: "5551234",
     expires_at: new Date(Date.now() + 3600_000).toISOString(), used_at: null,
   };

@@ -40,7 +40,7 @@ describe("POST /api/portal/[clientToken]/sms-opt-out", () => {
     mockIsPortalPreview.mockResolvedValue(true);
     mockQuery
       .mockResolvedValueOnce({ rows: [] }) // BEGIN
-      .mockResolvedValueOnce({ rows: [{ id: CLIENT_ID, account_id: ACCOUNT_ID, sms_consent: true }] }) // SELECT client
+      .mockResolvedValueOnce({ rows: [{ id: CLIENT_ID, company_id: ACCOUNT_ID, sms_consent: true }] }) // SELECT client
       .mockResolvedValueOnce({ rows: [] }); // ROLLBACK
     const res = await POST(makeRequest(CLIENT_TOKEN), { params: Promise.resolve({ clientToken: CLIENT_TOKEN }) });
     expect(res.status).toBe(403);
@@ -53,7 +53,7 @@ describe("POST /api/portal/[clientToken]/sms-opt-out", () => {
 
     mockQuery
       .mockResolvedValueOnce({ rows: [] })  // BEGIN
-      .mockResolvedValueOnce({ rows: [{ id: CLIENT_ID, account_id: ACCOUNT_ID, sms_consent: true }] }) // SELECT client
+      .mockResolvedValueOnce({ rows: [{ id: CLIENT_ID, company_id: ACCOUNT_ID, sms_consent: true }] }) // SELECT client
       .mockResolvedValueOnce({ rows: [] })  // set_config (account context)
       .mockResolvedValueOnce({ rows: [] })  // UPDATE clients
       .mockResolvedValueOnce({ rows: [] })  // INSERT communications_log
@@ -98,7 +98,7 @@ describe("POST /api/portal/[clientToken]/sms-opt-out", () => {
 
     mockQuery
       .mockResolvedValueOnce({ rows: [] }) // BEGIN
-      .mockResolvedValueOnce({ rows: [{ id: CLIENT_ID, account_id: ACCOUNT_ID, sms_consent: false }] }) // SELECT client — already opted out
+      .mockResolvedValueOnce({ rows: [{ id: CLIENT_ID, company_id: ACCOUNT_ID, sms_consent: false }] }) // SELECT client — already opted out
       .mockResolvedValueOnce({ rows: [] }); // ROLLBACK
 
     const res = await POST(makeRequest(CLIENT_TOKEN), {

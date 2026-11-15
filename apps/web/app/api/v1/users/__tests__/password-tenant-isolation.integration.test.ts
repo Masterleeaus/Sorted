@@ -44,7 +44,7 @@ describe.skipIf(!enabled)("users password route: tenant isolation", () => {
   beforeAll(async () => {
     await admin.query("INSERT INTO accounts (id, name) VALUES ($1, 'Pw Iso A'), ($2, 'Pw Iso B')", [accountA, accountB]);
     await admin.query(
-      `INSERT INTO users (id, account_id, email, full_name, password_hash, role)
+      `INSERT INTO users (id, company_id, email, full_name, password_hash, role)
        VALUES ($1, $2, $3, 'Owner A', $4, 'owner'), ($5, $6, $7, 'Owner B', $8, 'owner')`,
       [
         ownerA, accountA, `pw-a-${ownerA}@test.invalid`, await hash("current-password-a", 4),

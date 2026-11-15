@@ -11,7 +11,7 @@ export const dynamic = "force-dynamic";
 
 interface EstimateRow extends Record<string, unknown> {
   id: string;
-  account_id: string;
+  company_id: string;
   status: string;
   subtotal_cents: number;
   tax_cents: number;
@@ -47,20 +47,20 @@ export async function GET(
 
   // Bootstrap: the share token resolves to an account through a bounded resolver
   // (migration 204). Nothing else reads this estimate before context is set.
-  const resolved = await queryOne<{ account_id: string | null }>(
-    `SELECT resolve_estimate_share_account($1::uuid) AS account_id`,
+  const resolved = await queryOne<{ company_id: string | null }>(
+    `SELECT resolve_estimate_share_account($1::uuid) AS company_id`,
     [token]
   );
-  if (!resolved?.account_id) {
+  if (!resolved?.company_id) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
-  const accountId = resolved.account_id;
+  const accountId = resolved.company_id;
 
   // The estimate read runs in the resolved account's context, with the account predicate.
   const estimate = await withTokenAccountContext(accountId, async (tx) => {
     const { rows: [row] } = await tx.query<EstimateRow>(
       `SELECT
-       e.id, e.account_id, e.status, e.subtotal_cents, e.tax_cents, e.total_cents,
+       e.id, e.company_id, e.status, e.subtotal_cents, e.tax_cents, e.total_cents,
        e.deposit_cents, e.notes, e.expires_at, e.sent_at, e.responded_at,
        e.client_approved_name,
        c.name AS client_name,
@@ -81,7 +81,7 @@ export async function GET(
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 
-  const { account_id: _accountId, ...publicEstimate } = estimate;
+  const { company_id: _accountId, ...publicEstimate } = estimate;
 
   const lineItems = await withTokenAccountContext(accountId, async (tx) => {
     const { rows } = await tx.query<LineItemRow>(
@@ -106,17 +106,17 @@ const respondBody = z.object({
 
 /** Resolves the share token to its account, then reads the estimate in that context. */
 async function loadEstimateForRespond(token: string) {
-  const resolved = await queryOne<{ account_id: string | null }>(
-    `SELECT resolve_estimate_share_account($1::uuid) AS account_id`,
+  const resolved = await queryOne<{ company_id: string | null }>(
+    `SELECT resolve_estimate_share_account($1::uuid) AS company_id`,
     [token]
   );
-  if (!resolved?.account_id) return null;
-  const accountId = resolved.account_id;
+  if (!resolved?.company_id) return null;
+  const accountId = resolved.company_id;
   return withTokenAccountContext(accountId, async (tx) => {
     const { rows: [row] } = await tx.query<{
-      id: string; status: string; account_id: string; client_id: string;
+      id: string; status: string; company_id: string; client_id: string;
     }>(
-      `SELECT id, status, account_id, client_id FROM estimates WHERE share_token = $1 AND company_id = $2`,
+      `SELECT id, status, company_id, client_id FROM estimates WHERE share_token = $1 AND company_id = $2`,
       [token, accountId]
     );
     return row ?? null;
@@ -167,7 +167,7 @@ export async function POST(
       `SELECT set_config('app.current_user_id', '', true),
               set_config('app.current_account_id', $1, true),
               set_config('app.current_role', 'owner', true)`,
-      [estimate.account_id]
+      [estimate.company_id]
     );
 
     await dbClient.query(
@@ -178,7 +178,7 @@ export async function POST(
            responded_at = now(),
            updated_at = now()
        WHERE id = $4 AND company_id = $5`,
-      [newStatus, name ?? null, signature_svg ?? null, estimate.id, estimate.account_id]
+      [newStatus, name ?? null, signature_svg ?? null, estimate.id, estimate.company_id]
     );
 
     // On approval: set RLS context then create job + deposit invoice artifacts,
@@ -186,14 +186,14 @@ export async function POST(
     // Each artifact step uses its own savepoint so one failure never rolls
     // back the customer's approval or the other artifacts.
     if (action === "approve") {
-      const ownerId = await getAccountOwnerUserId(dbClient, estimate.account_id);
+      const ownerId = await getAccountOwnerUserId(dbClient, estimate.company_id);
       if (ownerId) {
         // Set RLS session context so INSERT policies on jobs/invoices pass.
         await dbClient.query(
           `SELECT set_config('app.current_user_id', $1, true),
                   set_config('app.current_account_id', $2, true),
                   set_config('app.current_role', 'owner', true)`,
-          [ownerId, estimate.account_id]
+          [ownerId, estimate.company_id]
         );
 
         // Auto-create or link job (non-fatal). CLIENT_RECENT_WORK skips spawn
@@ -203,7 +203,7 @@ export async function POST(
           await createJobFromEstimate({
             client: dbClient,
             estimateId: estimate.id,
-            accountId: estimate.account_id,
+            accountId: estimate.company_id,
             createdBy: ownerId,
           });
           await dbClient.query("RELEASE SAVEPOINT before_auto_job");
@@ -226,7 +226,7 @@ export async function POST(
         try {
           await createApprovalArtifacts(dbClient, {
             estimateId: estimate.id,
-            accountId: estimate.account_id,
+            accountId: estimate.company_id,
             userId: ownerId,
           });
           await dbClient.query("RELEASE SAVEPOINT before_artifacts");

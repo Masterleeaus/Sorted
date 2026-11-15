@@ -16,7 +16,7 @@ export const documentLinkEntityTypeSchema = z.enum([
 
 export const documentLinkSchema = z.object({
   id: uuidField,
-  account_id: uuidField,
+  company_id: uuidField,
   entity_type: documentLinkEntityTypeSchema,
   entity_id: uuidField,
   paperless_doc_id: z.number().int().positive(),
@@ -42,7 +42,7 @@ export const assetLinkStatusSchema = z.enum(["planned", "on_site", "returned"]);
 
 export const assetLinkSchema = z.object({
   id: uuidField,
-  account_id: uuidField,
+  company_id: uuidField,
   entity_type: assetLinkEntityTypeSchema,
   entity_id: uuidField,
   homebox_item_id: z.string().uuid(),

@@ -136,7 +136,7 @@ async function findOrCreateClient(
   if (!clientId) {
     const { rows } = await client.query<{ id: string }>(
       `INSERT INTO clients (
-         account_id, name, email, phone, preferred_contact,
+         company_id, name, email, phone, preferred_contact,
          sms_consent, sms_consent_at, sms_consent_source, sms_consent_text
        )
        VALUES ($1, $2, $3, $4, $5, $6, CASE WHEN $6 THEN NOW() ELSE NULL END, $7, $8)
@@ -194,7 +194,7 @@ async function findOrCreateProperty(
   if (existingRows[0]?.id) return existingRows[0].id;
 
   const { rows } = await client.query<{ id: string }>(
-    `INSERT INTO properties (account_id, client_id, name, address, city, state, zip)
+    `INSERT INTO properties (company_id, client_id, name, address, city, state, zip)
      VALUES ($1, $2, $3, $4, $5, $6, $7)
      RETURNING id`,
     [
@@ -267,7 +267,7 @@ export async function createIntakeRecords(
   const categoryLabel = serviceCategory ? titleCaseCategory(serviceCategory) : "Request";
 
   const { rows: jobRows } = await client.query<{ id: string }>(
-    `INSERT INTO jobs (account_id, client_id, property_id, title, description, status, job_type, created_by)
+    `INSERT INTO jobs (company_id, client_id, property_id, title, description, status, job_type, created_by)
      VALUES ($1, $2, $3, $4, $5, 'draft', $6, $7)
      RETURNING id`,
     [
@@ -286,7 +286,7 @@ export async function createIntakeRecords(
 
   const { rows: bookingRows } = await client.query<{ id: string }>(
     `INSERT INTO booking_requests
-       (account_id, client_id, property_id, job_id,
+       (company_id, client_id, property_id, job_id,
         name, email, phone, service_category, service_description,
         preferred_date, preferred_time_slot, address, city, state, zip, access_notes,
         preferred_contact, sms_consent, sms_consent_at, sms_consent_source,
@@ -382,7 +382,7 @@ export async function repairBookingRequestPipelineLinks(
     const categoryLabel = serviceCategory ? titleCaseCategory(serviceCategory) : "Request";
 
     const { rows } = await client.query<{ id: string }>(
-      `INSERT INTO jobs (account_id, client_id, property_id, title, description, status, job_type, created_by)
+      `INSERT INTO jobs (company_id, client_id, property_id, title, description, status, job_type, created_by)
        VALUES ($1, $2, $3, $4, $5, 'draft', $6, $7)
        RETURNING id`,
       [

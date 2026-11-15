@@ -26,13 +26,13 @@ export default async function InvoiceReceiptsPage({ params }: { params: Promise<
   const loaded = await withPortalTokenPage("resolve_invoice_share_account", token, async (tx, accountId) => {
     const { rows } = await tx.query<{
       id: string;
-      account_id: string;
+      company_id: string;
       job_id: string | null;
       invoice_number: string;
       account_name: string;
       property_address: string | null;
     }>(
-      `SELECT i.id, i.account_id, i.job_id, i.invoice_number, a.name AS account_name, p.address AS property_address
+      `SELECT i.id, i.company_id, i.job_id, i.invoice_number, a.name AS account_name, p.address AS property_address
        FROM invoices i
        JOIN accounts a ON a.id = i.company_id
        LEFT JOIN properties p ON p.id = i.property_id
