@@ -32,7 +32,7 @@ export function OwnerDashboard({ attentionItems, tomorrowJobs, ops }: {
   return (
     <div className="tf-reference-ui">
       <div className="tf-topline"><span className="tf-zero-orb" /> <span>Zero <strong className="tf-green">• Ready</strong></span><span className="tf-topline-right">{ops.fieldWorkers} field workers · {active} active visits</span></div>
-      <header className="tf-heading"><div><span className="tf-eyebrow">TITAN FIELD · OPERATIONS</span><h1>Jobs</h1></div><Link className="tf-primary-action" href={"/app/jobs/new" as Route}>＋ New job</Link></header>
+      <header className="tf-heading"><div><span className="tf-eyebrow">SORTED FIELD · OPERATIONS</span><h1>Jobs</h1></div><Link className="tf-primary-action" href={"/app/jobs/new" as Route}>＋ New job</Link></header>
       <nav className="tf-tabs" aria-label="Operations sections">{tabs.map((tab, index) => <Link key={tab.href} className={index === 0 ? "tf-tab tf-tab-active" : "tf-tab"} href={tab.href as Route}>{tab.label}</Link>)}</nav>
       <div className="tf-layout">
         <aside className="tf-brief" aria-label="Operational summary">

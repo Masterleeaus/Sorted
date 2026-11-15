@@ -31,13 +31,13 @@ describe.skipIf(!RUN)("applyServiceMinimum", () => {
       [SEED_ACCOUNT, SEED_OWNER],
     );
     const c = await client.query(
-      `INSERT INTO clients (account_id, name) VALUES ($1, 'Service-Min Test') RETURNING id`,
+      `INSERT INTO clients (company_id, name) VALUES ($1, 'Service-Min Test') RETURNING id`,
       [SEED_ACCOUNT],
     );
     clientId = c.rows[0].id;
     const num = `SVCMIN-${Date.now()}`;
     const inv = await client.query(
-      `INSERT INTO invoices (account_id, client_id, invoice_number, created_by)
+      `INSERT INTO invoices (company_id, client_id, invoice_number, created_by)
        VALUES ($1, $2, $3, $4) RETURNING id`,
       [SEED_ACCOUNT, clientId, num, SEED_OWNER],
     );
@@ -100,7 +100,7 @@ describe.skipIf(!RUN)("applyServiceMinimum", () => {
     // fresh invoice: $50 labor + $10 tax, below the minimum
     const num = `SVCMIN-TAX-${Date.now()}`;
     const inv = await client.query(
-      `INSERT INTO invoices (account_id, client_id, invoice_number, created_by, tax_cents)
+      `INSERT INTO invoices (company_id, client_id, invoice_number, created_by, tax_cents)
        VALUES ($1, $2, $3, $4, 10_00) RETURNING id`,
       [SEED_ACCOUNT, clientId, num, SEED_OWNER],
     );
@@ -126,7 +126,7 @@ describe.skipIf(!RUN)("applyServiceMinimum", () => {
   it("does not write (preserves tax) when already at/above the minimum", async () => {
     const num = `SVCMIN-NOOP-${Date.now()}`;
     const inv = await client.query(
-      `INSERT INTO invoices (account_id, client_id, invoice_number, created_by, tax_cents)
+      `INSERT INTO invoices (company_id, client_id, invoice_number, created_by, tax_cents)
        VALUES ($1, $2, $3, $4, 7_00) RETURNING id`,
       [SEED_ACCOUNT, clientId, num, SEED_OWNER],
     );

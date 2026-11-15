@@ -49,7 +49,7 @@ function req(body: unknown, sig: string | null = "sig"): NextRequest {
 function settingsFound() {
   mockPoolQuery.mockResolvedValue({
     rowCount: 1,
-    rows: [{ account_id: ACCOUNT, enabled: true, secrets: Buffer.from("x"), webhook_url: null }],
+    rows: [{ company_id: ACCOUNT, enabled: true, secrets: Buffer.from("x"), webhook_url: null }],
   });
 }
 
@@ -61,7 +61,7 @@ function settingsFound() {
 interface FakePayment {
   id: string;
   invoice_id: string;
-  account_id: string;
+  company_id: string;
   amount_cents: number;
   status: string;
   external_provider: string | null;
@@ -70,7 +70,7 @@ interface FakePayment {
 }
 interface FakeInvoice {
   id: string;
-  account_id: string;
+  company_id: string;
   square_order_id: string | null;
   total_cents: number;
 }
@@ -99,7 +99,7 @@ function fakeDb(state: FakeState) {
     // Duplicate check by Square payment id.
     if (/SELECT 1 FROM payments WHERE company_id = \$1 AND external_provider = 'square' AND external_payment_id = \$2/.test(s)) {
       const hit = state.payments.filter(
-        (p) => p.account_id === params[0] && p.external_payment_id === params[1]
+        (p) => p.company_id === params[0] && p.external_payment_id === params[1]
       );
       return { rows: hit.map(() => ({ "?column?": 1 })), rowCount: hit.length };
     }
@@ -108,7 +108,7 @@ function fakeDb(state: FakeState) {
     if (/AND external_order_id = \$2 AND status = 'pending'/.test(s)) {
       const hit = state.payments.filter(
         (p) =>
-          p.account_id === params[0] &&
+          p.company_id === params[0] &&
           p.external_provider === "square" &&
           p.external_order_id === params[1] &&
           p.status === "pending"
@@ -121,7 +121,7 @@ function fakeDb(state: FakeState) {
 
     // Legacy fallback: unmatched pending rows on the invoice's current order.
     if (/p\.external_order_id IS NULL/.test(s)) {
-      const inv = state.invoices.find((i) => i.account_id === params[0] && i.square_order_id === params[1]);
+      const inv = state.invoices.find((i) => i.company_id === params[0] && i.square_order_id === params[1]);
       const hit = state.payments.filter(
         (p) =>
           !!inv &&
@@ -139,14 +139,14 @@ function fakeDb(state: FakeState) {
 
     // Invoice lookup by current order id (quarantine target).
     if (/SELECT id FROM invoices WHERE company_id = \$1 AND square_order_id = \$2/.test(s)) {
-      const hit = state.invoices.filter((i) => i.account_id === params[0] && i.square_order_id === params[1]);
+      const hit = state.invoices.filter((i) => i.company_id === params[0] && i.square_order_id === params[1]);
       return { rows: hit.map((i) => ({ id: i.id })), rowCount: hit.length };
     }
 
     // Conditional transition: only a pending row becomes paid.
     if (/^UPDATE payments SET status = 'paid'/.test(s) && /AND status = 'pending'/.test(s)) {
       const row = state.payments.find(
-        (p) => p.id === params[0] && p.account_id === params[2] && p.status === "pending"
+        (p) => p.id === params[0] && p.company_id === params[2] && p.status === "pending"
       );
       if (!row) return none;
       row.status = "paid";
@@ -186,7 +186,7 @@ function fakeDb(state: FakeState) {
 
 function ledger(overrides: Partial<FakeState> = {}): FakeState {
   return {
-    invoices: [{ id: INVOICE, account_id: ACCOUNT, square_order_id: "ORD2", total_cents: 12000 }],
+    invoices: [{ id: INVOICE, company_id: ACCOUNT, square_order_id: "ORD2", total_cents: 12000 }],
     payments: [],
     events: [],
     ...overrides,
@@ -197,7 +197,7 @@ function pendingRow(id: string, orderId: string | null, amountCents: number): Fa
   return {
     id,
     invoice_id: INVOICE,
-    account_id: ACCOUNT,
+    company_id: ACCOUNT,
     amount_cents: amountCents,
     status: "pending",
     external_provider: "square",
@@ -510,7 +510,7 @@ describe("POST /api/webhooks/square — refund.updated COMPLETED", () => {
       .mockResolvedValueOnce({ rows: [], rowCount: 0 })          // BEGIN
       .mockResolvedValueOnce({ rows: [], rowCount: 0 })          // set_config (account context)
       .mockResolvedValueOnce({ rows: [], rowCount: 0 })          // dup check → none
-      .mockResolvedValueOnce({ rows: [{ invoice_id: INVOICE, account_id: ACCOUNT, client_id: "C1", job_id: null, created_by: "U1" }], rowCount: 1 }) // original payment
+      .mockResolvedValueOnce({ rows: [{ invoice_id: INVOICE, company_id: ACCOUNT, client_id: "C1", job_id: null, created_by: "U1" }], rowCount: 1 }) // original payment
       .mockResolvedValueOnce({ rows: [{ id: "REFROW" }], rowCount: 1 }) // INSERT refund row
       .mockResolvedValueOnce({ rows: [], rowCount: 1 })          // workflow_events payment.recorded
       .mockResolvedValueOnce({ rows: [], rowCount: 0 });         // COMMIT

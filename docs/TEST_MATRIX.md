@@ -66,14 +66,16 @@ describe.skipIf(!shouldRun)("My Suite", () => { ... });
 
 **How to run locally:**
 ```bash
-TEST_DATABASE_URL=postgresql://ai_fsm:ai_fsm_dev_password@localhost:55432/ai_fsm pnpm test:integration
+PGPASSWORD=<local dev password> TEST_DATABASE_URL=postgresql://ai_fsm@localhost:55432/ai_fsm pnpm test:integration
 ```
 
+The password is read from `PGPASSWORD`; URLs in this repo never contain one. `scripts/dev-stack.sh` and `scripts/bootstrap.sh` take the same value from `DEV_DB_PASSWORD`.
+
 **How CI provides this:**
-The `test` job in `.github/workflows/ci.yml` spins up a `postgres:16` service and sets:
+The `test` job in `.github/workflows/ci.yml` starts a `postgres:16` container in a setup step with a random per-job password, written to `PGPASSWORD` in `$GITHUB_ENV`. The URLs carry no password and are set as:
 ```yaml
-TEST_DATABASE_URL: postgresql://test:test@localhost:5432/aifsm_test
-DATABASE_URL: postgresql://test:test@localhost:5432/aifsm_test
+TEST_DATABASE_URL: postgresql://test@localhost:5432/aifsm_test
+DATABASE_URL: postgresql://test@localhost:5432/aifsm_test
 ```
 Migrations are applied before tests run.
 
@@ -106,7 +108,8 @@ describe.skipIf(!RUN_INTEGRATION)("My Suite", () => { ... });
 pnpm dev:web
 
 # Terminal 2 — run with both env vars
-TEST_DATABASE_URL=postgresql://ai_fsm:ai_fsm_dev_password@localhost:55432/ai_fsm \
+PGPASSWORD=<local dev password> \
+TEST_DATABASE_URL=postgresql://ai_fsm@localhost:55432/ai_fsm \
 TEST_BASE_URL=http://localhost:3000 \
 pnpm test:integration
 ```

@@ -75,7 +75,7 @@ export async function confirmDriveTrip(
     const category = activityCategoryFor(opts.activityType);
     const { rows } = await client.query<{ id: string }>(
       `INSERT INTO activity_entries
-         (account_id, user_id, session_date, activity_type, category,
+         (company_id, user_id, session_date, activity_type, category,
           started_at, ended_at, entity_type, entity_id, source, note,
           business_day_id, assignment_kind)
        VALUES ($1, $2, $3::date, $4, $5, $6, $7, $8, $9, 'backfill', $10, $11, 'none')
@@ -104,7 +104,7 @@ export async function confirmDriveTrip(
       `Auto-captured drive ${segment.started_at.slice(11, 16)}–${segment.ended_at.slice(11, 16)}`;
     const { rows } = await client.query<{ id: string }>(
       `INSERT INTO vehicle_sessions
-         (account_id, vehicle_id, session_date, miles, notes, created_by,
+         (company_id, vehicle_id, session_date, miles, notes, created_by,
           started_at, ended_at, business_day_id, activity_entry_id, miles_source, status)
        VALUES ($1, $2, $3::date, $4, $5, $6, $7, $8, $9, $10, $11, 'closed')
        RETURNING id`,

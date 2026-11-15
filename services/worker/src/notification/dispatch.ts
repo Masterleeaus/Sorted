@@ -5,7 +5,7 @@ import { getRules, checkGovernor, updateCooldown } from "./governor.js";
 
 interface QueueRow {
   id: string;
-  account_id: string;
+  company_id: string;
   client_id: string | null;
   automation_type: string;
   priority: number;
@@ -48,7 +48,7 @@ export async function dispatchNotificationQueue(client: Client): Promise<Dispatc
     // Pick up to 20 pending items ordered by priority then scheduled time.
     // FOR UPDATE SKIP LOCKED: concurrent workers skip these rows rather than block.
     const { rows } = await client.query<QueueRow>(
-      `SELECT id, account_id, client_id, automation_type, priority, to_address,
+      `SELECT id, company_id, client_id, automation_type, priority, to_address,
               subject, html_body, idempotency_key, attempt_count, max_attempts,
               entity_type, entity_id, metadata
        FROM notification_queue
@@ -70,10 +70,10 @@ export async function dispatchNotificationQueue(client: Client): Promise<Dispatc
     for (const row of rows) {
       try {
         // Get or cache account rules
-        if (!rulesCache.has(row.account_id)) {
-          rulesCache.set(row.account_id, await getRules(client, row.account_id));
+        if (!rulesCache.has(row.company_id)) {
+          rulesCache.set(row.company_id, await getRules(client, row.company_id));
         }
-        const rules = rulesCache.get(row.account_id)!;
+        const rules = rulesCache.get(row.company_id)!;
 
         // Governor check
         const gov = await checkGovernor(client, row, rules);
@@ -108,17 +108,17 @@ export async function dispatchNotificationQueue(client: Client): Promise<Dispatc
 
           // Update cooldown
           if (row.client_id) {
-            await updateCooldown(client, row.account_id, row.client_id);
+            await updateCooldown(client, row.company_id, row.client_id);
           }
 
           // Log to communications_log
           if (row.client_id) {
             await client.query(
               `INSERT INTO communications_log
-                 (account_id, client_id, channel, direction, outcome, body_preview, external_id)
+                 (company_id, client_id, channel, direction, outcome, body_preview, external_id)
                VALUES ($1, $2, 'email', 'outbound', 'sent', $3, $4)`,
               [
-                row.account_id,
+                row.company_id,
                 row.client_id,
                 `${row.automation_type}: ${row.subject}`.slice(0, 200),
                 row.id,

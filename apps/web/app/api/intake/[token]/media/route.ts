@@ -87,7 +87,7 @@ export async function POST(
     await client.query(
       `SELECT set_config('app.current_account_id', $1, true),
               set_config('app.current_role', 'owner', true)`,
-      [invite.account_id],
+      [invite.company_id],
     );
 
     // Lock the invite row so a submit and two photo adds cannot interleave the cap check.
@@ -122,7 +122,7 @@ export async function POST(
          (company_id, intake_invite_id, filename, original_name, mime_type, size_bytes)
        VALUES ($1, $2, $3, $4, $5, $6)
        RETURNING id, original_name, mime_type, size_bytes`,
-      [invite.account_id, invite.id, filename, sanitizeDisplayName(file.name), mime, bytes.byteLength],
+      [invite.company_id, invite.id, filename, sanitizeDisplayName(file.name), mime, bytes.byteLength],
     );
 
     await client.query("COMMIT");

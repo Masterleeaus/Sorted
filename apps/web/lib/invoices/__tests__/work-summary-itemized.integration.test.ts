@@ -30,11 +30,11 @@ describe.skipIf(!RUN)("work summary + itemized receipts", () => {
       [SEED_ACCOUNT, SEED_OWNER],
     );
     clientId = (
-      await client.query(`INSERT INTO clients (account_id, name) VALUES ($1, 'Itemized Test') RETURNING id`, [SEED_ACCOUNT])
+      await client.query(`INSERT INTO clients (company_id, name) VALUES ($1, 'Itemized Test') RETURNING id`, [SEED_ACCOUNT])
     ).rows[0].id;
     jobId = (
       await client.query(
-        `INSERT INTO jobs (account_id, client_id, title, created_by) VALUES ($1,$2,'Itemized job',$3) RETURNING id`,
+        `INSERT INTO jobs (company_id, client_id, title, created_by) VALUES ($1,$2,'Itemized job',$3) RETURNING id`,
         [SEED_ACCOUNT, clientId, SEED_OWNER],
       )
     ).rows[0].id;
@@ -42,14 +42,14 @@ describe.skipIf(!RUN)("work summary + itemized receipts", () => {
     const receipt = async (amount: number, billable = true) =>
       (
         await client.query(
-          `INSERT INTO expenses (account_id, job_id, vendor_name, category, amount_cents, expense_date, created_by, billable)
+          `INSERT INTO expenses (company_id, job_id, vendor_name, category, amount_cents, expense_date, created_by, billable)
            VALUES ($1,$2,'Home Depot','materials',$3,'2026-09-01',$4,$5) RETURNING id`,
           [SEED_ACCOUNT, jobId, amount, SEED_OWNER, billable],
         )
       ).rows[0].id as string;
     const item = (expenseId: string, name: string, cents: number, billable = true) =>
       client.query(
-        `INSERT INTO expense_line_items (account_id, expense_id, name, quantity, unit_cost_cents, billable)
+        `INSERT INTO expense_line_items (company_id, expense_id, name, quantity, unit_cost_cents, billable)
          VALUES ($1,$2,$3,1,$4,$5)`,
         [SEED_ACCOUNT, expenseId, name, cents, billable],
       );
@@ -80,7 +80,7 @@ describe.skipIf(!RUN)("work summary + itemized receipts", () => {
   it("work summary edits in draft and is frozen once sent", async () => {
     const id = (
       await client.query(
-        `INSERT INTO invoices (account_id, client_id, job_id, status, invoice_kind, invoice_number,
+        `INSERT INTO invoices (company_id, client_id, job_id, status, invoice_kind, invoice_number,
            subtotal_cents, tax_cents, total_cents, paid_cents, deposit_cents, created_by)
          VALUES ($1,$2,$3,'draft','final',$4,100,0,100,0,0,$5) RETURNING id`,
         [SEED_ACCOUNT, clientId, jobId, `WS-${Date.now()}`, SEED_OWNER],

@@ -52,7 +52,7 @@ describe("POST /api/internal/arrival-prompt", () => {
   });
 
   it("404 not_found when the resolver finds no candidate, and opens no tenant transaction", async () => {
-    mockQueryOne.mockResolvedValue({ account_id: null });
+    mockQueryOne.mockResolvedValue({ company_id: null });
     const res = await POST(post({ candidate_id: CANDIDATE, action: "prompted" }));
     expect(res.status).toBe(404);
     expect(await res.json()).toEqual({ ok: false, reason: "not_found" });
@@ -60,7 +60,7 @@ describe("POST /api/internal/arrival-prompt", () => {
   });
 
   it("resolves the account, then updates the candidate inside that account's owner context", async () => {
-    mockQueryOne.mockResolvedValue({ account_id: ACCOUNT });
+    mockQueryOne.mockResolvedValue({ company_id: ACCOUNT });
     const res = await POST(post({ candidate_id: CANDIDATE, action: "prompted" }));
     expect(res.status).toBe(200);
     expect(await res.json()).toEqual({ ok: true, already: true });
@@ -76,7 +76,7 @@ describe("POST /api/internal/arrival-prompt", () => {
   });
 
   it("404 not_found when the candidate is no longer pending", async () => {
-    mockQueryOne.mockResolvedValue({ account_id: ACCOUNT });
+    mockQueryOne.mockResolvedValue({ company_id: ACCOUNT });
     mockClientQuery.mockImplementation(async (sql: string) => {
       if (sql.startsWith("UPDATE visit_candidates")) return { rows: [] };
       return { rows: [] };

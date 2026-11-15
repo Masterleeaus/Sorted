@@ -64,7 +64,7 @@ describe.skipIf(!shouldRun)("automations integration harness", () => {
 
     for (const fixture of LIFECYCLE_FIXTURES) {
       const autoRes = await client.query(
-        `INSERT INTO automations (account_id, type, enabled, config, next_run_at)
+        `INSERT INTO automations (company_id, type, enabled, config, next_run_at)
          VALUES ($1, $2, true, '{}'::jsonb, now() - interval '1 minute')
          RETURNING id`,
         [accountId, fixture.type]
@@ -73,7 +73,7 @@ describe.skipIf(!shouldRun)("automations integration harness", () => {
     }
 
     const springRes = await client.query(
-      `INSERT INTO automations (account_id, type, enabled, config, next_run_at)
+      `INSERT INTO automations (company_id, type, enabled, config, next_run_at)
        VALUES ($1, 'seasonal_reminder_spring', true, '{}'::jsonb, now() - interval '1 minute')
        RETURNING id`,
       [accountId]
@@ -83,8 +83,8 @@ describe.skipIf(!shouldRun)("automations integration harness", () => {
 
   afterAll(async () => {
     if (client) {
-      await client.query(`DELETE FROM audit_log WHERE account_id = $1`, [accountId]);
-      await client.query(`DELETE FROM automations WHERE account_id = $1`, [accountId]);
+      await client.query(`DELETE FROM audit_log WHERE company_id = $1`, [accountId]);
+      await client.query(`DELETE FROM automations WHERE company_id = $1`, [accountId]);
       await client.query(`DELETE FROM accounts WHERE id = $1`, [accountId]);
       await client.end();
     }

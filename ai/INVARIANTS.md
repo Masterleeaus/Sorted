@@ -52,6 +52,14 @@ Roles (provisioned by `scripts/db-provision-runtime.sh`, deployed by `DEPLOY.md`
 
 Do not assume RLS isolates web requests until the web cutover has run.
 
+**RLS state in the schema (verified 2026-11-15, migration 210):** all 74 public tables with an
+`account_id` column have RLS enabled and FORCED, and each has a policy that uses the account context
+(`app_account_id()` or `app.current_account_id`). Checked on a freshly migrated PostgreSQL 16 database,
+and by `apps/web/lib/__tests__/rls-coverage.integration.test.ts` on the live schema. The web role
+(`ai_fsm_web`) was checked directly with `psql`: with no context it sees 0 `clients` rows, with account A
+context it sees only A's rows, and it cannot update or delete B's rows or insert into B. The cutover
+itself is still open (see `docs/working/web-role-cutover-runbook.md`).
+
 ## garonhome also runs Home Assistant
 Scheduled interrupts (RAM start-day, home-arrival + 8 PM day-review) are **HA
 rest_commands** hitting `/api/internal/*`, not the worker (no egress). HA config:

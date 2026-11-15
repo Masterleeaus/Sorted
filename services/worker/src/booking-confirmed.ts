@@ -20,7 +20,6 @@ import { PRIORITY } from "./notification/priority.js";
 
 interface EligibleBooking {
   id: string;
-  account_id: string;
   company_id: string;
   job_id: string;
   client_id: string;
@@ -35,7 +34,7 @@ interface EligibleBooking {
 
 export async function findDueBookingConfirmations(client: Client): Promise<AutomationRow[]> {
   const { rows } = await client.query<AutomationRow>(
-    `SELECT id, account_id, company_id, type, config, enabled, next_run_at::text
+    `SELECT id, company_id, company_id, type, config, enabled, next_run_at::text
      FROM automations
      WHERE type = 'booking_confirmed'
        AND enabled = true
@@ -51,7 +50,7 @@ export async function findEligibleBookings(
   const hoursWindow = (automation.config as { hours_window?: number }).hours_window ?? 48;
 
   const { rows } = await client.query<EligibleBooking>(
-    `SELECT v.id, v.account_id, v.company_id, v.job_id, c.id AS client_id,
+    `SELECT v.id, v.company_id, v.company_id, v.job_id, c.id AS client_id,
             v.scheduled_start::text, v.scheduled_end::text,
             j.title AS job_title,
             c.name AS client_name, c.email AS client_email,
@@ -99,7 +98,7 @@ async function emitBookingConfirmation(
 
   if (booking.client_email && booking.client_name && booking.job_title) {
     const enqueueResult = await enqueueNotification(client, {
-      accountId: booking.account_id,
+      accountId: booking.company_id,
       clientId: booking.client_id,
       automationType: "booking_confirmed",
       priority: PRIORITY.MEDIUM,
@@ -127,10 +126,10 @@ async function emitBookingConfirmation(
 
   await client.query(
     `INSERT INTO audit_log
-       (account_id, entity_type, entity_id, action, actor_id, old_value, new_value)
+       (company_id, entity_type, entity_id, action, actor_id, old_value, new_value)
      VALUES ($1, 'booking_confirmed', $2, 'insert', $3, NULL, $4)`,
     [
-      booking.account_id,
+      booking.company_id,
       booking.id,
       automationId,
       JSON.stringify({
@@ -152,7 +151,7 @@ export async function processBookingConfirmation(
 ): Promise<RunResult> {
   const result: RunResult = {
     automationId: automation.id,
-    accountId: automation.account_id,
+    accountId: automation.company_id,
     sent: 0,
     skipped: 0,
     errors: 0,

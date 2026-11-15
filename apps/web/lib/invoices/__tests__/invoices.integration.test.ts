@@ -334,20 +334,20 @@ describe.skipIf(!RUN_INTEGRATION)("Sponsored invoice API integration", () => {
     const db = new Client({ connectionString: process.env.TEST_DATABASE_URL });
     await db.connect();
     try {
-      accountId = (await db.query<{ account_id: string }>(`SELECT account_id FROM users WHERE email = 'admin@test.com'`)).rows[0].account_id;
-      await db.query(`INSERT INTO clients (id, account_id, name) VALUES ($1, $2, 'Sponsored payer client')`, [payerId, accountId]);
-      await db.query(`INSERT INTO clients (id, account_id, name) VALUES ($1, $2, 'Sponsored beneficiary client')`, [accountClientId, accountId]);
-      await db.query(`INSERT INTO properties (id, account_id, client_id, address) VALUES ($1, $2, $3, '469 Cilley Road')`, [propertyId, accountId, accountClientId]);
+      accountId = (await db.query<{ company_id: string }>(`SELECT company_id FROM users WHERE email = 'admin@test.com'`)).rows[0].company_id;
+      await db.query(`INSERT INTO clients (id, company_id, name) VALUES ($1, $2, 'Sponsored payer client')`, [payerId, accountId]);
+      await db.query(`INSERT INTO clients (id, company_id, name) VALUES ($1, $2, 'Sponsored beneficiary client')`, [accountClientId, accountId]);
+      await db.query(`INSERT INTO properties (id, company_id, client_id, address) VALUES ($1, $2, $3, '469 Cilley Road')`, [propertyId, accountId, accountClientId]);
       await db.query(
-        `INSERT INTO property_contacts (id, account_id, property_id, external_name, role)
+        `INSERT INTO property_contacts (id, company_id, property_id, external_name, role)
          VALUES ($1, $2, $3, 'Emma', 'beneficiary')`,
         [beneficiaryId, accountId, propertyId],
       );
       await db.query(`INSERT INTO accounts (id, name) VALUES ($1, 'Foreign sponsored test')`, [foreignAccountId]);
-      await db.query(`INSERT INTO clients (id, account_id, name) VALUES ($1, $2, 'Foreign client')`, [foreignClientId, foreignAccountId]);
-      await db.query(`INSERT INTO properties (id, account_id, client_id, address) VALUES ($1, $2, $3, '1 Foreign Way')`, [foreignPropertyId, foreignAccountId, foreignClientId]);
+      await db.query(`INSERT INTO clients (id, company_id, name) VALUES ($1, $2, 'Foreign client')`, [foreignClientId, foreignAccountId]);
+      await db.query(`INSERT INTO properties (id, company_id, client_id, address) VALUES ($1, $2, $3, '1 Foreign Way')`, [foreignPropertyId, foreignAccountId, foreignClientId]);
       await db.query(
-        `INSERT INTO property_contacts (id, account_id, property_id, external_name, role)
+        `INSERT INTO property_contacts (id, company_id, property_id, external_name, role)
          VALUES ($1, $2, $3, 'Foreign beneficiary', 'beneficiary')`,
         [foreignBeneficiaryId, foreignAccountId, foreignPropertyId],
       );

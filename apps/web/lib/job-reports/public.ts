@@ -14,11 +14,11 @@ export async function withPublishedReport<T>(
   const db = await getPool().connect();
   try {
     await db.query("BEGIN");
-    const { rows } = await db.query<{ account_id: string | null }>(
-      `SELECT portal_job_report_account($1::uuid)::text AS account_id`,
+    const { rows } = await db.query<{ company_id: string | null }>(
+      `SELECT portal_job_report_account($1::uuid)::text AS company_id`,
       [token],
     );
-    const accountId = rows[0]?.account_id;
+    const accountId = rows[0]?.company_id;
     if (!accountId) {
       await db.query("ROLLBACK");
       return null;

@@ -25,23 +25,31 @@ export {
 } from "./authorize";
 export { verifyIdToken, type VerifiedIdToken, type VerifyIdTokenOptions } from "./id-token";
 export {
-  createServiceTokenClient,
-  REFRESH_MARGIN_SECONDS,
-  SORTED_PRODUCT_AUDIENCE,
-  ServiceTokenError,
-  type ServiceTokenClient,
-  type ServiceTokenClientOptions,
-  type ServiceTokenConfig,
-  type ServiceTokenErrorCode,
-} from "./service-token";
+  LINK_ASSERTION_AUDIENCE,
+  LINK_ASSERTION_DEFAULT_LIFETIME_SECONDS,
+  LINK_ASSERTION_MAX_LIFETIME_SECONDS,
+  LINK_ASSERTION_TYPE,
+  LINK_SIGNING_JWK_ENV,
+  LINK_SIGNING_KID_ENV,
+  LinkSigningError,
+  loadLinkSigningKey,
+  SORTED_PRODUCT_ID,
+  signLinkAssertion,
+  type LinkAssertionInput,
+  type LinkSigningKey,
+  type SignLinkAssertionOptions,
+  type SignedLinkAssertion,
+} from "./link-assertion";
+export * from './service-token';
+export * from './entitlements';
+export { verifyEventEnvelopeSignature } from './event-envelope';
+export { createMemoryLinkNonceStore, type LinkNonceStore } from './link-nonce-store';
 export {
-  createEntitlementReader,
-  EntitlementError,
-  SORTED_CAPABILITIES,
-  SORTED_CENTRAL_APPLICATION,
-  type CapabilityState,
-  type EntitlementReader,
-  type EntitlementReaderOptions,
-  type SortedCapability,
-  type SortedEntitlements,
-} from "./entitlements";
+  createCentralServiceClient,
+  CentralServiceError,
+  readCentralServiceConfig,
+  type CentralServiceClient,
+  type CentralServiceClientOptions,
+  type CentralServiceConfig,
+  type CentralServiceErrorCode,
+} from './central-service-client';

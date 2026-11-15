@@ -52,7 +52,7 @@ export async function insertVehicleExpense(
 ): Promise<string> {
   const { rows } = await client.query<{ id: string }>(
     `INSERT INTO expenses (
-       account_id, vendor_name, category, amount_cents, expense_date,
+       company_id, vendor_name, category, amount_cents, expense_date,
        notes, created_by, vehicle_id
      ) VALUES ($1, $2, $3, $4, $5::date, $6, $7, $8)
      RETURNING id`,
@@ -107,7 +107,7 @@ export async function createFuelLogWithExpense(
 
   const { rows } = await client.query<{ id: string }>(
     `INSERT INTO vehicle_fuel_logs (
-       account_id, vehicle_id, filled_at, odometer, gallons, is_full_tank,
+       company_id, vehicle_id, filled_at, odometer, gallons, is_full_tank,
        odometer_suspect, notes, expense_id, created_by
      ) VALUES ($1, $2, $3::timestamptz, $4, $5, $6, $7, $8, $9, $10)
      RETURNING id`,
@@ -162,7 +162,7 @@ export async function createServiceRecordWithExpense(
 
   const { rows } = await client.query<{ id: string }>(
     `INSERT INTO vehicle_service_records (
-       account_id, vehicle_id, serviced_at, odometer, odometer_suspect,
+       company_id, vehicle_id, serviced_at, odometer, odometer_suspect,
        service_types, vendor_name, notes, expense_id, created_by
      ) VALUES ($1, $2, $3::date, $4, $5, $6::text[], $7, $8, $9, $10)
      RETURNING id`,
@@ -250,7 +250,7 @@ export async function createRenewalRecordWithExpense(
 
   const { rows: recordRows } = await client.query<{ id: string }>(
     `INSERT INTO vehicle_renewal_records (
-       account_id, vehicle_id, renewal_type, renewed_at, expense_id, created_by
+       company_id, vehicle_id, renewal_type, renewed_at, expense_id, created_by
      ) VALUES ($1, $2, $3, $4::date, $5, $6)
      RETURNING id`,
     [

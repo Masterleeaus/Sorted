@@ -64,7 +64,7 @@ describe.skipIf(!RUN)("tenant isolation: properties routes on the runtime role",
       [ACCOUNT_A, ACCOUNT_B],
     );
     await admin.query(
-      `INSERT INTO properties (id, account_id, address) VALUES ($1, $2, '1 A Street'), ($3, $4, '2 B Street')`,
+      `INSERT INTO properties (id, company_id, address) VALUES ($1, $2, '1 A Street'), ($3, $4, '2 B Street')`,
       [PROPERTY_A, ACCOUNT_A, PROPERTY_B, ACCOUNT_B],
     );
 

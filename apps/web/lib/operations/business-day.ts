@@ -95,9 +95,9 @@ export async function openBusinessDay(
   createdBy: string,
 ): Promise<BusinessDayRow> {
   await client.query(
-    `INSERT INTO business_days (account_id, user_id, business_date, status, created_by)
+    `INSERT INTO business_days (company_id, user_id, business_date, status, created_by)
      VALUES ($1, $2, $3, 'OPEN', $4)
-     ON CONFLICT (account_id, user_id, business_date) DO NOTHING`,
+     ON CONFLICT (company_id, user_id, business_date) DO NOTHING`,
     [accountId, userId, date, createdBy],
   );
   const row = await getBusinessDay(client, accountId, userId, date);

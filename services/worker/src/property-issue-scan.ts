@@ -31,7 +31,7 @@ interface RecurringItem {
 
 export async function findDuePropertyIssueScans(client: Client): Promise<AutomationRow[]> {
   const { rows } = await client.query<AutomationRow>(
-    `SELECT id, account_id, company_id, type, config, enabled, next_run_at::text
+    `SELECT id, company_id, company_id, type, config, enabled, next_run_at::text
        FROM automations
       WHERE type = 'property_issue_scan'
         AND enabled = true
@@ -96,7 +96,7 @@ async function upsertPropertyIssue(
 
   await client.query(
     `INSERT INTO property_issues
-       (account_id, property_id, area, item_key, title, description,
+       (company_id, property_id, area, item_key, title, description,
         first_noted_at, last_noted_at, occurrence_count, severity, auto_detected)
      VALUES ($1, $2, $3, $4, $5, $6, $7::timestamptz, $8::timestamptz, $9, $10, true)
      ON CONFLICT (property_id, item_key) WHERE status IN ('open','monitoring')
@@ -128,7 +128,7 @@ export async function processPropertyIssueScan(
 ): Promise<RunResult> {
   const result: RunResult = {
     automationId: automation.id,
-    accountId: automation.account_id,
+    accountId: automation.company_id,
     sent: 0,
     skipped: 0,
     errors: 0,
@@ -137,7 +137,7 @@ export async function processPropertyIssueScan(
   const items = await findRecurringItems(client, automation);
   for (const item of items) {
     try {
-      await upsertPropertyIssue(client, item, automation.account_id);
+      await upsertPropertyIssue(client, item, automation.company_id);
       result.sent++;
     } catch (error) {
       result.errors++;

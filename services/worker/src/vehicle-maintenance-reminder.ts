@@ -9,7 +9,7 @@ const SOON_DAYS = 30;
 const SOON_MILES = 500;
 
 type ScheduleRow = {
-  account_id: string;
+  company_id: string;
   vehicle_id: string;
   vehicle_nickname: string;
   service_type: string;
@@ -21,7 +21,7 @@ type ScheduleRow = {
 };
 
 type RenewalRow = {
-  account_id: string;
+  company_id: string;
   vehicle_id: string;
   vehicle_nickname: string;
   renewal_type: string;
@@ -47,21 +47,21 @@ export async function runVehicleMaintenanceReminders(client: Client): Promise<{
 
   // Service schedules with last non-suspect completion
   const { rows: schedules } = await client.query<ScheduleRow>(
-    `SELECT s.account_id, s.vehicle_id, v.nickname AS vehicle_nickname,
+    `SELECT s.company_id, s.vehicle_id, v.nickname AS vehicle_nickname,
             s.service_type, s.interval_miles, s.interval_months,
             (
               SELECT MAX(vs.end_odometer) FROM vehicle_sessions vs
-              WHERE vs.vehicle_id = s.vehicle_id AND vs.account_id = s.account_id
+              WHERE vs.vehicle_id = s.vehicle_id AND vs.company_id = s.company_id
                 AND vs.end_odometer IS NOT NULL
             ) AS current_odometer,
             last_r.serviced_at::text AS last_serviced_at,
             last_r.odometer AS last_odometer
      FROM vehicle_service_schedules s
-     JOIN vehicles v ON v.id = s.vehicle_id AND v.account_id = s.account_id AND v.is_active
+     JOIN vehicles v ON v.id = s.vehicle_id AND v.company_id = s.company_id AND v.is_active
      LEFT JOIN LATERAL (
        SELECT r.serviced_at, r.odometer
        FROM vehicle_service_records r
-       WHERE r.vehicle_id = s.vehicle_id AND r.account_id = s.account_id
+       WHERE r.vehicle_id = s.vehicle_id AND r.company_id = s.company_id
          AND r.odometer_suspect = false
          AND s.service_type = ANY(r.service_types)
        ORDER BY r.serviced_at DESC
@@ -106,16 +106,16 @@ export async function runVehicleMaintenanceReminders(client: Client): Promise<{
     const dueWindow = overdue ? "overdue" : "soon";
     const dedupeKey = `vehicle_service_due:${s.vehicle_id}:${s.service_type}:${dueWindow}`;
     const exists = await client.query(
-      `SELECT 1 FROM attention_events WHERE account_id = $1 AND dedupe_key = $2 LIMIT 1`,
-      [s.account_id, dedupeKey],
+      `SELECT 1 FROM attention_events WHERE company_id = $1 AND dedupe_key = $2 LIMIT 1`,
+      [s.company_id, dedupeKey],
     );
     if (exists.rows.length > 0) continue;
     await client.query(
       `INSERT INTO attention_events (
-         account_id, type, entity_type, entity_id, title, summary, href, dedupe_key
+         company_id, type, entity_type, entity_id, title, summary, href, dedupe_key
        ) VALUES ($1, 'vehicle_service_due', 'vehicle', $2, $3, $4, $5, $6)`,
       [
-        s.account_id,
+        s.company_id,
         s.vehicle_id,
         title,
         summary || "Service due soon",
@@ -128,10 +128,10 @@ export async function runVehicleMaintenanceReminders(client: Client): Promise<{
 
   // Renewals
   const { rows: renewals } = await client.query<RenewalRow>(
-    `SELECT r.account_id, r.vehicle_id, v.nickname AS vehicle_nickname,
+    `SELECT r.company_id, r.vehicle_id, v.nickname AS vehicle_nickname,
             r.renewal_type, r.current_due_date::text
      FROM vehicle_renewals r
-     JOIN vehicles v ON v.id = r.vehicle_id AND v.account_id = r.account_id AND v.is_active
+     JOIN vehicles v ON v.id = r.vehicle_id AND v.company_id = r.company_id AND v.is_active
      WHERE r.is_active = true
        AND r.current_due_date <= ($1::date + ($2 || ' days')::interval)`,
     [todayIso, String(SOON_DAYS)],
@@ -141,16 +141,16 @@ export async function runVehicleMaintenanceReminders(client: Client): Promise<{
     const days = daysUntil(r.current_due_date, today);
     const dedupeKey = `vehicle_renewal_due:${r.vehicle_id}:${r.renewal_type}:${r.current_due_date}`;
     const exists = await client.query(
-      `SELECT 1 FROM attention_events WHERE account_id = $1 AND dedupe_key = $2 LIMIT 1`,
-      [r.account_id, dedupeKey],
+      `SELECT 1 FROM attention_events WHERE company_id = $1 AND dedupe_key = $2 LIMIT 1`,
+      [r.company_id, dedupeKey],
     );
     if (exists.rows.length > 0) continue;
     await client.query(
       `INSERT INTO attention_events (
-         account_id, type, entity_type, entity_id, title, summary, href, dedupe_key
+         company_id, type, entity_type, entity_id, title, summary, href, dedupe_key
        ) VALUES ($1, 'vehicle_renewal_due', 'vehicle', $2, $3, $4, $5, $6)`,
       [
-        r.account_id,
+        r.company_id,
         r.vehicle_id,
         `${r.vehicle_nickname}: ${r.renewal_type}`,
         days < 0
@@ -167,16 +167,16 @@ export async function runVehicleMaintenanceReminders(client: Client): Promise<{
   const monthStart = `${todayIso.slice(0, 7)}-01`;
   const { rows: loans } = await client.query<{
     id: string;
-    account_id: string;
+    company_id: string;
     vehicle_id: string;
     lender: string;
     monthly_payment_cents: number;
     vehicle_nickname: string;
   }>(
-    `SELECT l.id, l.account_id, l.vehicle_id, l.lender, l.monthly_payment_cents,
+    `SELECT l.id, l.company_id, l.vehicle_id, l.lender, l.monthly_payment_cents,
             v.nickname AS vehicle_nickname
      FROM vehicle_loans l
-     JOIN vehicles v ON v.id = l.vehicle_id AND v.account_id = l.account_id
+     JOIN vehicles v ON v.id = l.vehicle_id AND v.company_id = l.company_id
      WHERE l.is_active = true AND l.monthly_payment_cents > 0`,
   );
 
@@ -184,30 +184,30 @@ export async function runVehicleMaintenanceReminders(client: Client): Promise<{
     const dedupeNote = `vehicle_loan_payment:${loan.id}:${todayIso.slice(0, 7)}`;
     const exists = await client.query(
       `SELECT 1 FROM expenses
-       WHERE account_id = $1 AND vehicle_id = $2
+       WHERE company_id = $1 AND vehicle_id = $2
          AND category = 'vehicle_loan_payment'
          AND expense_date >= $3::date
          AND notes = $4
        LIMIT 1`,
-      [loan.account_id, loan.vehicle_id, monthStart, dedupeNote],
+      [loan.company_id, loan.vehicle_id, monthStart, dedupeNote],
     );
     if (exists.rows.length > 0) continue;
 
     // Need a system user for created_by — use first owner
     const { rows: owners } = await client.query<{ id: string }>(
-      `SELECT id FROM users WHERE account_id = $1 AND role = 'owner' ORDER BY created_at LIMIT 1`,
-      [loan.account_id],
+      `SELECT id FROM users WHERE company_id = $1 AND role = 'owner' ORDER BY created_at LIMIT 1`,
+      [loan.company_id],
     );
     const ownerId = owners[0]?.id;
     if (!ownerId) continue;
 
     await client.query(
       `INSERT INTO expenses (
-         account_id, vendor_name, category, amount_cents, expense_date,
+         company_id, vendor_name, category, amount_cents, expense_date,
          notes, created_by, vehicle_id
        ) VALUES ($1, $2, 'vehicle_loan_payment', $3, $4::date, $5, $6, $7)`,
       [
-        loan.account_id,
+        loan.company_id,
         loan.lender,
         loan.monthly_payment_cents,
         monthStart,

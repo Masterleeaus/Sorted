@@ -29,7 +29,7 @@ describe.skipIf(!RUN)("final invoice credits deposit + progress", () => {
     const num = `PROG-${kind}-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
     const { rows } = await client.query(
       `INSERT INTO invoices
-         (account_id, client_id, estimate_id, status, invoice_kind, invoice_number,
+         (company_id, client_id, estimate_id, status, invoice_kind, invoice_number,
           subtotal_cents, tax_cents, total_cents, paid_cents, deposit_cents, created_by)
        VALUES ($1,$2,$3,$4,$5,$6,$7,0,$7,0,0,$8) RETURNING id`,
       [SEED_ACCOUNT, clientId, estimateId, status, kind, num, totalCents, SEED_OWNER],
@@ -48,12 +48,12 @@ describe.skipIf(!RUN)("final invoice credits deposit + progress", () => {
       [SEED_ACCOUNT, SEED_OWNER],
     );
     const c = await client.query(
-      `INSERT INTO clients (account_id, name) VALUES ($1, 'Progress Test') RETURNING id`,
+      `INSERT INTO clients (company_id, name) VALUES ($1, 'Progress Test') RETURNING id`,
       [SEED_ACCOUNT],
     );
     clientId = c.rows[0].id;
     const e = await client.query(
-      `INSERT INTO estimates (account_id, client_id, created_by, total_cents)
+      `INSERT INTO estimates (company_id, client_id, created_by, total_cents)
        VALUES ($1,$2,$3,$4) RETURNING id`,
       [SEED_ACCOUNT, clientId, SEED_OWNER, TOTAL],
     );

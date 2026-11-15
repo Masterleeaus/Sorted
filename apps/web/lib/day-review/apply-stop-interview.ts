@@ -279,7 +279,7 @@ async function createJobOnProperty(
   opts: { propertyId: string; clientId: string; title: string; notes: string },
 ): Promise<string> {
   const { rows } = await client.query<{ id: string }>(
-    `INSERT INTO jobs (account_id, client_id, property_id, title, description, job_type, created_by)
+    `INSERT INTO jobs (company_id, client_id, property_id, title, description, job_type, created_by)
      VALUES ($1, $2, $3, $4, $5, 'repair', $6)
      RETURNING id`,
     [
@@ -312,7 +312,7 @@ async function createJobOnProperty(
     createdBy: session.userId,
   });
   await appendAuditLog(client, {
-    account_id: session.accountId,
+    company_id: session.accountId,
     entity_type: "job",
     entity_id: jobId,
     action: "insert",

@@ -5,7 +5,7 @@ import { getPortalSession, PREVIEW_READ_ONLY_MESSAGE } from "./session";
 
 export interface PortalClient extends Record<string, unknown> {
   id: string;
-  account_id: string;
+  company_id: string;
   name: string;
   email: string | null;
   phone: string | null;
@@ -24,16 +24,16 @@ export async function requirePortalClient(
 ): Promise<{ client: PortalClient } | { response: NextResponse }> {
   // The portal token resolves to an account first (migration 204); the client
   // row is then read inside that account's context.
-  const resolved = await queryOne<{ account_id: string | null }>(
-    `SELECT resolve_portal_client_account($1::uuid) AS account_id`,
+  const resolved = await queryOne<{ company_id: string | null }>(
+    `SELECT resolve_portal_client_account($1::uuid) AS company_id`,
     [clientToken],
   );
-  const client = resolved?.account_id
-    ? await withTokenAccountContext(resolved.account_id, async (tx) => {
+  const client = resolved?.company_id
+    ? await withTokenAccountContext(resolved.company_id, async (tx) => {
         const { rows } = await tx.query<PortalClient>(
-          `SELECT id::text, account_id::text, name, email, phone, preferred_contact, sms_consent
+          `SELECT id::text, company_id::text, name, email, phone, preferred_contact, sms_consent
            FROM clients WHERE portal_token = $1 AND company_id = $2`,
-          [clientToken, resolved.account_id],
+          [clientToken, resolved.company_id],
         );
         return rows[0] ?? null;
       })

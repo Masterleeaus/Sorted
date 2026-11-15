@@ -22,19 +22,19 @@ describe.skipIf(!RUN)("portal property page privacy", () => {
   beforeAll(async () => {
     db = new Client({ connectionString: process.env.TEST_DATABASE_URL });
     await db.connect();
-    const admin = await db.query<{ account_id: string }>(`SELECT account_id FROM users WHERE email = 'admin@test.com'`);
-    accountId = admin.rows[0].account_id;
+    const admin = await db.query<{ company_id: string }>(`SELECT company_id FROM users WHERE email = 'admin@test.com'`);
+    accountId = admin.rows[0].company_id;
     await db.query(
-      `INSERT INTO clients (id, account_id, name) VALUES ($1, $3, 'Privacy Owner'), ($2, $3, 'Privacy Stranger')`,
+      `INSERT INTO clients (id, company_id, name) VALUES ($1, $3, 'Privacy Owner'), ($2, $3, 'Privacy Stranger')`,
       [owner, stranger, accountId],
     );
     ownerToken = (await db.query<{ t: string }>(`SELECT portal_token::text AS t FROM clients WHERE id = $1`, [owner])).rows[0].t;
     await db.query(
-      `INSERT INTO properties (id, account_id, client_id, name, address) VALUES ($1, $2, $3, 'Privacy House', '5 Quiet Ln')`,
+      `INSERT INTO properties (id, company_id, client_id, name, address) VALUES ($1, $2, $3, 'Privacy House', '5 Quiet Ln')`,
       [propertyId, accountId, owner],
     );
     await db.query(
-      `INSERT INTO property_notes (account_id, property_id, body, pinned) VALUES
+      `INSERT INTO property_notes (company_id, property_id, body, pinned) VALUES
        ($1, $2, 'STAFF-PINNED-SECRET gate code 4471', true),
        ($1, $2, 'STAFF-NOTE-SECRET customer is slow to pay', false)`,
       [accountId, propertyId],

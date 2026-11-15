@@ -34,7 +34,7 @@ import { fileURLToPath } from "node:url";
  * ai_fsm_web is NOBYPASSRLS. Migration 185 explains the model; the
  * operative description is docs/working/rls-web-tier-flip.md. Because the worker
  * bypasses RLS, a new worker sweep is NOT protected by a policy: it must scope
- * its own writes by account_id or be a reviewed cross-account job.
+ * its own writes by company_id or be a reviewed cross-account job.
  *
  * `_migration_*` internal bookkeeping tables are skipped by pattern, not listed.
  */

@@ -4,7 +4,7 @@ import { processWorkflowEvents } from "./workflow-events.js";
 
 type EventRow = {
   id: string;
-  account_id: string;
+  company_id: string;
   event_type: string;
   entity_type: string;
   entity_id: string;
@@ -14,7 +14,7 @@ type EventRow = {
 function event(accountId: string, eventType = "invoice.paid"): EventRow {
   return {
     id: `event-${accountId}`,
-    account_id: accountId,
+    company_id: accountId,
     event_type: eventType,
     entity_type: "invoice",
     entity_id: "invoice-1",

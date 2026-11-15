@@ -20,7 +20,6 @@ function mockClient(overrides: Record<string, unknown> = {}): Client {
 
 const AUTOMATION: AutomationRow = {
   id: "auto-f1",
-  account_id: "acct-1",
   company_id: "acct-1",
   type: "invoice_followup",
   config: { days_overdue: [7, 14, 30] },
@@ -30,7 +29,6 @@ const AUTOMATION: AutomationRow = {
 
 const INVOICE: OverdueInvoice = {
   id: "inv-1",
-  account_id: "acct-1",
   company_id: "acct-1",
   client_id: "client-1",
   invoice_number: "INV-001",
@@ -157,7 +155,7 @@ describe("emitInvoiceFollowup", () => {
     // Check the insert call
     const insertArgs = queryFn.mock.calls[1];
     expect(insertArgs[0]).toContain("INSERT INTO audit_log");
-    expect(insertArgs[1][0]).toBe(INVOICE.account_id);
+    expect(insertArgs[1][0]).toBe(INVOICE.company_id);
     expect(insertArgs[1][1]).toBe(INVOICE.id);
   });
 

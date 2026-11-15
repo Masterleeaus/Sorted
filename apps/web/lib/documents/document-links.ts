@@ -72,7 +72,7 @@ export async function createPropertyForClient(
   input: NonNullable<DocumentLinksBody["new_property"]>,
 ): Promise<string> {
   const result = await client.query<{ id: string }>(
-    `INSERT INTO properties (account_id, client_id, address, city, state, zip)
+    `INSERT INTO properties (company_id, client_id, address, city, state, zip)
      VALUES ($1, $2, $3, $4, $5, $6)
      RETURNING id`,
     [

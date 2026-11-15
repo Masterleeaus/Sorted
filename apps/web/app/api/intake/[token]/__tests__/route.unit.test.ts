@@ -13,7 +13,7 @@ import { NextRequest } from "next/server";
 type Invite = {
   id: string;
   token: string;
-  account_id: string;
+  company_id: string;
   booking_request_id: string | null;
   lead_name: string;
   lead_email: string;
@@ -55,7 +55,7 @@ const db = vi.hoisted(() => {
     }
     if (sql.startsWith("BEGIN") || sql.includes("set_config")) return { rows: [] };
 
-    if (sql.startsWith("SELECT id, account_id, booking_request_id")) {
+    if (sql.startsWith("SELECT id, company_id, booking_request_id")) {
       const inv = state.invites.find((i) => i.token === params[0] && !i.used && !i.expired);
       return { rows: inv ? [inv] : [] };
     }
@@ -178,7 +178,7 @@ function seedInvite(token: string, overrides: Partial<Invite> = {}) {
   const invite: Invite = {
     id: `invite-${token}`,
     token,
-    account_id: "00000000-0000-0000-0000-000000000002",
+    company_id: "00000000-0000-0000-0000-000000000002",
     booking_request_id: "11111111-1111-1111-1111-111111111111",
     lead_name: "Lead",
     lead_email: "lead@example.com",

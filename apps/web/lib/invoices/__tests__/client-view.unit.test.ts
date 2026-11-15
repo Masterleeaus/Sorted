@@ -56,7 +56,7 @@ describe("recordInvoicePortalView", () => {
         rows: [
           {
             id: "inv-1",
-            account_id: "acc-1",
+            company_id: "acc-1",
             invoice_number: "INV-0001",
             first_viewed_at: null,
             client_name: "Pat",
@@ -84,7 +84,7 @@ describe("recordInvoicePortalView", () => {
         rows: [
           {
             id: "inv-1",
-            account_id: "acc-1",
+            company_id: "acc-1",
             invoice_number: "INV-0001",
             first_viewed_at: "2026-07-01T00:00:00Z",
             client_name: "Pat",

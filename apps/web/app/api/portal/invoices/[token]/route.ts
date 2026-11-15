@@ -12,7 +12,7 @@ export const dynamic = "force-dynamic";
 
 interface InvoiceRow extends Record<string, unknown> {
   id: string;
-  account_id: string;
+  company_id: string;
   client_id: string;
   job_id: string | null;
   created_by: string;
@@ -57,20 +57,20 @@ export async function GET(
 
   // Bootstrap: the share token resolves to an account through a bounded resolver
   // (migration 204). Nothing else reads this invoice before context is set.
-  const resolved = await queryOne<{ account_id: string | null }>(
-    `SELECT resolve_invoice_share_account($1::uuid) AS account_id`,
+  const resolved = await queryOne<{ company_id: string | null }>(
+    `SELECT resolve_invoice_share_account($1::uuid) AS company_id`,
     [token]
   );
-  if (!resolved?.account_id) {
+  if (!resolved?.company_id) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
-  const accountId = resolved.account_id;
+  const accountId = resolved.company_id;
 
   // The invoice read runs in the resolved account's context, with the account predicate.
   const invoice = await withTokenAccountContext(accountId, async (tx) => {
     const { rows: [row] } = await tx.query<InvoiceRow>(
       `SELECT
-       i.id, i.account_id, i.status, i.invoice_number, i.subtotal_cents, i.tax_cents,
+       i.id, i.company_id, i.status, i.invoice_number, i.subtotal_cents, i.tax_cents,
        i.total_cents, i.paid_cents, i.deposit_cents, i.notes, i.due_date,
        i.sent_at, i.paid_at, i.square_payment_link_url,
        c.name AS client_name,
@@ -93,7 +93,7 @@ export async function GET(
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 
-  const { account_id: _accountId, ...publicInvoice } = invoice;
+  const { company_id: _accountId, ...publicInvoice } = invoice;
   const lineItems = await withTokenAccountContext(accountId, async (tx) => {
     const { rows } = await tx.query<LineItemRow>(
       `SELECT id, description, quantity, unit_price_cents, total_cents, sort_order
@@ -115,15 +115,15 @@ export async function GET(
 // webhook marks the invoice paid when the customer completes checkout.
 /** Resolves the share token to its account, then reads the invoice in that context. */
 async function loadInvoiceForPayment(token: string) {
-  const resolved = await queryOne<{ account_id: string | null }>(
-    `SELECT resolve_invoice_share_account($1::uuid) AS account_id`,
+  const resolved = await queryOne<{ company_id: string | null }>(
+    `SELECT resolve_invoice_share_account($1::uuid) AS company_id`,
     [token]
   );
-  if (!resolved?.account_id) return null;
-  const accountId = resolved.account_id;
+  if (!resolved?.company_id) return null;
+  const accountId = resolved.company_id;
   return withTokenAccountContext(accountId, async (tx) => {
     const { rows: [row] } = await tx.query<InvoiceRow>(
-      `SELECT i.id, i.account_id, i.status, i.invoice_number, i.total_cents,
+      `SELECT i.id, i.company_id, i.status, i.invoice_number, i.total_cents,
             i.paid_cents, i.deposit_cents, i.job_id, i.client_id, i.created_by,
             i.deposit_type, i.deposit_percentage, i.deposit_fixed_cents,
             i.square_payment_link_url
@@ -189,7 +189,7 @@ export async function POST(
       `SELECT set_config('app.current_user_id', '', true),
               set_config('app.current_account_id', $1, true),
               set_config('app.current_role', 'owner', true)`,
-      [invoice.account_id],
+      [invoice.company_id],
     );
 
     // Reuse a pending Square link only when its amount matches the current
@@ -200,7 +200,7 @@ export async function POST(
         `SELECT amount_cents FROM payments
          WHERE invoice_id = $1 AND company_id = $2 AND status = 'pending' AND method = 'square'
          ORDER BY created_at DESC LIMIT 1`,
-        [invoice.id, invoice.account_id],
+        [invoice.id, invoice.company_id],
       );
       const pendingAmount = pending.rows[0]?.amount_cents;
       if (pendingAmount === chargeCents) {
@@ -211,17 +211,17 @@ export async function POST(
       await client.query(
         `DELETE FROM payments
          WHERE invoice_id = $1 AND company_id = $2 AND status = 'pending' AND method = 'square'`,
-        [invoice.id, invoice.account_id],
+        [invoice.id, invoice.company_id],
       );
       await client.query(
         `UPDATE invoices
          SET square_order_id = NULL, square_checkout_id = NULL, square_payment_link_url = NULL
          WHERE id = $1 AND company_id = $2`,
-        [invoice.id, invoice.account_id],
+        [invoice.id, invoice.company_id],
       );
     }
 
-    const settings = await loadSquareSettings(client, invoice.account_id);
+    const settings = await loadSquareSettings(client, invoice.company_id);
     if (
       !settings ||
       !settings.enabled ||
@@ -245,7 +245,7 @@ export async function POST(
       `UPDATE invoices
        SET square_order_id = $2, square_checkout_id = $3, square_payment_link_url = $4
        WHERE id = $1 AND company_id = $5`,
-      [invoice.id, link.orderId, link.paymentLinkId, link.url, invoice.account_id]
+      [invoice.id, link.orderId, link.paymentLinkId, link.url, invoice.company_id]
     );
     await client.query(
       `INSERT INTO payments
@@ -253,7 +253,7 @@ export async function POST(
           payment_type, status, external_provider, external_checkout_url, created_by)
        VALUES ($1, $2, $3, $4, $5, 'square', $6, 'pending', 'square', $7, $8)`,
       [
-        invoice.account_id,
+        invoice.company_id,
         invoice.id,
         invoice.job_id,
         invoice.client_id,

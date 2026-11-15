@@ -24,7 +24,7 @@ describe.skipIf(!RUN)("reopen partially paid invoice", () => {
   const makePartial = async (totalCents: number, paidCents: number) => {
     const { rows } = await client.query(
       `INSERT INTO invoices
-         (account_id, client_id, status, invoice_kind, invoice_number,
+         (company_id, client_id, status, invoice_kind, invoice_number,
           subtotal_cents, tax_cents, total_cents, paid_cents, deposit_cents, created_by)
        VALUES ($1,$2,'draft','standard',$3,$4,0,$4,0,0,$5) RETURNING id`,
       [SEED_ACCOUNT, clientId, `REOPEN-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`, totalCents, SEED_OWNER],
@@ -38,7 +38,7 @@ describe.skipIf(!RUN)("reopen partially paid invoice", () => {
 
   const pay = (invoiceId: string, cents: number) =>
     client.query(
-      `INSERT INTO payments (account_id, invoice_id, amount_cents, method, status, created_by)
+      `INSERT INTO payments (company_id, invoice_id, amount_cents, method, status, created_by)
        VALUES ($1,$2,$3,'cash','paid',$4)`,
       [SEED_ACCOUNT, invoiceId, cents, SEED_OWNER],
     );
@@ -57,7 +57,7 @@ describe.skipIf(!RUN)("reopen partially paid invoice", () => {
       [SEED_ACCOUNT, SEED_OWNER],
     );
     const c = await client.query(
-      `INSERT INTO clients (account_id, name) VALUES ($1, 'Reopen Test') RETURNING id`,
+      `INSERT INTO clients (company_id, name) VALUES ($1, 'Reopen Test') RETURNING id`,
       [SEED_ACCOUNT],
     );
     clientId = c.rows[0].id;
@@ -125,7 +125,7 @@ describe.skipIf(!RUN)("reopen partially paid invoice", () => {
   it("an unpaid draft still cannot jump straight to partial", async () => {
     const { rows } = await client.query(
       `INSERT INTO invoices
-         (account_id, client_id, status, invoice_kind, invoice_number,
+         (company_id, client_id, status, invoice_kind, invoice_number,
           subtotal_cents, tax_cents, total_cents, paid_cents, deposit_cents, created_by)
        VALUES ($1,$2,'draft','standard',$3,100,0,100,0,0,$4) RETURNING id`,
       [SEED_ACCOUNT, clientId, `REOPEN-U-${Date.now()}`, SEED_OWNER],

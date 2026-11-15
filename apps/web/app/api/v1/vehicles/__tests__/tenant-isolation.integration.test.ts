@@ -51,12 +51,12 @@ describe.skipIf(!enabled)("vehicle routes: tenant isolation (account A session, 
   beforeAll(async () => {
     await admin.query("INSERT INTO accounts (id, name) VALUES ($1, 'Vehicle Iso A'), ($2, 'Vehicle Iso B')", [accountA, accountB]);
     await admin.query(
-      `INSERT INTO users (id, account_id, email, full_name, password_hash, role)
+      `INSERT INTO users (id, company_id, email, full_name, password_hash, role)
        VALUES ($1, $2, $3, 'Owner A', 'x', 'owner'), ($4, $5, $6, 'Owner B', 'x', 'owner')`,
       [ownerA, accountA, `veh-a-${ownerA}@test.invalid`, ownerB, accountB, `veh-b-${ownerB}@test.invalid`],
     );
     await admin.query(
-      `INSERT INTO vehicles (id, account_id, nickname) VALUES ($1, $2, 'Isolation van A'), ($3, $4, $5)`,
+      `INSERT INTO vehicles (id, company_id, nickname) VALUES ($1, $2, 'Isolation van A'), ($3, $4, $5)`,
       [vehicleA, accountA, vehicleB, accountB, nicknameB],
     );
     session.current = { userId: ownerA, accountId: accountA, role: "owner" };

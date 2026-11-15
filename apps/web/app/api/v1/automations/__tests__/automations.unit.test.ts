@@ -46,7 +46,7 @@ const BASE = "http://localhost:3000/api/v1/automations";
 
 const SAMPLE_AUTOMATION = {
   id: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
-  account_id: mockSession.accountId,
+  company_id: mockSession.accountId,
   type: "visit_reminder",
   enabled: true,
   config: { hours_before: 24 },

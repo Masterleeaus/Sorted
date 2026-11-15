@@ -33,17 +33,17 @@ describe.skipIf(!RUN)("payer-only sponsored invoice portal projection", () => {
       [ACCOUNT_A, OWNER_A],
     );
     await db.query(
-      `INSERT INTO clients (id, account_id, name) VALUES
+      `INSERT INTO clients (id, company_id, name) VALUES
        ($1, $4, 'Portal Kim'), ($2, $4, 'Portal Peter'), ($3, $4, 'Portal Other Realtor')`,
       [kim, peter, otherRealtor, ACCOUNT_A],
     );
     await db.query(
-      `INSERT INTO properties (id, account_id, client_id, address, notes)
+      `INSERT INTO properties (id, company_id, client_id, address, notes)
        VALUES ($1, $2, $3, '4 Ash St', 'Gate code 1234')`,
       [ash, ACCOUNT_A, peter],
     );
     await db.query(
-      `INSERT INTO property_contacts (id, account_id, property_id, client_id, role) VALUES
+      `INSERT INTO property_contacts (id, company_id, property_id, client_id, role) VALUES
        ($1, $4, $5, $6, 'realtor'),
        ($2, $4, $5, $7, 'realtor'),
        ($3, $4, $5, $8, 'beneficiary')`,
@@ -51,7 +51,7 @@ describe.skipIf(!RUN)("payer-only sponsored invoice portal projection", () => {
     );
     await db.query(
       `INSERT INTO invoices
-         (id, account_id, client_id, property_id, invoice_number, status, total_cents,
+         (id, company_id, client_id, property_id, invoice_number, status, total_cents,
           billing_context, sponsored_purpose, beneficiary_property_contact_id, business_purpose, created_by)
        VALUES
          ($1, $3, $4, $5, $6, 'sent', 50000, 'realtor_sponsored', 'pre_listing', $8, 'Listing prep', $9),
@@ -59,7 +59,7 @@ describe.skipIf(!RUN)("payer-only sponsored invoice portal projection", () => {
       [kimInvoice, kimDraft, ACCOUNT_A, kim, ash, `KIM-4ASH-${suffix}`, `KIM-DRAFT-${suffix}`, peterBeneficiary, OWNER_A],
     );
     await db.query(
-      `INSERT INTO invoices (id, account_id, client_id, property_id, invoice_number, status, total_cents, created_by)
+      `INSERT INTO invoices (id, company_id, client_id, property_id, invoice_number, status, total_cents, created_by)
        VALUES ($1, $2, $3, $4, $5, 'sent', 20000, $6)`,
       [peterInvoice, ACCOUNT_A, peter, ash, `PETER-4ASH-${suffix}`, OWNER_A],
     );
@@ -103,7 +103,7 @@ describe.skipIf(!RUN)("payer-only sponsored invoice portal projection", () => {
     const id = randomUUID();
     await db.query(
       `INSERT INTO invoices
-         (id, account_id, client_id, property_id, invoice_number, status, total_cents,
+         (id, company_id, client_id, property_id, invoice_number, status, total_cents,
           billing_context, sponsored_purpose, created_by)
        VALUES ($1, $2, $3, $4, $5, 'sent', 700, 'realtor_sponsored', 'other', $6)`,
       [id, ACCOUNT_A, kim, ash, `KIM-NOBEN-${suffix}`, OWNER_A],

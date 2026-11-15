@@ -130,7 +130,7 @@ export const POST = withRole(["owner", "admin"], async (request: NextRequest, se
                (company_id, job_id, client_id, vendor_name, category, amount_cents,
                 expense_date, notes, source, external_ref, created_by)
              VALUES ($1, $2, $3, $4, $5, $6, $7::date, $8, $9, $10, $11)
-             ON CONFLICT (account_id, source, external_ref)
+             ON CONFLICT (company_id, source, external_ref)
                WHERE source IS NOT NULL AND external_ref IS NOT NULL
              DO NOTHING
              RETURNING id`,
@@ -187,7 +187,7 @@ export const POST = withRole(["owner", "admin"], async (request: NextRequest, se
                 `INSERT INTO materials_price_book
                    (company_id, name, category, unit, unit_cost_cents, supplier, sku, last_purchased_at, created_by)
                  VALUES ($1, $2, $3, 'each', $4, $5, $6, $7::date, $8)
-                 ON CONFLICT (account_id, lower(name), unit) DO UPDATE SET
+                 ON CONFLICT (company_id, lower(name), unit) DO UPDATE SET
                    last_purchased_at = GREATEST(materials_price_book.last_purchased_at, EXCLUDED.last_purchased_at),
                    sku               = COALESCE(materials_price_book.sku, EXCLUDED.sku),
                    updated_at        = now()`,
@@ -200,7 +200,7 @@ export const POST = withRole(["owner", "admin"], async (request: NextRequest, se
       }
 
       await appendAuditLog(client, {
-        account_id: session.accountId,
+        company_id: session.accountId,
         entity_type: "expense_import",
         entity_id: randomUUID(), // batch id — audit_log.entity_id is a uuid
         action: "insert",

@@ -112,7 +112,7 @@ export async function insertVisitActivityEntry(
   const category = activityCategoryFor(activityType);
   const { rows } = await client.query<{ id: string }>(
     `INSERT INTO activity_entries
-       (account_id, user_id, session_date, activity_type, category,
+       (company_id, user_id, session_date, activity_type, category,
         started_at, ended_at, entity_type, entity_id, source, note, business_day_id)
      VALUES ($1, $2, $3::date, $4, $5, $6, $7, $8, $9, $10, $11, $12)
      RETURNING id`,
@@ -546,7 +546,7 @@ export async function ensureFieldDayVisit(
   const techNotes = opts.techNotes ?? "Auto-created from confirmed on-site stop";
   const { rows } = await client.query<{ id: string }>(
     `INSERT INTO visits (
-       account_id, job_id, work_order_id, assigned_user_id,
+       company_id, job_id, work_order_id, assigned_user_id,
        visit_type, status,
        scheduled_start, scheduled_end, arrived_at, completed_at,
        tech_notes

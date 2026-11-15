@@ -24,7 +24,7 @@ export async function writeWorkflowEvent(
   }
 ): Promise<void> {
   await client.query(
-    `INSERT INTO workflow_events (account_id, event_type, entity_type, entity_id, payload)
+    `INSERT INTO workflow_events (company_id, event_type, entity_type, entity_id, payload)
      VALUES ($1, $2, $3, $4, $5)`,
     [
       opts.accountId,

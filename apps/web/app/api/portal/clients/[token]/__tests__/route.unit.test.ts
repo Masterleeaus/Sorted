@@ -41,7 +41,7 @@ vi.mock("@/lib/db", () => ({
     state.log.push({ sql, params });
     // The bootstrap resolver returns only the account id, as the migration does.
     if (sql.includes("resolve_portal_client_account")) {
-      return state.client ? { account_id: ACCOUNT } : null;
+      return state.client ? { company_id: ACCOUNT } : null;
     }
     return state.client;
   },
@@ -57,7 +57,7 @@ beforeEach(() => {
   state.connects = 0;
   state.client = {
     id: CLIENT,
-    account_id: ACCOUNT,
+    company_id: ACCOUNT,
     name: "Pat Portal",
     email: "pat@example.com",
     account_name: "Dovetails",
@@ -76,7 +76,7 @@ describe("GET /api/portal/clients/[token]", () => {
     await GET(req(), ctx("tok"));
     const before = state.log.slice(0, state.log.findIndex((c) => c.sql.includes("set_config('app.current_account_id'")));
     expect(before.map((c) => c.sql.trim()).filter((sql) => sql !== "BEGIN")).toEqual([
-      "SELECT resolve_portal_client_account($1::uuid) AS account_id",
+      "SELECT resolve_portal_client_account($1::uuid) AS company_id",
     ]);
     expect(before[0].params).toEqual(["tok"]);
   });

@@ -11,7 +11,7 @@ interface NotificationSettings {
 
 interface NotificationRow {
   id: string;
-  account_id: string;
+  company_id: string;
   client_id: string | null;
   priority: number;
   to_address: string;
@@ -92,7 +92,7 @@ export async function checkGovernor(
     const cooldown = await client.query<{ last_sent_at: string }>(
       `SELECT last_sent_at FROM notification_cooldowns
        WHERE company_id = $1 AND client_id = $2`,
-      [notification.account_id, notification.client_id]
+      [notification.company_id, notification.client_id]
     );
     if (cooldown.rows.length > 0) {
       const elapsed = (Date.now() - new Date(cooldown.rows[0].last_sent_at).getTime()) / 3_600_000;
@@ -113,9 +113,9 @@ export async function updateCooldown(
   clientId: string
 ): Promise<void> {
   await client.query(
-    `INSERT INTO notification_cooldowns (account_id, client_id, last_sent_at)
+    `INSERT INTO notification_cooldowns (company_id, client_id, last_sent_at)
      VALUES ($1, $2, now())
-     ON CONFLICT (account_id, client_id) DO UPDATE SET last_sent_at = now()`,
+     ON CONFLICT (company_id, client_id) DO UPDATE SET last_sent_at = now()`,
     [accountId, clientId]
   );
 }

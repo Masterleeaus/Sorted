@@ -44,12 +44,12 @@ describe.skipIf(!enabled)("mileage export: tenant isolation", () => {
   beforeAll(async () => {
     await admin.query("INSERT INTO accounts (id, name) VALUES ($1, 'Mileage Iso A'), ($2, 'Mileage Iso B')", [accountA, accountB]);
     await admin.query(
-      `INSERT INTO users (id, account_id, email, full_name, password_hash, role)
+      `INSERT INTO users (id, company_id, email, full_name, password_hash, role)
        VALUES ($1, $2, $3, 'Owner A', 'x', 'owner'), ($4, $5, $6, 'Owner B', 'x', 'owner')`,
       [ownerA, accountA, `mil-a-${ownerA}@test.invalid`, ownerB, accountB, `mil-b-${ownerB}@test.invalid`],
     );
     await admin.query(
-      `INSERT INTO vehicle_sessions (id, account_id, session_date, start_odometer, end_odometer)
+      `INSERT INTO vehicle_sessions (id, company_id, session_date, start_odometer, end_odometer)
        VALUES ($1, $2, $3, 1000, 1010), ($4, $5, $3, 2000, 2050)`,
       [sessionA, accountA, DATE, sessionB, accountB],
     );

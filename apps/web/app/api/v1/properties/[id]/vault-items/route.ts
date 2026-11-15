@@ -112,7 +112,7 @@ export const POST = withAuth(
       );
 
       await appendAuditLog(client, {
-        account_id: session.accountId, entity_type: "vault_item", entity_id: rows[0].id,
+        company_id: session.accountId, entity_type: "vault_item", entity_id: rows[0].id,
         action: "insert", actor_id: session.userId, trace_id: session.traceId,
         new_value: rows[0],
       });

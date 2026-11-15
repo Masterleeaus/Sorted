@@ -43,7 +43,7 @@ psql_cmd() {
   elif command -v psql >/dev/null; then
     psql "$MIGRATION_DATABASE_URL" "$@"
   else
-    docker run --rm -i --network host -e RUNTIME_DB_ROLE -e RUNTIME_DB_PASSWORD \
+    docker run --rm -i --network host -e PGPASSWORD -e RUNTIME_DB_ROLE -e RUNTIME_DB_PASSWORD \
       postgres:16 psql "$MIGRATION_DATABASE_URL" "$@"
   fi
 }

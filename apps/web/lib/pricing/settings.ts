@@ -57,8 +57,8 @@ export async function loadPricingSettings(
   }
 
   await client.query(
-    `INSERT INTO business_pricing_settings (account_id) VALUES ($1)
-     ON CONFLICT (account_id) DO NOTHING`,
+    `INSERT INTO business_pricing_settings (company_id) VALUES ($1)
+     ON CONFLICT (company_id) DO NOTHING`,
     [accountId]
   );
   const seeded = await client.query(

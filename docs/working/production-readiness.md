@@ -41,12 +41,12 @@ Everything in this group is in commits on `issue/prod-readiness-doc`. It reaches
 - PR #31 (draft, base `main`, head `claude/relaxed-ride-p7km75`, 248 commits ahead of main). Carries all of group A to main. Its body says `lint` is red because `pnpm knip` fails (#4). Its body says it closes #1, #2, #3, #7, #8, #9, #11, #13, #14, #16, #17, #18, #19, #20, #21, #22, #24, #25 when merged. Those closures are claims, not checked here.
 - PR #30 (not draft, base `main`, head `fix/issue-29-sorted-field-identity`). Starts the #29 Sorted Field rebrand (partial, per its body). Also a partial repair of the onboarding import graph for #3 (its body says "Pass 5" and "partial"). Merge state: unstable.
 - PR #32 (draft, base `claude/relaxed-ride-p7km75`, head `fix/backup-preflight-health-20261109`). Adds migration `209_intake_media_tenant_integrity.sql` and authenticated intake photo retrieval. Its body says PostgreSQL-verified. It touches #5 and #6 by title; its body cites no issue numbers. Migration 209 is chosen to avoid 204, 205, 207 and 208 (PR body).
-- PR #33 (draft, base `main`, head `feat/central-product-oidc-adapter-pass25`). Central issue Masterleeaus/Central#26 side: account identity mapping (migration `202`), company-to-account resolution, JWT handoff guard. Its body says no public SSO endpoint, no real Logto client, and production mapping not verified. Migration number `202` collides with `db/migrations/202_square_payment_link_match.sql` already on this branch. One of them must be renumbered at merge (see E).
+- PR #33 (draft, base `main`, head `feat/central-product-oidc-adapter-pass25`). Central issue Masterleeaus/Central#26 side: account identity mapping (migration `210`), company-to-account resolution, JWT handoff guard. Its body says no public SSO endpoint, no real Logto client, and production mapping not verified. Migration number was `202` and collided with `db/migrations/202_square_payment_link_match.sql`. Renumbered to `210` (next free after main 208 and open claims 209 on PRs #32 and #55). File is `docs/pending/210_central_account_identity_links.sql`, not in `db/migrations`.
 - PR #43 (draft, base `claude/relaxed-ride-p7km75`, head `issue/runbook-cutover`, 2 commits). Adds `docs/working/web-role-cutover-runbook.md` (commit `af9f2f4`). The runbook is not on this branch. It also adds a general per-IP rate limit on auth and public paths (60 requests per minute for public paths, 10 for auth, webhooks exempt). The PR body cites no issue number. It relates to #20 and #6. Its runbook says the web cutover is NOT READY.
 
 ## C. Owner decisions still open
 
-- #12 License and distribution boundary. No LICENSE file exists in the repo (checked). Owner decision needed.
+- #12 License and distribution boundary. Decided: MIT (ADR-025, `docs/DECISION_LOG.md`). `LICENSE`, the `package.json` license field and the README License section are on main. Owner work left: confirm rights to the imported donor code in `docs/working/titan-donor-provenance.md` before redistribution. Not changed here: licence files.
 - #4 Knip findings. `docs/working/knip-exclusions.md` lists two open decisions: delete the 202 unused files after review, or keep them excluded with a reason (`docs/working/knip-unused-review-list.txt`). Also: keep or remove the 10 `verticals/licensed-trades` modules, which only tests that no script builds can load.
 - Titan known failures: each of the 18 entries needs one of three things: a missing module restored from a checksummed source, a product spec, or a decision to delete the test (`docs/working/titan-known-failures.md`, last section).
 - #6 and #15 web cutover go or no-go. Owner decision once the blockers in group E are closed and verified on a staging copy (`docs/working/rls-web-tier-flip.md`, "Blockers" and "Verification").
@@ -92,7 +92,7 @@ Each step below is in the repo's runbook. None has been run from here.
 - #34 Committed archive: 81 files still tracked under `docs/archive/`. Open.
 - #35 to #42 Central integration (session adapter, link assertions, OIDC sign-in, service calls, feature flags and outbox, tenant model). None is implemented on this branch. PR #33 covers part of #35 and #36 (B). Others are open with no code in this branch.
 - #44 Upgrade plan. Open. No file was checked.
-- Migration numbering. `202` is used twice (PR #33 and `202_square_payment_link_match.sql`). Migration `206` is missing from the sequence on this branch. Per `ai/INVARIANTS.md`, claim the next number at merge time. Do not renumber applied files.
+- Migration numbering. `202` was used twice; PR #33 now uses `210`. Migration `206` is missing from the sequence on this branch. Per `ai/INVARIANTS.md`, claim the next number at merge time. Do not renumber applied files.
 - Owner decision on backup recovery: the encryption code is in (A), but the runbook on PR #43 still says #22 and #24 are open. That is the issue state, not the code state. Close the issues after PR #31 merges and the host steps in D are done.
 
 ## F. Verification not run
@@ -109,6 +109,69 @@ Each step below is in the repo's runbook. None has been run from here.
 - Production state (commit deployed, migrations applied, health). Confirm on host. The repo does not show it (`ai/INVARIANTS.md`, "Deploy lag").
 
 ---
+
+## G. Remaining production items: owner and status (2026-11-15)
+
+Plain list. Each item has one owner and one status. "Owner" means the person or lane who must act next. "Status" is what the repo shows today. Nothing here is closed unless the issue says so after its PR merges.
+
+Status words: Open (not started), Partial (some code on a branch or main), Blocked (waits on another item), Done here (done in this lane, merge pending), Host (needs a step on garonhome.local).
+
+### Owner decisions
+
+- #12 License and distribution boundary. Owner: Jason. Status: Open. No LICENSE file on main.
+- #5 Intake photos: ROADMAP exception and 30-day retention. Owner: Jason. Status: Partial. Code and tests are on main (see below). Decision is still open.
+- #5 Staff image viewing (not built). Owner: Jason decides, then Sorted engineering. Status: Open.
+- #28 and #29 brand and identity direction (Sorted, Supercharged, LMS). Owner: Jason. Status: Open. Decision record is needed in `docs/canonical/`.
+- Titan Zero as assistant name (kept on the PR #57 branch). Owner: Jason. Status: Open. Confirm or rename.
+- #34 Remove committed archive (81 files under `docs/archive/`). Owner: Jason, after a secrets check. Status: Open.
+- #10 Branch protection on main with the required checks. Owner: Jason. Status: Open. The API returned 403 from the session, so the setting is unverified.
+- #6 and #15 web role cutover go or no-go. Owner: Jason. Status: Blocked (see Code).
+- Titan known failures (18 tests). Owner: Jason decides keep, spec or delete per entry. Status: Open.
+
+### Host steps on garonhome.local (owner runs them)
+
+- Backup passphrase file and password manager copy (D2). Status: Host.
+- `BACKUP_ALERT_CMD` set, which closes the alert half of #24 (D3). Status: Host.
+- Nightly backup cron, rclone remote, and offsite check (D4). Status: Host.
+- Restore drill and `DRILL-<date>` entry in the decision log (D5). Status: Host.
+- Role variables and the worker grant query (D6, #15). Status: Host.
+- `TRUSTED_PROXY_COUNT` value (D7, #17). Status: Host.
+- Health path and monitor (D8). Status: Host.
+- Retire the legacy `ai-fsm` systemd path (D9). Status: Host.
+- Migrations 204, 205, 207 and 208 applied on the host (D11). Status: Host, after deploy.
+- Production deploy, only after PR #31 merges and the owner approves (D12, #7). Status: Host.
+
+### Code still open
+
+- #6 Least-privilege web role. Owner: Sorted engineering. Status: Blocked. Blocker 4 (about 102 files lack account context) and blocker 5 (verify all paths under `ai_fsm_web`) are not done. Internal SMS, push and location endpoints are still open. Waits on #26.
+- #15 Worker RLS. Owner: Sorted engineering. Status: Partial. Worker role is done per ADR-024. Cutover waits on #6.
+- #25 CSP. Owner: Sorted engineering. Status: Open. `'unsafe-inline'` is still in `script-src`. See `docs/working/csp-inventory.md`.
+- #20 Rate limits on public intake submissions. Owner: PR #43 lane. Status: Partial.
+- #13 Node 24 action runtimes. Owner: Jason confirms in the Actions logs. Status: Open. Fix is on PR #55 or #57 (Node 24 action majors).
+- #4 Knip. Owner: Sorted engineering. Status: Open. Docs disagree on whether `pnpm knip` exits 0. Run it once and record the result.
+- #2 and #3 Titan mockups and onboarding import graph. Owner: Sorted engineering. Status: Unconfirmed. PR #31 claims them. Verify on main.
+- #26 Shared company_id schema. Owner: Sorted engineering. Status: Partial. Migration 205 adds `company_id` as a dual column. NOT NULL, FK validation, company policies and dropping `account_id` are not done.
+- Migration numbering. Owner: Sorted engineering. Status: Open. `202` is used twice (PR #33 and the Square migration). `206` is missing. Renumber PR #33 when it rebases. Do not renumber applied files.
+- #5 Intake photos. Owner: PR #55 merge, then Jason. Status: Partial. On main: migration 203, routes, storage, worker cleanup and tests. Note: the intake code writes `company_id`, which exists only after migration 205 runs. Migration 203 alone is not enough.
+- #23 Square webhook exact-link and amount matching. Owner: sorted-product lane. Status: Done here. Migration 202, route code and 33 unit tests on main pass. Issue closed with evidence.
+- #29 Sorted Field rebrand. Owner: PR #57 merge (another lane), then sorted-product lane for leftovers. Status: Done here for the leftovers in the Field app (CommandPalette, not-found, assets, OwnerDashboard, login, settings). Still Open until PR #57 merges.
+- #28 Shared identity and company context. Owner: Jason (scope), then Central repo and Sorted engineering. Status: Open. Gap plan is in `docs/working/shared-identity-integration-plan.md`.
+- #27 Supercharged Desk Marketing and Inbox. Owner: Supercharged lane. Status: Open. No code evidence on main.
+
+### Central integration (waits on the Central repo)
+
+- #35 Central session adapter and account mapping. Owner: Central repo and Jason. Status: Open. PR #33 covers part.
+- #36 and #37 Signed link assertions. Owner: Central repo. Status: Open.
+- #38 Sign-in via Central OIDC. Owner: Central repo and Jason. Status: Open. No OIDC code on main.
+- #39 Service calls with client credentials. Owner: Central repo. Status: Open.
+- #40 Tenant model, memberships, company column. Owner: Sorted engineering. Status: Partial (migration 205 only).
+- #41 Feature flags and signed outbox events. Owner: Central repo. Status: Open.
+- #42 End-to-end integration against Central and shared PostgreSQL (P0). Owner: Sorted engineering. Status: Blocked on #35 to #41.
+
+### Verification not yet run (owner or next lane)
+
+- `pnpm gate:fast`, `pnpm gate`, the RLS and grant scripts, backup simulation, and tenant isolation integration tests. Owner: Sorted engineering. Status: Open. Typecheck is run narrowly, not as a full `tsc`, on this machine.
+- Known unrelated failures on main: 6 tests in `design-system.unit.test.ts` and `era2-human-language.unit.test.ts` fail on main with or without the #29 change. They are in the same navigation and vocabulary family as the known debt. Owner: Sorted engineering. Status: Open.
 
 ## Source notes (conflicts found)
 

@@ -21,7 +21,7 @@ export type CatalogLearnContext = {
 
 export type MaterialsPriceBookRow = {
   id: string;
-  account_id: string;
+  company_id: string;
   name: string;
   brand: string | null;
   category: string;
@@ -116,7 +116,7 @@ export async function upsertMaterialFromPurchase(
 
   if (sku) {
     const bySku = await client.query<MaterialsPriceBookRow>(
-      `SELECT id, account_id, name, brand, category, unit, unit_cost_cents, supplier, sku,
+      `SELECT id, company_id, name, brand, category, unit, unit_cost_cents, supplier, sku,
               last_purchased_at::text AS last_purchased_at, notes, is_active,
               avg_paid_cents, purchase_count
        FROM materials_price_book
@@ -132,7 +132,7 @@ export async function upsertMaterialFromPurchase(
 
   if (!existing) {
     const byName = await client.query<MaterialsPriceBookRow>(
-      `SELECT id, account_id, name, brand, category, unit, unit_cost_cents, supplier, sku,
+      `SELECT id, company_id, name, brand, category, unit, unit_cost_cents, supplier, sku,
               last_purchased_at::text AS last_purchased_at, notes, is_active,
               avg_paid_cents, purchase_count
        FROM materials_price_book
@@ -171,7 +171,7 @@ export async function upsertMaterialFromPurchase(
                              END,
          updated_at        = now()
        WHERE id = $1 AND company_id = $9
-       RETURNING id, account_id, name, brand, category, unit, unit_cost_cents, supplier, sku,
+       RETURNING id, company_id, name, brand, category, unit, unit_cost_cents, supplier, sku,
                  last_purchased_at::text AS last_purchased_at, notes, is_active,
                  avg_paid_cents, purchase_count`,
       [
@@ -191,10 +191,10 @@ export async function upsertMaterialFromPurchase(
 
   const inserted = await client.query<MaterialsPriceBookRow>(
     `INSERT INTO materials_price_book
-       (account_id, name, category, unit, unit_cost_cents, supplier, sku,
+       (company_id, name, category, unit, unit_cost_cents, supplier, sku,
         last_purchased_at, avg_paid_cents, purchase_count)
      VALUES ($1, $2, $3, $4, $5, $6, $7, $8::date, $5, 1)
-     RETURNING id, account_id, name, brand, category, unit, unit_cost_cents, supplier, sku,
+     RETURNING id, company_id, name, brand, category, unit, unit_cost_cents, supplier, sku,
                last_purchased_at::text AS last_purchased_at, notes, is_active,
                avg_paid_cents, purchase_count`,
     [ctx.accountId, name, category, unit, unitCost, supplier, sku, purchasedAt],

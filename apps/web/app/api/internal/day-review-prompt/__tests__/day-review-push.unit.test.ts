@@ -65,7 +65,7 @@ function setRow(overrides: Record<string, unknown> = {}) {
 
 function openDayRow(overrides: Record<string, unknown> = {}) {
   return {
-    account_id: ACCOUNT_ID,
+    company_id: ACCOUNT_ID,
     business_day_id: BUSINESS_DAY_ID,
     cutoff_time: "18:00:00",
     already_prompted: false,
@@ -80,7 +80,7 @@ describe("POST /api/internal/day-review-prompt Web Push (TASK-116)", () => {
     mockBusinessMinutesNow.mockReturnValue(20 * 60);
     mockSendPushToOwners.mockResolvedValue(1);
     mockQueryOne.mockImplementation(async (sql: string) =>
-      sql.includes("resolve_owner_account_id") ? { account_id: currentRow?.account_id ?? null } : null,
+      sql.includes("resolve_owner_account_id") ? { company_id: currentRow?.company_id ?? null } : null,
     );
     mockClientQuery.mockImplementation(async (sql: string) => {
       if (/^(BEGIN|COMMIT|ROLLBACK)$/.test(sql) || sql.startsWith("SELECT set_config")) return { rows: [] };

@@ -118,7 +118,7 @@ export const POST = withAuth(async (request: NextRequest, session: AuthSession) 
          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11,
                  CASE WHEN $12 THEN NULL ELSE $6 END,
                  CASE WHEN $12 THEN 0 ELSE 1 END)
-         ON CONFLICT (account_id, lower(name), unit) DO UPDATE SET
+         ON CONFLICT (company_id, lower(name), unit) DO UPDATE SET
            -- unit_cost_cents is "last paid" (migration 162) and rendered as
            -- such in MaterialsCatalogClient — an AI guess must not silently
            -- overwrite a genuine last-paid price on conflict.

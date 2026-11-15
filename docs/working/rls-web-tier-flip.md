@@ -164,3 +164,15 @@ Worker rollback: set `WORKER_DATABASE_URL` to the admin URL and restart the work
 `scripts/gate.sh` already runs `node scripts/*.test.mjs`, which covers
 `check-rls-coverage.test.mjs`. The direct coverage check runs next to the migration
 prefix check.
+
+## Verification record 2026-11-15 (issues #6 and #15)
+
+Run on a scratch Postgres 16 (not garonhome), after all migrations through 208 and `scripts/db-provision-runtime.sh` for `ai_fsm_web` and `ai_fsm_worker`:
+
+- Role attributes: `ai_fsm` superuser; `ai_fsm_web` f/f; `ai_fsm_worker` f/t (not superuser, BYPASSRLS).
+- `check-rls-coverage.mjs`: ok. `check-worker-grants.mjs`: ok (32 tables).
+- `db-isolation.integration.test.ts` and `api-tenant-isolation.integration.test.ts` as `ai_fsm_web`: 8/8 pass.
+- `worker-role.integration.test.ts` as `ai_fsm_worker`: 6/6 pass.
+- Only `schema_migrations` and `_migration_161_ignored_candidates` lack RLS. No app code references either, so the web role needs no grant beyond the RLS-table DML list.
+
+Status: the web cutover is still NOT done. The blockers above (portal read-bootstrap, Square lookup, estimate respond, the raw-query sites in blocker 4, and the internal routes) are still open, so `WEB_DATABASE_URL` stays on the admin URL. Issue #6 stays open until the cutover runs on a staging copy.

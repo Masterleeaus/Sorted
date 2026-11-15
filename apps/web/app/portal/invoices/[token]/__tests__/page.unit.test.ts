@@ -35,7 +35,7 @@ vi.mock("next/navigation", () => ({
 
 vi.mock("@/lib/db", () => ({
   queryOne: async (sql: string) => {
-    if (sql.includes("resolve_invoice_share_account")) return { account_id: state.resolvedAccount };
+    if (sql.includes("resolve_invoice_share_account")) return { company_id: state.resolvedAccount };
     throw new Error(`unexpected queryOne: ${sql}`);
   },
 }));
@@ -89,7 +89,7 @@ const run = () => InvoicePortalPage({ params: Promise.resolve({ token: TOKEN }) 
 beforeEach(() => {
   state.resolvedAccount = ACCOUNT;
   state.invoice = {
-    id: INVOICE, account_id: ACCOUNT, client_id: CLIENT, status: "sent", invoice_number: "1001",
+    id: INVOICE, company_id: ACCOUNT, client_id: CLIENT, status: "sent", invoice_number: "1001",
     total_cents: 1000, paid_cents: 0, client_name: "Pat Portal", account_name: "Dovetails",
     account_settings: {}, invoice_kind: "standard", sponsored_purpose: null,
   };

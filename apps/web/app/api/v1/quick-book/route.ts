@@ -100,7 +100,7 @@ export const POST = withRole(["owner", "admin"], async (request: NextRequest, se
       );
       clientId = rows[0].id;
       await appendAuditLog(client, {
-        account_id: session.accountId,
+        company_id: session.accountId,
         entity_type: "client",
         entity_id: clientId,
         action: "insert",
@@ -162,7 +162,7 @@ export const POST = withRole(["owner", "admin"], async (request: NextRequest, se
         );
         propertyId = created[0].id;
         await appendAuditLog(client, {
-          account_id: session.accountId,
+          company_id: session.accountId,
           entity_type: "property",
           entity_id: propertyId,
           action: "insert",
@@ -191,7 +191,7 @@ export const POST = withRole(["owner", "admin"], async (request: NextRequest, se
     );
     const jobId = jobRows[0].id;
     await appendAuditLog(client, {
-      account_id: session.accountId,
+      company_id: session.accountId,
       entity_type: "job",
       entity_id: jobId,
       action: "insert",
@@ -239,7 +239,7 @@ export const POST = withRole(["owner", "admin"], async (request: NextRequest, se
     );
     const visit = visitRows[0];
     await appendAuditLog(client, {
-      account_id: session.accountId,
+      company_id: session.accountId,
       entity_type: "visit",
       entity_id: visit.id,
       action: "insert",
@@ -262,7 +262,7 @@ export const POST = withRole(["owner", "admin"], async (request: NextRequest, se
       [jobId, companyIdFromSession(session)]
     );
     await appendAuditLog(client, {
-      account_id: session.accountId,
+      company_id: session.accountId,
       entity_type: "job",
       entity_id: jobId,
       action: "update",

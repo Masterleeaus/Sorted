@@ -111,7 +111,7 @@ export const DELETE = withRole(["owner"], async (request, session) => {
 
       // Audit log for payment deletion
       await appendAuditLog(client, {
-        account_id: session.accountId,
+        company_id: session.accountId,
         entity_type: "payment",
         entity_id: paymentId,
         action: "delete",
@@ -127,7 +127,7 @@ export const DELETE = withRole(["owner"], async (request, session) => {
       // Audit log for invoice status change
       if (newStatus !== invBefore.status) {
         await appendAuditLog(client, {
-          account_id: session.accountId,
+          company_id: session.accountId,
           entity_type: "invoice",
           entity_id: payment.invoice_id,
           action: "update",

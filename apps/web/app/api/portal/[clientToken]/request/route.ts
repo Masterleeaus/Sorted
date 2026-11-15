@@ -47,7 +47,7 @@ export async function POST(
     await db.query("BEGIN");
     await db.query(
       `SELECT set_config('app.current_account_id', $1, true), set_config('app.current_role', 'owner', true)`,
-      [client.account_id],
+      [client.company_id],
     );
 
     let address = data.address ?? "";
@@ -59,7 +59,7 @@ export async function POST(
            AND (p.client_id = $3 OR EXISTS (
              SELECT 1 FROM property_contacts pc
              WHERE pc.property_id = p.id AND pc.client_id = $3 AND pc.role = 'owner'))`,
-        [data.property_id, client.account_id, client.id],
+        [data.property_id, client.company_id, client.id],
       );
       if (!rows[0]) {
         await db.query("ROLLBACK");
@@ -75,7 +75,7 @@ export async function POST(
     });
     const preferred = client.preferred_contact;
     const { bookingId } = await createIntakeRecords(db, {
-      accountId: client.account_id,
+      accountId: client.company_id,
       existingClientId: client.id,
       existingPropertyId: data.property_id ?? null,
       name: client.name,

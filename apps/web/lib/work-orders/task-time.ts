@@ -73,7 +73,7 @@ export async function seedWorkOrderTasksFromCriteria(
   for (const s of seeds) {
     await client.query(
       `INSERT INTO work_order_tasks
-         (account_id, work_order_id, label, required, completed, completed_at, status, sort_order, source)
+         (company_id, work_order_id, label, required, completed, completed_at, status, sort_order, source)
        VALUES ($1, $2, $3, $4, $5, CASE WHEN $5 THEN now() END, CASE WHEN $5 THEN 'done' ELSE 'open' END, $6, $7)`,
       [opts.accountId, opts.workOrderId, s.label, s.required, s.completed, s.sort_order, source],
     );
@@ -275,7 +275,7 @@ export async function syncWorkOrderTasksFromCriteriaList(
     } else {
       const ins = await client.query<{ id: string }>(
         `INSERT INTO work_order_tasks
-           (account_id, work_order_id, label, required, completed, completed_at, status, sort_order, source)
+           (company_id, work_order_id, label, required, completed, completed_at, status, sort_order, source)
          VALUES ($1,$2,$3,$4,$5, CASE WHEN $5 THEN now() END, CASE WHEN $5 THEN 'done' ELSE 'open' END, $6, $7)
          RETURNING id`,
         [opts.accountId, opts.workOrderId, label, required, completed, sort, source],

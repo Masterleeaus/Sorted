@@ -26,7 +26,7 @@ export const ATTENTION_RETENTION_DAYS = 90;
 
 export interface AttentionEventRow {
   id: string;
-  account_id: string;
+  company_id: string;
   type: AttentionEventType | string;
   entity_type: string;
   entity_id: string;

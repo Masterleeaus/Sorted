@@ -54,16 +54,16 @@ describe.skipIf(!enabled)("API tenant isolation (account A session, account B re
   beforeAll(async () => {
     await admin.query("INSERT INTO accounts (id, name) VALUES ($1, 'Isolation A'), ($2, 'Isolation B')", [accountA, accountB]);
     await admin.query(
-      `INSERT INTO users (id, account_id, email, full_name, password_hash, role)
+      `INSERT INTO users (id, company_id, email, full_name, password_hash, role)
        VALUES ($1, $2, $3, 'Owner A', 'x', 'owner'), ($4, $5, $6, 'Owner B', 'x', 'owner')`,
       [ownerA, accountA, `iso-a-${ownerA}@test.invalid`, ownerB, accountB, `iso-b-${ownerB}@test.invalid`],
     );
     await admin.query(
-      `INSERT INTO clients (id, account_id, name) VALUES ($1, $2, 'Isolation client A'), ($3, $4, $5)`,
+      `INSERT INTO clients (id, company_id, name) VALUES ($1, $2, 'Isolation client A'), ($3, $4, $5)`,
       [clientA, accountA, clientB, accountB, nameB],
     );
     await admin.query(
-      "INSERT INTO properties (id, account_id, client_id, address) VALUES ($1, $2, $3, '1 Isolation Way')",
+      "INSERT INTO properties (id, company_id, client_id, address) VALUES ($1, $2, $3, '1 Isolation Way')",
       [propertyB, accountB, clientB],
     );
     session.current = { userId: ownerA, accountId: accountA, role: "owner" };
@@ -105,7 +105,7 @@ describe.skipIf(!enabled)("API tenant isolation (account A session, account B re
       { params: Promise.resolve({ id: clientB }) } as never,
     );
     expect(res.status).toBe(404);
-    const { rows } = await admin.query("SELECT name, account_id FROM clients WHERE id = $1", [clientB]);
-    expect(rows).toEqual([{ name: nameB, account_id: accountB }]);
+    const { rows } = await admin.query("SELECT name, company_id FROM clients WHERE id = $1", [clientB]);
+    expect(rows).toEqual([{ name: nameB, company_id: accountB }]);
   });
 });

@@ -63,7 +63,7 @@ describe("upsertMaterialFromPurchase", () => {
         rows: [
           {
             id: "m1",
-            account_id: "a1",
+            company_id: "a1",
             name: "Old Name",
             brand: null,
             category: "hardware",
@@ -84,7 +84,7 @@ describe("upsertMaterialFromPurchase", () => {
         rows: [
           {
             id: "m1",
-            account_id: "a1",
+            company_id: "a1",
             name: "DW Access Door",
             brand: null,
             category: "hardware",
@@ -123,7 +123,7 @@ describe("upsertMaterialFromPurchase", () => {
         rows: [
           {
             id: "m2",
-            account_id: "a1",
+            company_id: "a1",
             name: "2x4",
             brand: null,
             category: "lumber",
@@ -174,7 +174,7 @@ describe("learnMaterialsFromLineItems", () => {
         rows: [
           {
             id: "m1",
-            account_id: "a1",
+            company_id: "a1",
             name: "Nail",
             brand: null,
             category: "other",

@@ -132,7 +132,7 @@ export const PATCH = withRole(
       const updated = rows[0];
 
       await appendAuditLog(client, {
-        account_id: session.accountId,
+        company_id: session.accountId,
         entity_type: "job",
         entity_id: id,
         action: "update",
@@ -220,7 +220,7 @@ export const DELETE = withRole(
       await client.query(`DELETE FROM jobs WHERE id = $1 AND company_id = $2`, [id, session.accountId]);
 
       await appendAuditLog(client, {
-        account_id: session.accountId,
+        company_id: session.accountId,
         entity_type: "job",
         entity_id: id,
         action: "delete",

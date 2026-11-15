@@ -37,12 +37,12 @@ describe.skipIf(!TEST_DB)("intake claim against Postgres (concurrency)", () => {
     const bookingId = randomUUID();
     const token = randomUUID();
     await admin.query(
-      `INSERT INTO booking_requests (id, account_id, name, service_description)
+      `INSERT INTO booking_requests (id, company_id, name, service_description)
        VALUES ($1, $2, 'Seed Lead', 'Seed description for the race test.')`,
       [bookingId, accountId]
     );
     await admin.query(
-      `INSERT INTO intake_invites (account_id, booking_request_id, token, lead_name, lead_email)
+      `INSERT INTO intake_invites (company_id, booking_request_id, token, lead_name, lead_email)
        VALUES ($1, $2, $3, 'Seed Lead', 'seed@example.com')`,
       [accountId, bookingId, token]
     );
@@ -93,12 +93,12 @@ describe.skipIf(!TEST_DB)("intake claim against Postgres (concurrency)", () => {
     const bookingId = randomUUID();
     const token = randomUUID();
     await admin.query(
-      `INSERT INTO booking_requests (id, account_id, name, service_description)
+      `INSERT INTO booking_requests (id, company_id, name, service_description)
        VALUES ($1, $2, 'Old Lead', 'Old description for the expiry test.')`,
       [bookingId, accountId]
     );
     await admin.query(
-      `INSERT INTO intake_invites (account_id, booking_request_id, token, lead_name, lead_email, expires_at)
+      `INSERT INTO intake_invites (company_id, booking_request_id, token, lead_name, lead_email, expires_at)
        VALUES ($1, $2, $3, 'Old Lead', 'old@example.com', now() - interval '1 hour')`,
       [accountId, bookingId, token]
     );

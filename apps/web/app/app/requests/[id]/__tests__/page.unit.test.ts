@@ -38,7 +38,7 @@ vi.mock("@/lib/db", () => ({
     state.calls.push({ sql, params });
     if (sql.includes("FROM booking_requests br")) {
       return {
-        id: REQUEST, account_id: ACCOUNT, name: "Pat", status: "new", created_at: "2026-01-01T00:00:00Z",
+        id: REQUEST, company_id: ACCOUNT, name: "Pat", status: "new", created_at: "2026-01-01T00:00:00Z",
         service_category: "handyman", referral_source: null, intake_metadata: {}, walkthrough_score: null,
         duplicate_candidate_ids: [], preferred_date: null, job_id: null,
       };

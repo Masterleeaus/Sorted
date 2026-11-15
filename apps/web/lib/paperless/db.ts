@@ -125,7 +125,7 @@ export async function createDocumentLink(
 ): Promise<DocumentLinkRow> {
   const { rows } = await client.query<DocumentLinkRow>(
     `INSERT INTO document_links
-       (account_id, entity_type, entity_id, paperless_doc_id,
+       (company_id, entity_type, entity_id, paperless_doc_id,
         title, original_filename, document_type, property_id,
         is_master_template, is_archived, created_by)
      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)

@@ -100,7 +100,7 @@ describe("POST /api/booking", () => {
     const brInsert = mockClientQuery.mock.calls.find((c) =>
       String(c[0]).includes("INSERT INTO booking_requests")
     );
-    expect(brInsert?.[1]?.[0]).toBe(ACCOUNT_ID);   // account_id
+    expect(brInsert?.[1]?.[0]).toBe(ACCOUNT_ID);   // company_id
     expect(brInsert?.[1]?.[1]).toBe(CLIENT_ID);    // client_id
     expect(brInsert?.[1]?.[2]).toBe(PROPERTY_ID);  // property_id
     expect(brInsert?.[1]?.[3]).toBe(JOB_ID);       // job_id

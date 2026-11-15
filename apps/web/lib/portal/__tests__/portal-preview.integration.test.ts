@@ -32,32 +32,32 @@ describe.skipIf(!RUN)("admin portal preview", () => {
 
     db = new Client({ connectionString: process.env.TEST_DATABASE_URL });
     await db.connect();
-    const admin = await db.query<{ id: string; account_id: string }>(
-      `SELECT id, account_id FROM users WHERE email = 'admin@test.com'`,
+    const admin = await db.query<{ id: string; company_id: string }>(
+      `SELECT id, company_id FROM users WHERE email = 'admin@test.com'`,
     );
-    accountId = admin.rows[0].account_id;
+    accountId = admin.rows[0].company_id;
     ownerId = admin.rows[0].id;
     const c = await db.query<{ portal_token: string }>(
-      `INSERT INTO clients (id, account_id, name, sms_consent) VALUES ($1, $2, 'Preview Client', true)
+      `INSERT INTO clients (id, company_id, name, sms_consent) VALUES ($1, $2, 'Preview Client', true)
        RETURNING portal_token::text`,
       [clientId, accountId],
     );
     portalToken = c.rows[0].portal_token;
     const inv = await db.query<{ share_token: string }>(
-      `INSERT INTO invoices (id, account_id, client_id, invoice_number, status, total_cents, created_by)
+      `INSERT INTO invoices (id, company_id, client_id, invoice_number, status, total_cents, created_by)
        VALUES ($1, $2, $3, $4, 'sent', 5000, $5) RETURNING share_token::text`,
       [invoiceId, accountId, clientId, `PV-${Date.now()}`, ownerId],
     );
     invoiceShare = inv.rows[0].share_token;
     const est = await db.query<{ share_token: string }>(
-      `INSERT INTO estimates (id, account_id, client_id, status, total_cents, created_by)
+      `INSERT INTO estimates (id, company_id, client_id, status, total_cents, created_by)
        VALUES ($1, $2, $3, 'sent', 5000, $4) RETURNING share_token::text`,
       [estimateId, accountId, clientId, ownerId],
     );
     estimateShare = est.rows[0].share_token;
-    await db.query(`INSERT INTO clients (id, account_id, name) VALUES ($1, $2, 'Other Client')`, [otherClientId, accountId]);
+    await db.query(`INSERT INTO clients (id, company_id, name) VALUES ($1, $2, 'Other Client')`, [otherClientId, accountId]);
     const other = await db.query<{ share_token: string }>(
-      `INSERT INTO estimates (id, account_id, client_id, status, total_cents, created_by)
+      `INSERT INTO estimates (id, company_id, client_id, status, total_cents, created_by)
        VALUES ($1, $2, $3, 'sent', 5000, $4) RETURNING share_token::text`,
       [otherEstimateId, accountId, otherClientId, ownerId],
     );

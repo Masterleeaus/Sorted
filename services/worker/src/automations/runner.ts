@@ -27,7 +27,7 @@ export async function runAutomationType(
       results.push(result);
       logger.info(`${def.logLabel}: processed`, {
         automationId: automation.id,
-        accountId: automation.account_id,
+        accountId: automation.company_id,
         sent: result.sent,
         skipped: result.skipped,
         errors: result.errors,
