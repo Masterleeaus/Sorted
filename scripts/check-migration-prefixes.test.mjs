@@ -39,3 +39,16 @@ test("existing main collisions 209 and 210 remain frozen by filename", () => {
     assert.match(added.errors.join("; "), new RegExp(`prefix ${prefix} is frozen`));
   }
 });
+
+// Both 209 and 210 filenames are run on fresh CI databases. Migration 209
+// renames the tenant column, so the later policy must not assume account_id.
+test("pricing policy migration supports account_id and company_id schema generations", async () => {
+  const { readFileSync } = await import("node:fs");
+  const { fileURLToPath } = await import("node:url");
+  const path = fileURLToPath(new URL("../db/migrations/210_rls_force_and_pricing_policy.sql", import.meta.url));
+  const sql = readFileSync(path, "utf8");
+  assert.match(sql, /c\.column_name IN \('company_id', 'account_id'\)/);
+  assert.match(sql, /IF tenant_column IS NULL THEN[\s\S]*RAISE EXCEPTION/);
+  assert.match(sql, /USING \(%I = app_account_id\(\)\) WITH CHECK \(%I = app_account_id\(\)\)/);
+  assert.doesNotMatch(sql, /USING \(account_id = app_account_id\(\)\)\s*WITH CHECK \(account_id = app_account_id\(\)\)/);
+});
