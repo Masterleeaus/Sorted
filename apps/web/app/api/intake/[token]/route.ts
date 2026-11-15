@@ -194,7 +194,7 @@ export async function POST(
       `UPDATE intake_invites SET used_at = now()
        WHERE id = $1 AND company_id = $2 AND used_at IS NULL AND expires_at > now()
        RETURNING id`,
-      [invite.id, invite.account_id]
+      [invite.id, invite.company_id]
     );
     if (claimedRows.length === 0) {
       await client.query("ROLLBACK");
@@ -205,7 +205,7 @@ export async function POST(
     const { rows: photoRows } = await client.query<{ n: number }>(
       `SELECT count(*)::int AS n FROM intake_media
        WHERE intake_invite_id = $1 AND company_id = $2`,
-      [invite.id, invite.account_id]
+      [invite.id, invite.company_id]
     );
     const intakeMetadata = {
       ...input.intake_metadata,
@@ -266,7 +266,7 @@ export async function POST(
           input.referral_source || null,
           input.referral_name || null,
           input.brokerage_name || null,
-          invite.account_id,
+          invite.company_id,
         ]
       );
     }

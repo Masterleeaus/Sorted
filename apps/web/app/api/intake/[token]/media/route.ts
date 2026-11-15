@@ -105,7 +105,7 @@ export async function POST(
       `SELECT id FROM intake_invites
        WHERE id = $1 AND company_id = $2 AND used_at IS NULL AND expires_at > now()
        FOR UPDATE`,
-      [invite.id, invite.account_id],
+      [invite.id, invite.company_id],
     );
     if (locked.length === 0) {
       await client.query("ROLLBACK");
@@ -114,7 +114,7 @@ export async function POST(
 
     const { rows: countRows } = await client.query<{ n: number }>(
       `SELECT count(*)::int AS n FROM intake_media WHERE intake_invite_id = $1 AND company_id = $2`,
-      [invite.id, invite.account_id],
+      [invite.id, invite.company_id],
     );
     if ((countRows[0]?.n ?? 0) >= MAX_INTAKE_PHOTOS) {
       await client.query("ROLLBACK");
