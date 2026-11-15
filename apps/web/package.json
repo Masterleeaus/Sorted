@@ -13,6 +13,7 @@
     "test:integration": "vitest run --config vitest.integration.config.ts"
   },
   "dependencies": {
+    "@ai-fsm/central-client": "workspace:*",
     "@ai-fsm/domain": "workspace:*",
     "@ai-fsm/email-templates": "workspace:*",
     "@ai-fsm/log": "workspace:*",
