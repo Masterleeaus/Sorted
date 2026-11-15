@@ -222,7 +222,7 @@ export async function POST(
       // Link this invite's photos to the request. Same transaction as the claim.
       await client.query(
         `UPDATE intake_media SET booking_request_id = $1
-         WHERE intake_invite_id = $2 AND account_id = $3`,
+         WHERE intake_invite_id = $2 AND company_id = $3`,
         [invite.booking_request_id, invite.id, invite.account_id]
       );
 

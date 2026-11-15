@@ -14,7 +14,7 @@ const calls = vi.hoisted(() => ({ log: [] as { sql: string; params?: unknown[] }
 const fakeClient = vi.hoisted(() => ({
   query: async (sql: string, params?: unknown[]) => {
     calls.log.push({ sql, params });
-    if (sql.includes("FROM clients WHERE account_id")) return { rows: calls.takenRow ? [calls.takenRow] : [] };
+    if (sql.includes("FROM clients WHERE company_id")) return { rows: calls.takenRow ? [calls.takenRow] : [] };
     if (sql.includes("INSERT INTO portal_magic_links")) return { rows: [{ token: "magic-1" }] };
     return { rows: [] };
   },
@@ -74,7 +74,7 @@ describe("PATCH /api/portal/[clientToken]/profile — email change", () => {
 
     const sqls = calls.log.map((c) => c.sql);
     const ctx = sqls.findIndex((s) => s.includes("set_config('app.current_account_id'"));
-    const taken = sqls.findIndex((s) => s.includes("FROM clients WHERE account_id"));
+    const taken = sqls.findIndex((s) => s.includes("FROM clients WHERE company_id"));
     const link = sqls.findIndex((s) => s.includes("INSERT INTO portal_magic_links"));
     expect(ctx).toBeGreaterThanOrEqual(0);
     expect(taken).toBeGreaterThan(ctx);

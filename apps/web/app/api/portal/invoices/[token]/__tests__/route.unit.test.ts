@@ -126,7 +126,7 @@ describe("GET /api/portal/invoices/[token]", () => {
     const liIdx = sqls.findIndex((s) => s.includes("FROM invoice_line_items"));
     expect(ctxIdx).toBeGreaterThan(-1);
     expect(liIdx).toBeGreaterThan(ctxIdx);
-    expect(state.log[liIdx].sql).toContain("account_id = $2");
+    expect(state.log[liIdx].sql).toContain("company_id = $2");
     expect(state.log[liIdx].params).toEqual([INVOICE, ACCOUNT]);
   });
 
@@ -153,7 +153,7 @@ describe("POST /api/portal/invoices/[token]", () => {
     const pendingIdx = sqls.findIndex((s) => s.startsWith("SELECT amount_cents FROM payments"));
     expect(state.log[ctxIdx].params?.[0]).toBe(ACCOUNT);
     expect(pendingIdx).toBeGreaterThan(ctxIdx);
-    expect(state.log[pendingIdx].sql).toContain("account_id = $2");
+    expect(state.log[pendingIdx].sql).toContain("company_id = $2");
   });
 
   it("returns 422 when Square is not enabled and still closes the transaction", async () => {
