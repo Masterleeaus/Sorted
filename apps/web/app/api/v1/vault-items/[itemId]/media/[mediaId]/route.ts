@@ -3,8 +3,10 @@ import fs from "fs";
 import path from "path";
 import { withAuth } from "../../../../../../../lib/auth/middleware";
 import type { AuthSession } from "../../../../../../../lib/auth/middleware";
-import { getPool, queryOne } from "../../../../../../../lib/db";
+import { getPool, queryOneForSession } from "../../../../../../../lib/db";
 import { logger } from "../../../../../../../lib/logger";
+import { UPLOAD_ROOT, resolveStoredUpload } from "../../../../../../../lib/uploads/paths";
+import { companyIdFromSession } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
 
@@ -18,9 +20,9 @@ export const DELETE = withAuth(async (request: NextRequest, session: AuthSession
     );
   }
 
-  const item = await queryOne<{ id: string }>(
-    `SELECT id FROM property_vault_items WHERE id = $1 AND account_id = $2`,
-    [itemId, session.accountId]
+  const item = await queryOneForSession<{ id: string }>(session,
+    `SELECT id FROM property_vault_items WHERE id = $1 AND company_id = $2`,
+    [itemId, companyIdFromSession(session)]
   );
   if (!item) {
     return NextResponse.json(
@@ -42,9 +44,9 @@ export const DELETE = withAuth(async (request: NextRequest, session: AuthSession
 
     const { rows } = await client.query(
       `DELETE FROM property_vault_item_media
-       WHERE id = $1 AND vault_item_id = $2 AND account_id = $3
+       WHERE id = $1 AND vault_item_id = $2 AND company_id = $3
        RETURNING filename`,
-      [mediaId, itemId, session.accountId]
+      [mediaId, itemId, companyIdFromSession(session)]
     );
 
     if (!rows[0]) {
@@ -57,8 +59,10 @@ export const DELETE = withAuth(async (request: NextRequest, session: AuthSession
 
     await client.query("COMMIT");
 
-    const filePath = path.join("/app/uploads/vault-items", itemId, rows[0].filename);
-    try { fs.unlinkSync(filePath); } catch (err) {
+    const filePath = resolveStoredUpload(path.join(UPLOAD_ROOT, "vault-items"), itemId, rows[0].filename);
+    if (!filePath) {
+      logger.warn("[vault-item-media DELETE] rejected stored filename", { itemId, mediaId });
+    } else try { fs.unlinkSync(filePath); } catch (err) {
       logger.warn("[vault-item-media DELETE] file not found on disk", { filePath, err });
     }
 

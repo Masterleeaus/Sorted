@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { withAuth } from "../../../../../../lib/auth/middleware";
 import type { AuthSession } from "../../../../../../lib/auth/middleware";
-import { query, queryOne, getPool } from "../../../../../../lib/db";
+import { getPool, withDbSession } from "../../../../../../lib/db";
 import { logger } from "../../../../../../lib/logger";
 
 export const dynamic = "force-dynamic";
@@ -27,27 +27,33 @@ export const GET = withAuth(async (request: NextRequest, session: AuthSession) =
     );
   }
 
-  const prop = await queryOne(
-    `SELECT id FROM properties WHERE id = $1 AND account_id = $2`,
-    [pid, session.accountId]
-  );
-  if (!prop) {
-    return NextResponse.json(
-      { error: { code: "NOT_FOUND", message: "Property not found", traceId: session.traceId } },
-      { status: 404 }
-    );
-  }
+  return withDbSession(session, async (client) => {
+    const prop = (
+      await client.query(
+        `SELECT id FROM properties WHERE id = $1 AND company_id = $2`,
+        [pid, session.accountId]
+      )
+    ).rows[0];
+    if (!prop) {
+      return NextResponse.json(
+        { error: { code: "NOT_FOUND", message: "Property not found", traceId: session.traceId } },
+        { status: 404 }
+      );
+    }
 
-  const notes = await query(
-    `SELECT id, source, body, pinned, visit_id, created_by, created_at
-     FROM property_notes
-     WHERE account_id = $1 AND property_id = $2
-     ORDER BY pinned DESC, created_at DESC
-     LIMIT 100`,
-    [session.accountId, pid]
-  );
+    const notes = (
+      await client.query(
+        `SELECT id, source, body, pinned, visit_id, created_by, created_at
+         FROM property_notes
+         WHERE company_id = $1 AND property_id = $2
+         ORDER BY pinned DESC, created_at DESC
+         LIMIT 100`,
+        [session.accountId, pid]
+      )
+    ).rows;
 
-  return NextResponse.json({ data: notes });
+    return NextResponse.json({ data: notes });
+  });
 });
 
 export const POST = withAuth(async (request: NextRequest, session: AuthSession) => {
@@ -80,7 +86,7 @@ export const POST = withAuth(async (request: NextRequest, session: AuthSession) 
     );
 
     const prop = await client.query(
-      `SELECT id FROM properties WHERE id = $1 AND account_id = $2`,
+      `SELECT id FROM properties WHERE id = $1 AND company_id = $2`,
       [pid, session.accountId]
     );
     if (!prop.rows[0]) {
@@ -94,7 +100,7 @@ export const POST = withAuth(async (request: NextRequest, session: AuthSession) 
     const d = parsed.data;
     const { rows } = await client.query(
       `INSERT INTO property_notes
-         (account_id, property_id, source, body, pinned, visit_id, created_by)
+         (company_id, property_id, source, body, pinned, visit_id, created_by)
        VALUES ($1, $2, $3, $4, $5, $6, $7)
        RETURNING *`,
       [

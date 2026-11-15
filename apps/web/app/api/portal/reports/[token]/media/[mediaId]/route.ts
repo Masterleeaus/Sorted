@@ -24,9 +24,9 @@ export async function GET(
     const { rows } = await db.query<{ visit_id: string; filename: string; mime_type: string }>(
       `SELECT vm.visit_id::text, vm.filename, vm.mime_type
        FROM portal_job_updates r
-       JOIN visit_media vm ON vm.id = $2 AND vm.id = ANY(r.media_ids) AND vm.account_id = r.account_id
+       JOIN visit_media vm ON vm.id = $2 AND vm.id = ANY(r.media_ids) AND vm.company_id = r.company_id
        JOIN visits v ON v.id = vm.visit_id AND v.job_id = r.job_id
-       WHERE r.share_token = $1 AND r.status = 'published' AND r.account_id = $4
+       WHERE r.share_token = $1 AND r.status = 'published' AND r.company_id = $4
          AND vm.category = ANY($3::text[])`,
       [token, mediaId, [...REPORT_PHOTO_CATEGORIES], accountId],
     );
@@ -34,8 +34,10 @@ export async function GET(
   });
   if (!media) return notFound();
 
+  const filePath = visitMediaPath(media.visit_id, media.filename);
+  if (!filePath) return notFound();
   try {
-    const buf = fs.readFileSync(visitMediaPath(media.visit_id, media.filename));
+    const buf = fs.readFileSync(filePath);
     return new NextResponse(buf, {
       status: 200,
       headers: {

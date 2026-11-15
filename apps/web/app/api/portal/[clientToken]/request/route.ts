@@ -55,7 +55,7 @@ export async function POST(
       // Only an address this client owns — never a sponsored or someone else's.
       const { rows } = await db.query<{ address: string }>(
         `SELECT p.address FROM properties p
-         WHERE p.id = $1 AND p.account_id = $2
+         WHERE p.id = $1 AND p.company_id = $2
            AND (p.client_id = $3 OR EXISTS (
              SELECT 1 FROM property_contacts pc
              WHERE pc.property_id = p.id AND pc.client_id = $3 AND pc.role = 'owner'))`,

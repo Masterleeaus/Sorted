@@ -17,18 +17,18 @@ export async function loadCloseoutLeftovers(
       session,
       `SELECT COUNT(*)::text AS count
        FROM jobs j
-       WHERE j.account_id = $1
+       WHERE j.company_id = $1
          AND (
            j.status = 'completed'
            OR EXISTS (
              SELECT 1 FROM visits v
-             WHERE v.job_id = j.id AND v.account_id = j.account_id
+             WHERE v.job_id = j.id AND v.company_id = j.company_id
                AND v.closeout_kind = 'done'
            )
          )
          AND NOT EXISTS (
            SELECT 1 FROM invoices i
-           WHERE i.job_id = j.id AND i.account_id = j.account_id
+           WHERE i.job_id = j.id AND i.company_id = j.company_id
              AND i.invoice_kind IN ('final', 'standard')
              AND i.status NOT IN ('cancelled', 'void')
          )`,
@@ -38,17 +38,17 @@ export async function loadCloseoutLeftovers(
       session,
       `SELECT COUNT(*)::text AS count
        FROM jobs j
-       WHERE j.account_id = $1
+       WHERE j.company_id = $1
          AND j.status = 'in_progress'
          AND EXISTS (
            SELECT 1 FROM visits v
-           WHERE v.job_id = j.id AND v.account_id = j.account_id
+           WHERE v.job_id = j.id AND v.company_id = j.company_id
              AND v.status = 'completed'
              AND v.visit_type IS DISTINCT FROM 'site_visit'
          )
          AND NOT EXISTS (
            SELECT 1 FROM visits v2
-           WHERE v2.job_id = j.id AND v2.account_id = j.account_id
+           WHERE v2.job_id = j.id AND v2.company_id = j.company_id
              AND v2.status = 'scheduled'
              AND v2.scheduled_start > NOW()
          )`,
@@ -58,7 +58,7 @@ export async function loadCloseoutLeftovers(
       session,
       `SELECT COUNT(*)::text AS count
        FROM expenses e
-       WHERE e.account_id = $1
+       WHERE e.company_id = $1
          AND e.job_id IS NULL
          AND e.reviewed_at IS NULL
          AND e.expense_date = (CURRENT_TIMESTAMP AT TIME ZONE 'America/New_York')::date`,
@@ -68,7 +68,7 @@ export async function loadCloseoutLeftovers(
       session,
       `SELECT COUNT(*)::text AS count
        FROM vehicle_sessions s
-       WHERE s.account_id = $1
+       WHERE s.company_id = $1
          AND s.status = 'closed'
          AND s.session_date >= (CURRENT_TIMESTAMP AT TIME ZONE 'America/New_York')::date - 14
          AND (s.miles_source IN ('odometer', 'manual_miles') OR s.miles_source IS NULL)

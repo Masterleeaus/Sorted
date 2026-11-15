@@ -4,7 +4,7 @@ import { buildCleaningOnboardingSetup, toRetainedCleaningServiceSetupPayload } f
 import { createCleaningServiceSetupAuthority } from '../../onboarding/runtime/cleaning-service-setup.mjs';
 import { readFileSync } from 'node:fs';
 
-const cleaningBundle=JSON.parse(readFileSync(new URL('../../modules/bundles/cleaning-workforce.bundle.json',import.meta.url),'utf8'));
+const cleaningBundle=JSON.parse(readFileSync(new URL('../src/ported/titan-modules/bundles/cleaning-workforce.bundle.json',import.meta.url),'utf8'));
 
 const base=()=>({
   company_id:'company-a',offered_service_ids:['regular_clean','airbnb_turnover','commercial_clean'],service_areas:[{id:'north',label:'Northern suburbs',postcodes:['3071','3072'],travel_radius_km:20}],enabled_pricing_modes:['hourly','fixed','quote_required'],team_capacity:{default_crew_size:1,max_parallel_crews:4,max_workers_per_crew:3},operating_hours:[{day:'monday',start:'08:00',end:'17:00'},{day:'saturday',start:'09:00',end:'14:00'}],equipment_defaults:['vacuum','mop'],supply_defaults:['microfibre','general cleaner'],recurring:{enabled:true,supported_frequencies:['weekly','fortnightly'],default_frequency:'fortnightly'}

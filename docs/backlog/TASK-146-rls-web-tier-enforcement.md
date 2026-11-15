@@ -48,6 +48,11 @@ batch processor — it bypasses RLS by design).
       Include remaining sessionless/token/internal entry points, not only
       portal + booking + intake.
 
+## Status update (2026-11-08, issues #6 and #15)
+
+- Worker model decided and implemented: `ai_fsm_worker` BYPASSRLS, DML only (ADR-024). Separate `WORKER_DATABASE_URL` and `WEB_DATABASE_URL` in compose.
+- Web cutover still blocked. About 102 non-test web files make DB calls without account context. The three P1 blockers above are open.
+
 ## Non-goals
 
 - Flipping the runtime role in this task's first PR (that is the cutover, gated

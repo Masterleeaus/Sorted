@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { withAuth } from "@/lib/auth/middleware";
 import type { AuthSession } from "@/lib/auth/middleware";
-import { getPool } from "@/lib/db";
+import { getPool, companyIdFromSession } from "@/lib/db";
 import { appendAuditLog } from "@/lib/db/audit";
 import { logger } from "@/lib/logger";
 import { ACTIVITY_TYPES, ACTIVITY_ENTITY_TYPES, activityCategoryFor } from "@ai-fsm/domain";
@@ -70,11 +70,11 @@ export const POST = withAuth(async (request: NextRequest, session: AuthSession) 
 
     const ins = await client.query<{ id: string }>(
       `INSERT INTO activity_entries
-         (account_id, user_id, session_date, activity_type, category,
+         (company_id, user_id, session_date, activity_type, category,
           started_at, ended_at, entity_type, entity_id, source, note)
        VALUES ($1, $2, ($3::timestamptz)::date, $4, $5, $3::timestamptz, $6::timestamptz, $7, $8, 'manual', $9)
        RETURNING id`,
-      [session.accountId, session.userId, d.started_at, d.activity_type, category, d.ended_at, d.entity_type ?? null, d.entity_id ?? null, d.note ?? null]
+      [companyIdFromSession(session), session.userId, d.started_at, d.activity_type, category, d.ended_at, d.entity_type ?? null, d.entity_id ?? null, d.note ?? null]
     );
     const newId = ins.rows[0].id;
 

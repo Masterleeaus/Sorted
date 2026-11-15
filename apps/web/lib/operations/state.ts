@@ -90,7 +90,7 @@ export async function getCurrentOperationsState(
   const clockRes = await client.query<{ id: string; clock_in_at: string }>(
     `SELECT id, clock_in_at::text AS clock_in_at
        FROM time_clock_sessions
-      WHERE account_id = $1 AND user_id = $2 AND status = 'open' AND voided_at IS NULL
+      WHERE company_id = $1 AND user_id = $2 AND status = 'open' AND voided_at IS NULL
       LIMIT 1`,
     [accountId, userId],
   );
@@ -102,7 +102,7 @@ export async function getCurrentOperationsState(
     `SELECT id, activity_type, entity_type, entity_id, assignment_kind, labor_bucket,
             started_at::text AS started_at
        FROM activity_entries
-      WHERE account_id = $1 AND user_id = $2
+      WHERE company_id = $1 AND user_id = $2
         AND ended_at IS NULL AND voided_at IS NULL
       LIMIT 1`,
     [accountId, userId],
@@ -111,7 +111,7 @@ export async function getCurrentOperationsState(
   const vehicleRes = await client.query<NonNullable<CurrentOperationsState["vehicle_session"]>>(
     `SELECT id, vehicle_id, started_at::text AS started_at
        FROM vehicle_sessions
-      WHERE account_id = $1 AND created_by = $2
+      WHERE company_id = $1 AND created_by = $2
         AND status = 'open'
         AND end_odometer IS NULL AND miles IS NULL
       ORDER BY started_at DESC NULLS LAST

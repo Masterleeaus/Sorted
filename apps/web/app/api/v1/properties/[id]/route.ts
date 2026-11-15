@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { withRole } from "@/lib/auth/middleware";
 import type { AuthSession } from "@/lib/auth/middleware";
-import { getPool, queryOne } from "@/lib/db";
+import { getPool, withDbSession } from "@/lib/db";
 import { appendAuditLog } from "@/lib/db/audit";
 import { logger } from "@/lib/logger";
 import { getPathId } from "@/lib/route-utils";
@@ -23,39 +23,42 @@ const patchPropertyBody = z
 
 export const GET = withRole(["owner", "admin"], async (request: NextRequest, session: AuthSession) => {
   const id = getPathId(request.nextUrl.pathname);
-  const row = await queryOne(
+  const row = await withDbSession(session, async (client) => {
+    const result = await client.query(
     `SELECT p.*, c.name AS client_name,
             COUNT(DISTINCT j.id)::int AS job_count,
             COUNT(DISTINCT v.id)::int AS visit_count,
             (SELECT MIN(v2.scheduled_start)
              FROM visits v2 JOIN jobs j2 ON j2.id = v2.job_id
-             WHERE j2.property_id = p.id AND v2.account_id = p.account_id
+             WHERE j2.property_id = p.id AND v2.company_id = p.company_id
                AND v2.status = 'scheduled' AND v2.scheduled_start > now()
             ) AS next_visit_at,
             (SELECT COUNT(*)::int FROM jobs aj
-             WHERE aj.property_id = p.id AND aj.account_id = p.account_id
+             WHERE aj.property_id = p.id AND aj.company_id = p.company_id
                AND aj.status IN ('scheduled', 'in_progress')
             ) AS active_jobs,
             (SELECT COUNT(*)::int FROM estimates pe
-             WHERE pe.property_id = p.id AND pe.account_id = p.account_id
+             WHERE pe.property_id = p.id AND pe.company_id = p.company_id
                AND pe.status IN ('draft', 'sent')
             ) AS pending_estimates,
             (SELECT COALESCE(SUM(oi.total_cents), 0)::int FROM invoices oi
-             WHERE oi.property_id = p.id AND oi.account_id = p.account_id
+             WHERE oi.property_id = p.id AND oi.company_id = p.company_id
                AND oi.status IN ('sent', 'partial', 'overdue')
             ) AS outstanding_cents,
             (SELECT COUNT(*)::int FROM property_issues pi2
-             WHERE pi2.property_id = p.id AND pi2.account_id = p.account_id
+             WHERE pi2.property_id = p.id AND pi2.company_id = p.company_id
                AND pi2.status IN ('open', 'monitoring')
             ) AS open_issues_count
      FROM properties p
-     LEFT JOIN clients c ON c.id = p.client_id AND c.account_id = p.account_id
-     LEFT JOIN jobs j ON j.property_id = p.id AND j.account_id = p.account_id
-     LEFT JOIN visits v ON v.job_id = j.id AND v.account_id = p.account_id
-     WHERE p.id = $1 AND p.account_id = $2
+     LEFT JOIN clients c ON c.id = p.client_id AND c.company_id = p.company_id
+     LEFT JOIN jobs j ON j.property_id = p.id AND j.company_id = p.company_id
+     LEFT JOIN visits v ON v.job_id = j.id AND v.company_id = p.company_id
+     WHERE p.id = $1 AND p.company_id = $2
      GROUP BY p.id, c.name`,
     [id, session.accountId]
-  );
+    );
+    return result.rows[0] ?? null;
+  });
   if (!row) {
     return NextResponse.json(
       { error: { code: "NOT_FOUND", message: "Property not found", traceId: session.traceId } },
@@ -92,7 +95,7 @@ export const PATCH = withRole(["owner", "admin"], async (request: NextRequest, s
       [session.userId, session.accountId, session.role]
     );
 
-    const before = await client.query(`SELECT * FROM properties WHERE id = $1 AND account_id = $2`, [id, session.accountId]);
+    const before = await client.query(`SELECT * FROM properties WHERE id = $1 AND company_id = $2`, [id, session.accountId]);
     if (before.rowCount === 0) {
       await client.query("ROLLBACK");
       return NextResponse.json(
@@ -103,7 +106,7 @@ export const PATCH = withRole(["owner", "admin"], async (request: NextRequest, s
 
     const patch = parsed.data;
     if (patch.client_id) {
-      const ownerClient = await client.query(`SELECT id FROM clients WHERE id = $1 AND account_id = $2`, [patch.client_id, session.accountId]);
+      const ownerClient = await client.query(`SELECT id FROM clients WHERE id = $1 AND company_id = $2`, [patch.client_id, session.accountId]);
       if (ownerClient.rowCount === 0) {
         await client.query("ROLLBACK");
         return NextResponse.json(
@@ -131,7 +134,7 @@ export const PATCH = withRole(["owner", "admin"], async (request: NextRequest, s
 
     const result = await client.query(
       `UPDATE properties SET ${setClauses.join(", ")}, updated_at = now()
-       WHERE id = $${idx++} AND account_id = $${idx}
+       WHERE id = $${idx++} AND company_id = $${idx}
        RETURNING *`,
       params
     );

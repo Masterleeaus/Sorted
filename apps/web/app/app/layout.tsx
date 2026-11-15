@@ -38,7 +38,7 @@ export default async function AppLayout({
       session,
       `SELECT (review_prompted_at IS NOT NULL AND closed_at IS NULL) AS pending
        FROM business_days
-       WHERE account_id = $1 AND business_date = $2::date`,
+       WHERE company_id = $1 AND business_date = $2::date`,
       [session.accountId, businessToday()],
     ),
   ]);

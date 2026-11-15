@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { withAuth, type AuthSession } from "@/lib/auth/middleware";
-import { getPool } from "@/lib/db";
+import { getPool, companyIdFromSession } from "@/lib/db";
 import { canTransitionVisit } from "@/lib/auth/permissions";
 import { logger } from "@/lib/logger";
 import {
@@ -112,9 +112,9 @@ export const PATCH = withAuth(async (request: NextRequest, session: AuthSession)
               job_id, visit_id, work_order_id, wo_resolution,
               arrival_time::text, departure_time::text
        FROM visit_candidates
-       WHERE id = $1 AND account_id = $2
+       WHERE id = $1 AND company_id = $2
        FOR UPDATE`,
-      [id, session.accountId],
+      [id, companyIdFromSession(session)],
     );
     const cand = rows[0];
     if (!cand) {
@@ -129,8 +129,8 @@ export const PATCH = withAuth(async (request: NextRequest, session: AuthSession)
     if (d.action === "ignore") {
       await client.query(
         `UPDATE visit_candidates SET status = 'ignored', classification = 'ignore', updated_at = now()
-         WHERE id = $1 AND account_id = $2`,
-        [id, session.accountId],
+         WHERE id = $1 AND company_id = $2`,
+        [id, companyIdFromSession(session)],
       );
       await client.query("COMMIT");
       return NextResponse.json({ data: { id, status: "ignored" } });
@@ -184,9 +184,9 @@ export const PATCH = withAuth(async (request: NextRequest, session: AuthSession)
     const stillOnSite = departureTime == null;
     const { rows: openActs } = await client.query<{ id: string; started_at: string }>(
       `SELECT id, started_at::text FROM activity_entries
-       WHERE account_id = $1 AND voided_at IS NULL AND ended_at IS NULL
+       WHERE company_id = $1 AND voided_at IS NULL AND ended_at IS NULL
        FOR UPDATE`,
-      [session.accountId],
+      [companyIdFromSession(session)],
     );
     if (openActs[0] && stillOnSite && d.switch_activity !== false) {
       const closeAt = new Date().toISOString();
@@ -208,8 +208,8 @@ export const PATCH = withAuth(async (request: NextRequest, session: AuthSession)
       await client.query(
         `UPDATE activity_entries
          SET ended_at = $1::timestamptz, updated_at = now()
-         WHERE id = $2 AND account_id = $3 AND ended_at IS NULL`,
-        [closeAt, openActs[0].id, session.accountId],
+         WHERE id = $2 AND company_id = $3 AND ended_at IS NULL`,
+        [closeAt, openActs[0].id, companyIdFromSession(session)],
       );
     } else if (openActs[0] && stillOnSite) {
       await client.query("ROLLBACK");
@@ -229,12 +229,12 @@ export const PATCH = withAuth(async (request: NextRequest, session: AuthSession)
     // Overlap guard for closed windows (open-ended uses infinity).
     const { rows: overlap } = await client.query<OverlapRow & { activity_type: string }>(
       `SELECT id, activity_type, started_at::text, ended_at::text FROM activity_entries
-       WHERE account_id = $1 AND voided_at IS NULL
+       WHERE company_id = $1 AND voided_at IS NULL
          AND started_at < $3::timestamptz
          AND COALESCE(ended_at, 'infinity'::timestamptz) > $2::timestamptz
        FOR UPDATE`,
       [
-        session.accountId,
+        companyIdFromSession(session),
         cand.arrival_time,
         departureTime ?? new Date(Date.now() + 365 * 24 * 3600 * 1000).toISOString(),
       ],
@@ -283,8 +283,8 @@ export const PATCH = withAuth(async (request: NextRequest, session: AuthSession)
         work_order_id: string | null;
       }>(
         `SELECT id, job_id, work_order_id FROM visits
-         WHERE id = $1 AND account_id = $2`,
-        [visitOverride, session.accountId],
+         WHERE id = $1 AND company_id = $2`,
+        [visitOverride, companyIdFromSession(session)],
       );
       const v = visitCheck[0];
       if (!v) {
@@ -308,8 +308,8 @@ export const PATCH = withAuth(async (request: NextRequest, session: AuthSession)
     // When WO is resolved, derive job_id from that WO for consistent assignment.
     if (workOrderId) {
       const { rows: woJob } = await client.query<{ job_id: string }>(
-        `SELECT job_id FROM work_orders WHERE id = $1 AND account_id = $2`,
-        [workOrderId, session.accountId],
+        `SELECT job_id FROM work_orders WHERE id = $1 AND company_id = $2`,
+        [workOrderId, companyIdFromSession(session)],
       );
       if (woJob[0]) cand.job_id = woJob[0].job_id;
     }
@@ -354,12 +354,12 @@ export const PATCH = withAuth(async (request: NextRequest, session: AuthSession)
 
     const { rows: ins } = await client.query<{ id: string }>(
       `INSERT INTO activity_entries
-         (account_id, user_id, session_date, activity_type, category,
+         (company_id, user_id, session_date, activity_type, category,
           started_at, ended_at, entity_type, entity_id, source, note)
        VALUES ($1, $2, $3::date, $4, $5, $6, $7, $8, $9, 'auto_visit', $10)
        RETURNING id`,
       [
-        session.accountId,
+        companyIdFromSession(session),
         session.userId,
         cand.arrival_time,
         activityType,
@@ -395,8 +395,8 @@ export const PATCH = withAuth(async (request: NextRequest, session: AuthSession)
         `UPDATE location_segments
          SET status = 'confirmed', activity_entry_id = $1,
              suggested_activity_type = $2, updated_at = now()
-         WHERE id = $3 AND account_id = $4 AND status = 'provisional'`,
-        [entryId, activityType, cand.location_segment_id, session.accountId],
+         WHERE id = $3 AND company_id = $4 AND status = 'provisional'`,
+        [entryId, activityType, cand.location_segment_id, companyIdFromSession(session)],
       );
     }
 

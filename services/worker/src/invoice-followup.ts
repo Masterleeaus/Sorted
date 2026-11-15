@@ -80,6 +80,7 @@ export type { AutomationRow, RunResult };
 export interface OverdueInvoice {
   id: string;
   account_id: string;
+  company_id: string;
   client_id: string;
   invoice_number: string;
   status: string;
@@ -97,7 +98,7 @@ const DEFAULT_DAYS_OVERDUE = [7, 14, 30];
  */
 export async function findDueFollowups(client: Client): Promise<AutomationRow[]> {
   const { rows } = await client.query<AutomationRow>(
-    `SELECT id, account_id, type, config, enabled, next_run_at::text
+    `SELECT id, account_id, company_id, type, config, enabled, next_run_at::text
      FROM automations
      WHERE type = 'invoice_followup'
        AND enabled = true
@@ -120,13 +121,13 @@ export async function findOverdueInvoices(
   automation: AutomationRow
 ): Promise<OverdueInvoice[]> {
   const { rows } = await client.query<OverdueInvoice>(
-    `SELECT i.id, i.account_id, i.client_id, i.invoice_number,
+    `SELECT i.id, i.account_id, i.company_id, i.client_id, i.invoice_number,
             i.status, i.total_cents, i.paid_cents,
             i.due_date::text, c.name AS client_name, c.email AS client_email
      FROM invoices i
-     JOIN clients c ON c.id = i.client_id
-     LEFT JOIN jobs j ON j.id = i.job_id
-     WHERE i.account_id = $1
+     JOIN clients c ON c.id = i.client_id AND c.company_id = i.company_id
+     LEFT JOIN jobs j ON j.id = i.job_id AND j.company_id = i.company_id
+     WHERE i.company_id = $1
        AND i.status IN ('overdue', 'sent', 'partial')
        AND i.due_date IS NOT NULL
        -- Calendar-day overdue (ET): due local midnight same day must not
@@ -142,7 +143,7 @@ export async function findOverdueInvoices(
          OR j.status NOT IN ('draft', 'quoted', 'scheduled', 'in_progress')
        )
      ORDER BY i.due_date ASC`,
-    [automation.account_id]
+    [automation.company_id]
   );
 
   return rows;
@@ -187,10 +188,10 @@ export async function emitInvoiceFollowup(
     `SELECT 1 FROM audit_log
      WHERE entity_type = 'invoice_followup'
        AND entity_id = $1
-       AND account_id = $2
+       AND company_id = $2
        AND new_value->>'days_overdue_step' = $3
      LIMIT 1`,
-    [invoice.id, invoice.account_id, String(cadenceStep)]
+    [invoice.id, invoice.company_id, String(cadenceStep)]
   );
 
   if (rowCount && rowCount > 0) {

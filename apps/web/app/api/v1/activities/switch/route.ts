@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { withAuth } from "@/lib/auth/middleware";
-import { getPool } from "@/lib/db";
+import { getPool, companyIdFromSession } from "@/lib/db";
 import { logger } from "@/lib/logger";
 import {
   ACTIVITY_TYPES,
@@ -66,10 +66,10 @@ export const POST = withAuth(async (request: NextRequest, session) => {
     const active = await client.query<{ id: string; activity_type: string; entity_id: string | null; entity_type: string | null; assignment_kind: string | null }>(
       `SELECT id, activity_type, entity_type, entity_id, assignment_kind
        FROM activity_entries
-       WHERE account_id = $1 AND user_id = $2
+       WHERE company_id = $1 AND user_id = $2
          AND ended_at IS NULL AND voided_at IS NULL
        FOR UPDATE`,
-      [session.accountId, session.userId]
+      [companyIdFromSession(session), session.userId]
     );
 
     const current = active.rows[0];
@@ -96,24 +96,24 @@ export const POST = withAuth(async (request: NextRequest, session) => {
     // open a day or clock just to switch). labor_bucket auto-fills via trigger.
     const dayRes = await client.query<{ id: string }>(
       `SELECT id FROM business_days
-        WHERE account_id = $1 AND user_id = $2 AND business_date = $3 LIMIT 1`,
-      [session.accountId, session.userId, today]
+        WHERE company_id = $1 AND user_id = $2 AND business_date = $3 LIMIT 1`,
+      [companyIdFromSession(session), session.userId, today]
     );
     const clockRes = await client.query<{ id: string }>(
       `SELECT id FROM time_clock_sessions
-        WHERE account_id = $1 AND user_id = $2 AND status = 'open' AND voided_at IS NULL LIMIT 1`,
-      [session.accountId, session.userId]
+        WHERE company_id = $1 AND user_id = $2 AND status = 'open' AND voided_at IS NULL LIMIT 1`,
+      [companyIdFromSession(session), session.userId]
     );
 
     const { rows } = await client.query<{ id: string; started_at: string }>(
       `INSERT INTO activity_entries
-         (account_id, user_id, session_date, activity_type, category,
+         (company_id, user_id, session_date, activity_type, category,
           entity_type, entity_id, source, note,
           business_day_id, time_clock_session_id, assignment_kind)
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
        RETURNING id, started_at::text`,
       [
-        session.accountId, session.userId, today, d.activity_type, category,
+        companyIdFromSession(session), session.userId, today, d.activity_type, category,
         d.entity_type ?? null, d.entity_id ?? null, d.source, d.note ?? null,
         dayRes.rows[0]?.id ?? null, clockRes.rows[0]?.id ?? null, d.assignment_kind ?? null,
       ]

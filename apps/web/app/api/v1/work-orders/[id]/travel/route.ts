@@ -88,7 +88,7 @@ export const POST = withRole(["owner", "admin"], async (request: NextRequest, se
       job_id: string | null;
     }>(
       `SELECT id, client_id, property_id, job_id
-       FROM work_orders WHERE id = $1 AND account_id = $2`,
+       FROM work_orders WHERE id = $1 AND company_id = $2`,
       [workOrderId, session.accountId]
     );
     if (!wo.rowCount) {
@@ -149,7 +149,7 @@ export const POST = withRole(["owner", "admin"], async (request: NextRequest, se
     await client.query(
       `UPDATE work_orders
        SET travel_snapshot_id = $1, updated_at = now()
-       WHERE id = $2 AND account_id = $3`,
+       WHERE id = $2 AND company_id = $3`,
       [snapshot.id, workOrderId, session.accountId]
     );
 
@@ -193,7 +193,7 @@ export const GET = withRole(["owner", "admin", "tech"], async (request: NextRequ
       [session.userId, session.accountId, session.role]
     );
     const wo = await client.query<{ travel_snapshot_id: string | null }>(
-      `SELECT travel_snapshot_id FROM work_orders WHERE id = $1 AND account_id = $2`,
+      `SELECT travel_snapshot_id FROM work_orders WHERE id = $1 AND company_id = $2`,
       [workOrderId, session.accountId]
     );
     if (!wo.rowCount) {

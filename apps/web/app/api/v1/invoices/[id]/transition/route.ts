@@ -73,7 +73,7 @@ export const POST = withRole(["owner", "admin"], async (request, session) => {
         sent_at: string | null;
         job_id: string | null;
       }>(
-        `SELECT id, status, paid_cents, sent_at, job_id FROM invoices WHERE id = $1 AND account_id = $2`,
+        `SELECT id, status, paid_cents, sent_at, job_id FROM invoices WHERE id = $1 AND company_id = $2`,
         [id, session.accountId]
       );
 

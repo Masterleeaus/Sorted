@@ -58,7 +58,7 @@ export async function loadSquareSettings(
   }>(
     `SELECT enabled, environment, config, secrets, status, status_detail, last_checked_at
      FROM integration_settings
-     WHERE account_id = $1 AND provider = 'square'`,
+     WHERE company_id = $1 AND provider = 'square'`,
     [accountId]
   );
   if (result.rowCount === 0) return null;

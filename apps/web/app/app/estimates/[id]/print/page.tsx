@@ -106,7 +106,7 @@ export default async function EstimatePrintPage({
        LEFT JOIN clients    c ON c.id = e.client_id
        LEFT JOIN properties p ON p.id = e.property_id
        LEFT JOIN jobs       j ON j.id = e.job_id
-       WHERE e.id = $1 AND e.account_id = $2`,
+       WHERE e.id = $1 AND e.company_id = $2`,
       [id, session.accountId]
     );
 

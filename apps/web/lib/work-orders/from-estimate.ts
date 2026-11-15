@@ -42,7 +42,7 @@ export async function promoteOrCreateWorkOrderFromEstimate({
 }): Promise<PromoteWorkOrderResult> {
   const existing = await client.query<{ id: string }>(
     `SELECT id FROM work_orders
-     WHERE account_id = $1 AND job_id = $2 AND source_estimate_id = $3
+     WHERE company_id = $1 AND job_id = $2 AND source_estimate_id = $3
        AND status <> 'cancelled'
      LIMIT 1`,
     [accountId, jobId, estimateId],
@@ -57,7 +57,7 @@ export async function promoteOrCreateWorkOrderFromEstimate({
      FROM estimates e
      LEFT JOIN clients c ON c.id = e.client_id
      LEFT JOIN properties p ON p.id = e.property_id
-     WHERE e.id = $1 AND e.account_id = $2`,
+     WHERE e.id = $1 AND e.company_id = $2`,
     [estimateId, accountId],
   );
   const est = estRes.rows[0];
@@ -74,13 +74,13 @@ export async function promoteOrCreateWorkOrderFromEstimate({
        FROM site_visit_assessments a
        JOIN visits sv ON sv.id = a.visit_id
        LEFT JOIN jobs sj ON sj.id = sv.job_id
-       WHERE a.account_id = $1
+       WHERE a.company_id = $1
          AND ($3::uuid IS NULL OR sj.property_id = $3)
        ORDER BY a.created_at DESC
        LIMIT 1
      ) ctx ON wo.source_assessment_id = ctx.assessment_id
            OR wo.source_visit_id = ctx.visit_id
-     WHERE wo.account_id = $1
+     WHERE wo.company_id = $1
        AND wo.status = 'draft'
        AND wo.job_id IS NULL
        AND wo.client_id = $2
@@ -94,7 +94,7 @@ export async function promoteOrCreateWorkOrderFromEstimate({
     : await client.query<{ id: string }>(
         `SELECT wo.id
          FROM work_orders wo
-         WHERE wo.account_id = $1
+         WHERE wo.company_id = $1
            AND wo.status = 'draft'
            AND wo.job_id IS NULL
            AND wo.client_id = $2
@@ -104,13 +104,13 @@ export async function promoteOrCreateWorkOrderFromEstimate({
                SELECT a.id FROM site_visit_assessments a
                JOIN visits sv ON sv.id = a.visit_id
                LEFT JOIN jobs sj ON sj.id = sv.job_id
-               WHERE a.account_id = $1
+               WHERE a.company_id = $1
                  AND ($3::uuid IS NULL OR sj.property_id = $3 OR wo.property_id = $3)
              )
              OR wo.source_visit_id IN (
                SELECT v.id FROM visits v
                LEFT JOIN jobs j ON j.id = v.job_id
-               WHERE v.account_id = $1 AND v.visit_type = 'site_visit'
+               WHERE v.company_id = $1 AND v.visit_type = 'site_visit'
                  AND ($3::uuid IS NULL OR j.property_id = $3)
              )
            )
@@ -151,7 +151,7 @@ export async function promoteOrCreateWorkOrderFromEstimate({
            ELSE completion_criteria
          END,
          updated_at = now()
-       WHERE id = $1 AND account_id = $2`,
+       WHERE id = $1 AND company_id = $2`,
       [woId, accountId, jobId, est.property_id, estimateId, JSON.stringify(completionCriteria)],
     );
     // Prefer criteria already on the draft; fall back to estimate-derived list.

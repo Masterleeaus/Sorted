@@ -33,11 +33,11 @@ export default async function NewJobPage({ searchParams }: PageProps) {
 
   const [clients, properties] = await Promise.all([
     queryForSession<Client>(session, 
-      `SELECT id, name FROM clients WHERE account_id = $1 ORDER BY name ASC`,
+      `SELECT id, name FROM clients WHERE company_id = $1 ORDER BY name ASC`,
       [session.accountId]
     ),
     queryForSession<Property>(session, 
-      `SELECT id, address, client_id FROM properties WHERE account_id = $1 ORDER BY address ASC`,
+      `SELECT id, address, client_id FROM properties WHERE company_id = $1 ORDER BY address ASC`,
       [session.accountId]
     ),
   ]);

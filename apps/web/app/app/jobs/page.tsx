@@ -103,7 +103,7 @@ export default async function JobsPage({ searchParams }: PageProps) {
 
   let jobs: JobRow[];
   if (isAdmin) {
-    const conditions: string[] = ["j.account_id = $1"];
+    const conditions: string[] = ["j.company_id = $1"];
     const params: unknown[] = [session.accountId];
     let idx = 2;
 
@@ -129,8 +129,8 @@ export default async function JobsPage({ searchParams }: PageProps) {
 
     jobs = await queryForSession<JobRow>(session, 
       `SELECT j.*, c.name AS client_name, j.job_category, j.intake_decision,
-              EXISTS(SELECT 1 FROM estimates e WHERE e.job_id = j.id AND e.account_id = j.account_id AND e.status = 'approved') AS has_approved_estimate,
-              EXISTS(SELECT 1 FROM visits va WHERE va.job_id = j.id AND va.account_id = j.account_id AND va.status NOT IN ('cancelled','completed')) AS has_active_visit
+              EXISTS(SELECT 1 FROM estimates e WHERE e.job_id = j.id AND e.company_id = j.company_id AND e.status = 'approved') AS has_approved_estimate,
+              EXISTS(SELECT 1 FROM visits va WHERE va.job_id = j.id AND va.company_id = j.company_id AND va.status NOT IN ('cancelled','completed')) AS has_active_visit
        FROM jobs j
        LEFT JOIN clients c ON c.id = j.client_id
        WHERE ${conditions.join(" AND ")}
@@ -139,7 +139,7 @@ export default async function JobsPage({ searchParams }: PageProps) {
       params
     );
   } else {
-    const conditions: string[] = ["j.account_id = $1", "v.assigned_user_id = $2"];
+    const conditions: string[] = ["j.company_id = $1", "v.assigned_user_id = $2"];
     const params: unknown[] = [session.accountId, session.userId];
     let idx = 3;
 
@@ -165,8 +165,8 @@ export default async function JobsPage({ searchParams }: PageProps) {
 
     jobs = await queryForSession<JobRow>(session, 
       `SELECT DISTINCT j.*, c.name AS client_name, j.job_category, j.intake_decision,
-              EXISTS(SELECT 1 FROM estimates e WHERE e.job_id = j.id AND e.account_id = j.account_id AND e.status = 'approved') AS has_approved_estimate,
-              EXISTS(SELECT 1 FROM visits va WHERE va.job_id = j.id AND va.account_id = j.account_id AND va.status NOT IN ('cancelled','completed')) AS has_active_visit
+              EXISTS(SELECT 1 FROM estimates e WHERE e.job_id = j.id AND e.company_id = j.company_id AND e.status = 'approved') AS has_approved_estimate,
+              EXISTS(SELECT 1 FROM visits va WHERE va.job_id = j.id AND va.company_id = j.company_id AND va.status NOT IN ('cancelled','completed')) AS has_active_visit
        FROM jobs j
        LEFT JOIN clients c ON c.id = j.client_id
        JOIN visits v ON v.job_id = j.id

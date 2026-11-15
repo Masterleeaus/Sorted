@@ -6,7 +6,7 @@ import {
   type PromiseEntityType,
 } from "@ai-fsm/domain";
 import { withRole } from "@/lib/auth/middleware";
-import { withDbSession } from "@/lib/db";
+import { withDbSession, companyIdFromSession } from "@/lib/db";
 import { logger } from "@/lib/logger";
 import { REVIEWABLE_PROCESSING_STATES } from "@/lib/captures/review-query";
 
@@ -103,9 +103,9 @@ export const POST = withRole(["owner", "admin"], async (request: NextRequest, se
                 proposed_title, proposed_due_at::text,
                 confirmed_at::text, dismissed_at::text
          FROM capture_evidence
-         WHERE id = $1 AND account_id = $2
+         WHERE id = $1 AND company_id = $2
          FOR UPDATE`,
-        [id, session.accountId],
+        [id, companyIdFromSession(session)],
       );
       const capture = rows[0];
       if (!capture) return { kind: "not_found" as const };
@@ -121,11 +121,11 @@ export const POST = withRole(["owner", "admin"], async (request: NextRequest, se
                snoozed_at = now(),
                processing_state = 'snoozed',
                updated_at = now()
-           WHERE id = $1 AND account_id = $2
+           WHERE id = $1 AND company_id = $2
              AND confirmed_at IS NULL AND dismissed_at IS NULL
              AND snooze_count = 0
            RETURNING id`,
-          [id, session.accountId],
+          [id, companyIdFromSession(session)],
         );
         if (!updated.rows[0]) return { kind: "already_snoozed" as const };
         return { kind: "ok" as const, action: "snooze" as const };
@@ -137,10 +137,10 @@ export const POST = withRole(["owner", "admin"], async (request: NextRequest, se
            SET dismissed_at = now(),
                processing_state = 'dismissed',
                updated_at = now()
-           WHERE id = $1 AND account_id = $2
+           WHERE id = $1 AND company_id = $2
              AND confirmed_at IS NULL AND dismissed_at IS NULL
            RETURNING id`,
-          [id, session.accountId],
+          [id, companyIdFromSession(session)],
         );
         if (!updated.rows[0]) return { kind: "not_reviewable" as const };
         return { kind: "ok" as const, action: "dismiss" as const };
@@ -158,18 +158,18 @@ export const POST = withRole(["owner", "admin"], async (request: NextRequest, se
 
       const table = ENTITY_TABLE[body.entity_type];
       const entity = await client.query<{ id: string }>(
-        `SELECT id FROM ${table} WHERE id = $1 AND account_id = $2`,
-        [body.entity_id, session.accountId],
+        `SELECT id FROM ${table} WHERE id = $1 AND company_id = $2`,
+        [body.entity_id, companyIdFromSession(session)],
       );
       if (!entity.rows[0]) return { kind: "entity_missing" as const };
 
       const inserted = await client.query<{ id: string }>(
         `INSERT INTO action_items (
-           account_id, entity_type, entity_id, action_type, title, due_at, source_capture_id
+           company_id, entity_type, entity_id, action_type, title, due_at, source_capture_id
          ) VALUES ($1, $2, $3, $4, $5, $6, $7)
          RETURNING id`,
         [
-          session.accountId,
+          companyIdFromSession(session),
           body.entity_type,
           body.entity_id,
           OWNER_PROMISE_ACTION_TYPE,
@@ -186,10 +186,10 @@ export const POST = withRole(["owner", "admin"], async (request: NextRequest, se
          SET confirmed_at = now(),
              processing_state = 'confirmed',
              updated_at = now()
-         WHERE id = $1 AND account_id = $2
+         WHERE id = $1 AND company_id = $2
            AND confirmed_at IS NULL AND dismissed_at IS NULL
          RETURNING id`,
-        [id, session.accountId],
+        [id, companyIdFromSession(session)],
       );
       if (!confirmed.rows[0]) throw new Error("capture confirm update matched no row");
 

@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { withAuth } from "../../../../../lib/auth/middleware";
 import type { AuthSession } from "../../../../../lib/auth/middleware";
-import { queryOne, getPool } from "../../../../../lib/db";
+import { getPool, withDbSession } from "../../../../../lib/db";
 import { appendAuditLog } from "../../../../../lib/db/audit";
 import { logger } from "../../../../../lib/logger";
 import { computeCapStatus } from "../../../../../lib/visits/membership-cap";
@@ -59,10 +59,13 @@ export const GET = withAuth(
       );
     }
 
-    const visit = await queryOne(
-      `SELECT * FROM visits WHERE id = $1 AND account_id = $2`,
-      [id, session.accountId]
-    );
+    const visit = await withDbSession(session, async (client) => {
+      const result = await client.query(
+        `SELECT * FROM visits WHERE id = $1 AND company_id = $2`,
+        [id, session.accountId]
+      );
+      return result.rows[0] ?? null;
+    });
 
     if (!visit) {
       return NextResponse.json(
@@ -117,7 +120,7 @@ export const PATCH = withAuth(
       );
 
       const existing = await client.query(
-        `SELECT * FROM visits WHERE id = $1 AND account_id = $2 FOR UPDATE`,
+        `SELECT * FROM visits WHERE id = $1 AND company_id = $2 FOR UPDATE`,
         [id, session.accountId]
       );
 
@@ -163,7 +166,7 @@ export const PATCH = withAuth(
              JOIN jobs j ON j.id = v.job_id
              LEFT JOIN clients c ON c.id = j.client_id
              LEFT JOIN properties p ON p.id = j.property_id
-             WHERE v.account_id = $1
+             WHERE v.company_id = $1
                AND v.assigned_user_id = $2
                AND v.id <> $3
                AND v.status NOT IN ('cancelled', 'completed')
@@ -260,7 +263,7 @@ export const PATCH = withAuth(
       }
 
       const { rows } = await client.query(
-        `UPDATE visits SET ${fields.join(", ")}, updated_at = now() WHERE id = $1 AND account_id = $2 RETURNING *`,
+        `UPDATE visits SET ${fields.join(", ")}, updated_at = now() WHERE id = $1 AND company_id = $2 RETURNING *`,
         [id, session.accountId, ...values]
       );
 
@@ -335,7 +338,7 @@ export const DELETE = withAuth(
       );
 
       const existing = await client.query<{ id: string; status: string }>(
-        `SELECT id, status FROM visits WHERE id = $1 AND account_id = $2 FOR UPDATE`,
+        `SELECT id, status FROM visits WHERE id = $1 AND company_id = $2 FOR UPDATE`,
         [id, session.accountId]
       );
 
@@ -362,7 +365,7 @@ export const DELETE = withAuth(
         );
       }
 
-      await client.query(`DELETE FROM visits WHERE id = $1 AND account_id = $2`, [id, session.accountId]);
+      await client.query(`DELETE FROM visits WHERE id = $1 AND company_id = $2`, [id, session.accountId]);
 
       await appendAuditLog(client, {
         account_id: session.accountId,

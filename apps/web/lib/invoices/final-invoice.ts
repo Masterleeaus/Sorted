@@ -80,7 +80,7 @@ export async function createDraftFinalInvoiceForJob(
   // by any path (visit completion, job completion, manual convert).
   const existingCheck = await client.query<{ id: string }>(
     `SELECT id FROM invoices
-     WHERE job_id = $1 AND account_id = $2
+     WHERE job_id = $1 AND company_id = $2
        AND invoice_kind IN ('final', 'standard')
        AND status NOT IN ('cancelled')
      LIMIT 1`,
@@ -118,7 +118,7 @@ export async function createDraftFinalInvoiceForJob(
             (
               SELECT br.pricing_mode
               FROM booking_requests br
-              WHERE br.job_id = j.id AND br.account_id = j.account_id
+              WHERE br.job_id = j.id AND br.company_id = j.company_id
               ORDER BY br.created_at DESC
               LIMIT 1
             ) AS booking_pricing_mode
@@ -127,11 +127,11 @@ export async function createDraftFinalInvoiceForJob(
        SELECT id, presentation_mode, pricing_mode, subtotal_cents, tax_cents, total_cents,
               notes, deposit_cents, travel_snapshot_id
        FROM estimates
-       WHERE job_id = j.id AND account_id = j.account_id AND status = 'approved'
+       WHERE job_id = j.id AND company_id = j.company_id AND status = 'approved'
        ORDER BY created_at DESC
        LIMIT 1
      ) e ON true
-     WHERE j.id = $1 AND j.account_id = $2`,
+     WHERE j.id = $1 AND j.company_id = $2`,
     [jobId, accountId]
   );
 
@@ -331,7 +331,7 @@ export async function createDraftFinalInvoiceForJob(
         }>(
           `SELECT name, quantity, customer_price_cents
            FROM visit_parts
-           WHERE visit_id = $1 AND account_id = $2 AND customer_price_cents > 0
+           WHERE visit_id = $1 AND company_id = $2 AND customer_price_cents > 0
            ORDER BY created_at`,
           [visitId, accountId]
         )
@@ -342,8 +342,8 @@ export async function createDraftFinalInvoiceForJob(
         }>(
           `SELECT vp.name, vp.quantity, vp.customer_price_cents
            FROM visit_parts vp
-           JOIN visits v ON v.id = vp.visit_id AND v.account_id = vp.account_id
-           WHERE v.job_id = $1 AND vp.account_id = $2 AND vp.customer_price_cents > 0
+           JOIN visits v ON v.id = vp.visit_id AND v.company_id = vp.company_id
+           WHERE v.job_id = $1 AND vp.company_id = $2 AND vp.customer_price_cents > 0
            ORDER BY vp.created_at`,
           [jobId, accountId]
         );
@@ -403,7 +403,7 @@ export async function createDraftFinalInvoiceForJob(
   let completionAt: Date | string = new Date();
   if (visitId) {
     const visitRow = await client.query<{ completed_at: string | null }>(
-      `SELECT completed_at::text FROM visits WHERE id = $1 AND account_id = $2`,
+      `SELECT completed_at::text FROM visits WHERE id = $1 AND company_id = $2`,
       [visitId, accountId]
     );
     if (visitRow.rows[0]?.completed_at) {
@@ -448,7 +448,7 @@ export async function createDraftFinalInvoiceForJob(
   if (closeoutRollup) {
     await client.query(
       `UPDATE invoices SET apply_material_handling = false, updated_at = now()
-       WHERE id = $1 AND account_id = $2`,
+       WHERE id = $1 AND company_id = $2`,
       [invoiceId, accountId],
     );
   }
@@ -520,7 +520,7 @@ export async function createDraftFinalInvoiceForJob(
          SET deposit_cents = $1,
              notes = $2,
              updated_at = now()
-         WHERE id = $3 AND account_id = $4`,
+         WHERE id = $3 AND company_id = $4`,
         [
           rec.depositCreditCents,
           rec.reconciliationNote
@@ -550,7 +550,7 @@ export async function createDraftFinalInvoiceForJob(
       await client.query(
         `UPDATE travel_calculation_snapshots
          SET invoice_id = $1, updated_at = now()
-         WHERE id = $2 AND account_id = $3 AND invoice_id IS NULL`,
+         WHERE id = $2 AND company_id = $3 AND invoice_id IS NULL`,
         [invoiceId, job.travel_snapshot_id, accountId]
       );
       // T&M only: re-sum from line items (tax stays 0 on actuals).
@@ -568,7 +568,7 @@ export async function createDraftFinalInvoiceForJob(
              SET deposit_cents = $1,
                  notes = $2,
                  updated_at = now()
-             WHERE id = $3 AND account_id = $4`,
+             WHERE id = $3 AND company_id = $4`,
             [
               rec.depositCreditCents,
               rec.reconciliationNote

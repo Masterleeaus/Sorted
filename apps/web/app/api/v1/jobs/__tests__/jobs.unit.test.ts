@@ -20,7 +20,6 @@ vi.mock("../../../../../lib/auth/middleware", () => ({
 // Mock the DB layer so no real connections are made
 // ---------------------------------------------------------------------------
 const mockQuery = vi.fn();
-const mockQueryOne = vi.fn();
 const mockClientQuery = vi.fn();
 const mockClientRelease = vi.fn();
 const mockPool = {
@@ -29,7 +28,9 @@ const mockPool = {
 
 vi.mock("../../../../../lib/db", () => ({
   query: (...args: unknown[]) => mockQuery(...args),
-  queryOne: (...args: unknown[]) => mockQueryOne(...args),
+  // Session-scoped reads: the client returns { rows } and records the call on mockQuery.
+  withDbSession: (_session: unknown, fn: (client: unknown) => Promise<unknown>) =>
+    fn({ query: async (...args: unknown[]) => ({ rows: await mockQuery(...args) }) }),
   getPool: () => mockPool,
 }));
 
@@ -159,7 +160,7 @@ describe("POST /api/v1/jobs", () => {
 // ---------------------------------------------------------------------------
 describe("GET /api/v1/jobs/[id]", () => {
   it("returns 200 with job when found", async () => {
-    mockQueryOne.mockResolvedValue(SAMPLE_JOB);
+    mockQuery.mockResolvedValue([SAMPLE_JOB]);
     const res = await jobGet(makeRequest("GET", `${BASE}/${JOB_ID}`));
     expect(res.status).toBe(200);
     const json = await res.json();
@@ -167,7 +168,7 @@ describe("GET /api/v1/jobs/[id]", () => {
   });
 
   it("returns 404 when job not found", async () => {
-    mockQueryOne.mockResolvedValue(null);
+    mockQuery.mockResolvedValue([]);
     const res = await jobGet(makeRequest("GET", `${BASE}/${JOB_ID}`));
     expect(res.status).toBe(404);
     const json = await res.json();

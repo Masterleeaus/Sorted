@@ -163,10 +163,10 @@ export async function loadPromiseEntityOptions(
               j.job_number,
               c.name AS customer_name
        FROM visits v
-       JOIN work_orders wo ON wo.id = v.work_order_id AND wo.account_id = v.account_id
-       JOIN jobs j ON j.id = wo.job_id AND j.account_id = v.account_id
-       JOIN clients c ON c.id = j.client_id AND c.account_id = v.account_id
-       WHERE v.account_id = $1
+       JOIN work_orders wo ON wo.id = v.work_order_id AND wo.company_id = v.company_id
+       JOIN jobs j ON j.id = wo.job_id AND j.company_id = v.company_id
+       JOIN clients c ON c.id = j.client_id AND c.company_id = v.company_id
+       WHERE v.company_id = $1
          AND v.status IS DISTINCT FROM 'cancelled'
          AND wo.job_id IS NOT NULL
          AND (
@@ -181,8 +181,8 @@ export async function loadPromiseEntityOptions(
     const estimatePromise = client.query<EstimateRow>(
       `SELECT e.id, e.estimate_number, c.name AS customer_name
        FROM estimates e
-       JOIN clients c ON c.id = e.client_id AND c.account_id = e.account_id
-       WHERE e.account_id = $1
+       JOIN clients c ON c.id = e.client_id AND c.company_id = e.company_id
+       WHERE e.company_id = $1
          AND e.status IN ('draft', 'sent')
        ORDER BY e.updated_at DESC
        LIMIT 50`,
@@ -192,8 +192,8 @@ export async function loadPromiseEntityOptions(
     const invoicePromise = client.query<InvoiceRow>(
       `SELECT i.id, i.invoice_number, c.name AS customer_name
        FROM invoices i
-       JOIN clients c ON c.id = i.client_id AND c.account_id = i.account_id
-       WHERE i.account_id = $1
+       JOIN clients c ON c.id = i.client_id AND c.company_id = i.company_id
+       WHERE i.company_id = $1
          AND i.status IN ('draft', 'sent', 'partial', 'overdue')
        ORDER BY i.due_date ASC NULLS LAST, i.created_at DESC
        LIMIT 50`,
@@ -209,27 +209,27 @@ export async function loadPromiseEntityOptions(
                     COALESCE(j.job_number || ' ', '') || j.title AS label_part,
                     c.name AS customer_name
              FROM jobs j
-             JOIN clients c ON c.id = j.client_id AND c.account_id = j.account_id
-             WHERE j.account_id = $1
+             JOIN clients c ON c.id = j.client_id AND c.company_id = j.company_id
+             WHERE j.company_id = $1
                AND j.status <> 'cancelled'
                AND c.name ILIKE $2
              UNION ALL
              SELECT 'estimate', e.id, COALESCE(e.estimate_number, 'Estimate'), c.name
              FROM estimates e
-             JOIN clients c ON c.id = e.client_id AND c.account_id = e.account_id
-             WHERE e.account_id = $1 AND c.name ILIKE $2
+             JOIN clients c ON c.id = e.client_id AND c.company_id = e.company_id
+             WHERE e.company_id = $1 AND c.name ILIKE $2
              UNION ALL
              SELECT 'invoice', i.id, i.invoice_number, c.name
              FROM invoices i
-             JOIN clients c ON c.id = i.client_id AND c.account_id = i.account_id
-             WHERE i.account_id = $1 AND c.name ILIKE $2
+             JOIN clients c ON c.id = i.client_id AND c.company_id = i.company_id
+             WHERE i.company_id = $1 AND c.name ILIKE $2
              UNION ALL
              SELECT 'booking_request', br.id,
                     COALESCE(NULLIF(br.service_description, ''), 'Request'),
                     COALESCE(c.name, br.name)
              FROM booking_requests br
-             LEFT JOIN clients c ON c.id = br.client_id AND c.account_id = br.account_id
-             WHERE br.account_id = $1
+             LEFT JOIN clients c ON c.id = br.client_id AND c.company_id = br.company_id
+             WHERE br.company_id = $1
                AND br.status NOT IN ('cancelled', 'lost', 'duplicate', 'converted')
                AND (br.name ILIKE $2 OR c.name ILIKE $2)
            ) hits
@@ -242,8 +242,8 @@ export async function loadPromiseEntityOptions(
                   COALESCE(NULLIF(br.service_description, ''), 'Request') AS label_part,
                   COALESCE(c.name, br.name) AS customer_name
            FROM booking_requests br
-           LEFT JOIN clients c ON c.id = br.client_id AND c.account_id = br.account_id
-           WHERE br.account_id = $1
+           LEFT JOIN clients c ON c.id = br.client_id AND c.company_id = br.company_id
+           WHERE br.company_id = $1
              AND br.status IN ('pending', 'needs_info', 'reviewed', 'assessment_booked', 'estimated')
            ORDER BY br.created_at DESC
            LIMIT 30`,

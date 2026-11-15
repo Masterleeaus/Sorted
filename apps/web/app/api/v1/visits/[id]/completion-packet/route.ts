@@ -74,7 +74,7 @@ export const PATCH = withAuth(async (request: NextRequest, session: AuthSession)
     );
 
     const visitResult = await client.query(
-      `SELECT id, assigned_user_id, status FROM visits WHERE id = $1 AND account_id = $2`,
+      `SELECT id, assigned_user_id, status FROM visits WHERE id = $1 AND company_id = $2`,
       [id, session.accountId]
     );
     const visit = visitResult.rows[0];
@@ -97,7 +97,7 @@ export const PATCH = withAuth(async (request: NextRequest, session: AuthSession)
 
     const result = await client.query(
       `INSERT INTO completion_packets (
-         account_id, visit_id, photo_urls, signature_url, signature_waiver, notes,
+         company_id, visit_id, photo_urls, signature_url, signature_waiver, notes,
          photos_waived, photos_waiver_reason, created_by
        )
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)

@@ -16,6 +16,7 @@ const SEASON_MONTHS: Record<Season, number[]> = {
 interface SeasonalClient {
   id: string;
   account_id: string;
+  company_id: string;
   name: string | null;
   email: string;
 }
@@ -50,7 +51,7 @@ async function findDueSeasonalRemindersForType(
   type: string
 ): Promise<AutomationRow[]> {
   const { rows } = await client.query<AutomationRow>(
-    `SELECT id, account_id, type, config, enabled, next_run_at::text
+    `SELECT id, account_id, company_id, type, config, enabled, next_run_at::text
      FROM automations
      WHERE type = $1
        AND enabled = true
@@ -68,20 +69,20 @@ async function findEligibleSeasonalClients(
   const auditEntityType = automation.type; // 'seasonal_reminder_spring' or 'seasonal_reminder_fall'
 
   const { rows } = await client.query<SeasonalClient>(
-    `SELECT c.id, c.account_id, c.name, c.email
+    `SELECT c.id, c.account_id, c.company_id, c.name, c.email
      FROM clients c
-     WHERE c.account_id = $1
+     WHERE c.company_id = $1
        AND c.email IS NOT NULL
        AND NOT EXISTS (
          SELECT 1 FROM audit_log al
          WHERE al.entity_type = $2
            AND al.entity_id = c.id
-           AND al.account_id = c.account_id
+           AND al.company_id = c.company_id
            AND (al.new_value->>'year')::int = $3
        )
      ORDER BY c.name ASC
      LIMIT 100`,
-    [automation.account_id, auditEntityType, year]
+    [automation.company_id, auditEntityType, year]
   );
 
   return rows;
@@ -99,10 +100,10 @@ async function emitSeasonalReminder(
     `SELECT 1 FROM audit_log
      WHERE entity_type = $1
        AND entity_id = $2
-       AND account_id = $3
+       AND company_id = $3
        AND (new_value->>'year')::int = $4
      LIMIT 1`,
-    [automation.type, seasonClient.id, seasonClient.account_id, year]
+    [automation.type, seasonClient.id, seasonClient.company_id, year]
   );
   if (rowCount && rowCount > 0) return false;
 

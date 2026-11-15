@@ -349,7 +349,7 @@ function buildSql(accountId, rows) {
     lines.push(`
 WITH target AS (
   SELECT id FROM materials_price_book
-  WHERE account_id = ${sqlLiteral(accountId)}
+  WHERE company_id = ${sqlLiteral(accountId)}
     AND is_active = true
     AND (
       ${
@@ -381,7 +381,7 @@ upd AS (
     name = CASE
       WHEN NOT EXISTS (
         SELECT 1 FROM materials_price_book o
-        WHERE o.account_id = m.account_id AND o.is_active AND o.id <> m.id
+        WHERE o.company_id = m.company_id AND o.is_active AND o.id <> m.id
           AND lower(btrim(o.name)) = lower(btrim(${name})) AND o.unit = m.unit
       ) THEN btrim(${name})
       ELSE m.name
@@ -390,7 +390,7 @@ upd AS (
       WHEN ${sku} IS NULL THEN m.sku
       WHEN NOT EXISTS (
         SELECT 1 FROM materials_price_book o
-        WHERE o.account_id = m.account_id AND o.is_active AND o.id <> m.id
+        WHERE o.company_id = m.company_id AND o.is_active AND o.id <> m.id
           AND o.sku IS NOT NULL AND lower(btrim(o.sku)) = lower(btrim(${sku}))
       ) THEN ${sku}
       ELSE m.sku
@@ -402,16 +402,16 @@ upd AS (
   RETURNING m.id
 )
 INSERT INTO materials_price_book
-  (account_id, name, category, unit, unit_cost_cents, supplier, sku,
+  (account_id, company_id, name, category, unit, unit_cost_cents, supplier, sku,
    last_purchased_at, avg_paid_cents, purchase_count, notes, is_active)
 SELECT
-  ${sqlLiteral(accountId)}, btrim(${name}), ${cat}, 'each', ${r.unit_cost_cents},
+  ${sqlLiteral(accountId)}, ${sqlLiteral(accountId)}, btrim(${name}), ${cat}, 'each', ${r.unit_cost_cents},
   'Home Depot', ${sku}, ${lastDate}::date, ${r.avg_paid_cents}, ${r.purchase_count},
   ${notes}, true
 WHERE NOT EXISTS (SELECT 1 FROM upd)
   AND NOT EXISTS (
     SELECT 1 FROM materials_price_book
-    WHERE account_id = ${sqlLiteral(accountId)}
+    WHERE company_id = ${sqlLiteral(accountId)}
       AND is_active = true
       AND lower(btrim(name)) = lower(btrim(${name}))
       AND unit = 'each'
@@ -420,7 +420,7 @@ WHERE NOT EXISTS (SELECT 1 FROM upd)
     ${sku} IS NULL
     OR NOT EXISTS (
       SELECT 1 FROM materials_price_book
-      WHERE account_id = ${sqlLiteral(accountId)}
+      WHERE company_id = ${sqlLiteral(accountId)}
         AND is_active = true
         AND sku IS NOT NULL
         AND lower(btrim(sku)) = lower(btrim(${sku}))

@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { withAuth } from "@/lib/auth/middleware";
 import type { AuthSession } from "@/lib/auth/middleware";
-import { getPool } from "@/lib/db";
+import { getPool, companyIdFromSession } from "@/lib/db";
 import { appendAuditLog } from "@/lib/db/audit";
 import { logger } from "@/lib/logger";
 import { voidEnclosedGpsEstimates } from "@/lib/mileage/linking";
@@ -85,9 +85,9 @@ export const PATCH = withAuth(async (request: NextRequest, session: AuthSession)
               started_at::text AS started_at,
               start_odometer, end_odometer, miles::text AS miles, notes
        FROM vehicle_sessions
-       WHERE id = $1 AND account_id = $2
+       WHERE id = $1 AND company_id = $2
        FOR UPDATE`,
-      [id, session.accountId]
+      [id, companyIdFromSession(session)]
     );
 
     const row = existing.rows[0];
@@ -129,9 +129,9 @@ export const PATCH = withAuth(async (request: NextRequest, session: AuthSession)
            notes = $4,
            ended_at = now(),
            updated_at = now()
-       WHERE id = $2 AND account_id = $3
+       WHERE id = $2 AND company_id = $3
        RETURNING id, session_date::text, start_odometer, end_odometer, miles::text, notes, miles_source, status`,
-      [parsed.data.end_odometer, id, session.accountId, notes ?? null]
+      [parsed.data.end_odometer, id, companyIdFromSession(session), notes ?? null]
     );
 
     const odometerEndedAt = new Date().toISOString();
@@ -197,8 +197,8 @@ export const DELETE = withAuth(async (request: NextRequest, session: AuthSession
 
     const existing = await client.query<{ id: string; end_odometer: number | null; miles: string | null; start_odometer: number | null }>(
       `SELECT id, end_odometer, miles::text AS miles, start_odometer
-       FROM vehicle_sessions WHERE id = $1 AND account_id = $2`,
-      [id, session.accountId]
+       FROM vehicle_sessions WHERE id = $1 AND company_id = $2`,
+      [id, companyIdFromSession(session)]
     );
     if (existing.rowCount === 0) {
       await client.query("ROLLBACK");
@@ -218,8 +218,8 @@ export const DELETE = withAuth(async (request: NextRequest, session: AuthSession
 
     await client.query(
       `DELETE FROM vehicle_sessions
-       WHERE id = $1 AND account_id = $2 AND end_odometer IS NULL AND miles IS NULL`,
-      [id, session.accountId]
+       WHERE id = $1 AND company_id = $2 AND end_odometer IS NULL AND miles IS NULL`,
+      [id, companyIdFromSession(session)]
     );
 
     await appendAuditLog(client, {

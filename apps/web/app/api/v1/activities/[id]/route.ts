@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { withAuth } from "@/lib/auth/middleware";
 import type { AuthSession } from "@/lib/auth/middleware";
-import { getPool } from "@/lib/db";
+import { getPool, companyIdFromSession } from "@/lib/db";
 import { appendAuditLog } from "@/lib/db/audit";
 import { logger } from "@/lib/logger";
 import { ACTIVITY_TYPES, ACTIVITY_ENTITY_TYPES, activityCategoryFor } from "@ai-fsm/domain";
@@ -93,8 +93,8 @@ export const PATCH = withAuth(async (request: NextRequest, session: AuthSession)
       `SELECT id, activity_type, category, started_at::text, ended_at::text,
               entity_type, entity_id, note
        FROM activity_entries
-       WHERE id = $1 AND account_id = $2 AND voided_at IS NULL FOR UPDATE`,
-      [id, session.accountId]
+       WHERE id = $1 AND company_id = $2 AND voided_at IS NULL FOR UPDATE`,
+      [id, companyIdFromSession(session)]
     );
     const row = existing.rows[0];
     if (!row) {
@@ -129,10 +129,10 @@ export const PATCH = withAuth(async (request: NextRequest, session: AuthSession)
            started_at = $3::timestamptz, ended_at = $4::timestamptz,
            session_date = ($3::timestamptz)::date,
            entity_type = $5, entity_id = $6, note = $7
-       WHERE id = $8 AND account_id = $9
+       WHERE id = $8 AND company_id = $9
        RETURNING id, activity_type, category, started_at::text, ended_at::text,
                  entity_type, entity_id, note`,
-      [newType, newCategory, newStart, newEnd, newEntityType, newEntityId, newNote, id, session.accountId]
+      [newType, newCategory, newStart, newEnd, newEntityType, newEntityId, newNote, id, companyIdFromSession(session)]
     );
 
     // Apply optional neighbour rebalancing in the same transaction.
@@ -195,8 +195,8 @@ export const DELETE = withAuth(async (request: NextRequest, session: AuthSession
       `SELECT id, activity_type, category, started_at::text, ended_at::text,
               entity_type, entity_id, note
        FROM activity_entries
-       WHERE id = $1 AND account_id = $2 FOR UPDATE`,
-      [id, session.accountId]
+       WHERE id = $1 AND company_id = $2 FOR UPDATE`,
+      [id, companyIdFromSession(session)]
     );
     const row = existing.rows[0];
     if (!row) {
@@ -205,8 +205,8 @@ export const DELETE = withAuth(async (request: NextRequest, session: AuthSession
     }
 
     const deleted = await client.query<{ id: string }>(
-      `DELETE FROM activity_entries WHERE id = $1 AND account_id = $2 RETURNING id`,
-      [id, session.accountId]
+      `DELETE FROM activity_entries WHERE id = $1 AND company_id = $2 RETURNING id`,
+      [id, companyIdFromSession(session)]
     );
     if (!deleted.rows[0]) {
       await client.query("ROLLBACK");

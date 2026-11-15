@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { withAuth, withRole } from "../../../../lib/auth/middleware";
 import type { AuthSession } from "../../../../lib/auth/middleware";
-import { query, getPool } from "../../../../lib/db";
+import { queryForSession, getPool } from "../../../../lib/db";
 import { appendAuditLog } from "../../../../lib/db/audit";
 import { logger } from "../../../../lib/logger";
+import { companyIdFromSession } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
 
@@ -25,19 +26,20 @@ interface EventStats {
 
 export const GET = withAuth(
   async (request: NextRequest, session: AuthSession) => {
-    const automations = await query<AutomationRow>(
+    const automations = await queryForSession<AutomationRow>(
+      session,
       `SELECT id, account_id, type, enabled, config, 
               next_run_at::text, last_run_at::text
        FROM automations
-       WHERE account_id = $1
+       WHERE company_id = $1
        ORDER BY type ASC, created_at ASC`,
-      [session.accountId]
+      [companyIdFromSession(session)]
     );
 
     const statsMap = new Map<string, EventStats>();
 
     for (const auto of automations) {
-      const stats = await getEventStats(session.accountId, auto.type);
+      const stats = await getEventStats(session, auto.type);
       statsMap.set(auto.id, stats);
     }
 
@@ -54,33 +56,35 @@ export const GET = withAuth(
 );
 
 async function getEventStats(
-  accountId: string,
+  session: AuthSession,
   type: "visit_reminder" | "invoice_followup"
 ): Promise<EventStats> {
   const entityType = type === "visit_reminder" ? "visit_reminder" : "invoice_followup";
 
-  const last24h = await query<{ sent: number; skipped: number }>(
+  const last24h = await queryForSession<{ sent: number; skipped: number }>(
+    session,
     `SELECT 
        COUNT(*) FILTER (WHERE new_value->>'reminder_sent_at' IS NOT NULL 
                          OR new_value->>'followup_sent_at' IS NOT NULL)::int AS sent,
        0 AS skipped
      FROM audit_log
-     WHERE account_id = $1 
+     WHERE company_id = $1 
        AND entity_type = $2
        AND created_at >= now() - interval '24 hours'`,
-    [accountId, entityType]
+    [companyIdFromSession(session), entityType]
   );
 
-  const last7d = await query<{ sent: number; skipped: number }>(
+  const last7d = await queryForSession<{ sent: number; skipped: number }>(
+    session,
     `SELECT 
        COUNT(*) FILTER (WHERE new_value->>'reminder_sent_at' IS NOT NULL 
                          OR new_value->>'followup_sent_at' IS NOT NULL)::int AS sent,
        0 AS skipped
      FROM audit_log
-     WHERE account_id = $1 
+     WHERE company_id = $1 
        AND entity_type = $2
        AND created_at >= now() - interval '7 days'`,
-    [accountId, entityType]
+    [companyIdFromSession(session), entityType]
   );
 
   return {
@@ -135,10 +139,10 @@ export const POST = withRole(
       );
 
       const { rows } = await client.query(
-        `INSERT INTO automations (account_id, type, enabled, config, next_run_at)
+        `INSERT INTO automations (company_id, type, enabled, config, next_run_at)
          VALUES ($1, $2, true, $3, now())
          RETURNING id, account_id, type, enabled, config, next_run_at::text, last_run_at::text`,
-        [session.accountId, type, JSON.stringify(config ?? {})]
+        [companyIdFromSession(session), type, JSON.stringify(config ?? {})]
       );
 
       const automation = rows[0];

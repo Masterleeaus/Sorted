@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { withRole } from "@/lib/auth/middleware";
 import { withExpenseContext } from "@/lib/expenses/db";
 import { logger } from "@/lib/logger";
+import { payloadTooLargeResponse, readMultipartWithLimit, UPLOAD_BODY_LIMITS } from "@/lib/uploads/body-limit";
 import { parsePurchaseCsv } from "@/lib/expenses/import/detect";
 import {
   csvImportStatus,
@@ -14,6 +15,7 @@ import {
 } from "@/lib/expenses/open-jobs";
 import { buildPoMatchText, suggestJobFromPoText } from "@/lib/expenses/match-job-po";
 import { formatJobPickerLabel } from "@ai-fsm/domain";
+import { companyIdFromSession } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
 
@@ -65,15 +67,17 @@ function suggestJob(
 }
 
 export const POST = withRole(["owner", "admin"], async (request: NextRequest, session) => {
-  let formData: FormData;
-  try {
-    formData = await request.formData();
-  } catch {
+  const multipart = await readMultipartWithLimit(request, UPLOAD_BODY_LIMITS.expenseImportPreview);
+  if (!multipart.ok && multipart.reason === "too_large") {
+    return payloadTooLargeResponse(session.traceId, UPLOAD_BODY_LIMITS.expenseImportPreview);
+  }
+  if (!multipart.ok) {
     return NextResponse.json(
       { error: { code: "VALIDATION_ERROR", message: "Expected a CSV file upload", traceId: session.traceId } },
       { status: 422 }
     );
   }
+  const formData = multipart.formData;
   const file = formData.get("file") as File | null;
   if (!file) {
     return NextResponse.json(
@@ -114,8 +118,8 @@ export const POST = withRole(["owner", "admin"], async (request: NextRequest, se
           }>(
             `SELECT id, vendor_name, amount_cents, expense_date, external_ref, source
              FROM expenses
-             WHERE account_id = $1 AND expense_date = ANY($2::date[])`,
-            [session.accountId, dates],
+             WHERE company_id = $1 AND expense_date = ANY($2::date[])`,
+            [companyIdFromSession(session), dates],
           )
         : { rows: [] };
       const jobRows = await client.query<JobRow>(
@@ -123,11 +127,11 @@ export const POST = withRole(["owner", "admin"], async (request: NextRequest, se
          FROM jobs j
          LEFT JOIN clients c ON c.id = j.client_id
          LEFT JOIN properties p ON p.id = j.property_id
-         WHERE j.account_id = $1
+         WHERE j.company_id = $1
            AND j.status IN (${RECEIPT_LINKABLE_JOB_STATUS_SQL})
          ORDER BY ${receiptJobOrderSql("j")}
          LIMIT 200`,
-        [session.accountId]
+        [companyIdFromSession(session)]
       );
       return { existing: existingRows.rows, jobs: jobRows.rows };
     });
