@@ -187,7 +187,7 @@ export async function setVisitPlannedTasks(
   let n = 0;
   for (const taskId of unique) {
     await client.query(
-      `INSERT INTO visit_tasks (account_id, visit_id, task_id)
+      `INSERT INTO visit_tasks (company_id, visit_id, task_id)
        VALUES ($1, $2, $3)
        ON CONFLICT (visit_id, task_id) DO NOTHING`,
       [opts.accountId, opts.visitId, taskId],
@@ -289,7 +289,7 @@ export async function markTaskPartialWithRemainder(
 
   const { rows: ins } = await client.query<{ id: string }>(
     `INSERT INTO work_order_tasks
-       (account_id, work_order_id, label, required, completed, status, sort_order, source, parent_task_id, note)
+       (company_id, work_order_id, label, required, completed, status, sort_order, source, parent_task_id, note)
      VALUES ($1, $2, $3, true, false, 'open', $4, 'manual', $5, $6)
      RETURNING id`,
     [

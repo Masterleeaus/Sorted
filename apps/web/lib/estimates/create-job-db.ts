@@ -305,7 +305,7 @@ export async function createJobFromEstimate({
 
   const jobRes = await client.query<{ id: string }>(
     `INSERT INTO jobs
-       (account_id, client_id, property_id, title, description,
+       (company_id, client_id, property_id, title, description,
         status, job_type, booking_request_id, created_by, pricing_mode)
      VALUES ($1, $2, $3, $4, $5, 'quoted', 'custom', $6, $7, $8)
      RETURNING id`,

@@ -237,7 +237,7 @@ export const POST = withRole(["owner", "admin"], async (request, session) => {
 
       // 8. Audit log the conversion event
       await appendAuditLog(client, {
-        account_id: session.accountId,
+        company_id: session.accountId,
         entity_type: "invoice",
         entity_id: invoiceId,
         action: "insert",

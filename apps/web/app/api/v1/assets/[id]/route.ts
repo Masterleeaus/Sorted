@@ -31,7 +31,7 @@ export const DELETE = withRole(["owner", "admin"], async (request: NextRequest, 
       const ok = await deleteAssetLink(client, session.accountId, id);
       if (ok) {
         await appendAuditLog(client, {
-          account_id: session.accountId,
+          company_id: session.accountId,
           entity_type: "asset_link",
           entity_id: id,
           action: "delete",
@@ -103,7 +103,7 @@ export const PATCH = withRole(["owner", "admin"], async (request: NextRequest, s
       const updated = await updateAssetLinkStatus(client, session.accountId, id, parsed.data.status);
       if (updated) {
         await appendAuditLog(client, {
-          account_id: session.accountId,
+          company_id: session.accountId,
           entity_type: "asset_link",
           entity_id: id,
           action: "update",

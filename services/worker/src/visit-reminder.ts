@@ -32,7 +32,6 @@ export type { AutomationRow, RunResult };
 
 export interface EligibleVisit {
   id: string;
-  account_id: string;
   company_id: string;
   job_id: string;
   client_id: string;
@@ -50,7 +49,7 @@ export interface EligibleVisit {
  */
 export async function findDueReminders(client: Client): Promise<AutomationRow[]> {
   const { rows } = await client.query<AutomationRow>(
-    `SELECT id, account_id, company_id, type, config, enabled, next_run_at::text
+    `SELECT id, company_id, company_id, type, config, enabled, next_run_at::text
      FROM automations
      WHERE type = 'visit_reminder'
        AND enabled = true
@@ -75,7 +74,7 @@ export async function findEligibleVisits(
   const hoursBefore = (automation.config.hours_before as number | undefined) ?? 24;
 
   const { rows } = await client.query<EligibleVisit>(
-    `SELECT v.id, v.account_id, v.company_id, v.job_id, c.id AS client_id, v.assigned_user_id,
+    `SELECT v.id, v.company_id, v.company_id, v.job_id, c.id AS client_id, v.assigned_user_id,
             v.scheduled_start::text, j.title AS job_title,
             c.name AS client_name, c.email AS client_email,
             p.address AS property_address,
@@ -133,7 +132,7 @@ export async function emitVisitReminder(
       hour: "numeric", minute: "2-digit",
     });
     const enqueueResult = await enqueueNotification(client, {
-      accountId: visit.account_id,
+      accountId: visit.company_id,
       clientId: visit.client_id,
       automationType: "visit_reminder",
       priority: PRIORITY.MEDIUM,
@@ -162,10 +161,10 @@ export async function emitVisitReminder(
     // permanently suppress the reminder even if an email is added later.
     await client.query(
       `INSERT INTO audit_log
-         (account_id, entity_type, entity_id, action, actor_id, old_value, new_value)
+         (company_id, entity_type, entity_id, action, actor_id, old_value, new_value)
        VALUES ($1, 'visit_reminder', $2, 'insert', $3, NULL, $4)`,
       [
-        visit.account_id,
+        visit.company_id,
         visit.id,
         automationId,
         JSON.stringify({
@@ -200,7 +199,7 @@ export async function processVisitReminder(
 ): Promise<RunResult> {
   const result: RunResult = {
     automationId: automation.id,
-    accountId: automation.account_id,
+    accountId: automation.company_id,
     sent: 0,
     skipped: 0,
     errors: 0,

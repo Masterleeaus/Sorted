@@ -7,7 +7,6 @@ import { PRIORITY } from "./notification/priority.js";
 
 interface InspectionDuePlan {
   id: string;
-  account_id: string;
   company_id: string;
   client_id: string;
   name: string;
@@ -19,7 +18,7 @@ interface InspectionDuePlan {
 
 export async function findDueRecurringInspections(client: Client): Promise<AutomationRow[]> {
   const { rows } = await client.query<AutomationRow>(
-    `SELECT id, account_id, company_id, type, config, enabled, next_run_at::text
+    `SELECT id, company_id, company_id, type, config, enabled, next_run_at::text
      FROM automations
      WHERE type = 'recurring_inspection'
        AND enabled = true
@@ -36,7 +35,7 @@ export async function findPlansNeedingInspection(
 
   const { rows } = await client.query<InspectionDuePlan>(
     `SELECT
-       mp.id, mp.account_id, mp.company_id, c.id AS client_id, mp.name,
+       mp.id, mp.company_id, mp.company_id, c.id AS client_id, mp.name,
        c.name AS client_name, c.email AS client_email,
        p.address AS property_address,
        EXTRACT(DAY FROM (now() - COALESCE(
@@ -99,7 +98,7 @@ async function emitRecurringInspection(
 
   if (plan.client_name && plan.client_email) {
     const enqueueResult = await enqueueNotification(client, {
-      accountId: plan.account_id,
+      accountId: plan.company_id,
       clientId: plan.client_id,
       automationType: "recurring_inspection",
       priority: PRIORITY.MEDIUM,
@@ -124,10 +123,10 @@ async function emitRecurringInspection(
 
   await client.query(
     `INSERT INTO audit_log
-       (account_id, entity_type, entity_id, action, actor_id, old_value, new_value)
+       (company_id, entity_type, entity_id, action, actor_id, old_value, new_value)
      VALUES ($1, 'recurring_inspection', $2, 'insert', $3, NULL, $4)`,
     [
-      plan.account_id,
+      plan.company_id,
       plan.id,
       automationId,
       JSON.stringify({
@@ -148,7 +147,7 @@ export async function processRecurringInspections(
 ): Promise<RunResult> {
   const result: RunResult = {
     automationId: automation.id,
-    accountId: automation.account_id,
+    accountId: automation.company_id,
     sent: 0,
     skipped: 0,
     errors: 0,

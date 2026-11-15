@@ -36,7 +36,7 @@ vi.mock("@/lib/db", () => ({
     state.log.push({ sql, params });
     // The bootstrap resolver returns only the account id, as the migration does.
     if (sql.includes("resolve_estimate_share_account")) {
-      return state.estimate ? { account_id: state.estimate.account_id } : null;
+      return state.estimate ? { company_id: state.estimate.company_id } : null;
     }
     return state.estimate;
   },
@@ -62,7 +62,7 @@ beforeEach(() => {
   state.open = false;
   state.estimate = {
     id: ESTIMATE,
-    account_id: ACCOUNT,
+    company_id: ACCOUNT,
     client_id: CLIENT,
     status: "sent",
     subtotal_cents: 5000,
@@ -84,10 +84,10 @@ beforeEach(() => {
 });
 
 describe("GET /api/portal/estimates/[token]", () => {
-  it("reads line items inside the estimate's account context and omits account_id", async () => {
+  it("reads line items inside the estimate's account context and omits company_id", async () => {
     const res = await GET(new NextRequest("http://localhost:3000/api/portal/estimates/t"), ctx);
     const body = await res.json();
-    expect(body.estimate).not.toHaveProperty("account_id");
+    expect(body.estimate).not.toHaveProperty("company_id");
     expect(body.lineItems).toEqual([{ id: "li-1" }]);
     const sqls = state.log.map((c) => c.sql);
     const ctxIdx = sqls.findIndex((s) => s.includes("set_config('app.current_account_id'"));

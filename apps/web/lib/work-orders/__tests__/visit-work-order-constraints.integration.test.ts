@@ -57,28 +57,28 @@ describe.skipIf(!RUN)("visit ↔ work order DB constraints (migration 137)", () 
 
     // The seed does not create this client id; the suite owns its fixture.
     await client.query(
-      `INSERT INTO clients (id, account_id, name)
+      `INSERT INTO clients (id, company_id, name)
        VALUES ($1, $2, 'Constraint test client')
        ON CONFLICT (id) DO NOTHING`,
       [CLIENT, ACCOUNT],
     );
 
     const job = await client.query<{ id: string }>(
-      `INSERT INTO jobs (account_id, client_id, title, status, job_type, created_by)
+      `INSERT INTO jobs (company_id, client_id, title, status, job_type, created_by)
        VALUES ($1,$2,'Constraint test project','quoted','custom',$3) RETURNING id`,
       [ACCOUNT, CLIENT, OWNER],
     );
     jobId = job.rows[0].id;
 
     const otherJob = await client.query<{ id: string }>(
-      `INSERT INTO jobs (account_id, client_id, title, status, job_type, created_by)
+      `INSERT INTO jobs (company_id, client_id, title, status, job_type, created_by)
        VALUES ($1,$2,'Other project','quoted','custom',$3) RETURNING id`,
       [ACCOUNT, CLIENT, OWNER],
     );
     otherJobId = otherJob.rows[0].id;
 
     const readyWo = await client.query<{ id: string }>(
-      `INSERT INTO work_orders (account_id, client_id, job_id, title, status, created_by)
+      `INSERT INTO work_orders (company_id, client_id, job_id, title, status, created_by)
        VALUES ($1,$2,$3,'Ready packet','ready',$4) RETURNING id`,
       [ACCOUNT, CLIENT, jobId, OWNER],
     );
@@ -87,7 +87,7 @@ describe.skipIf(!RUN)("visit ↔ work order DB constraints (migration 137)", () 
     // job_id required: the visit↔WO trigger reads the WO's job_id and treats
     // NULL as "not found", so a jobless draft WO never reaches the draft check.
     const draftWo = await client.query<{ id: string }>(
-      `INSERT INTO work_orders (account_id, client_id, job_id, title, status, created_by)
+      `INSERT INTO work_orders (company_id, client_id, job_id, title, status, created_by)
        VALUES ($1,$2,$3,'Draft packet','draft',$4) RETURNING id`,
       [ACCOUNT, CLIENT, jobId, OWNER],
     );
@@ -105,7 +105,7 @@ describe.skipIf(!RUN)("visit ↔ work order DB constraints (migration 137)", () 
     await expectDbError(
       client,
       () => client.query(
-        `INSERT INTO visits (account_id, job_id, scheduled_start, scheduled_end, visit_type)
+        `INSERT INTO visits (company_id, job_id, scheduled_start, scheduled_end, visit_type)
          VALUES ($1,$2, now(), now() + interval '1 hour', 'standard')`,
         [ACCOUNT, jobId],
       ),
@@ -118,7 +118,7 @@ describe.skipIf(!RUN)("visit ↔ work order DB constraints (migration 137)", () 
     await expectDbError(
       client,
       () => client.query(
-        `INSERT INTO visits (account_id, job_id, work_order_id, scheduled_start, scheduled_end, visit_type)
+        `INSERT INTO visits (company_id, job_id, work_order_id, scheduled_start, scheduled_end, visit_type)
          VALUES ($1,$2,$3, now(), now() + interval '1 hour', 'site_visit')`,
         [ACCOUNT, jobId, readyWoId],
       ),
@@ -131,7 +131,7 @@ describe.skipIf(!RUN)("visit ↔ work order DB constraints (migration 137)", () 
     await expectDbError(
       client,
       () => client.query(
-        `INSERT INTO visits (account_id, job_id, work_order_id, scheduled_start, scheduled_end, visit_type)
+        `INSERT INTO visits (company_id, job_id, work_order_id, scheduled_start, scheduled_end, visit_type)
          VALUES ($1,$2,$3, now(), now() + interval '1 hour', 'standard')`,
         [ACCOUNT, jobId, draftWoId],
       ),
@@ -144,7 +144,7 @@ describe.skipIf(!RUN)("visit ↔ work order DB constraints (migration 137)", () 
     await expectDbError(
       client,
       () => client.query(
-        `INSERT INTO visits (account_id, job_id, work_order_id, scheduled_start, scheduled_end, visit_type)
+        `INSERT INTO visits (company_id, job_id, work_order_id, scheduled_start, scheduled_end, visit_type)
          VALUES ($1,$2,$3, now(), now() + interval '1 hour', 'standard')`,
         [ACCOUNT, otherJobId, readyWoId],
       ),
@@ -155,7 +155,7 @@ describe.skipIf(!RUN)("visit ↔ work order DB constraints (migration 137)", () 
   it("allows operational site_visit without work_order_id", async () => {
     if (!hasMigration) return;
     const res = await client.query<{ id: string }>(
-      `INSERT INTO visits (account_id, job_id, scheduled_start, scheduled_end, visit_type)
+      `INSERT INTO visits (company_id, job_id, scheduled_start, scheduled_end, visit_type)
        VALUES ($1,$2, now(), now() + interval '1 hour', 'site_visit')
        RETURNING id`,
       [ACCOUNT, jobId],

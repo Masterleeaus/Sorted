@@ -23,7 +23,7 @@ describe("processWorkflowEvents", () => {
         rows: [
           {
             id: "evt-1",
-            account_id: ACCOUNT_A,
+            company_id: ACCOUNT_A,
             event_type: "invoice.paid",
             entity_type: "job",
             entity_id: ENTITY,

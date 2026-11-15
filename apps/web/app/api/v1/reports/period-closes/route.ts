@@ -42,7 +42,7 @@ export const GET = withAuth(async (request: NextRequest, session) => {
   try {
     const row = await withReportContext(session, async (client) => {
       const result = await client.query(
-        `SELECT id, account_id, period_month, closed_by, closed_at, notes
+        `SELECT id, company_id, period_month, closed_by, closed_at, notes
          FROM period_closes
          WHERE company_id = $1 AND period_month = $2
          LIMIT 1`,
@@ -133,14 +133,14 @@ export const POST = withRole(["owner", "admin"], async (request: NextRequest, se
       const result = await client.query(
         `INSERT INTO period_closes (company_id, period_month, closed_by, notes)
          VALUES ($1, $2, $3, $4)
-         RETURNING id, account_id, period_month, closed_by, closed_at, notes`,
+         RETURNING id, company_id, period_month, closed_by, closed_at, notes`,
         [companyIdFromSession(session), month, session.userId, notes ?? null]
       );
 
       const row = result.rows[0];
 
       await appendAuditLog(client, {
-        account_id: session.accountId,
+        company_id: session.accountId,
         entity_type: "period_close",
         entity_id: row.id,
         action: "insert",
@@ -230,7 +230,7 @@ export const DELETE = withRole(["owner"], async (request: NextRequest, session) 
       );
 
       await appendAuditLog(client, {
-        account_id: session.accountId,
+        company_id: session.accountId,
         entity_type: "period_close",
         entity_id: closeId,
         action: "delete",

@@ -135,7 +135,7 @@ describe("Sorted Field operational email identity", () => {
     expect(upsert).toContain("attempt_count = 0");
     expect(upsert).toContain("failed_at = NULL");
     expect(upsert).toContain("WHERE notification_queue.status = 'failed'");
-    expect(upsert).toContain("notification_queue.account_id = EXCLUDED.account_id");
+    expect(upsert).toContain("notification_queue.company_id = EXCLUDED.company_id");
     expect(upsert).toContain("RETURNING id");
   });
 

@@ -61,16 +61,16 @@ describe.skipIf(!enabled)("portal token routes under the runtime role", () => {
   beforeAll(async () => {
     await admin.query("INSERT INTO accounts (id, name) VALUES ($1, 'Portal A'), ($2, 'Portal B')", [accountA, accountB]);
     await admin.query(
-      `INSERT INTO users (id, account_id, email, full_name, password_hash, role)
+      `INSERT INTO users (id, company_id, email, full_name, password_hash, role)
        VALUES ($1, $2, $3, 'Owner A', 'x', 'owner'), ($4, $5, $6, 'Owner B', 'x', 'owner')`,
       [ownerA, accountA, `portal-a-${ownerA}@test.invalid`, ownerB, accountB, `portal-b-${ownerB}@test.invalid`],
     );
     await admin.query(
-      `INSERT INTO clients (id, account_id, name, email) VALUES ($1, $2, 'Client A', 'a@test.invalid'), ($3, $4, 'Client B', 'b@test.invalid')`,
+      `INSERT INTO clients (id, company_id, name, email) VALUES ($1, $2, 'Client A', 'a@test.invalid'), ($3, $4, 'Client B', 'b@test.invalid')`,
       [clientA, accountA, clientB, accountB],
     );
     await admin.query(
-      `INSERT INTO estimates (id, account_id, client_id, created_by, status, subtotal_cents, total_cents)
+      `INSERT INTO estimates (id, company_id, client_id, created_by, status, subtotal_cents, total_cents)
        VALUES ($1, $2, $3, $4, 'sent', 1000, 1000), ($5, $6, $7, $8, 'sent', 9000, 9000)`,
       [estimateA, accountA, clientA, ownerA, estimateB, accountB, clientB, ownerB],
     );
@@ -80,7 +80,7 @@ describe.skipIf(!enabled)("portal token routes under the runtime role", () => {
       [lineA, estimateA, lineB, estimateB],
     );
     await admin.query(
-      `INSERT INTO invoices (id, account_id, client_id, created_by, invoice_number, status, subtotal_cents, total_cents)
+      `INSERT INTO invoices (id, company_id, client_id, created_by, invoice_number, status, subtotal_cents, total_cents)
        VALUES ($1, $2, $3, $4, 'INV-A', 'sent', 1000, 1000), ($5, $6, $7, $8, 'INV-B', 'sent', 9000, 9000)`,
       [invoiceA, accountA, clientA, ownerA, invoiceB, accountB, clientB, ownerB],
     );
@@ -90,7 +90,7 @@ describe.skipIf(!enabled)("portal token routes under the runtime role", () => {
       [invLineA, invoiceA, invLineB, invoiceB],
     );
     await admin.query(
-      `INSERT INTO maintenance_plans (account_id, client_id, name, frequency) VALUES ($1, $2, 'Plan A', 'annual'), ($3, $4, 'Plan B', 'annual')`,
+      `INSERT INTO maintenance_plans (company_id, client_id, name, frequency) VALUES ($1, $2, 'Plan A', 'annual'), ($3, $4, 'Plan B', 'annual')`,
       [accountA, clientA, accountB, clientB],
     );
     const { rows } = await admin.query<{ id: string; token: string }>(
@@ -141,19 +141,19 @@ describe.skipIf(!enabled)("portal token routes under the runtime role", () => {
     expect(body.plans.map((p: { name: string }) => p.name)).toEqual(["Plan A"]);
   });
 
-  it("portal estimate page returns only the token's line items and no account_id", async () => {
+  it("portal estimate page returns only the token's line items and no company_id", async () => {
     const res = await getPortalEstimate(req("/api/portal/estimates/t"), ctx(tokens.estimateA));
     expect(res.status).toBe(200);
     const body = await res.json();
-    expect(body.estimate).not.toHaveProperty("account_id");
+    expect(body.estimate).not.toHaveProperty("company_id");
     expect(body.lineItems.map((l: { id: string }) => l.id)).toEqual([lineA]);
   });
 
-  it("portal invoice page returns only the token's line items and no account_id", async () => {
+  it("portal invoice page returns only the token's line items and no company_id", async () => {
     const res = await getPortalInvoice(req("/api/portal/invoices/t"), ctx(tokens.invoiceA));
     expect(res.status).toBe(200);
     const body = await res.json();
-    expect(body.invoice).not.toHaveProperty("account_id");
+    expect(body.invoice).not.toHaveProperty("company_id");
     expect(body.lineItems.map((l: { id: string }) => l.id)).toEqual([invLineA]);
   });
 

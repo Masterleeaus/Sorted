@@ -143,11 +143,11 @@ describe.skipIf(!RUN)("property contact API", () => {
     try {
       await db.query(
         `INSERT INTO invoices
-           (id, account_id, client_id, property_id, invoice_number, billing_context,
+           (id, company_id, client_id, property_id, invoice_number, billing_context,
             sponsored_purpose, beneficiary_property_contact_id, created_by)
-         SELECT $1, c.account_id, c.id, $2, $3, 'realtor_sponsored', 'other', $4, u.id
+         SELECT $1, c.company_id, c.id, $2, $3, 'realtor_sponsored', 'other', $4, u.id
          FROM clients c
-         JOIN users u ON u.account_id = c.account_id AND u.email = 'admin@test.com'
+         JOIN users u ON u.company_id = c.company_id AND u.email = 'admin@test.com'
          WHERE c.id = $5`,
         [invoiceId, propertyId, `PC-${Date.now()}`, contact.data.data.id, clientId],
       );

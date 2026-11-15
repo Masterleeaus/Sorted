@@ -25,11 +25,11 @@ export async function withPortalTokenPage<T>(
   fn: (tx: PoolClient, accountId: string) => Promise<T>,
 ): Promise<T | null> {
   if (!UUID_RE.test(token)) return null;
-  const resolved = await queryOne<{ account_id: string | null }>(
-    `SELECT ${resolver}($1::uuid) AS account_id`,
+  const resolved = await queryOne<{ company_id: string | null }>(
+    `SELECT ${resolver}($1::uuid) AS company_id`,
     [token],
   );
-  const accountId = resolved?.account_id ?? null;
+  const accountId = resolved?.company_id ?? null;
   if (!accountId) return null;
   return withTokenAccountContext(accountId, (tx) => fn(tx, accountId));
 }

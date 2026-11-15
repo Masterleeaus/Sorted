@@ -18,12 +18,12 @@ export async function POST(req: NextRequest) {
   const row = accountId
     ? await withTokenAccountContext(accountId, async (tx) => {
         const { rows } = await tx.query<{
-          account_id: string;
+          company_id: string;
           business_day_id: string | null;
           cutoff_time: string;
           already_prompted: boolean;
         }>(
-          `SELECT a.id AS account_id,
+          `SELECT a.id AS company_id,
                   bd.id AS business_day_id,
                   a.day_review_cutoff_time::text AS cutoff_time,
                   (bd.review_prompted_at IS NOT NULL) AS already_prompted
@@ -56,14 +56,14 @@ export async function POST(req: NextRequest) {
   }
 
   const businessDayId = row.business_day_id;
-  await withTokenAccountContext(row.account_id, async (tx) => {
+  await withTokenAccountContext(row.company_id, async (tx) => {
     await tx.query(
       `UPDATE business_days SET review_prompted_at = now(), updated_at = now() WHERE id = $1`,
       [businessDayId],
     );
   }, "owner");
 
-  await sendPushToOwners(row.account_id, {
+  await sendPushToOwners(row.company_id, {
     title: "Walk today’s stops",
     body: "Say what each stop was, plant tomorrow, then close the day.",
     url: "/app/day-review",

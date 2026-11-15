@@ -49,24 +49,24 @@ describe.skipIf(!enabled)("booking request photos route: tenant isolation", () =
   beforeAll(async () => {
     await admin.query("INSERT INTO accounts (id, name) VALUES ($1, 'Photo List A'), ($2, 'Photo List B')", [accountA, accountB]);
     await admin.query(
-      `INSERT INTO users (id, account_id, email, full_name, password_hash, role)
+      `INSERT INTO users (id, company_id, email, full_name, password_hash, role)
        VALUES ($1, $2, $3, 'Owner A', 'x', 'owner'), ($4, $5, $6, 'Owner B', 'x', 'owner')`,
       [ownerA, accountA, `photos-a-${ownerA}@test.invalid`, ownerB, accountB, `photos-b-${ownerB}@test.invalid`],
     );
     await admin.query(
-      `INSERT INTO booking_requests (id, account_id, name, email, service_description, routing_path, preferred_contact, sms_consent, status)
+      `INSERT INTO booking_requests (id, company_id, name, email, service_description, routing_path, preferred_contact, sms_consent, status)
        VALUES ($1, $2, 'Lead A', 'lead-pa@test.invalid', 'Fix gate', 'site_visit', 'email', false, 'pending'),
               ($3, $4, 'Lead B', 'lead-pb@test.invalid', 'Fix fence', 'site_visit', 'email', false, 'pending')`,
       [brA, accountA, brB, accountB],
     );
     await admin.query(
-      `INSERT INTO intake_invites (id, account_id, booking_request_id, lead_name, lead_email, used_at)
+      `INSERT INTO intake_invites (id, company_id, booking_request_id, lead_name, lead_email, used_at)
        VALUES ($1, $2, $3, 'Lead A', 'lead-pa@test.invalid', now()),
               ($4, $5, $6, 'Lead B', 'lead-pb@test.invalid', now())`,
       [inviteA, accountA, brA, inviteB, accountB, brB],
     );
     await admin.query(
-      `INSERT INTO intake_media (id, account_id, intake_invite_id, booking_request_id, filename, original_name, mime_type, size_bytes)
+      `INSERT INTO intake_media (id, company_id, intake_invite_id, booking_request_id, filename, original_name, mime_type, size_bytes)
        VALUES ($1, $2, $3, $4, 'a-photo.jpg', 'a-roof.jpg', 'image/jpeg', 100),
               ($5, $6, $7, $8, 'b-photo.jpg', 'b-secret.jpg', 'image/jpeg', 100),
               ($9, $6, $7, NULL, 'b-unlinked.jpg', 'b-unlinked.jpg', 'image/jpeg', 100)`,

@@ -36,8 +36,8 @@ export default async function PortalPropertyPage({
   const loaded = await withPortalTokenPage("resolve_portal_client_account", clientToken, async (tx) => {
     const q = <T extends Record<string, unknown>>(text: string, params?: unknown[]) =>
       tx.query<T>(text, params).then((r) => r.rows);
-    const clientRows = await q<{ id: string; name: string; account_id: string; account_name: string }>(
-      `SELECT c.id, c.name, c.account_id, a.name AS account_name
+    const clientRows = await q<{ id: string; name: string; company_id: string; account_name: string }>(
+      `SELECT c.id, c.name, c.company_id, a.name AS account_name
        FROM clients c
        JOIN accounts a ON a.id = c.company_id
        WHERE c.portal_token = $1`,
@@ -54,7 +54,7 @@ export default async function PortalPropertyPage({
       `SELECT id, name, address, city, state, zip
        FROM properties
        WHERE id = $1 AND client_id = $2 AND company_id = $3`,
-      [propertyId, client.id, client.account_id]
+      [propertyId, client.id, client.company_id]
     );
     const property = propertyRows[0] ?? null;
     if (!property) return { client, property: null, conditions: [], issues: [], vaultItems: [], recentVisits: [] };
@@ -65,7 +65,7 @@ export default async function PortalPropertyPage({
        FROM property_condition_snapshots
        WHERE company_id = $1 AND property_id = $2
        ORDER BY area, assessed_at DESC`,
-      [client.account_id, propertyId]
+      [client.company_id, propertyId]
     ),
     q<{ id: string; title: string; severity: string; area: string; occurrence_count: number; last_noted_at: string }>(
       `SELECT id, title, severity, area, occurrence_count, last_noted_at::text AS last_noted_at
@@ -76,7 +76,7 @@ export default async function PortalPropertyPage({
          CASE severity WHEN 'critical' THEN 1 WHEN 'major' THEN 2 WHEN 'moderate' THEN 3 ELSE 4 END,
          last_noted_at DESC
        LIMIT 10`,
-      [client.account_id, propertyId]
+      [client.company_id, propertyId]
     ),
     q<{ name: string; category: string; manufacturer: string | null; model_number: string | null; install_date: string | null; last_serviced_date: string | null }>(
       `SELECT name, category, manufacturer, model_number,
@@ -85,7 +85,7 @@ export default async function PortalPropertyPage({
        FROM property_vault_items
        WHERE company_id = $1 AND property_id = $2
        ORDER BY category, name`,
-      [client.account_id, propertyId]
+      [client.company_id, propertyId]
     ),
     q<{ label: string; occurred_at: string; event_type: string; summary: string }>(
       `SELECT event_type,
@@ -93,12 +93,12 @@ export default async function PortalPropertyPage({
               summary,
               metadata->>'status'     AS detail
        FROM property_timeline_v
-       WHERE account_id = $1 AND property_id = $2
+       WHERE company_id = $1 AND property_id = $2
          -- Staff notes never reach customers ('note' events carry their text).
          AND event_type IN ('visit','vault_item')
        ORDER BY occurred_at DESC NULLS LAST
        LIMIT 15`,
-      [client.account_id, propertyId]
+      [client.company_id, propertyId]
     ),
     ]);
     return { client, property, conditions, issues, vaultItems, recentVisits };

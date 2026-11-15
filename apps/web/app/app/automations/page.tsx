@@ -16,7 +16,7 @@ type AutomationType = "visit_reminder" | "invoice_followup" | "booking_confirmed
 
 type AutomationRow = {
   id: string;
-  account_id: string;
+  company_id: string;
   type: AutomationType;
   enabled: boolean;
   config: Record<string, unknown>;
@@ -85,7 +85,7 @@ export default async function AutomationsPage() {
   const isAdmin = session.role === "owner" || session.role === "admin";
 
   const automations = await queryForSession<AutomationRow>(session,
-    `SELECT id, account_id, type, enabled, config,
+    `SELECT id, company_id, type, enabled, config,
             next_run_at::text, last_run_at::text
      FROM automations
      WHERE company_id = $1

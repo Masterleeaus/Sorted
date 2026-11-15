@@ -237,7 +237,7 @@ export const POST = withRole(["owner", "admin"], async (request: NextRequest, se
           throw Object.assign(new Error("Expense already filed"), { code: "CONFLICT" });
         }
         await appendAuditLog(client, {
-          account_id: session.accountId,
+          company_id: session.accountId,
           actor_id: session.userId,
           action: "update",
           entity_type: "expense",
@@ -291,7 +291,7 @@ export const POST = withRole(["owner", "admin"], async (request: NextRequest, se
       }
 
       await appendAuditLog(client, {
-        account_id: session.accountId,
+        company_id: session.accountId,
         actor_id: session.userId,
         action: "update",
         entity_type: "expense",

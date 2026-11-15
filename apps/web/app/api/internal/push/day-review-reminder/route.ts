@@ -24,15 +24,15 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: false, reason: "push_not_configured" }, { status: 503 });
   }
   try {
-    const { rows } = await getPool().query<{ account_id: string; user_id: string }>(
-      `SELECT account_id, user_id FROM business_days
+    const { rows } = await getPool().query<{ company_id: string; user_id: string }>(
+      `SELECT company_id, user_id FROM business_days
         WHERE closed_at IS NULL
           AND business_date = (now() AT TIME ZONE 'America/New_York')::date
           AND user_id IS NOT NULL`,
     );
     let sent = 0;
     for (const row of rows) {
-      sent += await sendPushToUser(row.account_id, row.user_id, {
+      sent += await sendPushToUser(row.company_id, row.user_id, {
         title: "Walk today’s stops",
         body: "Say what each stop was, plant tomorrow, then close the day.",
         url: "/app/day-review",

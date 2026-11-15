@@ -11,14 +11,14 @@ import { NextRequest } from "next/server";
 type Invite = {
   id: string;
   token: string;
-  account_id: string;
+  company_id: string;
   booking_request_id: string | null;
   used: boolean;
   expired: boolean;
 };
 type Media = {
   id: string;
-  account_id: string;
+  company_id: string;
   intake_invite_id: string;
   filename: string;
   original_name: string;
@@ -41,7 +41,7 @@ const db = vi.hoisted(() => {
   async function run(sql: string, params: unknown[] = []): Promise<{ rows: unknown[] }> {
     if (sql.startsWith("BEGIN") || sql.includes("set_config")) return { rows: [] };
 
-    if (sql.startsWith("SELECT id, account_id, booking_request_id")) {
+    if (sql.startsWith("SELECT id, company_id, booking_request_id")) {
       const inv = unusedInvite(params[0] as string);
       return { rows: inv ? [inv] : [] };
     }
@@ -61,7 +61,7 @@ const db = vi.hoisted(() => {
       if (state.failInsert) throw new Error("simulated insert failure");
       const row: Media = {
         id: `00000000-0000-4000-8000-${String(state.nextId++).padStart(12, "0")}`,
-        account_id: params[0] as string,
+        company_id: params[0] as string,
         intake_invite_id: params[1] as string,
         filename: params[2] as string,
         original_name: params[3] as string,
@@ -73,7 +73,7 @@ const db = vi.hoisted(() => {
     }
     if (sql.startsWith("DELETE FROM intake_media")) {
       const idx = state.media.findIndex(
-        (m) => m.id === params[0] && m.intake_invite_id === params[1] && m.account_id === params[2],
+        (m) => m.id === params[0] && m.intake_invite_id === params[1] && m.company_id === params[2],
       );
       if (idx === -1) return { rows: [] };
       const [removed] = state.media.splice(idx, 1);
@@ -159,7 +159,7 @@ beforeEach(() => {
     if (fsMocks.failWrite) throw new Error("disk full");
   });
   db.state.invites = [
-    { id: INVITE_ID, token: TOKEN, account_id: ACCOUNT_ID, booking_request_id: BOOKING_ID, used: false, expired: false },
+    { id: INVITE_ID, token: TOKEN, company_id: ACCOUNT_ID, booking_request_id: BOOKING_ID, used: false, expired: false },
   ];
   db.state.media = [];
   db.state.pending = [];
@@ -179,7 +179,7 @@ describe("POST /api/intake/[token]/media", () => {
 
     expect(db.state.media).toHaveLength(1);
     expect(db.state.media[0]).toMatchObject({
-      account_id: ACCOUNT_ID,
+      company_id: ACCOUNT_ID,
       intake_invite_id: INVITE_ID,
       mime_type: "image/jpeg",
     });
@@ -252,7 +252,7 @@ describe("POST /api/intake/[token]/media", () => {
   it("refuses a ninth photo on one request and writes nothing", async () => {
     db.state.media = Array.from({ length: 8 }, (_, i) => ({
       id: `66666666-6666-4666-8666-${String(i).padStart(12, "0")}`,
-      account_id: ACCOUNT_ID,
+      company_id: ACCOUNT_ID,
       intake_invite_id: INVITE_ID,
       filename: `f${i}.jpg`,
       original_name: `f${i}.jpg`,
@@ -288,7 +288,7 @@ describe("DELETE /api/intake/[token]/media/[mediaId]", () => {
     db.state.media = [
       {
         id: MEDIA_ID,
-        account_id: ACCOUNT_ID,
+        company_id: ACCOUNT_ID,
         intake_invite_id: INVITE_ID,
         filename: "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa.jpg",
         original_name: "kitchen.jpg",

@@ -163,7 +163,7 @@ export const PUT = withRole(["owner"], async (request, session) => {
         `INSERT INTO integration_settings
            (company_id, provider, enabled, environment, config, secrets, status, status_detail, last_checked_at)
          VALUES ($1, 'square', $2, $3, $4, $5, 'disconnected', NULL, NULL)
-         ON CONFLICT (account_id, provider) DO UPDATE
+         ON CONFLICT (company_id, provider) DO UPDATE
            SET enabled = EXCLUDED.enabled,
                environment = EXCLUDED.environment,
                config = EXCLUDED.config,
@@ -181,7 +181,7 @@ export const PUT = withRole(["owner"], async (request, session) => {
       );
 
       await appendAuditLog(client, {
-        account_id: session.accountId,
+        company_id: session.accountId,
         entity_type: "integration_settings",
         entity_id: session.accountId,
         action: existing ? "update" : "insert",

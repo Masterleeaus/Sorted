@@ -42,13 +42,13 @@ export async function GET(
     await db.query("BEGIN READ ONLY");
     await db.query(
       `SELECT set_config('app.current_account_id', $1, true), set_config('app.current_role', 'owner', true)`,
-      [client.account_id],
+      [client.company_id],
     );
     const { rows } = await db.query<{ id: string }>(
       `SELECT id::text FROM invoices
        WHERE id = ANY($1::uuid[]) AND client_id = $2 AND company_id = $3 AND status <> 'draft'
        ORDER BY created_at`,
-      [ids, client.id, client.account_id],
+      [ids, client.id, client.company_id],
     );
     if (rows.length !== ids.length) {
       return NextResponse.json({ error: "Invoice not found" }, { status: 404 });
@@ -56,7 +56,7 @@ export async function GET(
 
     const merged = await PDFDocument.create();
     for (const { id } of rows) {
-      const pdf = await loadInvoicePdf(db, client.account_id, id, { photos: false });
+      const pdf = await loadInvoicePdf(db, client.company_id, id, { photos: false });
       if (!pdf) continue;
       const doc = await PDFDocument.load(pdf.bytes);
       const pages = await merged.copyPages(doc, doc.getPageIndices());

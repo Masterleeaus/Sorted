@@ -31,9 +31,9 @@ export async function emitAttentionEvent(
     if (input.dedupeKey) {
       const r = await client.query<{ id: string }>(
         `INSERT INTO attention_events
-           (account_id, type, entity_type, entity_id, title, summary, href, dedupe_key)
+           (company_id, type, entity_type, entity_id, title, summary, href, dedupe_key)
          VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-         ON CONFLICT (account_id, dedupe_key) WHERE dedupe_key IS NOT NULL
+         ON CONFLICT (company_id, dedupe_key) WHERE dedupe_key IS NOT NULL
          DO NOTHING
          RETURNING id`,
         params,
@@ -42,7 +42,7 @@ export async function emitAttentionEvent(
     } else {
       const r = await client.query<{ id: string }>(
         `INSERT INTO attention_events
-           (account_id, type, entity_type, entity_id, title, summary, href, dedupe_key)
+           (company_id, type, entity_type, entity_id, title, summary, href, dedupe_key)
          VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
          RETURNING id`,
         params,

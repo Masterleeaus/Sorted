@@ -183,7 +183,7 @@ export async function promoteOrCreateWorkOrderFromEstimate({
 
   const insertRes = await client.query<{ id: string }>(
     `INSERT INTO work_orders
-       (account_id, client_id, job_id, property_id, title, scope, status,
+       (company_id, client_id, job_id, property_id, title, scope, status,
         total_cents, source_estimate_id, completion_criteria, created_by)
      VALUES ($1, $2, $3, $4, $5, $6, 'ready', $7, $8, $9::jsonb, $10)
      RETURNING id`,

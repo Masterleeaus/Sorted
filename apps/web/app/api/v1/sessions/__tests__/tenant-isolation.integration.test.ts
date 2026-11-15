@@ -49,12 +49,12 @@ describe.skipIf(!enabled)("sessions activity routes: tenant isolation", () => {
   beforeAll(async () => {
     await admin.query("INSERT INTO accounts (id, name) VALUES ($1, 'Session Iso A'), ($2, 'Session Iso B')", [accountA, accountB]);
     await admin.query(
-      `INSERT INTO users (id, account_id, email, full_name, password_hash, role)
+      `INSERT INTO users (id, company_id, email, full_name, password_hash, role)
        VALUES ($1, $2, $3, 'Owner A', 'x', 'owner'), ($4, $5, $6, 'Owner B', 'x', 'owner')`,
       [ownerA, accountA, `sess-a-${ownerA}@test.invalid`, ownerB, accountB, `sess-b-${ownerB}@test.invalid`],
     );
     await admin.query(
-      `INSERT INTO vehicle_sessions (id, account_id, session_date, start_odometer) VALUES ($1, $2, $3, 100), ($4, $5, $3, 200)`,
+      `INSERT INTO vehicle_sessions (id, company_id, session_date, start_odometer) VALUES ($1, $2, $3, 100), ($4, $5, $3, 200)`,
       [sessionA, accountA, DATE, sessionB, accountB],
     );
     await admin.query(
@@ -62,16 +62,16 @@ describe.skipIf(!enabled)("sessions activity routes: tenant isolation", () => {
       [activityB, sessionB],
     );
     await admin.query(
-      `INSERT INTO clients (id, account_id, name) VALUES ($1, $2, 'Client A'), ($3, $4, 'Client B')`,
+      `INSERT INTO clients (id, company_id, name) VALUES ($1, $2, 'Client A'), ($3, $4, 'Client B')`,
       [clientA, accountA, clientB, accountB],
     );
     await admin.query(
-      `INSERT INTO jobs (id, account_id, client_id, title, status, created_by)
+      `INSERT INTO jobs (id, company_id, client_id, title, status, created_by)
        VALUES ($1, $2, $3, 'Job A', 'scheduled', $4), ($5, $6, $7, $8, 'scheduled', $9)`,
       [jobA, accountA, clientA, ownerA, jobB, accountB, clientB, titleB, ownerB],
     );
     await admin.query(
-      `INSERT INTO visits (account_id, job_id, scheduled_start, scheduled_end, visit_type)
+      `INSERT INTO visits (company_id, job_id, scheduled_start, scheduled_end, visit_type)
        VALUES ($1, $2, $3::timestamptz, $3::timestamptz + interval '1 hour', 'site_visit'),
               ($4, $5, $3::timestamptz, $3::timestamptz + interval '1 hour', 'site_visit')`,
       [accountA, jobA, `${DATE}T09:00:00Z`, accountB, jobB],

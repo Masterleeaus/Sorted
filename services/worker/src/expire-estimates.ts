@@ -13,13 +13,13 @@ export interface ExpireEstimatesResult {
  */
 export async function expireEstimates(client: Client): Promise<ExpireEstimatesResult> {
   try {
-    const result = await client.query<{ id: string; account_id: string }>(
+    const result = await client.query<{ id: string; company_id: string }>(
       `UPDATE estimates
        SET status = 'expired', updated_at = now()
        WHERE status = 'sent'
          AND expires_at IS NOT NULL
          AND expires_at < now()
-       RETURNING id, account_id`
+       RETURNING id, company_id`
     );
 
     const expired = result.rowCount ?? 0;

@@ -32,25 +32,25 @@ describe.skipIf(!enabled)("token resolvers as the restricted web role", () => {
   beforeAll(async () => {
     await admin.query("INSERT INTO accounts (id, name) VALUES ($1, 'Resolver A'), ($2, 'Resolver B')", [accountA, accountB]);
     await admin.query(
-      `INSERT INTO users (id, account_id, email, full_name, password_hash, role)
+      `INSERT INTO users (id, company_id, email, full_name, password_hash, role)
        VALUES ($1, $2, $3, 'Resolver owner', 'x', 'owner')`,
       [userA, accountA, `resolver-${randomUUID()}@test.invalid`],
     );
     await admin.query(
-      `INSERT INTO clients (id, account_id, name, email) VALUES ($1, $2, 'Client A', 'a@test.invalid'), ($3, $4, 'Client B', 'b@test.invalid')`,
+      `INSERT INTO clients (id, company_id, name, email) VALUES ($1, $2, 'Client A', 'a@test.invalid'), ($3, $4, 'Client B', 'b@test.invalid')`,
       [clientA, accountA, clientB, accountB],
     );
     ({ rows: [{ portal_token: portalTokenA }] } = await admin.query("SELECT portal_token::text FROM clients WHERE id = $1", [clientA]));
     ({ rows: [{ portal_token: portalTokenB }] } = await admin.query("SELECT portal_token::text FROM clients WHERE id = $1", [clientB]));
     await admin.query(
-      `INSERT INTO estimates (account_id, client_id, created_by) VALUES ($1, $2, $3)`,
+      `INSERT INTO estimates (company_id, client_id, created_by) VALUES ($1, $2, $3)`,
       [accountA, clientA, userA],
     );
     ({ rows: [{ share_token: estimateShareA }] } = await admin.query(
-      "SELECT share_token::text FROM estimates WHERE account_id = $1 AND client_id = $2", [accountA, clientA],
+      "SELECT share_token::text FROM estimates WHERE company_id = $1 AND client_id = $2", [accountA, clientA],
     ));
     await admin.query(
-      `INSERT INTO invoices (account_id, client_id, created_by, invoice_number, subtotal_cents, tax_cents, total_cents, paid_cents, status)
+      `INSERT INTO invoices (company_id, client_id, created_by, invoice_number, subtotal_cents, tax_cents, total_cents, paid_cents, status)
        VALUES ($1, $2, $3, $4, 0, 0, 0, 0, 'sent')`,
       [accountA, clientA, userA, invoiceNumber],
     );
@@ -66,13 +66,13 @@ describe.skipIf(!enabled)("token resolvers as the restricted web role", () => {
       [clientA, pendingLink],
     );
     await admin.query(
-      `INSERT INTO intake_invites (account_id, token, lead_name, lead_email, expires_at, used_at)
+      `INSERT INTO intake_invites (company_id, token, lead_name, lead_email, expires_at, used_at)
        VALUES ($1, $2, 'Open Lead', 'open@test.invalid', now() + interval '1 day', NULL),
               ($1, $3, 'Used Lead', 'used@test.invalid', now() + interval '1 day', now())`,
       [accountA, openInvite, usedInvite],
     );
     await admin.query(
-      `INSERT INTO integration_settings (account_id, provider, config) VALUES ($1, 'square', $2::jsonb)`,
+      `INSERT INTO integration_settings (company_id, provider, config) VALUES ($1, 'square', $2::jsonb)`,
       [accountA, JSON.stringify({ locationId, webhookUrl: "https://example.test/hook" })],
     );
   });
@@ -100,25 +100,25 @@ describe.skipIf(!enabled)("token resolvers as the restricted web role", () => {
   });
 
   it("resolves a portal token only to its own account", async () => {
-    const { rows } = await runtime.query("SELECT resolve_portal_client_account($1::uuid) AS account_id", [portalTokenA]);
-    expect(rows).toEqual([{ account_id: accountA }]);
-    const other = await runtime.query("SELECT resolve_portal_client_account($1::uuid) AS account_id", [portalTokenB]);
-    expect(other.rows).toEqual([{ account_id: accountB }]);
-    expect(other.rows[0].account_id).not.toBe(accountA);
+    const { rows } = await runtime.query("SELECT resolve_portal_client_account($1::uuid) AS company_id", [portalTokenA]);
+    expect(rows).toEqual([{ company_id: accountA }]);
+    const other = await runtime.query("SELECT resolve_portal_client_account($1::uuid) AS company_id", [portalTokenB]);
+    expect(other.rows).toEqual([{ company_id: accountB }]);
+    expect(other.rows[0].company_id).not.toBe(accountA);
   });
 
   it("returns nothing for an unknown portal token", async () => {
-    const { rows } = await runtime.query("SELECT resolve_portal_client_account($1::uuid) AS account_id", [randomUUID()]);
-    expect(rows[0].account_id).toBeNull();
+    const { rows } = await runtime.query("SELECT resolve_portal_client_account($1::uuid) AS company_id", [randomUUID()]);
+    expect(rows[0].company_id).toBeNull();
   });
 
   it("resolves estimate and invoice share tokens to their account", async () => {
-    const est = await runtime.query("SELECT resolve_estimate_share_account($1::uuid) AS account_id", [estimateShareA]);
-    const inv = await runtime.query("SELECT resolve_invoice_share_account($1::uuid) AS account_id", [invoiceShareA]);
-    expect(est.rows[0].account_id).toBe(accountA);
-    expect(inv.rows[0].account_id).toBe(accountA);
-    const none = await runtime.query("SELECT resolve_invoice_share_account($1::uuid) AS account_id", [randomUUID()]);
-    expect(none.rows[0].account_id).toBeNull();
+    const est = await runtime.query("SELECT resolve_estimate_share_account($1::uuid) AS company_id", [estimateShareA]);
+    const inv = await runtime.query("SELECT resolve_invoice_share_account($1::uuid) AS company_id", [invoiceShareA]);
+    expect(est.rows[0].company_id).toBe(accountA);
+    expect(inv.rows[0].company_id).toBe(accountA);
+    const none = await runtime.query("SELECT resolve_invoice_share_account($1::uuid) AS company_id", [randomUUID()]);
+    expect(none.rows[0].company_id).toBeNull();
   });
 
   it("consumes a live sign-in link once and returns its client", async () => {
@@ -140,14 +140,14 @@ describe.skipIf(!enabled)("token resolvers as the restricted web role", () => {
       email: "new@test.invalid",
       old_email: "a@test.invalid",
       portal_token: portalTokenA,
-      account_id: accountA,
+      company_id: accountA,
     }]);
     expect((await runtime.query("SELECT * FROM consume_portal_email_change($1::uuid)", [pendingLink])).rows).toEqual([]);
   });
 
   it("resolves only open intake invites, and reports used state separately", async () => {
     const open = await runtime.query("SELECT * FROM resolve_open_intake_invite($1::uuid)", [openInvite]);
-    expect(open.rows).toMatchObject([{ account_id: accountA, lead_name: "Open Lead" }]);
+    expect(open.rows).toMatchObject([{ company_id: accountA, lead_name: "Open Lead" }]);
     expect((await runtime.query("SELECT * FROM resolve_open_intake_invite($1::uuid)", [usedInvite])).rows).toEqual([]);
     expect((await runtime.query("SELECT * FROM resolve_open_intake_invite($1::uuid)", [randomUUID()])).rows).toEqual([]);
     expect((await runtime.query("SELECT * FROM resolve_intake_invite_state($1::uuid)", [usedInvite])).rows).toEqual([{ is_used: true }]);
@@ -156,18 +156,18 @@ describe.skipIf(!enabled)("token resolvers as the restricted web role", () => {
 
   it("resolves a Square location to its account settings", async () => {
     const { rows } = await runtime.query("SELECT * FROM resolve_square_location_settings($1)", [locationId]);
-    expect(rows).toMatchObject([{ account_id: accountA, webhook_url: "https://example.test/hook" }]);
+    expect(rows).toMatchObject([{ company_id: accountA, webhook_url: "https://example.test/hook" }]);
     expect((await runtime.query("SELECT * FROM resolve_square_location_settings($1)", ["NO-SUCH-LOCATION"])).rows).toEqual([]);
   });
 
   it("finds the first owner account and a visit candidate's account", async () => {
-    const { rows: [owner] } = await runtime.query("SELECT resolve_owner_account_id() AS account_id");
-    expect(owner.account_id).not.toBeNull();
+    const { rows: [owner] } = await runtime.query("SELECT resolve_owner_account_id() AS company_id");
+    expect(owner.company_id).not.toBeNull();
     const { rows: [expected] } = await admin.query(
-      "SELECT u.account_id FROM users u JOIN accounts a ON a.id = u.account_id WHERE u.role = 'owner' ORDER BY u.created_at, u.id LIMIT 1",
+      "SELECT u.company_id FROM users u JOIN accounts a ON a.id = u.company_id WHERE u.role = 'owner' ORDER BY u.created_at, u.id LIMIT 1",
     );
-    expect(owner.account_id).toBe(expected.account_id);
-    const missing = await runtime.query("SELECT resolve_visit_candidate_account($1::uuid) AS account_id", [randomUUID()]);
-    expect(missing.rows[0].account_id).toBeNull();
+    expect(owner.company_id).toBe(expected.company_id);
+    const missing = await runtime.query("SELECT resolve_visit_candidate_account($1::uuid) AS company_id", [randomUUID()]);
+    expect(missing.rows[0].company_id).toBeNull();
   });
 });

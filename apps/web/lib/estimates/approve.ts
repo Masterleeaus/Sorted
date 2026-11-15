@@ -54,7 +54,7 @@ export async function createApprovalArtifacts(
       // deposit); the credit is applied to the FINAL invoice instead.
       const depositResult = await client.query<{ id: string }>(
         `INSERT INTO invoices
-           (account_id, client_id, job_id, estimate_id, property_id,
+           (company_id, client_id, job_id, estimate_id, property_id,
             status, invoice_kind, invoice_number,
             subtotal_cents, tax_cents, total_cents, paid_cents, deposit_cents,
             notes, created_by)

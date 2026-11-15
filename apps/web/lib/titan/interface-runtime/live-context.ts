@@ -18,15 +18,15 @@ export async function loadLiveInterfaceContext(surface: Surface) {
   const params = surface === "go" && session.role === "tech" ? [accountId,session.userId] : [accountId];
   const [activeJobs, attention] = await Promise.all([
     queryForSession<Row>(session, jobSql, params),
-    surface === "zero" ? queryForSession<AttentionEventRow & Record<string, unknown>>(session, `SELECT id,account_id,type,entity_type,entity_id,title,summary,href,dedupe_key,created_at,read_at FROM attention_events WHERE company_id=$1 AND read_at IS NULL ORDER BY created_at DESC LIMIT 30`, [accountId]) : Promise.resolve([]),
+    surface === "zero" ? queryForSession<AttentionEventRow & Record<string, unknown>>(session, `SELECT id,company_id,type,entity_type,entity_id,title,summary,href,dedupe_key,created_at,read_at FROM attention_events WHERE company_id=$1 AND read_at IS NULL ORDER BY created_at DESC LIMIT 30`, [accountId]) : Promise.resolve([]),
   ]);
   return buildBusinessRuntimeContext({company_id:accountId,surface,activeJobs,attention,decisions:[]});
 }
 
 async function loadHubContext(){
   const portal = await getPortalSession(); if(!portal) return null;
-  const client = await queryOne<{account_id:string}>(`SELECT account_id::text FROM clients WHERE id=$1`,[portal.clientId]);
+  const client = await queryOne<{company_id:string}>(`SELECT company_id::text FROM clients WHERE id=$1`,[portal.clientId]);
   if(!client) return null;
-  const services = await query<Row>(`SELECT id,title,status FROM jobs WHERE company_id=$1 AND client_id=$2 AND status NOT IN ('cancelled') ORDER BY created_at DESC LIMIT 12`,[client.account_id,portal.clientId]);
-  return buildBusinessRuntimeContext({company_id:client.account_id,surface:"hub",services});
+  const services = await query<Row>(`SELECT id,title,status FROM jobs WHERE company_id=$1 AND client_id=$2 AND status NOT IN ('cancelled') ORDER BY created_at DESC LIMIT 12`,[client.company_id,portal.clientId]);
+  return buildBusinessRuntimeContext({company_id:client.company_id,surface:"hub",services});
 }

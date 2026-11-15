@@ -343,14 +343,14 @@ describe("Timeline event types — property_timeline_v coverage", () => {
 // ---------------------------------------------------------------------------
 
 describe("Multi-property isolation", () => {
-  it("all queries use both property_id AND account_id filters", () => {
+  it("all queries use both property_id AND company_id filters", () => {
     // This is a documentation-style test that captures the invariant:
-    // every query must filter by both property_id ($1) and account_id ($2)
+    // every query must filter by both property_id ($1) and company_id ($2)
     // to prevent cross-tenant or cross-property data leakage.
     // Actual enforcement is in the SQL and RLS policies.
-    const requiredFilters = ["property_id", "account_id"];
+    const requiredFilters = ["property_id", "company_id"];
     expect(requiredFilters).toContain("property_id");
-    expect(requiredFilters).toContain("account_id");
+    expect(requiredFilters).toContain("company_id");
   });
 });
 

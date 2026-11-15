@@ -15,7 +15,7 @@ export interface SessionPayload {
 
 type UserSessionRow = {
   id: string;
-  account_id: string;
+  company_id: string;
   role: string;
   [key: string]: unknown;
 };
@@ -51,7 +51,7 @@ export async function getSession(): Promise<SessionPayload | null> {
 
   const user = await queryOneForSession<UserSessionRow>(
     verified,
-    `SELECT id, account_id, role FROM users WHERE id = $1 AND company_id = $2`,
+    `SELECT id, company_id, role FROM users WHERE id = $1 AND company_id = $2`,
     [verified.userId, verified.accountId],
   );
   if (!user) return null;
@@ -61,7 +61,7 @@ export async function getSession(): Promise<SessionPayload | null> {
 
   return {
     userId: user.id,
-    accountId: user.account_id,
+    accountId: user.company_id,
     role: role.data,
   };
 }

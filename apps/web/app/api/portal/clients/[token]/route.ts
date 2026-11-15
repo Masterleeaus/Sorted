@@ -6,7 +6,7 @@ export const dynamic = "force-dynamic";
 
 interface ClientRow extends Record<string, unknown> {
   id: string;
-  account_id: string;
+  company_id: string;
   name: string;
   email: string;
   account_name: string;
@@ -20,19 +20,19 @@ export async function GET(
 
   // Bootstrap: the portal token resolves to an account through a bounded
   // resolver (migration 204). Nothing else runs before account context is set.
-  const resolved = await queryOne<{ account_id: string | null }>(
-    `SELECT resolve_portal_client_account($1::uuid) AS account_id`,
+  const resolved = await queryOne<{ company_id: string | null }>(
+    `SELECT resolve_portal_client_account($1::uuid) AS company_id`,
     [token]
   );
-  if (!resolved?.account_id) return NextResponse.json({ error: "Not found" }, { status: 404 });
-  const accountId = resolved.account_id;
+  if (!resolved?.company_id) return NextResponse.json({ error: "Not found" }, { status: 404 });
+  const accountId = resolved.company_id;
 
   // Every read below runs in the client's account context, with the account predicate kept.
   const loaded = await withTokenAccountContext(
     accountId,
     async (tx) => {
       const { rows: [client] } = await tx.query<ClientRow>(
-        `SELECT c.id, c.account_id, c.name, c.email, a.name AS account_name
+        `SELECT c.id, c.company_id, c.name, c.email, a.name AS account_name
          FROM clients c
          JOIN accounts a ON a.id = c.company_id
          WHERE c.portal_token = $1 AND c.company_id = $2`,
@@ -46,7 +46,7 @@ export async function GET(
          LEFT JOIN properties p ON p.id = e.property_id
          WHERE e.client_id = $1 AND e.company_id = $2 AND e.status != 'draft'
          ORDER BY e.created_at DESC`,
-        [client.id, client.account_id]
+        [client.id, client.company_id]
       );
       const invoices = await tx.query(
         `SELECT i.id, i.invoice_number, i.status, i.total_cents, i.paid_cents,
@@ -55,14 +55,14 @@ export async function GET(
          LEFT JOIN properties p ON p.id = i.property_id
          WHERE i.client_id = $1 AND i.company_id = $2 AND i.status != 'draft'
          ORDER BY i.created_at DESC`,
-        [client.id, client.account_id]
+        [client.id, client.company_id]
       );
       const plans = await tx.query(
         `SELECT id, name, frequency, services, price_cents, status, next_scheduled_date, notes
          FROM maintenance_plans
          WHERE client_id = $1 AND company_id = $2
          ORDER BY status, created_at DESC`,
-        [client.id, client.account_id]
+        [client.id, client.company_id]
       );
       const maintenanceJobs = await tx.query(
         `SELECT j.id, j.title, j.status,
@@ -84,7 +84,7 @@ export async function GET(
          GROUP BY j.id, p.address
          ORDER BY MAX(v.completed_at) DESC NULLS LAST
          LIMIT 20`,
-        [client.id, client.account_id]
+        [client.id, client.company_id]
       );
       return {
         client,

@@ -27,9 +27,9 @@ export async function saveSubscription(
   userAgent: string | null,
 ): Promise<void> {
   await client.query(
-    `INSERT INTO push_subscriptions (account_id, user_id, endpoint, p256dh, auth, user_agent)
+    `INSERT INTO push_subscriptions (company_id, user_id, endpoint, p256dh, auth, user_agent)
      VALUES ($1, $2, $3, $4, $5, $6)
-     ON CONFLICT (account_id, endpoint) DO UPDATE
+     ON CONFLICT (company_id, endpoint) DO UPDATE
        SET user_id = EXCLUDED.user_id,
            p256dh = EXCLUDED.p256dh,
            auth = EXCLUDED.auth,

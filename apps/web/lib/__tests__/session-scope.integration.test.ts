@@ -35,18 +35,18 @@ describe.skipIf(!enabled)("session-scoped page loaders under the runtime role", 
   beforeAll(async () => {
     await admin.query("INSERT INTO accounts (id, name) VALUES ($1, 'Scope A'), ($2, 'Scope B')", [accountA, accountB]);
     await admin.query(
-      `INSERT INTO users (id, account_id, email, full_name, password_hash, role)
+      `INSERT INTO users (id, company_id, email, full_name, password_hash, role)
        VALUES ($1, $2, $3, 'Scope A owner', 'x', 'owner'), ($4, $5, $6, 'Scope B owner', 'x', 'owner')`,
       [userA, accountA, `scope-a-${userA}@test.invalid`, userB, accountB, `scope-b-${userB}@test.invalid`],
     );
-    await admin.query("INSERT INTO clients (id, account_id, name) VALUES ($1, $2, 'Scope client A')", [clientA, accountA]);
+    await admin.query("INSERT INTO clients (id, company_id, name) VALUES ($1, $2, 'Scope client A')", [clientA, accountA]);
     await admin.query(
-      `INSERT INTO jobs (id, account_id, client_id, title, created_by, pricing_mode)
+      `INSERT INTO jobs (id, company_id, client_id, title, created_by, pricing_mode)
        VALUES ($1, $2, $3, 'Scope job A', $4, 'flat_rate')`,
       [jobA, accountA, clientA, userA],
     );
     await admin.query(
-      `INSERT INTO visits (id, account_id, job_id, scheduled_start, scheduled_end, visit_type)
+      `INSERT INTO visits (id, company_id, job_id, scheduled_start, scheduled_end, visit_type)
        VALUES ($1, $2, $3, now(), now() + interval '1 hour', 'site_visit')`,
       [visitA, accountA, jobA],
     );

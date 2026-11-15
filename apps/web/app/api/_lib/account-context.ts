@@ -25,7 +25,7 @@ export async function withTokenAccountContext<T>(
   const client = await getPool().connect();
   try {
     await client.query("BEGIN");
-    // company_id equals account_id during the dual-column period (migration 205).
+    // company_id is the tenant column (migration 209 renamed account_id to company_id).
     // Both come from the same validated value above.
     await client.query(
       `SELECT set_config('app.current_user_id', '', true),
@@ -51,8 +51,8 @@ export async function withTokenAccountContext<T>(
  * context exists yet. Returns null when there is no owner.
  */
 export async function resolveOwnerAccountId(): Promise<string | null> {
-  const row = await queryOne<{ account_id: string | null }>(
-    `SELECT resolve_owner_account_id() AS account_id`,
+  const row = await queryOne<{ company_id: string | null }>(
+    `SELECT resolve_owner_account_id() AS company_id`,
   );
-  return row?.account_id ?? null;
+  return row?.company_id ?? null;
 }

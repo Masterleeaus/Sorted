@@ -326,7 +326,7 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
               link_id,
               total_cents
        FROM property_timeline_v
-       WHERE account_id = $2
+       WHERE company_id = $2
          AND property_id = $1
        ORDER BY occurred_at DESC NULLS LAST
        LIMIT 60`,

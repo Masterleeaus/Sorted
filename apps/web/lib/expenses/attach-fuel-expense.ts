@@ -248,7 +248,7 @@ export async function attachFuelExpenseToVehicle(
 
   const inserted = await client.query<{ id: string }>(
     `INSERT INTO vehicle_fuel_logs (
-       account_id, vehicle_id, filled_at, odometer, gallons, is_full_tank,
+       company_id, vehicle_id, filled_at, odometer, gallons, is_full_tank,
        odometer_suspect, notes, expense_id, created_by
      ) VALUES ($1, $2, $3::timestamptz, $4, $5, true, $6, $7, $8, $9)
      RETURNING id`,

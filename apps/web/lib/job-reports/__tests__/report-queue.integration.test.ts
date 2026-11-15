@@ -41,32 +41,32 @@ describe.skipIf(!RUN)("customer report queue", () => {
     adminCookie = (login.headers.get("set-cookie") ?? "").split(";")[0];
     db = new Client({ connectionString: process.env.TEST_DATABASE_URL });
     await db.connect();
-    const admin = await db.query<{ id: string; account_id: string }>(`SELECT id, account_id FROM users WHERE email = 'admin@test.com'`);
-    accountId = admin.rows[0].account_id;
+    const admin = await db.query<{ id: string; company_id: string }>(`SELECT id, company_id FROM users WHERE email = 'admin@test.com'`);
+    accountId = admin.rows[0].company_id;
     ownerId = admin.rows[0].id;
 
-    await db.query(`INSERT INTO clients (id, account_id, name) VALUES ($1, $2, 'Queue Client')`, [clientId, accountId]);
+    await db.query(`INSERT INTO clients (id, company_id, name) VALUES ($1, $2, 'Queue Client')`, [clientId, accountId]);
     await db.query(`INSERT INTO accounts (id, name) VALUES ($1, 'Other account')`, [otherAccountId]);
     const status: Record<string, string> = { active: "in_progress" };
     for (const [name, id] of Object.entries(jobs)) {
       await db.query(
-        `INSERT INTO jobs (id, account_id, client_id, title, status, job_type, created_by)
+        `INSERT INTO jobs (id, company_id, client_id, title, status, job_type, created_by)
          VALUES ($1, $2, $3, $4, $5, 'custom', $6)`,
         [id, accountId, clientId, `Queue ${name}`, status[name] ?? "invoiced", ownerId],
       );
       const visitAccount = name === "crossAccount" ? otherAccountId : accountId;
       const v = await db.query<{ id: string }>(
-        `INSERT INTO visits (account_id, job_id, scheduled_start, scheduled_end, visit_type, status, completed_at)
+        `INSERT INTO visits (company_id, job_id, scheduled_start, scheduled_end, visit_type, status, completed_at)
          VALUES ($1, $2, now(), now(), 'site_visit', 'completed', now()) RETURNING id`,
         [visitAccount, id],
       );
       await db.query(
-        `INSERT INTO visit_media (account_id, visit_id, category, filename, original_name, mime_type, size_bytes, created_by)
+        `INSERT INTO visit_media (company_id, visit_id, category, filename, original_name, mime_type, size_bytes, created_by)
          VALUES ($1, $2, $3, 'x.jpg', 'x.jpg', 'image/jpeg', 1, $4)`,
         [visitAccount, v.rows[0].id, name === "receiptsOnly" ? "receipt" : "after", ownerId],
       );
       await db.query(
-        `INSERT INTO invoices (account_id, client_id, job_id, invoice_number, status, total_cents, work_summary, created_by)
+        `INSERT INTO invoices (company_id, client_id, job_id, invoice_number, status, total_cents, work_summary, created_by)
          VALUES ($1, $2, $3, $4, 'paid', 1000, $5, $6)`,
         [accountId, clientId, id, `Q-${name}-${Date.now()}`, `Summary for ${name}`, ownerId],
       );

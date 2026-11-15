@@ -16,7 +16,7 @@ import { selectActiveHandoffInvoices } from "./handoff-invoices";
 
 export interface EstimateRow {
   id: string;
-  account_id: string;
+  company_id: string;
   client_id: string;
   estimate_number: string | null;
   job_id: string | null;

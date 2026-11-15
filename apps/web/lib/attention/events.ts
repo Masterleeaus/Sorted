@@ -11,7 +11,7 @@ export async function listAttentionEvents(
 ): Promise<AttentionEventRow[]> {
   const capped = Math.min(Math.max(1, limit), 100);
   const r = await client.query<AttentionEventRow>(
-    `SELECT id, account_id, type, entity_type, entity_id, title, summary, href,
+    `SELECT id, company_id, type, entity_type, entity_id, title, summary, href,
             dedupe_key, created_at, read_at
      FROM attention_events
      WHERE company_id = $1

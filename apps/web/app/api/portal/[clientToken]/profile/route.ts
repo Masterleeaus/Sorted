@@ -82,10 +82,10 @@ export async function PATCH(
   const newEmail = data.email?.trim().toLowerCase();
   if (newEmail && newEmail !== client.email?.toLowerCase()) {
     // Reads run in the portal client's account context (client id and account come from the guard).
-    const taken = await withTokenAccountContext(client.account_id, async (tx) => {
+    const taken = await withTokenAccountContext(client.company_id, async (tx) => {
       const { rows } = await tx.query(
         `SELECT 1 FROM clients WHERE company_id = $1 AND id <> $2 AND lower(email) = $3`,
-        [client.account_id, client.id, newEmail],
+        [client.company_id, client.id, newEmail],
       );
       return rows[0] ?? null;
     });
@@ -95,7 +95,7 @@ export async function PATCH(
         { status: 409 },
       );
     }
-    const [link] = await withTokenAccountContext(client.account_id, async (tx) => {
+    const [link] = await withTokenAccountContext(client.company_id, async (tx) => {
       const { rows } = await tx.query<{ token: string }>(
         `INSERT INTO portal_magic_links (client_id, expires_at, pending_email)
          VALUES ($1, now() + interval '1 hour', $2) RETURNING token::text`,
@@ -133,7 +133,7 @@ export async function PATCH(
     await db.query("BEGIN");
     await db.query(
       `SELECT set_config('app.current_account_id', $1, true), set_config('app.current_role', 'owner', true)`,
-      [client.account_id],
+      [client.company_id],
     );
     await db.query(
       `UPDATE clients
@@ -149,7 +149,7 @@ export async function PATCH(
     );
     if (phone || data.preferred_contact || grantsSmsConsent) {
       await appendAuditLog(db, {
-        account_id: client.account_id,
+        company_id: client.company_id,
         entity_type: "client",
         entity_id: client.id,
         action: "update",
@@ -165,7 +165,7 @@ export async function PATCH(
       });
     }
     await emitAttentionEvent(db, {
-      accountId: client.account_id,
+      accountId: client.company_id,
       type: "client.profile_updated",
       entityType: "client",
       entityId: client.id,

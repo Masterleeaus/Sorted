@@ -15,7 +15,7 @@ import type { AutomationRow, RunResult } from "./automations/types.js";
 
 interface StaleJob {
   id: string;
-  account_id: string;
+  company_id: string;
   client_id: string;
   title: string;
   status: string;
@@ -25,7 +25,7 @@ interface StaleJob {
 
 export async function findDueStaleJobNudges(client: Client): Promise<AutomationRow[]> {
   const { rows } = await client.query<AutomationRow>(
-    `SELECT id, account_id, company_id, type, config, enabled, next_run_at::text
+    `SELECT id, company_id, company_id, type, config, enabled, next_run_at::text
        FROM automations
       WHERE type = 'stale_job_nudge'
         AND enabled = true
@@ -41,7 +41,7 @@ export async function findStaleJobs(
   const days = (automation.config as { days_without_visit?: number }).days_without_visit ?? 14;
 
   const { rows } = await client.query<StaleJob>(
-    `SELECT j.id, j.account_id, j.client_id, j.title, j.status,
+    `SELECT j.id, j.company_id, j.client_id, j.title, j.status,
             last_v.completed_at::text AS last_visit_at,
             COALESCE(
               EXTRACT(DAY FROM (now() - last_v.completed_at))::int,
@@ -87,10 +87,10 @@ async function emitStaleJobNudge(
 ): Promise<boolean> {
   await client.query(
     `INSERT INTO audit_log
-       (account_id, entity_type, entity_id, action, actor_id, old_value, new_value)
+       (company_id, entity_type, entity_id, action, actor_id, old_value, new_value)
      VALUES ($1, 'stale_job_nudge', $2, 'insert', $3, NULL, $4)`,
     [
-      job.account_id,
+      job.company_id,
       job.id,
       automationId,
       JSON.stringify({
@@ -109,7 +109,7 @@ async function emitStaleJobNudge(
 export async function processStaleJobs(client: Client, automation: AutomationRow): Promise<RunResult> {
   const result: RunResult = {
     automationId: automation.id,
-    accountId: automation.account_id,
+    accountId: automation.company_id,
     sent: 0,
     skipped: 0,
     errors: 0,

@@ -10,7 +10,7 @@ const ACCOUNT = "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa";
 const TOKEN = "11111111-1111-4111-8111-111111111111";
 
 const state = vi.hoisted(() => ({
-  resolved: null as null | { account_id: string | null },
+  resolved: null as null | { company_id: string | null },
   resolverCalls: [] as { sql: string; params?: unknown[] }[],
   contexts: [] as string[],
 }));
@@ -32,7 +32,7 @@ vi.mock("@/app/api/_lib/account-context", () => ({
 import { withPortalTokenPage } from "../token-page";
 
 beforeEach(() => {
-  state.resolved = { account_id: ACCOUNT };
+  state.resolved = { company_id: ACCOUNT };
   state.resolverCalls = [];
   state.contexts = [];
 });
@@ -48,7 +48,7 @@ describe("withPortalTokenPage", () => {
   });
 
   it("returns null and opens no tenant transaction when the token matches nothing", async () => {
-    state.resolved = { account_id: null };
+    state.resolved = { company_id: null };
     const fn = vi.fn();
     const result = await withPortalTokenPage("resolve_estimate_share_account", TOKEN, fn);
     expect(result).toBeNull();
@@ -59,7 +59,7 @@ describe("withPortalTokenPage", () => {
   it("resolves through the named migration 204 resolver with the token as a bound parameter", async () => {
     await withPortalTokenPage("resolve_invoice_share_account", TOKEN, async () => null);
     expect(state.resolverCalls).toEqual([
-      { sql: "SELECT resolve_invoice_share_account($1::uuid) AS account_id", params: [TOKEN] },
+      { sql: "SELECT resolve_invoice_share_account($1::uuid) AS company_id", params: [TOKEN] },
     ]);
   });
 

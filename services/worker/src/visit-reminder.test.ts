@@ -25,7 +25,6 @@ function mockClient(overrides: Record<string, unknown> = {}): Client {
 
 const AUTOMATION: AutomationRow = {
   id: "auto-1",
-  account_id: "acct-1",
   company_id: "acct-1",
   type: "visit_reminder",
   config: { hours_before: 24 },
@@ -35,7 +34,6 @@ const AUTOMATION: AutomationRow = {
 
 const VISIT: EligibleVisit = {
   id: "visit-1",
-  account_id: "acct-1",
   company_id: "acct-1",
   job_id: "job-1",
   client_id: "client-1",
@@ -152,7 +150,7 @@ describe("emitVisitReminder", () => {
     expect(queryFn).toHaveBeenCalledTimes(2);
     const insertArgs = queryFn.mock.calls[1];
     expect(insertArgs[0]).toContain("INSERT INTO audit_log");
-    expect(insertArgs[1][0]).toBe(VISIT_WITH_EMAIL.account_id);
+    expect(insertArgs[1][0]).toBe(VISIT_WITH_EMAIL.company_id);
     expect(insertArgs[1][1]).toBe(VISIT_WITH_EMAIL.id);
   });
 

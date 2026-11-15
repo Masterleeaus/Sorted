@@ -37,7 +37,7 @@ describe.skipIf(!TEST_DB)("intake photos against Postgres", () => {
     await admin.query(`INSERT INTO accounts (id, name) VALUES ($1, 'intake-photo-test')`, [accountId]);
     inviteId = randomUUID();
     await admin.query(
-      `INSERT INTO intake_invites (id, account_id, token, lead_name, lead_email)
+      `INSERT INTO intake_invites (id, company_id, token, lead_name, lead_email)
        VALUES ($1, $2, $3, 'Photo Client', 'photo@example.com')`,
       [inviteId, accountId, token],
     );
@@ -69,11 +69,11 @@ describe.skipIf(!TEST_DB)("intake photos against Postgres", () => {
     const { data } = await res.json();
 
     const { rows } = await admin.query(
-      `SELECT account_id, intake_invite_id, mime_type, original_name FROM intake_media WHERE id = $1`,
+      `SELECT company_id, intake_invite_id, mime_type, original_name FROM intake_media WHERE id = $1`,
       [data.id],
     );
     expect(rows[0]).toMatchObject({
-      account_id: accountId,
+      company_id: accountId,
       intake_invite_id: inviteId,
       mime_type: "image/jpeg",
       original_name: "roof.jpg",

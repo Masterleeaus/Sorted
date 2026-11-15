@@ -41,12 +41,12 @@ describe.skipIf(!enabled)("materials list: tenant isolation", () => {
   beforeAll(async () => {
     await admin.query("INSERT INTO accounts (id, name) VALUES ($1, 'Mat List A'), ($2, 'Mat List B')", [accountA, accountB]);
     await admin.query(
-      `INSERT INTO users (id, account_id, email, full_name, password_hash, role)
+      `INSERT INTO users (id, company_id, email, full_name, password_hash, role)
        VALUES ($1, $2, $3, 'Owner A', 'x', 'owner')`,
       [ownerA, accountA, `mat-list-a-${ownerA}@test.invalid`],
     );
     await admin.query(
-      `INSERT INTO materials_price_book (id, account_id, name) VALUES ($1, $2, 'Mat list A item'), ($3, $4, 'Mat list B item')`,
+      `INSERT INTO materials_price_book (id, company_id, name) VALUES ($1, $2, 'Mat list A item'), ($3, $4, 'Mat list B item')`,
       [materialA, accountA, materialB, accountB],
     );
     session.current = { userId: ownerA, accountId: accountA, role: "owner" };

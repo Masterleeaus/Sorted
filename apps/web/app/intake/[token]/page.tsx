@@ -7,7 +7,7 @@ export const dynamic = "force-dynamic";
 
 interface InviteRow {
   id: string;
-  account_id: string;
+  company_id: string;
   booking_request_id: string | null;
   token: string;
   lead_name: string;
@@ -29,20 +29,20 @@ export default async function PublicIntakePage({
   let invite: InviteRow | null = null;
   let state: "open" | "used" | "expired" | "missing" = "missing";
   try {
-    const open = await queryOne<{ id: string; account_id: string }>(
-      `SELECT id, account_id FROM resolve_open_intake_invite($1::uuid)`,
+    const open = await queryOne<{ id: string; company_id: string }>(
+      `SELECT id, company_id FROM resolve_open_intake_invite($1::uuid)`,
       [token]
     );
     if (open) {
       state = "open";
-      const rows = await withTokenAccountContext(open.account_id, (tx) =>
+      const rows = await withTokenAccountContext(open.company_id, (tx) =>
         tx
           .query<InviteRow>(
-            `SELECT id, account_id, booking_request_id, token::text AS token,
+            `SELECT id, company_id, booking_request_id, token::text AS token,
                     lead_name, lead_email, lead_phone, expires_at, used_at
              FROM intake_invites
              WHERE id = $1 AND company_id = $2`,
-            [open.id, open.account_id]
+            [open.id, open.company_id]
           )
           .then((r) => r.rows)
       );

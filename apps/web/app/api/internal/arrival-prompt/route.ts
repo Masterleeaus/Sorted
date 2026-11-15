@@ -29,14 +29,14 @@ export async function POST(req: NextRequest) {
   // The candidate resolves to its account through a bounded resolver (migration
   // 204). The ack then runs in that account's context as its owner, because the
   // visit_candidates UPDATE policy needs owner, admin or tech.
-  const candidate = await queryOne<{ account_id: string | null }>(
-    `SELECT resolve_visit_candidate_account($1::uuid) AS account_id`,
+  const candidate = await queryOne<{ company_id: string | null }>(
+    `SELECT resolve_visit_candidate_account($1::uuid) AS company_id`,
     [parsed.data.candidate_id],
   );
-  if (!candidate?.account_id) {
+  if (!candidate?.company_id) {
     return NextResponse.json({ ok: false, reason: "not_found" }, { status: 404 });
   }
-  const accountId = candidate.account_id;
+  const accountId = candidate.company_id;
   const rows = await withTokenAccountContext(accountId, async (tx) => {
     const { rows: updated } = await tx.query<{ id: string; live_prompted_at: string | null }>(
       `UPDATE visit_candidates

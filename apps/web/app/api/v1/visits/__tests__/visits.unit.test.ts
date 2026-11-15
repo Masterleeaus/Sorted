@@ -72,7 +72,7 @@ const NOW = new Date().toISOString();
 
 const SAMPLE_VISIT = {
   id: VISIT_ID,
-  account_id: mockSession.accountId,
+  company_id: mockSession.accountId,
   job_id: JOB_ID,
   assigned_user_id: USER_ID,
   status: "scheduled",
@@ -803,7 +803,7 @@ describe("GET /api/v1/visits/[id]/checklist", () => {
     disposition: null,
     note: null,
     sort_order: 0,
-    account_id: mockSession.accountId,
+    company_id: mockSession.accountId,
     visit_id: VISIT_ID,
     created_at: NOW,
     updated_at: NOW,

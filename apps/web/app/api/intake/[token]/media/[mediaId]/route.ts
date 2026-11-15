@@ -55,13 +55,13 @@ export async function DELETE(
     await client.query(
       `SELECT set_config('app.current_account_id', $1, true),
               set_config('app.current_role', 'owner', true)`,
-      [invite.account_id],
+      [invite.company_id],
     );
     const { rows } = await client.query<{ filename: string }>(
       `DELETE FROM intake_media
        WHERE id = $1 AND intake_invite_id = $2 AND company_id = $3
        RETURNING filename`,
-      [mediaId, invite.id, invite.account_id],
+      [mediaId, invite.id, invite.company_id],
     );
     await client.query("COMMIT");
     filename = rows[0]?.filename ?? null;

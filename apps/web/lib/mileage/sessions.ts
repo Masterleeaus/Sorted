@@ -80,7 +80,7 @@ export async function startOpenVehicleSession(
 ): Promise<{ id: string }> {
   const { rows } = await client.query<{ id: string }>(
     `INSERT INTO vehicle_sessions
-       (account_id, vehicle_id, session_date, start_odometer, end_odometer, miles, notes, started_at, created_by, status)
+       (company_id, vehicle_id, session_date, start_odometer, end_odometer, miles, notes, started_at, created_by, status)
      VALUES ($1, $2, $3::date, $4, NULL, NULL, $5, now(), $6, 'open')
      RETURNING id`,
     [

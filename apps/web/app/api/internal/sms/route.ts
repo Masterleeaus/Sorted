@@ -30,13 +30,13 @@ let _accountId: string | null = null;
 let _userId: string | null = null;
 async function getOwnerContext(): Promise<{ accountId: string; userId: string }> {
   if (_accountId && _userId) return { accountId: _accountId, userId: _userId };
-  const row = await queryOne<{ account_id: string; user_id: string }>(
-    `SELECT a.id AS account_id, u.id AS user_id
+  const row = await queryOne<{ company_id: string; user_id: string }>(
+    `SELECT a.id AS company_id, u.id AS user_id
      FROM accounts a JOIN users u ON u.company_id = a.id
      WHERE u.role = 'owner' ORDER BY u.created_at LIMIT 1`
   );
   if (!row) throw new Error("No owner account found in database");
-  _accountId = row.account_id;
+  _accountId = row.company_id;
   _userId = row.user_id;
   return { accountId: _accountId, userId: _userId };
 }
@@ -290,7 +290,7 @@ export async function POST(req: NextRequest) {
   }
 
   // Idempotency: already-seen message → no re-action, no Claude call.
-  // The unique index on (account_id, external_id) is the hard backstop.
+  // The unique index on (company_id, external_id) is the hard backstop.
   if (external_id) {
     const seen = await queryOne<{ id: string }>(
       `SELECT id FROM communications_log WHERE company_id = $1 AND external_id = $2 LIMIT 1`,

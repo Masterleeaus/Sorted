@@ -86,7 +86,7 @@ export async function applyRebalance(
       const row = existing.rows[0];
       if (!row) continue;
       await appendAuditLog(client, {
-        account_id: ctx.accountId,
+        company_id: ctx.accountId,
         entity_type: "activity_entry",
         entity_id: row.id,
         action: "delete",
@@ -152,7 +152,7 @@ export async function applyRebalance(
     const wasOpen = row.ended_at == null;
     const nowClosed = wasOpen && next.ended_at != null;
     await appendAuditLog(client, {
-      account_id: ctx.accountId,
+      company_id: ctx.accountId,
       entity_type: "activity_entry",
       entity_id: row.id,
       action: "update",
@@ -187,7 +187,7 @@ export async function applyRebalance(
       if (new Date(tail.ended_at) > new Date(tail.started_at)) {
         const ins = await client.query<{ id: string }>(
           `INSERT INTO activity_entries
-             (account_id, user_id, session_date, activity_type, category,
+             (company_id, user_id, session_date, activity_type, category,
               started_at, ended_at, entity_type, entity_id, source, note,
               assignment_kind, labor_bucket)
            VALUES (
@@ -212,7 +212,7 @@ export async function applyRebalance(
           ],
         );
         await appendAuditLog(client, {
-          account_id: ctx.accountId,
+          company_id: ctx.accountId,
           entity_type: "activity_entry",
           entity_id: ins.rows[0].id,
           action: "insert",

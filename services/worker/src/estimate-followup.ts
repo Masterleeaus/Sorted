@@ -21,7 +21,6 @@ import { PRIORITY } from "./notification/priority.js";
 
 interface EligibleEstimate {
   id: string;
-  account_id: string;
   company_id: string;
   client_id: string;
   total_cents: number;
@@ -33,7 +32,7 @@ interface EligibleEstimate {
 
 export async function findDueEstimateFollowups(client: Client): Promise<AutomationRow[]> {
   const { rows } = await client.query<AutomationRow>(
-    `SELECT id, account_id, company_id, type, config, enabled, next_run_at::text
+    `SELECT id, company_id, company_id, type, config, enabled, next_run_at::text
        FROM automations
       WHERE type = 'estimate_followup'
         AND enabled = true
@@ -49,7 +48,7 @@ export async function findEligibleEstimates(
   const daysAfter = (automation.config as { days_after_sent?: number }).days_after_sent ?? 3;
 
   const { rows } = await client.query<EligibleEstimate>(
-    `SELECT e.id, e.account_id, e.company_id, c.id AS client_id,
+    `SELECT e.id, e.company_id, e.company_id, c.id AS client_id,
             e.total_cents,
             e.sent_at::text AS sent_at,
             EXTRACT(DAY FROM (now() - e.sent_at))::int AS days_since_sent,
@@ -92,7 +91,7 @@ async function emitEstimateFollowup(
 
   if (est.client_email && est.client_name) {
     const enqueueResult = await enqueueNotification(client, {
-      accountId: est.account_id,
+      accountId: est.company_id,
       clientId: est.client_id,
       automationType: "estimate_followup",
       priority: PRIORITY.MEDIUM,
@@ -119,10 +118,10 @@ async function emitEstimateFollowup(
 
   await client.query(
     `INSERT INTO audit_log
-       (account_id, entity_type, entity_id, action, actor_id, old_value, new_value)
+       (company_id, entity_type, entity_id, action, actor_id, old_value, new_value)
      VALUES ($1, 'estimate_followup', $2, 'insert', $3, NULL, $4)`,
     [
-      est.account_id,
+      est.company_id,
       est.id,
       automationId,
       JSON.stringify({
@@ -139,7 +138,7 @@ async function emitEstimateFollowup(
 export async function processEstimateFollowups(client: Client, automation: AutomationRow): Promise<RunResult> {
   const result: RunResult = {
     automationId: automation.id,
-    accountId: automation.account_id,
+    accountId: automation.company_id,
     sent: 0,
     skipped: 0,
     errors: 0,
