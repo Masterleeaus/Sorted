@@ -11,7 +11,7 @@ const h = vi.hoisted(() => ({
   createPortalSession: vi.fn(),
 }));
 
-vi.mock("@/lib/db", () => ({ query: h.query }));
+vi.mock("@/lib/db", () => ({ companyIdFromSession: (s: { accountId: string }) => s.accountId, query: h.query }));
 vi.mock("@/lib/portal/session", () => ({
   createPortalSession: h.createPortalSession,
   PORTAL_SESSION_COOKIE: "portal_session",

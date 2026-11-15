@@ -8,7 +8,7 @@ const queryMock = vi.hoisted(() => vi.fn());
 const withDbSessionMock = vi.hoisted(() => vi.fn());
 
 vi.mock("@/lib/auth/session", () => ({ getSession: async () => session.current }));
-vi.mock("@/lib/db", () => ({ withDbSession: withDbSessionMock, getPool: vi.fn() }));
+vi.mock("@/lib/db", () => ({ companyIdFromSession: (s: { accountId: string }) => s.accountId, withDbSession: withDbSessionMock, getPool: vi.fn() }));
 vi.mock("@/lib/env", () => ({ getEnv: () => ({ DATABASE_URL: "postgres://unused" }) }));
 
 import { GET } from "@/app/api/v1/booking-requests/[id]/photos/route";

@@ -34,6 +34,7 @@ vi.mock("@/lib/db", () => {
       client.query(sql, params),
     ) as Promise<{ rows: unknown[] }>;
   return {
+    companyIdFromSession: (s: { accountId: string }) => s.accountId,
     withDbSession: (...args: unknown[]) => dbMocks.withDbSession(...args),
     queryForSession: async (session: unknown, sql: string, params?: unknown[]) => (await forSession(session, sql, params)).rows,
     queryOneForSession: async (session: unknown, sql: string, params?: unknown[]) =>
