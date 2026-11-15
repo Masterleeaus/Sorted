@@ -1,3 +1,10 @@
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Requests",
+  description: "Review customer booking and service requests in Sorted Field.",
+};
+
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import type { Route } from "next";
