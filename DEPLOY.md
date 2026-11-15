@@ -12,7 +12,7 @@ Deploying is production. Do not deploy without explicit owner authorization for 
 - Env file: `/opt/business/ai-fsm/env/.env` (never in git)
 - Data: `/opt/business/ai-fsm/data` (postgres, uploads)
 - Backups: `/opt/business/ai-fsm/backups`
-- Compose file: `infra/compose.garonhome.yml` (project `ai-fsm`; services `web`, `worker`, `postgres`)
+- Compose file: `infra/compose.garonhome.yml` (project `ai-fsm`; services `web`, `worker`, `postgres`). This is the canonical deploy path.
 - Entrypoint: `scripts/deploy-garonhome.sh`
 
 These paths are NOT the production path: `/home/admin/apps/ai-fsm`, the systemd unit `ai-fsm`, `start-production.sh`, and the UI-ZIP overlay. See section 6.
@@ -189,9 +189,9 @@ The restore stops `web` and `worker`, drops and recreates the database, restores
 
 Unverified — confirm on host: a restore drill has been run recently.
 
-## 8. PWA refresh (Titan Go)
+## 8. PWA refresh (Sorted)
 
-Titan Go checks for a newer service worker, but iPadOS can keep an open PWA process alive. After a deploy, fully close Titan Go and reopen it. If an old shell persists, open the site in Safari once and reload, then reopen the installed PWA.
+Sorted checks for a newer service worker, but iPadOS can keep an open PWA process alive. After a deploy, fully close Sorted and reopen it. (Historical name: Titan Go, used before 2026-11-15.) If an old shell persists, open the site in Safari once and reload, then reopen the installed PWA.
 
 ## 9. Behaviour to preserve across deploys
 

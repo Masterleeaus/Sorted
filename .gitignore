@@ -1,5 +1,7 @@
 .env
 .env.*
+!.env.example
+!infra/garonhome.env.example
 *secret*
 *.zip
 *.tar*
@@ -12,3 +14,4 @@ node_modules/
 dist/
 .next/
 *.tsbuildinfo
+*.pem

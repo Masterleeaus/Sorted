@@ -3,6 +3,8 @@ import { cookies } from "next/headers";
 import { roleSchema, type Role } from "@ai-fsm/domain";
 import { queryOneForSession } from "../db";
 import { getEnv } from "../env";
+import { readSessionMembership } from "../central/membership";
+import { membershipIsCurrent } from "../central/tenant";
 
 const COOKIE_NAME = "fsm_session";
 const EXPIRY = "7d";
@@ -11,6 +13,12 @@ export interface SessionPayload {
   userId: string;
   accountId: string;
   role: Role;
+  /**
+   * Set only for a session scoped to a Central organisation (issue #40). Such a
+   * session stays valid only while its membership is still active at this revision.
+   */
+  titanOrganisationId?: string;
+  membershipRevision?: number;
 }
 
 type UserSessionRow = {
@@ -59,10 +67,18 @@ export async function getSession(): Promise<SessionPayload | null> {
   const role = roleSchema.safeParse(user.role);
   if (!role.success) return null;
 
+  if (verified.titanOrganisationId !== undefined) {
+    const membership = await readSessionMembership(verified, verified.titanOrganisationId);
+    if (!membershipIsCurrent(membership, verified.membershipRevision ?? Number.NaN)) return null;
+  }
+
   return {
     userId: user.id,
     accountId: user.company_id,
     role: role.data,
+    ...(verified.titanOrganisationId !== undefined
+      ? { titanOrganisationId: verified.titanOrganisationId, membershipRevision: verified.membershipRevision }
+      : {}),
   };
 }
 
