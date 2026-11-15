@@ -24,7 +24,7 @@ export async function assertClientInAccount(
   clientId: string,
 ): Promise<{ id: string; name: string }> {
   const result = await client.query<{ id: string; name: string }>(
-    `SELECT id, name FROM clients WHERE id = $1 AND account_id = $2`,
+    `SELECT id, name FROM clients WHERE id = $1 AND company_id = $2`,
     [clientId, accountId],
   );
   if (result.rowCount === 0) {
@@ -40,7 +40,7 @@ export async function assertJobForClient(
   clientId: string,
 ): Promise<{ id: string; title: string; property_id: string | null }> {
   const result = await client.query<{ id: string; title: string; property_id: string | null }>(
-    `SELECT id, title, property_id FROM jobs WHERE id = $1 AND account_id = $2 AND client_id = $3`,
+    `SELECT id, title, property_id FROM jobs WHERE id = $1 AND company_id = $2 AND client_id = $3`,
     [jobId, accountId, clientId],
   );
   if (result.rowCount === 0) {
@@ -56,7 +56,7 @@ export async function assertPropertyForClient(
   clientId: string,
 ): Promise<{ id: string; address: string }> {
   const result = await client.query<{ id: string; address: string }>(
-    `SELECT id, address FROM properties WHERE id = $1 AND account_id = $2 AND client_id = $3`,
+    `SELECT id, address FROM properties WHERE id = $1 AND company_id = $2 AND client_id = $3`,
     [propertyId, accountId, clientId],
   );
   if (result.rowCount === 0) {

@@ -34,7 +34,7 @@ async function assertJobAccess(
   role: string,
   userId: string,
 ): Promise<"ok" | "not_found" | "forbidden"> {
-  const job = await client.query(`SELECT id FROM jobs WHERE id = $1 AND account_id = $2`, [
+  const job = await client.query(`SELECT id FROM jobs WHERE id = $1 AND company_id = $2`, [
     jobId,
     accountId,
   ]);
@@ -42,7 +42,7 @@ async function assertJobAccess(
   if (role === "tech") {
     const assigned = await client.query(
       `SELECT id FROM visits
-       WHERE job_id = $1 AND account_id = $2 AND assigned_user_id = $3
+       WHERE job_id = $1 AND company_id = $2 AND assigned_user_id = $3
        LIMIT 1`,
       [jobId, accountId, userId],
     );
@@ -134,7 +134,7 @@ export const PATCH = withAuth(async (request: NextRequest, session: AuthSession)
       const r = await client.query(
         `UPDATE job_material_lines
          SET ${sets.join(", ")}
-         WHERE id = $${i} AND job_id = $${i + 1} AND account_id = $${i + 2}
+         WHERE id = $${i} AND job_id = $${i + 1} AND company_id = $${i + 2}
          RETURNING *`,
         params,
       );
@@ -149,7 +149,7 @@ export const PATCH = withAuth(async (request: NextRequest, session: AuthSession)
         await client.query(
           `UPDATE materials_price_book
            SET supplier = $1, aisle = $2, bay = $3
-           WHERE id = $4 AND account_id = $5`,
+           WHERE id = $4 AND company_id = $5`,
           [updated.supplier, updated.aisle, updated.bay, updated.catalog_material_id, session.accountId],
         );
       }
@@ -204,7 +204,7 @@ export const DELETE = withAuth(async (request: NextRequest, session: AuthSession
 
       const r = await client.query(
         `DELETE FROM job_material_lines
-         WHERE id = $1 AND job_id = $2 AND account_id = $3
+         WHERE id = $1 AND job_id = $2 AND company_id = $3
          RETURNING id`,
         [ids.lineId, ids.jobId, session.accountId],
       );

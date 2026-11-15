@@ -71,7 +71,7 @@ export const GET = withAuth(async (request: NextRequest, session: AuthSession) =
     );
 
     const { rows: visitRows } = await client.query(
-      `SELECT id, visit_type, assigned_user_id FROM visits WHERE id = $1 AND account_id = $2`,
+      `SELECT id, visit_type, assigned_user_id FROM visits WHERE id = $1 AND company_id = $2`,
       [visitId, session.accountId]
     );
     if (visitRows.length === 0) {
@@ -89,14 +89,14 @@ export const GET = withAuth(async (request: NextRequest, session: AuthSession) =
     }
 
     const { rows } = await client.query(
-      `SELECT * FROM site_visit_assessments WHERE visit_id = $1 AND account_id = $2`,
+      `SELECT * FROM site_visit_assessments WHERE visit_id = $1 AND company_id = $2`,
       [visitId, session.accountId]
     );
 
     const photos = await client.query(
       `SELECT id, original_name, mime_type, size_bytes, created_at
        FROM visit_media
-       WHERE visit_id = $1 AND account_id = $2 AND category = 'assessment'
+       WHERE visit_id = $1 AND company_id = $2 AND category = 'assessment'
        ORDER BY created_at`,
       [visitId, session.accountId]
     );
@@ -150,7 +150,7 @@ export const PUT = withAuth(async (request: NextRequest, session: AuthSession) =
     );
 
     const { rows: visitRows } = await client.query(
-      `SELECT id, visit_type, assigned_user_id FROM visits WHERE id = $1 AND account_id = $2 FOR UPDATE`,
+      `SELECT id, visit_type, assigned_user_id FROM visits WHERE id = $1 AND company_id = $2 FOR UPDATE`,
       [visitId, session.accountId]
     );
     if (visitRows.length === 0) {
@@ -179,7 +179,7 @@ export const PUT = withAuth(async (request: NextRequest, session: AuthSession) =
     const d = parsed.data;
 
     const { rows: existingAssessmentRows } = await client.query<{ completed_at: Date | null }>(
-      `SELECT completed_at FROM site_visit_assessments WHERE visit_id = $1 AND account_id = $2`,
+      `SELECT completed_at FROM site_visit_assessments WHERE visit_id = $1 AND company_id = $2`,
       [visitId, session.accountId]
     );
     const previousCompletedAt = existingAssessmentRows[0]?.completed_at ?? null;
@@ -191,7 +191,7 @@ export const PUT = withAuth(async (request: NextRequest, session: AuthSession) =
 
     const { rows } = await client.query(
       `INSERT INTO site_visit_assessments
-         (visit_id, account_id, rooms, scope_notes, access_notes,
+         (visit_id, company_id, rooms, scope_notes, access_notes,
           has_pets, difficult_access, asbestos_risk, lead_paint_risk,
           total_sqft, completed_at, created_by,
           work_items, prep_notes, trade_notes, customer_supplied_materials)

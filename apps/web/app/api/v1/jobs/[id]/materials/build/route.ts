@@ -38,7 +38,7 @@ async function assertJobAccess(
   role: string,
   userId: string,
 ): Promise<"ok" | "not_found" | "forbidden"> {
-  const job = await client.query(`SELECT id FROM jobs WHERE id = $1 AND account_id = $2`, [
+  const job = await client.query(`SELECT id FROM jobs WHERE id = $1 AND company_id = $2`, [
     jobId,
     accountId,
   ]);
@@ -46,7 +46,7 @@ async function assertJobAccess(
   if (role === "tech") {
     const assigned = await client.query(
       `SELECT id FROM visits
-       WHERE job_id = $1 AND account_id = $2 AND assigned_user_id = $3
+       WHERE job_id = $1 AND company_id = $2 AND assigned_user_id = $3
        LIMIT 1`,
       [jobId, accountId, userId],
     );
@@ -115,7 +115,7 @@ export const POST = withAuth(async (request: NextRequest, session: AuthSession) 
         );
       }
 
-      await client.query(`SELECT id FROM jobs WHERE id = $1 AND account_id = $2 FOR UPDATE`, [
+      await client.query(`SELECT id FROM jobs WHERE id = $1 AND company_id = $2 FOR UPDATE`, [
         jobId,
         session.accountId,
       ]);
@@ -131,7 +131,7 @@ export const POST = withAuth(async (request: NextRequest, session: AuthSession) 
          FROM price_book_material_templates t
          JOIN price_book pb ON pb.id = t.price_book_id
          LEFT JOIN materials_price_book mpb
-           ON mpb.id = t.catalog_material_id AND mpb.account_id = $1
+           ON mpb.id = t.catalog_material_id AND mpb.company_id = $1
          WHERE pb.code = ANY($2::text[])
          ORDER BY pb.code, t.sort_order, t.material_name`,
         [session.accountId, codes],
@@ -181,7 +181,7 @@ export const POST = withAuth(async (request: NextRequest, session: AuthSession) 
         status: string;
       }>(
         `SELECT name, unit_label, status FROM job_material_lines
-         WHERE job_id = $1 AND account_id = $2`,
+         WHERE job_id = $1 AND company_id = $2`,
         [jobId, session.accountId],
       );
 
@@ -280,7 +280,7 @@ export const POST = withAuth(async (request: NextRequest, session: AuthSession) 
 
       const maxSort = await client.query<{ m: string | null }>(
         `SELECT MAX(sort_order)::text AS m FROM job_material_lines
-         WHERE job_id = $1 AND account_id = $2`,
+         WHERE job_id = $1 AND company_id = $2`,
         [jobId, session.accountId],
       );
       let sortOrder = (parseInt(maxSort.rows[0]?.m ?? "-1", 10) || -1) + 1;
@@ -289,7 +289,7 @@ export const POST = withAuth(async (request: NextRequest, session: AuthSession) 
       for (const line of hydrated) {
         const ins = await client.query(
           `INSERT INTO job_material_lines
-             (account_id, job_id, name, quantity, unit_label, store_section,
+             (company_id, job_id, name, quantity, unit_label, store_section,
               status, source, catalog_material_id, sku, notes, sort_order,
               supplier, aisle, bay, role, generation_source, price_book_code)
            VALUES ($1,$2,$3,$4,$5,$6,'needed','kit',$7,$8,$9,$10,$11,$12,$13,$14,'template',$15)
@@ -319,7 +319,7 @@ export const POST = withAuth(async (request: NextRequest, session: AuthSession) 
 
       await client.query(
         `UPDATE jobs SET materials_plan_seeded_at = COALESCE(materials_plan_seeded_at, now())
-         WHERE id = $1 AND account_id = $2`,
+         WHERE id = $1 AND company_id = $2`,
         [jobId, session.accountId],
       );
 

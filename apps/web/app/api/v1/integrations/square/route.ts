@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { withRole } from "@/lib/auth/middleware";
-import { withDbSession } from "@/lib/db";
+import { withDbSession, companyIdFromSession } from "@/lib/db";
 import { appendAuditLog } from "@/lib/db/audit";
 import { logger } from "@/lib/logger";
 import { isEncryptionConfigured } from "@/lib/crypto";
@@ -161,7 +161,7 @@ export const PUT = withRole(["owner"], async (request, session) => {
 
       await client.query(
         `INSERT INTO integration_settings
-           (account_id, provider, enabled, environment, config, secrets, status, status_detail, last_checked_at)
+           (company_id, provider, enabled, environment, config, secrets, status, status_detail, last_checked_at)
          VALUES ($1, 'square', $2, $3, $4, $5, 'disconnected', NULL, NULL)
          ON CONFLICT (account_id, provider) DO UPDATE
            SET enabled = EXCLUDED.enabled,
@@ -172,7 +172,7 @@ export const PUT = withRole(["owner"], async (request, session) => {
                status = 'disconnected',
                status_detail = NULL`,
         [
-          session.accountId,
+          companyIdFromSession(session),
           input.enabled,
           input.environment,
           JSON.stringify(config),

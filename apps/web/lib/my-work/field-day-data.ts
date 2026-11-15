@@ -48,7 +48,7 @@ export async function loadFieldDayData(
         `SELECT s.id, s.session_date::text, s.vehicle_id, v.nickname AS vehicle_nickname,
                 v.plate AS vehicle_plate, s.start_odometer, s.started_at::text AS started_at
          FROM vehicle_sessions s LEFT JOIN vehicles v ON v.id = s.vehicle_id
-         WHERE s.account_id = $1 AND s.session_date = $2::date
+         WHERE s.company_id = $1 AND s.session_date = $2::date
            AND s.status = 'open'
            AND s.end_odometer IS NULL AND s.miles IS NULL
          ORDER BY s.started_at DESC LIMIT 1`,
@@ -62,15 +62,15 @@ export async function loadFieldDayData(
          FROM vehicles v
          LEFT JOIN LATERAL (
            SELECT end_odometer, session_date FROM vehicle_sessions
-           WHERE vehicle_id = v.id AND account_id = v.account_id AND end_odometer IS NOT NULL
+           WHERE vehicle_id = v.id AND company_id = v.company_id AND end_odometer IS NOT NULL
            ORDER BY session_date DESC, created_at DESC LIMIT 1
          ) last_s ON true
          LEFT JOIN LATERAL (
            SELECT started_at FROM vehicle_sessions
-           WHERE vehicle_id = v.id AND account_id = v.account_id
+           WHERE vehicle_id = v.id AND company_id = v.company_id
            ORDER BY started_at DESC LIMIT 1
          ) recent ON true
-         WHERE v.account_id = $1 AND v.is_active = true
+         WHERE v.company_id = $1 AND v.is_active = true
          ORDER BY v.nickname ASC`,
         [accountId],
       ),
@@ -79,7 +79,7 @@ export async function loadFieldDayData(
         `SELECT id, user_id::text, activity_type, category, started_at::text, ended_at::text,
                 entity_type, entity_id, assignment_kind, labor_bucket, note
          FROM activity_entries
-         WHERE account_id = $1 AND (session_date = $2::date OR ended_at IS NULL) AND voided_at IS NULL
+         WHERE company_id = $1 AND (session_date = $2::date OR ended_at IS NULL) AND voided_at IS NULL
          ORDER BY started_at ASC`,
         [accountId, today],
       ),
@@ -88,7 +88,7 @@ export async function loadFieldDayData(
         `SELECT s.vehicle_id, v.nickname AS vehicle_nickname, v.plate AS vehicle_plate,
                 s.start_odometer, s.end_odometer, s.miles::float8 AS miles
          FROM vehicle_sessions s LEFT JOIN vehicles v ON v.id = s.vehicle_id
-         WHERE s.account_id = $1 AND s.session_date = $2::date
+         WHERE s.company_id = $1 AND s.session_date = $2::date
            AND s.status <> 'voided'
          ORDER BY s.started_at ASC`,
         [accountId, today],
@@ -97,14 +97,14 @@ export async function loadFieldDayData(
         session,
         `SELECT COALESCE(SUM(miles), 0)::text AS count
          FROM vehicle_sessions
-         WHERE account_id = $1 AND session_date = $2::date - interval '1 day'
+         WHERE company_id = $1 AND session_date = $2::date - interval '1 day'
            AND status <> 'voided'`,
         [accountId, today],
       ),
       queryForSession<{ status: string }>(
         session,
         `SELECT status FROM time_clock_sessions
-         WHERE account_id = $1 AND user_id = $2 AND status = 'open' AND voided_at IS NULL
+         WHERE company_id = $1 AND user_id = $2 AND status = 'open' AND voided_at IS NULL
          ORDER BY clock_in_at DESC LIMIT 1`,
         [accountId, session.userId],
       ),
@@ -113,7 +113,7 @@ export async function loadFieldDayData(
         `SELECT s.id, s.session_date::text, s.vehicle_id, v.nickname AS vehicle_nickname,
                 v.plate AS vehicle_plate, s.start_odometer, s.started_at::text AS started_at
          FROM vehicle_sessions s LEFT JOIN vehicles v ON v.id = s.vehicle_id
-         WHERE s.account_id = $1 AND s.session_date < $2::date
+         WHERE s.company_id = $1 AND s.session_date < $2::date
            AND s.status = 'open'
            AND s.end_odometer IS NULL AND s.miles IS NULL
          ORDER BY s.started_at DESC LIMIT 1`,
@@ -123,13 +123,13 @@ export async function loadFieldDayData(
         session,
         `SELECT MAX(d)::text AS last_worked FROM (
            SELECT session_date AS d FROM vehicle_sessions
-            WHERE account_id = $1 AND created_by = $2 AND session_date < $3::date AND status <> 'voided'
+            WHERE company_id = $1 AND created_by = $2 AND session_date < $3::date AND status <> 'voided'
            UNION ALL
            SELECT clock_in_at::date FROM time_clock_sessions
-            WHERE account_id = $1 AND user_id = $2 AND voided_at IS NULL AND clock_in_at::date < $3::date
+            WHERE company_id = $1 AND user_id = $2 AND voided_at IS NULL AND clock_in_at::date < $3::date
            UNION ALL
            SELECT scheduled_start::date FROM visits
-            WHERE account_id = $1 AND assigned_user_id = $2
+            WHERE company_id = $1 AND assigned_user_id = $2
               AND status NOT IN ('cancelled') AND scheduled_start::date < $3::date
          ) x`,
         [accountId, session.userId, today],
@@ -138,7 +138,7 @@ export async function loadFieldDayData(
         session,
         `SELECT MAX(session_date)::text AS last_ended
            FROM vehicle_sessions
-          WHERE account_id = $1 AND created_by = $2
+          WHERE company_id = $1 AND created_by = $2
             AND end_odometer IS NOT NULL AND session_date < $3::date`,
         [accountId, session.userId, today],
       ),
@@ -162,13 +162,13 @@ export async function loadFieldDayData(
       queryForSession<{ cents: string }>(
         session,
         `SELECT COALESCE(SUM(total_cents - paid_cents), 0)::text AS cents
-         FROM invoices WHERE account_id = $1 AND status IN ('sent','partial','overdue')`,
+         FROM invoices WHERE company_id = $1 AND status IN ('sent','partial','overdue')`,
         [accountId],
       ),
       queryForSession<{ count: string }>(
         session,
         `SELECT COUNT(*)::text AS count FROM invoices
-         WHERE account_id = $1 AND status = 'draft' AND invoice_kind IN ('final','standard')`,
+         WHERE company_id = $1 AND status = 'draft' AND invoice_kind IN ('final','standard')`,
         [accountId],
       ),
     ]);

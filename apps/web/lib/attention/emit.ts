@@ -111,7 +111,7 @@ export async function markEntityAttentionRead(
     const r = await client.query(
       `UPDATE attention_events
        SET read_at = now()
-       WHERE account_id = $1
+       WHERE company_id = $1
          AND entity_type = $2
          AND entity_id = $3
          AND read_at IS NULL`,

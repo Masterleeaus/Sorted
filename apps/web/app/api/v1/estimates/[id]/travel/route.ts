@@ -83,7 +83,7 @@ export const POST = withRole(["owner", "admin"], async (request: NextRequest, se
     }>(
       `SELECT id, status, client_id, property_id, job_id, total_cents, travel_snapshot_id,
               presentation_mode
-       FROM estimates WHERE id = $1 AND account_id = $2`,
+       FROM estimates WHERE id = $1 AND company_id = $2`,
       [estimateId, session.accountId]
     );
     if (!est.rowCount) {
@@ -238,7 +238,7 @@ export const GET = withRole(["owner", "admin", "tech"], async (request: NextRequ
       [session.userId, session.accountId, session.role]
     );
     const est = await client.query<{ travel_snapshot_id: string | null; travel_charge_mode: string | null }>(
-      `SELECT travel_snapshot_id, travel_charge_mode FROM estimates WHERE id = $1 AND account_id = $2`,
+      `SELECT travel_snapshot_id, travel_charge_mode FROM estimates WHERE id = $1 AND company_id = $2`,
       [estimateId, session.accountId]
     );
     if (!est.rowCount) {

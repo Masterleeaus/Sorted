@@ -44,7 +44,7 @@ export const POST = withRole(["owner", "admin"], async (request, session) => {
          JOIN clients c ON c.id = i.client_id
          LEFT JOIN jobs j ON j.id = i.job_id
          LEFT JOIN estimates e ON e.id = i.estimate_id
-         WHERE i.id = $1 AND i.account_id = $2`,
+         WHERE i.id = $1 AND i.company_id = $2`,
         [id, session.accountId]
       );
 
@@ -172,7 +172,7 @@ export const POST = withRole(["owner", "admin"], async (request, session) => {
       });
 
       if (!emailResult.ok) {
-        await logCommunication({
+        await logCommunication(client, {
           accountId: session.accountId,
           channel: "email",
           direction: "outbound",
@@ -185,7 +185,7 @@ export const POST = withRole(["owner", "admin"], async (request, session) => {
         return { status: 502, message: `Email send failed: ${emailResult.error}` };
       }
 
-      await logCommunication({
+      await logCommunication(client, {
         accountId: session.accountId,
         channel: "email",
         direction: "outbound",

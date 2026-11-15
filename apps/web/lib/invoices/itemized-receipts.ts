@@ -106,7 +106,7 @@ export async function loadItemizedReceipts(
   const receipts = await db.query<ReceiptRow>(
     `SELECT e.id, e.expense_date::text AS expense_date, e.vendor_name, e.amount_cents
      FROM expenses e
-     WHERE e.account_id = $1 AND e.job_id = $2
+     WHERE e.company_id = $1 AND e.job_id = $2
        AND e.billable IS DISTINCT FROM false
        AND e.category = ANY($4::text[])
        AND NOT EXISTS (
@@ -122,7 +122,7 @@ export async function loadItemizedReceipts(
     ? await db.query<ReceiptItemRow>(
         `SELECT expense_id, name, quantity::float8 AS quantity, unit_cost_cents, billable
          FROM expense_line_items
-         WHERE account_id = $1 AND expense_id = ANY($2::uuid[])
+         WHERE company_id = $1 AND expense_id = ANY($2::uuid[])
          ORDER BY sort_order ASC, created_at ASC`,
         [accountId, ids],
       )

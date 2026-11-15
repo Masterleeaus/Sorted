@@ -4,6 +4,7 @@ import { withAuth, withRole } from "@/lib/auth/middleware";
 import { withReportContext } from "@/lib/reports/db";
 import { appendAuditLog } from "@/lib/db/audit";
 import { logger } from "@/lib/logger";
+import { companyIdFromSession } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
 
@@ -43,9 +44,9 @@ export const GET = withAuth(async (request: NextRequest, session) => {
       const result = await client.query(
         `SELECT id, account_id, period_month, closed_by, closed_at, notes
          FROM period_closes
-         WHERE account_id = $1 AND period_month = $2
+         WHERE company_id = $1 AND period_month = $2
          LIMIT 1`,
-        [session.accountId, month]
+        [companyIdFromSession(session), month]
       );
       return result.rows[0] ?? null;
     });
@@ -120,8 +121,8 @@ export const POST = withRole(["owner", "admin"], async (request: NextRequest, se
     const close = await withReportContext(session, async (client) => {
       // Check for existing close
       const existing = await client.query(
-        `SELECT id FROM period_closes WHERE account_id = $1 AND period_month = $2`,
-        [session.accountId, month]
+        `SELECT id FROM period_closes WHERE company_id = $1 AND period_month = $2`,
+        [companyIdFromSession(session), month]
       );
       if (existing.rowCount && existing.rowCount > 0) {
         throw Object.assign(new Error("Period already closed"), {
@@ -130,10 +131,10 @@ export const POST = withRole(["owner", "admin"], async (request: NextRequest, se
       }
 
       const result = await client.query(
-        `INSERT INTO period_closes (account_id, period_month, closed_by, notes)
+        `INSERT INTO period_closes (company_id, period_month, closed_by, notes)
          VALUES ($1, $2, $3, $4)
          RETURNING id, account_id, period_month, closed_by, closed_at, notes`,
-        [session.accountId, month, session.userId, notes ?? null]
+        [companyIdFromSession(session), month, session.userId, notes ?? null]
       );
 
       const row = result.rows[0];
@@ -212,8 +213,8 @@ export const DELETE = withRole(["owner"], async (request: NextRequest, session) 
   try {
     await withReportContext(session, async (client) => {
       const existing = await client.query(
-        `SELECT id FROM period_closes WHERE account_id = $1 AND period_month = $2`,
-        [session.accountId, month]
+        `SELECT id FROM period_closes WHERE company_id = $1 AND period_month = $2`,
+        [companyIdFromSession(session), month]
       );
       if (!existing.rowCount || existing.rowCount === 0) {
         throw Object.assign(new Error("Period close not found"), {
@@ -224,8 +225,8 @@ export const DELETE = withRole(["owner"], async (request: NextRequest, session) 
       const closeId = existing.rows[0].id as string;
 
       await client.query(
-        `DELETE FROM period_closes WHERE account_id = $1 AND period_month = $2`,
-        [session.accountId, month]
+        `DELETE FROM period_closes WHERE company_id = $1 AND period_month = $2`,
+        [companyIdFromSession(session), month]
       );
 
       await appendAuditLog(client, {

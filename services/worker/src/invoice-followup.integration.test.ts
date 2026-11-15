@@ -100,6 +100,7 @@ describe.skipIf(!shouldRun)("invoice-followup integration", () => {
     const automation: AutomationRow = {
       id: automationId,
       account_id: accountId,
+      company_id: accountId,
       type: "invoice_followup",
       config: { days_overdue: [7, 14, 30] },
       enabled: true,
@@ -142,6 +143,7 @@ describe.skipIf(!shouldRun)("invoice-followup integration", () => {
     const automation: AutomationRow = {
       id: automationId,
       account_id: accountId,
+      company_id: accountId,
       type: "invoice_followup",
       config: { days_overdue: [7, 14, 30] },
       enabled: true,
@@ -157,6 +159,7 @@ describe.skipIf(!shouldRun)("invoice-followup integration", () => {
     const invoice: OverdueInvoice = {
       id: invoiceId,
       account_id: accountId,
+      company_id: accountId,
       client_id: clientEntityId,
       invoice_number: "INV-FU-001",
       status: "overdue",
@@ -183,6 +186,7 @@ describe.skipIf(!shouldRun)("invoice-followup integration", () => {
     const invoice: OverdueInvoice = {
       id: invoiceId,
       account_id: accountId,
+      company_id: accountId,
       client_id: clientEntityId,
       invoice_number: "INV-FU-001",
       status: "overdue",

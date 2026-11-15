@@ -7,7 +7,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { withAuth } from "@/lib/auth/middleware";
 import type { AuthSession } from "@/lib/auth/middleware";
-import { queryOne, getPool } from "@/lib/db";
+import { getPool, queryOneForSession, companyIdFromSession } from "@/lib/db";
 import { logger } from "@/lib/logger";
 
 export const dynamic = "force-dynamic";
@@ -30,9 +30,9 @@ export const GET = withAuth(async (request: NextRequest, session: AuthSession) =
   const id = extractId(request.url);
   if (!id) return NextResponse.json({ error: { code: "NOT_FOUND", message: "Not found", traceId: session.traceId } }, { status: 404 });
 
-  const row = await queryOne(
-    `SELECT * FROM materials_price_book WHERE id = $1 AND account_id = $2`,
-    [id, session.accountId]
+  const row = await queryOneForSession(session,
+    `SELECT * FROM materials_price_book WHERE id = $1 AND company_id = $2`,
+    [id, companyIdFromSession(session)]
   );
   if (!row) return NextResponse.json({ error: { code: "NOT_FOUND", message: "Material not found", traceId: session.traceId } }, { status: 404 });
 
@@ -87,10 +87,10 @@ export const PATCH = withAuth(async (request: NextRequest, session: AuthSession)
       }
     }
 
-    params.push(id, session.accountId);
+    params.push(id, companyIdFromSession(session));
     const { rows } = await client.query(
       `UPDATE materials_price_book SET ${setClauses.join(", ")}
-       WHERE id = $${idx++} AND account_id = $${idx} RETURNING *`,
+       WHERE id = $${idx++} AND company_id = $${idx} RETURNING *`,
       params
     );
 
@@ -130,8 +130,8 @@ export const DELETE = withAuth(async (request: NextRequest, session: AuthSession
 
     const { rowCount } = await client.query(
       `UPDATE materials_price_book SET is_active = false, updated_at = now()
-       WHERE id = $1 AND account_id = $2`,
-      [id, session.accountId]
+       WHERE id = $1 AND company_id = $2`,
+      [id, companyIdFromSession(session)]
     );
 
     if (!rowCount) {

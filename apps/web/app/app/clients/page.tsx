@@ -3,7 +3,7 @@ import type { Route } from "next";
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth/session";
 import { canManageClients } from "@/lib/auth/permissions";
-import { query } from "@/lib/db";
+import { queryForSession } from "@/lib/db";
 import { formatClientContact } from "@/lib/crm/normalization";
 import { formatCents } from "@/lib/money";
 import {
@@ -71,7 +71,7 @@ export default async function ClientsPage({ searchParams }: PageProps) {
   const { q } = await searchParams;
   const search = (q ?? "").trim().toLowerCase();
   const params: unknown[] = [session.accountId];
-  const conditions = ["c.account_id = $1"];
+  const conditions = ["c.company_id = $1"];
   let idx = 2;
   if (search) {
     conditions.push(`(LOWER(c.name) LIKE $${idx} OR LOWER(COALESCE(c.email, '')) LIKE $${idx} OR LOWER(COALESCE(c.phone, '')) LIKE $${idx})`);
@@ -79,13 +79,13 @@ export default async function ClientsPage({ searchParams }: PageProps) {
     idx++;
   }
 
-  const clients = await query<ClientRow>(
+  const clients = await queryForSession<ClientRow>(session,
     `SELECT c.*,
             COUNT(DISTINCT p.id)::int AS property_count,
             COUNT(DISTINCT j.id)::int AS job_count
      FROM clients c
-     LEFT JOIN properties p ON p.client_id = c.id AND p.account_id = c.account_id
-     LEFT JOIN jobs j ON j.client_id = c.id AND j.account_id = c.account_id
+     LEFT JOIN properties p ON p.client_id = c.id AND p.company_id = c.company_id
+     LEFT JOIN jobs j ON j.client_id = c.id AND j.company_id = c.company_id
      WHERE ${conditions.join(" AND ")}
      GROUP BY c.id
      ORDER BY c.name ASC

@@ -34,7 +34,7 @@ export async function syncWorkOrderStatus(
 ): Promise<WorkOrderStatus | null> {
   const woRes = await client.query<{ status: WorkOrderStatus; completion_criteria: unknown }>(
     `SELECT status, completion_criteria FROM work_orders
-     WHERE id = $1 AND account_id = $2 FOR UPDATE`,
+     WHERE id = $1 AND company_id = $2 FOR UPDATE`,
     [workOrderId, accountId],
   );
   const wo = woRes.rows[0];
@@ -42,7 +42,7 @@ export async function syncWorkOrderStatus(
 
   const visitRes = await client.query<WorkOrderVisitSnapshot>(
     `SELECT status, scheduled_start, closeout_kind FROM visits
-     WHERE work_order_id = $1 AND account_id = $2`,
+     WHERE work_order_id = $1 AND company_id = $2`,
     [workOrderId, accountId],
   );
 
@@ -72,7 +72,7 @@ export async function syncWorkOrderStatus(
                              WHEN $3 <> 'completed' THEN NULL
                              ELSE completed_at END,
          updated_at = now()
-       WHERE id = $1 AND account_id = $2`,
+       WHERE id = $1 AND company_id = $2`,
       [workOrderId, accountId, derived],
     );
   }
@@ -88,7 +88,7 @@ export async function syncWorkOrdersForJob(
 ): Promise<void> {
   const rows = await client.query<{ id: string }>(
     `SELECT id FROM work_orders
-     WHERE job_id = $1 AND account_id = $2
+     WHERE job_id = $1 AND company_id = $2
        AND status IN (${schedulableList})`,
     [jobId, accountId],
   );
@@ -109,7 +109,7 @@ export async function promoteDraftWorkOrderToReady(
   const r = await client.query(
     `UPDATE work_orders
      SET status = 'ready', updated_at = now()
-     WHERE id = $1 AND account_id = $2 AND status = 'draft'`,
+     WHERE id = $1 AND company_id = $2 AND status = 'draft'`,
     [workOrderId, accountId],
   );
   return (r.rowCount ?? 0) > 0;
@@ -129,7 +129,7 @@ export async function resolveWorkOrderForVisit(
   if (workOrderId) {
     const check = await client.query<{ id: string; status: string }>(
       `SELECT id, status FROM work_orders
-       WHERE id = $1 AND job_id = $2 AND account_id = $3
+       WHERE id = $1 AND job_id = $2 AND company_id = $3
          AND status IN (${bookableList})`,
       [workOrderId, jobId, accountId],
     );
@@ -143,7 +143,7 @@ export async function resolveWorkOrderForVisit(
 
   const rows = await client.query<{ id: string; status: string }>(
     `SELECT id, status FROM work_orders
-     WHERE job_id = $1 AND account_id = $2
+     WHERE job_id = $1 AND company_id = $2
        AND status IN (${bookableList})
      ORDER BY created_at ASC`,
     [jobId, accountId],

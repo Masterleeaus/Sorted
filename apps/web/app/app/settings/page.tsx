@@ -55,7 +55,7 @@ export default async function SettingsPage() {
     isAdmin
       ? queryForSession<UserRow>(
           session,
-          `SELECT id, full_name, email, phone, role, created_at FROM users WHERE account_id = $1 ORDER BY role, full_name`,
+          `SELECT id, full_name, email, phone, role, created_at FROM users WHERE company_id = $1 ORDER BY role, full_name`,
           [session.accountId]
         )
       : [],

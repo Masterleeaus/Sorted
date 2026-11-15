@@ -26,7 +26,7 @@ export async function loadJobExpensesForCloseout(
   const result = await client.query<CloseoutExpenseRow>(
     `SELECT e.id, e.vendor_name, e.amount_cents, e.notes, e.category
      FROM expenses e
-     WHERE e.account_id = $1
+     WHERE e.company_id = $1
        AND e.job_id = $2
        AND e.billable IS DISTINCT FROM false
        AND NOT EXISTS (

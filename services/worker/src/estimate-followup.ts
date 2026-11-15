@@ -22,6 +22,7 @@ import { PRIORITY } from "./notification/priority.js";
 interface EligibleEstimate {
   id: string;
   account_id: string;
+  company_id: string;
   client_id: string;
   total_cents: number;
   sent_at: string;
@@ -32,7 +33,7 @@ interface EligibleEstimate {
 
 export async function findDueEstimateFollowups(client: Client): Promise<AutomationRow[]> {
   const { rows } = await client.query<AutomationRow>(
-    `SELECT id, account_id, type, config, enabled, next_run_at::text
+    `SELECT id, account_id, company_id, type, config, enabled, next_run_at::text
        FROM automations
       WHERE type = 'estimate_followup'
         AND enabled = true
@@ -48,14 +49,14 @@ export async function findEligibleEstimates(
   const daysAfter = (automation.config as { days_after_sent?: number }).days_after_sent ?? 3;
 
   const { rows } = await client.query<EligibleEstimate>(
-    `SELECT e.id, e.account_id, c.id AS client_id,
+    `SELECT e.id, e.account_id, e.company_id, c.id AS client_id,
             e.total_cents,
             e.sent_at::text AS sent_at,
             EXTRACT(DAY FROM (now() - e.sent_at))::int AS days_since_sent,
             c.name AS client_name, c.email AS client_email
        FROM estimates e
-       JOIN clients c ON c.id = e.client_id AND c.account_id = e.account_id
-      WHERE e.account_id = $1
+       JOIN clients c ON c.id = e.client_id AND c.company_id = e.company_id
+      WHERE e.company_id = $1
         AND e.status = 'sent'
         AND e.sent_at IS NOT NULL
         AND e.sent_at <= now() - ($2 || ' days')::interval
@@ -65,10 +66,10 @@ export async function findEligibleEstimates(
           SELECT 1 FROM audit_log al
            WHERE al.entity_type = 'estimate_followup'
              AND al.entity_id = e.id
-             AND al.account_id = e.account_id
+             AND al.company_id = e.company_id
         )
       ORDER BY e.sent_at ASC`,
-    [automation.account_id, daysAfter]
+    [automation.company_id, daysAfter]
   );
 
   return rows;
@@ -83,9 +84,9 @@ async function emitEstimateFollowup(
     `SELECT 1 FROM audit_log
       WHERE entity_type = 'estimate_followup'
         AND entity_id = $1
-        AND account_id = $2
+        AND company_id = $2
       LIMIT 1`,
-    [est.id, est.account_id]
+    [est.id, est.company_id]
   );
   if (rowCount && rowCount > 0) return false;
 

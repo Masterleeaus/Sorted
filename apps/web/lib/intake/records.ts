@@ -94,7 +94,7 @@ async function resolveCreatedByUserId(
   const { rows } = await client.query<{ id: string }>(
     `SELECT id
      FROM users
-     WHERE account_id = $1
+     WHERE company_id = $1
        AND role IN ('owner', 'admin')
      ORDER BY CASE role WHEN 'owner' THEN 0 ELSE 1 END, created_at ASC
      LIMIT 1`,
@@ -119,7 +119,7 @@ async function findOrCreateClient(
 
   if (input.email) {
     const { rows } = await client.query<{ id: string }>(
-      `SELECT id FROM clients WHERE account_id = $1 AND email = $2`,
+      `SELECT id FROM clients WHERE company_id = $1 AND email = $2`,
       [input.accountId, input.email]
     );
     clientId = rows[0]?.id ?? null;
@@ -127,7 +127,7 @@ async function findOrCreateClient(
 
   if (!clientId && normalizedPhone) {
     const { rows } = await client.query<{ id: string }>(
-      `SELECT id FROM clients WHERE account_id = $1 AND phone = $2`,
+      `SELECT id FROM clients WHERE company_id = $1 AND phone = $2`,
       [input.accountId, normalizedPhone]
     );
     clientId = rows[0]?.id ?? null;
@@ -162,7 +162,7 @@ async function findOrCreateClient(
          sms_consent_at = CASE WHEN $3 THEN NOW() ELSE sms_consent_at END,
          sms_consent_source = CASE WHEN $3 THEN $4 ELSE sms_consent_source END,
          sms_consent_text = CASE WHEN $3 THEN $5 ELSE sms_consent_text END
-     WHERE id = $1 AND account_id = $6`,
+     WHERE id = $1 AND company_id = $6`,
     [
       clientId,
       input.preferredContact,
@@ -218,7 +218,7 @@ async function updateDuplicateCandidates(
 ): Promise<void> {
   const { rows } = await client.query<{ id: string }>(
     `SELECT id FROM booking_requests
-     WHERE account_id = $1
+     WHERE company_id = $1
        AND id != $2
        AND status NOT IN ('cancelled','converted','lost','duplicate')
        AND created_at > NOW() - INTERVAL '90 days'
@@ -242,7 +242,7 @@ async function updateDuplicateCandidates(
   await client.query(
     `UPDATE booking_requests
      SET duplicate_candidate_ids = $1
-     WHERE id = $2 AND account_id = $3`,
+     WHERE id = $2 AND company_id = $3`,
     [rows.map((row) => row.id), bookingId, input.accountId]
   );
 }
@@ -404,7 +404,7 @@ export async function repairBookingRequestPipelineLinks(
          property_id = $4,
          job_id = $5,
          updated_at = now()
-     WHERE id = $1 AND account_id = $2`,
+     WHERE id = $1 AND company_id = $2`,
     [input.id, input.accountId, clientId, propertyId, jobId]
   );
 

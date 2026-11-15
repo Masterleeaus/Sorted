@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { query, queryOne } from "@/lib/db";
+import { withTokenAccountContext } from "../../_lib/account-context";
 import { logger } from "@/lib/logger";
 import { randomUUID } from "crypto";
 import { normalizePhone } from "@/lib/phone";
@@ -31,7 +32,7 @@ async function getOwnerContext(): Promise<{ accountId: string; userId: string }>
   if (_accountId && _userId) return { accountId: _accountId, userId: _userId };
   const row = await queryOne<{ account_id: string; user_id: string }>(
     `SELECT a.id AS account_id, u.id AS user_id
-     FROM accounts a JOIN users u ON u.account_id = a.id
+     FROM accounts a JOIN users u ON u.company_id = a.id
      WHERE u.role = 'owner' ORDER BY u.created_at LIMIT 1`
   );
   if (!row) throw new Error("No owner account found in database");
@@ -70,7 +71,7 @@ async function handleSmsKeyword(opts: {
   // STOP/START need a client row to persist consent; create a minimal lead if new.
   if (!clientId && (keyword === "stop" || keyword === "start")) {
     const [created] = await query<{ id: string }>(
-      `INSERT INTO clients (account_id, name, phone, notes)
+      `INSERT INTO clients (company_id, name, phone, notes)
        VALUES ($1, $2, $3, $4) RETURNING id`,
       [
         accountId,
@@ -85,7 +86,7 @@ async function handleSmsKeyword(opts: {
   }
 
   // Claim idempotency BEFORE consent updates / auto-reply (same pattern as normal path).
-  const claimId = await logCommunication({
+  const claimId = await withTokenAccountContext(accountId, (db) => logCommunication(db, {
     accountId,
     channel: "sms",
     direction: "inbound",
@@ -94,7 +95,7 @@ async function handleSmsKeyword(opts: {
     jobId: null,
     bodyPreview: message.slice(0, 1000),
     externalId: externalId ?? null,
-  });
+  }));
   if (externalId && claimId === null) {
     logger.info("SMS keyword duplicate ignored (claim)", { traceId, externalId, keyword });
     return NextResponse.json({ duplicate: true });
@@ -109,7 +110,7 @@ async function handleSmsKeyword(opts: {
            sms_consent_at = NOW(),
            sms_consent_source = 'sms_stop',
            preferred_contact = CASE WHEN preferred_contact = 'sms' THEN 'email' ELSE preferred_contact END
-       WHERE account_id = $1
+       WHERE company_id = $1
          AND (
            phone = $2
            OR phone = $3
@@ -125,7 +126,7 @@ async function handleSmsKeyword(opts: {
            sms_consent_source = 'sms_start',
            sms_consent_text = $5,
            preferred_contact = 'sms'
-       WHERE account_id = $1
+       WHERE company_id = $1
          AND (
            phone = $2
            OR phone = $3
@@ -140,13 +141,13 @@ async function handleSmsKeyword(opts: {
     const sendResult = await sendSmsViaGateway({ phone, message: reply });
     autoReplied = sendResult.ok;
     if (sendResult.ok) {
-      await logOutboundSms({
+      await withTokenAccountContext(accountId, (db) => logOutboundSms(db, {
         accountId,
         clientId,
         bodyPreview: reply.slice(0, 1000),
         outcome: "sent",
         externalId: sendResult.messageId,
-      });
+      }));
     } else {
       logger.warn("SMS keyword auto-reply failed", {
         traceId,
@@ -206,7 +207,7 @@ async function createDraftJob(
   message: string
 ): Promise<string> {
   const [job] = await query<{ id: string }>(
-    `INSERT INTO jobs (account_id, client_id, title, description, status, job_type, created_by)
+    `INSERT INTO jobs (company_id, client_id, title, description, status, job_type, created_by)
      VALUES ($1, $2, $3, $4, 'draft', $5, $6) RETURNING id`,
     [
       accountId,
@@ -292,7 +293,7 @@ export async function POST(req: NextRequest) {
   // The unique index on (account_id, external_id) is the hard backstop.
   if (external_id) {
     const seen = await queryOne<{ id: string }>(
-      `SELECT id FROM communications_log WHERE account_id = $1 AND external_id = $2 LIMIT 1`,
+      `SELECT id FROM communications_log WHERE company_id = $1 AND external_id = $2 LIMIT 1`,
       [accountId, external_id]
     );
     if (seen) {
@@ -310,7 +311,7 @@ export async function POST(req: NextRequest) {
     sms_consent_at: string | null;
   }>(
     `SELECT id, name, sms_consent, sms_consent_at FROM clients
-     WHERE account_id = $1
+     WHERE company_id = $1
        AND (
          phone = $2
          OR phone = $3
@@ -345,7 +346,7 @@ export async function POST(req: NextRequest) {
   // those remain conversational and are not treated as STOP.
   // Still log the inbound and notify the owner so human follow-up is possible.
   if (existing && existing.sms_consent === false && existing.sms_consent_at != null) {
-    const claimId = await logCommunication({
+    const claimId = await withTokenAccountContext(accountId, (db) => logCommunication(db, {
       accountId,
       channel: "sms",
       direction: "inbound",
@@ -354,7 +355,7 @@ export async function POST(req: NextRequest) {
       jobId: null,
       bodyPreview: message.slice(0, 1000),
       externalId: external_id ?? null,
-    });
+    }));
     if (external_id && claimId === null) {
       return NextResponse.json({ duplicate: true });
     }
@@ -407,7 +408,7 @@ export async function POST(req: NextRequest) {
     isNewClient = false;
   } else {
     const [created] = await query<{ id: string }>(
-      `INSERT INTO clients (account_id, name, phone, notes)
+      `INSERT INTO clients (company_id, name, phone, notes)
        VALUES ($1, $2, $3, $4) RETURNING id`,
       [
         accountId,
@@ -425,7 +426,7 @@ export async function POST(req: NextRequest) {
   // job linkage yet). If a concurrent delivery of the same external_id already
   // claimed it, bail before creating jobs/action items. The job_id is back-
   // filled after routing.
-  const commsId = await logCommunication({
+  const commsId = await withTokenAccountContext(accountId, (db) => logCommunication(db, {
     accountId,
     channel: "sms",
     direction: "inbound",
@@ -435,7 +436,7 @@ export async function POST(req: NextRequest) {
     jobId: null,
     bodyPreview: message.slice(0, 1000),
     externalId: external_id ?? null,
-  });
+  }));
   if (external_id && commsId === null) {
     logger.info("SMS duplicate ignored (claim)", { traceId, external_id });
     return NextResponse.json({ duplicate: true });

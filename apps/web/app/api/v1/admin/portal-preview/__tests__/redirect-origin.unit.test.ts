@@ -10,7 +10,7 @@ vi.mock("@/lib/auth/session", () => ({
   getSession: async () => ({ userId: "u", accountId: "a", role: "owner" }),
 }));
 vi.mock("@/lib/auth/permissions", () => ({ canManageClients: () => true }));
-vi.mock("@/lib/db", () => ({
+vi.mock("@/lib/db", () => ({ companyIdFromSession: (s: { accountId: string }) => s.accountId,
   queryOneForSession: async () => ({ id: CLIENT_ID, portal_token: "tok-123" }),
 }));
 vi.mock("@/lib/portal/session", () => ({

@@ -2,6 +2,10 @@ export * from "./types.js";
 
 export { BRAND, btn, wrap } from "./layout.js";
 
+export { escapeHtml, hrefAttr, safeUrl } from "./escape.js";
+
+export { portalMagicLinkHtml } from "./portal.js";
+
 export {
   invoiceEmailHtml,
   invoiceEmailText,

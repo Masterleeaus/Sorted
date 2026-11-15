@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { withRole } from "@/lib/auth/middleware";
-import { withDbSession } from "@/lib/db";
+import { withDbSession, companyIdFromSession } from "@/lib/db";
 import { logger } from "@/lib/logger";
 import {
   loadSquareSettings,
@@ -26,8 +26,8 @@ export const POST = withRole(["owner"], async (_request, session) => {
       await client.query(
         `UPDATE integration_settings
          SET status = $2, status_detail = $3, last_checked_at = now()
-         WHERE account_id = $1 AND provider = 'square'`,
-        [session.accountId, test.ok ? "connected" : "error", test.detail]
+         WHERE company_id = $1 AND provider = 'square'`,
+        [companyIdFromSession(session), test.ok ? "connected" : "error", test.detail]
       );
 
       return test;

@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { withRole } from "@/lib/auth/middleware";
 import type { AuthSession } from "@/lib/auth/middleware";
-import { getPool } from "@/lib/db";
+import { getPool, companyIdFromSession } from "@/lib/db";
 import { appendAuditLog } from "@/lib/db/audit";
 import { logger } from "@/lib/logger";
 import { loadTravelSettings, rowToTravelSettings } from "@/lib/travel/settings";
@@ -132,11 +132,11 @@ export const PATCH = withRole(["owner", "admin"], async (request: NextRequest, s
       );
     }
     fields.push("updated_at = now()");
-    params.push(session.accountId);
+    params.push(companyIdFromSession(session));
 
     const { rows } = await client.query(
       `UPDATE business_travel_settings SET ${fields.join(", ")}
-       WHERE account_id = $${i}
+       WHERE company_id = $${i}
        RETURNING *`,
       params
     );

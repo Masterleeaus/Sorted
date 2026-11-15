@@ -32,7 +32,7 @@ export async function pickSeedEstimate(
   const r = await client.query<SeedEstimatePick>(
     `SELECT id, status, shopping_list_json
      FROM estimates
-     WHERE account_id = $1 AND job_id = $2
+     WHERE company_id = $1 AND job_id = $2
      ORDER BY
        CASE status
          WHEN 'approved' THEN 0
@@ -219,7 +219,7 @@ export async function hydrateBuyListLocations(
   }>(
     `SELECT id, name, unit, supplier, aisle, bay
      FROM materials_price_book
-     WHERE account_id = $1
+     WHERE company_id = $1
        AND is_active = true
        AND (
          (cardinality($2::uuid[]) > 0 AND id = ANY($2::uuid[]))
@@ -315,7 +315,7 @@ export async function seedJobBuyList(
   const job = await client.query<{
     materials_plan_seeded_at: string | null;
   }>(
-    `SELECT materials_plan_seeded_at FROM jobs WHERE id = $1 AND account_id = $2`,
+    `SELECT materials_plan_seeded_at FROM jobs WHERE id = $1 AND company_id = $2`,
     [opts.jobId, opts.accountId],
   );
   if (job.rows.length === 0) {
@@ -338,7 +338,7 @@ export async function seedJobBuyList(
     if (!alreadySeeded) {
       await client.query(
         `UPDATE jobs SET materials_plan_seeded_at = now(), materials_plan_seed_estimate_id = NULL
-         WHERE id = $1 AND account_id = $2`,
+         WHERE id = $1 AND company_id = $2`,
         [opts.jobId, opts.accountId],
       );
     }
@@ -354,7 +354,7 @@ export async function seedJobBuyList(
 
   const existingCount = await client.query<{ n: string }>(
     `SELECT COUNT(*)::text AS n FROM job_material_lines
-     WHERE job_id = $1 AND account_id = $2`,
+     WHERE job_id = $1 AND company_id = $2`,
     [opts.jobId, opts.accountId],
   );
   const hasExistingLines = (parseInt(existingCount.rows[0]?.n ?? "0", 10) || 0) > 0;
@@ -362,7 +362,7 @@ export async function seedJobBuyList(
   if (opts.reseed || alreadySeeded || hasExistingLines) {
     const existing = await client.query<{ name: string; unit_label: string | null }>(
       `SELECT name, unit_label FROM job_material_lines
-       WHERE job_id = $1 AND account_id = $2`,
+       WHERE job_id = $1 AND company_id = $2`,
       [opts.jobId, opts.accountId],
     );
     const toAdd = mergeMissingLines(existing.rows, candidates);
@@ -370,7 +370,7 @@ export async function seedJobBuyList(
     await client.query(
       `UPDATE jobs SET materials_plan_seeded_at = COALESCE(materials_plan_seeded_at, now()),
                           materials_plan_seed_estimate_id = $3
-       WHERE id = $1 AND account_id = $2`,
+       WHERE id = $1 AND company_id = $2`,
       [opts.jobId, opts.accountId, estimate.id],
     );
     return {
@@ -385,7 +385,7 @@ export async function seedJobBuyList(
   const inserted = await insertBuyListLines(client, opts.accountId, opts.jobId, candidates);
   await client.query(
     `UPDATE jobs SET materials_plan_seeded_at = now(), materials_plan_seed_estimate_id = $3
-     WHERE id = $1 AND account_id = $2`,
+     WHERE id = $1 AND company_id = $2`,
     [opts.jobId, opts.accountId, estimate.id],
   );
 

@@ -123,7 +123,7 @@ export function laborCostVarianceCents(opts: {
  * NULL labor_bucket is treated as billable for pre-bucket legacy rows.
  */
 export const TRACKED_LABOR_JOB_WORK_WHERE = `
-   ae.account_id = $1
+   ae.company_id = $1
    AND ae.activity_type = 'job_work'
    AND ae.voided_at IS NULL
    AND ae.started_at IS NOT NULL
@@ -135,7 +135,7 @@ export const TRACKED_LABOR_JOB_WORK_WHERE = `
        ae.entity_type = 'visit'
        AND ae.entity_id IN (
          SELECT v.id FROM visits v
-         WHERE v.job_id = $2 AND v.account_id = $1
+         WHERE v.job_id = $2 AND v.company_id = $1
            AND v.visit_type IS DISTINCT FROM 'site_visit'
        )
      )
@@ -143,7 +143,7 @@ export const TRACKED_LABOR_JOB_WORK_WHERE = `
        ae.entity_type = 'work_order'
        AND ae.entity_id IN (
          SELECT wo.id FROM work_orders wo
-         WHERE wo.job_id = $2 AND wo.account_id = $1
+         WHERE wo.job_id = $2 AND wo.company_id = $1
        )
      )
    )

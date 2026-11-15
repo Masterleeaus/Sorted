@@ -200,4 +200,33 @@ describe("POST /api/v1/invoices/[id]/square-link", () => {
     const res = await POST(post({ kind: "deposit" }));
     expect(res.status).toBe(400);
   });
+
+  it("stores the link's Square order id and link id on the pending row", async () => {
+    mockClientQuery
+      .mockResolvedValueOnce({ rows: [PAYABLE_INVOICE], rowCount: 1 })
+      .mockResolvedValueOnce({ rows: [], rowCount: 1 })
+      .mockResolvedValueOnce({ rows: [{ id: "PAYROW" }], rowCount: 1 });
+    mockLoad.mockResolvedValue(ENABLED_SETTINGS);
+    mockCreateLink.mockResolvedValue({ url: "https://sq/checkout/PL5", orderId: "ORD5", paymentLinkId: "PL5" });
+
+    const res = await POST(post({ kind: "balance" }));
+    expect(res.status).toBe(201);
+    const insert = mockClientQuery.mock.calls.find((c) => /INSERT INTO payments/.test(String(c[0])));
+    expect(String(insert![0])).toMatch(/external_order_id, external_link_id/);
+    expect(insert![1]).toEqual(expect.arrayContaining(["ORD5", "PL5"]));
+  });
+
+  it("409 and no pending row when Square returns a link that is already recorded", async () => {
+    mockClientQuery
+      .mockResolvedValueOnce({ rows: [PAYABLE_INVOICE], rowCount: 1 })
+      .mockResolvedValueOnce({ rows: [], rowCount: 1 })
+      .mockResolvedValueOnce({ rows: [], rowCount: 0 }); // ON CONFLICT DO NOTHING
+    mockLoad.mockResolvedValue(ENABLED_SETTINGS);
+    mockCreateLink.mockResolvedValue({ url: "https://sq/checkout/PL6", orderId: "ORD6", paymentLinkId: "PL6" });
+
+    const res = await POST(post({ kind: "balance" }));
+    expect(res.status).toBe(409);
+    const sql = mockClientQuery.mock.calls.map((c) => String(c[0]));
+    expect(sql.some((s) => /ON CONFLICT/.test(s))).toBe(true);
+  });
 });

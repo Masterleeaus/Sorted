@@ -46,7 +46,7 @@ export async function GET(
     );
     const { rows } = await db.query<{ id: string }>(
       `SELECT id::text FROM invoices
-       WHERE id = ANY($1::uuid[]) AND client_id = $2 AND account_id = $3 AND status <> 'draft'
+       WHERE id = ANY($1::uuid[]) AND client_id = $2 AND company_id = $3 AND status <> 'draft'
        ORDER BY created_at`,
       [ids, client.id, client.account_id],
     );

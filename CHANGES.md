@@ -1,5 +1,15 @@
 # Titan Go / Titan Zero Field — UI Redesign v3
 
+## 2026-11-08 — Titan Go identity and deploy-target alignment (docs only)
+
+- Decision: Titan Go is an imported UI layer and deployment surface inside Dovetails FSM, not a product identity change. Canonical docs in `docs/canonical/` remain authoritative. Record: `docs/working/titan-go-identity-decision-2026-11-08.md`.
+- Root `package.json` description changed from "AI-first Field Service Management MVP" to "Dovetails FSM: residential handyman and home maintenance operating system", matching canonical product identity.
+- Titan components under `apps/web/app/titan/` with no live route import are classed as prototypes. The list is in the decision record.
+- Production deploy path is unified in `DEPLOY.md` on `/opt/business/ai-fsm` with `infra/compose.garonhome.yml`. Legacy `/home/admin/apps/ai-fsm` overlay is non-production. Record: `docs/working/deployment-target-decision-2026-11-08.md`.
+- No code behaviour changed.
+
+---
+
 This patch is cumulative against the uploaded live `apps/` source. It includes the earlier Titan Go / Field redesign plus the new large v3 UI pass, so you do **not** need to install v2 first.
 
 ## Product architecture corrected

@@ -28,7 +28,7 @@ export const POST = withAuth(
         status: string;
       }>(
         `SELECT id, job_id, assigned_user_id, status FROM work_orders
-         WHERE id = $1 AND account_id = $2 FOR UPDATE`,
+         WHERE id = $1 AND company_id = $2 FOR UPDATE`,
         [id, session.accountId],
       );
         const wo = woRes.rows[0];
@@ -44,7 +44,7 @@ export const POST = withAuth(
 
         const activeRes = await client.query<{ id: string }>(
         `SELECT id FROM visits
-         WHERE work_order_id = $1 AND account_id = $2 AND assigned_user_id = $3
+         WHERE work_order_id = $1 AND company_id = $2 AND assigned_user_id = $3
            AND status = ANY($4::text[])
          ORDER BY scheduled_start DESC LIMIT 1`,
         [id, session.accountId, session.userId, ACTIVE_VISIT],
@@ -55,7 +55,7 @@ export const POST = withAuth(
 
         const scheduledRes = await client.query<{ id: string; status: string }>(
         `SELECT id, status FROM visits
-         WHERE work_order_id = $1 AND account_id = $2 AND assigned_user_id = $3
+         WHERE work_order_id = $1 AND company_id = $2 AND assigned_user_id = $3
            AND status = 'scheduled'
            AND scheduled_start::date = CURRENT_DATE
          ORDER BY scheduled_start ASC LIMIT 1`,
@@ -76,7 +76,7 @@ export const POST = withAuth(
         const end = new Date(now.getTime() + 60 * 60 * 1000);
         const inserted = await client.query<{ id: string }>(
           `INSERT INTO visits (
-             account_id, job_id, work_order_id, assigned_user_id,
+             company_id, job_id, work_order_id, assigned_user_id,
              scheduled_start, scheduled_end, status, arrived_at, visit_type
            ) VALUES ($1, $2, $3, $4, $5, $6, 'arrived', now(), 'standard')
            RETURNING id`,

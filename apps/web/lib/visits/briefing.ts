@@ -18,7 +18,7 @@ export async function loadVisitBriefing(
     scheduled_start: string;
   }>(
     `SELECT job_id, scheduled_start::text
-     FROM visits WHERE id = $1 AND account_id = $2`,
+     FROM visits WHERE id = $1 AND company_id = $2`,
     [visitId, accountId],
   );
   const visit = current.rows[0];
@@ -33,7 +33,7 @@ export async function loadVisitBriefing(
             u.full_name AS assignee
      FROM visits v
      LEFT JOIN users u ON u.id = v.assigned_user_id
-     WHERE v.job_id = $1 AND v.account_id = $2
+     WHERE v.job_id = $1 AND v.company_id = $2
        AND v.status = 'completed'
        AND v.visit_type IS DISTINCT FROM 'site_visit'
      ORDER BY v.scheduled_start ASC`,
@@ -52,7 +52,7 @@ export async function loadVisitBriefing(
     `SELECT t.label
      FROM visit_tasks vt
      JOIN work_order_tasks t ON t.id = vt.task_id
-     WHERE vt.visit_id = $1 AND vt.account_id = $2
+     WHERE vt.visit_id = $1 AND vt.company_id = $2
        AND t.completed = false AND t.status <> 'done'
      ORDER BY t.sort_order ASC
      LIMIT 1`,

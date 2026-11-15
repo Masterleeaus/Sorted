@@ -80,7 +80,7 @@ export const GET = withAuth(async (request: NextRequest, session: AuthSession) =
        FROM work_orders w
        LEFT JOIN clients c ON c.id = w.client_id
        LEFT JOIN properties p ON p.id = w.property_id
-       WHERE w.account_id = $1
+       WHERE w.company_id = $1
          AND ($2::text IS NULL OR w.status = $2)
        ORDER BY w.created_at DESC
        LIMIT 200`,
@@ -149,7 +149,7 @@ export const POST = withAuth(async (request: NextRequest, session: AuthSession) 
 
     const { rows: woRows } = await client.query<{ id: string }>(
       `INSERT INTO work_orders
-         (account_id, client_id, job_id, property_id, title, scope, site_notes,
+         (company_id, client_id, job_id, property_id, title, scope, site_notes,
           safety_notes, rooms, status, total_cents, notes, completion_criteria,
           source_visit_id, source_assessment_id, created_by)
        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9::jsonb,$10,$11,$12,$13::jsonb,$14,$15,$16)

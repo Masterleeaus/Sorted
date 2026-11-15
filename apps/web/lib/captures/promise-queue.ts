@@ -10,7 +10,7 @@ export const CUSTOMER_PROMISE_BUCKET_DETAIL = "Open captured promises";
 export const OPEN_OWNER_PROMISES_SQL = `
   SELECT id, title, entity_type, entity_id, due_at
   FROM action_items
-  WHERE account_id = $1
+  WHERE company_id = $1
     AND action_type = $2
     AND resolved_at IS NULL
   ORDER BY due_at ASC NULLS LAST, created_at ASC

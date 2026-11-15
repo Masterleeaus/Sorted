@@ -73,7 +73,7 @@ export const GET = withAuth(async (request: NextRequest, session: AuthSession) =
        LEFT JOIN clients c ON c.id = w.client_id
        LEFT JOIN properties p ON p.id = w.property_id
        LEFT JOIN jobs j ON j.id = w.job_id
-       WHERE w.id = $1 AND w.account_id = $2`,
+       WHERE w.id = $1 AND w.company_id = $2`,
       [id, session.accountId],
     );
     const wo = rows[0];
@@ -120,7 +120,7 @@ export const PATCH = withAuth(async (request: NextRequest, session: AuthSession)
     }>(
       `SELECT id, client_id, job_id, source_visit_id, source_assessment_id, status,
               completion_criteria
-       FROM work_orders WHERE id = $1 AND account_id = $2 FOR UPDATE`,
+       FROM work_orders WHERE id = $1 AND company_id = $2 FOR UPDATE`,
       [id, session.accountId],
     );
     if (existing.length === 0) {
@@ -193,7 +193,7 @@ export const PATCH = withAuth(async (request: NextRequest, session: AuthSession)
                              WHEN $12 IS NOT NULL THEN NULL
                              ELSE completed_at END,
          updated_at   = now()
-       WHERE id = $1 AND account_id = $2`,
+       WHERE id = $1 AND company_id = $2`,
       [
         id, session.accountId,
         d.title ?? null,
@@ -277,7 +277,7 @@ export const DELETE = withAuth(async (request: NextRequest, session: AuthSession
       `SELECT w.id, w.status,
               (SELECT COUNT(*)::text FROM visits v WHERE v.work_order_id = w.id) AS visit_count
        FROM work_orders w
-       WHERE w.id = $1 AND w.account_id = $2
+       WHERE w.id = $1 AND w.company_id = $2
        FOR UPDATE`,
       [id, session.accountId],
     );
@@ -310,12 +310,12 @@ export const DELETE = withAuth(async (request: NextRequest, session: AuthSession
 
     // Null visit_candidates first (SET NULL FK exists, but be explicit).
     await client.query(
-      `UPDATE visit_candidates SET work_order_id = NULL WHERE work_order_id = $1 AND account_id = $2`,
+      `UPDATE visit_candidates SET work_order_id = NULL WHERE work_order_id = $1 AND company_id = $2`,
       [id, session.accountId],
     );
 
     await client.query(
-      `DELETE FROM work_orders WHERE id = $1 AND account_id = $2`,
+      `DELETE FROM work_orders WHERE id = $1 AND company_id = $2`,
       [id, session.accountId],
     );
 

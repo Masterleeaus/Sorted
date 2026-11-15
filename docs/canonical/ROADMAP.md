@@ -72,6 +72,8 @@ Location capture, visit candidates, day map, hybrid tracking are **shipped infra
 
 **Phase 1 follow-on — TASK-140–142 mileage claim vs GPS + tags.** Authorized 2026-09-12. Mileage month headline is odometer/manual claim miles; GPS hops are nested corroboration (hide voided and &lt;1 mi). Complete tags the day’s claim session when it is the only job, or overlapping hops when two jobs share a day. Needs Attention lists untagged claim days. Job reports ignore GPS estimate miles. No new tables.
 
+**Phase 1 exception — Issue #5 public intake photo attachments.** Recorded 2026-11-08 from the owner's instruction to merge issue #5 into the Sorted PR for the open-issue pass. Adds the `intake_media` table (migration 203, RLS, additive) and customer-facing intake media routes, with photos linked to the intake request after token validation and no public URLs. Staff viewing, retention cleanup and the production proxy body limit are not built. This is an explicit exception to the table and route freeze; the owner should confirm it formally.
+
 **Phase 1 exception — TASK-116 Field-ops Web Push.** Authorized 2026-09-05. No new table. Wires start-day and home-arrival day-review onto the TASK-118 send helper, stamps arrival `live_prompted_at`, adds a one-time My Work subscribe prompt, and drops the remaining Companion `notify.mobile_app` actions for those events. Does not reopen Owner OS or replace Companion GPS/Bluetooth.
 
 ### Phase 2 — Property-Centered Surfaces
