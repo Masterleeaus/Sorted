@@ -57,7 +57,7 @@ interface PhotoItem {
   key: string;
   file: File;
   previewUrl: string;
-  status: "uploading" | "done" | "failed";
+  status: "uploading" | "done" | "failed" | "removing" | "delete_failed";
   /** Server id of the stored photo, set once the upload succeeds. */
   mediaId?: string;
   error?: string;
@@ -110,7 +110,20 @@ export function IntakeClientForm({ token, leadName, leadEmail, leadPhone }: Inta
   }, []);
 
   function patchPhoto(key: string, patch: Partial<PhotoItem>) {
-    setPhotos((prev) => prev.map((p) => (p.key === key ? { ...p, ...patch } : p)));
+    // Keep status in sync before a submit gesture can race with React renders.
+    photosRef.current = photosRef.current.map((p) =>
+      p.key === key ? { ...p, ...patch } : p
+    );
+    setPhotos(photosRef.current);
+  }
+
+  function discardRemovedUpload(key: string): boolean {
+    if (!removedWhileUploading.current.delete(key)) return false;
+    const current = photosRef.current.find((p) => p.key === key);
+    if (current) URL.revokeObjectURL(current.previewUrl);
+    photosRef.current = photosRef.current.filter((p) => p.key !== key);
+    setPhotos(photosRef.current);
+    return true;
   }
 
   async function uploadPhoto(item: PhotoItem) {
@@ -124,6 +137,7 @@ export function IntakeClientForm({ token, leadName, leadEmail, leadPhone }: Inta
         | null;
 
       if (!res.ok || !json?.data?.id) {
+        if (discardRemovedUpload(item.key)) return;
         patchPhoto(item.key, {
           status: "failed",
           error: json?.error?.message ?? "This photo could not be uploaded. Please try again.",
@@ -133,11 +147,12 @@ export function IntakeClientForm({ token, leadName, leadEmail, leadPhone }: Inta
 
       if (removedWhileUploading.current.has(item.key)) {
         removedWhileUploading.current.delete(item.key);
-        void fetch(`/api/intake/${token}/media/${json.data.id}`, { method: "DELETE" }).catch(() => undefined);
+        await deleteStoredPhoto(item.key, json.data.id);
         return;
       }
       patchPhoto(item.key, { status: "done", mediaId: json.data.id });
     } catch {
+      if (discardRemovedUpload(item.key)) return;
       patchPhoto(item.key, {
         status: "failed",
         error: "Network error. Check your connection and try again.",
@@ -145,11 +160,27 @@ export function IntakeClientForm({ token, leadName, leadEmail, leadPhone }: Inta
     }
   }
 
+  async function deleteStoredPhoto(key: string, mediaId: string) {
+    try {
+      const res = await fetch(`/api/intake/${token}/media/${mediaId}`, { method: "DELETE" });
+      if (!res.ok) throw new Error("delete failed");
+      const current = photosRef.current.find((p) => p.key === key);
+      if (current) URL.revokeObjectURL(current.previewUrl);
+      photosRef.current = photosRef.current.filter((p) => p.key !== key);
+      setPhotos(photosRef.current);
+    } catch {
+      patchPhoto(key, { status: "delete_failed", mediaId, error: "Photo removal failed. Try removing it again." });
+      setPhotoError("A photo could not be removed. Please retry before submitting.");
+    }
+  }
+
   function addPhotos(list: FileList | null) {
     if (!list) return;
     const errors: string[] = [];
     const toAdd: PhotoItem[] = [];
-    let room = MAX_INTAKE_PHOTOS - photos.length;
+    // A ref is updated synchronously so two rapid file-selection events do
+    // not each see the same stale React state and exceed the photo cap.
+    let room = MAX_INTAKE_PHOTOS - photosRef.current.length;
 
     for (const file of Array.from(list)) {
       if (room <= 0) {
@@ -172,7 +203,8 @@ export function IntakeClientForm({ token, leadName, leadEmail, leadPhone }: Inta
 
     setPhotoError(errors.length > 0 ? errors.join(" ") : null);
     if (toAdd.length > 0) {
-      setPhotos((prev) => [...prev, ...toAdd]);
+      photosRef.current = [...photosRef.current, ...toAdd];
+      setPhotos(photosRef.current);
       for (const item of toAdd) void uploadPhoto(item);
     }
     if (photoInputRef.current) photoInputRef.current.value = "";
@@ -182,17 +214,18 @@ export function IntakeClientForm({ token, leadName, leadEmail, leadPhone }: Inta
     setPhotoError(null);
     if (item.status === "uploading") {
       removedWhileUploading.current.add(item.key);
-    } else if (item.status === "done" && item.mediaId) {
-      try {
-        const res = await fetch(`/api/intake/${token}/media/${item.mediaId}`, { method: "DELETE" });
-        if (!res.ok) throw new Error("delete failed");
-      } catch {
-        setPhotoError("That photo could not be removed. Please try again.");
-        return;
-      }
+      patchPhoto(item.key, { status: "removing", error: undefined });
+      return;
+    }
+    if (item.status === "removing") return;
+    if ((item.status === "done" || item.status === "delete_failed") && item.mediaId) {
+      patchPhoto(item.key, { status: "removing", error: undefined });
+      await deleteStoredPhoto(item.key, item.mediaId);
+      return;
     }
     URL.revokeObjectURL(item.previewUrl);
-    setPhotos((prev) => prev.filter((p) => p.key !== item.key));
+    photosRef.current = photosRef.current.filter((p) => p.key !== item.key);
+    setPhotos(photosRef.current);
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -201,7 +234,7 @@ export function IntakeClientForm({ token, leadName, leadEmail, leadPhone }: Inta
       setError("Please describe your project in at least 20 characters.");
       return;
     }
-    if (photos.some((p) => p.status !== "done")) {
+    if (photosRef.current.some((p) => p.status !== "done")) {
       setError("Please wait for your photos to finish uploading, or remove any that did not upload.");
       return;
     }
@@ -373,7 +406,7 @@ export function IntakeClientForm({ token, leadName, leadEmail, leadPhone }: Inta
                   />
                   <span style={{ fontSize: 14, wordBreak: "break-all" }}>{p.file.name}</span>
                   <span style={{ fontSize: 14, color: p.status === "failed" ? "#dc2626" : "#52525b" }}>
-                    {p.status === "uploading" ? "Uploading…" : p.status === "done" ? "Added" : "Upload failed"}
+                    {p.status === "uploading" ? "Uploading…" : p.status === "removing" ? "Removing…" : p.status === "delete_failed" ? "Removal failed" : p.status === "done" ? "Added" : "Upload failed"}
                   </span>
                   {p.error && <span style={{ fontSize: 14, color: "#dc2626" }}>{p.error}</span>}
                   {p.status === "failed" && (
@@ -381,8 +414,8 @@ export function IntakeClientForm({ token, leadName, leadEmail, leadPhone }: Inta
                       Try again
                     </button>
                   )}
-                  <button type="button" onClick={() => void removePhoto(p)} style={photoButtonStyle}>
-                    Remove photo
+                  <button type="button" onClick={() => void removePhoto(p)} disabled={p.status === "removing"} style={photoButtonStyle}>
+                    {p.status === "delete_failed" ? "Retry removal" : "Remove photo"}
                   </button>
                 </li>
               ))}

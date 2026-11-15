@@ -105,6 +105,16 @@ const fsMocks = vi.hoisted(() => ({
   failWrite: false,
 }));
 vi.mock("fs", () => ({ default: fsMocks, ...fsMocks }));
+vi.mock("@/lib/intake/media-files", () => ({
+  writePrivateIntakeFile: (filePath: string, bytes: Uint8Array) => {
+    fsMocks.mkdirSync(filePath.slice(0, filePath.lastIndexOf("/")), { recursive: true, mode: 0o700 });
+    fsMocks.writeFileSync(filePath, bytes, { flag: "wx", mode: 0o600 });
+  },
+  removePrivateIntakeFile: (filePath: string) => {
+    fsMocks.unlinkSync(filePath);
+    return "deleted";
+  },
+}));
 
 vi.mock("@/lib/db", () => ({ getPool: () => db.pool }));
 vi.mock("@/lib/logger", () => ({ logger: { info: vi.fn(), warn: vi.fn(), error: vi.fn() } }));
@@ -173,7 +183,7 @@ describe("POST /api/intake/[token]/media", () => {
     const json = await res.json();
     expect(json.data).toMatchObject({ mime_type: "image/jpeg", original_name: "kitchen.jpg", size_bytes: JPEG_BYTES.length });
 
-    expect(fsMocks.mkdirSync).toHaveBeenCalledWith(`/app/uploads/intake/${INVITE_ID}`, { recursive: true });
+    expect(fsMocks.mkdirSync).toHaveBeenCalledWith(`/app/uploads/intake/${INVITE_ID}`, { recursive: true, mode: 0o700 });
     const writePath = fsMocks.writeFileSync.mock.calls[0]?.[0] as string;
     expect(writePath).toMatch(new RegExp(`^/app/uploads/intake/${INVITE_ID}/[0-9a-f-]{36}\\.jpg$`));
 
@@ -319,6 +329,22 @@ describe("DELETE /api/intake/[token]/media/[mediaId]", () => {
     const res = await DELETE(deleteRequest("../../etc"), deleteCtx("../../etc"));
     expect(res.status).toBe(404);
     expect(db.state.media).toHaveLength(1);
+  });
+
+  it("returns 409 before deletion when the invitation expires", async () => {
+    db.state.invites[0].expired = true;
+    const res = await DELETE(deleteRequest(MEDIA_ID), deleteCtx(MEDIA_ID));
+    expect(res.status).toBe(410);
+    expect(db.state.media).toHaveLength(1);
+    expect(fsMocks.unlinkSync).not.toHaveBeenCalled();
+  });
+
+  it("does not delete a different tenant's photo with a valid invite token", async () => {
+    db.state.media[0].account_id = "99999999-9999-4999-8999-999999999999";
+    const res = await DELETE(deleteRequest(MEDIA_ID), deleteCtx(MEDIA_ID));
+    expect(res.status).toBe(404);
+    expect(db.state.media).toHaveLength(1);
+    expect(fsMocks.unlinkSync).not.toHaveBeenCalled();
   });
 
   it("returns 409 once the invite has been submitted", async () => {
