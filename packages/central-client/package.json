@@ -1,0 +1,14 @@
+{
+  "name": "@ai-fsm/central-client",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "test": "vitest run",
+    "test:unit": "vitest run",
+    "test:contract": "vitest run test/contract"
+  },
+  "devDependencies": {
+    "vitest": "^3.0.5"
+  }
+}
