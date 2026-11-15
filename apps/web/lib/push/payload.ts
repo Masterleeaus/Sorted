@@ -23,6 +23,13 @@ export interface PushMessage {
 const TITLE_MAX = 80;
 const BODY_MAX = 180;
 
+/** Reject protocol-relative, backslash and control-character redirect tricks. */
+function safeAppPath(candidate: string | undefined): string {
+  if (!candidate || !candidate.startsWith("/") || candidate.startsWith("//")
+    || candidate.includes("\\") || /[\x00-\x1f\x7f]/.test(candidate)) return "/";
+  return candidate;
+}
+
 function clamp(s: string, max: number): string {
   const t = s.trim();
   return t.length <= max ? t : t.slice(0, max - 1).trimEnd() + "…";
@@ -34,9 +41,9 @@ function clamp(s: string, max: number): string {
  * silently collapse. Returns the object; callers JSON.stringify for transport.
  */
 export function buildPushPayload(input: PushInput): PushMessage {
-  const url = input.url && input.url.startsWith("/") ? input.url : "/";
+  const url = safeAppPath(input.url);
   return {
-    title: clamp(input.title || "Dovetails", TITLE_MAX),
+    title: clamp(input.title || "Sorted", TITLE_MAX),
     body: clamp(input.body ?? "", BODY_MAX),
     tag: (input.tag && input.tag.trim()) || `dovetails-${url}`,
     data: { url },

@@ -46,7 +46,9 @@
     "./business-reality": "./src/business-reality.ts",
     "./constitution": "./src/constitution.ts",
     "./field-service-lifecycle": "./src/field-service-lifecycle.ts",
-    "./directadmin-plugin": "./src/directadmin-plugin.ts"
+    "./directadmin-plugin": "./src/directadmin-plugin.ts",
+    "./settings/ai-provider-control-centre": "./src/ported/titan-settings/control-plane/ai-provider-control-centre.ts",
+    "./settings/notification-escalation-settings": "./src/ported/titan-settings/control-plane/notification-escalation-settings.ts"
   },
   "dependencies": {
     "@titan-zero/storage": "workspace:*",
