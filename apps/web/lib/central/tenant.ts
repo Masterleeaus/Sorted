@@ -4,7 +4,7 @@
  * Central owns identity, organisation and membership. Sorted derives the
  * tenant key only from the verified `titan_organisation_id` claim (CONFIG.md
  * section 4.1), never from request input. The membership is looked up in
- * Sorted's durable `organisation_memberships` table (migration 202), which
+ * Sorted's durable `organisation_memberships` table (migration 209), which
  * maps the Central identity and organisation to one local account. A user can
  * hold several memberships; the active session is scoped to exactly one
  * organisation and one account, and a membership that is not active is refused.
@@ -13,7 +13,7 @@
 const ORGANISATION_ID_RE = /^[A-Za-z0-9][A-Za-z0-9._:-]{7,127}$/;
 
 /** The verified token claim that names the organisation. */
-export const ORGANISATION_CLAIM = "titan_organisation_id";
+const ORGANISATION_CLAIM = "titan_organisation_id";
 
 export class TenantError extends Error {
   readonly code: "missing_organisation" | "invalid_organisation" | "membership_not_active" | "tenant_mismatch";
@@ -35,7 +35,7 @@ export interface MembershipRecord {
 
 export type MembershipLookup = (identitySubject: string, organisationId: string) => Promise<MembershipRecord | null>;
 
-export interface SessionTenant {
+interface SessionTenant {
   readonly accountId: string;
   readonly userId: string;
   readonly organisationId: string;

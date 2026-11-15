@@ -12,7 +12,7 @@ export const LOGIN_STATE_COOKIE = "fsm_titan_login";
 export const LOGIN_STATE_PATH = "/auth/titan";
 export const LOGIN_STATE_MAX_AGE_SECONDS = 600;
 
-export interface LoginTransaction {
+interface LoginTransaction {
   readonly state: string;
   readonly nonce: string;
   readonly verifier: string;

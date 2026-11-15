@@ -10,7 +10,7 @@ import { fetchDiscovery, type FetchLike, type OidcDiscovery, OidcError } from ".
 
 const REFRESH_MARGIN_MS = 60_000;
 
-export interface ServiceClientDeps {
+interface ServiceClientDeps {
   readonly fetch: FetchLike;
   readonly now?: () => number;
   readonly env?: EnvSource;

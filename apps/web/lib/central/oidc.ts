@@ -75,7 +75,7 @@ export async function fetchDiscovery(origin: string, fetchImpl: FetchLike): Prom
   };
 }
 
-export interface AuthorizationRequest {
+interface AuthorizationRequest {
   readonly url: string;
   readonly state: string;
   readonly nonce: string;

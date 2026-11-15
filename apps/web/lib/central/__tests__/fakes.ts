@@ -19,7 +19,7 @@ export const OIDC_CONFIG: CentralOidcConfig = {
   redirectUri: "https://sorted.test/auth/titan/callback",
 };
 
-export interface RecordedCall {
+interface RecordedCall {
   readonly url: string;
   readonly init?: RequestInit;
 }

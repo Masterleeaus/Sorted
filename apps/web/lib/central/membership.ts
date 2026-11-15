@@ -1,5 +1,5 @@
 /**
- * Database access for Central organisation memberships (migration 202).
+ * Database access for Central organisation memberships (migration 209).
  *
  * The login-time lookup goes through the SECURITY DEFINER resolver, because no
  * account context exists before a session is scoped. Every other read is made
@@ -20,7 +20,7 @@ type ResolverRow = {
 };
 
 /** Resolves the membership for a verified Central subject and organisation. */
-export async function lookupOrganisationMembership(
+async function lookupOrganisationMembership(
   subject: string,
   organisationId: string,
 ): Promise<MembershipRecord | null> {
