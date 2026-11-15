@@ -40,7 +40,7 @@ jobs:
         # knip loads vitest configs to detect test entrypoints; the *.integration
         # configs throw on CI unless these are present (presence check only, no DB).
         env:
-          TEST_DATABASE_URL: postgresql://knip:knip@localhost:5432/knip
+          TEST_DATABASE_URL: postgresql://knip@localhost:5432/knip
           TEST_BASE_URL: http://localhost:3000
         run: pnpm knip
       - name: Reject new duplicate migration prefixes
@@ -118,7 +118,8 @@ jobs:
   # independent gate; existing unused-file debt must not mask test failures.
   #
   # Environment provided:
-  #   DATABASE_URL / TEST_DATABASE_URL  — PostgreSQL 16 service fixture
+  #   DATABASE_URL / TEST_DATABASE_URL  — PostgreSQL 16 container started in a setup step
+  #                                       (random password in PGPASSWORD, never in a URL)
   #   AUTH_SECRET                       — Required by env.ts (≥32 chars)
   #
   # Runs unit, direct-DB, and HTTP integration suites. E2E has its own job.
@@ -126,25 +127,11 @@ jobs:
     name: test
     needs: [typecheck]
     runs-on: ubuntu-latest
-    services:
-      postgres:
-        image: postgres:16
-        env:
-          POSTGRES_USER: test
-          POSTGRES_PASSWORD: test
-          POSTGRES_DB: aifsm_test
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd "pg_isready -U test"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
     env:
-      TEST_DATABASE_URL: postgresql://test:test@localhost:5432/aifsm_test
-      TEST_RUNTIME_DATABASE_URL: postgresql://ai_fsm_web:ci-runtime-only@localhost:5432/aifsm_test
+      TEST_DATABASE_URL: postgresql://test@localhost:5432/aifsm_test
+      TEST_RUNTIME_DATABASE_URL: postgresql://ai_fsm_web@localhost:5432/aifsm_test
       LOCATION_INTERNAL_KEY: ci-internal-test-only
-      DATABASE_URL: postgresql://test:test@localhost:5432/aifsm_test
+      DATABASE_URL: postgresql://test@localhost:5432/aifsm_test
       # Required by env.ts (≥32 chars). This is a CI-only test secret.
       AUTH_SECRET: ci-test-only-secret-not-used-in-production!!
       TEST_BASE_URL: http://localhost:3000
@@ -159,21 +146,40 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Start PostgreSQL 16 with a per-job random password
+        # GitHub service containers are created before any step runs, so the password
+        # cannot come from a step. Start the container here instead.
+        run: |
+          pw="$(openssl rand -hex 16)"
+          echo "::add-mask::$pw"
+          echo "PGPASSWORD=$pw" >> "$GITHUB_ENV"
+          echo "RUNTIME_DB_PASSWORD=$pw" >> "$GITHUB_ENV"
+          docker run -d --name aifsm-pg -p 5432:5432 \
+            -e POSTGRES_USER=test -e POSTGRES_DB=aifsm_test -e POSTGRES_PASSWORD="$pw" \
+            postgres:16 >/dev/null
+          for _ in $(seq 1 30); do
+            if PGPASSWORD="$pw" psql -h localhost -U test -d aifsm_test -c "select 1" >/dev/null 2>&1; then
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "PostgreSQL did not become ready" >&2
+          exit 1
+
       - name: Apply schema migrations
         run: |
           for file in db/migrations/*.sql; do
             if [[ "$file" == *"seed"* ]]; then continue; fi
             echo "applying: $file"
-            PGPASSWORD=test psql -h localhost -U test -d aifsm_test -v ON_ERROR_STOP=1 -f "$file"
+            psql -h localhost -U test -d aifsm_test -v ON_ERROR_STOP=1 -f "$file"
           done
 
       - name: Apply seed data
-        run: PGPASSWORD=test psql -h localhost -U test -d aifsm_test -v ON_ERROR_STOP=1 -f db/migrations/002_seed_dev.sql
+        run: psql -h localhost -U test -d aifsm_test -v ON_ERROR_STOP=1 -f db/migrations/002_seed_dev.sql
 
       - name: Provision restricted test database role
         env:
-          MIGRATION_DATABASE_URL: postgresql://test:test@localhost:5432/aifsm_test
-          RUNTIME_DB_PASSWORD: ci-runtime-only
+          MIGRATION_DATABASE_URL: postgresql://test@localhost:5432/aifsm_test
         run: bash scripts/db-provision-runtime.sh
 
       - name: Run unit tests
@@ -199,22 +205,8 @@ jobs:
     name: e2e-smoke
     needs: [build, test]
     runs-on: ubuntu-latest
-    services:
-      postgres:
-        image: postgres:16
-        env:
-          POSTGRES_USER: test
-          POSTGRES_PASSWORD: test
-          POSTGRES_DB: aifsm_test
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd "pg_isready -U test"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
     env:
-      DATABASE_URL: postgresql://test:test@localhost:5432/aifsm_test
+      DATABASE_URL: postgresql://test@localhost:5432/aifsm_test
       AUTH_SECRET: ci-e2e-test-secret-not-used-in-production!!
       TEST_BASE_URL: http://localhost:3000
       PLAYWRIGHT_USE_EXTERNAL_SERVER: "1"
@@ -233,16 +225,36 @@ jobs:
       - name: Install Playwright browsers
         run: pnpm exec playwright install --with-deps chromium
 
+      - name: Start PostgreSQL 16 with a per-job random password
+        # GitHub service containers are created before any step runs, so the password
+        # cannot come from a step. Start the container here instead.
+        run: |
+          pw="$(openssl rand -hex 16)"
+          echo "::add-mask::$pw"
+          echo "PGPASSWORD=$pw" >> "$GITHUB_ENV"
+          echo "RUNTIME_DB_PASSWORD=$pw" >> "$GITHUB_ENV"
+          docker run -d --name aifsm-pg -p 5432:5432 \
+            -e POSTGRES_USER=test -e POSTGRES_DB=aifsm_test -e POSTGRES_PASSWORD="$pw" \
+            postgres:16 >/dev/null
+          for _ in $(seq 1 30); do
+            if PGPASSWORD="$pw" psql -h localhost -U test -d aifsm_test -c "select 1" >/dev/null 2>&1; then
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "PostgreSQL did not become ready" >&2
+          exit 1
+
       - name: Apply schema migrations
         run: |
           for file in db/migrations/*.sql; do
             if [[ "$file" == *"seed"* ]]; then continue; fi
             echo "applying: $file"
-            PGPASSWORD=test psql -h localhost -U test -d aifsm_test -v ON_ERROR_STOP=1 -f "$file"
+            psql -h localhost -U test -d aifsm_test -v ON_ERROR_STOP=1 -f "$file"
           done
 
       - name: Apply seed data
-        run: PGPASSWORD=test psql -h localhost -U test -d aifsm_test -v ON_ERROR_STOP=1 -f db/migrations/002_seed_dev.sql
+        run: psql -h localhost -U test -d aifsm_test -v ON_ERROR_STOP=1 -f db/migrations/002_seed_dev.sql
 
       - name: Build production app
         env:
