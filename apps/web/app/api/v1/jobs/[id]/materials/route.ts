@@ -30,7 +30,7 @@ async function assertJobAccess(
   role: string,
   userId: string,
 ): Promise<"ok" | "not_found" | "forbidden"> {
-  const job = await client.query(`SELECT id FROM jobs WHERE id = $1 AND account_id = $2`, [
+  const job = await client.query(`SELECT id FROM jobs WHERE id = $1 AND company_id = $2`, [
     jobId,
     accountId,
   ]);
@@ -38,7 +38,7 @@ async function assertJobAccess(
   if (role === "tech") {
     const assigned = await client.query(
       `SELECT id FROM visits
-       WHERE job_id = $1 AND account_id = $2 AND assigned_user_id = $3
+       WHERE job_id = $1 AND company_id = $2 AND assigned_user_id = $3
        LIMIT 1`,
       [jobId, accountId, userId],
     );
@@ -73,7 +73,7 @@ export const GET = withAuth(async (request: NextRequest, session: AuthSession) =
         materials_plan_seed_estimate_id: string | null;
       }>(
         `SELECT materials_plan_seeded_at, materials_plan_seed_estimate_id
-         FROM jobs WHERE id = $1 AND account_id = $2`,
+         FROM jobs WHERE id = $1 AND company_id = $2`,
         [jobId, session.accountId],
       );
 
@@ -87,8 +87,8 @@ export const GET = withAuth(async (request: NextRequest, session: AuthSession) =
          FROM job_material_lines jml
          LEFT JOIN materials_price_book mpb
            ON mpb.id = jml.catalog_material_id
-          AND mpb.account_id = jml.account_id
-         WHERE jml.job_id = $1 AND jml.account_id = $2
+          AND mpb.company_id = jml.company_id
+         WHERE jml.job_id = $1 AND jml.company_id = $2
          ORDER BY jml.sort_order ASC, jml.created_at ASC`,
         [jobId, session.accountId],
       );
@@ -193,7 +193,7 @@ export const POST = withAuth(async (request: NextRequest, session: AuthSession) 
         }
 
         const jobRes = await client.query<{ title: string; description: string | null }>(
-          `SELECT title, description FROM jobs WHERE id = $1 AND account_id = $2`,
+          `SELECT title, description FROM jobs WHERE id = $1 AND company_id = $2`,
           [jobId, session.accountId]
         );
         const job = jobRes.rows[0];
@@ -229,7 +229,7 @@ export const POST = withAuth(async (request: NextRequest, session: AuthSession) 
         // Purchased / on-truck / manually-added lines are left untouched.
         await client.query(
           `DELETE FROM job_material_lines
-             WHERE job_id = $1 AND account_id = $2 AND source = 'ai' AND status = 'needed'`,
+             WHERE job_id = $1 AND company_id = $2 AND source = 'ai' AND status = 'needed'`,
           [jobId, session.accountId],
         );
 
@@ -238,7 +238,7 @@ export const POST = withAuth(async (request: NextRequest, session: AuthSession) 
           const item = generated.items[i]!;
           await client.query(
             `INSERT INTO job_material_lines
-               (account_id, job_id, name, quantity, unit_label, store_section, status, source, notes, sort_order)
+               (company_id, job_id, name, quantity, unit_label, store_section, status, source, notes, sort_order)
              VALUES ($1, $2, $3, $4, $5, $6, 'needed', 'ai', $7, $8)`,
             [
               session.accountId,
@@ -255,7 +255,7 @@ export const POST = withAuth(async (request: NextRequest, session: AuthSession) 
         }
 
         await client.query(
-          `UPDATE jobs SET materials_plan_seeded_at = NOW() WHERE id = $1 AND account_id = $2`,
+          `UPDATE jobs SET materials_plan_seeded_at = NOW() WHERE id = $1 AND company_id = $2`,
           [jobId, session.accountId]
         );
 
@@ -287,14 +287,14 @@ export const POST = withAuth(async (request: NextRequest, session: AuthSession) 
       }
 
       const maxSort = await client.query<{ m: string | null }>(
-        `SELECT MAX(sort_order)::text AS m FROM job_material_lines WHERE job_id = $1 AND account_id = $2`,
+        `SELECT MAX(sort_order)::text AS m FROM job_material_lines WHERE job_id = $1 AND company_id = $2`,
         [jobId, session.accountId],
       );
       const sortOrder = (parseInt(maxSort.rows[0]?.m ?? "-1", 10) || -1) + 1;
 
       const ins = await client.query(
         `INSERT INTO job_material_lines
-           (account_id, job_id, name, quantity, unit_label, store_section, status, source, notes, sort_order)
+           (company_id, job_id, name, quantity, unit_label, store_section, status, source, notes, sort_order)
          VALUES ($1,$2,$3,$4,$5,$6,$7,'manual',$8,$9)
          RETURNING *`,
         [

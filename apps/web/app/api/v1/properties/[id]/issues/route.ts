@@ -36,7 +36,7 @@ export const GET = withAuth(async (request: NextRequest, session: AuthSession) =
   return withDbSession(session, async (client) => {
     const prop = (
       await client.query(
-        `SELECT id FROM properties WHERE id = $1 AND account_id = $2`,
+        `SELECT id FROM properties WHERE id = $1 AND company_id = $2`,
         [pid, session.accountId]
       )
     ).rows[0];
@@ -53,7 +53,7 @@ export const GET = withAuth(async (request: NextRequest, session: AuthSession) =
                 occurrence_count, first_noted_at, last_noted_at,
                 resolved_at, resolved_note, linked_estimate_id, auto_detected
          FROM property_issues
-         WHERE account_id = $1 AND property_id = $2 AND status = ANY($3::text[])
+         WHERE company_id = $1 AND property_id = $2 AND status = ANY($3::text[])
          ORDER BY
            CASE severity WHEN 'critical' THEN 1 WHEN 'major' THEN 2 WHEN 'moderate' THEN 3 ELSE 4 END,
            last_noted_at DESC`,
@@ -102,7 +102,7 @@ export const POST = withAuth(async (request: NextRequest, session: AuthSession) 
     );
 
     const prop = await client.query(
-      `SELECT id FROM properties WHERE id = $1 AND account_id = $2`,
+      `SELECT id FROM properties WHERE id = $1 AND company_id = $2`,
       [pid, session.accountId]
     );
     if (!prop.rows[0]) {
@@ -116,7 +116,7 @@ export const POST = withAuth(async (request: NextRequest, session: AuthSession) 
     const d = parsed.data;
     const { rows } = await client.query(
       `INSERT INTO property_issues
-         (account_id, property_id, area, item_key, title, description,
+         (company_id, property_id, area, item_key, title, description,
           severity, status, auto_detected, linked_estimate_id)
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, false, $9)
        ON CONFLICT (property_id, item_key) WHERE status IN ('open','monitoring')

@@ -41,7 +41,7 @@ export const PATCH = withRole(["owner", "admin"], async (request: NextRequest, s
       const result = await client.query<{ id: string; sub_status: string | null }>(
         `UPDATE jobs
          SET sub_status = $1, updated_at = now()
-         WHERE id = $2 AND account_id = $3
+         WHERE id = $2 AND company_id = $3
          RETURNING id, sub_status`,
         [parsed.data.sub_status, id, session.accountId]
       );

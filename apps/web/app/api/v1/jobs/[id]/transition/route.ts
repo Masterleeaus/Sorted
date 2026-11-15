@@ -60,7 +60,7 @@ export const POST = withRole(
       );
 
       const existing = await client.query(
-        `SELECT * FROM jobs WHERE id = $1 AND account_id = $2 FOR UPDATE`,
+        `SELECT * FROM jobs WHERE id = $1 AND company_id = $2 FOR UPDATE`,
         [id, session.accountId]
       );
 
@@ -111,7 +111,7 @@ export const POST = withRole(
       }
 
       const { rows } = await client.query(
-        `UPDATE jobs SET status = $1, updated_at = now() WHERE id = $2 AND account_id = $3 RETURNING *`,
+        `UPDATE jobs SET status = $1, updated_at = now() WHERE id = $2 AND company_id = $3 RETURNING *`,
         [targetStatus, id, session.accountId]
       );
 
@@ -160,7 +160,7 @@ export const POST = withRole(
         if (!final_invoice_id) {
           const existingInv = await client.query<{ id: string }>(
             `SELECT id FROM invoices
-             WHERE job_id = $1 AND account_id = $2
+             WHERE job_id = $1 AND company_id = $2
                AND invoice_kind IN ('final', 'standard')
                AND status NOT IN ('cancelled', 'void')
              ORDER BY
@@ -179,7 +179,7 @@ export const POST = withRole(
         await client.query(
           `UPDATE invoices
              SET due_date = $3::timestamptz, updated_at = now()
-           WHERE job_id = $1 AND account_id = $2
+           WHERE job_id = $1 AND company_id = $2
              AND due_date IS NULL
              AND invoice_kind IN ('standard', 'final')
              -- Only non-terminal invoices: the immutability trigger (149) rejects

@@ -64,9 +64,9 @@ export const POST = withRole(["owner", "admin"], async (request: NextRequest, se
         // TASK-163: take a finished job off the "reports to send" queue.
         // The published guard lives in the upsert so a concurrent publish can't be undone.
         const skipped = await db.query(
-          `INSERT INTO portal_job_updates (account_id, job_id, property_id, client_id, title, status, created_by)
-           SELECT j.account_id, j.id, j.property_id, j.client_id, j.title, 'skipped', $3
-           FROM jobs j WHERE j.id = $1 AND j.account_id = $2
+          `INSERT INTO portal_job_updates (company_id, job_id, property_id, client_id, title, status, created_by)
+           SELECT j.company_id, j.id, j.property_id, j.client_id, j.title, 'skipped', $3
+           FROM jobs j WHERE j.id = $1 AND j.company_id = $2
            ON CONFLICT (job_id) DO UPDATE SET status = 'skipped'
              WHERE portal_job_updates.status <> 'published'
            RETURNING id`,
@@ -90,7 +90,7 @@ export const POST = withRole(["owner", "admin"], async (request: NextRequest, se
       const publish = input.action === "publish";
       const { rows } = await db.query<{ share_token: string; status: string }>(
         `INSERT INTO portal_job_updates
-           (account_id, job_id, property_id, client_id, sponsored, title, summary, area, work_type,
+           (company_id, job_id, property_id, client_id, sponsored, title, summary, area, work_type,
             media_ids, records, status, published_at, created_by)
          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10::uuid[], $11::jsonb,
                  CASE WHEN $12 THEN 'published' ELSE 'draft' END,
