@@ -1,0 +1,27 @@
+{
+  "description": "Event envelope cases (docs/EVENTS.md). The signature is hex HMAC-SHA256 over canonical JSON of every other field, keyed by the route secret. The example event type exists only for tests, because the production event registry is empty.",
+  "base": {
+    "eventId": "3f0c9a52-7d1e-4b8a-9c61-2e5f7a1b0d44",
+    "organisationId": "5b7e2d10-1c3a-4f6e-8d9b-0a2c4e6f8b10",
+    "sourceProduct": "sorted",
+    "eventType": "example",
+    "schemaVersion": 1,
+    "correlationId": "contract-correlation-0001",
+    "idempotencyKey": "contract-idempotency-0001",
+    "occurredAt": "2026-11-15T00:00:00.000Z",
+    "payload": { "caseRef": "fixture-1", "count": 2 }
+  },
+  "goldenValidSignature": "6d9abfa0c448e7bde22c4ce4e021f486c42a38eea41a42faff324870a2c26060",
+  "cases": [
+    { "id": "EV-01-valid", "description": "Envelope as signed", "expect": true },
+    { "id": "EV-02-reordered-keys", "description": "Same content with members in another order", "reverseKeyOrder": true, "expect": true },
+    { "id": "EV-03-payload-tampered", "description": "Payload changed after signing", "patch": { "payload": { "caseRef": "fixture-1", "count": 3 } }, "expect": false },
+    { "id": "EV-04-tenant-tampered", "description": "organisationId changed after signing", "patch": { "organisationId": "9a1d4c7e-2b3f-4e5a-8c6d-7f8e9a0b1c2d" }, "expect": false },
+    { "id": "EV-05-idempotency-key-changed", "description": "idempotencyKey changed after signing", "patch": { "idempotencyKey": "contract-idempotency-0002" }, "expect": false },
+    { "id": "EV-06-extra-field", "description": "Field added after signing", "patch": { "extra": "added-after-signing" }, "expect": false },
+    { "id": "EV-07-wrong-route-secret", "description": "Signed with a secret other than the route secret", "signedWith": "other", "expect": false },
+    { "id": "EV-08-uppercase-signature", "description": "Signature hex is upper case", "signatureMode": "upper", "expect": false },
+    { "id": "EV-09-truncated-signature", "description": "Signature shorter than 64 hex characters", "signatureMode": "truncated", "expect": false },
+    { "id": "EV-10-missing-signature", "description": "No signature member", "signatureMode": "missing", "expect": false }
+  ]
+}
