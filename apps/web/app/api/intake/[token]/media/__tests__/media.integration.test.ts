@@ -56,7 +56,7 @@ describe.skipIf(!TEST_DB)("intake photos against Postgres", () => {
   const JPEG = new Uint8Array([0xff, 0xd8, 0xff, 0xe0, 0, 0x10, 0x4a, 0x46, 0x49, 0x46]);
   let n = 0;
 
-  function upload(name = "roof.jpg", bytes: Uint8Array = JPEG) {
+  function upload(name = "roof.jpg", bytes: Uint8Array<ArrayBuffer> = JPEG) {
     const form = new FormData();
     form.append("file", new File([bytes], name, { type: "image/jpeg" }));
     return new NextRequest(`http://localhost/api/intake/${token}/media`, {

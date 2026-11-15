@@ -35,7 +35,7 @@ describe("authenticated account-scoped intake inventory",()=>{
   await route(request(),{accountId:account,role:"admin"});
   expect(db.queries).toHaveLength(2);
   expect(db.queries.every(q=>q.params[1]===account)).toBe(true);
-  expect(db.queries[0].sql).toMatch(/account_id = \$2/);
-  expect(db.queries[1].sql).toMatch(/booking_request_id = \$1 AND account_id = \$2/);
+  expect(db.queries[0].sql).toMatch(/company_id = \$2/);
+  expect(db.queries[1].sql).toMatch(/booking_request_id = \$1 AND company_id = \$2/);
  });
 });

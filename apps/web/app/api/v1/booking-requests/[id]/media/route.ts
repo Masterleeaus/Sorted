@@ -13,14 +13,14 @@ export const GET = withRole(["owner", "admin"], async (request: NextRequest, ses
   }
   const data = await withDbSession(session,async client=>{
     const {rows:booking}=await client.query(
-      "SELECT id FROM booking_requests WHERE id = $1 AND account_id = $2",
+      "SELECT id FROM booking_requests WHERE id = $1 AND company_id = $2",
       [id,session.accountId],
     );
     if(!booking[0]) return null;
     const {rows}=await client.query(
       `SELECT id, original_name, mime_type, size_bytes, created_at
        FROM intake_media
-       WHERE booking_request_id = $1 AND account_id = $2
+       WHERE booking_request_id = $1 AND company_id = $2
        ORDER BY created_at ASC, id ASC LIMIT 100`,
       [id,session.accountId],
     );

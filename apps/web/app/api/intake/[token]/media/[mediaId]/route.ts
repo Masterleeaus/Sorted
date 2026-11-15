@@ -61,7 +61,7 @@ export async function DELETE(
     // before submission is not enough: the invite can be claimed meanwhile.
     const { rows: active } = await client.query<{ id: string }>(
       `SELECT id FROM intake_invites
-       WHERE id = $1 AND account_id = $2 AND used_at IS NULL AND expires_at > now()
+       WHERE id = $1 AND company_id = $2 AND used_at IS NULL AND expires_at > now()
        FOR UPDATE`,
       [invite.id, invite.account_id],
     );

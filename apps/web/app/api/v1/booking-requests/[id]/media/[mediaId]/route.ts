@@ -22,7 +22,7 @@ export const GET = withRole(["owner","admin"], async (request: NextRequest, sess
        FROM intake_media im
        JOIN booking_requests br ON br.id = im.booking_request_id
        WHERE im.id = $1 AND im.booking_request_id = $2
-         AND im.account_id = $3 AND br.account_id = $3`,
+         AND im.company_id = $3 AND br.company_id = $3`,
       [mediaId,bookingId,session.accountId],
     );
     return rows[0] ?? null;

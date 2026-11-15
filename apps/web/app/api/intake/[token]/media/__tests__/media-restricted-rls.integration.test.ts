@@ -1,5 +1,5 @@
 import { describe,it,expect,beforeAll,afterAll } from "vitest";
-import { Pool } from "pg";
+import { Pool, type PoolClient } from "pg";
 import { createIntakeMediaDbFixture } from "./media-db-fixture";
 type F=Awaited<ReturnType<typeof createIntakeMediaDbFixture>>;
 describe.skipIf(!process.env.TEST_DATABASE_URL || !process.env.TEST_RUNTIME_DATABASE_URL)(
@@ -11,7 +11,7 @@ describe.skipIf(!process.env.TEST_DATABASE_URL || !process.env.TEST_RUNTIME_DATA
     restricted=new Pool({connectionString:process.env.TEST_RUNTIME_DATABASE_URL,max:2});
   });
   afterAll(async()=>{await restricted.end();await f.cleanup()});
-  async function scoped<T>(tenant:string,callback:(client:Awaited<ReturnType<Pool["connect"]>>)=>Promise<T>):Promise<T>{
+  async function scoped<T>(tenant:string,callback:(client:PoolClient)=>Promise<T>):Promise<T>{
     const client=await restricted.connect();
     try{
       await client.query("BEGIN");

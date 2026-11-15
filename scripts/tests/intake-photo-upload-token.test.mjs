@@ -7,7 +7,7 @@ test("token-derived account sets transaction-local session context",()=>{assert.
 test("invite is rechecked under a row lock",()=>{assert.match(code,/FOR UPDATE/);assert.match(code,/used_at IS NULL AND expires_at > now\(\)/);});
 
 test("locked upload and photo cap checks bind both invite and account",()=>{
- assert.match(code,/WHERE id = \$1 AND account_id = \$2 AND used_at IS NULL/);
- assert.match(code,/FROM intake_media WHERE intake_invite_id = \$1 AND account_id = \$2/);
+ assert.match(code,/WHERE id = \$1 AND company_id = \$2 AND used_at IS NULL/);
+ assert.match(code,/FROM intake_media WHERE intake_invite_id = \$1 AND company_id = \$2/);
  assert.match(code,/\[invite\.id, invite\.account_id\]/);
 });

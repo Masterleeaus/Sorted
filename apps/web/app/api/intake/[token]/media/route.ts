@@ -103,7 +103,7 @@ export async function POST(
     // Lock the invite row so a submit and two photo adds cannot interleave the cap check.
     const { rows: locked } = await client.query<{ id: string }>(
       `SELECT id FROM intake_invites
-       WHERE id = $1 AND account_id = $2 AND used_at IS NULL AND expires_at > now()
+       WHERE id = $1 AND company_id = $2 AND used_at IS NULL AND expires_at > now()
        FOR UPDATE`,
       [invite.id, invite.account_id],
     );
@@ -113,7 +113,7 @@ export async function POST(
     }
 
     const { rows: countRows } = await client.query<{ n: number }>(
-      `SELECT count(*)::int AS n FROM intake_media WHERE intake_invite_id = $1 AND account_id = $2`,
+      `SELECT count(*)::int AS n FROM intake_media WHERE intake_invite_id = $1 AND company_id = $2`,
       [invite.id, invite.account_id],
     );
     if ((countRows[0]?.n ?? 0) >= MAX_INTAKE_PHOTOS) {

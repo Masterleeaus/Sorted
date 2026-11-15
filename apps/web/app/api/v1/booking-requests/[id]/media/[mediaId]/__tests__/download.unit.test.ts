@@ -51,6 +51,6 @@ describe("private intake photo download",()=>{
   await route(request(),{accountId:account,role:"owner"});
   expect(state.queries).toHaveLength(1);
   expect(state.queries[0].params).toEqual([media,booking,account]);
-  expect(state.queries[0].sql).toMatch(/im.account_id = \$3 AND br.account_id = \$3/);
+  expect(state.queries[0].sql).toMatch(/im.company_id = \$3 AND br.company_id = \$3/);
  });
 });
