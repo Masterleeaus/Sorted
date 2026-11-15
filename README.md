@@ -24,9 +24,11 @@ Product direction comes only from:
 
 Historical plans, generated reports, archived agent docs, and working notes are supporting material only.
 
-## Titan Go
+## Sorted (Field PWA)
 
-Titan Go is the installable PWA and UI layer inside this app (Field mode). It is not a separate product. Canonical docs define scope. See [docs/working/titan-go-identity-decision-2026-11-08.md](docs/working/titan-go-identity-decision-2026-11-08.md) for the decision and the list of prototype surfaces.
+Sorted is the name of the installable Field PWA inside this app. It is not a separate product. Canonical docs define scope. See [docs/working/titan-go-identity-decision-2026-11-08.md](docs/working/titan-go-identity-decision-2026-11-08.md) for the decision and the list of prototype surfaces.
+
+Historical note (2026-11-15): the Field PWA was called "Titan Go" until the owner decided on the name Sorted. "Titan Go" survives only in dated records and in the code paths that have not been renamed.
 
 ## Quick Start
 
