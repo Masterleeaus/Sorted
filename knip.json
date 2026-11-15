@@ -29,7 +29,8 @@
     "apps/web": {
       "entry": [
         "public/sw.js",
-        "scripts/**/*.mjs"
+        "scripts/**/*.mjs",
+        "vitest.integration.config.ts"
       ],
       "ignore": [
         "app/app/ZeroChatFirst.tsx",
@@ -61,7 +62,11 @@
         "lib/titan/workforce-hierarchy/worker-runtime.ts"
       ]
     },
-    "services/worker": {},
+    "services/worker": {
+      "entry": [
+        "vitest.integration.config.ts"
+      ]
+    },
     "packages/*": {},
     "packages/titan-platform": {
       "ignore": [
