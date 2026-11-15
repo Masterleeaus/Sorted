@@ -34,9 +34,9 @@ export default async function InvoiceReceiptsPage({ params }: { params: Promise<
     }>(
       `SELECT i.id, i.account_id, i.job_id, i.invoice_number, a.name AS account_name, p.address AS property_address
        FROM invoices i
-       JOIN accounts a ON a.id = i.account_id
+       JOIN accounts a ON a.id = i.company_id
        LEFT JOIN properties p ON p.id = i.property_id
-       WHERE i.share_token = $1 AND i.account_id = $2 AND i.show_itemized_receipts = true AND i.status <> 'void'`,
+       WHERE i.share_token = $1 AND i.company_id = $2 AND i.show_itemized_receipts = true AND i.status <> 'void'`,
       [token, accountId],
     );
     const invoice = rows[0] ?? null;

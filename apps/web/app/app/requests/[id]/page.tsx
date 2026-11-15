@@ -113,7 +113,7 @@ export default async function BookingRequestDetailPage({
      FROM booking_requests br
      LEFT JOIN users u ON u.id = br.reviewed_by
      LEFT JOIN jobs j ON j.id = br.job_id
-     WHERE br.id = $1 AND br.account_id = $2`,
+     WHERE br.id = $1 AND br.company_id = $2`,
     [id, session.accountId]
   );
 
@@ -127,7 +127,7 @@ export default async function BookingRequestDetailPage({
     ? await queryForSession<DuplicateBookingRow>(session,
       `SELECT id, name, created_at, status
        FROM booking_requests
-       WHERE account_id = $1 AND id = ANY($2::uuid[])
+       WHERE company_id = $1 AND id = ANY($2::uuid[])
        ORDER BY created_at DESC`,
       [session.accountId, duplicateIds]
     )
@@ -144,7 +144,7 @@ export default async function BookingRequestDetailPage({
   const inviteRows = await queryForSession<{ token: string; used_at: string | null; expires_at: string; created_at: string }>(session,
     `SELECT token::text, used_at, expires_at, created_at
      FROM intake_invites
-     WHERE booking_request_id = $1 AND account_id = $2
+     WHERE booking_request_id = $1 AND company_id = $2
      ORDER BY created_at DESC LIMIT 1`,
     [id, session.accountId]
   );

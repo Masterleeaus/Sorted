@@ -99,10 +99,10 @@ export default async function InvoicePrintPage({
          ${SPONSORED_DOCUMENT_SELECT},
          ${documentLocationSelect({ includeEstimateProperty: true })}
        FROM invoices i
-       JOIN accounts a ON a.id = i.account_id
+       JOIN accounts a ON a.id = i.company_id
        ${documentJoins({ root: "i", includeEstimateProperty: true })}
        ${SPONSORED_DOCUMENT_JOIN}
-       WHERE i.id = $1 AND i.account_id = $2`,
+       WHERE i.id = $1 AND i.company_id = $2`,
       [id, session.accountId],
     );
     if (invResult.rowCount === 0) return null;

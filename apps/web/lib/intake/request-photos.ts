@@ -21,7 +21,7 @@ export async function listRequestIntakePhotos(
 ): Promise<RequestIntakePhoto[] | null> {
   return withDbSession(session, async (client) => {
     const { rows: request } = await client.query<{ id: string }>(
-      `SELECT id FROM booking_requests WHERE id = $1 AND account_id = $2`,
+      `SELECT id FROM booking_requests WHERE id = $1 AND company_id = $2`,
       [bookingRequestId, session.accountId],
     );
     if (request.length === 0) return null;
@@ -29,8 +29,8 @@ export async function listRequestIntakePhotos(
     const { rows } = await client.query<RequestIntakePhoto>(
       `SELECT m.id, m.original_name, m.mime_type, m.size_bytes, m.created_at
        FROM intake_media m
-       JOIN booking_requests br ON br.id = m.booking_request_id AND br.account_id = m.account_id
-       WHERE m.booking_request_id = $1 AND m.account_id = $2
+       JOIN booking_requests br ON br.id = m.booking_request_id AND br.company_id = m.company_id
+       WHERE m.booking_request_id = $1 AND m.company_id = $2
        ORDER BY m.created_at`,
       [bookingRequestId, session.accountId],
     );

@@ -24,7 +24,7 @@ export default async function NewPropertyPage({ searchParams }: PageProps) {
 
   const [{ client_id }, clients] = await Promise.all([
     searchParams,
-    queryForSession<ClientOption>(session, `SELECT id, name FROM clients WHERE account_id = $1 ORDER BY name ASC`, [session.accountId]),
+    queryForSession<ClientOption>(session, `SELECT id, name FROM clients WHERE company_id = $1 ORDER BY name ASC`, [session.accountId]),
   ]);
 
   return (

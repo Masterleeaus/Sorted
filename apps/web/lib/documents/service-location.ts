@@ -106,7 +106,7 @@ export function documentJoins(opts: {
   const clientFirstProperty = `(
   SELECT p2.id
   FROM properties p2
-  WHERE p2.client_id = c.id AND p2.account_id = ${root}.account_id
+  WHERE p2.client_id = c.id AND p2.company_id = ${root}.company_id
   ORDER BY p2.created_at ASC
   LIMIT 1
 )`;

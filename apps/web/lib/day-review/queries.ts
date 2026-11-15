@@ -90,8 +90,8 @@ export async function getDayReview(
             a.visit_confidence_threshold AS confidence_threshold,
             a.min_stop_dwell_minutes AS min_dwell
      FROM business_days bd
-     JOIN accounts a ON a.id = bd.account_id
-     WHERE bd.account_id = $1 AND bd.business_date = $2::date`,
+     JOIN accounts a ON a.id = bd.company_id
+     WHERE bd.company_id = $1 AND bd.business_date = $2::date`,
     [accountId, date],
   );
   if (!day) return null;
@@ -121,7 +121,7 @@ export async function getDayReview(
      JOIN properties p ON p.id = vc.property_id
      JOIN clients c ON c.id = vc.matched_client_id
      LEFT JOIN work_orders w ON w.id = vc.work_order_id
-     WHERE vc.account_id = $1
+     WHERE vc.company_id = $1
        AND (vc.arrival_time AT TIME ZONE 'America/New_York')::date = $2::date
        AND vc.status = 'pending'
      ORDER BY vc.arrival_time ASC`,
@@ -165,7 +165,7 @@ export async function getDayReview(
               ) AS scheduled_today
        FROM work_orders w
        JOIN jobs j ON j.id = w.job_id
-       WHERE w.account_id = $1
+       WHERE w.company_id = $1
          AND j.property_id = ANY($3::uuid[])
          AND w.status IN ('draft','ready','scheduled','dispatched','waiting')
        ORDER BY w.created_at ASC`,
@@ -195,7 +195,7 @@ export async function getDayReview(
     `SELECT id, kind, started_at::text, ended_at::text,
             place_label, zone, status, is_likely_noise
      FROM location_segments
-     WHERE account_id = $1 AND segment_date = $2::date AND ended_at IS NOT NULL
+     WHERE company_id = $1 AND segment_date = $2::date AND ended_at IS NOT NULL
      ORDER BY started_at ASC`,
     [accountId, date],
   );
@@ -224,15 +224,15 @@ export async function getDayReview(
             END AS entity_label,
             t.label AS task_label
      FROM activity_entries ae
-     LEFT JOIN jobs j        ON ae.entity_type = 'job'        AND j.id   = ae.entity_id AND j.account_id   = ae.account_id
-     LEFT JOIN visits vis    ON ae.entity_type = 'visit'      AND vis.id = ae.entity_id AND vis.account_id = ae.account_id
-     LEFT JOIN jobs vjob     ON vjob.id = vis.job_id AND vjob.account_id = ae.account_id
-     LEFT JOIN work_orders wo ON ae.entity_type = 'work_order' AND wo.id = ae.entity_id AND wo.account_id = ae.account_id
-     LEFT JOIN work_order_tasks t ON t.id = ae.task_id AND t.account_id = ae.account_id
-     LEFT JOIN estimates est ON ae.entity_type = 'estimate' AND est.id = ae.entity_id AND est.account_id = ae.account_id
-     LEFT JOIN invoices inv  ON ae.entity_type = 'invoice'  AND inv.id = ae.entity_id AND inv.account_id = ae.account_id
-     LEFT JOIN clients cli   ON ae.entity_type = 'client'   AND cli.id = ae.entity_id AND cli.account_id = ae.account_id
-     WHERE ae.account_id = $1 AND ae.session_date = $2::date
+     LEFT JOIN jobs j        ON ae.entity_type = 'job'        AND j.id   = ae.entity_id AND j.company_id   = ae.company_id
+     LEFT JOIN visits vis    ON ae.entity_type = 'visit'      AND vis.id = ae.entity_id AND vis.company_id = ae.company_id
+     LEFT JOIN jobs vjob     ON vjob.id = vis.job_id AND vjob.company_id = ae.company_id
+     LEFT JOIN work_orders wo ON ae.entity_type = 'work_order' AND wo.id = ae.entity_id AND wo.company_id = ae.company_id
+     LEFT JOIN work_order_tasks t ON t.id = ae.task_id AND t.company_id = ae.company_id
+     LEFT JOIN estimates est ON ae.entity_type = 'estimate' AND est.id = ae.entity_id AND est.company_id = ae.company_id
+     LEFT JOIN invoices inv  ON ae.entity_type = 'invoice'  AND inv.id = ae.entity_id AND inv.company_id = ae.company_id
+     LEFT JOIN clients cli   ON ae.entity_type = 'client'   AND cli.id = ae.entity_id AND cli.company_id = ae.company_id
+     WHERE ae.company_id = $1 AND ae.session_date = $2::date
        AND ae.voided_at IS NULL AND ae.ended_at IS NOT NULL
      ORDER BY ae.started_at ASC`,
     [accountId, date],
@@ -329,9 +329,9 @@ export async function loadDayCompanyFacts(
               COALESCE(p.address, c.name, 'House') AS house_label,
               c.name AS client_name
        FROM invoices i
-       LEFT JOIN properties p ON p.id = i.property_id AND p.account_id = i.account_id
-       LEFT JOIN clients c ON c.id = i.client_id AND c.account_id = i.account_id
-       WHERE i.account_id = $1
+       LEFT JOIN properties p ON p.id = i.property_id AND p.company_id = i.company_id
+       LEFT JOIN clients c ON c.id = i.client_id AND c.company_id = i.company_id
+       WHERE i.company_id = $1
          AND i.status NOT IN ('void', 'cancelled')
          AND i.invoice_kind IN ('final', 'standard')
          AND (
@@ -351,7 +351,7 @@ export async function loadDayCompanyFacts(
                 SELECT nv.scheduled_start::text
                 FROM visits nv
                 WHERE nv.job_id = v.job_id
-                  AND nv.account_id = v.account_id
+                  AND nv.company_id = v.company_id
                   AND nv.id <> v.id
                   AND nv.status NOT IN ('cancelled', 'completed')
                 ORDER BY nv.scheduled_start ASC NULLS LAST
@@ -361,16 +361,16 @@ export async function loadDayCompanyFacts(
                 SELECT t.label
                 FROM work_order_tasks t
                 WHERE t.work_order_id = v.work_order_id
-                  AND t.account_id = v.account_id
+                  AND t.company_id = v.company_id
                   AND t.completed = false
                   AND t.status <> 'done'
                 ORDER BY t.sort_order ASC
                 LIMIT 1
               ) AS start_here
        FROM visits v
-       JOIN jobs j ON j.id = v.job_id AND j.account_id = v.account_id
-       LEFT JOIN properties p ON p.id = j.property_id AND p.account_id = v.account_id
-       WHERE v.account_id = $1
+       JOIN jobs j ON j.id = v.job_id AND j.company_id = v.company_id
+       LEFT JOIN properties p ON p.id = j.property_id AND p.company_id = v.company_id
+       WHERE v.company_id = $1
          AND v.closeout_kind = 'return'
          AND v.status = 'completed'
          AND (COALESCE(v.completed_at, v.scheduled_start) AT TIME ZONE 'America/New_York')::date = $2::date

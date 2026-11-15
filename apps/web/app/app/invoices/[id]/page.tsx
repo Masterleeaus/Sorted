@@ -165,10 +165,10 @@ export default async function InvoiceDetailPage({
        FROM invoices i
        LEFT JOIN clients c ON c.id = i.client_id
        LEFT JOIN jobs j ON j.id = i.job_id
-       LEFT JOIN properties p ON p.id = i.property_id AND p.account_id = i.account_id
-       LEFT JOIN property_contacts pc ON pc.id = i.beneficiary_property_contact_id AND pc.account_id = i.account_id
-       LEFT JOIN clients contact_client ON contact_client.id = pc.client_id AND contact_client.account_id = pc.account_id
-       WHERE i.id = $1 AND i.account_id = $2`,
+       LEFT JOIN properties p ON p.id = i.property_id AND p.company_id = i.company_id
+       LEFT JOIN property_contacts pc ON pc.id = i.beneficiary_property_contact_id AND pc.company_id = i.company_id
+       LEFT JOIN clients contact_client ON contact_client.id = pc.client_id AND contact_client.company_id = pc.company_id
+       WHERE i.id = $1 AND i.company_id = $2`,
       [id, session.accountId]
     );
 
@@ -193,7 +193,7 @@ export default async function InvoiceDetailPage({
               ${documentLocationSelect({ includeEstimateProperty: true })}
        FROM invoices i
        ${documentJoins({ root: "i", includeEstimateProperty: true })}
-       WHERE i.id = $1 AND i.account_id = $2`,
+       WHERE i.id = $1 AND i.company_id = $2`,
       [id, session.accountId]
     );
 
@@ -212,14 +212,14 @@ export default async function InvoiceDetailPage({
             `SELECT t.id, t.label, t.status, t.parent_task_id, t.required, t.completion_outcome
              FROM work_order_tasks t
              JOIN work_orders w ON w.id = t.work_order_id
-             WHERE w.job_id = $1 AND w.account_id = $2
+             WHERE w.job_id = $1 AND w.company_id = $2
              ORDER BY w.created_at ASC, t.sort_order ASC, t.created_at ASC`,
             [jobId, session.accountId],
           )
         ).rows
       : [];
     const pricing = await client.query<{ card_fee_pct: string | number }>(
-      `SELECT card_fee_pct FROM business_pricing_settings WHERE account_id = $1`,
+      `SELECT card_fee_pct FROM business_pricing_settings WHERE company_id = $1`,
       [session.accountId],
     );
     const invoiceRow = invoiceResult.rows[0] as InvoiceRow;
@@ -232,14 +232,14 @@ export default async function InvoiceDetailPage({
       ? await loadItemizedReceipts(client, session.accountId, jobId, id)
       : { receipts: [], total_cents: 0 };
     const properties = await client.query<InvoicePropertyOption>(
-      `SELECT id, address, client_id FROM properties WHERE account_id = $1 ORDER BY address ASC`,
+      `SELECT id, address, client_id FROM properties WHERE company_id = $1 ORDER BY address ASC`,
       [session.accountId],
     );
     const propertyContacts = await client.query<InvoiceContactOption>(
       `SELECT pc.id, pc.property_id, COALESCE(c.name, pc.external_name) AS display_name
        FROM property_contacts pc
-       LEFT JOIN clients c ON c.id = pc.client_id AND c.account_id = pc.account_id
-       WHERE pc.account_id = $1
+       LEFT JOIN clients c ON c.id = pc.client_id AND c.company_id = pc.company_id
+       WHERE pc.company_id = $1
        ORDER BY COALESCE(c.name, pc.external_name) ASC`,
       [session.accountId],
     );

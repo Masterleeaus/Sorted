@@ -40,7 +40,7 @@ export async function enqueueAttentionOwnerEmail(
     const owner = await client.query<{ email: string; full_name: string | null }>(
       `SELECT u.email, u.full_name
        FROM users u
-       WHERE u.account_id = $1 AND u.role IN ('owner', 'admin') AND u.email IS NOT NULL
+       WHERE u.company_id = $1 AND u.role IN ('owner', 'admin') AND u.email IS NOT NULL
        ORDER BY CASE WHEN u.role = 'owner' THEN 0 ELSE 1 END, u.created_at ASC
        LIMIT 1`,
       [opts.accountId],

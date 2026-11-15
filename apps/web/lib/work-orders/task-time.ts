@@ -63,7 +63,7 @@ export async function seedWorkOrderTasksFromCriteria(
   if (seeds.length === 0) return 0;
 
   const existing = await client.query<{ n: string }>(
-    `SELECT COUNT(*)::text AS n FROM work_order_tasks WHERE work_order_id = $1 AND account_id = $2`,
+    `SELECT COUNT(*)::text AS n FROM work_order_tasks WHERE work_order_id = $1 AND company_id = $2`,
     [opts.workOrderId, opts.accountId],
   );
   if (parseInt(existing.rows[0]?.n ?? "0", 10) > 0) return 0;
@@ -126,7 +126,7 @@ export async function loadWorkOrderTasks(
   const { rows } = await client.query<WorkOrderTask>(
     `SELECT id, work_order_id, label, required, completed, status, note, sort_order
        FROM work_order_tasks
-      WHERE work_order_id = $1 AND account_id = $2
+      WHERE work_order_id = $1 AND company_id = $2
       ORDER BY sort_order ASC, created_at ASC`,
     [workOrderId, accountId],
   );
@@ -177,7 +177,7 @@ export async function mirrorTasksToCompletionCriteria(
   const criteria = tasksToCriteria(tasks);
   await client.query(
     `UPDATE work_orders SET completion_criteria = $3::jsonb, updated_at = now()
-      WHERE id = $1 AND account_id = $2`,
+      WHERE id = $1 AND company_id = $2`,
     [workOrderId, accountId, JSON.stringify(criteria)],
   );
   return criteria;
@@ -204,7 +204,7 @@ export async function applyTaskCompletionToggles(
                 completed_at = NULL,
                 status = CASE WHEN status = 'done' THEN 'done' ELSE 'open' END,
                 updated_at = now()
-          WHERE id = $1 AND work_order_id = $2 AND account_id = $3
+          WHERE id = $1 AND work_order_id = $2 AND company_id = $3
             AND status <> 'done' AND completed = false`,
         [t.id, opts.workOrderId, opts.accountId],
       );
@@ -216,7 +216,7 @@ export async function applyTaskCompletionToggles(
               completed_at = COALESCE(completed_at, now()),
               status = 'done',
               updated_at = now()
-        WHERE id = $1 AND work_order_id = $2 AND account_id = $3`,
+        WHERE id = $1 AND work_order_id = $2 AND company_id = $3`,
       [t.id, opts.workOrderId, opts.accountId],
     );
   }
@@ -268,7 +268,7 @@ export async function syncWorkOrderTasksFromCriteriaList(
                 completed_at = CASE WHEN $5 THEN COALESCE(completed_at, now()) ELSE NULL END,
                 status = CASE WHEN $5 THEN 'done' ELSE 'open' END,
                 sort_order = $6, updated_at = now()
-          WHERE id = $1 AND work_order_id = $2 AND account_id = $7`,
+          WHERE id = $1 AND work_order_id = $2 AND company_id = $7`,
         [id, opts.workOrderId, label, required, completed, sort, opts.accountId],
       );
       kept.add(id);
@@ -288,12 +288,12 @@ export async function syncWorkOrderTasksFromCriteriaList(
   for (const t of existing) {
     if (kept.has(t.id)) continue;
     const timed = await client.query(
-      `SELECT 1 FROM activity_entries WHERE task_id = $1 AND account_id = $2 LIMIT 1`,
+      `SELECT 1 FROM activity_entries WHERE task_id = $1 AND company_id = $2 LIMIT 1`,
       [t.id, opts.accountId],
     );
     if ((timed.rowCount ?? 0) > 0) continue; // keep historical baseline rows
     await client.query(
-      `DELETE FROM work_order_tasks WHERE id = $1 AND account_id = $2`,
+      `DELETE FROM work_order_tasks WHERE id = $1 AND company_id = $2`,
       [t.id, opts.accountId],
     );
   }

@@ -157,7 +157,7 @@ export default async function RequestsPage({ searchParams }: PageProps) {
       : null;
   const defaultOpen = attentionMode || (!showAll && !validStatus);
 
-  const conditions = ["br.account_id = $1"];
+  const conditions = ["br.company_id = $1"];
   const params: unknown[] = [session.accountId];
   if (validStatus) {
     conditions.push(`br.status = $${params.length + 1}`);
@@ -200,7 +200,7 @@ export default async function RequestsPage({ searchParams }: PageProps) {
   const counts = await queryForSession<{ status: string; count: string }>(session,
     `SELECT status, COUNT(*)::text AS count
      FROM booking_requests
-     WHERE account_id = $1
+     WHERE company_id = $1
      GROUP BY status`,
     [session.accountId]
   );

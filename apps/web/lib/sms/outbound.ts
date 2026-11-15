@@ -33,7 +33,7 @@ export async function findClientByPhone(
 
   const { rows: [row = null] } = await db.query<{ id: string; name: string; phone: string | null }>(
     `SELECT id, name, phone FROM clients
-     WHERE account_id = $1
+     WHERE company_id = $1
        AND (
          phone = $2
          OR phone = $3
@@ -58,7 +58,7 @@ export async function findActiveJobForClient(
 ): Promise<string | null> {
   const { rows: [row] } = await db.query<{ id: string }>(
     `SELECT id FROM jobs
-     WHERE account_id = $1 AND client_id = $2
+     WHERE company_id = $1 AND client_id = $2
        AND status IN ('draft', 'quoted', 'scheduled', 'in_progress')
      ORDER BY
        CASE status
@@ -114,7 +114,7 @@ export async function updateOutboundSmsOutcome(
   const { rows } = await db.query<{ id: string }>(
     `UPDATE communications_log
      SET outcome = $3
-     WHERE account_id = $1
+     WHERE company_id = $1
        AND external_id = $2
        AND channel = 'sms'
        AND direction = 'outbound'

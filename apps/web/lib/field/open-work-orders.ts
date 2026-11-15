@@ -31,7 +31,7 @@ export async function listOpenWorkOrdersAtProperty(
        ORDER BY v.scheduled_start ASC
        LIMIT 1
      ) tv ON true
-     WHERE j.property_id = $1 AND w.account_id = $2
+     WHERE j.property_id = $1 AND w.company_id = $2
        AND w.status IN ('draft','ready','scheduled','dispatched','waiting')
      ORDER BY w.created_at ASC`,
     [propertyId, accountId, atIso],

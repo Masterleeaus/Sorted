@@ -37,10 +37,10 @@ describe("GET /api/v1/booking-requests/[id]/photos", () => {
     expect(body.data[0]).not.toHaveProperty("filename");
     expect(body.data[0]).not.toHaveProperty("url");
     const [sqlPhotos, paramsPhotos] = [queryMock.mock.calls[1][0], queryMock.mock.calls[1][1]];
-    expect(String(sqlPhotos)).toContain("m.account_id = $2");
-    expect(String(sqlPhotos)).toContain("br.account_id = m.account_id");
+    expect(String(sqlPhotos)).toContain("m.company_id = $2");
+    expect(String(sqlPhotos)).toContain("br.company_id = m.company_id");
     expect(paramsPhotos).toEqual([BR, "acct-a"]);
-    expect(String(queryMock.mock.calls[0][0])).toContain("account_id = $2");
+    expect(String(queryMock.mock.calls[0][0])).toContain("company_id = $2");
   });
 
   it("refuses technicians", async () => {

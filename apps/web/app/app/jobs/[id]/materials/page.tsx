@@ -47,7 +47,7 @@ export default async function JobMaterialsPage({ params, searchParams }: PagePro
   }>(
     session,
     `SELECT id, title, materials_plan_seeded_at, materials_plan_seed_estimate_id
-     FROM jobs WHERE id = $1 AND account_id = $2`,
+     FROM jobs WHERE id = $1 AND company_id = $2`,
     [jobId, session.accountId],
   );
   if (!job) notFound();
@@ -57,7 +57,7 @@ export default async function JobMaterialsPage({ params, searchParams }: PagePro
     const assigned = await queryOneForSession(
       session,
       `SELECT id FROM visits
-       WHERE job_id = $1 AND account_id = $2 AND assigned_user_id = $3
+       WHERE job_id = $1 AND company_id = $2 AND assigned_user_id = $3
        LIMIT 1`,
       [jobId, session.accountId, session.userId],
     );
@@ -73,8 +73,8 @@ export default async function JobMaterialsPage({ params, searchParams }: PagePro
      FROM job_material_lines jml
      LEFT JOIN materials_price_book mpb
        ON mpb.id = jml.catalog_material_id
-      AND mpb.account_id = jml.account_id
-     WHERE jml.job_id = $1 AND jml.account_id = $2
+      AND mpb.company_id = jml.company_id
+     WHERE jml.job_id = $1 AND jml.company_id = $2
      ORDER BY jml.sort_order ASC, jml.created_at ASC`,
     [jobId, session.accountId],
   )) as unknown as BuyListLine[];
@@ -87,7 +87,7 @@ export default async function JobMaterialsPage({ params, searchParams }: PagePro
     session,
     `SELECT supplier, branch_label, address
      FROM account_supplier_preferences
-     WHERE account_id = $1
+     WHERE company_id = $1
      ORDER BY supplier`,
     [session.accountId],
   )) as SupplierPreference[];

@@ -41,7 +41,7 @@ export default async function PublicIntakePage({
             `SELECT id, account_id, booking_request_id, token::text AS token,
                     lead_name, lead_email, lead_phone, expires_at, used_at
              FROM intake_invites
-             WHERE id = $1 AND account_id = $2`,
+             WHERE id = $1 AND company_id = $2`,
             [open.id, open.account_id]
           )
           .then((r) => r.rows)

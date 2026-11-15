@@ -53,7 +53,7 @@ export default async function VisitsPage() {
            LEFT JOIN users u ON u.id = v.assigned_user_id
            LEFT JOIN clients c ON c.id = j.client_id
            LEFT JOIN properties p ON p.id = j.property_id
-           WHERE v.account_id = $1 AND v.assigned_user_id = $2
+           WHERE v.company_id = $1 AND v.assigned_user_id = $2
            ORDER BY
              CASE WHEN v.status IN ('completed','cancelled') THEN 1 ELSE 0 END,
              CASE WHEN v.status IN ('completed','cancelled') THEN NULL ELSE v.scheduled_start END ASC NULLS LAST,

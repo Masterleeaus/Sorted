@@ -57,7 +57,7 @@ async function loadSubs(accountId: string, userIds: string[]): Promise<PushSubsc
   return withAccountTx(accountId, async (client) => {
     const { rows } = await client.query<PushSubscriptionRow>(
       `SELECT id, user_id, endpoint, p256dh, auth FROM push_subscriptions
-        WHERE account_id = $1 AND user_id = ANY($2) AND failed_at IS NULL`,
+        WHERE company_id = $1 AND user_id = ANY($2) AND failed_at IS NULL`,
       [accountId, userIds],
     );
     return rows;

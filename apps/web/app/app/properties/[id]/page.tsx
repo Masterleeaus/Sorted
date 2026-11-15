@@ -190,10 +190,10 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
             COUNT(DISTINCT j.id)::int AS job_count,
             COUNT(DISTINCT v.id) FILTER (WHERE v.status = 'completed')::int AS completed_visit_count
      FROM properties p
-     LEFT JOIN clients c ON c.id = p.client_id AND c.account_id = p.account_id
-     LEFT JOIN jobs j ON j.property_id = p.id AND j.account_id = p.account_id
-     LEFT JOIN visits v ON v.job_id = j.id AND v.account_id = p.account_id
-     WHERE p.id = $1 AND p.account_id = $2
+     LEFT JOIN clients c ON c.id = p.client_id AND c.company_id = p.company_id
+     LEFT JOIN jobs j ON j.property_id = p.id AND j.company_id = p.company_id
+     LEFT JOIN visits v ON v.job_id = j.id AND v.company_id = p.company_id
+     WHERE p.id = $1 AND p.company_id = $2
      GROUP BY p.id, c.name, c.phone, c.primary_property_id`,
     [id, session.accountId]
   );
@@ -218,7 +218,7 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
 
     // Edit form client dropdown
     queryForSession<ClientOption>(session,
-      `SELECT id, name FROM clients WHERE account_id = $1 ORDER BY name ASC`,
+      `SELECT id, name FROM clients WHERE company_id = $1 ORDER BY name ASC`,
       [session.accountId]
     ),
 
@@ -246,7 +246,7 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
          ORDER BY visits.scheduled_start ASC NULLS LAST
          LIMIT 1
        ) v ON true
-       WHERE j.property_id = $1 AND j.account_id = $2
+       WHERE j.property_id = $1 AND j.company_id = $2
          AND j.status NOT IN ('completed','invoiced','cancelled')
        ORDER BY CASE j.status
          WHEN 'in_progress' THEN 1
@@ -263,7 +263,7 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
       `SELECT e.id, e.status, e.total_cents, e.created_at, j.title AS job_title
        FROM estimates e
        LEFT JOIN jobs j ON j.id = e.job_id
-       WHERE e.property_id = $1 AND e.account_id = $2
+       WHERE e.property_id = $1 AND e.company_id = $2
          AND e.status IN ('draft','sent')
        ORDER BY e.created_at DESC
        LIMIT 10`,
@@ -275,7 +275,7 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
       `SELECT i.id, i.status, i.total_cents, i.balance_cents, j.title AS job_title
        FROM invoices i
        LEFT JOIN jobs j ON j.id = i.job_id
-       WHERE i.property_id = $1 AND i.account_id = $2
+       WHERE i.property_id = $1 AND i.company_id = $2
          AND i.status IN ('draft','sent','partial','overdue')
        ORDER BY i.created_at DESC
        LIMIT 10`,
@@ -303,12 +303,12 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
        LEFT JOIN LATERAL (
          SELECT id, total_cents, paid_cents, status
          FROM invoices
-         WHERE job_id = j.id AND account_id = j.account_id
+         WHERE job_id = j.id AND company_id = j.company_id
            AND status NOT IN ('draft','void')
          ORDER BY created_at DESC
          LIMIT 1
        ) i ON true
-       WHERE j.property_id = $1 AND j.account_id = $2
+       WHERE j.property_id = $1 AND j.company_id = $2
          AND j.status IN ('completed','invoiced')
        ORDER BY COALESCE(v.completed_at, j.created_at) DESC
        LIMIT 15`,
@@ -337,7 +337,7 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
     queryForSession<PropertyNoteRow>(session,
       `SELECT id, source, body, pinned, visit_id::text AS visit_id, created_at
        FROM property_notes
-       WHERE property_id = $1 AND account_id = $2
+       WHERE property_id = $1 AND company_id = $2
        ORDER BY pinned DESC, created_at DESC
        LIMIT 20`,
       [id, session.accountId]
@@ -346,18 +346,18 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
     // Documents linked to this property or its jobs/estimates/invoices
     queryForSession<DocumentRow>(session,
       `WITH property_entities AS (
-         SELECT id, 'job'::text      AS etype FROM jobs      WHERE property_id = $1 AND account_id = $2
+         SELECT id, 'job'::text      AS etype FROM jobs      WHERE property_id = $1 AND company_id = $2
          UNION ALL
-         SELECT id, 'estimate'::text          FROM estimates  WHERE property_id = $1 AND account_id = $2
+         SELECT id, 'estimate'::text          FROM estimates  WHERE property_id = $1 AND company_id = $2
          UNION ALL
-         SELECT id, 'invoice'::text           FROM invoices   WHERE property_id = $1 AND account_id = $2
+         SELECT id, 'invoice'::text           FROM invoices   WHERE property_id = $1 AND company_id = $2
          UNION ALL
          SELECT $1::uuid, 'property'::text
        )
        SELECT dl.id, dl.title, dl.document_type, dl.original_filename, dl.created_at, dl.entity_type
        FROM document_links dl
        JOIN property_entities pe ON pe.id = dl.entity_id AND pe.etype = dl.entity_type
-       WHERE dl.account_id = $2 AND NOT COALESCE(dl.is_archived, false)
+       WHERE dl.company_id = $2 AND NOT COALESCE(dl.is_archived, false)
        ORDER BY dl.created_at DESC
        LIMIT 20`,
       [id, session.accountId]
@@ -371,7 +371,7 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
               COUNT(vm.id)::int AS photo_count
        FROM visits v
        JOIN jobs j ON j.id = v.job_id
-       JOIN visit_media vm ON vm.visit_id = v.id AND vm.account_id = $2
+       JOIN visit_media vm ON vm.visit_id = v.id AND vm.company_id = $2
        WHERE j.property_id = $1
        GROUP BY v.id, j.title, v.completed_at, v.scheduled_start
        HAVING COUNT(vm.id) > 0
@@ -386,8 +386,8 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
               pvi.serial_number, pvi.install_date, pvi.last_serviced_date, pvi.next_service_date,
               pvi.notes, COALESCE(COUNT(m.id), 0)::int AS photo_count
        FROM property_vault_items pvi
-       LEFT JOIN property_vault_item_media m ON m.vault_item_id = pvi.id AND m.account_id = pvi.account_id
-       WHERE pvi.property_id = $1 AND pvi.account_id = $2
+       LEFT JOIN property_vault_item_media m ON m.vault_item_id = pvi.id AND m.company_id = pvi.company_id
+       WHERE pvi.property_id = $1 AND pvi.company_id = $2
        GROUP BY pvi.id
        ORDER BY pvi.category ASC, pvi.name ASC`,
       [id, session.accountId]
@@ -399,7 +399,7 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
          area, condition, note, assessed_at::text AS assessed_at, visit_id::text AS visit_id,
          '[]'::json AS trend
        FROM property_condition_snapshots
-       WHERE account_id = $2 AND property_id = $1
+       WHERE company_id = $2 AND property_id = $1
        ORDER BY area, assessed_at DESC`,
       [id, session.accountId]
     ),
@@ -410,7 +410,7 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
               occurrence_count, first_noted_at::text AS first_noted_at,
               last_noted_at::text AS last_noted_at, auto_detected
        FROM property_issues
-       WHERE account_id = $2 AND property_id = $1
+       WHERE company_id = $2 AND property_id = $1
        ORDER BY
          CASE severity WHEN 'critical' THEN 1 WHEN 'major' THEN 2 WHEN 'moderate' THEN 3 ELSE 4 END,
          last_noted_at DESC`,
@@ -421,8 +421,8 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
       session,
       `SELECT pc.*, c.name AS client_name, c.email AS client_email, c.phone AS client_phone
        FROM property_contacts pc
-       LEFT JOIN clients c ON c.id = pc.client_id AND c.account_id = pc.account_id
-       WHERE pc.property_id = $1 AND pc.account_id = $2
+       LEFT JOIN clients c ON c.id = pc.client_id AND c.company_id = pc.company_id
+       WHERE pc.property_id = $1 AND pc.company_id = $2
        ORDER BY pc.created_at ASC`,
       [id, session.accountId]
     ),

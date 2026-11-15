@@ -35,13 +35,13 @@ export async function closeJobIfFullyPaid(
   const invoices = await client.query<InvoicePaidSnapshot>(
     `SELECT invoice_kind, status
      FROM invoices
-     WHERE job_id = $1 AND account_id = $2`,
+     WHERE job_id = $1 AND company_id = $2`,
     [opts.jobId, opts.accountId],
   );
   if (!shouldCloseJobFromInvoices(invoices.rows)) return null;
 
   const job = await client.query<{ status: string }>(
-    `SELECT status FROM jobs WHERE id = $1 AND account_id = $2 FOR UPDATE`,
+    `SELECT status FROM jobs WHERE id = $1 AND company_id = $2 FOR UPDATE`,
     [opts.jobId, opts.accountId],
   );
   const from = job.rows[0]?.status;
@@ -52,19 +52,19 @@ export async function closeJobIfFullyPaid(
   if (from === "in_progress") {
     await client.query(
       `UPDATE jobs SET status = 'completed', updated_at = now()
-       WHERE id = $1 AND account_id = $2 AND status = 'in_progress'`,
+       WHERE id = $1 AND company_id = $2 AND status = 'in_progress'`,
       [opts.jobId, opts.accountId],
     );
   }
 
   await client.query(
     `UPDATE jobs SET status = 'invoiced', updated_at = now()
-     WHERE id = $1 AND account_id = $2 AND status = 'completed'`,
+     WHERE id = $1 AND company_id = $2 AND status = 'completed'`,
     [opts.jobId, opts.accountId],
   );
 
   const after = await client.query<{ status: string }>(
-    `SELECT status FROM jobs WHERE id = $1 AND account_id = $2`,
+    `SELECT status FROM jobs WHERE id = $1 AND company_id = $2`,
     [opts.jobId, opts.accountId],
   );
   const to = after.rows[0]?.status ?? from;

@@ -235,7 +235,7 @@ export default async function JobDetailPage({
      FROM jobs j
      LEFT JOIN clients c ON c.id = j.client_id
      LEFT JOIN properties p ON p.id = j.property_id
-     WHERE j.id = $1 AND j.account_id = $2`,
+     WHERE j.id = $1 AND j.company_id = $2`,
     [id, session.accountId]
   );
 
@@ -245,7 +245,7 @@ export default async function JobDetailPage({
   if (session.role === "tech") {
     const assigned = await queryOneForSession(
       session,
-      `SELECT id FROM visits WHERE job_id = $1 AND account_id = $2 AND assigned_user_id = $3 LIMIT 1`,
+      `SELECT id FROM visits WHERE job_id = $1 AND company_id = $2 AND assigned_user_id = $3 LIMIT 1`,
       [id, session.accountId, session.userId]
     );
     if (!assigned) notFound();
@@ -261,7 +261,7 @@ export default async function JobDetailPage({
           `SELECT v.*, u.full_name AS assigned_user_name
            FROM visits v
            LEFT JOIN users u ON u.id = v.assigned_user_id
-           WHERE v.job_id = $1 AND v.account_id = $2 AND v.assigned_user_id = $3
+           WHERE v.job_id = $1 AND v.company_id = $2 AND v.assigned_user_id = $3
            ORDER BY v.scheduled_start ASC`,
           [id, session.accountId, session.userId]
         )
@@ -270,7 +270,7 @@ export default async function JobDetailPage({
           `SELECT v.*, u.full_name AS assigned_user_name
            FROM visits v
            LEFT JOIN users u ON u.id = v.assigned_user_id
-           WHERE v.job_id = $1 AND v.account_id = $2
+           WHERE v.job_id = $1 AND v.company_id = $2
            ORDER BY v.scheduled_start ASC`,
           [id, session.accountId]
         ),
@@ -284,7 +284,7 @@ export default async function JobDetailPage({
                   )::text AS active_visit_count
            FROM work_orders w
            LEFT JOIN visits v ON v.work_order_id = w.id
-           WHERE w.job_id = $1 AND w.account_id = $2 AND w.status <> 'draft'
+           WHERE w.job_id = $1 AND w.company_id = $2 AND w.status <> 'draft'
            GROUP BY w.id
            ORDER BY w.created_at ASC`,
           [id, session.accountId],
@@ -331,23 +331,23 @@ export default async function JobDetailPage({
         }>(
           session,
           `SELECT
-             (SELECT COUNT(*) FROM estimates WHERE job_id = $1 AND account_id = $2) AS estimate_count,
-             (SELECT COUNT(*) FROM invoices  WHERE job_id = $1 AND account_id = $2) AS invoice_count,
+             (SELECT COUNT(*) FROM estimates WHERE job_id = $1 AND company_id = $2) AS estimate_count,
+             (SELECT COUNT(*) FROM invoices  WHERE job_id = $1 AND company_id = $2) AS invoice_count,
              (SELECT COUNT(*) FROM change_orders co
               WHERE co.estimate_id = (
                 SELECT id FROM estimates
-                WHERE job_id = $1 AND account_id = $2 AND status = 'approved'
+                WHERE job_id = $1 AND company_id = $2 AND status = 'approved'
                 ORDER BY created_at DESC LIMIT 1
               )) AS change_order_count,
              j.actual_cost_cents AS parts_cost_cents,
              j.travel_miles,
              (SELECT internal_labor_cost_cents FROM estimates
-              WHERE job_id = $1 AND account_id = $2 AND status = 'approved'
+              WHERE job_id = $1 AND company_id = $2 AND status = 'approved'
               ORDER BY created_at DESC LIMIT 1) AS estimated_labor_cost_cents,
              -- Parity with trackedLaborMinutesFromActivityEntries (job + visit + work_order)
              (SELECT COALESCE(SUM(EXTRACT(EPOCH FROM (ae.ended_at - ae.started_at)) / 60), 0)::numeric
                 FROM activity_entries ae
-               WHERE ae.account_id = $2
+               WHERE ae.company_id = $2
                  AND ae.activity_type = 'job_work'
                  AND ae.voided_at IS NULL
                  AND ae.started_at IS NOT NULL
@@ -357,77 +357,77 @@ export default async function JobDetailPage({
                    (ae.entity_type = 'job' AND ae.entity_id = $1)
                    OR (ae.entity_type = 'visit' AND ae.entity_id IN (
                      SELECT v.id FROM visits v
-                     WHERE v.job_id = $1 AND v.account_id = $2
+                     WHERE v.job_id = $1 AND v.company_id = $2
                        AND v.visit_type IS DISTINCT FROM 'site_visit'
                    ))
                    OR (ae.entity_type = 'work_order' AND ae.entity_id IN (
                      SELECT wo.id FROM work_orders wo
-                     WHERE wo.job_id = $1 AND wo.account_id = $2
+                     WHERE wo.job_id = $1 AND wo.company_id = $2
                    ))
                  )
              ) AS tracked_labor_minutes,
              (SELECT total_cents FROM estimates
-              WHERE job_id = $1 AND account_id = $2 AND status = 'approved'
+              WHERE job_id = $1 AND company_id = $2 AND status = 'approved'
               ORDER BY created_at DESC LIMIT 1) AS estimated_total_cents,
              (SELECT total_cents FROM invoices
-              WHERE job_id = $1 AND account_id = $2 AND status != 'void'
+              WHERE job_id = $1 AND company_id = $2 AND status != 'void'
               ORDER BY created_at DESC LIMIT 1) AS invoice_total_cents,
              (SELECT id FROM invoices
-              WHERE job_id = $1 AND account_id = $2 AND status != 'void'
+              WHERE job_id = $1 AND company_id = $2 AND status != 'void'
                 AND invoice_kind IN ('final', 'standard')
               ORDER BY created_at DESC LIMIT 1) AS latest_invoice_id,
-             EXISTS(SELECT 1 FROM estimates WHERE job_id = $1 AND account_id = $2 AND status IN ('sent','approved')) AS has_sent_estimate,
-             (SELECT sent_at FROM estimates WHERE job_id = $1 AND account_id = $2 AND status IN ('sent','approved') ORDER BY created_at DESC LIMIT 1) AS last_estimate_sent_at,
-             EXISTS(SELECT 1 FROM estimates WHERE job_id = $1 AND account_id = $2 AND status = 'approved') AS has_approved_estimate,
-             (SELECT id FROM estimates WHERE job_id = $1 AND account_id = $2 AND status = 'approved' ORDER BY created_at DESC LIMIT 1) AS approved_estimate_id,
-             (SELECT id FROM estimates WHERE job_id = $1 AND account_id = $2 ORDER BY created_at DESC LIMIT 1) AS latest_estimate_id,
-             (SELECT estimate_number FROM estimates WHERE job_id = $1 AND account_id = $2 ORDER BY created_at DESC LIMIT 1) AS latest_estimate_number,
-             (SELECT status FROM estimates WHERE job_id = $1 AND account_id = $2 ORDER BY created_at DESC LIMIT 1) AS latest_estimate_status,
-             (SELECT total_cents FROM estimates WHERE job_id = $1 AND account_id = $2 ORDER BY created_at DESC LIMIT 1) AS latest_estimate_total_cents,
-             EXISTS(SELECT 1 FROM invoices WHERE job_id = $1 AND account_id = $2 AND invoice_kind = 'deposit') AS has_deposit_invoice,
-             EXISTS(SELECT 1 FROM invoices WHERE job_id = $1 AND account_id = $2 AND invoice_kind = 'deposit' AND status IN ('partial','paid')) AS deposit_paid,
-             (SELECT id FROM invoices WHERE job_id = $1 AND account_id = $2 AND invoice_kind = 'deposit' ORDER BY created_at DESC LIMIT 1) AS deposit_invoice_id,
-             (SELECT status FROM invoices WHERE job_id = $1 AND account_id = $2 AND invoice_kind = 'deposit' ORDER BY created_at DESC LIMIT 1) AS deposit_invoice_status,
-             (SELECT total_cents FROM invoices WHERE job_id = $1 AND account_id = $2 AND invoice_kind = 'deposit' ORDER BY created_at DESC LIMIT 1) AS deposit_invoice_total_cents,
-             (SELECT invoice_number FROM invoices WHERE job_id = $1 AND account_id = $2 AND invoice_kind = 'deposit' ORDER BY created_at DESC LIMIT 1) AS deposit_invoice_number,
-             (SELECT status FROM invoices WHERE job_id = $1 AND account_id = $2 AND invoice_kind IN ('final','standard') AND status != 'void' ORDER BY created_at DESC LIMIT 1) AS latest_final_status,
-             (SELECT invoice_number FROM invoices WHERE job_id = $1 AND account_id = $2 AND invoice_kind IN ('final','standard') AND status != 'void' ORDER BY created_at DESC LIMIT 1) AS latest_final_number,
+             EXISTS(SELECT 1 FROM estimates WHERE job_id = $1 AND company_id = $2 AND status IN ('sent','approved')) AS has_sent_estimate,
+             (SELECT sent_at FROM estimates WHERE job_id = $1 AND company_id = $2 AND status IN ('sent','approved') ORDER BY created_at DESC LIMIT 1) AS last_estimate_sent_at,
+             EXISTS(SELECT 1 FROM estimates WHERE job_id = $1 AND company_id = $2 AND status = 'approved') AS has_approved_estimate,
+             (SELECT id FROM estimates WHERE job_id = $1 AND company_id = $2 AND status = 'approved' ORDER BY created_at DESC LIMIT 1) AS approved_estimate_id,
+             (SELECT id FROM estimates WHERE job_id = $1 AND company_id = $2 ORDER BY created_at DESC LIMIT 1) AS latest_estimate_id,
+             (SELECT estimate_number FROM estimates WHERE job_id = $1 AND company_id = $2 ORDER BY created_at DESC LIMIT 1) AS latest_estimate_number,
+             (SELECT status FROM estimates WHERE job_id = $1 AND company_id = $2 ORDER BY created_at DESC LIMIT 1) AS latest_estimate_status,
+             (SELECT total_cents FROM estimates WHERE job_id = $1 AND company_id = $2 ORDER BY created_at DESC LIMIT 1) AS latest_estimate_total_cents,
+             EXISTS(SELECT 1 FROM invoices WHERE job_id = $1 AND company_id = $2 AND invoice_kind = 'deposit') AS has_deposit_invoice,
+             EXISTS(SELECT 1 FROM invoices WHERE job_id = $1 AND company_id = $2 AND invoice_kind = 'deposit' AND status IN ('partial','paid')) AS deposit_paid,
+             (SELECT id FROM invoices WHERE job_id = $1 AND company_id = $2 AND invoice_kind = 'deposit' ORDER BY created_at DESC LIMIT 1) AS deposit_invoice_id,
+             (SELECT status FROM invoices WHERE job_id = $1 AND company_id = $2 AND invoice_kind = 'deposit' ORDER BY created_at DESC LIMIT 1) AS deposit_invoice_status,
+             (SELECT total_cents FROM invoices WHERE job_id = $1 AND company_id = $2 AND invoice_kind = 'deposit' ORDER BY created_at DESC LIMIT 1) AS deposit_invoice_total_cents,
+             (SELECT invoice_number FROM invoices WHERE job_id = $1 AND company_id = $2 AND invoice_kind = 'deposit' ORDER BY created_at DESC LIMIT 1) AS deposit_invoice_number,
+             (SELECT status FROM invoices WHERE job_id = $1 AND company_id = $2 AND invoice_kind IN ('final','standard') AND status != 'void' ORDER BY created_at DESC LIMIT 1) AS latest_final_status,
+             (SELECT invoice_number FROM invoices WHERE job_id = $1 AND company_id = $2 AND invoice_kind IN ('final','standard') AND status != 'void' ORDER BY created_at DESC LIMIT 1) AS latest_final_number,
              -- Final/standard only: deposits must not drive pipeline "Invoiced"
              EXISTS(
                SELECT 1 FROM invoices
-               WHERE job_id = $1 AND account_id = $2
+               WHERE job_id = $1 AND company_id = $2
                  AND invoice_kind IN ('final', 'standard')
                  AND status IN ('sent','partial','overdue')
              ) AS has_unpaid_invoice,
              EXISTS(
                SELECT 1 FROM invoices
-               WHERE job_id = $1 AND account_id = $2
+               WHERE job_id = $1 AND company_id = $2
                  AND invoice_kind IN ('final', 'standard')
                  AND status = 'paid'
              ) AS has_paid_invoice,
              (SELECT id FROM booking_requests
-              WHERE job_id = $1 AND account_id = $2
+              WHERE job_id = $1 AND company_id = $2
               ORDER BY created_at DESC LIMIT 1) AS booking_request_id,
              (SELECT status FROM booking_requests
-              WHERE job_id = $1 AND account_id = $2
+              WHERE job_id = $1 AND company_id = $2
               ORDER BY created_at DESC LIMIT 1) AS booking_status,
              (SELECT pricing_mode FROM booking_requests
-              WHERE job_id = $1 AND account_id = $2
+              WHERE job_id = $1 AND company_id = $2
               ORDER BY created_at DESC LIMIT 1) AS booking_pricing_mode,
              (SELECT service_description FROM booking_requests
-              WHERE job_id = $1 AND account_id = $2
+              WHERE job_id = $1 AND company_id = $2
               ORDER BY created_at DESC LIMIT 1) AS booking_service_description,
              (SELECT COUNT(*) FROM estimates
-              WHERE job_id = $1 AND account_id = $2 AND status = 'expired') AS expired_estimate_count,
+              WHERE job_id = $1 AND company_id = $2 AND status = 'expired') AS expired_estimate_count,
              (SELECT id FROM estimates
-              WHERE job_id = $1 AND account_id = $2 AND status = 'expired'
+              WHERE job_id = $1 AND company_id = $2 AND status = 'expired'
               ORDER BY created_at DESC LIMIT 1) AS latest_expired_estimate_id,
              EXISTS(
                SELECT 1 FROM work_orders
-               WHERE job_id = $1 AND account_id = $2
+               WHERE job_id = $1 AND company_id = $2
                  AND status = 'draft' AND total_cents > 0
              ) AS has_draft_work_order_with_pricing
-           FROM jobs j WHERE j.id = $1 AND j.account_id = $2`,
+           FROM jobs j WHERE j.id = $1 AND j.company_id = $2`,
           [id, session.accountId]
         )
       : Promise.resolve(null),
@@ -453,7 +453,7 @@ export default async function JobDetailPage({
          COALESCE(SUM(EXTRACT(EPOCH FROM (ae.ended_at - ae.started_at)) / 60), 0)::numeric AS minutes,
          COUNT(*)::int AS entry_count
        FROM activity_entries ae
-       WHERE ae.account_id = $2
+       WHERE ae.company_id = $2
          AND ae.activity_type = 'job_work'
          AND ae.voided_at IS NULL
          AND ae.started_at IS NOT NULL
@@ -464,14 +464,14 @@ export default async function JobDetailPage({
              ae.entity_type = 'visit'
              AND ae.entity_id IN (
                SELECT v.id FROM visits v
-               WHERE v.job_id = $1 AND v.account_id = $2
+               WHERE v.job_id = $1 AND v.company_id = $2
              )
            )
            OR (
              ae.entity_type = 'work_order'
              AND ae.entity_id IN (
                SELECT wo.id FROM work_orders wo
-               WHERE wo.job_id = $1 AND wo.account_id = $2
+               WHERE wo.job_id = $1 AND wo.company_id = $2
              )
            )
          )
@@ -489,9 +489,9 @@ export default async function JobDetailPage({
       session,
       `SELECT vt.visit_id, t.id AS task_id, t.label, t.completed, t.status
          FROM visit_tasks vt
-         JOIN work_order_tasks t ON t.id = vt.task_id AND t.account_id = vt.account_id
-         JOIN visits v ON v.id = vt.visit_id AND v.account_id = vt.account_id
-        WHERE v.job_id = $1 AND vt.account_id = $2
+         JOIN work_order_tasks t ON t.id = vt.task_id AND t.company_id = vt.company_id
+         JOIN visits v ON v.id = vt.visit_id AND v.company_id = vt.company_id
+        WHERE v.job_id = $1 AND vt.company_id = $2
         ORDER BY t.sort_order ASC, t.created_at ASC`,
       [id, session.accountId],
     ).catch(() => []),
@@ -506,14 +506,14 @@ export default async function JobDetailPage({
     session.role === "tech"
       ? `SELECT vm.id, vm.visit_id, vm.category, vm.original_name
          FROM visit_media vm
-         JOIN visits v ON v.id = vm.visit_id AND v.account_id = vm.account_id
-         WHERE v.job_id = $1 AND vm.account_id = $2 AND v.assigned_user_id = $3
+         JOIN visits v ON v.id = vm.visit_id AND v.company_id = vm.company_id
+         WHERE v.job_id = $1 AND vm.company_id = $2 AND v.assigned_user_id = $3
          ORDER BY vm.created_at DESC
          LIMIT 12`
       : `SELECT vm.id, vm.visit_id, vm.category, vm.original_name
          FROM visit_media vm
-         JOIN visits v ON v.id = vm.visit_id AND v.account_id = vm.account_id
-         WHERE v.job_id = $1 AND vm.account_id = $2
+         JOIN visits v ON v.id = vm.visit_id AND v.company_id = vm.company_id
+         WHERE v.job_id = $1 AND vm.company_id = $2
          ORDER BY vm.created_at DESC
          LIMIT 12`,
     session.role === "tech"
@@ -531,7 +531,7 @@ export default async function JobDetailPage({
           session,
           `SELECT amount_cents, commercial_tag, category, notes, vendor_name
            FROM expenses
-           WHERE account_id = $2 AND job_id = $1 AND category <> 'materials'`,
+           WHERE company_id = $2 AND job_id = $1 AND category <> 'materials'`,
           [id, session.accountId],
         ).catch(() => [])
       : [],
@@ -598,7 +598,7 @@ export default async function JobDetailPage({
     const assessmentRow = await queryOneForSession<{ completed_at: string | null }>(
       session,
       `SELECT completed_at FROM site_visit_assessments
-       WHERE visit_id = $1 AND account_id = $2`,
+       WHERE visit_id = $1 AND company_id = $2`,
       [openPreSaleSiteVisit.id, session.accountId],
     );
     assessmentFormIncomplete = !assessmentRow?.completed_at;
@@ -610,7 +610,7 @@ export default async function JobDetailPage({
     const assessmentRow = await queryOneForSession<{ completed_at: string | null }>(
       session,
       `SELECT completed_at FROM site_visit_assessments
-       WHERE visit_id = $1 AND account_id = $2`,
+       WHERE visit_id = $1 AND company_id = $2`,
       [assessmentVisitId, session.accountId],
     );
     assessmentPacketDone = assessmentRow ? !!assessmentRow.completed_at : null;
@@ -688,7 +688,7 @@ export default async function JobDetailPage({
                 SUM(EXTRACT(EPOCH FROM (ae.ended_at - ae.started_at)) / 60.0) AS minutes
            FROM activity_entries ae
            LEFT JOIN users u ON u.id = ae.user_id
-          WHERE ae.account_id = $2
+          WHERE ae.company_id = $2
             AND ae.activity_type = 'job_work'
             AND ae.voided_at IS NULL
             AND ae.started_at IS NOT NULL
@@ -698,18 +698,18 @@ export default async function JobDetailPage({
               (ae.entity_type = 'job' AND ae.entity_id = $1)
               OR (ae.entity_type = 'visit' AND ae.entity_id IN (
                 SELECT v.id FROM visits v
-                 WHERE v.job_id = $1 AND v.account_id = $2
+                 WHERE v.job_id = $1 AND v.company_id = $2
                    AND v.visit_type IS DISTINCT FROM 'site_visit'))
               OR (ae.entity_type = 'work_order' AND ae.entity_id IN (
                 SELECT wo.id FROM work_orders wo
-                 WHERE wo.job_id = $1 AND wo.account_id = $2))
+                 WHERE wo.job_id = $1 AND wo.company_id = $2))
             )
           GROUP BY u.cost_cents_per_hour, u.burden_multiplier`,
         [id, session.accountId],
       ),
       queryOneForSession<{ labor_cost_cents_per_hour: number }>(
         session,
-        `SELECT labor_cost_cents_per_hour FROM business_pricing_settings WHERE account_id = $1`,
+        `SELECT labor_cost_cents_per_hour FROM business_pricing_settings WHERE company_id = $1`,
         [session.accountId],
       ),
     ]);

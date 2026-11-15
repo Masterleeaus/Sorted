@@ -35,13 +35,13 @@ export function estimateAttentionPredicate(alias = ""): string {
 
 /** Full WHERE for invoice attention counts. Params: account_id as $1. */
 export const INVOICE_ATTENTION_WHERE = `
-  account_id = $1
+  company_id = $1
   AND ${invoiceAttentionPredicate()}
 `;
 
 /** Full WHERE for estimate attention counts. Params: account_id as $1. */
 export const ESTIMATE_ATTENTION_WHERE = `
-  account_id = $1
+  company_id = $1
   AND ${estimateAttentionPredicate()}
 `;
 
@@ -52,7 +52,7 @@ export async function countRequestQueue(
   const r = await client.query<{ count: string }>(
     `SELECT COUNT(*)::text AS count
      FROM booking_requests
-     WHERE account_id = $1
+     WHERE company_id = $1
        AND status IN ${REQUEST_QUEUE_STATUSES_SQL}`,
     [accountId],
   );
@@ -92,7 +92,7 @@ export async function countUnreadAttentionEvents(
   const r = await client.query<{ count: string }>(
     `SELECT COUNT(*)::text AS count
      FROM attention_events
-     WHERE account_id = $1
+     WHERE company_id = $1
        AND read_at IS NULL
        AND created_at >= now() - ($2::text || ' days')::interval`,
     [accountId, String(ATTENTION_RETENTION_DAYS)],
