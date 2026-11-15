@@ -35,9 +35,11 @@ export {
   loadLinkSigningKey,
   SORTED_PRODUCT_ID,
   signLinkAssertion,
+  signLinkAssertionWithNonceStore,
   type LinkAssertionInput,
   type LinkSigningKey,
   type SignLinkAssertionOptions,
+  type SignLinkAssertionWithNonceStoreOptions,
   type SignedLinkAssertion,
 } from "./link-assertion";
 export * from './service-token';

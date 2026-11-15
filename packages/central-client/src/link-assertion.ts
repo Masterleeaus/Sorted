@@ -12,6 +12,7 @@
  * Neither value is logged, and error messages never echo a key, a claim value or the environment.
  */
 import { createPrivateKey, randomBytes, sign as signBytes, type KeyObject } from 'node:crypto';
+import type { LinkNonceStore } from './link-nonce-store';
 
 export const SORTED_PRODUCT_ID = 'sorted' as const;
 export const LINK_ASSERTION_AUDIENCE = 'titan-central' as const;
@@ -61,7 +62,14 @@ export interface LinkSigningKey {
 }
 
 export class LinkSigningError extends Error {
-  constructor(readonly code: 'config_missing' | 'config_invalid' | 'input_invalid') {
+  constructor(
+    readonly code:
+      | 'config_missing'
+      | 'config_invalid'
+      | 'input_invalid'
+      | 'forbidden_claim'
+      | 'nonce_reused',
+  ) {
     super(`link assertion signing failed: ${code}`);
     this.name = 'LinkSigningError';
   }
@@ -153,4 +161,78 @@ export function signLinkAssertion(
   const signingInput = `${b64urlJson(header)}.${b64urlJson(claims)}`;
   const signature = signBytes(null, Buffer.from(signingInput, 'ascii'), key.privateKey).toString('base64url');
   return { token: `${signingInput}.${signature}`, kid: key.kid, nonce, issuedAt: iat, expiresAt: exp };
+}
+
+/** Claims Central refuses on a link assertion (LINKING.md). The signer refuses them before issuing a token. */
+const FORBIDDEN_IDENTITY_CLAIMS: ReadonlySet<string> = new Set([
+  'email',
+  'email_verified',
+  'name',
+  'given_name',
+  'family_name',
+  'display_name',
+  'displayName',
+  'preferred_username',
+  'username',
+  'nickname',
+  'phone_number',
+]);
+
+export interface SignLinkAssertionWithNonceStoreOptions {
+  /** Must equal 'sorted'. Defaults to SORTED_PRODUCT_ID. */
+  issuer?: string;
+  /** Must equal 'titan-central'. Defaults to LINK_ASSERTION_AUDIENCE. */
+  audience?: string;
+  /** Key ID written to the JWS header. */
+  keyId: string;
+  /** Ed25519 private key. */
+  privateKey: KeyObject;
+  /** Single-use nonce ledger. The nonce is reserved before the token is returned. */
+  nonceStore: LinkNonceStore;
+  /** Clock in whole seconds since epoch. Injected for tests. */
+  now?: () => number;
+  /** Lifetime in whole seconds, 1 to 300. Default 120. */
+  lifetimeSeconds?: number;
+  /** Nonce source. Must be unpredictable. Defaults to 32 random bytes. */
+  nonceFactory?: () => string;
+}
+
+/**
+ * Async signer for Sorted link assertions. Same claims, header and validation as signLinkAssertion,
+ * plus the single-use nonce reservation. Refuses forbidden identity claims, unknown identifier shapes,
+ * lifetimes outside 1 to 300 seconds, malformed nonces and any nonce already reserved in nonceStore.
+ * Never returns a partial token. Errors are LinkSigningError with a code, never the key or claim values.
+ */
+export async function signLinkAssertionWithNonceStore(
+  input: LinkAssertionInput,
+  options: SignLinkAssertionWithNonceStoreOptions,
+): Promise<SignedLinkAssertion> {
+  const issuer = options.issuer ?? SORTED_PRODUCT_ID;
+  const audience = options.audience ?? LINK_ASSERTION_AUDIENCE;
+  if (issuer !== SORTED_PRODUCT_ID || audience !== LINK_ASSERTION_AUDIENCE) throw new LinkSigningError('config_invalid');
+
+  if (input === null || typeof input !== 'object') throw new LinkSigningError('input_invalid');
+  for (const key of Object.keys(input)) {
+    if (FORBIDDEN_IDENTITY_CLAIMS.has(key)) throw new LinkSigningError('forbidden_claim');
+    if (key !== 'sub' && key !== 'org' && key !== 'lu' && key !== 'la') throw new LinkSigningError('input_invalid');
+  }
+
+  const nowSeconds = options.now ?? (() => Math.floor(Date.now() / 1000));
+  const nowValue = nowSeconds();
+  if (!Number.isSafeInteger(nowValue)) throw new LinkSigningError('input_invalid');
+
+  // Validation and signing reuse the synchronous signer, so both paths share one set of rules.
+  const signed = signLinkAssertion(
+    { kid: options.keyId, privateKey: options.privateKey },
+    input,
+    {
+      ttlSeconds: options.lifetimeSeconds,
+      nowMs: nowValue * 1000,
+      nonce: options.nonceFactory?.(),
+    },
+  );
+
+  const reserved = await options.nonceStore.reserve(signed.nonce, signed.expiresAt);
+  if (!reserved) throw new LinkSigningError('nonce_reused');
+  return signed;
 }
