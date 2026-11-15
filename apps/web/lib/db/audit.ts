@@ -24,9 +24,12 @@ export async function appendAuditLog(
 ): Promise<void> {
   await client.query(
     `INSERT INTO audit_log
-       (account_id, entity_type, entity_id, action, actor_id, trace_id, old_value, new_value)
-     VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
+       (account_id, company_id, entity_type, entity_id, action, actor_id, trace_id, old_value, new_value)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
     [
+      entry.account_id,
+      // Canonical tenant key (issue #26). Equal to account_id during the dual-column
+      // period (migration 205); written explicitly so new rows do not rely on the trigger.
       entry.account_id,
       entry.entity_type,
       entry.entity_id,
