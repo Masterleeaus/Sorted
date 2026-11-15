@@ -43,6 +43,14 @@ function qualityScore(subjectId: string, scores: Record<string, number | null | 
   return Number.isFinite(n) ? Math.max(0, Math.min(1, n)) : 0.5;
 }
 
+// Utilization of a target after the moves already proposed in this plan are counted against it.
+function projectedUtilization(model: CapacitySubjectModel, addedInPlan: number): number {
+  const limit = model.concurrency.limit;
+  if (limit == null || !Number.isFinite(limit) || limit <= 0) return utilization(model);
+  const concurrency = (model.concurrency.committed + addedInPlan) / limit;
+  return Math.max(utilization(model), concurrency);
+}
+
 function subjectKey(kind: string, id: string): string {
   return `${kind}:${id}`;
 }
@@ -80,6 +88,7 @@ export function buildSupervisorBalancingPlan(input: SupervisorBalancingInput) {
 
   const proposals: Array<Record<string, unknown>> = [];
   const skipped: Array<Record<string, unknown>> = [];
+  const addedInPlan = new Map<string, number>();
 
   const work = [...(Array.isArray(input.work) ? input.work : [])].sort((a, b) => {
     const priorityDelta = bounded(b.priority_score, 0, 100, 0) - bounded(a.priority_score, 0, 100, 0);
@@ -116,14 +125,18 @@ export function buildSupervisorBalancingPlan(input: SupervisorBalancingInput) {
       .filter((candidate) => candidate.subject_id !== source.subject_id)
       .filter((candidate) => !scope.size || scope.has(candidate.subject_id))
       .filter(eligibleTarget)
-      .map((candidate) => ({
-        candidate,
-        utilization: utilization(candidate),
-        quality: qualityScore(candidate.subject_id, quality_scores),
-      }))
-      .filter(({ utilization: candidateUtilization }) => candidateUtilization < sourceUtilization)
+      .map((candidate) => {
+        const added = addedInPlan.get(subjectKey(candidate.subject_kind, candidate.subject_id)) ?? 0;
+        return {
+          candidate,
+          utilization: utilization(candidate),
+          projected: projectedUtilization(candidate, added),
+          quality: qualityScore(candidate.subject_id, quality_scores),
+        };
+      })
+      .filter(({ projected }) => projected < sourceUtilization && projected <= 1)
       .sort((a, b) => {
-        if (a.utilization !== b.utilization) return a.utilization - b.utilization;
+        if (a.projected !== b.projected) return a.projected - b.projected;
         if (a.quality !== b.quality) return b.quality - a.quality;
         return a.candidate.subject_id.localeCompare(b.candidate.subject_id);
       });
@@ -133,6 +146,9 @@ export function buildSupervisorBalancingPlan(input: SupervisorBalancingInput) {
       skipped.push({ work_id, reason: 'NO_ELIGIBLE_LOWER_LOAD_TARGET' });
       continue;
     }
+
+    const targetKey = subjectKey(target.candidate.subject_kind, target.candidate.subject_id);
+    addedInPlan.set(targetKey, (addedInPlan.get(targetKey) ?? 0) + 1);
 
     const reasons = [...source.blockers];
     if (source.concurrency.queued > 0) reasons.push('QUEUE_PRESSURE');
@@ -148,6 +164,7 @@ export function buildSupervisorBalancingPlan(input: SupervisorBalancingInput) {
       source_utilization: Number(sourceUtilization.toFixed(4)),
       target_state: target.candidate.state,
       target_utilization: Number(target.utilization.toFixed(4)),
+      projected_target_utilization_after_move: Number(target.projected.toFixed(4)),
       target_quality_score: target.quality,
       reasons: unique(reasons),
       source_refs: unique(item.source_refs),
@@ -175,6 +192,7 @@ export function buildSupervisorBalancingPlan(input: SupervisorBalancingInput) {
       proposal_limit: max_proposals,
     },
     bounded_reassignment_recommendations: true,
+    projected_load_accounting: true,
     requires_approval: true,
     automatic_assignment: false,
     automatic_reassignment: false,
