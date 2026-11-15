@@ -27,7 +27,7 @@ function fail(code: string, status: number): NextResponse {
 
 /**
  * Completes Central sign-in: checks state, exchanges the code with PKCE,
- * verifies the ID token for Sorted's audience, and checks the organisation claim.
+ * verifies the ID token for the client id, and checks the `titan_organisation_id` claim.
  *
  * Creating a Sorted session needs a verified local account link, which the
  * product side does not provide yet (Central docs/LINKING.md). Until it does,
@@ -56,12 +56,12 @@ export async function GET(request: NextRequest) {
     const claims = await verifyIdToken({
       idToken,
       issuer: discovery.issuer,
-      audience: config.audience,
+      audience: config.clientId,
       nonce: tx.nonce,
       jwks: createRemoteJWKSet(new URL(discovery.jwks_uri)),
       now: Math.floor(Date.now() / 1000),
     });
-    organisationFromVerifiedClaims(claims as { org?: unknown });
+    organisationFromVerifiedClaims(claims as { titan_organisation_id?: unknown });
 
     logger.warn("central sign-in verified; no local account link");
     return fail("account_link_required", 403);

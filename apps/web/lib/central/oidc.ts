@@ -82,7 +82,12 @@ export interface AuthorizationRequest {
   readonly verifier: string;
 }
 
-/** Builds the authorization redirect. The audience is Sorted's own per-app audience. */
+/**
+ * Builds the authorization redirect. The per-app audience is sent as the
+ * RFC 8707 `resource` indicator (owner decision), not as `audience`. The ID
+ * token audience is the client id (OIDC Core 3.1.3.7), so the callback checks
+ * that, and the resource only shapes the access token.
+ */
 export function createAuthorizationRequest(
   discovery: OidcDiscovery,
   config: CentralOidcConfig,
@@ -97,7 +102,7 @@ export function createAuthorizationRequest(
     client_id: config.clientId,
     redirect_uri: config.redirectUri,
     scope: "openid",
-    audience: config.audience,
+    resource: config.audience,
     state,
     nonce,
     code_challenge: challenge,
@@ -193,9 +198,4 @@ export async function verifyIdToken(args: {
     throw new OidcError("invalid_id_token", "ID token has no subject");
   }
   return payload as JWTPayload & { sub: string };
-}
-
-/** Central's global logout endpoint, on Central's origin. */
-export function globalLogoutUrl(config: Pick<CentralOidcConfig, "origin">): string {
-  return new URL("/auth/titan/global-logout", config.origin).toString();
 }

@@ -8,7 +8,7 @@
  *
  * Variables (names only; see .env.example for placeholders):
  *   CENTRAL_ORIGIN                  https origin of Central, no path
- *   CENTRAL_OIDC_AUDIENCE           Sorted's own audience in Central (TITAN_FIELD_AUDIENCE)
+ *   CENTRAL_OIDC_AUDIENCE           Sorted's own resource/audience in Central, sent as `resource`
  *   CENTRAL_OIDC_CLIENT_ID          OIDC client id issued by the Central operator
  *   CENTRAL_OIDC_CLIENT_SECRET      OIDC client secret issued by the Central operator
  *   APP_URL                         Sorted's public origin; the callback is derived from it

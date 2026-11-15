@@ -6,7 +6,6 @@ import {
   createPkcePair,
   exchangeAuthorizationCode,
   fetchDiscovery,
-  globalLogoutUrl,
   stateMatches,
   verifyIdToken,
 } from "../oidc";
@@ -46,7 +45,7 @@ describe("PKCE", () => {
 });
 
 describe("authorization request", () => {
-  it("sends PKCE, state, nonce and the per-app audience, and nothing identifying", () => {
+  it("sends PKCE, state, nonce and the per-app resource indicator, and nothing identifying", () => {
     let i = 0;
     const req = createAuthorizationRequest(DISCOVERY, OIDC_CONFIG, () => Buffer.alloc(32, ++i));
     const url = new URL(req.url);
@@ -54,7 +53,8 @@ describe("authorization request", () => {
     expect(url.searchParams.get("response_type")).toBe("code");
     expect(url.searchParams.get("client_id")).toBe(OIDC_CONFIG.clientId);
     expect(url.searchParams.get("redirect_uri")).toBe(OIDC_CONFIG.redirectUri);
-    expect(url.searchParams.get("audience")).toBe(OIDC_CONFIG.audience);
+    expect(url.searchParams.get("resource")).toBe(OIDC_CONFIG.audience);
+    expect(url.searchParams.has("audience")).toBe(false);
     expect(url.searchParams.get("code_challenge_method")).toBe("S256");
     expect(url.searchParams.get("state")).toBe(req.state);
     expect(url.searchParams.get("nonce")).toBe(req.nonce);
@@ -122,6 +122,14 @@ describe("ID token verification", () => {
     await expect(verifyIdToken({ idToken: token, issuer: DISCOVERY.issuer, audience: OIDC_CONFIG.audience, nonce: "nonce-under-test", jwks: s.jwks, now: NOW + 10 })).resolves.toMatchObject({ sub: "usr_test_0001" });
   });
 
+  it("checks the ID token against the client id, since the resource only shapes the access token", async () => {
+    const s = await signer();
+    const token = await s.sign({ ...VALID_CLAIMS, aud: OIDC_CONFIG.clientId });
+    const base = { idToken: token, issuer: DISCOVERY.issuer, nonce: "nonce-under-test", jwks: s.jwks, now: NOW };
+    await expect(verifyIdToken({ ...base, audience: OIDC_CONFIG.clientId })).resolves.toMatchObject({ sub: "usr_test_0001" });
+    await expect(verifyIdToken({ ...base, audience: OIDC_CONFIG.audience })).rejects.toMatchObject({ code: "wrong_audience" });
+  });
+
   it("refuses a wrong audience", async () => {
     const s = await signer();
     const token = await s.sign({ ...VALID_CLAIMS, aud: "urn:test:other-app" });
@@ -154,8 +162,3 @@ describe("ID token verification", () => {
   });
 });
 
-describe("global logout", () => {
-  it("points at Central's global logout path on Central's origin", () => {
-    expect(globalLogoutUrl(OIDC_CONFIG)).toBe(`${ORIGIN}/auth/titan/global-logout`);
-  });
-});
