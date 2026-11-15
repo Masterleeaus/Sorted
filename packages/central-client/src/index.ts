@@ -40,3 +40,5 @@ export {
   type SignLinkAssertionOptions,
   type SignedLinkAssertion,
 } from "./link-assertion";
+export * from './service-token';
+export * from './entitlements';
