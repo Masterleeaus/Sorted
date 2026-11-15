@@ -26,3 +26,16 @@ test("seed files and unprefixed names are ignored", () => {
   const result = checkMigrationPrefixes(["002_seed_dev.sql", "README.sql", "178_ok.sql"]);
   assert.equal(result.ok, true, result.errors.join("; "));
 });
+
+// Exact filename freezes preserve the migration ledger of existing deployments.
+// These are not permissions to introduce further duplicate migration numbers.
+test("existing main collisions 209 and 210 remain frozen by filename", () => {
+  for (const prefix of [209, 210]) {
+    const existing = GRANDFATHERED[prefix];
+    assert.equal(existing.length, 2);
+    assert.equal(checkMigrationPrefixes(existing).ok, true);
+    const added = checkMigrationPrefixes([...existing, `${prefix}_unexpected_new_migration.sql`]);
+    assert.equal(added.ok, false);
+    assert.match(added.errors.join("; "), new RegExp(`prefix ${prefix} is frozen`));
+  }
+});
