@@ -1,10 +1,12 @@
-# Decision: Titan Go is a UI layer inside Dovetails FSM (2026-11-08)
+# Decision: the Field PWA is a UI layer inside Dovetails FSM (2026-11-08)
 
 Issue: #8. Docs and package description only. No code behaviour changed.
 
+> **Dated note (2026-11-15):** The owner decided that the Field PWA is named **Sorted**. Sorted is the name in `apps/web/app/manifest.ts` and in the brand test. "Titan Go" is kept below only as the historical name used when this decision was written on 2026-11-08. Where the body says "Titan Go", read it as the Field PWA, now named Sorted.
+
 ## Decision
 
-- Titan Go (the installable PWA, "Titan Go Field" mode) is an imported UI layer and deployment surface inside this app.
+- The Field PWA (named Sorted; historically "Titan Go", the installable PWA in "Field" mode) is an imported UI layer and deployment surface inside this app.
 - It is not a product identity change. The product is Dovetails FSM, a residential handyman and home maintenance operating system.
 - `docs/canonical/` stays authoritative for product, domain and architecture. The canonical docs do not mention Titan as a product, and this decision does not add it.
 - Titan-branded modes, Zero chat and workforce screens are presentation and runtime surfaces. They do not define scope.
