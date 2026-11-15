@@ -4,6 +4,7 @@ import type { AuthSession } from "../../../../lib/auth/middleware";
 import { queryForSession, getPool } from "../../../../lib/db";
 import { appendAuditLog } from "../../../../lib/db/audit";
 import { logger } from "../../../../lib/logger";
+import { companyIdFromSession } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
 
@@ -30,9 +31,9 @@ export const GET = withAuth(
       `SELECT id, account_id, type, enabled, config, 
               next_run_at::text, last_run_at::text
        FROM automations
-       WHERE account_id = $1
+       WHERE company_id = $1
        ORDER BY type ASC, created_at ASC`,
-      [session.accountId]
+      [companyIdFromSession(session)]
     );
 
     const statsMap = new Map<string, EventStats>();
@@ -67,10 +68,10 @@ async function getEventStats(
                          OR new_value->>'followup_sent_at' IS NOT NULL)::int AS sent,
        0 AS skipped
      FROM audit_log
-     WHERE account_id = $1 
+     WHERE company_id = $1 
        AND entity_type = $2
        AND created_at >= now() - interval '24 hours'`,
-    [session.accountId, entityType]
+    [companyIdFromSession(session), entityType]
   );
 
   const last7d = await queryForSession<{ sent: number; skipped: number }>(
@@ -80,10 +81,10 @@ async function getEventStats(
                          OR new_value->>'followup_sent_at' IS NOT NULL)::int AS sent,
        0 AS skipped
      FROM audit_log
-     WHERE account_id = $1 
+     WHERE company_id = $1 
        AND entity_type = $2
        AND created_at >= now() - interval '7 days'`,
-    [session.accountId, entityType]
+    [companyIdFromSession(session), entityType]
   );
 
   return {
@@ -138,10 +139,10 @@ export const POST = withRole(
       );
 
       const { rows } = await client.query(
-        `INSERT INTO automations (account_id, type, enabled, config, next_run_at)
+        `INSERT INTO automations (company_id, type, enabled, config, next_run_at)
          VALUES ($1, $2, true, $3, now())
          RETURNING id, account_id, type, enabled, config, next_run_at::text, last_run_at::text`,
-        [session.accountId, type, JSON.stringify(config ?? {})]
+        [companyIdFromSession(session), type, JSON.stringify(config ?? {})]
       );
 
       const automation = rows[0];

@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { withRole } from "@/lib/auth/middleware";
 import type { AuthSession } from "@/lib/auth/middleware";
-import { getPool } from "@/lib/db";
+import { getPool, companyIdFromSession } from "@/lib/db";
 import { appendAuditLog } from "@/lib/db/audit";
 import { logger } from "@/lib/logger";
 import { loadPricingSettings, rowToPricingSettings } from "@/lib/pricing/settings";
@@ -157,10 +157,10 @@ export const PATCH = withRole(["owner", "admin"], async (request: NextRequest, s
          material_handling_pct = $9,
          card_fee_pct = $10,
          updated_at = NOW()
-       WHERE account_id = $1
+       WHERE company_id = $1
        RETURNING *`,
       [
-        session.accountId,
+        companyIdFromSession(session),
         next.labor_cost_cents_per_hour,
         next.labor_billing_cents_per_hour,
         next.margin_floor_pct,

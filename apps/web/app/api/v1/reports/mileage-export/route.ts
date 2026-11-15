@@ -11,7 +11,7 @@ import {
 } from "@ai-fsm/domain";
 import { withRole } from "@/lib/auth/middleware";
 import type { AuthSession } from "@/lib/auth/middleware";
-import { queryForSession } from "@/lib/db";
+import { queryForSession, companyIdFromSession } from "@/lib/db";
 import { logger } from "@/lib/logger";
 
 export const dynamic = "force-dynamic";
@@ -47,24 +47,24 @@ export const GET = withRole(["owner", "admin"], async (request: NextRequest, ses
               vs.miles_source
        FROM vehicle_sessions vs
        LEFT JOIN vehicles v ON v.id = vs.vehicle_id
-       WHERE vs.account_id = $1
+       WHERE vs.company_id = $1
          AND vs.session_date BETWEEN $2::date AND $3::date
          AND vs.status <> 'voided'
        ORDER BY vs.session_date ASC, vs.started_at ASC NULLS LAST`,
-      [session.accountId, fromDate, toDate],
+      [companyIdFromSession(session), fromDate, toDate],
     );
 
     const gpsByDate = await queryForSession<{ session_date: string; meters: number }>(session,
       `SELECT segment_date::text AS session_date,
               COALESCE(SUM(distance_meters), 0)::float8 AS meters
        FROM location_segments
-       WHERE account_id = $1
+       WHERE company_id = $1
          AND segment_date BETWEEN $2::date AND $3::date
          AND kind = 'drive'
          AND status <> 'dismissed'
          AND COALESCE(is_likely_noise, false) = false
        GROUP BY segment_date`,
-      [session.accountId, fromDate, toDate],
+      [companyIdFromSession(session), fromDate, toDate],
     );
     const gpsMap = new Map(gpsByDate.map((g) => [g.session_date, Number(g.meters) / 1609.34]));
 

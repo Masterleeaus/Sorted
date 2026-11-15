@@ -9,6 +9,7 @@ import { appendAuditLog } from "../../../../../lib/db/audit";
 import { logger } from "../../../../../lib/logger";
 import { UPLOAD_ROOT, isSafePathSegment } from "../../../../../lib/uploads/paths";
 import { VAULT_CATEGORIES } from "@ai-fsm/domain";
+import { companyIdFromSession } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
 
@@ -59,8 +60,8 @@ export const PATCH = withAuth(
       );
 
       const existing = await client.query(
-        `SELECT * FROM property_vault_items WHERE id = $1 AND account_id = $2 FOR UPDATE`,
-        [id, session.accountId]
+        `SELECT * FROM property_vault_items WHERE id = $1 AND company_id = $2 FOR UPDATE`,
+        [id, companyIdFromSession(session)]
       );
       if (!existing.rows[0]) {
         await client.query("ROLLBACK");
@@ -86,8 +87,8 @@ export const PATCH = withAuth(
 
       const { rows } = await client.query(
         `UPDATE property_vault_items SET ${fields.join(", ")}, updated_at = now()
-         WHERE id = $1 AND account_id = $2 RETURNING *`,
-        [id, session.accountId, ...values]
+         WHERE id = $1 AND company_id = $2 RETURNING *`,
+        [id, companyIdFromSession(session), ...values]
       );
 
       await appendAuditLog(client, {
@@ -127,8 +128,8 @@ export const DELETE = withAuth(
       );
 
       const existing = await client.query(
-        `SELECT * FROM property_vault_items WHERE id = $1 AND account_id = $2 FOR UPDATE`,
-        [id, session.accountId]
+        `SELECT * FROM property_vault_items WHERE id = $1 AND company_id = $2 FOR UPDATE`,
+        [id, companyIdFromSession(session)]
       );
       if (!existing.rows[0]) {
         await client.query("ROLLBACK");

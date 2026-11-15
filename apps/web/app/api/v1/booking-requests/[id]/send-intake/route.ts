@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { withRole } from "@/lib/auth/middleware";
-import { queryForSession, withDbSession } from "@/lib/db";
+import { queryForSession, withDbSession, companyIdFromSession } from "@/lib/db";
 import { logger } from "@/lib/logger";
 import { sendEmail, appUrl, isEmailConfigured } from "@/lib/email/mailer";
 import { intakeInviteEmailHtml, intakeInviteEmailText } from "@ai-fsm/email-templates";
@@ -45,8 +45,8 @@ export const POST = withRole(["owner", "admin"], async (request: NextRequest, se
     }>(session,
       `SELECT id, account_id, name, email, phone, client_id
        FROM booking_requests
-       WHERE id = $1 AND account_id = $2`,
-      [bookingRequestId, session.accountId]
+       WHERE id = $1 AND company_id = $2`,
+      [bookingRequestId, companyIdFromSession(session)]
     );
 
     if (!brRows[0]) {
@@ -85,10 +85,10 @@ export const POST = withRole(["owner", "admin"], async (request: NextRequest, se
       // Create a new invite
       const insertRows = await queryForSession<{ token: string; expires_at: string }>(session,
         `INSERT INTO intake_invites
-           (account_id, booking_request_id, lead_name, lead_email, lead_phone)
+           (company_id, booking_request_id, lead_name, lead_email, lead_phone)
          VALUES ($1, $2, $3, $4, $5)
          RETURNING token::text, expires_at`,
-        [session.accountId, bookingRequestId, br.name, email, br.phone ?? null]
+        [companyIdFromSession(session), bookingRequestId, br.name, email, br.phone ?? null]
       );
       token = insertRows[0].token;
       expiresAt = insertRows[0].expires_at;

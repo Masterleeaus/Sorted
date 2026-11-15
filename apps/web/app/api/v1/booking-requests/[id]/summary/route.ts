@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
 import { withRole } from "@/lib/auth/middleware";
-import { queryOneForSession } from "@/lib/db";
+import { queryOneForSession, companyIdFromSession } from "@/lib/db";
 import { logger } from "@/lib/logger";
 import { scoreJobFit } from "@ai-fsm/domain";
 import { INTAKE_QUESTIONS, INTAKE_METADATA_LABELS } from "@/lib/intake/questions";
@@ -58,8 +58,8 @@ export const POST = withRole(["owner", "admin"], async (request: NextRequest, se
             address, city, routing_path, walkthrough_score,
             referral_source, referral_name, intake_metadata
      FROM booking_requests
-     WHERE id = $1 AND account_id = $2`,
-    [pathId, session.accountId]
+     WHERE id = $1 AND company_id = $2`,
+    [pathId, companyIdFromSession(session)]
   );
 
   if (!br) {

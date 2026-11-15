@@ -84,7 +84,7 @@ export async function POST(request: NextRequest) {
     const matches = await withTokenAccountContext(accountId, async (tx) => {
       const { rows } = await tx.query<ClientMatch>(
         `SELECT c.id, c.name, ${CAN_TEXT_SQL} AS can_text FROM clients c
-         WHERE lower(c.email) = lower($1) AND c.account_id = $2::uuid
+         WHERE lower(c.email) = lower($1) AND c.company_id = $2::uuid
          LIMIT 2`,
         [email, accountId]
       );
@@ -117,7 +117,7 @@ export async function POST(request: NextRequest) {
         const { rows } = await tx.query<ClientMatch>(
           `SELECT c.id, c.name, ${CAN_TEXT_SQL} AS can_text FROM clients c
            WHERE right(regexp_replace(coalesce(c.phone, ''), '\\D', '', 'g'), 10) = $1
-             AND c.account_id = $2::uuid
+             AND c.company_id = $2::uuid
            LIMIT 2`,
           [last10, accountId]
         );

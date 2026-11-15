@@ -14,6 +14,7 @@ import {
   resolveStoredUpload,
   sanitizeDisplayName,
 } from "../../../../../../lib/uploads/paths";
+import { companyIdFromSession } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
 
@@ -23,8 +24,8 @@ const ALLOWED_MIME_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"
 
 async function getVaultItem(itemId: string, session: AuthSession) {
   return queryOneForSession<{ id: string }>(session,
-    `SELECT id FROM property_vault_items WHERE id = $1 AND account_id = $2`,
-    [itemId, session.accountId]
+    `SELECT id FROM property_vault_items WHERE id = $1 AND company_id = $2`,
+    [itemId, companyIdFromSession(session)]
   );
 }
 
@@ -48,9 +49,9 @@ export const GET = withAuth(async (request: NextRequest, session: AuthSession) =
   const rows = await queryForSession(session,
     `SELECT id, vault_item_id, original_name, mime_type, size_bytes, created_at
      FROM property_vault_item_media
-     WHERE vault_item_id = $1 AND account_id = $2
+     WHERE vault_item_id = $1 AND company_id = $2
      ORDER BY created_at`,
-    [itemId, session.accountId]
+    [itemId, companyIdFromSession(session)]
   );
 
   return NextResponse.json({ data: rows });
@@ -152,13 +153,13 @@ export const POST = withAuth(async (request: NextRequest, session: AuthSession) 
 
     const { rows } = await client.query(
       `INSERT INTO property_vault_item_media
-         (account_id, vault_item_id, filename, original_name, mime_type, size_bytes,
+         (company_id, vault_item_id, filename, original_name, mime_type, size_bytes,
           photo_role, visit_id, paired_media_id, created_by)
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
        RETURNING id, vault_item_id, original_name, mime_type, size_bytes,
                  photo_role, visit_id, paired_media_id, created_at`,
       [
-        session.accountId, itemId, filename, sanitizeDisplayName(file.name), file.type, file.size,
+        companyIdFromSession(session), itemId, filename, sanitizeDisplayName(file.name), file.type, file.size,
         role, visitId ?? null, pairedMediaId ?? null, session.userId,
       ]
     );

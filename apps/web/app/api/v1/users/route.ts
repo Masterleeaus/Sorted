@@ -3,7 +3,7 @@ import { z } from "zod";
 import { hash } from "bcryptjs";
 import { withRole } from "@/lib/auth/middleware";
 import type { AuthSession } from "@/lib/auth/middleware";
-import { getPool, queryForSession } from "@/lib/db";
+import { getPool, queryForSession, companyIdFromSession } from "@/lib/db";
 import { appendAuditLog } from "@/lib/db/audit";
 import { logger } from "@/lib/logger";
 
@@ -21,9 +21,9 @@ export const GET = withRole(["owner", "admin"], async (_request: NextRequest, se
   const rows = await queryForSession(session, 
     `SELECT id, full_name, email, phone, role, created_at
      FROM users
-     WHERE account_id = $1
+     WHERE company_id = $1
      ORDER BY role, full_name`,
-    [session.accountId]
+    [companyIdFromSession(session)]
   );
   return NextResponse.json({ data: rows });
 });
@@ -62,8 +62,8 @@ export const POST = withRole(["owner", "admin"], async (request: NextRequest, se
 
     // Check for duplicate email within account
     const existing = await client.query(
-      `SELECT id FROM users WHERE account_id = $1 AND email = $2`,
-      [session.accountId, email.toLowerCase().trim()]
+      `SELECT id FROM users WHERE company_id = $1 AND email = $2`,
+      [companyIdFromSession(session), email.toLowerCase().trim()]
     );
     if (existing.rowCount && existing.rowCount > 0) {
       await client.query("ROLLBACK");
@@ -74,10 +74,10 @@ export const POST = withRole(["owner", "admin"], async (request: NextRequest, se
     }
 
     const { rows } = await client.query(
-      `INSERT INTO users (account_id, full_name, email, phone, role, password_hash)
+      `INSERT INTO users (company_id, full_name, email, phone, role, password_hash)
        VALUES ($1, $2, $3, $4, $5, $6)
        RETURNING id, full_name, email, phone, role, created_at`,
-      [session.accountId, full_name, email.toLowerCase().trim(), phone || null, role, password_hash]
+      [companyIdFromSession(session), full_name, email.toLowerCase().trim(), phone || null, role, password_hash]
     );
     const newUser = rows[0];
 

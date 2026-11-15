@@ -6,6 +6,7 @@ import type { AuthSession } from "../../../../../../../lib/auth/middleware";
 import { getPool, queryOneForSession } from "../../../../../../../lib/db";
 import { logger } from "../../../../../../../lib/logger";
 import { UPLOAD_ROOT, resolveStoredUpload } from "../../../../../../../lib/uploads/paths";
+import { companyIdFromSession } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
 
@@ -20,8 +21,8 @@ export const DELETE = withAuth(async (request: NextRequest, session: AuthSession
   }
 
   const item = await queryOneForSession<{ id: string }>(session,
-    `SELECT id FROM property_vault_items WHERE id = $1 AND account_id = $2`,
-    [itemId, session.accountId]
+    `SELECT id FROM property_vault_items WHERE id = $1 AND company_id = $2`,
+    [itemId, companyIdFromSession(session)]
   );
   if (!item) {
     return NextResponse.json(
@@ -43,9 +44,9 @@ export const DELETE = withAuth(async (request: NextRequest, session: AuthSession
 
     const { rows } = await client.query(
       `DELETE FROM property_vault_item_media
-       WHERE id = $1 AND vault_item_id = $2 AND account_id = $3
+       WHERE id = $1 AND vault_item_id = $2 AND company_id = $3
        RETURNING filename`,
-      [mediaId, itemId, session.accountId]
+      [mediaId, itemId, companyIdFromSession(session)]
     );
 
     if (!rows[0]) {

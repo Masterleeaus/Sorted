@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { withRole } from "@/lib/auth/middleware";
 import type { AuthSession } from "@/lib/auth/middleware";
-import { getPool, queryForSession } from "@/lib/db";
+import { getPool, queryForSession, companyIdFromSession } from "@/lib/db";
 import { normalizeClientName } from "@/lib/crm/normalization";
 import { appendAuditLog } from "@/lib/db/audit";
 import { logger } from "@/lib/logger";
@@ -62,8 +62,8 @@ export const GET = withRole(["owner", "admin"], async (request: NextRequest, ses
   const q = (searchParams.get("q") ?? "").trim().toLowerCase();
   const limit = Math.min(Math.max(parseInt(searchParams.get("limit") ?? "100"), 1), 200);
 
-  const params: unknown[] = [session.accountId];
-  const conditions = ["c.account_id = $1"];
+  const params: unknown[] = [companyIdFromSession(session)];
+  const conditions = ["c.company_id = $1"];
   let idx = 2;
   if (q) {
     conditions.push(`(LOWER(c.name) LIKE $${idx} OR LOWER(COALESCE(c.email, '')) LIKE $${idx} OR LOWER(COALESCE(c.phone, '')) LIKE $${idx})`);
@@ -77,8 +77,8 @@ export const GET = withRole(["owner", "admin"], async (request: NextRequest, ses
             COUNT(DISTINCT p.id)::int AS property_count,
             COUNT(DISTINCT j.id)::int AS job_count
      FROM clients c
-     LEFT JOIN properties p ON p.client_id = c.id AND p.account_id = c.account_id
-     LEFT JOIN jobs j ON j.client_id = c.id AND j.account_id = c.account_id
+     LEFT JOIN properties p ON p.client_id = c.id AND p.company_id = c.company_id
+     LEFT JOIN jobs j ON j.client_id = c.id AND j.company_id = c.company_id
      WHERE ${conditions.join(" AND ")}
      GROUP BY c.id
      ORDER BY c.name ASC
@@ -122,14 +122,14 @@ export const POST = withRole(["owner", "admin"], async (request: NextRequest, se
     } = parsed.data;
     const result = await client.query(
       `INSERT INTO clients
-         (account_id, name, email, phone, notes, company_name, address_line1, city, state, zip,
+         (company_id, name, email, phone, notes, company_name, address_line1, city, state, zip,
           relationship_type, travel_rule,
           custom_included_one_way_miles, custom_mileage_rate_cents, custom_travel_time_rate_cents,
           minimum_project_value_exempt)
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
        RETURNING *`,
       [
-        session.accountId,
+        companyIdFromSession(session),
         normalizeClientName(name),
         email || null,
         phone || null,

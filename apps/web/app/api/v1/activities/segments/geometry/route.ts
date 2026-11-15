@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { withAuth } from "@/lib/auth/middleware";
-import { queryForSession } from "@/lib/db";
+import { queryForSession, companyIdFromSession } from "@/lib/db";
 import { logger } from "@/lib/logger";
 import { isPrivateLocation } from "@ai-fsm/domain";
 
@@ -34,9 +34,9 @@ export const GET = withAuth(async (request: NextRequest, session) => {
               status, vehicle_id,
               ROUND((distance_meters / 1609.344)::numeric, 1)::float8 AS estimated_miles
        FROM location_segments
-       WHERE account_id = $1 AND segment_date = COALESCE($2::date, CURRENT_DATE) AND status <> 'dismissed'
+       WHERE company_id = $1 AND segment_date = COALESCE($2::date, CURRENT_DATE) AND status <> 'dismissed'
        ORDER BY started_at ASC`,
-      [session.accountId, day],
+      [companyIdFromSession(session), day],
     );
 
     // Load the breadcrumb across the actual span of the day's segments (by time,
@@ -51,10 +51,10 @@ export const GET = withAuth(async (request: NextRequest, session) => {
         session,
         `SELECT occurred_at::text, latitude, longitude
          FROM location_events
-         WHERE account_id = $1 AND latitude IS NOT NULL AND longitude IS NOT NULL
+         WHERE company_id = $1 AND latitude IS NOT NULL AND longitude IS NOT NULL
            AND occurred_at >= $2::timestamptz AND occurred_at <= $3::timestamptz
          ORDER BY occurred_at ASC`,
-        [session.accountId, minStart, maxEnd],
+        [companyIdFromSession(session), minStart, maxEnd],
       );
     }
 

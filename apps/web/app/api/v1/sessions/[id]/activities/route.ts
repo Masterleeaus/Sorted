@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { withAuth } from "@/lib/auth/middleware";
 import type { AuthSession } from "@/lib/auth/middleware";
-import { withDbSession } from "@/lib/db";
+import { withDbSession, companyIdFromSession } from "@/lib/db";
 import { logger } from "@/lib/logger";
 
 export const dynamic = "force-dynamic";
@@ -32,8 +32,8 @@ export const POST = withAuth(async (request: NextRequest, session: AuthSession) 
     // Verify session belongs to this account
     const row = await withDbSession(session, async (client) => {
       const owns = await client.query<{ id: string }>(
-        `SELECT id FROM vehicle_sessions WHERE id = $1 AND account_id = $2`,
-        [sessionId, session.accountId]
+        `SELECT id FROM vehicle_sessions WHERE id = $1 AND company_id = $2`,
+        [sessionId, companyIdFromSession(session)]
       );
       if (!owns.rows[0]) return "not_found" as const;
 
@@ -65,9 +65,9 @@ export const DELETE = withAuth(async (request: NextRequest, session: AuthSession
       const deleted = await client.query<{ id: string }>(
         `DELETE FROM vehicle_session_activities a
          USING vehicle_sessions s
-         WHERE a.id = $1 AND a.session_id = s.id AND s.id = $2 AND s.account_id = $3
+         WHERE a.id = $1 AND a.session_id = s.id AND s.id = $2 AND s.company_id = $3
          RETURNING a.id`,
-        [activityId, sessionId, session.accountId]
+        [activityId, sessionId, companyIdFromSession(session)]
       );
       return deleted.rows[0] ?? null;
     });

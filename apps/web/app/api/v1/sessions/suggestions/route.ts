@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { withAuth } from "@/lib/auth/middleware";
 import type { AuthSession } from "@/lib/auth/middleware";
-import { withDbSession } from "@/lib/db";
+import { withDbSession, companyIdFromSession } from "@/lib/db";
 import { logger } from "@/lib/logger";
 
 export const dynamic = "force-dynamic";
@@ -18,36 +18,36 @@ export const GET = withAuth(async (request: NextRequest, session: AuthSession) =
     const { jobs, visits, estimates } = await withDbSession(session, async (client) => {
       const jobRows = await client.query<{ id: string; title: string }>(
         `SELECT id, title FROM jobs
-         WHERE account_id = $1
+         WHERE company_id = $1
            AND status IN ('scheduled', 'in_progress', 'completed')
            AND EXISTS (
              SELECT 1 FROM visits v
-             WHERE v.job_id = jobs.id AND v.scheduled_start::date = $2::date AND v.account_id = $1
+             WHERE v.job_id = jobs.id AND v.scheduled_start::date = $2::date AND v.company_id = $1
            )
          ORDER BY title
          LIMIT 20`,
-        [session.accountId, date]
+        [companyIdFromSession(session), date]
       );
       const visitRows = await client.query<{ id: string; title: string | null; job_title: string | null; scheduled_start: string | null }>(
         `SELECT v.id, v.title, j.title AS job_title, v.scheduled_start::text
          FROM visits v
          LEFT JOIN jobs j ON j.id = v.job_id
-         WHERE v.account_id = $1
+         WHERE v.company_id = $1
            AND v.scheduled_start::date = $2::date
            AND v.status IN ('scheduled', 'arrived', 'in_progress', 'completed')
          ORDER BY v.scheduled_start
          LIMIT 20`,
-        [session.accountId, date]
+        [companyIdFromSession(session), date]
       );
       const estimateRows = await client.query<{ id: string; id_short: string; client_name: string | null }>(
         `SELECT e.id, e.id_short, c.name AS client_name
          FROM estimates e
          LEFT JOIN clients c ON c.id = e.client_id
-         WHERE e.account_id = $1
+         WHERE e.company_id = $1
            AND e.created_at::date = $2::date
          ORDER BY e.created_at DESC
          LIMIT 10`,
-        [session.accountId, date]
+        [companyIdFromSession(session), date]
       );
       return { jobs: jobRows.rows, visits: visitRows.rows, estimates: estimateRows.rows };
     });
