@@ -1,3 +1,10 @@
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Standards",
+  description: "Review operational standards in Sorted Field.",
+};
+
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import type { Route } from "next";

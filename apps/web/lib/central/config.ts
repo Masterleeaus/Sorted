@@ -106,3 +106,42 @@ export function readCentralOutboxSecret(env: EnvSource = process.env): string {
 export function isCentralFlagReadEnabled(env: EnvSource = process.env): boolean {
   return env.CENTRAL_FLAGS_READ_ENABLED === "1";
 }
+
+// Titan Central link and service configuration (issues #37, #39).
+export class CentralNotConfiguredError extends Error {
+  readonly variable: string;
+
+  constructor(variable: string) {
+    super(`Titan Central is not configured: ${variable} is not set`);
+    this.name = "CentralNotConfiguredError";
+    this.variable = variable;
+  }
+}
+
+function requireEnv(name: string, env: EnvSource = process.env): string {
+  const value = env[name];
+  if (typeof value !== "string" || value.trim() === "") {
+    throw new CentralNotConfiguredError(name);
+  }
+  return value.trim();
+}
+
+export function readLinkConfig(env: EnvSource = process.env) {
+  return {
+    issuer: requireEnv("TITAN_LINK_ISSUER", env),
+    audience: requireEnv("TITAN_LINK_AUDIENCE", env),
+    keyId: requireEnv("TITAN_LINK_KEY_ID", env),
+    // Literal "\n" sequences are accepted so the PEM can live on one env line.
+    privateKeyPem: requireEnv("TITAN_LINK_PRIVATE_KEY", env).replace(/\\n/g, "\n"),
+  };
+}
+
+export function readServiceConfig(env: EnvSource = process.env) {
+  return {
+    origin: requireEnv("TITAN_CENTRAL_ORIGIN", env),
+    tokenEndpoint: requireEnv("TITAN_CENTRAL_TOKEN_ENDPOINT", env),
+    clientId: requireEnv("TITAN_CENTRAL_SERVICE_CLIENT_ID", env),
+    clientSecret: requireEnv("TITAN_CENTRAL_SERVICE_CLIENT_SECRET", env),
+    audience: requireEnv("TITAN_CENTRAL_PRODUCT_AUDIENCE", env),
+  };
+}

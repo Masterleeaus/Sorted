@@ -1,3 +1,10 @@
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Automations",
+  description: "Manage business automation rules in Sorted Field.",
+};
+
 import { redirect } from "next/navigation";
 import { getSession, type SessionPayload } from "@/lib/auth/session";
 import { queryForSession } from "@/lib/db";
