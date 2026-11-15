@@ -77,11 +77,11 @@ export default async function InvoicePortalPage({
          ${SPONSORED_DOCUMENT_SELECT}
        FROM invoices i
        JOIN clients c ON c.id = i.client_id
-       JOIN accounts a ON a.id = i.account_id
+       JOIN accounts a ON a.id = i.company_id
        ${SPONSORED_DOCUMENT_JOIN}
        LEFT JOIN jobs j ON j.id = i.job_id
        LEFT JOIN properties p ON p.id = i.property_id
-       WHERE i.share_token = $1 AND i.account_id = $2`,
+       WHERE i.share_token = $1 AND i.company_id = $2`,
       [token, accountId]
     );
     const invoice = rows[0] ?? null;

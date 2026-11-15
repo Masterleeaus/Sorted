@@ -131,7 +131,7 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
   const client = await queryOneForSession<ClientRow>(session,
     `SELECT c.*
      FROM clients c
-     WHERE c.id = $1 AND c.account_id = $2`,
+     WHERE c.id = $1 AND c.company_id = $2`,
     [id, session.accountId]
   );
   if (!client) notFound();
@@ -149,14 +149,14 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
     queryForSession<PropertyRow>(session,
       `SELECT p.id, p.name, p.address, p.city, p.state, p.zip,
               (SELECT COUNT(*) FROM jobs j
-               WHERE j.property_id = p.id AND j.account_id = p.account_id
+               WHERE j.property_id = p.id AND j.company_id = p.company_id
                  AND j.status IN ('draft','quoted','scheduled','in_progress')) AS open_job_count,
               (SELECT MAX(v.completed_at) FROM visits v
                JOIN jobs j ON j.id = v.job_id
-               WHERE j.property_id = p.id AND v.account_id = p.account_id
+               WHERE j.property_id = p.id AND v.company_id = p.company_id
                  AND v.status = 'completed') AS last_service_date
        FROM properties p
-       WHERE p.client_id = $1 AND p.account_id = $2
+       WHERE p.client_id = $1 AND p.company_id = $2
        ORDER BY p.created_at DESC
        LIMIT 10`,
       [id, session.accountId]
@@ -176,7 +176,7 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
          ORDER BY scheduled_start ASC NULLS LAST
          LIMIT 1
        ) v ON true
-       WHERE j.client_id = $1 AND j.account_id = $2
+       WHERE j.client_id = $1 AND j.company_id = $2
          AND j.status IN ('draft','quoted','scheduled','in_progress')
        ORDER BY CASE j.status
          WHEN 'in_progress' THEN 1
@@ -191,7 +191,7 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
     queryOneForSession<{ job_count: string }>(session,
       `SELECT COUNT(*)::text AS job_count
        FROM jobs
-       WHERE client_id = $1 AND account_id = $2`,
+       WHERE client_id = $1 AND company_id = $2`,
       [id, session.accountId],
     ),
     queryForSession<ActivityEvent>(session,
@@ -208,7 +208,7 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
          FROM visits v
          JOIN jobs j ON j.id = v.job_id
          LEFT JOIN properties p ON p.id = j.property_id
-         WHERE j.client_id = $1 AND v.account_id = $2
+         WHERE j.client_id = $1 AND v.company_id = $2
          UNION ALL
          SELECT 'estimate'::text, e.id, COALESCE(e.sent_at, e.created_at),
                 COALESCE(j.title, 'Estimate'), e.status, e.id, e.total_cents,
@@ -216,7 +216,7 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
          FROM estimates e
          LEFT JOIN jobs j ON j.id = e.job_id
          LEFT JOIN properties p ON p.id = COALESCE(e.property_id, j.property_id)
-         WHERE e.client_id = $1 AND e.account_id = $2 AND e.status != 'draft'
+         WHERE e.client_id = $1 AND e.company_id = $2 AND e.status != 'draft'
          UNION ALL
          SELECT 'invoice'::text, i.id, COALESCE(i.sent_at, i.created_at),
                 COALESCE(j.title, 'Invoice'), i.status, i.id, i.total_cents,
@@ -224,7 +224,7 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
          FROM invoices i
          LEFT JOIN jobs j ON j.id = i.job_id
          LEFT JOIN properties p ON p.id = COALESCE(i.property_id, j.property_id)
-         WHERE i.client_id = $1 AND i.account_id = $2 AND i.status != 'draft'
+         WHERE i.client_id = $1 AND i.company_id = $2 AND i.status != 'draft'
          UNION ALL
          SELECT 'communication'::text, cl.id, cl.created_at,
                 CASE
@@ -239,7 +239,7 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
                 cl.outcome, cl.job_id AS link_id, NULL::int AS total_cents,
                 NULL::text AS property_address
          FROM communications_log cl
-         WHERE cl.client_id = $1 AND cl.account_id = $2
+         WHERE cl.client_id = $1 AND cl.company_id = $2
        ) t ORDER BY ts DESC LIMIT 50`,
       [id, session.accountId]
     ),
@@ -247,7 +247,7 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
       `SELECT e.id, e.status, e.total_cents, e.created_at, j.title AS job_title
        FROM estimates e
        LEFT JOIN jobs j ON j.id = e.job_id
-       WHERE e.client_id = $1 AND e.account_id = $2
+       WHERE e.client_id = $1 AND e.company_id = $2
        ORDER BY e.created_at DESC
        LIMIT 20`,
       [id, session.accountId]
@@ -256,7 +256,7 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
       `SELECT i.id, i.status, i.total_cents, i.balance_cents, i.due_date, i.created_at, j.title AS job_title
        FROM invoices i
        LEFT JOIN jobs j ON j.id = i.job_id
-       WHERE i.client_id = $1 AND i.account_id = $2
+       WHERE i.client_id = $1 AND i.company_id = $2
        ORDER BY i.created_at DESC
        LIMIT 20`,
       [id, session.accountId]
@@ -274,8 +274,8 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
               (sva.completed_at IS NOT NULL) AS assessment_completed
        FROM visits v
        JOIN jobs j ON j.id = v.job_id
-       LEFT JOIN site_visit_assessments sva ON sva.visit_id = v.id AND sva.account_id = v.account_id
-       WHERE j.client_id = $1 AND v.account_id = $2
+       LEFT JOIN site_visit_assessments sva ON sva.visit_id = v.id AND sva.company_id = v.company_id
+       WHERE j.client_id = $1 AND v.company_id = $2
          AND v.visit_type = 'site_visit'
          AND v.status NOT IN ('completed', 'cancelled')
        ORDER BY v.scheduled_start ASC
@@ -290,7 +290,7 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
        FROM property_vault_items pvi
        JOIN properties p ON p.id = pvi.property_id
        LEFT JOIN property_vault_item_media pvim ON pvim.vault_item_id = pvi.id
-       WHERE p.client_id = $1 AND pvi.account_id = $2
+       WHERE p.client_id = $1 AND pvi.company_id = $2
        GROUP BY pvi.id, pvi.name, pvi.category, p.id, p.address, pvi.created_at
        ORDER BY pvi.created_at DESC
        LIMIT 20`,

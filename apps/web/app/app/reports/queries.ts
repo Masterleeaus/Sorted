@@ -160,7 +160,7 @@ export async function loadReportData(session: SessionPayload, targetMonth: strin
   const feeRows = await queryForSession<{ minimum_service_fee_cents: string | number }>(session,
     `SELECT minimum_service_fee_cents
      FROM business_pricing_settings
-     WHERE account_id = $1`,
+     WHERE company_id = $1`,
     [accountId],
   );
   const minimumServiceFeeCents = feeRows[0]
@@ -174,7 +174,7 @@ export async function loadReportData(session: SessionPayload, targetMonth: strin
             COALESCE(SUM(total_cents), 0)::bigint as total_cents,
             COALESCE(SUM(paid_cents), 0)::bigint as paid_cents
      FROM invoices
-     WHERE account_id = $1
+     WHERE company_id = $1
        AND ${monthOf("created_at")} = $2
      GROUP BY status
      ORDER BY status`,
@@ -191,7 +191,7 @@ export async function loadReportData(session: SessionPayload, targetMonth: strin
   const cashRows = await queryForSession<{ cash_cents: string }>(session,
     `SELECT COALESCE(SUM(amount_cents), 0)::bigint AS cash_cents
      FROM payments
-     WHERE account_id = $1
+     WHERE company_id = $1
        AND ${collectedCashStatusSql()}
        AND ${monthOf("received_at")} = $2`,
     [accountId, targetMonth],
@@ -201,7 +201,7 @@ export async function loadReportData(session: SessionPayload, targetMonth: strin
   const arRows = await queryForSession<{ open_cents: string }>(session,
     `SELECT COALESCE(SUM(total_cents - paid_cents), 0)::bigint AS open_cents
      FROM invoices
-     WHERE account_id = $1
+     WHERE company_id = $1
        AND status IN ('sent', 'partial', 'overdue')`,
     [accountId],
   );
@@ -213,7 +213,7 @@ export async function loadReportData(session: SessionPayload, targetMonth: strin
             COUNT(*)::int as count,
             COALESCE(SUM(amount_cents), 0)::bigint as total_cents
      FROM expenses
-     WHERE account_id = $1
+     WHERE company_id = $1
        AND to_char(expense_date, 'YYYY-MM') = $2
      GROUP BY category
      ORDER BY total_cents DESC`,
@@ -226,7 +226,7 @@ export async function loadReportData(session: SessionPayload, targetMonth: strin
     `SELECT COUNT(*)::int as trip_count,
             COALESCE(SUM(miles), 0)::numeric as total_miles
      FROM vehicle_sessions
-     WHERE account_id = $1
+     WHERE company_id = $1
        AND to_char(session_date, 'YYYY-MM') = $2`,
     [accountId, targetMonth]
   );
@@ -252,7 +252,7 @@ export async function loadReportData(session: SessionPayload, targetMonth: strin
               SUM(paid_cents)::bigint as paid_cents,
               COUNT(*)::int as invoice_count
        FROM invoices
-       WHERE account_id = $1 AND job_id IS NOT NULL AND status != 'void'
+       WHERE company_id = $1 AND job_id IS NOT NULL AND status != 'void'
        GROUP BY job_id
      ) inv ON inv.job_id = j.id
      LEFT JOIN (
@@ -260,7 +260,7 @@ export async function loadReportData(session: SessionPayload, targetMonth: strin
               SUM(amount_cents)::bigint as expense_cents,
               COUNT(*)::int as expense_count
        FROM expenses
-       WHERE account_id = $1 AND job_id IS NOT NULL
+       WHERE company_id = $1 AND job_id IS NOT NULL
          AND to_char(expense_date, 'YYYY-MM') = $2
        GROUP BY job_id
      ) exp ON exp.job_id = j.id
@@ -269,13 +269,13 @@ export async function loadReportData(session: SessionPayload, targetMonth: strin
               SUM(s.miles)::numeric as mileage_miles
        FROM vehicle_sessions s
        JOIN vehicle_session_activities a ON a.session_id = s.id
-       WHERE s.account_id = $1 AND a.entity_type = 'job' AND a.entity_id IS NOT NULL
+       WHERE s.company_id = $1 AND a.entity_type = 'job' AND a.entity_id IS NOT NULL
          AND s.status IS DISTINCT FROM 'voided'
          AND (s.miles_source IN ('odometer', 'manual_miles') OR s.miles_source IS NULL)
          AND to_char(s.session_date, 'YYYY-MM') = $2
        GROUP BY a.entity_id
      ) mil ON mil.job_id = j.id
-     WHERE j.account_id = $1
+     WHERE j.company_id = $1
        AND (inv.revenue_cents IS NOT NULL OR exp.expense_cents IS NOT NULL OR mil.mileage_miles IS NOT NULL)
      ORDER BY COALESCE(inv.revenue_cents, 0) DESC
      LIMIT 50`,
@@ -292,7 +292,7 @@ export async function loadReportData(session: SessionPayload, targetMonth: strin
      FROM estimates e
      LEFT JOIN clients c ON c.id = e.client_id
      LEFT JOIN jobs j ON j.id = e.job_id
-     WHERE e.account_id = $1
+     WHERE e.company_id = $1
        AND e.internal_labor_cost_cents IS NOT NULL
        AND e.status IN ('sent', 'approved')
      ORDER BY e.created_at DESC
@@ -312,7 +312,7 @@ export async function loadReportData(session: SessionPayload, targetMonth: strin
             END as avg_job_cents
      FROM jobs j
      LEFT JOIN invoices inv ON inv.job_id = j.id AND inv.status != 'void'
-     WHERE j.account_id = $1
+     WHERE j.company_id = $1
        AND j.job_type IS NOT NULL
        AND (${monthOf("j.created_at")} = $2 OR ${monthOf("inv.created_at")} = $2)
      GROUP BY j.job_type
@@ -337,7 +337,7 @@ export async function loadReportData(session: SessionPayload, targetMonth: strin
             ) as avg_visits_per_tech
      FROM visits v
      JOIN users u ON u.id = v.assigned_user_id
-     WHERE v.account_id = $1
+     WHERE v.company_id = $1
        AND ${monthOf("v.scheduled_start")} = $2
        AND u.role = 'tech'
      GROUP BY u.id, u.full_name
@@ -353,7 +353,7 @@ export async function loadReportData(session: SessionPayload, targetMonth: strin
               COUNT(*)::numeric / NULLIF(SUM(COUNT(*)) OVER (), 0) * 100, 1
             ) as pct_of_total
      FROM estimates
-     WHERE account_id = $1
+     WHERE company_id = $1
        AND ${monthOf("created_at")} = $2
      GROUP BY status
      ORDER BY
@@ -376,7 +376,7 @@ export async function loadReportData(session: SessionPayload, targetMonth: strin
        COUNT(*) FILTER (WHERE status = 'cancelled')::int AS cancelled_count,
        ROUND(COUNT(*)::numeric / 4.0, 1)::text AS avg_per_week
      FROM visits
-     WHERE account_id = $1
+     WHERE company_id = $1
        AND ${monthOf("scheduled_start")} = $2`,
     [accountId, targetMonth]
   );
@@ -394,7 +394,7 @@ export async function loadReportData(session: SessionPayload, targetMonth: strin
        COUNT(DISTINCT j.id)::int AS total_estimated_jobs
      FROM jobs j
      JOIN estimates e ON e.job_id = j.id AND e.status IN ('approved','sent')
-     WHERE j.account_id = $1
+     WHERE j.company_id = $1
        AND j.status IN ('scheduled','in_progress','completed')`,
     [accountId, minimumServiceFeeCents]
   );
@@ -408,12 +408,12 @@ export async function loadReportData(session: SessionPayload, targetMonth: strin
        COUNT(*) FILTER (WHERE total_cents < $2 AND minimum_service_override_reason IS NOT NULL)::int AS with_override,
        (SELECT COUNT(*)::int FROM estimate_line_items eli
           JOIN estimates e2 ON e2.id = eli.estimate_id
-          WHERE e2.account_id = $1 AND eli.price_book_id IS NOT NULL) AS price_book_line_items,
+          WHERE e2.company_id = $1 AND eli.price_book_id IS NOT NULL) AS price_book_line_items,
        (SELECT COUNT(*)::int FROM estimate_line_items eli
           JOIN estimates e2 ON e2.id = eli.estimate_id
-          WHERE e2.account_id = $1) AS total_line_items
+          WHERE e2.company_id = $1) AS total_line_items
      FROM estimates
-     WHERE account_id = $1`,
+     WHERE company_id = $1`,
     [accountId, minimumServiceFeeCents]
   );
   const pricingSummary = pricingSummaryRows[0] ?? {
@@ -423,7 +423,7 @@ export async function loadReportData(session: SessionPayload, targetMonth: strin
   const overrideReasonRows = await queryForSession<OverrideReasonRow>(session,
     `SELECT minimum_service_override_reason AS reason, COUNT(*)::int AS count
      FROM estimates
-     WHERE account_id = $1
+     WHERE company_id = $1
        AND minimum_service_override_reason IS NOT NULL
      GROUP BY minimum_service_override_reason
      ORDER BY count DESC`,
@@ -436,7 +436,7 @@ export async function loadReportData(session: SessionPayload, targetMonth: strin
      FROM estimates e
      LEFT JOIN clients c ON c.id = e.client_id
      LEFT JOIN jobs j ON j.id = e.job_id
-     WHERE e.account_id = $1
+     WHERE e.company_id = $1
        AND e.total_cents < $2
      ORDER BY e.created_at DESC
      LIMIT 25`,
@@ -448,7 +448,7 @@ export async function loadReportData(session: SessionPayload, targetMonth: strin
     `SELECT category,
             ROUND(SUM(EXTRACT(EPOCH FROM (COALESCE(ended_at, now()) - started_at)) / 60))::int AS minutes
      FROM activity_entries
-     WHERE account_id = $1
+     WHERE company_id = $1
        AND voided_at IS NULL
        AND to_char(session_date, 'YYYY-MM') = $2
      GROUP BY category
@@ -519,7 +519,7 @@ export async function loadInvoiceAging(session: SessionPayload): Promise<Invoice
        COALESCE(SUM(total_cents - paid_cents) FILTER (WHERE due_date < CURRENT_DATE - interval '30 days' AND due_date >= CURRENT_DATE - interval '60 days'), 0)::text AS d60_cents,
        COALESCE(SUM(total_cents - paid_cents) FILTER (WHERE due_date < CURRENT_DATE - interval '60 days'), 0)::text AS d90_cents
      FROM invoices
-     WHERE account_id = $1 AND status IN ('sent','partial','overdue')`,
+     WHERE company_id = $1 AND status IN ('sent','partial','overdue')`,
     [accountId]
   );
   const r = rows[0];

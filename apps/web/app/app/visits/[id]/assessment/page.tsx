@@ -62,7 +62,7 @@ export default async function AssessmentPage({
             j.description AS job_description
      FROM visits v
      LEFT JOIN jobs j ON j.id = v.job_id
-     WHERE v.id = $1 AND v.account_id = $2`,
+     WHERE v.id = $1 AND v.company_id = $2`,
     [id, session.accountId]
   );
 
@@ -78,14 +78,14 @@ export default async function AssessmentPage({
 
   const assessment = await queryOneForSession<AssessmentRow>(
     session,
-    `SELECT * FROM site_visit_assessments WHERE visit_id = $1 AND account_id = $2`,
+    `SELECT * FROM site_visit_assessments WHERE visit_id = $1 AND company_id = $2`,
     [id, session.accountId]
   );
 
   const photos = await queryForSession<PhotoRow>(
     session,
     `SELECT id, original_name, created_at FROM visit_media
-     WHERE visit_id = $1 AND account_id = $2 AND category = 'assessment'
+     WHERE visit_id = $1 AND company_id = $2 AND category = 'assessment'
      ORDER BY created_at`,
     [id, session.accountId]
   );
@@ -101,7 +101,7 @@ export default async function AssessmentPage({
         session,
         `SELECT id, status, estimate_number, total_cents, internal_notes
          FROM estimates
-         WHERE job_id = $1 AND account_id = $2
+         WHERE job_id = $1 AND company_id = $2
          ORDER BY
            CASE status WHEN 'approved' THEN 0 WHEN 'sent' THEN 1 WHEN 'draft' THEN 2 ELSE 3 END,
            created_at DESC
@@ -122,7 +122,7 @@ export default async function AssessmentPage({
         session,
         `SELECT id, title, status, scope, site_notes, notes
          FROM work_orders
-         WHERE job_id = $1 AND account_id = $2
+         WHERE job_id = $1 AND company_id = $2
            AND status NOT IN ('cancelled')
          ORDER BY created_at DESC
          LIMIT 5`,

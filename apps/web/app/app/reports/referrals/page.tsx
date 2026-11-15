@@ -57,9 +57,9 @@ export default async function ReferralRoiPage({ searchParams }: PageProps) {
      FROM booking_requests br
      LEFT JOIN invoices i
        ON i.job_id = br.job_id
-      AND i.account_id = br.account_id
+      AND i.company_id = br.company_id
       AND i.status IS DISTINCT FROM 'void'
-     WHERE br.account_id = $1
+     WHERE br.company_id = $1
        AND to_char(br.created_at AT TIME ZONE 'UTC', 'YYYY-MM') = $2
      GROUP BY br.referral_source`,
     [session.accountId, targetMonth],
@@ -93,9 +93,9 @@ export default async function ReferralRoiPage({ searchParams }: PageProps) {
      FROM booking_requests br
      LEFT JOIN invoices i
        ON i.job_id = br.job_id
-      AND i.account_id = br.account_id
+      AND i.company_id = br.company_id
       AND i.status IS DISTINCT FROM 'void'
-     WHERE br.account_id = $1
+     WHERE br.company_id = $1
        AND br.referral_source = 'realtor'
        AND to_char(br.created_at AT TIME ZONE 'UTC', 'YYYY-MM') = $2
      GROUP BY br.referral_name, br.brokerage_name

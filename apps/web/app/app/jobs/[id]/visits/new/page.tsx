@@ -55,7 +55,7 @@ export default async function NewVisitPage({
   if (!canCreateVisit(session.role)) redirect(`/app/jobs/${id}`);
 
   const job = await queryOneForSession<Job>(session,
-    `SELECT id, title, job_category FROM jobs WHERE id = $1 AND account_id = $2`,
+    `SELECT id, title, job_category FROM jobs WHERE id = $1 AND company_id = $2`,
     [id, session.accountId]
   );
 
@@ -65,7 +65,7 @@ export default async function NewVisitPage({
 
   const users = canAssign
     ? await queryForSession<User>(session,
-        `SELECT id, full_name, role FROM users WHERE account_id = $1 ORDER BY full_name ASC`,
+        `SELECT id, full_name, role FROM users WHERE company_id = $1 ORDER BY full_name ASC`,
         [session.accountId]
       )
     : [];
@@ -73,7 +73,7 @@ export default async function NewVisitPage({
   // Bookable WOs only (draft promoted to ready on book). Completed/cancelled excluded.
   const workOrders = await queryForSession<{ id: string; title: string; status: string }>(session,
     `SELECT id, title, status FROM work_orders
-     WHERE job_id = $1 AND account_id = $2
+     WHERE job_id = $1 AND company_id = $2
        AND status IN ('draft','ready','scheduled','dispatched','waiting')
      ORDER BY created_at ASC`,
     [id, session.accountId],

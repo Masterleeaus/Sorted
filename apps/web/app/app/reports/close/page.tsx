@@ -65,7 +65,7 @@ export default async function ClosePage({ searchParams }: PageProps) {
               u.full_name AS closed_by_name
        FROM period_closes pc
        LEFT JOIN users u ON u.id = pc.closed_by
-       WHERE pc.account_id = $1 AND pc.period_month = $2
+       WHERE pc.company_id = $1 AND pc.period_month = $2
        LIMIT 1`,
       [session.accountId, targetMonth]
     );
@@ -84,14 +84,14 @@ export default async function ClosePage({ searchParams }: PageProps) {
         `SELECT COUNT(*)::int AS total_count,
                 COALESCE(SUM(total_cents), 0)::bigint AS total_cents
          FROM invoices
-         WHERE account_id = $1
+         WHERE company_id = $1
            AND ${invoiceMonth} = $2`,
         [session.accountId, targetMonth]
       ),
       queryForSession<{ count: string }>(session,
         `SELECT COUNT(*)::int AS count
          FROM invoices
-         WHERE account_id = $1
+         WHERE company_id = $1
            AND ${invoiceMonth} = $2
            AND status IN ('sent', 'partial', 'overdue')`,
         [session.accountId, targetMonth]
@@ -99,14 +99,14 @@ export default async function ClosePage({ searchParams }: PageProps) {
       queryForSession<{ count: string }>(session,
         `SELECT COUNT(*)::int AS count
          FROM invoices
-         WHERE account_id = $1
+         WHERE company_id = $1
            AND status IN ('sent', 'partial', 'overdue')`,
         [session.accountId]
       ),
       queryForSession<{ count: string }>(session,
         `SELECT COUNT(*)::int AS count
          FROM expenses
-         WHERE account_id = $1
+         WHERE company_id = $1
            AND expense_date >= $2::date
            AND expense_date < ($2::date + interval '1 month')`,
         [session.accountId, monthStart]
@@ -114,7 +114,7 @@ export default async function ClosePage({ searchParams }: PageProps) {
       queryForSession<{ count: string }>(session,
         `SELECT COUNT(*)::int AS count
          FROM payments
-         WHERE account_id = $1
+         WHERE company_id = $1
            AND ${collectedCashStatusSql()}
            AND ${timestampBusinessMonthExpr("received_at", timeZone)} = $2`,
         [session.accountId, targetMonth]

@@ -33,7 +33,7 @@ export default async function NewExpensePage({
       isMaterialRun
         ? `SELECT j.id, j.title, j.job_number, j.client_id
            FROM jobs j
-           WHERE j.account_id = $1
+           WHERE j.company_id = $1
              AND (
                j.status IN (${RECEIPT_LINKABLE_JOB_STATUS_SQL})
                OR j.id = $2::uuid
@@ -43,14 +43,14 @@ export default async function NewExpensePage({
                OR j.id = $2::uuid
                OR EXISTS (
                  SELECT 1 FROM visits v
-                 WHERE v.job_id = j.id AND v.account_id = j.account_id
+                 WHERE v.job_id = j.id AND v.company_id = j.company_id
                    AND v.scheduled_start::date = CURRENT_DATE
                )
              )
            ORDER BY ${receiptJobOrderSql("j")}
            LIMIT 100`
         : `SELECT id, title, job_number, client_id FROM jobs
-           WHERE account_id = $1
+           WHERE company_id = $1
              AND (
                status IN (${RECEIPT_LINKABLE_JOB_STATUS_SQL})
                OR id = $2::uuid
@@ -60,18 +60,18 @@ export default async function NewExpensePage({
       [session.accountId, defaultJobId ?? nilUuid],
     ),
     queryForSession<{ id: string; name: string }>(session,
-      `SELECT id, name FROM clients WHERE account_id = $1 ORDER BY name ASC LIMIT 100`,
+      `SELECT id, name FROM clients WHERE company_id = $1 ORDER BY name ASC LIMIT 100`,
       [session.accountId]
     ),
     queryForSession<{ id: string; nickname: string }>(session,
       `SELECT id, nickname FROM vehicles
-        WHERE account_id = $1 AND is_active = true AND kind <> 'trailer'
+        WHERE company_id = $1 AND is_active = true AND kind <> 'trailer'
         ORDER BY is_default DESC, nickname ASC`,
       [session.accountId],
     ),
     queryForSession<{ vehicle_id: string }>(session,
       `SELECT vehicle_id FROM vehicle_sessions
-        WHERE account_id = $1 AND created_by = $2
+        WHERE company_id = $1 AND created_by = $2
           AND status = 'open' AND end_odometer IS NULL AND miles IS NULL
           AND vehicle_id IS NOT NULL
         ORDER BY started_at DESC NULLS LAST
@@ -81,7 +81,7 @@ export default async function NewExpensePage({
     queryForSession<{ job_id: string }>(session,
       `SELECT v.job_id
        FROM visits v
-       WHERE v.account_id = $1 AND v.assigned_user_id = $2
+       WHERE v.company_id = $1 AND v.assigned_user_id = $2
          AND v.status IN ('dispatched','traveling','arrived','in_progress','waiting')
        ORDER BY v.updated_at DESC NULLS LAST
        LIMIT 1`,

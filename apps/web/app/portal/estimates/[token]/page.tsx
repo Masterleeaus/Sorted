@@ -73,9 +73,9 @@ export default async function EstimatePortalPage({
          a.name AS account_name
        FROM estimates e
        JOIN clients c ON c.id = e.client_id
-       JOIN accounts a ON a.id = e.account_id
+       JOIN accounts a ON a.id = e.company_id
        LEFT JOIN properties p ON p.id = e.property_id
-       WHERE e.share_token = $1 AND e.account_id = $2`,
+       WHERE e.share_token = $1 AND e.company_id = $2`,
       [token, accountId]
     );
     const estimate = rows[0] ?? null;

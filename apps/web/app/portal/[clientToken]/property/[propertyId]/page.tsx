@@ -39,7 +39,7 @@ export default async function PortalPropertyPage({
     const clientRows = await q<{ id: string; name: string; account_id: string; account_name: string }>(
       `SELECT c.id, c.name, c.account_id, a.name AS account_name
        FROM clients c
-       JOIN accounts a ON a.id = c.account_id
+       JOIN accounts a ON a.id = c.company_id
        WHERE c.portal_token = $1`,
       [clientToken]
     );
@@ -53,7 +53,7 @@ export default async function PortalPropertyPage({
     }>(
       `SELECT id, name, address, city, state, zip
        FROM properties
-       WHERE id = $1 AND client_id = $2 AND account_id = $3`,
+       WHERE id = $1 AND client_id = $2 AND company_id = $3`,
       [propertyId, client.id, client.account_id]
     );
     const property = propertyRows[0] ?? null;
@@ -63,14 +63,14 @@ export default async function PortalPropertyPage({
     q<{ area: string; condition: string; note: string | null; assessed_at: string }>(
       `SELECT DISTINCT ON (area) area, condition, note, assessed_at::text AS assessed_at
        FROM property_condition_snapshots
-       WHERE account_id = $1 AND property_id = $2
+       WHERE company_id = $1 AND property_id = $2
        ORDER BY area, assessed_at DESC`,
       [client.account_id, propertyId]
     ),
     q<{ id: string; title: string; severity: string; area: string; occurrence_count: number; last_noted_at: string }>(
       `SELECT id, title, severity, area, occurrence_count, last_noted_at::text AS last_noted_at
        FROM property_issues
-       WHERE account_id = $1 AND property_id = $2
+       WHERE company_id = $1 AND property_id = $2
          AND status IN ('open','monitoring')
        ORDER BY
          CASE severity WHEN 'critical' THEN 1 WHEN 'major' THEN 2 WHEN 'moderate' THEN 3 ELSE 4 END,
@@ -83,7 +83,7 @@ export default async function PortalPropertyPage({
               install_date::text AS install_date,
               last_serviced_date::text AS last_serviced_date
        FROM property_vault_items
-       WHERE account_id = $1 AND property_id = $2
+       WHERE company_id = $1 AND property_id = $2
        ORDER BY category, name`,
       [client.account_id, propertyId]
     ),

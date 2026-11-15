@@ -103,7 +103,7 @@ export default async function ClientPortalPage({
         `SELECT c.id, c.name, c.email, c.phone, c.account_id, c.preferred_contact, c.sms_consent,
                 a.name AS account_name
          FROM clients c
-         JOIN accounts a ON a.id = c.account_id
+         JOIN accounts a ON a.id = c.company_id
          WHERE c.portal_token = $1`,
         [clientToken]
       );
@@ -189,8 +189,8 @@ export default async function ClientPortalPage({
       `SELECT p.id, p.name, p.address,
               COUNT(pi.id) FILTER (WHERE pi.status IN ('open','monitoring'))::int AS open_issue_count
        FROM properties p
-       LEFT JOIN property_issues pi ON pi.property_id = p.id AND pi.account_id = p.account_id
-       WHERE p.client_id = $1 AND p.account_id = $2
+       LEFT JOIN property_issues pi ON pi.property_id = p.id AND pi.company_id = p.company_id
+       WHERE p.client_id = $1 AND p.company_id = $2
        GROUP BY p.id
        ORDER BY p.address`,
       [client.id, client.account_id]
@@ -203,7 +203,7 @@ export default async function ClientPortalPage({
               cardinality(r.media_ids)::int AS photo_count
        FROM portal_job_updates r
        LEFT JOIN properties p ON p.id = r.property_id
-       WHERE r.client_id = $1 AND r.account_id = $2 AND r.status = 'published' AND NOT r.sponsored
+       WHERE r.client_id = $1 AND r.company_id = $2 AND r.status = 'published' AND NOT r.sponsored
        ORDER BY published_at DESC
        LIMIT 50`,
       [client.id, client.account_id]

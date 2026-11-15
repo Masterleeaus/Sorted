@@ -41,16 +41,16 @@ export default async function JobReportPage({ params }: { params: Promise<{ toke
                 r.media_ids::text[] AS media_ids, r.records, r.published_at, p.address, a.name AS business,
                 (SELECT max(v.completed_at) FROM visits v WHERE v.job_id = r.job_id)::text AS finished_at
          FROM portal_job_updates r
-         JOIN accounts a ON a.id = r.account_id
+         JOIN accounts a ON a.id = r.company_id
          LEFT JOIN properties p ON p.id = r.property_id
-         WHERE r.share_token = $1 AND r.status = 'published' AND r.account_id = $2`,
+         WHERE r.share_token = $1 AND r.status = 'published' AND r.company_id = $2`,
         [token, accountId],
       );
       const report = rows[0];
       if (!report) return null;
       const photos = await db.query<{ id: string; category: string }>(
         `SELECT id::text, category FROM visit_media
-         WHERE id = ANY($1::uuid[]) AND account_id = $2 AND category <> 'receipt'`,
+         WHERE id = ANY($1::uuid[]) AND company_id = $2 AND category <> 'receipt'`,
         [report.media_ids, accountId],
       );
       return { report, photos: photos.rows };

@@ -39,7 +39,7 @@ async function getAutomationStats(session: SessionPayload, type: string): Promis
          COUNT(*) FILTER (WHERE action = 'insert')::int AS sent,
          COUNT(*) FILTER (WHERE action = 'error')::int AS errors
        FROM audit_log
-       WHERE account_id = $1 AND entity_type = $2
+       WHERE company_id = $1 AND entity_type = $2
          AND created_at >= now() - interval '24 hours'`,
       [session.accountId, type]
     ),
@@ -48,7 +48,7 @@ async function getAutomationStats(session: SessionPayload, type: string): Promis
          COUNT(*) FILTER (WHERE action = 'insert')::int AS sent,
          COUNT(*) FILTER (WHERE action = 'error')::int AS errors
        FROM audit_log
-       WHERE account_id = $1 AND entity_type = $2
+       WHERE company_id = $1 AND entity_type = $2
          AND created_at >= now() - interval '7 days'`,
       [session.accountId, type]
     ),
@@ -63,7 +63,7 @@ async function getRecentEvents(session: SessionPayload): Promise<AuditEventRow[]
   return queryForSession<AuditEventRow>(session,
     `SELECT id, entity_type, entity_id, new_value, created_at::text
      FROM audit_log
-     WHERE account_id = $1
+     WHERE company_id = $1
        AND entity_type IN ('visit_reminder', 'invoice_followup', 'booking_confirmed', 'review_request')
      ORDER BY created_at DESC
      LIMIT 30`,
@@ -81,7 +81,7 @@ export default async function AutomationsPage() {
     `SELECT id, account_id, type, enabled, config,
             next_run_at::text, last_run_at::text
      FROM automations
-     WHERE account_id = $1
+     WHERE company_id = $1
      ORDER BY type ASC`,
     [session.accountId]
   );

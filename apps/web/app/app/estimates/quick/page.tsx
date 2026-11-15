@@ -53,7 +53,7 @@ export default async function QuickEstimatePage({ searchParams }: PageProps) {
 
   const [clients, services] = await Promise.all([
     queryForSession<Client>(session,
-      `SELECT id, name, phone, email FROM clients WHERE account_id = $1 ORDER BY name ASC`,
+      `SELECT id, name, phone, email FROM clients WHERE company_id = $1 ORDER BY name ASC`,
       [session.accountId]
     ),
     // Price book is global (not per-account); pull active services.
