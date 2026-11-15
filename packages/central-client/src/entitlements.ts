@@ -39,6 +39,11 @@ export type EntitlementReaderOptions = Readonly<{
   application?: string;
   /** Supplies the bearer token for the access check. Its value is never logged or returned. */
   accessToken: () => Promise<string>;
+  /**
+   * Called when Central answers 401, so the caller can drop its cached token and the next check
+   * fetches a fresh one. Errors thrown here are ignored; the reader still fails closed.
+   */
+  invalidateAccessToken?: () => void;
   fetch?: EntitlementFetchLike;
   /** Per-capability timeout in milliseconds. */
   timeoutMs?: number;
@@ -97,7 +102,14 @@ export function createEntitlementReader(options: EntitlementReaderOptions) {
       return unavailable('network_error');
     }
 
-    if (response.status === 401) return unavailable('unauthenticated');
+    if (response.status === 401) {
+      try {
+        options.invalidateAccessToken?.();
+      } catch {
+        // Invalidation is best effort. The denial below stands either way.
+      }
+      return unavailable('unauthenticated');
+    }
 
     let body: unknown = null;
     try {
