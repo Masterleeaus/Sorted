@@ -19,3 +19,49 @@ export function getTitanBusinessOpsAgentCommand(id:string):TitanBusinessOpsAgent
 export function materializeTitanBusinessOpsPath(template:string,entityId?:string):string{if(!template.includes(":id"))return template;const id=String(entityId??"").trim();if(!/^[0-9A-Za-z_-]{1,128}$/.test(id))throw new Error("A valid entity id is required for this command");return template.replace(":id",encodeURIComponent(id));}
 export function assessTitanBusinessOpsAgentCommand(input:{companyId:string;commandId:TitanBusinessOpsAgentCommandId;entityId?:string}):TitanRiskAssessment{const command=getTitanBusinessOpsAgentCommand(input.commandId);if(!command)throw new Error("Unknown Titan Business Ops agent command");return classifyRisk({company_id:input.companyId,item_id:input.entityId??input.commandId,evidence:{command_id:command.id,operational_domain:command.domain,mutating:command.mutating,external_side_effect:command.id==="invoices.send",lifecycle_transition:command.id.endsWith(".transition")||command.id.endsWith(".complete")}});}
 export function routeTitanBusinessOpsAgent(commandId:TitanBusinessOpsAgentCommandId):TitanRoleRouteResult{const command=getTitanBusinessOpsAgentCommand(commandId);if(!command)return routeOperationalRole("","");return routeOperationalRole(command.description,command.domain);}
+
+export type TitanBusinessOpsAgentKey = "dispatch" | "invoicing" | "rebooking" | "quote" | "crm";
+
+export type TitanBusinessOpsAgentProfile = Readonly<{
+  agentKey: TitanBusinessOpsAgentKey;
+  domains: readonly TitanBusinessOpsAgentCommand["domain"][];
+  commandIds: readonly TitanBusinessOpsAgentCommandId[];
+}>;
+
+const TITAN_BUSINESS_OPS_AGENT_PROFILE_DOMAINS: Readonly<Record<TitanBusinessOpsAgentKey, readonly TitanBusinessOpsAgentCommand["domain"][]>> = Object.freeze({
+  dispatch: ["dispatch", "field"],
+  invoicing: ["invoicing"],
+  rebooking: ["intake"],
+  quote: ["estimating"],
+  crm: ["crm"],
+});
+
+export const TITAN_BUSINESS_OPS_AGENT_PROFILES: Readonly<Record<TitanBusinessOpsAgentKey, TitanBusinessOpsAgentProfile>> = Object.freeze(
+  Object.fromEntries(
+    (Object.keys(TITAN_BUSINESS_OPS_AGENT_PROFILE_DOMAINS) as TitanBusinessOpsAgentKey[]).map((agentKey) => {
+      const domains = TITAN_BUSINESS_OPS_AGENT_PROFILE_DOMAINS[agentKey];
+      const commandIds = TITAN_BUSINESS_OPS_AGENT_COMMANDS
+        .filter((command) => domains.includes(command.domain))
+        .map((command) => command.id);
+      return [agentKey, Object.freeze({ agentKey, domains, commandIds: Object.freeze(commandIds) })];
+    }),
+  ) as Record<TitanBusinessOpsAgentKey, TitanBusinessOpsAgentProfile>,
+);
+
+export function getTitanBusinessOpsAgentProfile(agentKey: string): TitanBusinessOpsAgentProfile | null {
+  return Object.prototype.hasOwnProperty.call(TITAN_BUSINESS_OPS_AGENT_PROFILES, agentKey)
+    ? TITAN_BUSINESS_OPS_AGENT_PROFILES[agentKey as TitanBusinessOpsAgentKey]
+    : null;
+}
+
+// Fails closed: unknown profile, unknown command, or a command outside the profile all throw.
+export function assertTitanBusinessOpsAgentCommandAllowed(
+  agentKey: string,
+  commandId: string,
+): Readonly<{ agentKey: TitanBusinessOpsAgentKey; command: TitanBusinessOpsAgentCommand }> {
+  const profile = getTitanBusinessOpsAgentProfile(agentKey);
+  if (!profile) throw new Error("UNKNOWN_AGENT_PROFILE");
+  const command = getTitanBusinessOpsAgentCommand(commandId);
+  if (!command || !profile.commandIds.includes(command.id)) throw new Error("AGENT_COMMAND_NOT_AUTHORIZED");
+  return Object.freeze({ agentKey: profile.agentKey, command });
+}

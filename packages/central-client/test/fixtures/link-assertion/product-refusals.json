@@ -1,0 +1,31 @@
+{
+  "description": "Inputs that the product signer must refuse before it issues any token (docs/LINKING.md: forbidden claims, identifier pattern, lifetime and nonce rules).",
+  "forbiddenClaims": [
+    "email",
+    "email_verified",
+    "name",
+    "given_name",
+    "family_name",
+    "display_name",
+    "displayName",
+    "preferred_username",
+    "username",
+    "nickname",
+    "phone_number"
+  ],
+  "identifierInputs": [
+    { "id": "PR-LU-EMAIL", "field": "lu", "value": "jane.doe@example.com" },
+    { "id": "PR-LA-DISPLAY-NAME", "field": "la", "value": "Jane Doe" },
+    { "id": "PR-ORG-WHITESPACE", "field": "org", "value": "org 4hq8c1zd" },
+    { "id": "PR-SUB-TOO-SHORT", "field": "sub", "value": "usr_1" }
+  ],
+  "lifetimeInputs": [
+    { "id": "PR-LIFETIME-ZERO", "lifetimeSeconds": 0 },
+    { "id": "PR-LIFETIME-301", "lifetimeSeconds": 301 },
+    { "id": "PR-LIFETIME-FRACTION", "lifetimeSeconds": 1.5 }
+  ],
+  "nonceInputs": [
+    { "id": "PR-NONCE-SHORT", "nonce": "short" },
+    { "id": "PR-NONCE-SPACE", "nonce": "q2XvR7kLmN0pTbZ3 sYcW9A" }
+  ]
+}
