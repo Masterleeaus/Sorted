@@ -33,7 +33,7 @@ const flatSchema = z.object({
 async function getOwnerAccountId(): Promise<string> {
   const row = await queryOne<{ account_id: string }>(
     `SELECT a.id AS account_id
-     FROM accounts a JOIN users u ON u.account_id = a.id
+     FROM accounts a JOIN users u ON u.company_id = a.id
      WHERE u.role = 'owner' ORDER BY u.created_at LIMIT 1`
   );
   if (!row) throw new Error("No owner account found");

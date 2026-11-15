@@ -97,10 +97,10 @@ describe("GET /api/portal/clients/[token]", () => {
     const reads = state.log.slice(ctxIdx + 1).filter((c) => c.sql.includes("FROM "));
     expect(reads).toHaveLength(5);
     const [clientRead, ...scopedReads] = reads;
-    expect(clientRead.sql).toMatch(/c\.portal_token = \$1 AND c\.account_id = \$2/);
+    expect(clientRead.sql).toMatch(/c\.portal_token = \$1 AND c\.company_id = \$2/);
     expect(clientRead.params).toEqual(["tok", ACCOUNT]);
     for (const read of scopedReads) {
-      expect(read.sql).toMatch(/account_id = \$2/);
+      expect(read.sql).toMatch(/company_id = \$2/);
       expect(read.params).toEqual([CLIENT, ACCOUNT]);
     }
   });

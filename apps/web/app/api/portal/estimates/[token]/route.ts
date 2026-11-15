@@ -69,9 +69,9 @@ export async function GET(
        a.name AS account_name
      FROM estimates e
      JOIN clients c ON c.id = e.client_id
-     JOIN accounts a ON a.id = e.account_id
+     JOIN accounts a ON a.id = e.company_id
      LEFT JOIN properties p ON p.id = e.property_id
-     WHERE e.share_token = $1 AND e.account_id = $2`,
+     WHERE e.share_token = $1 AND e.company_id = $2`,
       [token, accountId]
     );
     return row ?? null;
@@ -88,7 +88,7 @@ export async function GET(
       `SELECT id, description, quantity, unit_price_cents, total_cents, sort_order
        FROM estimate_line_items
        WHERE estimate_id = $1 AND visible_to_customer = true
-         AND EXISTS (SELECT 1 FROM estimates e WHERE e.id = estimate_line_items.estimate_id AND e.account_id = $2)
+         AND EXISTS (SELECT 1 FROM estimates e WHERE e.id = estimate_line_items.estimate_id AND e.company_id = $2)
        ORDER BY sort_order`,
       [estimate.id, accountId]
     );
@@ -116,7 +116,7 @@ async function loadEstimateForRespond(token: string) {
     const { rows: [row] } = await tx.query<{
       id: string; status: string; account_id: string; client_id: string;
     }>(
-      `SELECT id, status, account_id, client_id FROM estimates WHERE share_token = $1 AND account_id = $2`,
+      `SELECT id, status, account_id, client_id FROM estimates WHERE share_token = $1 AND company_id = $2`,
       [token, accountId]
     );
     return row ?? null;
@@ -177,7 +177,7 @@ export async function POST(
            client_signature_svg = $3,
            responded_at = now(),
            updated_at = now()
-       WHERE id = $4 AND account_id = $5`,
+       WHERE id = $4 AND company_id = $5`,
       [newStatus, name ?? null, signature_svg ?? null, estimate.id, estimate.account_id]
     );
 

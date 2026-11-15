@@ -59,7 +59,7 @@ export async function DELETE(
     );
     const { rows } = await client.query<{ filename: string }>(
       `DELETE FROM intake_media
-       WHERE id = $1 AND intake_invite_id = $2 AND account_id = $3
+       WHERE id = $1 AND intake_invite_id = $2 AND company_id = $3
        RETURNING filename`,
       [mediaId, invite.id, invite.account_id],
     );

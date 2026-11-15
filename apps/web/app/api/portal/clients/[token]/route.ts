@@ -34,8 +34,8 @@ export async function GET(
       const { rows: [client] } = await tx.query<ClientRow>(
         `SELECT c.id, c.account_id, c.name, c.email, a.name AS account_name
          FROM clients c
-         JOIN accounts a ON a.id = c.account_id
-         WHERE c.portal_token = $1 AND c.account_id = $2`,
+         JOIN accounts a ON a.id = c.company_id
+         WHERE c.portal_token = $1 AND c.company_id = $2`,
         [token, accountId]
       );
       if (!client) return null;
@@ -44,7 +44,7 @@ export async function GET(
                 e.share_token, p.address AS property_address
          FROM estimates e
          LEFT JOIN properties p ON p.id = e.property_id
-         WHERE e.client_id = $1 AND e.account_id = $2 AND e.status != 'draft'
+         WHERE e.client_id = $1 AND e.company_id = $2 AND e.status != 'draft'
          ORDER BY e.created_at DESC`,
         [client.id, client.account_id]
       );
@@ -53,14 +53,14 @@ export async function GET(
                 i.due_date, i.share_token, p.address AS property_address
          FROM invoices i
          LEFT JOIN properties p ON p.id = i.property_id
-         WHERE i.client_id = $1 AND i.account_id = $2 AND i.status != 'draft'
+         WHERE i.client_id = $1 AND i.company_id = $2 AND i.status != 'draft'
          ORDER BY i.created_at DESC`,
         [client.id, client.account_id]
       );
       const plans = await tx.query(
         `SELECT id, name, frequency, services, price_cents, status, next_scheduled_date, notes
          FROM maintenance_plans
-         WHERE client_id = $1 AND account_id = $2
+         WHERE client_id = $1 AND company_id = $2
          ORDER BY status, created_at DESC`,
         [client.id, client.account_id]
       );
@@ -80,7 +80,7 @@ export async function GET(
          FROM jobs j
          LEFT JOIN properties p ON p.id = j.property_id
          LEFT JOIN visits v ON v.job_id = j.id
-         WHERE j.client_id = $1 AND j.account_id = $2 AND j.job_type = 'maintenance' AND j.status = 'completed'
+         WHERE j.client_id = $1 AND j.company_id = $2 AND j.job_type = 'maintenance' AND j.status = 'completed'
          GROUP BY j.id, p.address
          ORDER BY MAX(v.completed_at) DESC NULLS LAST
          LIMIT 20`,

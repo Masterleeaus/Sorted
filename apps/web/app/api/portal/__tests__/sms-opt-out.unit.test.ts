@@ -74,7 +74,7 @@ describe("POST /api/portal/[clientToken]/sms-opt-out", () => {
     expect(ctx).toBeGreaterThan(0);
     expect(update).toBeGreaterThan(ctx);
     expect(mockQuery.mock.calls[ctx][1]).toEqual([ACCOUNT_ID]);
-    expect(sql[update]).toContain("AND account_id = $2");
+    expect(sql[update]).toContain("AND company_id = $2");
   });
 
   it("404 — token not found", async () => {

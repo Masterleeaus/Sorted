@@ -80,10 +80,10 @@ export async function GET(
        ${SPONSORED_DOCUMENT_SELECT}
      FROM invoices i
      JOIN clients c ON c.id = i.client_id
-     JOIN accounts a ON a.id = i.account_id
+     JOIN accounts a ON a.id = i.company_id
      ${SPONSORED_DOCUMENT_JOIN}
      LEFT JOIN properties p ON p.id = i.property_id
-     WHERE i.share_token = $1 AND i.account_id = $2`,
+     WHERE i.share_token = $1 AND i.company_id = $2`,
       [token, accountId]
     );
     return row ?? null;
@@ -99,7 +99,7 @@ export async function GET(
       `SELECT id, description, quantity, unit_price_cents, total_cents, sort_order
        FROM invoice_line_items
        WHERE invoice_id = $1 AND visible_to_customer = true
-         AND EXISTS (SELECT 1 FROM invoices i WHERE i.id = invoice_line_items.invoice_id AND i.account_id = $2)
+         AND EXISTS (SELECT 1 FROM invoices i WHERE i.id = invoice_line_items.invoice_id AND i.company_id = $2)
        ORDER BY sort_order`,
       [publicInvoice.id, accountId]
     );
@@ -128,7 +128,7 @@ async function loadInvoiceForPayment(token: string) {
             i.deposit_type, i.deposit_percentage, i.deposit_fixed_cents,
             i.square_payment_link_url
      FROM invoices i
-     WHERE i.share_token = $1 AND i.account_id = $2`,
+     WHERE i.share_token = $1 AND i.company_id = $2`,
       [token, accountId]
     );
     return row ?? null;
@@ -198,7 +198,7 @@ export async function POST(
     if (invoice.square_payment_link_url) {
       const pending = await client.query<{ amount_cents: number }>(
         `SELECT amount_cents FROM payments
-         WHERE invoice_id = $1 AND account_id = $2 AND status = 'pending' AND method = 'square'
+         WHERE invoice_id = $1 AND company_id = $2 AND status = 'pending' AND method = 'square'
          ORDER BY created_at DESC LIMIT 1`,
         [invoice.id, invoice.account_id],
       );
@@ -210,13 +210,13 @@ export async function POST(
       // Drop mismatched pending row + link so we recreate below.
       await client.query(
         `DELETE FROM payments
-         WHERE invoice_id = $1 AND account_id = $2 AND status = 'pending' AND method = 'square'`,
+         WHERE invoice_id = $1 AND company_id = $2 AND status = 'pending' AND method = 'square'`,
         [invoice.id, invoice.account_id],
       );
       await client.query(
         `UPDATE invoices
          SET square_order_id = NULL, square_checkout_id = NULL, square_payment_link_url = NULL
-         WHERE id = $1 AND account_id = $2`,
+         WHERE id = $1 AND company_id = $2`,
         [invoice.id, invoice.account_id],
       );
     }
@@ -244,12 +244,12 @@ export async function POST(
     await client.query(
       `UPDATE invoices
        SET square_order_id = $2, square_checkout_id = $3, square_payment_link_url = $4
-       WHERE id = $1 AND account_id = $5`,
+       WHERE id = $1 AND company_id = $5`,
       [invoice.id, link.orderId, link.paymentLinkId, link.url, invoice.account_id]
     );
     await client.query(
       `INSERT INTO payments
-         (account_id, invoice_id, job_id, customer_id, amount_cents, method,
+         (company_id, invoice_id, job_id, customer_id, amount_cents, method,
           payment_type, status, external_provider, external_checkout_url, created_by)
        VALUES ($1, $2, $3, $4, $5, 'square', $6, 'pending', 'square', $7, $8)`,
       [
