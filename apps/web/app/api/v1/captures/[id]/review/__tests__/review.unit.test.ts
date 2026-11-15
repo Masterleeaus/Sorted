@@ -25,7 +25,7 @@ const { mockQuery, mockWithDbSession } = vi.hoisted(() => ({
   mockWithDbSession: vi.fn(),
 }));
 
-vi.mock("@/lib/db", () => ({
+vi.mock("@/lib/db", () => ({ companyIdFromSession: (s: { accountId: string }) => s.accountId,
   withDbSession: (...args: unknown[]) => mockWithDbSession(...args),
 }));
 

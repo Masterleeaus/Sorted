@@ -104,7 +104,7 @@ export async function loadAssessmentSummary(
 ): Promise<AssessmentSummary | null> {
   const rows = await queryForSession<SiteVisitAssessmentRow>(
     session,
-    `${ASSESSMENT_SELECT} WHERE a.visit_id = $1 AND a.account_id = $2`,
+    `${ASSESSMENT_SELECT} WHERE a.visit_id = $1 AND a.company_id = $2`,
     [visitId, session.accountId]
   );
   return rows[0] ? mapRowToAssessmentSummary(rows[0]) : null;
@@ -117,7 +117,7 @@ export async function loadAssessmentSummaryById(
 ): Promise<AssessmentSummary | null> {
   const rows = await queryForSession<SiteVisitAssessmentRow>(
     session,
-    `${ASSESSMENT_SELECT} WHERE a.id = $1 AND a.account_id = $2`,
+    `${ASSESSMENT_SELECT} WHERE a.id = $1 AND a.company_id = $2`,
     [assessmentId, session.accountId]
   );
   return rows[0] ? mapRowToAssessmentSummary(rows[0]) : null;

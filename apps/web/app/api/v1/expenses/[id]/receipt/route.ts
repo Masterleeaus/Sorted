@@ -5,7 +5,10 @@ import { randomUUID } from "crypto";
 import { withRole } from "@/lib/auth/middleware";
 import { withExpenseContext } from "@/lib/expenses/db";
 import { logger } from "@/lib/logger";
+import { payloadTooLargeResponse, readMultipartWithLimit, UPLOAD_BODY_LIMITS } from "@/lib/uploads/body-limit";
+import { imageExtensionForMime } from "@/lib/uploads/paths";
 import { syncReceiptToPaperless } from "@/lib/paperless/receipt-sync";
+import { companyIdFromSession } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
 
@@ -26,15 +29,9 @@ function expenseIdFromPath(request: NextRequest): string | undefined {
   return request.nextUrl.pathname.split("/").at(-2);
 }
 
+/** Extension comes from the allowed MIME type only, never from the client filename. */
 function safeExtension(file: File): string {
-  const ext = file.name.split(".").pop()?.toLowerCase().replace(/[^a-z0-9]/g, "");
-  if (ext) return ext;
-  if (file.type === "image/png") return "png";
-  if (file.type === "image/webp") return "webp";
-  if (file.type === "image/gif") return "gif";
-  if (file.type === "image/heic") return "heic";
-  if (file.type === "image/heif") return "heif";
-  return "jpg";
+  return imageExtensionForMime(file.type) ?? "jpg";
 }
 
 export const GET = withRole(["owner", "admin"], async (request: NextRequest, session) => {
@@ -49,8 +46,8 @@ export const GET = withRole(["owner", "admin"], async (request: NextRequest, ses
   try {
     const expense = await withExpenseContext(session, async (client) => {
       const result = await client.query<ExpenseReceiptRow>(
-        `SELECT id, receipt_url FROM expenses WHERE id = $1 AND account_id = $2`,
-        [id, session.accountId]
+        `SELECT id, receipt_url FROM expenses WHERE id = $1 AND company_id = $2`,
+        [id, companyIdFromSession(session)]
       );
       return result.rows[0] ?? null;
     });
@@ -105,15 +102,17 @@ export const POST = withRole(["owner", "admin"], async (request: NextRequest, se
     );
   }
 
-  let formData: FormData;
-  try {
-    formData = await request.formData();
-  } catch {
+  const multipart = await readMultipartWithLimit(request, UPLOAD_BODY_LIMITS.expenseReceipt);
+  if (!multipart.ok && multipart.reason === "too_large") {
+    return payloadTooLargeResponse(session.traceId, UPLOAD_BODY_LIMITS.expenseReceipt);
+  }
+  if (!multipart.ok) {
     return NextResponse.json(
       { error: { code: "VALIDATION_ERROR", message: "Expected multipart form data", traceId: session.traceId } },
       { status: 422 }
     );
   }
+  const formData = multipart.formData;
 
   const file = formData.get("file") as File | null;
   if (!file) {
@@ -142,8 +141,8 @@ export const POST = withRole(["owner", "admin"], async (request: NextRequest, se
     const existing = await withExpenseContext(session, async (client) => {
       const found = await client.query<ExpenseReceiptSyncRow>(
         `SELECT id, receipt_url, vendor_name, expense_date
-         FROM expenses WHERE id = $1 AND account_id = $2`,
-        [id, session.accountId]
+         FROM expenses WHERE id = $1 AND company_id = $2`,
+        [id, companyIdFromSession(session)]
       );
       return found.rows[0] ?? null;
     });
@@ -170,9 +169,9 @@ export const POST = withRole(["owner", "admin"], async (request: NextRequest, se
       const updated = await client.query<ExpenseReceiptRow>(
         `UPDATE expenses
          SET receipt_url = $1, updated_at = now()
-         WHERE id = $2 AND account_id = $3 AND receipt_url IS NULL
+         WHERE id = $2 AND company_id = $3 AND receipt_url IS NULL
          RETURNING id, receipt_url`,
-        [filePath, id, session.accountId]
+        [filePath, id, companyIdFromSession(session)]
       );
       if (!updated.rows[0]) {
         try { fs.unlinkSync(filePath); } catch { /* ignore */ }

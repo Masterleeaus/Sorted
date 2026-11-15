@@ -2,9 +2,9 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 
-const adapter = fs.readFileSync('apps/web/lib/titan/workforce-lifecycle/inspection.ts', 'utf8');
-const panel = fs.readFileSync('apps/web/app/app/settings/WorkforceLifecyclePanel.tsx', 'utf8');
-const tabs = fs.readFileSync('apps/web/app/app/settings/SettingsTabsClient.tsx', 'utf8');
+const adapter = fs.readFileSync(new URL('../../../apps/web/lib/titan/workforce-lifecycle/inspection.ts', import.meta.url), 'utf8');
+const panel = fs.readFileSync(new URL('../../../apps/web/app/app/settings/WorkforceLifecyclePanel.tsx', import.meta.url), 'utf8');
+const tabs = fs.readFileSync(new URL('../../../apps/web/app/app/settings/SettingsTabsClient.tsx', import.meta.url), 'utf8');
 
 test('Pass 9 integrates lifecycle into existing Settings tabs without UI replacement', () => {
   assert.match(tabs, /id: "workforce-lifecycle"/);

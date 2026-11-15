@@ -94,7 +94,7 @@ export async function findRecentClientWork(
        SELECT id, invoice_number, status, total_cents
        FROM invoices
        WHERE job_id = j.id
-         AND account_id = j.account_id
+         AND company_id = j.company_id
          AND invoice_kind IN ('final', 'standard')
          AND status IN ('sent', 'partial', 'paid', 'overdue', 'draft')
        ORDER BY
@@ -108,7 +108,7 @@ export async function findRecentClientWork(
          created_at DESC
        LIMIT 1
      ) i ON true
-     WHERE j.account_id = $1
+     WHERE j.company_id = $1
        AND j.client_id = $2
        AND j.status IN ('completed', 'invoiced')
        AND j.updated_at >= now() - ($3::text || ' days')::interval
@@ -140,7 +140,7 @@ async function assertLinkableJob(
     `SELECT j.id
      FROM jobs j
      WHERE j.id = $1
-       AND j.account_id = $2
+       AND j.company_id = $2
        AND j.client_id = $3
        AND j.status IN ('draft', 'quoted', 'scheduled', 'in_progress')`,
     [jobId, accountId, clientId],
@@ -159,7 +159,7 @@ async function backfillDepositJobId(
   await client.query(
     `UPDATE invoices
         SET job_id = $1
-      WHERE account_id = $2
+      WHERE company_id = $2
         AND estimate_id = $3
         AND job_id IS NULL`,
     [jobId, accountId, estimateId],
@@ -204,7 +204,7 @@ export async function createJobFromEstimate({
      FROM estimates e
      LEFT JOIN clients c ON c.id = e.client_id
      LEFT JOIN properties p ON p.id = e.property_id
-     WHERE e.id = $1 AND e.account_id = $2
+     WHERE e.id = $1 AND e.company_id = $2
      FOR UPDATE OF e`,
     [estimateId, accountId]
   );
@@ -354,7 +354,7 @@ export async function getAccountOwnerUserId(
   accountId: string
 ): Promise<string | null> {
   const res = await client.query<{ id: string }>(
-    `SELECT id FROM users WHERE account_id = $1 AND role = 'owner' LIMIT 1`,
+    `SELECT id FROM users WHERE company_id = $1 AND role = 'owner' LIMIT 1`,
     [accountId]
   );
   return res.rows[0]?.id ?? null;

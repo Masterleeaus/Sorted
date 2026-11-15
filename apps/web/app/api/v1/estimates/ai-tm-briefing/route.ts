@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { withAuth } from "@/lib/auth/middleware";
-import { getPool } from "@/lib/db";
+import { getPool, withDbSession } from "@/lib/db";
 import { logger } from "@/lib/logger";
 import { extractTmBriefing } from "@/lib/estimates/tm-briefing";
 import { loadPricingSettings } from "@/lib/pricing/settings";
@@ -51,18 +51,18 @@ export const POST = withAuth(async (request: NextRequest, session) => {
   let jobContext: string | undefined;
   if (job_id || client_id) {
     try {
-      const pool = getPool();
       const parts: string[] = [];
 
+      await withDbSession(session, async (db) => {
       if (job_id) {
-        const { rows: jobRows } = await pool.query<{
+        const { rows: jobRows } = await db.query<{
           title: string;
           notes: string | null;
           client_id: string;
           property_id: string | null;
         }>(
           `SELECT j.title, j.notes, j.client_id, j.property_id
-           FROM jobs j WHERE j.id = $1 AND j.account_id = $2`,
+           FROM jobs j WHERE j.id = $1 AND j.company_id = $2`,
           [job_id, session.accountId]
         );
         if (jobRows[0]) {
@@ -71,13 +71,13 @@ export const POST = withAuth(async (request: NextRequest, session) => {
           if (notes) parts.push(`Notes: ${notes}`);
 
           if (property_id) {
-            const { rows: propRows } = await pool.query<{
+            const { rows: propRows } = await db.query<{
               address: string;
               city: string | null;
               state: string | null;
             }>(
               `SELECT address, city, state FROM properties
-               WHERE id = $1 AND account_id = $2`,
+               WHERE id = $1 AND company_id = $2`,
               [property_id, session.accountId]
             );
             if (propRows[0]) {
@@ -88,6 +88,7 @@ export const POST = withAuth(async (request: NextRequest, session) => {
           }
         }
       }
+      });
 
       if (parts.length > 0) jobContext = parts.join("\n");
     } catch (err) {

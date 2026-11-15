@@ -25,7 +25,7 @@ interface StaleJob {
 
 export async function findDueStaleJobNudges(client: Client): Promise<AutomationRow[]> {
   const { rows } = await client.query<AutomationRow>(
-    `SELECT id, account_id, type, config, enabled, next_run_at::text
+    `SELECT id, account_id, company_id, type, config, enabled, next_run_at::text
        FROM automations
       WHERE type = 'stale_job_nudge'
         AND enabled = true
@@ -50,15 +50,15 @@ export async function findStaleJobs(
        FROM jobs j
        LEFT JOIN LATERAL (
          SELECT completed_at FROM visits v
-          WHERE v.job_id = j.id AND v.account_id = j.account_id
+          WHERE v.job_id = j.id AND v.company_id = j.company_id
             AND v.completed_at IS NOT NULL
           ORDER BY v.completed_at DESC LIMIT 1
        ) last_v ON true
-      WHERE j.account_id = $1
+      WHERE j.company_id = $1
         AND j.status IN ('scheduled', 'in_progress')
         AND NOT EXISTS (
           SELECT 1 FROM visits v2
-           WHERE v2.job_id = j.id AND v2.account_id = j.account_id
+           WHERE v2.job_id = j.id AND v2.company_id = j.company_id
              AND v2.status = 'scheduled'
              AND v2.scheduled_start > now()
         )
@@ -70,11 +70,11 @@ export async function findStaleJobs(
           SELECT 1 FROM audit_log al
            WHERE al.entity_type = 'stale_job_nudge'
              AND al.entity_id = j.id
-             AND al.account_id = j.account_id
+             AND al.company_id = j.company_id
              AND al.created_at > now() - interval '7 days'
         )
       ORDER BY j.updated_at ASC`,
-    [automation.account_id, days]
+    [automation.company_id, days]
   );
 
   return rows;

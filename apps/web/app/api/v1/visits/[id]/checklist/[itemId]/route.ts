@@ -52,7 +52,7 @@ export const PATCH = withAuth(
       const updated = await withChecklistContext(session, async (client) => {
         // Verify visit exists, belongs to account, and tech authorization.
         const { rows: visitRows } = await client.query(
-          `SELECT id, assigned_user_id FROM visits WHERE id = $1 AND account_id = $2`,
+          `SELECT id, assigned_user_id FROM visits WHERE id = $1 AND company_id = $2`,
           [visitId, session.accountId]
         );
 

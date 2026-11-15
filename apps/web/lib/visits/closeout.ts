@@ -79,12 +79,12 @@ async function completeVisitRow(
             v.generated_from_plan_id, v.membership_visit_phase, v.membership_snapshot_sent_at,
             EXISTS(
               SELECT 1 FROM estimates e
-              WHERE e.job_id = v.job_id AND e.account_id = v.account_id
+              WHERE e.job_id = v.job_id AND e.company_id = v.company_id
             ) AS has_estimate,
             j.pricing_mode
      FROM visits v
-     LEFT JOIN jobs j ON j.id = v.job_id AND j.account_id = v.account_id
-     WHERE v.id = $1 AND v.account_id = $2
+     LEFT JOIN jobs j ON j.id = v.job_id AND j.company_id = v.company_id
+     WHERE v.id = $1 AND v.company_id = $2
      FOR UPDATE OF v`,
     [visitId, session.accountId],
   );
@@ -106,7 +106,7 @@ async function completeVisitRow(
     }
     await client.query(
       `UPDATE visits SET status = 'in_progress', updated_at = now()
-       WHERE id = $1 AND account_id = $2`,
+       WHERE id = $1 AND company_id = $2`,
       [visitId, session.accountId],
     );
     current = "in_progress";
@@ -135,7 +135,7 @@ async function completeVisitRow(
   const packetResult = await client.query(
     `SELECT photo_urls, signature_url, signature_waiver, photos_waived, photos_waiver_reason
      FROM completion_packets
-     WHERE visit_id = $1 AND account_id = $2`,
+     WHERE visit_id = $1 AND company_id = $2`,
     [visitId, session.accountId],
   );
   const exempt = isQuickJobPacketExempt({
@@ -174,7 +174,7 @@ async function completeVisitRow(
          tech_notes = $3,
          closeout_kind = $4,
          updated_at = now()
-     WHERE id = $1 AND account_id = $2
+     WHERE id = $1 AND company_id = $2
      RETURNING id, job_id, work_order_id, assigned_user_id, visit_type, status`,
     [visitId, session.accountId, techNotes, closeoutKind],
   );
@@ -182,7 +182,7 @@ async function completeVisitRow(
 
   await client.query(
     `UPDATE activity_entries SET ended_at = now()
-     WHERE account_id = $1 AND user_id = $2
+     WHERE company_id = $1 AND user_id = $2
        AND ended_at IS NULL AND voided_at IS NULL
        AND entity_type = 'visit' AND entity_id = $3`,
     [session.accountId, session.userId, visitId],
@@ -201,7 +201,7 @@ async function completeVisitRow(
 
   if (updated.job_id) {
     const jobRow = await client.query<{ id: string; status: string }>(
-      `SELECT id, status FROM jobs WHERE id = $1 AND account_id = $2 FOR UPDATE`,
+      `SELECT id, status FROM jobs WHERE id = $1 AND company_id = $2 FOR UPDATE`,
       [updated.job_id, session.accountId],
     );
     const job = jobRow.rows[0];
@@ -214,12 +214,12 @@ async function completeVisitRow(
     ) {
       await client.query(
         `UPDATE jobs SET status = 'in_progress', updated_at = now()
-         WHERE id = $1 AND account_id = $2`,
+         WHERE id = $1 AND company_id = $2`,
         [updated.job_id, session.accountId],
       );
     }
     const jobProp = await client.query<{ property_id: string | null }>(
-      `SELECT property_id FROM jobs WHERE id = $1 AND account_id = $2`,
+      `SELECT property_id FROM jobs WHERE id = $1 AND company_id = $2`,
       [updated.job_id, session.accountId],
     );
     const propertyId = jobProp.rows[0]?.property_id;
@@ -294,17 +294,17 @@ async function scheduleReturnVisit(
   const end = new Date(start.getTime() + prefill.durationMinutes * 60_000);
 
   const jobRow = await client.query<{ status: string }>(
-    `SELECT status FROM jobs WHERE id = $1 AND account_id = $2`,
+    `SELECT status FROM jobs WHERE id = $1 AND company_id = $2`,
     [current.job_id, session.accountId],
   );
   const fieldActive = await client.query<{ count: string }>(
     `SELECT COUNT(*)::text AS count FROM visits
-     WHERE job_id = $1 AND account_id = $2 AND status = ANY($3::text[])`,
+     WHERE job_id = $1 AND company_id = $2 AND status = ANY($3::text[])`,
     [current.job_id, session.accountId, [...FIELD_ACTIVE_VISIT_STATUSES]],
   );
   const overlap = await client.query<{ count: string }>(
     `SELECT COUNT(*)::text AS count FROM visits
-     WHERE job_id = $1 AND account_id = $2
+     WHERE job_id = $1 AND company_id = $2
        AND status NOT IN ('cancelled','completed')
        AND scheduled_start < $4::timestamptz
        AND scheduled_end > $3::timestamptz`,
@@ -380,7 +380,7 @@ export async function runVisitCloseout(
     }>(
       `SELECT scheduled_start::text, scheduled_end::text,
               arrived_at::text, completed_at::text
-       FROM visits WHERE id = $1 AND account_id = $2`,
+       FROM visits WHERE id = $1 AND company_id = $2`,
       [visitId, session.accountId],
     );
     const vt = visitTimes.rows[0];
@@ -403,7 +403,7 @@ export async function runVisitCloseout(
       }
     }
     const jobRow = await client.query<{ status: string; title: string }>(
-      `SELECT status, title FROM jobs WHERE id = $1 AND account_id = $2`,
+      `SELECT status, title FROM jobs WHERE id = $1 AND company_id = $2`,
       [completed.job_id, session.accountId],
     );
     jobStatus = jobRow.rows[0]?.status ?? null;
@@ -423,7 +423,7 @@ export async function runVisitCloseout(
         scheduled_end: string;
       }>(
         `SELECT scheduled_start::text, scheduled_end::text
-         FROM visits WHERE id = $1 AND account_id = $2`,
+         FROM visits WHERE id = $1 AND company_id = $2`,
         [visitId, session.accountId],
       );
       const t = times.rows[0];
@@ -455,13 +455,13 @@ export async function runVisitCloseout(
     if (jobStatus === "in_progress" || jobStatus === "scheduled") {
       const notes = await client.query<{ tech_notes: string | null }>(
         `SELECT tech_notes FROM visits
-         WHERE job_id = $1 AND account_id = $2 AND status = 'completed'
+         WHERE job_id = $1 AND company_id = $2 AND status = 'completed'
            AND visit_type IS DISTINCT FROM 'site_visit'
          ORDER BY scheduled_start ASC`,
         [completed.job_id, session.accountId],
       );
       const titleRow = await client.query<{ title: string }>(
-        `SELECT title FROM jobs WHERE id = $1 AND account_id = $2`,
+        `SELECT title FROM jobs WHERE id = $1 AND company_id = $2`,
         [completed.job_id, session.accountId],
       );
       const desc = laborDescriptionFromVisitNotes(
@@ -477,7 +477,7 @@ export async function runVisitCloseout(
         jobStatus = "completed";
       } else {
         const again = await client.query<{ status: string }>(
-          `SELECT status FROM jobs WHERE id = $1 AND account_id = $2`,
+          `SELECT status FROM jobs WHERE id = $1 AND company_id = $2`,
           [completed.job_id, session.accountId],
         );
         jobStatus = again.rows[0]?.status ?? jobStatus;
@@ -516,7 +516,7 @@ export async function runVisitCloseout(
       if (!invoiceId) {
         const existingInv = await client.query<{ id: string }>(
           `SELECT id FROM invoices
-           WHERE job_id = $1 AND account_id = $2
+           WHERE job_id = $1 AND company_id = $2
              AND invoice_kind IN ('final', 'standard')
              AND status NOT IN ('cancelled', 'void')
            ORDER BY CASE status WHEN 'draft' THEN 0 ELSE 1 END, created_at DESC

@@ -120,7 +120,7 @@ export async function upsertMaterialFromPurchase(
               last_purchased_at::text AS last_purchased_at, notes, is_active,
               avg_paid_cents, purchase_count
        FROM materials_price_book
-       WHERE account_id = $1
+       WHERE company_id = $1
          AND is_active = true
          AND sku IS NOT NULL
          AND lower(btrim(sku)) = lower(btrim($2))
@@ -136,7 +136,7 @@ export async function upsertMaterialFromPurchase(
               last_purchased_at::text AS last_purchased_at, notes, is_active,
               avg_paid_cents, purchase_count
        FROM materials_price_book
-       WHERE account_id = $1
+       WHERE company_id = $1
          AND is_active = true
          AND lower(btrim(name)) = lower(btrim($2))
          AND unit = $3
@@ -170,7 +170,7 @@ export async function upsertMaterialFromPurchase(
                                ELSE name
                              END,
          updated_at        = now()
-       WHERE id = $1 AND account_id = $9
+       WHERE id = $1 AND company_id = $9
        RETURNING id, account_id, name, brand, category, unit, unit_cost_cents, supplier, sku,
                  last_purchased_at::text AS last_purchased_at, notes, is_active,
                  avg_paid_cents, purchase_count`,

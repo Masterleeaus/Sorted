@@ -46,7 +46,7 @@ export async function listAssetLinks(
     `SELECT id, entity_type, entity_id, homebox_item_id,
             cached_name, cached_location, status, created_by, created_at
      FROM asset_links
-     WHERE account_id = $1 AND entity_type = $2 AND entity_id = $3
+     WHERE company_id = $1 AND entity_type = $2 AND entity_id = $3
      ORDER BY created_at ASC`,
     [accountId, entityType, entityId]
   );
@@ -91,7 +91,7 @@ export async function deleteAssetLink(
   linkId: string
 ): Promise<boolean> {
   const res = await client.query(
-    `DELETE FROM asset_links WHERE id = $1 AND account_id = $2`,
+    `DELETE FROM asset_links WHERE id = $1 AND company_id = $2`,
     [linkId, accountId]
   );
   return (res.rowCount ?? 0) > 0;
@@ -106,7 +106,7 @@ export async function updateAssetLinkStatus(
   const res = await client.query<AssetLinkRow>(
     `UPDATE asset_links
      SET status = $1
-     WHERE id = $2 AND account_id = $3
+     WHERE id = $2 AND company_id = $3
      RETURNING id, entity_type, entity_id, homebox_item_id,
                cached_name, cached_location, status, created_by, created_at`,
     [status, linkId, accountId]
@@ -123,7 +123,7 @@ export async function getAssetLinkConflicts(
   const res = await client.query<{ entity_type: string; entity_id: string }>(
     `SELECT entity_type, entity_id
      FROM asset_links
-     WHERE account_id = $1
+     WHERE company_id = $1
        AND homebox_item_id = $2
        AND entity_id != $3
        AND status != 'returned'`,

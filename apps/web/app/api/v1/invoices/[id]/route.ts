@@ -46,7 +46,7 @@ export const GET = withAuth(async (request, session) => {
          FROM invoices i
          LEFT JOIN clients c ON c.id = i.client_id
          LEFT JOIN jobs j ON j.id = i.job_id
-         WHERE i.id = $1 AND i.account_id = $2`,
+         WHERE i.id = $1 AND i.company_id = $2`,
         [id, session.accountId]
       );
 
@@ -151,7 +151,7 @@ export const PATCH = withRole(["owner", "admin"], async (request, session) => {
       }>(
         `SELECT id, status, client_id, job_id, property_id, billing_context,
                 sponsored_purpose, beneficiary_property_contact_id, business_purpose
-         FROM invoices WHERE id = $1 AND account_id = $2`,
+         FROM invoices WHERE id = $1 AND company_id = $2`,
         [id, session.accountId]
       );
 
@@ -250,7 +250,7 @@ export const PATCH = withRole(["owner", "admin"], async (request, session) => {
         params.push(id);
         params.push(session.accountId);
         await client.query(
-          `UPDATE invoices SET ${setClauses.join(", ")} WHERE id = $${idx} AND account_id = $${idx + 1}`,
+          `UPDATE invoices SET ${setClauses.join(", ")} WHERE id = $${idx} AND company_id = $${idx + 1}`,
           params
         );
       }
@@ -335,7 +335,7 @@ export const DELETE = withRole(["owner"], async (request, session) => {
         client_id: string | null;
       }>(
         `SELECT id, status, invoice_number, paid_cents, total_cents, client_id
-         FROM invoices WHERE id = $1 AND account_id = $2`,
+         FROM invoices WHERE id = $1 AND company_id = $2`,
         [id, session.accountId]
       );
 
@@ -352,7 +352,7 @@ export const DELETE = withRole(["owner"], async (request, session) => {
       }
 
       // Orphan payment rows should not exist when paid_cents=0, but clear any just in case.
-      await client.query(`DELETE FROM payments WHERE invoice_id = $1 AND account_id = $2`, [
+      await client.query(`DELETE FROM payments WHERE invoice_id = $1 AND company_id = $2`, [
         id,
         session.accountId,
       ]);
@@ -361,7 +361,7 @@ export const DELETE = withRole(["owner"], async (request, session) => {
       await client.query(`DELETE FROM invoice_line_items WHERE invoice_id = $1`, [id]);
 
       // Delete the invoice
-      await client.query(`DELETE FROM invoices WHERE id = $1 AND account_id = $2`, [id, session.accountId]);
+      await client.query(`DELETE FROM invoices WHERE id = $1 AND company_id = $2`, [id, session.accountId]);
 
       await appendAuditLog(client, {
         account_id: session.accountId,

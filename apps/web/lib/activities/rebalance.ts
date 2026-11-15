@@ -79,7 +79,7 @@ export async function applyRebalance(
         note: string | null;
       }>(
         `DELETE FROM activity_entries
-         WHERE id = $1 AND account_id = $2 AND ended_at IS NOT NULL AND voided_at IS NULL
+         WHERE id = $1 AND company_id = $2 AND ended_at IS NOT NULL AND voided_at IS NULL
          RETURNING id, activity_type, started_at::text, ended_at::text, entity_type, entity_id, note`,
         [adj.id, ctx.accountId],
       );
@@ -123,7 +123,7 @@ export async function applyRebalance(
       `SELECT id, user_id, activity_type, category, started_at::text, ended_at::text,
               entity_type, entity_id, note, source, assignment_kind, labor_bucket
          FROM activity_entries
-        WHERE id = $1 AND account_id = $2 AND voided_at IS NULL
+        WHERE id = $1 AND company_id = $2 AND voided_at IS NULL
         FOR UPDATE`,
       [adj.id, ctx.accountId],
     );
@@ -142,7 +142,7 @@ export async function applyRebalance(
       `UPDATE activity_entries
        SET started_at = COALESCE($1::timestamptz, started_at),
            ended_at   = COALESCE($2::timestamptz, ended_at)
-       WHERE id = $3 AND account_id = $4 AND voided_at IS NULL
+       WHERE id = $3 AND company_id = $4 AND voided_at IS NULL
        RETURNING id, activity_type, started_at::text, ended_at::text, entity_type, entity_id, note`,
       [adj.started_at ?? null, adj.ended_at ?? null, adj.id, ctx.accountId],
     );
@@ -310,7 +310,7 @@ export async function loadTimelineEntriesForRebalance(
   const { rows } = await client.query<TimelineEntry>(
     `SELECT id, activity_type, started_at::text, ended_at::text
        FROM activity_entries
-      WHERE account_id = $1
+      WHERE company_id = $1
         AND voided_at IS NULL
         AND started_at < $3::timestamptz
         AND COALESCE(ended_at, 'infinity'::timestamptz) > $2::timestamptz

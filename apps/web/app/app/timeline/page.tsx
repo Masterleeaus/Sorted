@@ -50,7 +50,7 @@ export default async function TimelinePage({
       `SELECT id, user_id::text, activity_type, category, started_at::text, ended_at::text,
               entity_type, entity_id, assignment_kind, labor_bucket, note
        FROM activity_entries
-       WHERE account_id = $1 AND session_date = $2::date AND voided_at IS NULL
+       WHERE company_id = $1 AND session_date = $2::date AND voided_at IS NULL
        ORDER BY started_at ASC`,
       [session.accountId, day],
     ),
@@ -68,7 +68,7 @@ export default async function TimelinePage({
     session,
     `SELECT id, activity_type, started_at::text, ended_at::text, note
      FROM activity_entries
-     WHERE account_id = $1
+     WHERE company_id = $1
        AND session_date = $2::date
        AND voided_at IS NULL
        AND entity_id IS NULL

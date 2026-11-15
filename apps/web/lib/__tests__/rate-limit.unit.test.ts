@@ -2,9 +2,13 @@ import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import {
   checkRateLimit,
   getClientIp,
+  getTrustedProxyCount,
+  UNKNOWN_CLIENT_IP,
   LOGIN_RATE_LIMIT,
   SENSITIVE_RATE_LIMIT,
   GENERAL_RATE_LIMIT,
+  INTAKE_IP_RATE_LIMIT,
+  INTAKE_TOKEN_RATE_LIMIT,
   _resetStore,
   type RateLimitConfig,
 } from "../rate-limit";
@@ -89,34 +93,109 @@ describe("checkRateLimit", () => {
 });
 
 // ---------------------------------------------------------------------------
-// getClientIp
+// getTrustedProxyCount / getClientIp
 // ---------------------------------------------------------------------------
 
+describe("getTrustedProxyCount", () => {
+  const original = process.env.TRUSTED_PROXY_COUNT;
+  afterEach(() => {
+    if (original === undefined) delete process.env.TRUSTED_PROXY_COUNT;
+    else process.env.TRUSTED_PROXY_COUNT = original;
+  });
+
+  it("defaults to 0 when unset", () => {
+    delete process.env.TRUSTED_PROXY_COUNT;
+    expect(getTrustedProxyCount()).toBe(0);
+  });
+
+  it("parses small non-negative integers", () => {
+    process.env.TRUSTED_PROXY_COUNT = "1";
+    expect(getTrustedProxyCount()).toBe(1);
+    process.env.TRUSTED_PROXY_COUNT = " 2 ";
+    expect(getTrustedProxyCount()).toBe(2);
+  });
+
+  it.each(["", "abc", "-1", "1.5", "99", "1e2"])("fails closed to 0 for %j", (value) => {
+    process.env.TRUSTED_PROXY_COUNT = value;
+    expect(getTrustedProxyCount()).toBe(0);
+  });
+});
+
 describe("getClientIp", () => {
-  it("returns first IP from X-Forwarded-For", () => {
-    const req = new Request("http://localhost/", {
-      headers: { "x-forwarded-for": "1.2.3.4, 5.6.7.8" },
-    });
-    expect(getClientIp(req)).toBe("1.2.3.4");
+  const xff = (value: string) =>
+    new Request("http://localhost/", { headers: { "x-forwarded-for": value } });
+
+  it("ignores X-Forwarded-For when no proxy is trusted (default)", () => {
+    expect(getClientIp(xff("1.2.3.4, 5.6.7.8"), 0)).toBe(UNKNOWN_CLIENT_IP);
   });
 
-  it("falls back to X-Real-IP", () => {
-    const req = new Request("http://localhost/", {
-      headers: { "x-real-ip": "9.9.9.9" },
-    });
-    expect(getClientIp(req)).toBe("9.9.9.9");
+  it("ignores X-Real-IP even when a proxy is trusted", () => {
+    const req = new Request("http://localhost/", { headers: { "x-real-ip": "9.9.9.9" } });
+    expect(getClientIp(req, 1)).toBe(UNKNOWN_CLIENT_IP);
   });
 
-  it('returns "unknown" when no IP headers present', () => {
-    const req = new Request("http://localhost/");
-    expect(getClientIp(req)).toBe("unknown");
+  it("returns unknown when no IP headers are present", () => {
+    expect(getClientIp(new Request("http://localhost/"), 1)).toBe(UNKNOWN_CLIENT_IP);
   });
 
-  it("trims whitespace from forwarded IP", () => {
-    const req = new Request("http://localhost/", {
-      headers: { "x-forwarded-for": "  10.0.0.1  , 192.168.0.1" },
-    });
-    expect(getClientIp(req)).toBe("10.0.0.1");
+  it("with one trusted proxy, uses the rightmost entry and ignores attacker prefixes", () => {
+    // Client sent "6.6.6.6"; the trusted proxy appended the real peer 5.6.7.8.
+    expect(getClientIp(xff("6.6.6.6, 5.6.7.8"), 1)).toBe("5.6.7.8");
+    expect(getClientIp(xff("1.1.1.1, 2.2.2.2, 3.3.3.3, 5.6.7.8"), 1)).toBe("5.6.7.8");
+  });
+
+  it("with one trusted proxy, a single overwritten entry is the client", () => {
+    expect(getClientIp(xff("5.6.7.8"), 1)).toBe("5.6.7.8");
+  });
+
+  it("with two trusted proxies, skips the proxy-appended entry to reach the client", () => {
+    // Client 5.6.7.8 -> proxy 10.0.0.1 -> proxy 10.0.0.2 -> app.
+    expect(getClientIp(xff("5.6.7.8, 10.0.0.1"), 2)).toBe("5.6.7.8");
+  });
+
+  it("with two trusted proxies, ignores attacker prefixes in a multi-proxy chain", () => {
+    expect(getClientIp(xff("6.6.6.6, 7.7.7.7, 5.6.7.8, 10.0.0.1"), 2)).toBe("5.6.7.8");
+  });
+
+  it("returns unknown when the chain is shorter than the trusted hop count", () => {
+    // Request did not traverse the two expected proxies; do not trust the value.
+    expect(getClientIp(xff("5.6.7.8"), 2)).toBe(UNKNOWN_CLIENT_IP);
+  });
+
+  it.each([
+    ["not-an-ip", "garbage"],
+    ["host name", "api.example.com"],
+    ["ip with port", "1.2.3.4:5678"],
+    ["empty entry", "1.2.3.4, "],
+    ["ip with path", "1.2.3.4/32"],
+  ])("returns unknown for malformed address (%s)", (_label, value) => {
+    expect(getClientIp(xff(value), 1)).toBe(UNKNOWN_CLIENT_IP);
+  });
+
+  it("returns unknown when the selected entry is malformed even if others are valid", () => {
+    // Trusted entry (rightmost for N=1) is malformed; the valid prefix must not be used.
+    expect(getClientIp(xff("1.2.3.4, bogus"), 1)).toBe(UNKNOWN_CLIENT_IP);
+  });
+
+  it("trims whitespace around the selected entry", () => {
+    expect(getClientIp(xff("  10.0.0.1  ,  5.6.7.8  "), 1)).toBe("5.6.7.8");
+  });
+
+  it("accepts and lower-cases IPv6 addresses", () => {
+    expect(getClientIp(xff("1.1.1.1, 2001:DB8::1"), 1)).toBe("2001:db8::1");
+  });
+
+  it("reads TRUSTED_PROXY_COUNT when no count is passed", () => {
+    const original = process.env.TRUSTED_PROXY_COUNT;
+    try {
+      process.env.TRUSTED_PROXY_COUNT = "1";
+      expect(getClientIp(xff("6.6.6.6, 5.6.7.8"))).toBe("5.6.7.8");
+      delete process.env.TRUSTED_PROXY_COUNT;
+      expect(getClientIp(xff("6.6.6.6, 5.6.7.8"))).toBe(UNKNOWN_CLIENT_IP);
+    } finally {
+      if (original === undefined) delete process.env.TRUSTED_PROXY_COUNT;
+      else process.env.TRUSTED_PROXY_COUNT = original;
+    }
   });
 });
 
@@ -135,6 +214,12 @@ describe("preset configs", () => {
 
   it("SENSITIVE_RATE_LIMIT has higher limit than LOGIN", () => {
     expect(SENSITIVE_RATE_LIMIT.limit).toBeGreaterThan(LOGIN_RATE_LIMIT.limit);
+  });
+
+  it("intake presets are bounded per IP and per token", () => {
+    expect(INTAKE_IP_RATE_LIMIT.limit).toBeGreaterThan(0);
+    expect(INTAKE_TOKEN_RATE_LIMIT.limit).toBeGreaterThan(0);
+    expect(INTAKE_TOKEN_RATE_LIMIT.limit).toBeLessThanOrEqual(INTAKE_IP_RATE_LIMIT.limit);
   });
 
   it("GENERAL_RATE_LIMIT has higher limit than SENSITIVE", () => {

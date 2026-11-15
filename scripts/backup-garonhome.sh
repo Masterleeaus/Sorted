@@ -1,15 +1,18 @@
 #!/usr/bin/env bash
-set -euo pipefail
+set -Eeuo pipefail
 
 DEPLOY_ROOT="${FSM_DEPLOY_ROOT:-/opt/business/ai-fsm}"
 REPO_ROOT="${FSM_REPO_ROOT:-${DEPLOY_ROOT}/repo}"
 ENV_FILE="${FSM_ENV_FILE:-${DEPLOY_ROOT}/env/.env}"
 COMPOSE_FILE="${FSM_COMPOSE_FILE:-${REPO_ROOT}/infra/compose.garonhome.yml}"
 BACKUP_DIR="${FSM_BACKUP_DIR:-${DEPLOY_ROOT}/backups}"
+STATUS_DIR="${BACKUP_DIR}/status"
 TIMESTAMP="$(date -u +%Y%m%dT%H%M%SZ)"
-DB_FILE="${BACKUP_DIR}/ai_fsm_${TIMESTAMP}.dump"
-UPLOADS_FILE="${BACKUP_DIR}/ai_fsm_uploads_${TIMESTAMP}.tar.gz"
+NOW_ISO="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+DB_FILE="${BACKUP_DIR}/ai_fsm_${TIMESTAMP}.dump.gpg"
+UPLOADS_FILE="${BACKUP_DIR}/ai_fsm_uploads_${TIMESTAMP}.tar.gz.gpg"
 ENV_FILE_BACKUP="${BACKUP_DIR}/ai_fsm_env_${TIMESTAMP}.gpg"
+MANIFEST_FILE="${BACKUP_DIR}/ai_fsm_${TIMESTAMP}.sha256"
 
 set -a
 # shellcheck disable=SC1090
@@ -21,6 +24,9 @@ set +a
 # and silently skip the uploads / encrypted-.env backups).
 DATA_ROOT="${FSM_DATA_ROOT:-${DEPLOY_ROOT}/data}"
 PASSPHRASE_FILE="${FSM_BACKUP_PASSPHRASE_FILE:-${DEPLOY_ROOT}/env/backup.passphrase}"
+RCLONE_REMOTE="${FSM_RCLONE_REMOTE:-googledrive}"
+RCLONE_DEST="${RCLONE_REMOTE}:ai-fsm-backups"
+REMOTE_RETENTION_DAYS="${FSM_BACKUP_REMOTE_RETENTION_DAYS:-30}"
 
 # ponytail: DB dump and the uploads tar are taken sequentially while web/worker
 # stay live, so an upload deleted between the two can leave a dump row whose file
@@ -28,55 +34,232 @@ PASSPHRASE_FILE="${FSM_BACKUP_PASSPHRASE_FILE:-${DEPLOY_ROOT}/env/backup.passphr
 # low-activity hour; upgrade to a coordinated filesystem snapshot only if
 # concurrent write volume during the backup window ever makes this real.
 
-mkdir -p "${BACKUP_DIR}"
+FAILURES=()
+ARTIFACTS=()   # encrypted artifacts that exist for this set
+UPLOAD_LIST=() # what goes offsite: artifacts plus the manifest
 
-docker compose --env-file "${ENV_FILE}" -f "${COMPOSE_FILE}" exec -T postgres \
-  pg_dump -U "${POSTGRES_USER}" -d "${POSTGRES_DB}" --format=custom --compress=9 \
-  > "${DB_FILE}"
-echo "backup written: ${DB_FILE}"
+# Remove partial output from this run if it stops mid-write. Finished artifacts
+# (renamed out of .partial) are never removed here.
+trap 'rm -f -- "${BACKUP_DIR}/ai_fsm_"*"${TIMESTAMP}"*.partial' EXIT
 
-# Uploaded files (receipts, job photos) — not covered by the DB dump
-if [[ -d "${DATA_ROOT}/uploads" ]]; then
-  tar -czf "${UPLOADS_FILE}" -C "${DATA_ROOT}" uploads
-  echo "backup written: ${UPLOADS_FILE}"
-else
-  UPLOADS_FILE=""
-  echo "WARNING: ${DATA_ROOT}/uploads not found; skipping uploads backup" >&2
-fi
+record_failure() {
+  FAILURES+=("$1")
+  echo "ERROR: $1" >&2
+}
 
-# Encrypted copy of .env — needed to decrypt APP_ENCRYPTION_KEY-protected data
-# (e.g. Square tokens) after a restore. Keep the passphrase file itself out of
-# git and out of this backup (chmod 600, store its value in a password manager).
-if [[ -f "${PASSPHRASE_FILE}" ]]; then
-  gpg --batch --yes --symmetric --cipher-algo AES256 \
-    --passphrase-file "${PASSPHRASE_FILE}" \
-    -o "${ENV_FILE_BACKUP}" "${ENV_FILE}"
-  echo "backup written: ${ENV_FILE_BACKUP}"
-else
-  ENV_FILE_BACKUP=""
-  echo "WARNING: ${PASSPHRASE_FILE} not found; skipping encrypted .env backup" >&2
-fi
+json_escape() {
+  local s="$1"
+  s="${s//\\/\\\\}"
+  s="${s//\"/\\\"}"
+  printf '%s' "${s}"
+}
 
-# Offsite copy to Google Drive (non-fatal — pruning must still run)
-RCLONE_REMOTE="${FSM_RCLONE_REMOTE:-googledrive}"
-RCLONE_DEST="${RCLONE_REMOTE}:ai-fsm-backups"
-for f in "${DB_FILE}" "${UPLOADS_FILE}" "${ENV_FILE_BACKUP}"; do
-  [[ -z "${f}" ]] && continue
-  if rclone copy "${f}" "${RCLONE_DEST}/" --log-level INFO; then
-    echo "offsite copy complete: ${RCLONE_DEST}/$(basename "${f}")"
+# Optional alert hook. Not configured in the repo: set BACKUP_ALERT_CMD in the
+# env file to a command that accepts the message as its first argument (for
+# example a script that posts to the operator's chat or email service).
+alert() {
+  local msg="$1"
+  if [[ -n "${BACKUP_ALERT_CMD:-}" ]]; then
+    bash -c "${BACKUP_ALERT_CMD} \"\$1\"" _ "${msg}" \
+      || echo "WARNING: BACKUP_ALERT_CMD failed; alert not delivered" >&2
   else
-    echo "WARNING: offsite copy failed for $(basename "${f}") (rclone exit $?); local backup retained" >&2
+    echo "ALERT (BACKUP_ALERT_CMD not configured; nothing sent): ${msg}" >&2
+  fi
+}
+
+write_success_marker() {
+  local out="${STATUS_DIR}/last-success.json" first=1 f name size sum
+  {
+    printf '{\n  "status": "ok",\n  "set": "%s",\n  "completed_at": "%s",\n' "${TIMESTAMP}" "${NOW_ISO}"
+    printf '  "offsite": {"remote": "%s", "verified": true},\n  "artifacts": [\n' "$(json_escape "${RCLONE_DEST}")"
+    for f in "${ARTIFACTS[@]}"; do
+      name="$(basename "${f}")"
+      size="$(stat -c %s "${f}")"
+      sum="$(sha256sum "${f}" | cut -d' ' -f1)"
+      if (( first == 0 )); then printf ',\n'; fi
+      first=0
+      printf '    {"name": "%s", "bytes": %s, "sha256": "%s"}' "${name}" "${size}" "${sum}"
+    done
+    printf '\n  ]\n}\n'
+  } > "${out}.tmp"
+  mv -f -- "${out}.tmp" "${out}"
+}
+
+# Writes the machine-readable status for this run, alerts on an incomplete run,
+# and exits. Every exit path goes through here.
+finish_run() {
+  trap - ERR
+  mkdir -p "${STATUS_DIR}"
+  if (( ${#FAILURES[@]} == 0 )); then
+    write_success_marker
+    printf '{"status": "ok", "set": "%s", "finished_at": "%s", "failures": []}\n' \
+      "${TIMESTAMP}" "${NOW_ISO}" > "${STATUS_DIR}/last-run.json"
+    rm -f -- "${STATUS_DIR}/INCOMPLETE"
+    echo "backup set ${TIMESTAMP} complete and verified offsite"
+    exit 0
+  fi
+
+  local list="" r
+  for r in "${FAILURES[@]}"; do
+    list+="${list:+, }\"$(json_escape "${r}")\""
+  done
+  printf '{"status": "incomplete", "set": "%s", "finished_at": "%s", "failures": [%s]}\n' \
+    "${TIMESTAMP}" "${NOW_ISO}" "${list}" > "${STATUS_DIR}/last-run.json"
+  {
+    echo "INCOMPLETE backup set ${TIMESTAMP} at ${NOW_ISO}"
+    for r in "${FAILURES[@]}"; do echo "- ${r}"; done
+  } > "${STATUS_DIR}/INCOMPLETE"
+  alert "backup set ${TIMESTAMP} INCOMPLETE: ${FAILURES[*]}"
+  echo "ERROR: backup set ${TIMESTAMP} is INCOMPLETE; see ${STATUS_DIR}" >&2
+  exit 1
+}
+
+# Invoked through the ERR trap below.
+# shellcheck disable=SC2329
+on_unexpected_error() {
+  record_failure "unexpected error at line $1"
+  finish_run
+}
+trap 'on_unexpected_error ${LINENO}' ERR
+
+# Runs a producer command and encrypts its stdout to OUT. The result is renamed
+# into place only if the producer AND gpg both succeed (pipefail), so a failed
+# pg_dump or tar never leaves a truncated but valid-looking encrypted file.
+encrypt_command_to() {
+  local out="$1"
+  shift
+  local rc=0
+  "$@" | gpg --batch --yes --quiet --symmetric --cipher-algo AES256 \
+    --passphrase-file "${PASSPHRASE_FILE}" -o "${out}.partial" || rc=$?
+  if (( rc != 0 )); then
+    rm -f -- "${out}.partial"
+    return "${rc}"
+  fi
+  mv -f -- "${out}.partial" "${out}"
+}
+
+mkdir -p "${BACKUP_DIR}" "${STATUS_DIR}"
+
+# Every artifact is encrypted (AES-256, gpg symmetric, key from PASSPHRASE_FILE)
+# while it is still in the pipeline, so no plaintext dump or archive is written
+# to disk or uploaded. Without a passphrase nothing is written at all.
+if [[ ! -s "${PASSPHRASE_FILE}" ]]; then
+  record_failure "passphrase file missing or empty: ${PASSPHRASE_FILE}; refusing to write or upload unencrypted backups"
+  finish_run
+fi
+# The key must not sit beside the archives it protects.
+case "$(realpath -m "${PASSPHRASE_FILE}")" in
+  "$(realpath -m "${BACKUP_DIR}")"/*)
+    record_failure "passphrase file is inside the backup directory; the key must not sit beside the archives"
+    finish_run ;;
+esac
+
+# 1. Database dump (required)
+if ! encrypt_command_to "${DB_FILE}" \
+  docker compose --env-file "${ENV_FILE}" -f "${COMPOSE_FILE}" exec -T postgres \
+  pg_dump -U "${POSTGRES_USER}" -d "${POSTGRES_DB}" --format=custom --compress=9; then
+  record_failure "database dump failed; no ${DB_FILE}"
+else
+  echo "backup written (encrypted): ${DB_FILE}"
+fi
+
+# 2. Uploaded files (receipts, job photos), not covered by the DB dump (required)
+if [[ -d "${DATA_ROOT}/uploads" ]]; then
+  if ! encrypt_command_to "${UPLOADS_FILE}" tar -czf - -C "${DATA_ROOT}" uploads; then
+    record_failure "uploads archive failed for ${DATA_ROOT}/uploads"
+  else
+    echo "backup written (encrypted): ${UPLOADS_FILE}"
+  fi
+else
+  record_failure "uploads directory missing: ${DATA_ROOT}/uploads; uploads archive not written"
+fi
+
+# 3. Encrypted copy of .env (required). Needed to decrypt APP_ENCRYPTION_KEY-protected
+# data (e.g. Square tokens) after a restore. Keep the passphrase file itself out of
+# git and out of this backup (chmod 600, store its value in a password manager).
+if ! encrypt_command_to "${ENV_FILE_BACKUP}" cat "${ENV_FILE}"; then
+  record_failure "encrypted .env backup failed"
+else
+  echo "backup written (encrypted): ${ENV_FILE_BACKUP}"
+fi
+
+for f in "${DB_FILE}" "${UPLOADS_FILE}" "${ENV_FILE_BACKUP}"; do
+  if [[ -f "${f}" ]]; then
+    ARTIFACTS+=("${f}")
   fi
 done
 
-# Prune local backups older than 7 days (runs regardless of offsite result)
-find "${BACKUP_DIR}" \( -name "ai_fsm_*.dump" -o -name "ai_fsm_uploads_*.tar.gz" -o -name "ai_fsm_env_*.gpg" \) -mtime +7 -delete
-echo "old local backups pruned"
-
-# Prune offsite copies older than 30 days (best-effort; local retention is authoritative)
-REMOTE_RETENTION_DAYS="${FSM_BACKUP_REMOTE_RETENTION_DAYS:-30}"
-if rclone delete "${RCLONE_DEST}" --min-age "${REMOTE_RETENTION_DAYS}d" --log-level INFO; then
-  echo "old offsite backups pruned (older than ${REMOTE_RETENTION_DAYS}d)"
-else
-  echo "WARNING: offsite prune failed (rclone exit $?)" >&2
+# SHA-256 of every encrypted artifact in this set, for integrity checks before restore.
+if (( ${#ARTIFACTS[@]} > 0 )); then
+  NAMES=()
+  for f in "${ARTIFACTS[@]}"; do NAMES+=("$(basename "${f}")"); done
+  (cd "${BACKUP_DIR}" && sha256sum -- "${NAMES[@]}" > "$(basename "${MANIFEST_FILE}")")
+  echo "checksums written: ${MANIFEST_FILE}"
 fi
+
+# 4. Offsite copy to Google Drive. Failures are recorded, not fatal to the other copies.
+UPLOAD_LIST=("${ARTIFACTS[@]}")
+if [[ -f "${MANIFEST_FILE}" ]]; then
+  UPLOAD_LIST+=("${MANIFEST_FILE}")
+fi
+for f in "${UPLOAD_LIST[@]}"; do
+  if rclone copy "${f}" "${RCLONE_DEST}/" --log-level INFO; then
+    echo "offsite copy complete: ${RCLONE_DEST}/$(basename "${f}")"
+  else
+    record_failure "offsite copy failed for $(basename "${f}")"
+  fi
+done
+
+# 5. Verify each offsite copy by remote listing (name and size) before counting it as stored.
+if listing="$(rclone lsf --format sp --separator ';' --files-only "${RCLONE_DEST}" 2>/dev/null)"; then
+  for f in "${UPLOAD_LIST[@]}"; do
+    name="$(basename "${f}")"
+    local_size="$(stat -c %s "${f}")"
+    remote_size="$(awk -F';' -v n="${name}" '$2 == n { print $1; exit }' <<<"${listing}")"
+    if [[ "${remote_size}" != "${local_size}" ]]; then
+      record_failure "offsite verify failed for ${name} (remote size '${remote_size:-missing}', local ${local_size})"
+    fi
+  done
+else
+  record_failure "offsite listing failed; copies could not be verified"
+fi
+
+if (( ${#FAILURES[@]} == 0 )); then
+  : > "${STATUS_DIR}/verified-${TIMESTAMP}"
+  echo "offsite set verified: ${TIMESTAMP}"
+fi
+
+# 6. Local prune (runs after verification, never before). A set is removed after
+# 7 days only if its offsite copy was verified. Unverified sets are kept, unless
+# this run completed and verified, which proves a complete offsite set now exists.
+# Legacy plaintext names are matched by the same rule.
+while IFS= read -r -d '' f; do
+  ts="$(sed -nE 's/^ai_fsm_(uploads_|env_)?([0-9]{8}T[0-9]{6}Z).*/\2/p' <<<"$(basename "${f}")")"
+  [[ -n "${ts}" ]] || continue
+  if [[ -f "${STATUS_DIR}/verified-${ts}" ]] || [[ -f "${STATUS_DIR}/verified-${TIMESTAMP}" ]]; then
+    rm -f -- "${f}"
+  fi
+done < <(find "${BACKUP_DIR}" -maxdepth 1 -type f -name 'ai_fsm_*' -mtime +7 -print0)
+for m in "${STATUS_DIR}"/verified-*; do
+  [[ -e "${m}" ]] || continue
+  ts="${m##*verified-}"
+  if ! find "${BACKUP_DIR}" -maxdepth 1 -type f -name "ai_fsm_*${ts}*" | grep -q .; then
+    rm -f -- "${m}"
+  fi
+done
+echo "old local backups pruned (verified sets older than 7 days)"
+
+# 7. Offsite prune (older than the documented retention). Only when this run's set
+# is stored and verified, so old offsite copies are not removed while the newest
+# set is missing from Drive.
+if (( ${#FAILURES[@]} == 0 )); then
+  if rclone delete "${RCLONE_DEST}" --min-age "${REMOTE_RETENTION_DAYS}d" --log-level INFO; then
+    echo "old offsite backups pruned (older than ${REMOTE_RETENTION_DAYS}d)"
+  else
+    echo "WARNING: offsite prune failed (rclone exit $?)" >&2
+  fi
+else
+  echo "offsite prune skipped: this run is incomplete"
+fi
+
+finish_run

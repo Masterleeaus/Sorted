@@ -28,8 +28,8 @@ SELECT kind, id, title, detail, href FROM (
            ELSE 4
          END AS rank
   FROM properties p
-  LEFT JOIN clients c ON c.id = p.client_id AND c.account_id = p.account_id
-  WHERE p.account_id = $1
+  LEFT JOIN clients c ON c.id = p.client_id AND c.company_id = p.company_id
+  WHERE p.company_id = $1
     AND (
       c.name ILIKE $2 ESCAPE '\\'
       OR COALESCE(p.name, '') ILIKE $2 ESCAPE '\\'
@@ -37,10 +37,10 @@ SELECT kind, id, title, detail, href FROM (
       OR EXISTS (
         SELECT 1
         FROM jobs j
-        JOIN visits v ON v.job_id = j.id AND v.account_id = j.account_id
-        JOIN site_visit_assessments a ON a.visit_id = v.id AND a.account_id = j.account_id
+        JOIN visits v ON v.job_id = j.id AND v.company_id = j.company_id
+        JOIN site_visit_assessments a ON a.visit_id = v.id AND a.company_id = j.company_id
         WHERE j.property_id = p.id
-          AND j.account_id = p.account_id
+          AND j.company_id = p.company_id
           AND a.rooms::text ILIKE $2 ESCAPE '\\'
       )
     )
@@ -52,9 +52,9 @@ SELECT kind, id, title, detail, href FROM (
          '/app/invoices/' || i.id::text,
          0
   FROM invoices i
-  LEFT JOIN clients c ON c.id = i.client_id AND c.account_id = i.account_id
-  LEFT JOIN properties p ON p.id = i.property_id AND p.account_id = i.account_id
-  WHERE i.account_id = $1
+  LEFT JOIN clients c ON c.id = i.client_id AND c.company_id = i.company_id
+  LEFT JOIN properties p ON p.id = i.property_id AND p.company_id = i.company_id
+  WHERE i.company_id = $1
     AND i.invoice_number ILIKE $2 ESCAPE '\\'
 ) hits
 ORDER BY rank, title
@@ -75,14 +75,14 @@ SELECT kind, id, title, detail, href FROM (
            ELSE 4
          END AS rank
   FROM properties p
-  LEFT JOIN clients c ON c.id = p.client_id AND c.account_id = p.account_id
-  WHERE p.account_id = $1
+  LEFT JOIN clients c ON c.id = p.client_id AND c.company_id = p.company_id
+  WHERE p.company_id = $1
     AND EXISTS (
       SELECT 1
       FROM jobs j
-      JOIN visits v ON v.job_id = j.id AND v.account_id = j.account_id
+      JOIN visits v ON v.job_id = j.id AND v.company_id = j.company_id
       WHERE j.property_id = p.id
-        AND j.account_id = p.account_id
+        AND j.company_id = p.company_id
         AND v.assigned_user_id = $3
     )
     AND (
@@ -92,10 +92,10 @@ SELECT kind, id, title, detail, href FROM (
       OR EXISTS (
         SELECT 1
         FROM jobs j
-        JOIN visits v ON v.job_id = j.id AND v.account_id = j.account_id
-        JOIN site_visit_assessments a ON a.visit_id = v.id AND a.account_id = j.account_id
+        JOIN visits v ON v.job_id = j.id AND v.company_id = j.company_id
+        JOIN site_visit_assessments a ON a.visit_id = v.id AND a.company_id = j.company_id
         WHERE j.property_id = p.id
-          AND j.account_id = p.account_id
+          AND j.company_id = p.company_id
           AND v.assigned_user_id = $3
           AND a.rooms::text ILIKE $2 ESCAPE '\\'
       )

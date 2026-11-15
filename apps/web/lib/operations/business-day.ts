@@ -64,7 +64,7 @@ export async function getBusinessDay(
 ): Promise<BusinessDayRow | null> {
   const { rows } = await client.query<BusinessDayRow>(
     `SELECT ${COLS} FROM business_days
-      WHERE account_id = $1 AND user_id = $2 AND business_date = $3`,
+      WHERE company_id = $1 AND user_id = $2 AND business_date = $3`,
     [accountId, userId, date],
   );
   return rows[0] ?? null;
@@ -80,7 +80,7 @@ export async function getBusinessDayById(
   // until the first commits, then re-reads the new status and re-validates.
   const { rows } = await client.query<BusinessDayRow>(
     `SELECT ${COLS} FROM business_days
-      WHERE id = $1 AND account_id = $2${opts.lockForUpdate ? " FOR UPDATE" : ""}`,
+      WHERE id = $1 AND company_id = $2${opts.lockForUpdate ? " FOR UPDATE" : ""}`,
     [id, accountId],
   );
   return rows[0] ?? null;
@@ -127,7 +127,7 @@ export async function setBusinessDayStatus(
         SET status = $4,
             closed_at = CASE WHEN $4 = 'CLOSED' THEN now() ELSE NULL END,
             reopened_reason = CASE WHEN $4 = 'REOPENED' THEN $5 ELSE reopened_reason END
-      WHERE id = $2 AND account_id = $1 AND status = $3
+      WHERE id = $2 AND company_id = $1 AND status = $3
       RETURNING ${COLS}`,
     [accountId, id, from, to, reason],
   );

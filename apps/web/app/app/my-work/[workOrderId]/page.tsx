@@ -48,7 +48,7 @@ export default async function MyWorkOrderPage({
      JOIN jobs j ON j.id = w.job_id
      LEFT JOIN clients c ON c.id = w.client_id
      LEFT JOIN properties p ON p.id = j.property_id
-     WHERE w.id = $1 AND w.account_id = $2 AND ${todayCoveringTechSql("$3")}`,
+     WHERE w.id = $1 AND w.company_id = $2 AND ${todayCoveringTechSql("$3")}`,
     [workOrderId, session.accountId, session.userId],
   );
   const wo = rows[0];
@@ -62,7 +62,7 @@ export default async function MyWorkOrderPage({
     queryForSession<{ id: string }>(
       session,
       `SELECT id FROM visits
-       WHERE work_order_id = $1 AND account_id = $2 AND assigned_user_id = $3
+       WHERE work_order_id = $1 AND company_id = $2 AND assigned_user_id = $3
          AND status IN ('dispatched','traveling','arrived','in_progress','waiting')
        LIMIT 1`,
       [workOrderId, session.accountId, session.userId],
@@ -70,7 +70,7 @@ export default async function MyWorkOrderPage({
     queryForSession<{ scheduled_start: string }>(
       session,
       `SELECT scheduled_start FROM visits
-       WHERE work_order_id = $1 AND account_id = $2 AND status = 'scheduled'
+       WHERE work_order_id = $1 AND company_id = $2 AND status = 'scheduled'
          AND scheduled_start > now()
        ORDER BY scheduled_start ASC LIMIT 1`,
       [workOrderId, session.accountId],

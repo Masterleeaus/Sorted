@@ -16,7 +16,7 @@ const mockClientQuery = vi.fn();
 const mockClientRelease = vi.fn();
 const mockPool = { connect: vi.fn() };
 
-vi.mock("@/lib/db", () => ({ getPool: () => mockPool }));
+vi.mock("@/lib/db", () => ({ companyIdFromSession: (s: { accountId: string }) => s.accountId, getPool: () => mockPool }));
 vi.mock("@/lib/db/audit", () => ({ appendAuditLog: vi.fn() }));
 vi.mock("@/lib/logger", () => ({ logger: { error: vi.fn() } }));
 vi.mock("@/lib/operations/time-clock", () => ({

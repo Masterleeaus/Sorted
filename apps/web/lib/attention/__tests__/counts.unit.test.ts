@@ -44,7 +44,7 @@ describe("invoiceAttentionPredicate", () => {
   });
 
   it("matches count WHERE helper shape", () => {
-    expect(INVOICE_ATTENTION_WHERE).toContain("account_id = $1");
+    expect(INVOICE_ATTENTION_WHERE).toContain("company_id = $1");
     expect(INVOICE_ATTENTION_WHERE).toContain("status != 'void'");
   });
 });
@@ -63,7 +63,7 @@ describe("estimateAttentionPredicate", () => {
   });
 
   it("matches count WHERE helper shape", () => {
-    expect(ESTIMATE_ATTENTION_WHERE).toContain("account_id = $1");
+    expect(ESTIMATE_ATTENTION_WHERE).toContain("company_id = $1");
     expect(ESTIMATE_ATTENTION_WHERE).toContain("status = 'sent'");
   });
 });

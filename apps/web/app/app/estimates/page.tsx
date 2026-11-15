@@ -107,7 +107,7 @@ export default async function EstimatesPage({ searchParams }: PageProps) {
   const tierStatuses = activeTier && !statusFilter ? ESTIMATE_TIER_STATUSES[activeTier] : null;
 
   const estimates = await withEstimateContext(session, async (client) => {
-    const conditions: string[] = ["e.account_id = $1"];
+    const conditions: string[] = ["e.company_id = $1"];
     const params: unknown[] = [session.accountId];
     let idx = 2;
 

@@ -129,7 +129,7 @@ export async function loadReviewCaptures(
               confirmed_at::text,
               dismissed_at::text
        FROM capture_evidence
-       WHERE account_id = $1
+       WHERE company_id = $1
          AND confirmed_at IS NULL
          AND dismissed_at IS NULL
          AND processing_state IN ('proposed', 'low_confidence', 'awaiting_review', 'snoozed', 'failed')`,

@@ -18,7 +18,7 @@ export async function loadCreditedInvoicesForEstimate(
   const res = await client.query<DepositInvoiceSummary>(
     `SELECT invoice_number, total_cents, status
      FROM invoices
-     WHERE estimate_id = $1 AND account_id = $2
+     WHERE estimate_id = $1 AND company_id = $2
        AND invoice_kind IN ('deposit', 'progress')`,
     [estimateId, accountId],
   );
@@ -61,7 +61,7 @@ export async function generateInvoiceNumber(
   const result = await client.query<{ next: string }>(
     `SELECT COALESCE(MAX(substring(invoice_number from '^INV-(\\d+)$')::int), 0) + 1 AS next
      FROM invoices
-     WHERE account_id = $1 AND invoice_number ~ '^INV-\\d+$'`,
+     WHERE company_id = $1 AND invoice_number ~ '^INV-\\d+$'`,
     [accountId]
   );
   const next = parseInt(result.rows[0]?.next ?? "1", 10);

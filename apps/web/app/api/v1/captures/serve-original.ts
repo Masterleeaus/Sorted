@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import fs from "fs";
 import { withRole } from "@/lib/auth/middleware";
-import { withDbSession } from "@/lib/db";
+import { withDbSession, companyIdFromSession } from "@/lib/db";
 import { logger } from "@/lib/logger";
 import { captureFilePath } from "./files";
 
@@ -41,8 +41,8 @@ export function serveCaptureOriginal(kind: OriginalKind) {
           `SELECT audio_filename, audio_mime_type, audio_original_name,
                   photo_filename, photo_mime_type, photo_original_name
            FROM capture_evidence
-           WHERE id = $1 AND account_id = $2`,
-          [id, session.accountId],
+           WHERE id = $1 AND company_id = $2`,
+          [id, companyIdFromSession(session)],
         );
         return rows[0] ?? null;
       });

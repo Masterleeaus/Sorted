@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { withAuth } from "@/lib/auth/middleware";
-import { queryForSession } from "@/lib/db";
+import { queryForSession, companyIdFromSession } from "@/lib/db";
 import { logger } from "@/lib/logger";
 
 export const dynamic = "force-dynamic";
@@ -12,10 +12,10 @@ export const POST = withAuth(async (_request: NextRequest, session) => {
       session,
       `UPDATE activity_entries
        SET ended_at = now()
-       WHERE account_id = $1 AND user_id = $2
+       WHERE company_id = $1 AND user_id = $2
          AND ended_at IS NULL AND voided_at IS NULL
        RETURNING id`,
-      [session.accountId, session.userId]
+      [companyIdFromSession(session), session.userId]
     );
     return NextResponse.json({ data: { stopped: rows.length > 0, id: rows[0]?.id ?? null } });
   } catch (error) {

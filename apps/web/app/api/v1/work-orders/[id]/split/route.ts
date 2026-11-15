@@ -53,7 +53,7 @@ export const POST = withAuth(async (request: NextRequest, session: AuthSession) 
     );
 
     const { rows } = await client.query<{
-      account_id: string;
+      company_id: string;
       client_id: string;
       job_id: string | null;
       property_id: string | null;
@@ -67,9 +67,9 @@ export const POST = withAuth(async (request: NextRequest, session: AuthSession) 
       source_estimate_id: string | null;
       status: string;
     }>(
-      `SELECT account_id, client_id, job_id, property_id, title, scope, site_notes,
+      `SELECT company_id, client_id, job_id, property_id, title, scope, site_notes,
               safety_notes, rooms, notes, completion_criteria, source_estimate_id, status
-       FROM work_orders WHERE id = $1 AND account_id = $2 FOR UPDATE`,
+       FROM work_orders WHERE id = $1 AND company_id = $2 FOR UPDATE`,
       [id, session.accountId],
     );
     const source = rows[0];
@@ -97,12 +97,12 @@ export const POST = withAuth(async (request: NextRequest, session: AuthSession) 
     const newTitle = parsed.data.title?.trim() || `${source.title} (split)`;
     const insert = await client.query<{ id: string }>(
       `INSERT INTO work_orders
-         (account_id, client_id, job_id, property_id, title, scope, site_notes,
+         (company_id, client_id, job_id, property_id, title, scope, site_notes,
           safety_notes, rooms, status, notes, completion_criteria, source_estimate_id, created_by)
        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9::jsonb,'ready',$10,$11::jsonb,$12,$13)
        RETURNING id`,
       [
-        source.account_id,
+        source.company_id,
         source.client_id,
         source.job_id,
         source.property_id,

@@ -22,7 +22,7 @@ export async function tagMileageForCompletedVisit(
   const others = await client.query<{ count: string }>(
     `SELECT COUNT(DISTINCT v.job_id)::text AS count
      FROM visits v
-     WHERE v.account_id = $1
+     WHERE v.company_id = $1
        AND v.id <> $2
        AND v.job_id IS NOT NULL
        AND v.job_id IS DISTINCT FROM $3
@@ -43,7 +43,7 @@ export async function tagMileageForCompletedVisit(
     `SELECT s.id, s.miles_source, s.started_at::text, s.ended_at::text,
             EXISTS (SELECT 1 FROM vehicle_session_activities a WHERE a.session_id = s.id) AS tagged
      FROM vehicle_sessions s
-     WHERE s.account_id = $1
+     WHERE s.company_id = $1
        AND s.session_date = $2::date
        AND s.status IS DISTINCT FROM 'voided'`,
     [opts.accountId, opts.day],
