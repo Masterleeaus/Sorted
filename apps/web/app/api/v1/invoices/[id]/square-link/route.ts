@@ -73,7 +73,7 @@ export const POST = withRole(["owner", "admin"], async (request, session) => {
                 deposit_type, deposit_percentage, deposit_fixed_cents,
                 client_id, job_id
          FROM invoices
-         WHERE id = $1 AND account_id = $2
+         WHERE id = $1 AND company_id = $2
          FOR UPDATE`,
         [invoiceId, session.accountId]
       );
@@ -172,7 +172,7 @@ export const POST = withRole(["owner", "admin"], async (request, session) => {
       }
       const inserted = await client.query<{ id: string }>(
         `INSERT INTO payments
-           (account_id, invoice_id, job_id, customer_id, amount_cents, method,
+           (company_id, invoice_id, job_id, customer_id, amount_cents, method,
             payment_type, status, external_provider, external_checkout_url, created_by,
             external_order_id, external_link_id)
          VALUES ($1, $2, $3, $4, $5, 'square', $6, 'pending', 'square', $7, $8, $9, $10)

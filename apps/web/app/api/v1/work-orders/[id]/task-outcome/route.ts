@@ -34,7 +34,7 @@ export const PATCH = withAuth(async (request: NextRequest, session: AuthSession)
       let allowed = await assertAssignedLead(client, workOrderId, session.accountId, session.userId);
       if (!allowed && (session.role === "owner" || session.role === "admin")) {
         const owned = await client.query<{ id: string }>(
-          `SELECT id FROM work_orders WHERE id = $1 AND account_id = $2`,
+          `SELECT id FROM work_orders WHERE id = $1 AND company_id = $2`,
           [workOrderId, session.accountId],
         );
         allowed = owned.rows[0] ? { id: owned.rows[0].id, status: "", completion_criteria: null } : null;
@@ -43,7 +43,7 @@ export const PATCH = withAuth(async (request: NextRequest, session: AuthSession)
       const result = await client.query<{ id: string }>(
         `UPDATE work_order_tasks
          SET completion_outcome = $3, updated_at = now()
-         WHERE id = $1 AND work_order_id = $2 AND account_id = $4
+         WHERE id = $1 AND work_order_id = $2 AND company_id = $4
          RETURNING id`,
         [parsed.data.task_id, workOrderId, parsed.data.completion_outcome, session.accountId],
       );
