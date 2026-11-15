@@ -24,3 +24,19 @@ export {
   type PendingLogin,
 } from "./authorize";
 export { verifyIdToken, type VerifiedIdToken, type VerifyIdTokenOptions } from "./id-token";
+export {
+  LINK_ASSERTION_AUDIENCE,
+  LINK_ASSERTION_DEFAULT_LIFETIME_SECONDS,
+  LINK_ASSERTION_MAX_LIFETIME_SECONDS,
+  LINK_ASSERTION_TYPE,
+  LINK_SIGNING_JWK_ENV,
+  LINK_SIGNING_KID_ENV,
+  LinkSigningError,
+  loadLinkSigningKey,
+  SORTED_PRODUCT_ID,
+  signLinkAssertion,
+  type LinkAssertionInput,
+  type LinkSigningKey,
+  type SignLinkAssertionOptions,
+  type SignedLinkAssertion,
+} from "./link-assertion";
