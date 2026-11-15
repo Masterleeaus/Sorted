@@ -1,6 +1,7 @@
 export interface AutomationRow {
   id: string;
   account_id: string;
+  company_id: string;
   type: string;
   config: Record<string, unknown>;
   enabled: boolean;
