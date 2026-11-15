@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { withRole } from "@/lib/auth/middleware";
-import { getPool } from "@/lib/db";
+import { getPool, companyIdFromSession } from "@/lib/db";
 import { logger } from "@/lib/logger";
 import { repairBookingRequestPipelineLinks } from "../../../../../../lib/intake/records";
 
@@ -34,9 +34,9 @@ export const POST = withRole(["owner", "admin"], async (request: NextRequest, se
     const { rows } = await client.query(
       `SELECT *
        FROM booking_requests
-       WHERE id = $1 AND account_id = $2
+       WHERE id = $1 AND company_id = $2
        FOR UPDATE`,
-      [id, session.accountId]
+      [id, companyIdFromSession(session)]
     );
 
     if (rows.length === 0) {

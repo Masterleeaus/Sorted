@@ -10,7 +10,7 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import type { Route } from "next";
 import { getSession } from "@/lib/auth/session";
-import { query } from "@/lib/db";
+import { queryForSession } from "@/lib/db";
 import {
   Card,
   EmptyState,
@@ -91,7 +91,7 @@ export default async function MileagePage({ searchParams }: PageProps) {
     year: "numeric", month: "long",
   });
 
-  const sessions = await query<SessionRow>(
+  const sessions = await queryForSession<SessionRow>(session,
     `SELECT s.id, s.session_date::text,
             COALESCE(s.miles, s.end_odometer - s.start_odometer) AS miles,
             s.start_odometer, s.end_odometer, s.notes, s.miles_source, s.status,
@@ -123,7 +123,7 @@ export default async function MileagePage({ searchParams }: PageProps) {
      LEFT JOIN jobs vj       ON vj.id = vi.job_id
      LEFT JOIN estimates est ON est.id = a.entity_id AND a.entity_type = 'estimate'
      LEFT JOIN jobs ej       ON ej.id = est.job_id
-     WHERE s.account_id = $1
+     WHERE s.company_id = $1
        AND to_char(s.session_date, 'YYYY-MM') = $2
      GROUP BY s.id, v.nickname, v.plate, u.full_name
      ORDER BY s.session_date DESC, s.created_at DESC`,

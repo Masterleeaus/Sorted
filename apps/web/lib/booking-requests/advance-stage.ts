@@ -86,7 +86,7 @@ export async function advanceBookingRequestStage(
     status: string;
   }>(
     `SELECT id, status FROM booking_requests
-     WHERE id = $1 AND account_id = $2
+     WHERE id = $1 AND company_id = $2
      FOR UPDATE`,
     [requestId, accountId]
   );
@@ -143,7 +143,7 @@ export async function advanceBookingRequestStage(
 
   await client.query(
     `UPDATE booking_requests SET ${setClauses.join(", ")}
-     WHERE id = $1 AND account_id = $2`,
+     WHERE id = $1 AND company_id = $2`,
     params
   );
 
@@ -188,8 +188,8 @@ export async function advanceBookingRequestForEstimate(
     `SELECT e.booking_request_id,
             j.booking_request_id AS job_booking_request_id
      FROM estimates e
-     LEFT JOIN jobs j ON j.id = e.job_id AND j.account_id = e.account_id
-     WHERE e.id = $1 AND e.account_id = $2`,
+     LEFT JOIN jobs j ON j.id = e.job_id AND j.company_id = e.company_id
+     WHERE e.id = $1 AND e.company_id = $2`,
     [opts.estimateId, opts.accountId]
   );
 

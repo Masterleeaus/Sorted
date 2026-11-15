@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { withRole } from "@/lib/auth/middleware";
 import type { AuthSession } from "@/lib/auth/middleware";
-import { getPool, query } from "@/lib/db";
+import { getPool, withDbSession } from "@/lib/db";
 import { appendAuditLog } from "@/lib/db/audit";
 import { logger } from "@/lib/logger";
 
@@ -25,7 +25,7 @@ export const GET = withRole(["owner", "admin"], async (request: NextRequest, ses
   const limit = Math.min(Math.max(parseInt(searchParams.get("limit") ?? "100"), 1), 200);
 
   const params: unknown[] = [session.accountId];
-  const conditions = ["p.account_id = $1"];
+  const conditions = ["p.company_id = $1"];
   let idx = 2;
   if (clientId) {
     conditions.push(`p.client_id = $${idx++}`);
@@ -38,20 +38,23 @@ export const GET = withRole(["owner", "admin"], async (request: NextRequest, ses
   }
   params.push(limit);
 
-  const rows = await query(
-    `SELECT p.*, c.name AS client_name,
-            COUNT(DISTINCT j.id)::int AS job_count,
-            COUNT(DISTINCT v.id)::int AS visit_count
-     FROM properties p
-     LEFT JOIN clients c ON c.id = p.client_id AND c.account_id = p.account_id
-     LEFT JOIN jobs j ON j.property_id = p.id AND j.account_id = p.account_id
-     LEFT JOIN visits v ON v.job_id = j.id AND v.account_id = p.account_id
-     WHERE ${conditions.join(" AND ")}
-     GROUP BY p.id, c.name
-     ORDER BY COALESCE(c.name, '') ASC, p.address ASC
-     LIMIT $${idx}`,
-    params
-  );
+  const rows = await withDbSession(session, async (client) => {
+    const result = await client.query(
+      `SELECT p.*, c.name AS client_name,
+              COUNT(DISTINCT j.id)::int AS job_count,
+              COUNT(DISTINCT v.id)::int AS visit_count
+       FROM properties p
+       LEFT JOIN clients c ON c.id = p.client_id AND c.company_id = p.company_id
+       LEFT JOIN jobs j ON j.property_id = p.id AND j.company_id = p.company_id
+       LEFT JOIN visits v ON v.job_id = j.id AND v.company_id = p.company_id
+       WHERE ${conditions.join(" AND ")}
+       GROUP BY p.id, c.name
+       ORDER BY COALESCE(c.name, '') ASC, p.address ASC
+       LIMIT $${idx}`,
+      params
+    );
+    return result.rows;
+  });
 
   return NextResponse.json({ data: rows, limit });
 });
@@ -84,7 +87,7 @@ export const POST = withRole(["owner", "admin"], async (request: NextRequest, se
 
     const { client_id, name, address, city, state, zip, notes } = parsed.data;
     const ownerClient = client_id
-      ? await client.query(`SELECT id FROM clients WHERE id = $1 AND account_id = $2`, [client_id, session.accountId])
+      ? await client.query(`SELECT id FROM clients WHERE id = $1 AND company_id = $2`, [client_id, session.accountId])
       : null;
     if (ownerClient && ownerClient.rowCount === 0) {
       await client.query("ROLLBACK");
@@ -95,7 +98,7 @@ export const POST = withRole(["owner", "admin"], async (request: NextRequest, se
     }
 
     const result = await client.query(
-      `INSERT INTO properties (account_id, client_id, name, address, city, state, zip, notes)
+      `INSERT INTO properties (company_id, client_id, name, address, city, state, zip, notes)
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
        RETURNING *`,
       [session.accountId, client_id, name || null, address.trim(), city || null, state || null, zip || null, notes || null]

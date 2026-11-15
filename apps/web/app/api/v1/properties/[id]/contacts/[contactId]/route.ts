@@ -30,7 +30,7 @@ export const PATCH = withRole(["owner", "admin"], async (request, session) => {
     );
     const data = parsed.data;
     if (data.client_id) {
-      const registered = await client.query(`SELECT id FROM clients WHERE id = $1 AND account_id = $2`, [data.client_id, session.accountId]);
+      const registered = await client.query(`SELECT id FROM clients WHERE id = $1 AND company_id = $2`, [data.client_id, session.accountId]);
       if (!registered.rows[0]) {
         await client.query("ROLLBACK");
         return NextResponse.json(
@@ -43,7 +43,7 @@ export const PATCH = withRole(["owner", "admin"], async (request, session) => {
       `UPDATE property_contacts SET
          client_id = $4, external_name = $5, external_email = $6,
          external_phone = $7, notes = $8, role = $9
-       WHERE id = $1 AND property_id = $2 AND account_id = $3
+       WHERE id = $1 AND property_id = $2 AND company_id = $3
        RETURNING *`,
       [
         contactId,
@@ -101,7 +101,7 @@ export const DELETE = withRole(["owner", "admin"], async (request, session) => {
       [session.userId, session.accountId, session.role],
     );
     const result = await client.query(
-      `DELETE FROM property_contacts WHERE id = $1 AND property_id = $2 AND account_id = $3`,
+      `DELETE FROM property_contacts WHERE id = $1 AND property_id = $2 AND company_id = $3`,
       [contactId, propertyId, session.accountId],
     );
     if (result.rowCount === 0) {

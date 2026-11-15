@@ -6,6 +6,7 @@ import {
   type AttentionEmailType,
   type AttentionEventType,
 } from "./types";
+import { escapeHtml, hrefAttr } from "@ai-fsm/email-templates";
 
 function isEmailType(t: string): t is AttentionEmailType {
   return (ATTENTION_EMAIL_TYPES as readonly string[]).includes(t);
@@ -46,7 +47,7 @@ export async function enqueueAttentionOwnerEmail(
     const owner = await client.query<{ email: string; full_name: string | null }>(
       `SELECT u.email, u.full_name
        FROM users u
-       WHERE u.account_id = $1 AND u.role IN ('owner', 'admin') AND u.email IS NOT NULL
+       WHERE u.company_id = $1 AND u.role IN ('owner', 'admin') AND u.email IS NOT NULL
        ORDER BY CASE WHEN u.role = 'owner' THEN 0 ELSE 1 END, u.created_at ASC
        LIMIT 1`,
       [opts.accountId],
@@ -82,7 +83,7 @@ export async function enqueueAttentionOwnerEmail(
       <div style="font-family:system-ui,sans-serif;max-width:520px">
         <h2 style="margin:0 0 8px;color:#166534">${escapeHtml(opts.title)}</h2>
         ${summaryLine}
-        <p><a href="${escapeHtml(link)}" style="color:#166534;font-weight:600">Open in app →</a></p>
+        <p><a href="${hrefAttr(link)}" style="color:#166534;font-weight:600">Open in app →</a></p>
         <p style="font-size:12px;color:#78716c;margin-top:24px">You received this because something needs attention in Sorted Field.</p>
       </div>
     `;
@@ -132,10 +133,3 @@ export async function enqueueAttentionOwnerEmail(
   }
 }
 
-function escapeHtml(s: string): string {
-  return s
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
-}

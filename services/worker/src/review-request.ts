@@ -22,6 +22,7 @@ import { PRIORITY } from "./notification/priority.js";
 interface EligibleJob {
   id: string;
   account_id: string;
+  company_id: string;
   client_id: string;
   title: string | null;
   client_name: string | null;
@@ -31,7 +32,7 @@ interface EligibleJob {
 
 export async function findDueReviewRequests(client: Client): Promise<AutomationRow[]> {
   const { rows } = await client.query<AutomationRow>(
-    `SELECT id, account_id, type, config, enabled, next_run_at::text
+    `SELECT id, account_id, company_id, type, config, enabled, next_run_at::text
      FROM automations
      WHERE type = 'review_request'
        AND enabled = true
@@ -47,20 +48,20 @@ export async function findEligibleJobs(
   const daysAfter = (automation.config as { days_after?: number }).days_after ?? 1;
 
   const { rows } = await client.query<EligibleJob>(
-    `SELECT j.id, j.account_id, c.id AS client_id, j.title,
+    `SELECT j.id, j.account_id, j.company_id, c.id AS client_id, j.title,
             c.name AS client_name, c.email AS client_email,
             u.full_name AS tech_name
      FROM jobs j
      JOIN clients c ON c.id = j.client_id
      LEFT JOIN (
-       SELECT DISTINCT ON (v.job_id) v.job_id, u2.full_name
+       SELECT DISTINCT ON (v.job_id) v.job_id, u2.id AS user_id
        FROM visits v
-       JOIN users u2 ON u2.id = v.assigned_user_id
-       WHERE v.account_id = $1
+       JOIN users u2 ON u2.id = v.assigned_user_id AND u2.company_id = v.company_id
+       WHERE v.company_id = $1
        ORDER BY v.job_id, v.completed_at DESC NULLS LAST
      ) recent_tech ON recent_tech.job_id = j.id
-     LEFT JOIN users u ON u.full_name = recent_tech.full_name
-     WHERE j.account_id = $1
+     LEFT JOIN users u ON u.id = recent_tech.user_id AND u.company_id = j.company_id
+     WHERE j.company_id = $1
        AND j.status = 'completed'
        AND j.updated_at >= now() - ($2 || ' days')::interval - interval '1 day'
        AND j.updated_at < now() - ($2 || ' days')::interval
@@ -69,10 +70,10 @@ export async function findEligibleJobs(
          SELECT 1 FROM audit_log al
          WHERE al.entity_type = 'review_request'
            AND al.entity_id = j.id
-           AND al.account_id = j.account_id
+           AND al.company_id = j.company_id
        )
      ORDER BY j.updated_at ASC`,
-    [automation.account_id, daysAfter]
+    [automation.company_id, daysAfter]
   );
 
   return rows;
@@ -87,9 +88,9 @@ async function emitReviewRequest(
     `SELECT 1 FROM audit_log
      WHERE entity_type = 'review_request'
        AND entity_id = $1
-       AND account_id = $2
+       AND company_id = $2
      LIMIT 1`,
-    [job.id, job.account_id]
+    [job.id, job.company_id]
   );
 
   if (rowCount && rowCount > 0) {

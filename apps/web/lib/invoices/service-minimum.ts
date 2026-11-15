@@ -82,7 +82,7 @@ export async function applyServiceMinimum(
   // (incl. tax) so we preserve tax rather than zeroing it.
   const invRes = await client.query<InvoiceTotals>(
     `SELECT subtotal_cents, tax_cents, total_cents, paid_cents, balance_cents
-       FROM invoices WHERE id = $1 AND account_id = $2 FOR UPDATE`,
+       FROM invoices WHERE id = $1 AND company_id = $2 FOR UPDATE`,
     [invoiceId, accountId],
   );
   const current = invRes.rows[0];
@@ -142,7 +142,7 @@ export async function applyServiceMinimum(
   const updated = await client.query<InvoiceTotals>(
     `UPDATE invoices
         SET subtotal_cents = $1, total_cents = $2, updated_at = now()
-      WHERE id = $3 AND account_id = $4
+      WHERE id = $3 AND company_id = $4
       RETURNING subtotal_cents, tax_cents, total_cents, paid_cents, balance_cents`,
     [subtotalCents, totalCents, invoiceId, accountId],
   );

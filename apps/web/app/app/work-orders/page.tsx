@@ -70,7 +70,7 @@ export default async function WorkOrdersPage({
   const selectedStatus = (WORK_ORDER_UI_STATUSES as readonly string[]).includes(status) ? status : "";
 
   const params: unknown[] = [session.accountId];
-  const where = ["w.account_id = $1"];
+  const where = ["w.company_id = $1"];
   let param = 2;
 
   if (search) {
@@ -109,7 +109,7 @@ export default async function WorkOrdersPage({
      LEFT JOIN clients c ON c.id = w.client_id
      LEFT JOIN properties p ON p.id = w.property_id
      LEFT JOIN jobs j ON j.id = w.job_id
-     LEFT JOIN visits v ON v.work_order_id = w.id AND v.account_id = w.account_id
+     LEFT JOIN visits v ON v.work_order_id = w.id AND v.company_id = w.company_id
      WHERE ${where.join(" AND ")}
      GROUP BY w.id, c.name, p.address, j.title, j.job_number
      ORDER BY

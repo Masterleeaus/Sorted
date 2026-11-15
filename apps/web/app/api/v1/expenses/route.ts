@@ -12,6 +12,7 @@ import {
   expenseDateKey,
   findMatchingExpense,
 } from "@/lib/expenses/duplicate-match";
+import { companyIdFromSession } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
 
@@ -57,8 +58,8 @@ export const GET = withAuth(async (request, session) => {
 
   try {
     const result = await withExpenseContext(session, async (client) => {
-      const conditions: string[] = ["e.account_id = $1"];
-      const params: unknown[] = [session.accountId];
+      const conditions: string[] = ["e.company_id = $1"];
+      const params: unknown[] = [companyIdFromSession(session)];
       let idx = 2;
 
       if (category) {
@@ -110,10 +111,10 @@ export const GET = withAuth(async (request, session) => {
            SUM(amount_cents) AS current_month_total,
            COUNT(*) AS current_month_count
          FROM expenses
-         WHERE account_id = $1
+         WHERE company_id = $1
            AND expense_date >= $2::date
            AND expense_date < ($2::date + interval '1 month')`,
-        [session.accountId, `${summaryMonth}-01`]
+        [companyIdFromSession(session), `${summaryMonth}-01`]
       );
 
       const categoryTotals = await client.query<{
@@ -122,12 +123,12 @@ export const GET = withAuth(async (request, session) => {
       }>(
         `SELECT category, SUM(amount_cents) AS total_cents
          FROM expenses
-         WHERE account_id = $1
+         WHERE company_id = $1
            AND expense_date >= $2::date
            AND expense_date < ($2::date + interval '1 month')
          GROUP BY category
          ORDER BY total_cents DESC`,
-        [session.accountId, `${summaryMonth}-01`]
+        [companyIdFromSession(session), `${summaryMonth}-01`]
       );
 
       return {
@@ -246,8 +247,8 @@ export const POST = withRole(["owner", "admin"], async (request, session) => {
       }>(
         `SELECT id, vendor_name, amount_cents, expense_date, external_ref, source
          FROM expenses
-         WHERE account_id = $1 AND expense_date = $2::date`,
-        [session.accountId, expense_date],
+         WHERE company_id = $1 AND expense_date = $2::date`,
+        [companyIdFromSession(session), expense_date],
       );
       const matched = findMatchingExpense(
         {
@@ -274,8 +275,8 @@ export const POST = withRole(["owner", "admin"], async (request, session) => {
           external_ref: string | null;
         }>(
           `SELECT amount_cents, job_id, client_id, external_ref
-           FROM expenses WHERE id = $1 AND account_id = $2`,
-          [matched.id, session.accountId],
+           FROM expenses WHERE id = $1 AND company_id = $2`,
+          [matched.id, companyIdFromSession(session)],
         );
         const oldRow = before.rows[0];
         await client.query(
@@ -285,10 +286,10 @@ export const POST = withRole(["owner", "admin"], async (request, session) => {
              client_id = COALESCE(client_id, $5),
              amount_cents = GREATEST(amount_cents, $6),
              updated_at = now()
-           WHERE id = $1 AND account_id = $2`,
+           WHERE id = $1 AND company_id = $2`,
           [
             matched.id,
-            session.accountId,
+            companyIdFromSession(session),
             external_ref ?? null,
             job_id ?? null,
             client_id ?? null,
@@ -316,12 +317,12 @@ export const POST = withRole(["owner", "admin"], async (request, session) => {
 
       const result = await client.query<{ id: string }>(
         `INSERT INTO expenses
-           (account_id, vendor_name, category, amount_cents, expense_date,
+           (company_id, vendor_name, category, amount_cents, expense_date,
             job_id, client_id, notes, created_by, external_ref)
          VALUES ($1, $2, $3, $4, $5::date, $6, $7, $8, $9, $10)
          RETURNING id`,
         [
-          session.accountId,
+          companyIdFromSession(session),
           vendor_name,
           category,
           amount_cents,

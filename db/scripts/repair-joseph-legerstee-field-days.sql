@@ -44,13 +44,13 @@ WHERE id = '1eb14e35-d834-4c7c-8dbb-219df9822935';
 -- 2) Create missing calendar visits (Tue 7/14, Thu 7/16)
 -- ----------------------------------------------------------------------------
 INSERT INTO visits (
-  id, account_id, job_id, work_order_id, assigned_user_id,
+  id, account_id, company_id, job_id, work_order_id, assigned_user_id,
   visit_type, status,
   scheduled_start, scheduled_end, arrived_at, completed_at
 ) VALUES
 (
   'b14d0714-0000-4000-8000-000000000014',
-  'aaaaaaaa-0000-0000-0000-000000000001',
+  'aaaaaaaa-0000-0000-0000-000000000001', 'aaaaaaaa-0000-0000-0000-000000000001',
   '8a76a1ad-ee2b-4564-8d7e-cd922e33f8c2',
   '7faecc1b-0032-405d-9632-3dcf007399b9',
   'aaaaaaaa-0000-0000-0000-000000000002',
@@ -62,7 +62,7 @@ INSERT INTO visits (
 ),
 (
   'b14d0716-0000-4000-8000-000000000016',
-  'aaaaaaaa-0000-0000-0000-000000000001',
+  'aaaaaaaa-0000-0000-0000-000000000001', 'aaaaaaaa-0000-0000-0000-000000000001',
   '8a76a1ad-ee2b-4564-8d7e-cd922e33f8c2',
   '7faecc1b-0032-405d-9632-3dcf007399b9',
   'aaaaaaaa-0000-0000-0000-000000000002',
@@ -93,11 +93,11 @@ WHERE id = '797ec7d7-98d6-4417-99ce-2fec54a13f3c'
 
 -- Confirm the 341-minute pending candidate as job_work on the Mon visit
 INSERT INTO activity_entries (
-  id, account_id, user_id, session_date, activity_type, category,
+  id, account_id, company_id, user_id, session_date, activity_type, category,
   started_at, ended_at, entity_type, entity_id, source, note
 ) VALUES (
   'a13f0341-0000-4000-8000-000000000341',
-  'aaaaaaaa-0000-0000-0000-000000000001',
+  'aaaaaaaa-0000-0000-0000-000000000001', 'aaaaaaaa-0000-0000-0000-000000000001',
   'aaaaaaaa-0000-0000-0000-000000000002',
   '2026-07-13',
   'job_work', 'revenue',
@@ -133,12 +133,12 @@ WHERE id = '06823b05-1549-4bc2-ba64-3710ee533534'
 -- 4) Tue: ledger the two Claremont provisional stops + confirm segments
 -- ----------------------------------------------------------------------------
 INSERT INTO activity_entries (
-  id, account_id, user_id, session_date, activity_type, category,
+  id, account_id, company_id, user_id, session_date, activity_type, category,
   started_at, ended_at, entity_type, entity_id, source, note
 ) VALUES
 (
   'a14f0029-0000-4000-8000-000000000029',
-  'aaaaaaaa-0000-0000-0000-000000000001',
+  'aaaaaaaa-0000-0000-0000-000000000001', 'aaaaaaaa-0000-0000-0000-000000000001',
   'aaaaaaaa-0000-0000-0000-000000000002',
   '2026-07-14',
   'job_work', 'revenue',
@@ -150,7 +150,7 @@ INSERT INTO activity_entries (
 ),
 (
   'a14f0207-0000-4000-8000-000000000207',
-  'aaaaaaaa-0000-0000-0000-000000000001',
+  'aaaaaaaa-0000-0000-0000-000000000001', 'aaaaaaaa-0000-0000-0000-000000000001',
   'aaaaaaaa-0000-0000-0000-000000000002',
   '2026-07-14',
   'job_work', 'revenue',
@@ -180,12 +180,12 @@ WHERE id = '1dcee24b-0306-4942-8bd5-d51632a32e05'
 
 -- Upsert visit candidates for those segments (audit trail)
 INSERT INTO visit_candidates (
-  account_id, location_segment_id, property_id, matched_client_id, job_id, visit_id,
+  account_id, company_id, location_segment_id, property_id, matched_client_id, job_id, visit_id,
   distance_meters, confidence_score, arrival_time, departure_time, duration_minutes,
   status, classification, activity_entry_id, source
 ) VALUES
 (
-  'aaaaaaaa-0000-0000-0000-000000000001',
+  'aaaaaaaa-0000-0000-0000-000000000001', 'aaaaaaaa-0000-0000-0000-000000000001',
   '0fa38e01-8e79-45ea-a9eb-ee50ee37f9a4',
   '1eb14e35-d834-4c7c-8dbb-219df9822935',
   '7c1b677c-f6c1-4ddd-9a92-52d8ea13a8e2',
@@ -196,7 +196,7 @@ INSERT INTO visit_candidates (
   'confirmed', 'job_work', 'a14f0029-0000-4000-8000-000000000029', 'manual'
 ),
 (
-  'aaaaaaaa-0000-0000-0000-000000000001',
+  'aaaaaaaa-0000-0000-0000-000000000001', 'aaaaaaaa-0000-0000-0000-000000000001',
   '1dcee24b-0306-4942-8bd5-d51632a32e05',
   '1eb14e35-d834-4c7c-8dbb-219df9822935',
   '7c1b677c-f6c1-4ddd-9a92-52d8ea13a8e2',

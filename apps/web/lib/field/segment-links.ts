@@ -67,7 +67,7 @@ export async function findVisitForJobOnDate(
   const { rows } = await client.query<{ id: string }>(
     `SELECT v.id
      FROM visits v
-     WHERE v.job_id = $1 AND v.account_id = $2
+     WHERE v.job_id = $1 AND v.company_id = $2
        AND v.scheduled_start::date = $3::date
        AND v.status NOT IN ('completed', 'cancelled')
      ORDER BY v.scheduled_start ASC

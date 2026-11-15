@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { withAuth } from "@/lib/auth/middleware";
 import type { AuthSession } from "@/lib/auth/middleware";
-import { queryOneForSession } from "@/lib/db";
+import { queryOneForSession, companyIdFromSession } from "@/lib/db";
 import { logger } from "@/lib/logger";
 import { businessToday } from "@/lib/operations/business-day";
 
@@ -37,13 +37,13 @@ async function findOpenSession(session: AuthSession, sessionDate: string) {
             s.miles::text AS miles, s.notes, s.created_at::text
      FROM vehicle_sessions s
      LEFT JOIN vehicles v ON v.id = s.vehicle_id
-     WHERE s.account_id = $1
+     WHERE s.company_id = $1
        AND s.session_date = $2::date
        AND s.end_odometer IS NULL
        AND s.miles IS NULL
      ORDER BY s.created_at DESC
      LIMIT 1`,
-    [session.accountId, sessionDate]
+    [companyIdFromSession(session), sessionDate]
   );
 }
 

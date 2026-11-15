@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { withRole } from "@/lib/auth/middleware";
-import { queryOne } from "@/lib/db";
+import { withDbSession, companyIdFromSession } from "@/lib/db";
 import { logger } from "@/lib/logger";
 
 export const dynamic = "force-dynamic";
@@ -54,24 +54,27 @@ export const PATCH = withRole(["owner", "admin"], async (req: NextRequest, sessi
 
   if (fields.length === 0) return NextResponse.json({ error: { message: "No fields to update" } }, { status: 400 });
 
-  params.push(pathId, session.accountId);
+  params.push(pathId, companyIdFromSession(session));
 
   try {
     // Only one default per account (a partial unique index enforces it): clear
     // the others first so flipping a new default doesn't collide.
-    if (d.is_default === true) {
-      await queryOne(
-        `UPDATE vehicles SET is_default = false
-         WHERE account_id = $1 AND id <> $2 AND is_default = true`,
-        [session.accountId, pathId],
+    const row = await withDbSession(session, async (client) => {
+      if (d.is_default === true) {
+        await client.query(
+          `UPDATE vehicles SET is_default = false
+           WHERE company_id = $1 AND id <> $2 AND is_default = true`,
+          [companyIdFromSession(session), pathId],
+        );
+      }
+      const updated = await client.query<VehicleRow>(
+        `UPDATE vehicles SET ${fields.join(", ")}
+         WHERE id = $${idx} AND company_id = $${idx + 1}
+         RETURNING id, nickname, make, model, year, plate, is_active, is_default, bluetooth_id, created_at::text`,
+        params
       );
-    }
-    const row = await queryOne<VehicleRow>(
-      `UPDATE vehicles SET ${fields.join(", ")}
-       WHERE id = $${idx} AND account_id = $${idx + 1}
-       RETURNING id, nickname, make, model, year, plate, is_active, is_default, bluetooth_id, created_at::text`,
-      params
-    );
+      return updated.rows[0] ?? null;
+    });
     if (!row) return NextResponse.json({ error: { message: "Not found" } }, { status: 404 });
     return NextResponse.json({ data: row });
   } catch (err) {

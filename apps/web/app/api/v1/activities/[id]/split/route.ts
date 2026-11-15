@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { withAuth } from "@/lib/auth/middleware";
 import type { AuthSession } from "@/lib/auth/middleware";
-import { getPool } from "@/lib/db";
+import { getPool, companyIdFromSession } from "@/lib/db";
 import { appendAuditLog } from "@/lib/db/audit";
 import { logger } from "@/lib/logger";
 import { ACTIVITY_TYPES, ACTIVITY_ENTITY_TYPES, activityCategoryFor } from "@ai-fsm/domain";
@@ -77,8 +77,8 @@ export const POST = withAuth(async (request: NextRequest, session: AuthSession) 
     const existing = await client.query<EntryRow>(
       `SELECT id, activity_type, started_at::text, ended_at::text, entity_type, entity_id, note
        FROM activity_entries
-       WHERE id = $1 AND account_id = $2 AND voided_at IS NULL FOR UPDATE`,
-      [id, session.accountId]
+       WHERE id = $1 AND company_id = $2 AND voided_at IS NULL FOR UPDATE`,
+      [id, companyIdFromSession(session)]
     );
     const row = existing.rows[0];
     if (!row) {
@@ -121,17 +121,17 @@ export const POST = withAuth(async (request: NextRequest, session: AuthSession) 
           `UPDATE activity_entries
            SET activity_type = $1, category = $2, ended_at = $3::timestamptz,
                entity_type = $4, entity_id = $5, note = $6
-           WHERE id = $7 AND account_id = $8`,
-          [seg.activity_type, category, seg.ended_at, seg.entity_type ?? null, seg.entity_id ?? null, seg.note ?? null, id, session.accountId]
+           WHERE id = $7 AND company_id = $8`,
+          [seg.activity_type, category, seg.ended_at, seg.entity_type ?? null, seg.entity_id ?? null, seg.note ?? null, id, companyIdFromSession(session)]
         );
       } else {
         const ins = await client.query<{ id: string }>(
           `INSERT INTO activity_entries
-             (account_id, user_id, session_date, activity_type, category,
+             (company_id, user_id, session_date, activity_type, category,
               started_at, ended_at, entity_type, entity_id, source, note)
            VALUES ($1, $2, ($3::timestamptz)::date, $4, $5, $3::timestamptz, $6::timestamptz, $7, $8, 'manual', $9)
            RETURNING id`,
-          [session.accountId, session.userId, segStart, seg.activity_type, category, seg.ended_at, seg.entity_type ?? null, seg.entity_id ?? null, seg.note ?? null]
+          [companyIdFromSession(session), session.userId, segStart, seg.activity_type, category, seg.ended_at, seg.entity_type ?? null, seg.entity_id ?? null, seg.note ?? null]
         );
         insertedIds.push(ins.rows[0].id);
       }

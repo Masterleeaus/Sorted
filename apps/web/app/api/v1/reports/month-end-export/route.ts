@@ -108,7 +108,7 @@ async function buildCsv(
                 j.title AS job_title, e.notes
          FROM expenses e
          LEFT JOIN jobs j ON j.id = e.job_id
-         WHERE e.account_id = $1
+         WHERE e.company_id = $1
            AND e.expense_date >= $2::date
            AND e.expense_date < ($2::date + interval '1 month')
          ORDER BY e.expense_date, e.created_at`,
@@ -127,11 +127,11 @@ async function buildCsv(
                 COALESCE(spcc.name, spc.external_name) AS beneficiary_name
          FROM invoices i
          LEFT JOIN clients c ON c.id = i.client_id
-         LEFT JOIN properties sp ON sp.id = i.property_id AND sp.account_id = i.account_id
+         LEFT JOIN properties sp ON sp.id = i.property_id AND sp.company_id = i.company_id
          LEFT JOIN property_contacts spc
-           ON spc.id = i.beneficiary_property_contact_id AND spc.account_id = i.account_id
-         LEFT JOIN clients spcc ON spcc.id = spc.client_id AND spcc.account_id = i.account_id
-         WHERE i.account_id = $1
+           ON spc.id = i.beneficiary_property_contact_id AND spc.company_id = i.company_id
+         LEFT JOIN clients spcc ON spcc.id = spc.client_id AND spcc.company_id = i.company_id
+         WHERE i.company_id = $1
            AND to_char(i.created_at, 'YYYY-MM') = $2
          ORDER BY i.created_at`,
         [accountId, month]
@@ -144,7 +144,7 @@ async function buildCsv(
         `SELECT i.invoice_number, p.amount_cents, p.method, p.payment_type, p.status, p.received_at, p.notes
          FROM payments p
          JOIN invoices i ON i.id = p.invoice_id
-         WHERE p.account_id = $1
+         WHERE p.company_id = $1
            AND p.received_at >= $2::date
            AND p.received_at < ($2::date + interval '1 month')
          ORDER BY p.received_at`,
@@ -168,7 +168,7 @@ async function buildCsv(
            LIMIT 1
          ) act ON true
          LEFT JOIN jobs j ON j.id = act.entity_id
-         WHERE s.account_id = $1
+         WHERE s.company_id = $1
            AND s.session_date >= $2::date
            AND s.session_date < ($2::date + interval '1 month')
          ORDER BY s.session_date`,

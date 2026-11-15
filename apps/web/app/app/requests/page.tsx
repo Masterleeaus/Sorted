@@ -9,7 +9,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import type { Route } from "next";
 import { getSession } from "@/lib/auth/session";
-import { query } from "@/lib/db";
+import { queryForSession } from "@/lib/db";
 import { Card, EmptyState, LinkButton, PageContainer, PageHeader, StatusBadge, HubSubnav } from "@/components/ui";
 import type { StatusVariant } from "@/components/ui";
 import { BOOKING_REQUEST_OPEN_STATUSES, BOOKING_REQUEST_STATUS_LABELS, PRICING_MODE_LABELS } from "@ai-fsm/domain";
@@ -164,7 +164,7 @@ export default async function RequestsPage({ searchParams }: PageProps) {
       : null;
   const defaultOpen = attentionMode || (!showAll && !validStatus);
 
-  const conditions = ["br.account_id = $1"];
+  const conditions = ["br.company_id = $1"];
   const params: unknown[] = [session.accountId];
   if (validStatus) {
     conditions.push(`br.status = $${params.length + 1}`);
@@ -176,7 +176,7 @@ export default async function RequestsPage({ searchParams }: PageProps) {
     params.push([...OPEN_STATUSES]);
   }
 
-  const rows = await query<RequestRow>(
+  const rows = await queryForSession<RequestRow>(session,
     `SELECT br.id, br.status, br.name, br.email, br.phone,
             br.service_category, br.service_description,
             br.preferred_date, br.preferred_time_slot,
@@ -204,10 +204,10 @@ export default async function RequestsPage({ searchParams }: PageProps) {
     params
   );
 
-  const counts = await query<{ status: string; count: string }>(
+  const counts = await queryForSession<{ status: string; count: string }>(session,
     `SELECT status, COUNT(*)::text AS count
      FROM booking_requests
-     WHERE account_id = $1
+     WHERE company_id = $1
      GROUP BY status`,
     [session.accountId]
   );

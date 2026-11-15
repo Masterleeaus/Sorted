@@ -25,6 +25,7 @@ function mockClient(): Client {
 const AUTOMATION: AutomationRow = {
   id: "auto-1",
   account_id: "acct-1",
+  company_id: "acct-1",
   type: "visit_reminder",
   config: {},
   enabled: true,

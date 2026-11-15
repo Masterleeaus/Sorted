@@ -163,3 +163,7 @@ export {
   buildWorkforceKnowledgeUseReceipt,
   summarizeWorkforceKnowledgeAuthority,
 } from "./ported/titan-workforce/knowledge/workforce-knowledge-authority-runtime.js";
+
+export { resolveDelegationChain } from "./ported/titan-workforce/hierarchy/delegation-routing-runtime.js";
+export { extractCallLeadQualification, planQualifiedLeadHandoff } from "./ported/titan-workforce/hierarchy/call-lead-qualification-runtime.js";
+export { planCallerRevenueCapture } from "./ported/titan-workforce/hierarchy/caller-identity-lead-capture-runtime.js";

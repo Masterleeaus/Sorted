@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { withAuth, withRole } from "../../../../lib/auth/middleware";
 import type { AuthSession } from "../../../../lib/auth/middleware";
-import { query, getPool } from "../../../../lib/db";
+import { getPool, withDbSession } from "../../../../lib/db";
 import { appendAuditLog } from "../../../../lib/db/audit";
 import { logger } from "../../../../lib/logger";
 import { JOB_ACCEPTANCE_CATEGORIES } from "@ai-fsm/domain";
@@ -41,7 +41,7 @@ export const GET = withAuth(
     }
 
     const params: unknown[] = [session.accountId];
-    let where = "account_id = $1";
+    let where = "company_id = $1";
     if (clientId) {
       params.push(clientId);
       where += ` AND client_id = $${params.length}`;
@@ -52,10 +52,13 @@ export const GET = withAuth(
     params.push(limit, offset);
 
     const orderBy = openOnly ? receiptJobOrderSql() : "created_at DESC";
-    const jobs = await query(
-      `SELECT * FROM jobs WHERE ${where} ORDER BY ${orderBy} LIMIT $${params.length - 1} OFFSET $${params.length}`,
-      params
-    );
+    const jobs = await withDbSession(session, async (client) => {
+      const { rows } = await client.query(
+        `SELECT * FROM jobs WHERE ${where} ORDER BY ${orderBy} LIMIT $${params.length - 1} OFFSET $${params.length}`,
+        params
+      );
+      return rows;
+    });
 
     return NextResponse.json({ data: jobs, limit, offset });
   }
@@ -95,7 +98,7 @@ export const POST = withRole(
       );
 
       const { rows } = await client.query(
-        `INSERT INTO jobs (account_id, client_id, property_id, title, description, job_type, job_category, priority, created_by)
+        `INSERT INTO jobs (company_id, client_id, property_id, title, description, job_type, job_category, priority, created_by)
          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
          RETURNING *`,
         [

@@ -35,7 +35,7 @@ export default async function AssetsPage() {
     `SELECT id, entity_type, entity_id, homebox_item_id,
             cached_name, cached_location, status, created_at::text
        FROM asset_links
-      WHERE account_id = $1
+      WHERE company_id = $1
       ORDER BY created_at DESC
       LIMIT 100`,
     [session.accountId],

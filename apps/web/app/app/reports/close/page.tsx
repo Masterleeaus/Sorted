@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth/session";
 import { canViewReports, canCloseMonth, canReopenMonth } from "@/lib/auth/permissions";
 import { withReportContext } from "@/lib/reports/db";
-import { query } from "@/lib/db";
+import { queryForSession } from "@/lib/db";
 import { formatCents } from "@/lib/money";
 import { businessMonthKey, loadBusinessTimeZone, timestampBusinessMonthExpr } from "@/lib/reports/business-month";
 import { collectedCashStatusSql } from "@/lib/reports/collected-cash";
@@ -65,7 +65,7 @@ export default async function ClosePage({ searchParams }: PageProps) {
               u.full_name AS closed_by_name
        FROM period_closes pc
        LEFT JOIN users u ON u.id = pc.closed_by
-       WHERE pc.account_id = $1 AND pc.period_month = $2
+       WHERE pc.company_id = $1 AND pc.period_month = $2
        LIMIT 1`,
       [session.accountId, targetMonth]
     );
@@ -76,45 +76,45 @@ export default async function ClosePage({ searchParams }: PageProps) {
 
   // ---- Fetch checklist data ----
   // These queries use application-level account_id filtering (server component).
-  const timeZone = await loadBusinessTimeZone(session.accountId);
+  const timeZone = await loadBusinessTimeZone(session);
   const invoiceMonth = timestampBusinessMonthExpr("created_at", timeZone);
   const [invoiceSummary, outstandingInPeriod, outstandingAll, expenseCount, paymentCount] =
     await Promise.all([
-      query<{ total_count: string; total_cents: string }>(
+      queryForSession<{ total_count: string; total_cents: string }>(session,
         `SELECT COUNT(*)::int AS total_count,
                 COALESCE(SUM(total_cents), 0)::bigint AS total_cents
          FROM invoices
-         WHERE account_id = $1
+         WHERE company_id = $1
            AND ${invoiceMonth} = $2`,
         [session.accountId, targetMonth]
       ),
-      query<{ count: string }>(
+      queryForSession<{ count: string }>(session,
         `SELECT COUNT(*)::int AS count
          FROM invoices
-         WHERE account_id = $1
+         WHERE company_id = $1
            AND ${invoiceMonth} = $2
            AND status IN ('sent', 'partial', 'overdue')`,
         [session.accountId, targetMonth]
       ),
-      query<{ count: string }>(
+      queryForSession<{ count: string }>(session,
         `SELECT COUNT(*)::int AS count
          FROM invoices
-         WHERE account_id = $1
+         WHERE company_id = $1
            AND status IN ('sent', 'partial', 'overdue')`,
         [session.accountId]
       ),
-      query<{ count: string }>(
+      queryForSession<{ count: string }>(session,
         `SELECT COUNT(*)::int AS count
          FROM expenses
-         WHERE account_id = $1
+         WHERE company_id = $1
            AND expense_date >= $2::date
            AND expense_date < ($2::date + interval '1 month')`,
         [session.accountId, monthStart]
       ),
-      query<{ count: string }>(
+      queryForSession<{ count: string }>(session,
         `SELECT COUNT(*)::int AS count
          FROM payments
-         WHERE account_id = $1
+         WHERE company_id = $1
            AND ${collectedCashStatusSql()}
            AND ${timestampBusinessMonthExpr("received_at", timeZone)} = $2`,
         [session.accountId, targetMonth]

@@ -84,7 +84,7 @@ async function loadTravelAroundStop(
   }>(
     `SELECT id, EXTRACT(EPOCH FROM (ended_at - started_at)) / 60 AS duration_min, place_label
      FROM location_segments
-     WHERE account_id = $1 AND kind = 'drive' AND ended_at IS NOT NULL
+     WHERE company_id = $1 AND kind = 'drive' AND ended_at IS NOT NULL
        AND ended_at <= $2::timestamptz
        AND segment_date = ($2::timestamptz)::date
      ORDER BY ended_at DESC
@@ -101,7 +101,7 @@ async function loadTravelAroundStop(
     }>(
       `SELECT id, EXTRACT(EPOCH FROM (ended_at - started_at)) / 60 AS duration_min, place_label
        FROM location_segments
-       WHERE account_id = $1 AND kind = 'drive' AND started_at >= $2::timestamptz
+       WHERE company_id = $1 AND kind = 'drive' AND started_at >= $2::timestamptz
          AND segment_date = ($2::timestamptz)::date
        ORDER BY started_at ASC
        LIMIT 1`,
@@ -158,27 +158,27 @@ async function resolveConfirmedStopMatch(
             EXISTS (
               SELECT 1 FROM visits v
               JOIN jobs j2 ON j2.id = v.job_id
-              WHERE j2.property_id = p.id AND v.account_id = p.account_id
+              WHERE j2.property_id = p.id AND v.company_id = p.company_id
                 AND v.scheduled_start::date = CURRENT_DATE
                 AND v.status NOT IN ('completed', 'cancelled')
             ) AS scheduled_today,
             (
               SELECT v.id FROM visits v
               JOIN jobs j2 ON j2.id = v.job_id
-              WHERE j2.property_id = p.id AND v.account_id = p.account_id
+              WHERE j2.property_id = p.id AND v.company_id = p.company_id
                 AND v.scheduled_start::date = CURRENT_DATE
                 AND v.status NOT IN ('completed', 'cancelled')
               ORDER BY v.scheduled_start ASC LIMIT 1
             ) AS visit_id,
             (
               SELECT j3.id FROM jobs j3
-              WHERE j3.property_id = p.id AND j3.account_id = p.account_id
+              WHERE j3.property_id = p.id AND j3.company_id = p.company_id
                 AND j3.status IN ('scheduled', 'in_progress')
               ORDER BY j3.updated_at DESC LIMIT 1
             ) AS job_id
      FROM properties p
      JOIN clients c ON c.id = p.client_id
-     WHERE p.account_id = $1 AND p.latitude IS NOT NULL AND p.longitude IS NOT NULL`,
+     WHERE p.company_id = $1 AND p.latitude IS NOT NULL AND p.longitude IS NOT NULL`,
     [accountId],
   );
 
@@ -251,7 +251,7 @@ export async function loadFieldSiteContext(
      -- client/property live on jobs only (visits have no client_id/property_id)
      LEFT JOIN clients c ON c.id = j.client_id
      LEFT JOIN properties p ON p.id = j.property_id
-     WHERE ae.account_id = $1 AND ae.user_id = $2
+     WHERE ae.company_id = $1 AND ae.user_id = $2
        AND ae.ended_at IS NULL AND ae.voided_at IS NULL
        AND ae.activity_type = ANY($3::text[])
      ORDER BY ae.started_at DESC
@@ -299,7 +299,7 @@ export async function loadFieldSiteContext(
   }>(
     `SELECT id, latitude, longitude, started_at::text
      FROM location_segments
-     WHERE account_id = $1 AND ended_at IS NULL AND kind = 'stop'
+     WHERE company_id = $1 AND ended_at IS NULL AND kind = 'stop'
      ORDER BY started_at DESC
      LIMIT 1`,
     [accountId],

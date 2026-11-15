@@ -74,7 +74,7 @@ export default async function ExpensesPage({ searchParams }: PageProps) {
 
   const { expenses, summary } = await withExpenseContext(session, async (client) => {
     const conditions: string[] = [
-      "e.account_id = $1",
+      "e.company_id = $1",
       "e.expense_date >= $2::date",
       "e.expense_date < ($2::date + interval '1 month')",
     ];
@@ -106,7 +106,7 @@ export default async function ExpensesPage({ searchParams }: PageProps) {
     }>(
       `SELECT SUM(amount_cents) AS total_cents, COUNT(*) AS count
        FROM expenses
-       WHERE account_id = $1
+       WHERE company_id = $1
          AND expense_date >= $2::date
          AND expense_date < ($2::date + interval '1 month')`,
       [session.accountId, `${activeMonth}-01`]
@@ -119,7 +119,7 @@ export default async function ExpensesPage({ searchParams }: PageProps) {
     }>(
       `SELECT category, SUM(amount_cents) AS total_cents
        FROM expenses
-       WHERE account_id = $1
+       WHERE company_id = $1
          AND expense_date >= $2::date
          AND expense_date < ($2::date + interval '1 month')
        GROUP BY category

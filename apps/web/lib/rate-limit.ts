@@ -9,6 +9,8 @@
  * for Redis sorted-set operations (see ADR-008 for details).
  */
 
+import { isIP } from "node:net";
+
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
 /* ------------------------------------------------------------------ */
@@ -94,16 +96,60 @@ export function checkRateLimit(
   return { allowed, remaining, resetAt };
 }
 
+/** Key used when the client address cannot be derived from a trusted hop. */
+export const UNKNOWN_CLIENT_IP = "unknown";
+
+/** Largest trusted-proxy count accepted from the environment. */
+const MAX_TRUSTED_PROXY_COUNT = 10;
+
 /**
- * Extract the best-effort client IP from request headers.
- * Trusts X-Forwarded-For (set by reverse proxies like nginx).
+ * Number of trusted proxy hops in front of the app, read from
+ * `TRUSTED_PROXY_COUNT`. Defaults to 0 (forwarded headers are NOT trusted).
+ * Missing, non-integer, negative or out-of-range values also resolve to 0,
+ * so a bad value fails closed against spoofing.
  */
-export function getClientIp(request: Request): string {
+export function getTrustedProxyCount(): number {
+  const raw = process.env.TRUSTED_PROXY_COUNT?.trim();
+  if (!raw || !/^\d+$/.test(raw)) return 0;
+  const count = Number(raw);
+  return count <= MAX_TRUSTED_PROXY_COUNT ? count : 0;
+}
+
+/**
+ * Derive the client IP for rate-limit keys.
+ *
+ * Each trusted proxy appends the address of the peer it received the request
+ * from to X-Forwarded-For. Entries to the left of those appended entries were
+ * supplied by the client and are never trusted. With N trusted hops, the
+ * client address is the entry N positions from the right end of the chain.
+ *
+ * Returns UNKNOWN_CLIENT_IP when:
+ * - no trusted proxy is configured (count < 1),
+ * - the header is missing or has fewer entries than trusted hops
+ *   (the request did not pass through the expected proxies), or
+ * - the selected entry is not a valid IPv4/IPv6 address.
+ *
+ * X-Real-IP is intentionally not read: it is a single value that is
+ * client-controllable unless the edge overwrites it, and nothing in the repo
+ * confirms that it does.
+ *
+ * @param trustedProxyCount - Defaults to the value of TRUSTED_PROXY_COUNT.
+ */
+export function getClientIp(
+  request: Request,
+  trustedProxyCount: number = getTrustedProxyCount()
+): string {
+  if (trustedProxyCount < 1) return UNKNOWN_CLIENT_IP;
+
   const forwarded = request.headers.get("x-forwarded-for");
-  if (forwarded) {
-    return forwarded.split(",")[0].trim();
-  }
-  return request.headers.get("x-real-ip") ?? "unknown";
+  if (!forwarded) return UNKNOWN_CLIENT_IP;
+
+  const chain = forwarded.split(",").map((entry) => entry.trim());
+  if (chain.length < trustedProxyCount) return UNKNOWN_CLIENT_IP;
+
+  const candidate = chain[chain.length - trustedProxyCount];
+  if (!isIP(candidate)) return UNKNOWN_CLIENT_IP;
+  return candidate.toLowerCase();
 }
 
 /* ------------------------------------------------------------------ */
@@ -132,6 +178,30 @@ export const GENERAL_RATE_LIMIT: RateLimitConfig = {
 export const BOOKING_RATE_LIMIT: RateLimitConfig = {
   limit: 10,
   windowSeconds: 60 * 60,
+};
+
+/** Public intake form (/api/intake/[token]): 20 requests per 15 minutes per IP */
+export const INTAKE_IP_RATE_LIMIT: RateLimitConfig = {
+  limit: 20,
+  windowSeconds: 15 * 60,
+};
+
+/** Public intake form: 10 requests per 15 minutes per token (validity not revealed) */
+export const INTAKE_TOKEN_RATE_LIMIT: RateLimitConfig = {
+  limit: 10,
+  windowSeconds: 15 * 60,
+};
+
+/** Public intake photo upload/remove: 60 requests per 15 minutes per IP (a household shares an IP) */
+export const INTAKE_MEDIA_IP_RATE_LIMIT: RateLimitConfig = {
+  limit: 60,
+  windowSeconds: 15 * 60,
+};
+
+/** Public intake photo upload/remove: 30 requests per 15 minutes per token */
+export const INTAKE_MEDIA_TOKEN_RATE_LIMIT: RateLimitConfig = {
+  limit: 30,
+  windowSeconds: 15 * 60,
 };
 
 /* ------------------------------------------------------------------ */

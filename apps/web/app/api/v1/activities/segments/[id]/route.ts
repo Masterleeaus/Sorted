@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import type { PoolClient } from "pg";
 import { z } from "zod";
 import { withAuth, type AuthSession } from "@/lib/auth/middleware";
-import { getPool } from "@/lib/db";
+import { getPool, companyIdFromSession } from "@/lib/db";
 import { logger } from "@/lib/logger";
 import { ACTIVITY_TYPES, ACTIVITY_ENTITY_TYPES, activityCategoryFor } from "@ai-fsm/domain";
 import {
@@ -117,7 +117,7 @@ async function resolveSegmentOverlaps(
 ): Promise<{ ok: true; rebalance: RebalanceAdjustment[] } | { ok: false; response: NextResponse }> {
   const { rows: overlap } = await client.query<OverlapRow & { activity_type: string }>(
     `SELECT id, activity_type, started_at::text, ended_at::text FROM activity_entries
-     WHERE account_id = $1 AND voided_at IS NULL
+     WHERE company_id = $1 AND voided_at IS NULL
        AND started_at < $3 AND COALESCE(ended_at, 'infinity'::timestamptz) > $2
      FOR UPDATE`,
     [accountId, startedAt, endedAt],
@@ -182,9 +182,9 @@ export const PATCH = withAuth(async (request: NextRequest, session: AuthSession)
               place_label, status, activity_entry_id, vehicle_session_id,
               vehicle_id, distance_meters
        FROM location_segments
-       WHERE id = $1 AND account_id = $2
+       WHERE id = $1 AND company_id = $2
        FOR UPDATE`,
-      [id, session.accountId],
+      [id, companyIdFromSession(session)],
     );
     const seg = rows[0];
     if (!seg) {
@@ -245,8 +245,8 @@ export const PATCH = withAuth(async (request: NextRequest, session: AuthSession)
       }
 
       const veh = await client.query<{ id: string }>(
-        `SELECT id FROM vehicles WHERE id = $1 AND account_id = $2`,
-        [d.vehicle_id, session.accountId],
+        `SELECT id FROM vehicles WHERE id = $1 AND company_id = $2`,
+        [d.vehicle_id, companyIdFromSession(session)],
       );
       if (veh.rows.length === 0) {
         await client.query("ROLLBACK");
@@ -336,8 +336,8 @@ export const PATCH = withAuth(async (request: NextRequest, session: AuthSession)
         return err("CONFLICT", `Drive is ${seg.status}; cannot log mileage.`, 409, session.traceId);
       }
       const veh = await client.query<{ id: string }>(
-        `SELECT id FROM vehicles WHERE id = $1 AND account_id = $2`,
-        [d.vehicle_id, session.accountId],
+        `SELECT id FROM vehicles WHERE id = $1 AND company_id = $2`,
+        [d.vehicle_id, companyIdFromSession(session)],
       );
       if (veh.rows.length === 0) {
         await client.query("ROLLBACK");
@@ -351,18 +351,18 @@ export const PATCH = withAuth(async (request: NextRequest, session: AuthSession)
       });
       const dayRes = await client.query<{ id: string }>(
         `SELECT id FROM business_days
-          WHERE account_id = $1 AND user_id = $2 AND business_date = $3::date LIMIT 1`,
-        [session.accountId, session.userId, seg.segment_date],
+          WHERE company_id = $1 AND user_id = $2 AND business_date = $3::date LIMIT 1`,
+        [companyIdFromSession(session), session.userId, seg.segment_date],
       );
 
       const { rows: sess } = await client.query<{ id: string }>(
         `INSERT INTO vehicle_sessions
-           (account_id, vehicle_id, session_date, miles, notes, created_by,
+           (company_id, vehicle_id, session_date, miles, notes, created_by,
             started_at, ended_at, business_day_id, miles_source, status)
          VALUES ($1, $2, $3::date, $4, $5, $6, $7, $8, $9, $10, 'closed')
          RETURNING id`,
         [
-          session.accountId,
+          companyIdFromSession(session),
           d.vehicle_id,
           seg.segment_date,
           d.miles,
@@ -378,8 +378,8 @@ export const PATCH = withAuth(async (request: NextRequest, session: AuthSession)
       await client.query(
         `UPDATE location_segments
          SET status = 'confirmed', vehicle_id = $1, vehicle_session_id = $2, updated_at = now()
-         WHERE id = $3 AND account_id = $4`,
-        [d.vehicle_id, sessionId, id, session.accountId],
+         WHERE id = $3 AND company_id = $4`,
+        [d.vehicle_id, sessionId, id, companyIdFromSession(session)],
       );
       await client.query("COMMIT");
       return NextResponse.json({
@@ -398,8 +398,8 @@ export const PATCH = withAuth(async (request: NextRequest, session: AuthSession)
       }
       await client.query(
         `UPDATE location_segments SET status = 'dismissed', updated_at = now()
-         WHERE id = $1 AND account_id = $2 AND status = 'provisional'`,
-        [id, session.accountId],
+         WHERE id = $1 AND company_id = $2 AND status = 'provisional'`,
+        [id, companyIdFromSession(session)],
       );
       await ignoreVisitCandidateForSegment(client, id, session.accountId);
       await client.query("COMMIT");
@@ -437,8 +437,8 @@ export const PATCH = withAuth(async (request: NextRequest, session: AuthSession)
     const category = activityCategoryFor(d.activity_type);
     const dayRes = await client.query<{ id: string }>(
       `SELECT id FROM business_days
-        WHERE account_id = $1 AND user_id = $2 AND business_date = $3::date LIMIT 1`,
-      [session.accountId, session.userId, seg.segment_date],
+        WHERE company_id = $1 AND user_id = $2 AND business_date = $3::date LIMIT 1`,
+      [companyIdFromSession(session), session.userId, seg.segment_date],
     );
 
     // When confirming job_work against a job (or visit), ensure a calendar field day.
@@ -456,8 +456,8 @@ export const PATCH = withAuth(async (request: NextRequest, session: AuthSession)
       let visitId: string | null = entityType === "visit" ? entityId : null;
       if (visitId && !jobId) {
         const vr = await client.query<{ job_id: string }>(
-          `SELECT job_id FROM visits WHERE id = $1 AND account_id = $2`,
-          [visitId, session.accountId],
+          `SELECT job_id FROM visits WHERE id = $1 AND company_id = $2`,
+          [visitId, companyIdFromSession(session)],
         );
         jobId = vr.rows[0]?.job_id ?? null;
       }
@@ -480,12 +480,12 @@ export const PATCH = withAuth(async (request: NextRequest, session: AuthSession)
 
     const { rows: ins } = await client.query<{ id: string }>(
       `INSERT INTO activity_entries
-         (account_id, user_id, session_date, activity_type, category,
+         (company_id, user_id, session_date, activity_type, category,
           started_at, ended_at, entity_type, entity_id, source, note, business_day_id)
        VALUES ($1, $2, $3::date, $4, $5, $6, $7, $8, $9, 'backfill', $10, $11)
        RETURNING id`,
       [
-        session.accountId,
+        companyIdFromSession(session),
         session.userId,
         seg.segment_date,
         d.activity_type,
@@ -509,8 +509,8 @@ export const PATCH = withAuth(async (request: NextRequest, session: AuthSession)
     await client.query(
       `UPDATE location_segments
        SET status = 'confirmed', activity_entry_id = $1, suggested_activity_type = $2, updated_at = now()
-       WHERE id = $3 AND account_id = $4`,
-      [entryId, d.activity_type, id, session.accountId],
+       WHERE id = $3 AND company_id = $4`,
+      [entryId, d.activity_type, id, companyIdFromSession(session)],
     );
 
     // Segment confirm is the source of truth — drop any pending match for this stop
@@ -523,16 +523,16 @@ export const PATCH = withAuth(async (request: NextRequest, session: AuthSession)
       let propertyId: string | null = null;
       if (entityType === "job") {
         const pr = await client.query<{ property_id: string | null }>(
-          `SELECT property_id FROM jobs WHERE id = $1 AND account_id = $2`,
-          [entityId, session.accountId],
+          `SELECT property_id FROM jobs WHERE id = $1 AND company_id = $2`,
+          [entityId, companyIdFromSession(session)],
         );
         propertyId = pr.rows[0]?.property_id ?? null;
       } else if (entityType === "visit") {
         const pr = await client.query<{ property_id: string | null }>(
           `SELECT j.property_id FROM visits v
            JOIN jobs j ON j.id = v.job_id
-           WHERE v.id = $1 AND v.account_id = $2`,
-          [entityId, session.accountId],
+           WHERE v.id = $1 AND v.company_id = $2`,
+          [entityId, companyIdFromSession(session)],
         );
         propertyId = pr.rows[0]?.property_id ?? null;
       }

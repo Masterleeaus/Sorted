@@ -11,7 +11,7 @@ export async function ownerAndAdminUserIds(
 ): Promise<string[]> {
   const { rows } = await client.query<{ id: string }>(
     `SELECT id FROM users
-      WHERE account_id = $1 AND role IN ('owner', 'admin')
+      WHERE company_id = $1 AND role IN ('owner', 'admin')
       ORDER BY CASE WHEN role = 'owner' THEN 0 ELSE 1 END, created_at ASC`,
     [accountId],
   );

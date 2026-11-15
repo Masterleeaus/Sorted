@@ -69,7 +69,7 @@ export async function listDocumentLinks(
             title, original_filename, document_type, property_id,
             is_master_template, is_archived, created_by, created_at
      FROM document_links
-     WHERE account_id = $1
+     WHERE company_id = $1
        AND entity_type = $2
        AND entity_id = $3
      ORDER BY created_at DESC`,
@@ -91,7 +91,7 @@ export async function getDocumentLink(
             title, original_filename, document_type, property_id,
             is_master_template, is_archived, created_by, created_at
      FROM document_links
-     WHERE id = $1 AND account_id = $2`,
+     WHERE id = $1 AND company_id = $2`,
     [linkId, accountId]
   );
   return rows[0] ?? null;
@@ -159,7 +159,7 @@ export async function deleteDocumentLink(
   linkId: string
 ): Promise<boolean> {
   const { rowCount } = await client.query(
-    `DELETE FROM document_links WHERE id = $1 AND account_id = $2`,
+    `DELETE FROM document_links WHERE id = $1 AND company_id = $2`,
     [linkId, accountId]
   );
   return (rowCount ?? 0) > 0;

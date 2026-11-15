@@ -46,7 +46,7 @@ nano /opt/business/ai-fsm/env/.env   # fill required vars
 bash scripts/deploy-garonhome.sh
 ```
 
-Required env vars: `POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD`, `DATABASE_URL`, `AUTH_SECRET`, `APP_BASE_URL`.
+Required env vars: `POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD`, `DATABASE_URL`, `WEB_DATABASE_URL`, `WORKER_DATABASE_URL`, `AI_FSM_WORKER_PASSWORD`, `AUTH_SECRET`, `APP_BASE_URL`. Database roles: `DEPLOY.md` section 4a (authoritative).
 Generate a secret: `openssl rand -base64 32`
 
 ---

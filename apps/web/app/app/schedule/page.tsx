@@ -114,7 +114,7 @@ export default async function SchedulePage({ searchParams }: PageProps) {
   const visits = isAdmin
     ? await queryForSession<VisitRow>(session, 
         `${VISIT_SELECT}
-         WHERE v.account_id = $1
+         WHERE v.company_id = $1
            AND v.scheduled_start >= $2
            AND v.scheduled_start < $3
            AND v.status != 'cancelled'
@@ -123,7 +123,7 @@ export default async function SchedulePage({ searchParams }: PageProps) {
       )
     : await queryForSession<VisitRow>(session, 
         `${VISIT_SELECT}
-         WHERE v.account_id = $1
+         WHERE v.company_id = $1
            AND v.assigned_user_id = $2
            AND v.scheduled_start >= $3
            AND v.scheduled_start < $4

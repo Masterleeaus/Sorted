@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { withAuth } from "@/lib/auth/middleware";
-import { queryForSession } from "@/lib/db";
+import { queryForSession, companyIdFromSession } from "@/lib/db";
 import { logger } from "@/lib/logger";
 import { ACTIVITY_TYPES, ACTIVITY_ENTITY_TYPES, activityCategoryFor } from "@ai-fsm/domain";
 
@@ -45,12 +45,12 @@ export const POST = withAuth(async (request: NextRequest, session) => {
     const rows = await queryForSession<{ id: string }>(
       session,
       `INSERT INTO activity_entries
-         (account_id, user_id, session_date, activity_type, category,
+         (company_id, user_id, session_date, activity_type, category,
           started_at, ended_at, entity_type, entity_id, source, note)
        VALUES ($1, $2, ($3::timestamptz)::date, $4, $5, $3::timestamptz, $6::timestamptz, $7, $8, $9, $10)
        RETURNING id`,
       [
-        session.accountId, session.userId, d.started_at,
+        companyIdFromSession(session), session.userId, d.started_at,
         d.activity_type, activityCategoryFor(d.activity_type),
         d.ended_at, d.entity_type ?? null, d.entity_id ?? null, d.source, d.note ?? null,
       ]

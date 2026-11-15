@@ -27,7 +27,7 @@ export const POST = withAuth(async (request, session) => {
                 j.job_type
          FROM estimates e
          LEFT JOIN jobs j ON j.id = e.job_id
-         WHERE e.id = $1 AND e.account_id = $2`,
+         WHERE e.id = $1 AND e.company_id = $2`,
         [id, session.accountId]
       );
 
