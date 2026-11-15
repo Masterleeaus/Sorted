@@ -46,7 +46,7 @@ export const GET = withAuth(async (request, session) => {
   const offset = (page - 1) * limit;
 
   try {
-    const conditions: string[] = ["i.account_id = $1"];
+    const conditions: string[] = ["i.company_id = $1"];
     const params: unknown[] = [session.accountId];
     let idx = 2;
 
@@ -88,10 +88,10 @@ export const GET = withAuth(async (request, session) => {
                 COALESCE(spcc.name, spc.external_name) AS beneficiary_name
          FROM invoices i
          LEFT JOIN clients c ON c.id = i.client_id
-         LEFT JOIN properties sp ON sp.id = i.property_id AND sp.account_id = i.account_id
+         LEFT JOIN properties sp ON sp.id = i.property_id AND sp.company_id = i.company_id
          LEFT JOIN property_contacts spc
-           ON spc.id = i.beneficiary_property_contact_id AND spc.account_id = i.account_id
-         LEFT JOIN clients spcc ON spcc.id = spc.client_id AND spcc.account_id = i.account_id
+           ON spc.id = i.beneficiary_property_contact_id AND spc.company_id = i.company_id
+         LEFT JOIN clients spcc ON spcc.id = spc.client_id AND spcc.company_id = i.company_id
          WHERE ${where}
          ORDER BY i.created_at DESC
          LIMIT $${idx} OFFSET $${idx + 1}`,
@@ -202,7 +202,7 @@ export const POST = withRole(["owner", "admin"], async (request, session) => {
       const jobStatus = job_id
         ? (
             await client.query<{ status: string }>(
-              `SELECT status FROM jobs WHERE id = $1 AND account_id = $2`,
+              `SELECT status FROM jobs WHERE id = $1 AND company_id = $2`,
               [job_id, session.accountId],
             )
           ).rows[0]?.status ?? null
@@ -215,7 +215,7 @@ export const POST = withRole(["owner", "admin"], async (request, session) => {
 
       const result = await client.query<{ id: string }>(
         `INSERT INTO invoices
-           (account_id, client_id, job_id, property_id,
+           (company_id, client_id, job_id, property_id,
             billing_context, sponsored_purpose, beneficiary_property_contact_id, business_purpose,
             status, invoice_kind, invoice_number,
             subtotal_cents, tax_cents, total_cents, paid_cents, deposit_cents,

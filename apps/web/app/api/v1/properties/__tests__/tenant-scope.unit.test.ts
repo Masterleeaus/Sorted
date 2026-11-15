@@ -44,7 +44,7 @@ function expectAccountScoped() {
     expect(fn).toBeTypeOf("function");
   }
   for (const [sql, params] of mockClientQuery.mock.calls) {
-    expect(String(sql)).toContain("account_id");
+    expect(String(sql)).toContain("company_id");
     expect(params).toContain(mockSession.accountId);
   }
 }

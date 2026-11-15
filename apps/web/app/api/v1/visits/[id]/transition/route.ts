@@ -10,7 +10,7 @@ import { visitTransitions, visitStatusSchema } from "@ai-fsm/domain";
 import type { VisitStatus } from "@ai-fsm/domain";
 interface VisitRow {
   id: string;
-  account_id: string;
+  company_id: string;
   job_id: string | null;
   work_order_id: string | null;
   assigned_user_id: string | null;
@@ -81,10 +81,10 @@ export const POST = withAuth(
         `SELECT v.*,
                 EXISTS(
                   SELECT 1 FROM estimates e
-                  WHERE e.job_id = v.job_id AND e.account_id = v.account_id
+                  WHERE e.job_id = v.job_id AND e.company_id = v.company_id
                 ) AS has_estimate
          FROM visits v
-         WHERE v.id = $1 AND v.account_id = $2
+         WHERE v.id = $1 AND v.company_id = $2
          FOR UPDATE`,
         [id, session.accountId]
       );
@@ -121,7 +121,7 @@ export const POST = withAuth(
         if (session.role === "owner" || session.role === "admin") {
           visit.assigned_user_id = session.userId;
           await client.query(
-            `UPDATE visits SET assigned_user_id = $1, updated_at = now() WHERE id = $2 AND account_id = $3`,
+            `UPDATE visits SET assigned_user_id = $1, updated_at = now() WHERE id = $2 AND company_id = $3`,
             [session.userId, id, session.accountId]
           );
         } else {
@@ -182,7 +182,7 @@ export const POST = withAuth(
         const packetResult = await client.query(
           `SELECT photo_urls, signature_url, signature_waiver, photos_waived, photos_waiver_reason
            FROM completion_packets
-           WHERE visit_id = $1 AND account_id = $2`,
+           WHERE visit_id = $1 AND company_id = $2`,
           [id, session.accountId]
         );
         const exempt = isQuickJobPacketExempt(visit);
@@ -217,7 +217,7 @@ export const POST = withAuth(
         // Step 1: scheduled → arrived (DB trigger allows this)
         await client.query(
           `UPDATE visits SET status = 'arrived', arrived_at = now(), updated_at = now()
-           WHERE id = $1 AND account_id = $2`,
+           WHERE id = $1 AND company_id = $2`,
           [id, session.accountId]
         );
         // Step 2: arrived → in_progress (DB trigger allows this)
@@ -226,7 +226,7 @@ export const POST = withAuth(
         if (techNotes !== undefined) params2.push(techNotes);
         const { rows: rows2 } = await client.query<VisitRow>(
           `UPDATE visits SET status = 'in_progress', updated_at = now()${noteClause2}
-           WHERE id = $1 AND account_id = $2
+           WHERE id = $1 AND company_id = $2
            RETURNING *`,
           params2
         );
@@ -240,7 +240,7 @@ export const POST = withAuth(
         const { rows } = await client.query<VisitRow>(
           `UPDATE visits
            SET status = $1, updated_at = now()${completedClause}${noteClause}
-           WHERE id = $2 AND account_id = $3
+           WHERE id = $2 AND company_id = $3
            RETURNING *`,
           params
         );
@@ -255,18 +255,18 @@ export const POST = withAuth(
         // active, start job_work linked to this visit.
         await client.query(
           `UPDATE activity_entries SET ended_at = now()
-           WHERE account_id = $1 AND user_id = $2
+           WHERE company_id = $1 AND user_id = $2
              AND ended_at IS NULL AND voided_at IS NULL
              AND NOT (activity_type = 'job_work' AND entity_type = 'visit' AND entity_id = $3)`,
           [session.accountId, session.userId, id]
         );
         await client.query(
           `INSERT INTO activity_entries
-             (account_id, user_id, session_date, activity_type, category, entity_type, entity_id, source)
+             (company_id, user_id, session_date, activity_type, category, entity_type, entity_id, source)
            SELECT $1, $2, CURRENT_DATE, 'job_work', 'revenue', 'visit', $3, 'auto_visit'
            WHERE NOT EXISTS (
              SELECT 1 FROM activity_entries
-             WHERE account_id = $1 AND user_id = $2
+             WHERE company_id = $1 AND user_id = $2
                AND ended_at IS NULL AND voided_at IS NULL
            )`,
           [session.accountId, session.userId, id]
@@ -278,7 +278,7 @@ export const POST = withAuth(
         // (The legacy visit_time_logs close was removed in TASK-064.)
         await client.query(
           `UPDATE activity_entries SET ended_at = now()
-           WHERE account_id = $1 AND user_id = $2
+           WHERE company_id = $1 AND user_id = $2
              AND ended_at IS NULL AND voided_at IS NULL
              AND entity_type = 'visit' AND entity_id = $3`,
           [session.accountId, session.userId, id]
@@ -308,7 +308,7 @@ export const POST = withAuth(
       // -----------------------------------------------------------------------
       if (updated.job_id) {
         const jobRow = await client.query(
-          `SELECT id, status FROM jobs WHERE id = $1 AND account_id = $2 FOR UPDATE`,
+          `SELECT id, status FROM jobs WHERE id = $1 AND company_id = $2 FOR UPDATE`,
           [updated.job_id, session.accountId]
         );
         const job = jobRow.rows[0];
@@ -325,7 +325,7 @@ export const POST = withAuth(
             // Execution visit started — advance job from scheduled → in_progress
             await client.query(
               `UPDATE jobs SET status = 'in_progress', updated_at = now()
-               WHERE id = $1 AND account_id = $2`,
+               WHERE id = $1 AND company_id = $2`,
               [updated.job_id, session.accountId]
             );
             await appendAuditLog(client, {
@@ -346,7 +346,7 @@ export const POST = withAuth(
             // Day of work finished — project is active, not closed
             await client.query(
               `UPDATE jobs SET status = 'in_progress', updated_at = now()
-               WHERE id = $1 AND account_id = $2`,
+               WHERE id = $1 AND company_id = $2`,
               [updated.job_id, session.accountId]
             );
             await appendAuditLog(client, {
@@ -377,7 +377,7 @@ export const POST = withAuth(
                    WHERE status IN ('in_progress','arrived','dispatched','traveling','waiting')
                  ) AS active
                FROM visits
-               WHERE job_id = $1 AND account_id = $2
+               WHERE job_id = $1 AND company_id = $2
                  AND visit_type IN ('standard','punch_list')`,
               [updated.job_id, session.accountId]
             );
@@ -389,7 +389,7 @@ export const POST = withAuth(
             ) {
               await client.query(
                 `UPDATE jobs SET status = 'scheduled', updated_at = now()
-                 WHERE id = $1 AND account_id = $2`,
+                 WHERE id = $1 AND company_id = $2`,
                 [updated.job_id, session.accountId]
               );
               await appendAuditLog(client, {
@@ -410,7 +410,7 @@ export const POST = withAuth(
       // Seed condition snapshots from checklist dispositions on visit completion
       if (effectiveStatus === "completed" && updated.job_id) {
         const jobProp = await client.query<{ property_id: string | null }>(
-          `SELECT property_id FROM jobs WHERE id = $1 AND account_id = $2`,
+          `SELECT property_id FROM jobs WHERE id = $1 AND company_id = $2`,
           [updated.job_id, session.accountId]
         );
         const propertyId = jobProp.rows[0]?.property_id;

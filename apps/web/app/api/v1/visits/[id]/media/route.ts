@@ -30,7 +30,7 @@ type MediaCategory = typeof VALID_CATEGORIES[number];
 
 async function getVisit(client: PoolClient, visitId: string, session: AuthSession) {
   const result = await client.query<{ id: string; assigned_user_id: string | null }>(
-    `SELECT id, assigned_user_id FROM visits WHERE id = $1 AND account_id = $2`,
+    `SELECT id, assigned_user_id FROM visits WHERE id = $1 AND company_id = $2`,
     [visitId, session.accountId]
   );
   return result.rows[0] ?? null;
@@ -74,7 +74,7 @@ export const GET = withAuth(
       const result = await client.query(
         `SELECT id, visit_id, category, original_name, mime_type, size_bytes, created_at
          FROM visit_media
-         WHERE visit_id = $1 AND account_id = $2${categoryClause}
+         WHERE visit_id = $1 AND company_id = $2${categoryClause}
          ORDER BY created_at`,
         params
       );
@@ -189,7 +189,7 @@ export const POST = withAuth(
       );
 
       const { rows } = await client.query(
-        `INSERT INTO visit_media (account_id, visit_id, category, filename, original_name, mime_type, size_bytes, created_by)
+        `INSERT INTO visit_media (company_id, visit_id, category, filename, original_name, mime_type, size_bytes, created_by)
          VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
          RETURNING id, visit_id, category, original_name, mime_type, size_bytes, created_at`,
         [session.accountId, visitId, category, filename, sanitizeDisplayName(file.name), file.type, file.size, session.userId]

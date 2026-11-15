@@ -41,7 +41,7 @@ export const GET = withAuth(
     }
 
     const params: unknown[] = [session.accountId];
-    let where = "account_id = $1";
+    let where = "company_id = $1";
     if (clientId) {
       params.push(clientId);
       where += ` AND client_id = $${params.length}`;
@@ -98,7 +98,7 @@ export const POST = withRole(
       );
 
       const { rows } = await client.query(
-        `INSERT INTO jobs (account_id, client_id, property_id, title, description, job_type, job_category, priority, created_by)
+        `INSERT INTO jobs (company_id, client_id, property_id, title, description, job_type, job_category, priority, created_by)
          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
          RETURNING *`,
         [

@@ -98,7 +98,7 @@ export const POST = withAuth(async (request: NextRequest, session: AuthSession) 
     const saved = await client.query(
       `SELECT id, name, brand, category, unit, unit_cost_cents, supplier
        FROM materials_price_book
-       WHERE account_id = $1 AND is_active = true
+       WHERE company_id = $1 AND is_active = true
        ORDER BY name`,
       [session.accountId]
     );

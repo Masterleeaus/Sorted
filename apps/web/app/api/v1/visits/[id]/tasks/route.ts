@@ -34,7 +34,7 @@ export const GET = withAuth(async (request: NextRequest, session: AuthSession) =
       [session.userId, session.accountId, session.role],
     );
     const visit = await client.query<{ job_id: string; work_order_id: string | null }>(
-      `SELECT job_id, work_order_id FROM visits WHERE id = $1 AND account_id = $2`,
+      `SELECT job_id, work_order_id FROM visits WHERE id = $1 AND company_id = $2`,
       [visitId, session.accountId],
     );
     if (visit.rowCount === 0) {
@@ -96,7 +96,7 @@ export const PUT = withAuth(async (request: NextRequest, session: AuthSession) =
       [session.userId, session.accountId, session.role],
     );
     const { rows } = await client.query<{ job_id: string; work_order_id: string | null }>(
-      `SELECT job_id, work_order_id FROM visits WHERE id = $1 AND account_id = $2 FOR UPDATE`,
+      `SELECT job_id, work_order_id FROM visits WHERE id = $1 AND company_id = $2 FOR UPDATE`,
       [visitId, session.accountId],
     );
     if (!rows[0]) {
@@ -207,7 +207,7 @@ export const PATCH = withAuth(async (request: NextRequest, session: AuthSession)
       `SELECT t.work_order_id, t.completed, t.status
          FROM visit_tasks vt
          JOIN work_order_tasks t ON t.id = vt.task_id
-        WHERE vt.visit_id = $1 AND vt.account_id = $2 AND vt.task_id = $3`,
+        WHERE vt.visit_id = $1 AND vt.company_id = $2 AND vt.task_id = $3`,
       [visitId, session.accountId, data.task_id],
     );
     if (link.rowCount === 0) {
@@ -253,7 +253,7 @@ export const PATCH = withAuth(async (request: NextRequest, session: AuthSession)
       });
       await client.query(
         `UPDATE work_order_tasks SET status = 'done', updated_at = now()
-          WHERE id = $1 AND account_id = $2`,
+          WHERE id = $1 AND company_id = $2`,
         [data.task_id, session.accountId],
       );
       await mirrorTasksToCompletionCriteria(client, workOrderId, session.accountId);
@@ -268,7 +268,7 @@ export const PATCH = withAuth(async (request: NextRequest, session: AuthSession)
       remainderId = result.remainderId;
       // Auto-plan the remainder on this same day so it shows up for the rest of the day
       await client.query(
-        `INSERT INTO visit_tasks (account_id, visit_id, task_id)
+        `INSERT INTO visit_tasks (company_id, visit_id, task_id)
          VALUES ($1, $2, $3)
          ON CONFLICT (visit_id, task_id) DO NOTHING`,
         [session.accountId, visitId, remainderId],
@@ -282,7 +282,7 @@ export const PATCH = withAuth(async (request: NextRequest, session: AuthSession)
       });
       await client.query(
         `UPDATE work_order_tasks SET status = 'open', updated_at = now()
-          WHERE id = $1 AND account_id = $2 AND status <> 'done'`,
+          WHERE id = $1 AND company_id = $2 AND status <> 'done'`,
         [data.task_id, session.accountId],
       );
       await mirrorTasksToCompletionCriteria(client, workOrderId, session.accountId);

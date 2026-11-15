@@ -78,7 +78,7 @@ export const POST = withRole(["owner", "admin"], async (request: NextRequest, se
       total_cents: number;
     }>(
       `SELECT id, status, client_id, property_id, job_id, estimate_id, travel_snapshot_id, total_cents
-       FROM invoices WHERE id = $1 AND account_id = $2`,
+       FROM invoices WHERE id = $1 AND company_id = $2`,
       [invoiceId, session.accountId]
     );
     if (!inv.rowCount) {
@@ -109,7 +109,7 @@ export const POST = withRole(["owner", "admin"], async (request: NextRequest, se
     let estimateSnapshot = null as Awaited<ReturnType<typeof getTravelSnapshot>>;
     if (invoice.estimate_id) {
       const est = await client.query<{ travel_snapshot_id: string | null }>(
-        `SELECT travel_snapshot_id FROM estimates WHERE id = $1 AND account_id = $2`,
+        `SELECT travel_snapshot_id FROM estimates WHERE id = $1 AND company_id = $2`,
         [invoice.estimate_id, session.accountId]
       );
       if (est.rows[0]?.travel_snapshot_id) {
@@ -272,8 +272,8 @@ export const POST = withRole(["owner", "admin"], async (request: NextRequest, se
              LEFT JOIN visits v
                ON v.id = a.entity_id
               AND a.entity_type = 'visit'
-              AND v.account_id = s.account_id
-             WHERE s.account_id = $1
+              AND v.company_id = s.company_id
+             WHERE s.company_id = $1
                AND s.status IS DISTINCT FROM 'voided'
                AND (s.miles_source IN ('odometer', 'manual_miles') OR s.miles_source IS NULL)
                AND (
@@ -296,8 +296,8 @@ export const POST = withRole(["owner", "admin"], async (request: NextRequest, se
              FROM mileage_logs ml
              LEFT JOIN visits v
                ON v.id = ml.visit_id
-              AND v.account_id = ml.account_id
-             WHERE ml.account_id = $1
+              AND v.company_id = ml.company_id
+             WHERE ml.company_id = $1
                AND (ml.trip_type IS NULL OR ml.trip_type IN ('job', 'mixed'))
                AND (
                  ml.job_id = $2
@@ -440,7 +440,7 @@ export const GET = withRole(["owner", "admin", "tech"], async (request: NextRequ
       estimate_id: string | null;
     }>(
       `SELECT travel_snapshot_id, travel_billing_mode, estimate_id
-       FROM invoices WHERE id = $1 AND account_id = $2`,
+       FROM invoices WHERE id = $1 AND company_id = $2`,
       [invoiceId, session.accountId]
     );
     if (!inv.rowCount) {

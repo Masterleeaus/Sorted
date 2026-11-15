@@ -32,7 +32,7 @@ export const POST = withAuth(
 
         const active = await client.query(
           `SELECT 1 FROM visits
-           WHERE work_order_id = $1 AND account_id = $2
+           WHERE work_order_id = $1 AND company_id = $2
              AND status = ANY($3::text[]) LIMIT 1`,
           [id, session.accountId, ACTIVE_VISIT],
         );
@@ -53,7 +53,7 @@ export const POST = withAuth(
 
         await client.query(
           `UPDATE work_orders SET status = 'completed', completed_at = COALESCE(completed_at, now()), updated_at = now()
-           WHERE id = $1 AND account_id = $2`,
+           WHERE id = $1 AND company_id = $2`,
           [id, session.accountId],
         );
         return { kind: "ok" as const, status: "completed" as const };

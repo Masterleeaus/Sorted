@@ -112,7 +112,7 @@ export const POST = withRole(["owner", "admin"], async (request, session) => {
                 minimum_service_override_reason,
                 (SELECT COUNT(*)::int FROM estimate_line_items eli
                  WHERE eli.estimate_id = estimates.id AND eli.visible_to_customer = true) AS line_item_count
-         FROM estimates WHERE id = $1 AND account_id = $2`,
+         FROM estimates WHERE id = $1 AND company_id = $2`,
         [id, session.accountId]
       );
 

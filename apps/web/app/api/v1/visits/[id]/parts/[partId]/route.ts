@@ -21,7 +21,7 @@ const patchPartBody = z.object({
 
 async function getVisit(client: PoolClient, visitId: string, session: AuthSession) {
   const result = await client.query<{ id: string; assigned_user_id: string | null }>(
-    `SELECT id, assigned_user_id FROM visits WHERE id = $1 AND account_id = $2`,
+    `SELECT id, assigned_user_id FROM visits WHERE id = $1 AND company_id = $2`,
     [visitId, session.accountId]
   );
   return result.rows[0] ?? null;
@@ -33,11 +33,11 @@ async function recalcJobCost(client: PoolClient, visitId: string, accountId: str
        SELECT COALESCE(SUM(ROUND(p.actual_cost_cents * p.quantity)), 0)
        FROM visit_parts p
        JOIN visits v ON v.id = p.visit_id
-       WHERE v.job_id = (SELECT job_id FROM visits WHERE id = $1 AND account_id = $2)
-         AND p.account_id = $2
+       WHERE v.job_id = (SELECT job_id FROM visits WHERE id = $1 AND company_id = $2)
+         AND p.company_id = $2
      ), updated_at = now()
-     WHERE id = (SELECT job_id FROM visits WHERE id = $1 AND account_id = $2)
-       AND account_id = $2`,
+     WHERE id = (SELECT job_id FROM visits WHERE id = $1 AND company_id = $2)
+       AND company_id = $2`,
     [visitId, accountId]
   );
 }
@@ -97,7 +97,7 @@ export const PATCH = withAuth(
 
       // Fetch current values to recalculate price if cost changes
       const existing = await client.query<{ actual_cost_cents: number; quantity: number }>(
-        `SELECT actual_cost_cents, quantity FROM visit_parts WHERE id = $1 AND visit_id = $2 AND account_id = $3`,
+        `SELECT actual_cost_cents, quantity FROM visit_parts WHERE id = $1 AND visit_id = $2 AND company_id = $3`,
         [partId, visitId, session.accountId]
       );
       if (!existing.rows[0]) {
@@ -122,7 +122,7 @@ export const PATCH = withAuth(
 
       const { rows } = await client.query(
         `UPDATE visit_parts SET ${fields.join(", ")}, updated_at = now()
-         WHERE id = $1 AND visit_id = $2 AND account_id = $3
+         WHERE id = $1 AND visit_id = $2 AND company_id = $3
          RETURNING id, name, quantity, actual_cost_cents, customer_price_cents, receipt_media_id, updated_at`,
         values
       );
@@ -181,7 +181,7 @@ export const DELETE = withAuth(
       );
 
       const { rows } = await client.query(
-        `DELETE FROM visit_parts WHERE id = $1 AND visit_id = $2 AND account_id = $3 RETURNING id`,
+        `DELETE FROM visit_parts WHERE id = $1 AND visit_id = $2 AND company_id = $3 RETURNING id`,
         [partId, visitId, session.accountId]
       );
 

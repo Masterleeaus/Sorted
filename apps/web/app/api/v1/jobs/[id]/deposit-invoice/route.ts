@@ -39,20 +39,20 @@ export const POST = withRole(["owner", "admin"], async (request, session) => {
         `SELECT j.client_id, j.property_id, e.id AS estimate_id,
                 e.total_cents, e.deposit_cents,
                 (SELECT id FROM invoices
-                  WHERE estimate_id = e.id AND account_id = j.account_id
+                  WHERE estimate_id = e.id AND company_id = j.company_id
                     AND invoice_kind = 'deposit' AND status <> 'void'
                   ORDER BY created_at DESC LIMIT 1) AS existing_deposit_id,
                 (SELECT id FROM invoices
-                  WHERE estimate_id = e.id AND account_id = j.account_id
+                  WHERE estimate_id = e.id AND company_id = j.company_id
                     AND invoice_kind = 'final' AND status <> 'void'
                   LIMIT 1) AS final_invoice_id
          FROM jobs j
          LEFT JOIN LATERAL (
            SELECT id, total_cents, deposit_cents FROM estimates
-           WHERE job_id = j.id AND account_id = j.account_id AND status = 'approved'
+           WHERE job_id = j.id AND company_id = j.company_id AND status = 'approved'
            ORDER BY created_at DESC LIMIT 1
          ) e ON true
-         WHERE j.id = $1 AND j.account_id = $2`,
+         WHERE j.id = $1 AND j.company_id = $2`,
         [jobId, session.accountId],
       );
       if (jobRow.rowCount === 0) {
@@ -91,7 +91,7 @@ export const POST = withRole(["owner", "admin"], async (request, session) => {
       const already = await client.query<{ sum_cents: string }>(
         `SELECT COALESCE(SUM(total_cents), 0)::bigint AS sum_cents
          FROM invoices
-         WHERE estimate_id = $1 AND account_id = $2
+         WHERE estimate_id = $1 AND company_id = $2
            AND invoice_kind IN ('deposit', 'progress')
            AND status <> 'void'`,
         [job.estimate_id, session.accountId],
@@ -125,7 +125,7 @@ export const POST = withRole(["owner", "admin"], async (request, session) => {
       // via loadCreditedInvoicesForEstimate). Matches lib/estimates/approve.ts.
       const inserted = await client.query<{ id: string }>(
         `INSERT INTO invoices
-           (account_id, client_id, job_id, estimate_id, property_id,
+           (company_id, client_id, job_id, estimate_id, property_id,
             status, invoice_kind, invoice_number,
             subtotal_cents, tax_cents, total_cents, paid_cents, deposit_cents,
             notes, created_by)

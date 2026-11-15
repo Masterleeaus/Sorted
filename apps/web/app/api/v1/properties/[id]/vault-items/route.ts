@@ -40,7 +40,7 @@ export const GET = withAuth(
     return withDbSession(session, async (client) => {
       const prop = (
         await client.query(
-          `SELECT id FROM properties WHERE id = $1 AND account_id = $2`,
+          `SELECT id FROM properties WHERE id = $1 AND company_id = $2`,
           [pid, session.accountId]
         )
       ).rows[0];
@@ -49,7 +49,7 @@ export const GET = withAuth(
       const items = (
         await client.query(
           `SELECT * FROM property_vault_items
-           WHERE property_id = $1 AND account_id = $2
+           WHERE property_id = $1 AND company_id = $2
            ORDER BY category ASC, name ASC`,
           [pid, session.accountId]
         )
@@ -85,7 +85,7 @@ export const POST = withAuth(
       );
 
       const prop = await client.query(
-        `SELECT id FROM properties WHERE id = $1 AND account_id = $2`,
+        `SELECT id FROM properties WHERE id = $1 AND company_id = $2`,
         [pid, session.accountId]
       );
       if (!prop.rows[0]) {
@@ -96,7 +96,7 @@ export const POST = withAuth(
       const d = parsed.data;
       const { rows } = await client.query(
         `INSERT INTO property_vault_items
-           (account_id, property_id, category, name, location, manufacturer,
+           (company_id, property_id, category, name, location, manufacturer,
             model_number, serial_number, install_date, last_serviced_date,
             next_service_date, notes, linked_visit_id, created_by)
          VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14)
