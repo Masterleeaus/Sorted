@@ -4,6 +4,10 @@
 
 Dovetails FSM is a residential handyman and home maintenance operating system focused on preserving property history, managing client relationships, creating accurate estimates, executing work efficiently, and maintaining a permanent service record for every property.
 
+### Field App Name
+
+The installable field-technician app (PWA) is named **Titan Go**. The product name remains Dovetails FSM. Titan Go is the surface name for the field app only and does not change the product identity above.
+
 ## What The Product Is
 
 Dovetails FSM runs the Dovetails Services operating workflow from first request through paid invoice and permanent property history. It is built for a small residential service business that needs calm, reliable tools for office coordination, field execution, pricing, billing, and long-term client trust.

@@ -12,7 +12,7 @@ Deploying is production. Do not deploy without explicit owner authorization for 
 - Env file: `/opt/business/ai-fsm/env/.env` (never in git)
 - Data: `/opt/business/ai-fsm/data` (postgres, uploads)
 - Backups: `/opt/business/ai-fsm/backups`
-- Compose file: `infra/compose.garonhome.yml` (project `ai-fsm`; services `web`, `worker`, `postgres`)
+- Compose file: `infra/compose.garonhome.yml` (project `ai-fsm`; services `web`, `worker`, `postgres`). This is the canonical deploy path.
 - Entrypoint: `scripts/deploy-garonhome.sh`
 
 These paths are NOT the production path: `/home/admin/apps/ai-fsm`, the systemd unit `ai-fsm`, `start-production.sh`, and the UI-ZIP overlay. See section 6.
