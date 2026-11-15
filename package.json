@@ -1,6 +1,7 @@
 {
   "name": "ai-fsm",
   "private": true,
+  "license": "MIT",
   "version": "0.1.0",
   "description": "Dovetails FSM: residential handyman and home maintenance operating system",
   "packageManager": "pnpm@9.12.0",

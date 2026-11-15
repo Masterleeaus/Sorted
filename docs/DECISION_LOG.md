@@ -310,3 +310,24 @@ Append-only log of technical decisions made by AI agents.
 - Consequences: Adding a worker query on a new table now needs a line in the provisioner, or the gate fails. Provisioning on deploy narrows the existing role. Tables outside the list lose access. No migration was needed. The worker still bypasses RLS, so the account_id scoping rule above still applies.
 - Rollback plan: re-run the provisioner with the previous script (`git show` the prior revision), or set WORKER_DATABASE_URL to the admin URL as before.
 
+
+### ADR-025: Repository license is MIT (issue #12)
+- Date (UTC): 2026-11-15
+- Agent: claude
+- Task ID: issue #12 (repository policy)
+- Context: The repo was public with no LICENSE, COPYING or NOTICE file. The owner chose MIT.
+- Decision: Add `LICENSE` (MIT, copyright holder Dovetails Services LLC, 2026). Add `"license": "MIT"` to the root `package.json`. Add a License section to `README.md`.
+- Alternatives considered: proprietary terms with private visibility (not chosen by the owner).
+- Consequences: The licence covers first-party code. Imported and ported third-party material keeps its own provenance (`docs/working/titan-donor-provenance.md`). That file records no upstream licence for the donor code, so the owner must confirm the rights before the material is redistributed.
+- Open: confirm the copyright holder name is the one the owner wants (set to the business entity, not a person).
+- Rollback plan: remove `LICENSE` and the README section in a follow-up commit.
+
+### ADR-026: Worker sweeps stay on account_id under BYPASSRLS (issue #15)
+- Date (UTC): 2026-11-15
+- Agent: claude
+- Task ID: issue #15 (worker RLS reconciliation)
+- Context: The issue asked the team to choose the worker model. ADR-024 already chose the BYPASSRLS `ai_fsm_worker` role with explicit grants (ADR-024 addendum, 2026-11-09).
+- Decision: Worker cross-account sweeps keep an explicit `account_id` predicate on every query. The worker does not move to per-account job execution or `company_id` in this change. Web and worker use separate credentials (`WEB_DATABASE_URL`, `WORKER_DATABASE_URL`) in `infra/compose.garonhome.yml`.
+- Evidence (2026-11-15, scratch Postgres 16 with all migrations and both roles provisioned by `scripts/db-provision-runtime.sh`): `services/worker/src/worker-role.integration.test.ts` 6/6 pass; `apps/web/lib/__tests__/db-isolation.integration.test.ts` and `api-tenant-isolation.integration.test.ts` 8/8 pass as `ai_fsm_web`; `check-rls-coverage.mjs` ok; `check-worker-grants.mjs` ok (32 tables).
+- Consequences: The worker bypasses RLS, so a new sweep is not protected by a policy. The `account_id` rule is a review convention, not an automated check.
+- Rollback plan: none needed for this decision (documentation and verification only).

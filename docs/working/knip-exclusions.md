@@ -59,3 +59,10 @@ Result: `pnpm knip` exits 0. `scripts/gate.sh` runs this step, so the knip floor
 - `knip.json`: the top-level `ignoreWorkspaces` entry for `packages/workforce` is removed. The 89 unused files it hid no longer exist, so they are not reported.
 - Lockfile: the `packages/workforce` importer is removed from `pnpm-lock.yaml`. `pnpm install --frozen-lockfile` passes.
 - The 89 files named in the 2026-11-09 pass are no longer part of the knip count. Figures above are kept as the historical record of that pass.
+
+## Update 2026-11-15 (issue #4 closeout pass)
+
+- `pnpm knip` exits 0 on `main` (`d8fac56`) with the current `knip.json`. No unused files are reported. Knip also ran in CI `lint`, which passed on that commit.
+- Removed three stale `ignore` entries that Knip flagged as "Remove from ignore": `app/app/settings/WorkforceLifecyclePanel.tsx` (apps/web), `**/.test-dist/**` and `src/workforce-lifecycle/index.ts` (packages/titan-platform). Re-running Knip after removal still exits 0 with no configuration hints.
+- No file was deleted in this pass. The remaining exclusions are scoped per file and grouped in `docs/working/knip-unused-review-list.txt`. The broad `packages/titan-platform` ignores (`src/ported/**`, `tests/**`, `migration-tests/**`) remain by the owner decisions recorded above.
+- Still open: the broad `src/ported/**` and `tests/**` ignores could be narrowed. Narrowing needs the donor-provenance work and is not part of this pass.
