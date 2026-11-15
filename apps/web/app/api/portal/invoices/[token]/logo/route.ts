@@ -15,7 +15,7 @@ export async function GET(
   const row = await queryOne<{ account_id: string; settings: CompanyProfileSettings }>(
     `SELECT i.account_id, a.settings
      FROM invoices i
-     JOIN accounts a ON a.id = i.account_id
+     JOIN accounts a ON a.id = i.company_id
      WHERE i.share_token = $1`,
     [token],
   );

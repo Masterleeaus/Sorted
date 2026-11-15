@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { withAuth } from "@/lib/auth/middleware";
-import { queryForSession } from "@/lib/db";
+import { queryForSession, companyIdFromSession } from "@/lib/db";
 import { logger } from "@/lib/logger";
 import { isPrivateLocation } from "@ai-fsm/domain";
 
@@ -42,11 +42,11 @@ export const GET = withAuth(async (request: NextRequest, session) => {
               distance_meters, vehicle_id, vehicle_session_id, is_likely_noise,
               ROUND((distance_meters / 1609.344)::numeric, 1)::float8 AS estimated_miles
        FROM location_segments
-       WHERE account_id = $1
+       WHERE company_id = $1
          AND segment_date = COALESCE($2::date, CURRENT_DATE)
          AND status <> 'dismissed'
        ORDER BY started_at ASC`,
-      [session.accountId, day],
+      [companyIdFromSession(session), day],
     );
     const reportable = rows.filter((r) => !isPrivateLocation(r.zone, r.place_label));
     const open = reportable.find((r) => r.ended_at === null) ?? null;

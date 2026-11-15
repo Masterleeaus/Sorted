@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { withAuth } from "@/lib/auth/middleware";
-import { getPool } from "@/lib/db";
+import { getPool, companyIdFromSession } from "@/lib/db";
 import { logger } from "@/lib/logger";
 
 export const dynamic = "force-dynamic";
@@ -42,11 +42,11 @@ export const POST = withAuth(async (_request, session) => {
        -- client/property live on jobs only (visits have no client_id/property_id)
        LEFT JOIN clients c ON c.id = j.client_id
        LEFT JOIN properties p ON p.id = j.property_id
-       WHERE ae.account_id = $1 AND ae.user_id = $2
+       WHERE ae.company_id = $1 AND ae.user_id = $2
          AND ae.ended_at IS NULL AND ae.voided_at IS NULL
          AND ae.activity_type = ANY($3::text[])
        FOR UPDATE`,
-      [session.accountId, session.userId, SITE_TYPES],
+      [companyIdFromSession(session), session.userId, SITE_TYPES],
     );
 
     if (active.rowCount === 0) {

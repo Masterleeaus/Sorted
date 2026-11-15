@@ -73,23 +73,23 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     // Atomic first-writer-wins: only transitions from draft/sent.
     // If status is already approved/declined/expired, RETURNING returns nothing
     // and we treat it as idempotent success.
-    const { rows } = await client.query<{ id: string; account_id: string }>(
+    const { rows } = await client.query<{ id: string; company_id: string }>(
       `UPDATE estimates
        SET status = $1, updated_at = now()
        WHERE id = $2 AND status IN ('draft', 'sent')
-       RETURNING id, account_id`,
+       RETURNING id, company_id`,
       [newStatus, id]
     );
 
     if (rows.length > 0) {
-      const { account_id } = rows[0];
+      const { company_id: account_id } = rows[0];
       const eventType = action === "approve" ? "estimate.approved" : "estimate.declined";
 
       // Audit log + workflow event (non-critical)
       await Promise.all([
         client.query(
           `INSERT INTO audit_log
-             (account_id, entity_type, entity_id, action, actor_id, old_value, new_value)
+             (company_id, entity_type, entity_id, action, actor_id, old_value, new_value)
            VALUES ($1, 'estimate', $2, 'update', NULL, $3, $4)`,
           [
             account_id,

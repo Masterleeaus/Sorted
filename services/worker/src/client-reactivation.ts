@@ -8,6 +8,7 @@ import { PRIORITY } from "./notification/priority.js";
 interface InactiveClient {
   id: string;
   account_id: string;
+  company_id: string;
   name: string | null;
   email: string;
   months_since_last_job: number;
@@ -15,7 +16,7 @@ interface InactiveClient {
 
 export async function findDueClientReactivations(client: Client): Promise<AutomationRow[]> {
   const { rows } = await client.query<AutomationRow>(
-    `SELECT id, account_id, type, config, enabled, next_run_at::text
+    `SELECT id, account_id, company_id, type, config, enabled, next_run_at::text
      FROM automations
      WHERE type = 'client_reactivation'
        AND enabled = true
@@ -32,18 +33,18 @@ export async function findInactiveClients(
   const year = new Date().getFullYear();
 
   const { rows } = await client.query<InactiveClient>(
-    `SELECT c.id, c.account_id, c.name,
+    `SELECT c.id, c.account_id, c.company_id, c.name,
             c.email,
             EXTRACT(MONTH FROM (now() - MAX(j.updated_at)))::int AS months_since_last_job
      FROM clients c
-     LEFT JOIN jobs j ON j.client_id = c.id AND j.account_id = c.account_id AND j.status = 'completed'
-     WHERE c.account_id = $1
+     LEFT JOIN jobs j ON j.client_id = c.id AND j.company_id = c.company_id AND j.status = 'completed'
+     WHERE c.company_id = $1
        AND c.email IS NOT NULL
        AND NOT EXISTS (
          SELECT 1 FROM audit_log al
          WHERE al.entity_type = 'client_reactivation'
            AND al.entity_id = c.id
-           AND al.account_id = c.account_id
+           AND al.company_id = c.company_id
            AND (al.new_value->>'year')::int = $3
        )
      GROUP BY c.id, c.account_id, c.name, c.email
@@ -51,7 +52,7 @@ export async function findInactiveClients(
          OR MAX(j.updated_at) IS NULL
      ORDER BY MAX(j.updated_at) ASC NULLS FIRST
      LIMIT 50`,
-    [automation.account_id, daysInactive, year]
+    [automation.company_id, daysInactive, year]
   );
 
   return rows;
@@ -68,10 +69,10 @@ async function emitClientReactivation(
     `SELECT 1 FROM audit_log
      WHERE entity_type = 'client_reactivation'
        AND entity_id = $1
-       AND account_id = $2
+       AND company_id = $2
        AND (new_value->>'year')::int = $3
      LIMIT 1`,
-    [inactive.id, inactive.account_id, year]
+    [inactive.id, inactive.company_id, year]
   );
   if (rowCount && rowCount > 0) return false;
 

@@ -40,7 +40,7 @@ export async function resolveLoggedInVehicle(
   if (explicitVehicleId) {
     const explicit = await client.query<{ id: string; nickname: string }>(
       `SELECT id, nickname FROM vehicles
-        WHERE id = $1 AND account_id = $2
+        WHERE id = $1 AND company_id = $2
           AND is_active = true AND kind <> 'trailer'`,
       [explicitVehicleId, accountId],
     );
@@ -50,8 +50,8 @@ export async function resolveLoggedInVehicle(
   const open = await client.query<{ id: string; nickname: string }>(
     `SELECT v.id, v.nickname
        FROM vehicle_sessions s
-       JOIN vehicles v ON v.id = s.vehicle_id AND v.account_id = s.account_id
-      WHERE s.account_id = $1
+       JOIN vehicles v ON v.id = s.vehicle_id AND v.company_id = s.company_id
+      WHERE s.company_id = $1
         AND s.created_by = $2
         AND s.status = 'open'
         AND s.end_odometer IS NULL
@@ -66,7 +66,7 @@ export async function resolveLoggedInVehicle(
 
   const defaulted = await client.query<{ id: string; nickname: string }>(
     `SELECT id, nickname FROM vehicles
-      WHERE account_id = $1 AND is_active = true AND kind <> 'trailer' AND is_default = true
+      WHERE company_id = $1 AND is_active = true AND kind <> 'trailer' AND is_default = true
       LIMIT 1`,
     [accountId],
   );
@@ -74,7 +74,7 @@ export async function resolveLoggedInVehicle(
 
   const only = await client.query<{ id: string; nickname: string }>(
     `SELECT id, nickname FROM vehicles
-      WHERE account_id = $1 AND is_active = true AND kind <> 'trailer'
+      WHERE company_id = $1 AND is_active = true AND kind <> 'trailer'
       ORDER BY nickname ASC
       LIMIT 2`,
     [accountId],
@@ -92,7 +92,7 @@ export async function odometerForFuelDate(
 
   const sameDay = await client.query<{ start_odometer: number | null }>(
     `SELECT start_odometer FROM vehicle_sessions
-      WHERE account_id = $1 AND vehicle_id = $2
+      WHERE company_id = $1 AND vehicle_id = $2
         AND session_date = $3::date
         AND start_odometer IS NOT NULL
       ORDER BY started_at ASC NULLS LAST
@@ -101,7 +101,7 @@ export async function odometerForFuelDate(
   );
   const previous = await client.query<{ end_odometer: number | null }>(
     `SELECT end_odometer FROM vehicle_sessions
-      WHERE account_id = $1 AND vehicle_id = $2
+      WHERE company_id = $1 AND vehicle_id = $2
         AND session_date < $3::date
         AND end_odometer IS NOT NULL
       ORDER BY session_date DESC, started_at DESC NULLS LAST
@@ -124,7 +124,7 @@ async function odometerSuspectForFill(
 ): Promise<boolean> {
   const prior = await client.query<{ odo: number | null }>(
     `SELECT MAX(odometer) AS odo FROM vehicle_fuel_logs
-      WHERE account_id = $1 AND vehicle_id = $2
+      WHERE company_id = $1 AND vehicle_id = $2
         AND filled_at < $3::timestamptz
         AND odometer IS NOT NULL AND odometer_suspect = false
         AND expense_id IS DISTINCT FROM $4`,
@@ -132,7 +132,7 @@ async function odometerSuspectForFill(
   );
   const next = await client.query<{ odo: number | null }>(
     `SELECT MIN(odometer) AS odo FROM vehicle_fuel_logs
-      WHERE account_id = $1 AND vehicle_id = $2
+      WHERE company_id = $1 AND vehicle_id = $2
         AND filled_at > $3::timestamptz
         AND odometer IS NOT NULL AND odometer_suspect = false
         AND expense_id IS DISTINCT FROM $4`,
@@ -166,13 +166,13 @@ export async function attachFuelExpenseToVehicle(
   await client.query(
     `UPDATE expenses
         SET vehicle_id = $1, updated_at = now()
-      WHERE id = $2 AND account_id = $3 AND vehicle_id IS DISTINCT FROM $1`,
+      WHERE id = $2 AND company_id = $3 AND vehicle_id IS DISTINCT FROM $1`,
     [vehicle.id, input.expenseId, input.accountId],
   );
 
   const existing = await client.query<{ id: string; odometer: number | null }>(
     `SELECT id, odometer FROM vehicle_fuel_logs
-      WHERE expense_id = $1 AND account_id = $2
+      WHERE expense_id = $1 AND company_id = $2
       LIMIT 1`,
     [input.expenseId, input.accountId],
   );
@@ -227,7 +227,7 @@ export async function attachFuelExpenseToVehicle(
               odometer = $5,
               odometer_suspect = $6,
               updated_at = now()
-        WHERE id = $7 AND account_id = $8`,
+        WHERE id = $7 AND company_id = $8`,
       [
         vehicle.id,
         gallons,

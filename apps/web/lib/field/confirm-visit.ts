@@ -62,8 +62,8 @@ export async function learnPropertyCoordsFromSegment(
     `SELECT p.latitude AS prop_lat, p.longitude AS prop_lng,
             s.latitude AS stop_lat, s.longitude AS stop_lng
      FROM properties p
-     JOIN location_segments s ON s.id = $3 AND s.account_id = $2
-     WHERE p.id = $1 AND p.account_id = $2`,
+     JOIN location_segments s ON s.id = $3 AND s.company_id = $2
+     WHERE p.id = $1 AND p.company_id = $2`,
     [propertyId, accountId, segmentId],
   );
   const row = rows[0];
@@ -85,7 +85,7 @@ export async function learnPropertyCoordsFromSegment(
          coordinate_source = 'confirmed_visit', coordinate_confidence = 'confirmed',
          coordinate_updated_at = now(), updated_at = now()
      FROM location_segments s
-     WHERE p.id = $1 AND p.account_id = $2
+     WHERE p.id = $1 AND p.company_id = $2
        AND s.id = $3 AND s.latitude IS NOT NULL AND s.longitude IS NOT NULL`,
     [propertyId, accountId, segmentId],
   );
@@ -153,7 +153,7 @@ export async function markVisitCandidateConfirmed(
          wo_resolution = 'resolved',
          confirmed_at = now(),
          updated_at = now()
-     WHERE id = $3 AND account_id = $4`,
+     WHERE id = $3 AND company_id = $4`,
     [
       classification,
       entryId,
@@ -174,7 +174,7 @@ export async function ignoreVisitCandidateForSegment(
   await client.query(
     `UPDATE visit_candidates
      SET status = 'ignored', classification = 'ignore', updated_at = now()
-     WHERE location_segment_id = $1 AND account_id = $2 AND status = 'pending'`,
+     WHERE location_segment_id = $1 AND company_id = $2 AND status = 'pending'`,
     [segmentId, accountId],
   );
 }
@@ -194,7 +194,7 @@ export async function findVisitForJobOnDateIncludingCompleted(
   const { rows } = await client.query<{ id: string }>(
     `SELECT v.id
      FROM visits v
-     WHERE v.job_id = $1 AND v.account_id = $2
+     WHERE v.job_id = $1 AND v.company_id = $2
        AND (v.scheduled_start AT TIME ZONE 'America/New_York')::date
            = ($3::timestamptz AT TIME ZONE 'America/New_York')::date
        AND v.status <> 'cancelled'
@@ -222,7 +222,7 @@ async function resolveWorkOrderForFieldDay(
 
   const { rows } = await client.query<{ id: string }>(
     `SELECT id FROM work_orders
-     WHERE job_id = $1 AND account_id = $2 AND status <> 'cancelled'
+     WHERE job_id = $1 AND company_id = $2 AND status <> 'cancelled'
      ORDER BY created_at ASC`,
     [jobId, accountId],
   );
@@ -288,7 +288,7 @@ export async function applyGpsPresenceToVisit(
   }>(
     `SELECT id, status, assigned_user_id, work_order_id
      FROM visits
-     WHERE id = $1 AND account_id = $2
+     WHERE id = $1 AND company_id = $2
      FOR UPDATE`,
     [opts.visitId, opts.accountId],
   );
@@ -302,7 +302,7 @@ export async function applyGpsPresenceToVisit(
   if (!visit.assigned_user_id) {
     await client.query(
       `UPDATE visits SET assigned_user_id = $1, updated_at = now()
-       WHERE id = $2 AND account_id = $3`,
+       WHERE id = $2 AND company_id = $3`,
       [opts.userId, opts.visitId, opts.accountId],
     );
   }
@@ -312,7 +312,7 @@ export async function applyGpsPresenceToVisit(
   async function step(to: string): Promise<void> {
     await client.query(
       `UPDATE visits SET status = $1, updated_at = now()
-       WHERE id = $2 AND account_id = $3`,
+       WHERE id = $2 AND company_id = $3`,
       [to, opts.visitId, opts.accountId],
     );
     status = to;
@@ -342,7 +342,7 @@ export async function applyGpsPresenceToVisit(
          ELSE completed_at
        END,
        updated_at = now()
-     WHERE id = $3 AND account_id = $4`,
+     WHERE id = $3 AND company_id = $4`,
     [opts.arrivalTime, opts.departureTime, opts.visitId, opts.accountId],
   );
 
@@ -480,7 +480,7 @@ export async function ensureFieldDayVisit(
   const jobId = opts.jobId!;
 
   const { rows: jobRows } = await client.query<{ status: string }>(
-    `SELECT status FROM jobs WHERE id = $1 AND account_id = $2`,
+    `SELECT status FROM jobs WHERE id = $1 AND company_id = $2`,
     [jobId, opts.accountId],
   );
   const jobStatus = jobRows[0]?.status;

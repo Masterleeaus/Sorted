@@ -32,14 +32,14 @@ export async function loadDayCloseStatus(
     queryForSession<{ status: string }>(
       session,
       `SELECT status FROM time_clock_sessions
-       WHERE account_id = $1 AND user_id = $2 AND status = 'open' AND voided_at IS NULL
+       WHERE company_id = $1 AND user_id = $2 AND status = 'open' AND voided_at IS NULL
        ORDER BY clock_in_at DESC LIMIT 1`,
       [session.accountId, userId],
     ),
     queryForSession<{ id: string; activity_type: string }>(
       session,
       `SELECT id, activity_type FROM activity_entries
-       WHERE account_id = $1 AND user_id = $2 AND ended_at IS NULL AND voided_at IS NULL
+       WHERE company_id = $1 AND user_id = $2 AND ended_at IS NULL AND voided_at IS NULL
        ORDER BY started_at DESC LIMIT 1`,
       [session.accountId, userId],
     ),
@@ -48,7 +48,7 @@ export async function loadDayCloseStatus(
       // Multi-user: only the day owner's open sessions block close (ops state uses created_by).
       `SELECT s.id, v.nickname AS vehicle_nickname, s.start_odometer
        FROM vehicle_sessions s LEFT JOIN vehicles v ON v.id = s.vehicle_id
-       WHERE s.account_id = $1 AND s.session_date = $2::date
+       WHERE s.company_id = $1 AND s.session_date = $2::date
          AND s.created_by = $3
          AND s.status = 'open'
          AND s.end_odometer IS NULL AND s.miles IS NULL
@@ -58,14 +58,14 @@ export async function loadDayCloseStatus(
     queryForSession<{ count: string }>(
       session,
       `SELECT COUNT(*)::text AS count FROM expenses
-       WHERE account_id = $1 AND expense_date = $2::date
+       WHERE company_id = $1 AND expense_date = $2::date
          AND receipt_url IS NULL`,
       [session.accountId, date],
     ),
     queryForSession<{ count: string }>(
       session,
       `SELECT COUNT(*)::text AS count FROM visits
-       WHERE account_id = $1 AND assigned_user_id = $3
+       WHERE company_id = $1 AND assigned_user_id = $3
          AND scheduled_start::date = $2::date
          AND status NOT IN ('cancelled')`,
       [session.accountId, date, userId],
@@ -77,8 +77,8 @@ export async function loadDayCloseStatus(
       // account's Close Day, not a per-technician subset.
       `SELECT COUNT(*)::text AS count
          FROM location_segments s
-         JOIN accounts a ON a.id = s.account_id
-        WHERE s.account_id = $1
+         JOIN accounts a ON a.id = s.company_id
+        WHERE s.company_id = $1
           AND s.segment_date = $2::date
           AND s.kind = 'stop'
           AND s.status <> 'dismissed'

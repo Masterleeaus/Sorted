@@ -49,8 +49,8 @@ export default async function ExpenseDetailPage({ params }: PageProps) {
        LEFT JOIN jobs j ON j.id = e.job_id
        LEFT JOIN clients c ON c.id = e.client_id
        LEFT JOIN vehicles v ON v.id = e.vehicle_id
-       LEFT JOIN vehicle_fuel_logs f ON f.expense_id = e.id AND f.account_id = e.account_id
-       WHERE e.id = $1 AND e.account_id = $2`,
+       LEFT JOIN vehicle_fuel_logs f ON f.expense_id = e.id AND f.company_id = e.company_id
+       WHERE e.id = $1 AND e.company_id = $2`,
       [id, session.accountId]
     );
     return result.rowCount === 0 ? null : result.rows[0];
@@ -80,7 +80,7 @@ export default async function ExpenseDetailPage({ params }: PageProps) {
         const [jobsResult, clientsResult, vehiclesResult] = await Promise.all([
           client.query<{ id: string; title: string; job_number: string | null }>(
             `SELECT id, title, job_number FROM jobs
-             WHERE account_id = $1
+             WHERE company_id = $1
                AND (
                  status IN (${RECEIPT_LINKABLE_JOB_STATUS_SQL})
                  OR id = $2::uuid
@@ -93,12 +93,12 @@ export default async function ExpenseDetailPage({ params }: PageProps) {
             ],
           ),
           client.query<{ id: string; name: string }>(
-            `SELECT id, name FROM clients WHERE account_id = $1 ORDER BY name ASC LIMIT 100`,
+            `SELECT id, name FROM clients WHERE company_id = $1 ORDER BY name ASC LIMIT 100`,
             [session.accountId]
           ),
           client.query<{ id: string; nickname: string }>(
             `SELECT id, nickname FROM vehicles
-              WHERE account_id = $1 AND is_active = true AND kind <> 'trailer'
+              WHERE company_id = $1 AND is_active = true AND kind <> 'trailer'
               ORDER BY is_default DESC, nickname ASC`,
             [session.accountId],
           ),

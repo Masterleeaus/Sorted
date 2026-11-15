@@ -65,7 +65,7 @@ export async function confirmDriveTrip(
 
   const dayRes = await client.query<{ id: string }>(
     `SELECT id FROM business_days
-      WHERE account_id = $1 AND user_id = $2 AND business_date = $3::date LIMIT 1`,
+      WHERE company_id = $1 AND user_id = $2 AND business_date = $3::date LIMIT 1`,
     [opts.accountId, opts.userId, segment.segment_date],
   );
   const businessDayId = dayRes.rows[0]?.id ?? null;
@@ -130,7 +130,7 @@ export async function confirmDriveTrip(
               business_day_id = COALESCE(business_day_id, $2),
               miles_source = COALESCE(miles_source, $3),
               updated_at = now()
-        WHERE id = $4 AND account_id = $5`,
+        WHERE id = $4 AND company_id = $5`,
       [entryId, businessDayId, milesSource, sessionId, opts.accountId],
     );
   }
@@ -143,7 +143,7 @@ export async function confirmDriveTrip(
             vehicle_session_id = $3,
             suggested_activity_type = $4,
             updated_at = now()
-      WHERE id = $5 AND account_id = $6`,
+      WHERE id = $5 AND company_id = $6`,
     [entryId, opts.vehicleId, sessionId, opts.activityType, segment.id, opts.accountId],
   );
 

@@ -1,9 +1,9 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { assembleWorkforceContext } from "../../.tmp-wf-context-build/assembler.js";
-import { projectWorkforceContextForTask } from "../../.tmp-wf-context-build/projection.js";
-import { createWorkforceTaskCheckpoint } from "../../.tmp-wf-context-build/checkpoint.js";
-import { assertWorkforceContextCompactActive, compactWorkforceContext, reconstructWorkforceContext } from "../../.tmp-wf-context-build/compaction.js";
+import { assembleWorkforceContext } from "../.context-test-dist/assembler.js";
+import { projectWorkforceContextForTask } from "../.context-test-dist/projection.js";
+import { createWorkforceTaskCheckpoint } from "../.context-test-dist/checkpoint.js";
+import { assertWorkforceContextCompactActive, compactWorkforceContext, reconstructWorkforceContext } from "../.context-test-dist/compaction.js";
 
 function projection() {
   const ctx = assembleWorkforceContext({

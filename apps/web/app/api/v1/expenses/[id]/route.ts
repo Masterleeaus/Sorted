@@ -8,6 +8,7 @@ import { expenseCategorySchema, EXPENSE_COMMERCIAL_TAGS } from "@ai-fsm/domain";
 import { getPathId } from "@/lib/route-utils";
 import { attachFuelExpenseToVehicle } from "@/lib/expenses/attach-fuel-expense";
 import { gallonsFromParsedReceipt, isFuelExpenseCategory } from "@/lib/expenses/fuel-from-receipt";
+import { companyIdFromSession } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
 
@@ -26,8 +27,8 @@ export const GET = withAuth(async (request, session) => {
          FROM expenses e
          LEFT JOIN jobs j ON j.id = e.job_id
          LEFT JOIN clients c ON c.id = e.client_id
-         WHERE e.id = $1 AND e.account_id = $2`,
-        [id, session.accountId]
+         WHERE e.id = $1 AND e.company_id = $2`,
+        [id, companyIdFromSession(session)]
       );
 
       return result.rowCount === 0 ? null : result.rows[0];
@@ -148,8 +149,8 @@ export const PATCH = withRole(["owner", "admin"], async (request, session) => {
         billable: boolean;
       }>(
         `SELECT id, vendor_name, category, expense_date::text AS expense_date, notes, amount_cents, billable
-           FROM expenses WHERE id = $1 AND account_id = $2`,
-        [id, session.accountId]
+           FROM expenses WHERE id = $1 AND company_id = $2`,
+        [id, companyIdFromSession(session)]
       );
 
       if (existing.rowCount === 0) {
@@ -203,11 +204,11 @@ export const PATCH = withRole(["owner", "admin"], async (request, session) => {
       }
 
       setClauses.push(`updated_at = now()`);
-      params.push(id, session.accountId);
+      params.push(id, companyIdFromSession(session));
 
       await client.query(
         `UPDATE expenses SET ${setClauses.join(", ")}
-         WHERE id = $${idx} AND account_id = $${idx + 1}`,
+         WHERE id = $${idx} AND company_id = $${idx + 1}`,
         params
       );
 
@@ -292,15 +293,15 @@ export const DELETE = withRole(["owner", "admin"], async (request, session) => {
   try {
     await withExpenseContext(session, async (client) => {
       const existing = await client.query<{ id: string; vendor_name: string }>(
-        `SELECT id, vendor_name FROM expenses WHERE id = $1 AND account_id = $2`,
-        [id, session.accountId]
+        `SELECT id, vendor_name FROM expenses WHERE id = $1 AND company_id = $2`,
+        [id, companyIdFromSession(session)]
       );
 
       if (existing.rowCount === 0) {
         throw Object.assign(new Error("Expense not found"), { code: "NOT_FOUND" });
       }
 
-      await client.query(`DELETE FROM expenses WHERE id = $1 AND account_id = $2`, [id, session.accountId]);
+      await client.query(`DELETE FROM expenses WHERE id = $1 AND company_id = $2`, [id, companyIdFromSession(session)]);
 
       await appendAuditLog(client, {
         account_id: session.accountId,

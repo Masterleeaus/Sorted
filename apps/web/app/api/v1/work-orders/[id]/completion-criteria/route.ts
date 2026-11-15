@@ -48,7 +48,7 @@ export const PATCH = withAuth(
         if (!wo && (session.role === "owner" || session.role === "admin")) {
           const r = await client.query<{ id: string; status: string; completion_criteria: unknown }>(
             `SELECT id, status, completion_criteria FROM work_orders
-              WHERE id = $1 AND account_id = $2 FOR UPDATE`,
+              WHERE id = $1 AND company_id = $2 FOR UPDATE`,
             [id, session.accountId],
           );
           wo = r.rows[0] ?? null;

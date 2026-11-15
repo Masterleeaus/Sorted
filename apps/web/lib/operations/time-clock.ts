@@ -34,7 +34,7 @@ export async function getOpenClock(
 ): Promise<TimeClockRow | null> {
   const { rows } = await client.query<TimeClockRow>(
     `SELECT ${COLS} FROM time_clock_sessions
-      WHERE account_id = $1 AND user_id = $2 AND status = 'open' AND voided_at IS NULL
+      WHERE company_id = $1 AND user_id = $2 AND status = 'open' AND voided_at IS NULL
       FOR UPDATE`,
     [accountId, userId],
   );
@@ -102,7 +102,7 @@ export async function listTodayClocks(
 ): Promise<TimeClockRow[]> {
   const { rows } = await client.query<TimeClockRow>(
     `SELECT ${COLS} FROM time_clock_sessions
-      WHERE account_id = $1 AND user_id = $2 AND voided_at IS NULL
+      WHERE company_id = $1 AND user_id = $2 AND voided_at IS NULL
         AND (status = 'open' OR clock_in_at >= date_trunc('day', now()))
       ORDER BY clock_in_at DESC`,
     [accountId, userId],
@@ -124,7 +124,7 @@ export async function voidClock(
   const { rows } = await client.query<TimeClockRow>(
     `UPDATE time_clock_sessions
         SET voided_at = now(), correction_reason = $3
-      WHERE id = $1 AND account_id = $2 AND voided_at IS NULL
+      WHERE id = $1 AND company_id = $2 AND voided_at IS NULL
       RETURNING ${COLS}`,
     [sessionId, accountId, reason],
   );
@@ -155,7 +155,7 @@ export async function correctClock(
      SELECT account_id, user_id, business_day_id, $3::timestamptz, $4::timestamptz,
             CASE WHEN $4 IS NULL THEN 'open' ELSE 'closed' END,
             pay_type, hourly_rate_snapshot_cents, notes, $5
-       FROM time_clock_sessions WHERE id = $1 AND account_id = $2
+       FROM time_clock_sessions WHERE id = $1 AND company_id = $2
      RETURNING ${COLS}`,
     [sessionId, accountId, input.clockInAt, input.clockOutAt, actorId],
   );
@@ -173,7 +173,7 @@ export async function clockOut(
   const { rows } = await client.query<TimeClockRow>(
     `UPDATE time_clock_sessions
         SET status = 'closed', clock_out_at = now()
-      WHERE id = $1 AND account_id = $2 AND status = 'open'
+      WHERE id = $1 AND company_id = $2 AND status = 'open'
       RETURNING ${COLS}`,
     [open.id, accountId],
   );

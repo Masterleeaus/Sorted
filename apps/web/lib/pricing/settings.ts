@@ -49,7 +49,7 @@ export async function loadPricingSettings(
   accountId: string
 ): Promise<BusinessPricingSettings> {
   const existing = await client.query(
-    `SELECT * FROM business_pricing_settings WHERE account_id = $1`,
+    `SELECT * FROM business_pricing_settings WHERE company_id = $1`,
     [accountId]
   );
   if ((existing.rowCount ?? 0) > 0) {
@@ -62,7 +62,7 @@ export async function loadPricingSettings(
     [accountId]
   );
   const seeded = await client.query(
-    `SELECT * FROM business_pricing_settings WHERE account_id = $1`,
+    `SELECT * FROM business_pricing_settings WHERE company_id = $1`,
     [accountId]
   );
   return rowToPricingSettings(seeded.rows[0] as Record<string, unknown> | undefined);

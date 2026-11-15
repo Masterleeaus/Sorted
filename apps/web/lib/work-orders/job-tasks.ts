@@ -31,8 +31,8 @@ export async function loadJobTasks(
             t.completion_outcome,
             wo.title AS work_order_title, wo.status AS work_order_status
        FROM work_order_tasks t
-       JOIN work_orders wo ON wo.id = t.work_order_id AND wo.account_id = t.account_id
-      WHERE wo.job_id = $1 AND t.account_id = $2
+       JOIN work_orders wo ON wo.id = t.work_order_id AND wo.company_id = t.company_id
+      WHERE wo.job_id = $1 AND t.company_id = $2
         AND wo.status <> 'cancelled'
       ORDER BY wo.created_at ASC, t.sort_order ASC, t.created_at ASC`,
     [jobId, accountId],
@@ -83,7 +83,7 @@ export async function loadOpenTasksForWorkOrder(
     status: string;
   }>(
     `SELECT id, label, required, status FROM work_order_tasks
-      WHERE work_order_id = $1 AND account_id = $2
+      WHERE work_order_id = $1 AND company_id = $2
         AND completed = false
         AND status <> 'done'
       ORDER BY sort_order ASC, created_at ASC`,
@@ -111,14 +111,14 @@ export async function loadSelectableTasksForJob(
       ? `SELECT t.id, t.label, t.required, t.status, t.work_order_id, wo.title AS work_order_title
            FROM work_order_tasks t
            JOIN work_orders wo ON wo.id = t.work_order_id
-          WHERE t.account_id = $1 AND wo.job_id = $2 AND wo.id = $3
+          WHERE t.company_id = $1 AND wo.job_id = $2 AND wo.id = $3
             AND t.completed = false AND t.status <> 'done'
             AND wo.status <> 'cancelled'
           ORDER BY t.sort_order ASC, t.created_at ASC`
       : `SELECT t.id, t.label, t.required, t.status, t.work_order_id, wo.title AS work_order_title
            FROM work_order_tasks t
            JOIN work_orders wo ON wo.id = t.work_order_id
-          WHERE t.account_id = $1 AND wo.job_id = $2
+          WHERE t.company_id = $1 AND wo.job_id = $2
             AND t.completed = false AND t.status <> 'done'
             AND wo.status <> 'cancelled'
           ORDER BY wo.created_at ASC, t.sort_order ASC`,
@@ -150,24 +150,24 @@ export async function setVisitPlannedTasks(
       opts.workOrderId
         ? `SELECT t.id FROM work_order_tasks t
              JOIN work_orders wo ON wo.id = t.work_order_id
-            WHERE t.account_id = $1 AND wo.job_id = $2 AND wo.id = $3
+            WHERE t.company_id = $1 AND wo.job_id = $2 AND wo.id = $3
               AND t.id = ANY($4::uuid[])
               AND (
                 (t.completed = false AND t.status <> 'done')
                 OR EXISTS (
                   SELECT 1 FROM visit_tasks vt
-                  WHERE vt.visit_id = $5 AND vt.task_id = t.id AND vt.account_id = $1
+                  WHERE vt.visit_id = $5 AND vt.task_id = t.id AND vt.company_id = $1
                 )
               )`
         : `SELECT t.id FROM work_order_tasks t
              JOIN work_orders wo ON wo.id = t.work_order_id
-            WHERE t.account_id = $1 AND wo.job_id = $2
+            WHERE t.company_id = $1 AND wo.job_id = $2
               AND t.id = ANY($3::uuid[])
               AND (
                 (t.completed = false AND t.status <> 'done')
                 OR EXISTS (
                   SELECT 1 FROM visit_tasks vt
-                  WHERE vt.visit_id = $4 AND vt.task_id = t.id AND vt.account_id = $1
+                  WHERE vt.visit_id = $4 AND vt.task_id = t.id AND vt.company_id = $1
                 )
               )`,
       opts.workOrderId
@@ -179,7 +179,7 @@ export async function setVisitPlannedTasks(
     }
   }
 
-  await client.query(`DELETE FROM visit_tasks WHERE visit_id = $1 AND account_id = $2`, [
+  await client.query(`DELETE FROM visit_tasks WHERE visit_id = $1 AND company_id = $2`, [
     opts.visitId,
     opts.accountId,
   ]);
@@ -216,9 +216,9 @@ export async function loadVisitPlannedTasks(
     `SELECT t.id, t.label, t.required, t.completed, t.status, t.work_order_id,
             wo.title AS work_order_title
        FROM visit_tasks vt
-       JOIN work_order_tasks t ON t.id = vt.task_id AND t.account_id = vt.account_id
+       JOIN work_order_tasks t ON t.id = vt.task_id AND t.company_id = vt.company_id
        JOIN work_orders wo ON wo.id = t.work_order_id
-      WHERE vt.visit_id = $1 AND vt.account_id = $2
+      WHERE vt.visit_id = $1 AND vt.company_id = $2
       ORDER BY t.sort_order ASC, t.created_at ASC`,
     [visitId, accountId],
   );
@@ -267,7 +267,7 @@ export async function markTaskPartialWithRemainder(
     sort_order: number;
   }>(
     `SELECT id, completed, status, sort_order FROM work_order_tasks
-      WHERE id = $1 AND work_order_id = $2 AND account_id = $3 FOR UPDATE`,
+      WHERE id = $1 AND work_order_id = $2 AND company_id = $3 FOR UPDATE`,
     [opts.taskId, opts.workOrderId, opts.accountId],
   );
   const cur = existing[0];
@@ -283,7 +283,7 @@ export async function markTaskPartialWithRemainder(
             completed_at = NULL,
             note = COALESCE(NULLIF($3, ''), note),
             updated_at = now()
-      WHERE id = $1 AND account_id = $2`,
+      WHERE id = $1 AND company_id = $2`,
     [opts.taskId, opts.accountId, opts.note ?? null],
   );
 

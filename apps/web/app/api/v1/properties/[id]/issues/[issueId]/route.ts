@@ -58,7 +58,7 @@ export const PATCH = withAuth(async (request: NextRequest, session: AuthSession)
 
     const existing = await client.query(
       `SELECT id, status FROM property_issues
-       WHERE id = $1 AND property_id = $2 AND account_id = $3 FOR UPDATE`,
+       WHERE id = $1 AND property_id = $2 AND company_id = $3 FOR UPDATE`,
       [issueId, propertyId, session.accountId]
     );
     if (!existing.rows[0]) {
@@ -81,7 +81,7 @@ export const PATCH = withAuth(async (request: NextRequest, session: AuthSession)
          description        = COALESCE($9, description),
          resolved_at        = CASE WHEN $4 = 'resolved' THEN now() ELSE resolved_at END,
          updated_at         = now()
-       WHERE id = $1 AND property_id = $2 AND account_id = $3
+       WHERE id = $1 AND property_id = $2 AND company_id = $3
        RETURNING *`,
       [
         issueId, propertyId, session.accountId,

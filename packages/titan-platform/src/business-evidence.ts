@@ -51,6 +51,12 @@ export function acceptBusinessEvidence(input: Omit<BusinessEvidence, "evidence_v
   if (classification !== "factual" && acceptance_state === "accepted") {
     throw new Error("business-evidence-simulated-cannot-enter-factual-ledger");
   }
+  if (input.event_type === "execution.provider_acknowledged" && input.verification_id) {
+    throw new Error("business-evidence-provider-ack-cannot-carry-verification");
+  }
+  if (input.event_type === "job.status.verified" && !String(input.verification_id ?? "").trim()) {
+    throw new Error("business-evidence-verification-required");
+  }
   return Object.freeze({
     ...input,
     evidence_id: required(input.evidence_id, "evidence-id"),

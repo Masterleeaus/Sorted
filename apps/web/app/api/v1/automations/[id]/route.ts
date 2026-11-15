@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { withRole } from "@/lib/auth/middleware";
 import type { AuthSession } from "@/lib/auth/middleware";
-import { queryOne, getPool } from "@/lib/db";
+import { queryOne, getPool, companyIdFromSession } from "@/lib/db";
 import { appendAuditLog } from "@/lib/db/audit";
 import { logger } from "@/lib/logger";
 import { getPathId } from "@/lib/route-utils";
@@ -44,8 +44,8 @@ export const PATCH = withRole(["owner", "admin"], async (request: NextRequest, s
     );
 
     const existing = await queryOne<{ id: string; enabled: boolean; config: Record<string, unknown> }>(
-      `SELECT id, enabled, config FROM automations WHERE id = $1 AND account_id = $2`,
-      [id, session.accountId]
+      `SELECT id, enabled, config FROM automations WHERE id = $1 AND company_id = $2`,
+      [id, companyIdFromSession(session)]
     );
 
     if (!existing) {
@@ -75,10 +75,10 @@ export const PATCH = withRole(["owner", "admin"], async (request: NextRequest, s
     }
 
     setClauses.push(`updated_at = now()`);
-    params.push(id, session.accountId);
+    params.push(id, companyIdFromSession(session));
 
     const { rows } = await client.query(
-      `UPDATE automations SET ${setClauses.join(", ")} WHERE id = $${idx++} AND account_id = $${idx++} RETURNING id, enabled, config`,
+      `UPDATE automations SET ${setClauses.join(", ")} WHERE id = $${idx++} AND company_id = $${idx++} RETURNING id, enabled, config`,
       params
     );
 

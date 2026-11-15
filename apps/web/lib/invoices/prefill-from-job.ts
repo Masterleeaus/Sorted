@@ -5,7 +5,8 @@
  * Flat rate: approved estimate line items (caller may pass estimate id).
  * Quick-book jobs have no estimate or booking — they default to hourly.
  */
-import { query, getPool } from "@/lib/db";
+import { getPool, queryForSession } from "@/lib/db";
+import type { SessionPayload } from "@/lib/auth/session";
 import {
   roundedQuarterHoursFromMinutes,
   trackedLaborMinutesFromActivityEntries,
@@ -44,27 +45,28 @@ export function jobPricingModeFromSources(
 }
 
 export async function resolveJobPricingMode(
-  accountId: string,
+  session: SessionPayload,
   jobId: string,
 ): Promise<JobPricingMode | null> {
-  const rows = await query<{
+  const accountId = session.accountId;
+  const rows = await queryForSession<{
     job_pricing_mode: string | null;
     estimate_pricing_mode: string | null;
     booking_pricing_mode: string | null;
     has_booking: boolean;
-  }>(
+  }>(session,
     `SELECT
        (SELECT pricing_mode FROM jobs
-        WHERE id = $1 AND account_id = $2) AS job_pricing_mode,
+        WHERE id = $1 AND company_id = $2) AS job_pricing_mode,
        (SELECT pricing_mode FROM estimates
-        WHERE job_id = $1 AND account_id = $2 AND status = 'approved'
+        WHERE job_id = $1 AND company_id = $2 AND status = 'approved'
         ORDER BY created_at DESC LIMIT 1) AS estimate_pricing_mode,
        (SELECT pricing_mode FROM booking_requests
-        WHERE job_id = $1 AND account_id = $2
+        WHERE job_id = $1 AND company_id = $2
         ORDER BY created_at DESC LIMIT 1) AS booking_pricing_mode,
        EXISTS (
          SELECT 1 FROM booking_requests
-         WHERE job_id = $1 AND account_id = $2
+         WHERE job_id = $1 AND company_id = $2
        ) AS has_booking`,
     [jobId, accountId],
   );
@@ -102,7 +104,7 @@ export async function prefillLineItemsFromTmActuals(
        FROM estimate_line_items eli
        JOIN estimates e ON e.id = eli.estimate_id
        WHERE e.job_id = $1
-         AND e.account_id = $2
+         AND e.company_id = $2
          AND e.status = 'approved'
          AND eli.option_id IS NULL
          AND eli.unit_price_cents > 0
@@ -140,7 +142,7 @@ export async function prefillLineItemsFromTmActuals(
     // Quoted T&M jobs still include receipts; quick jobs (no estimate) are labor-only.
     const approvedEstimate = await client.query(
       `SELECT 1 FROM estimates
-       WHERE job_id = $1 AND account_id = $2 AND status = 'approved'
+       WHERE job_id = $1 AND company_id = $2 AND status = 'approved'
        LIMIT 1`,
       [jobId, accountId],
     );

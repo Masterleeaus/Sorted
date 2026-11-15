@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { withAuth } from "@/lib/auth/middleware";
 import type { AuthSession } from "@/lib/auth/middleware";
-import { query, getPool } from "@/lib/db";
+import { getPool, queryForSession, companyIdFromSession } from "@/lib/db";
 import { appendAuditLog } from "@/lib/db/audit";
 import { logger } from "@/lib/logger";
 
@@ -35,8 +35,8 @@ const createSessionSchema = z.object({
 export const GET = withAuth(async (request: NextRequest, session: AuthSession) => {
   const month = request.nextUrl.searchParams.get("month");
 
-  const conditions = ["s.account_id = $1"];
-  const params: unknown[] = [session.accountId];
+  const conditions = ["s.company_id = $1"];
+  const params: unknown[] = [companyIdFromSession(session)];
   let idx = 2;
 
   if (month && /^\d{4}-\d{2}$/.test(month)) {
@@ -45,7 +45,7 @@ export const GET = withAuth(async (request: NextRequest, session: AuthSession) =
   }
 
   try {
-    const rows = await query(
+    const rows = await queryForSession(session,
       `SELECT s.id, s.session_date::text,
               COALESCE(s.miles, s.end_odometer - s.start_odometer) AS miles,
               s.start_odometer, s.end_odometer, s.notes,
@@ -127,12 +127,12 @@ export const POST = withAuth(async (request: NextRequest, session: AuthSession) 
       d.start_odometer !== undefined && d.end_odometer !== undefined ? "odometer" : "manual_miles";
     const { rows } = await client.query(
       `INSERT INTO vehicle_sessions
-         (account_id, vehicle_id, session_date, start_odometer, end_odometer, miles, notes,
+         (company_id, vehicle_id, session_date, start_odometer, end_odometer, miles, notes,
           created_by, miles_source, status, started_at, ended_at)
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, 'closed', now(), now())
        RETURNING id`,
       [
-        session.accountId,
+        companyIdFromSession(session),
         d.vehicle_id ?? null,
         d.session_date,
         d.start_odometer ?? null,

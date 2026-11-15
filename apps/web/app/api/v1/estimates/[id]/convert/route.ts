@@ -42,7 +42,7 @@ export const POST = withRole(["owner", "admin"], async (request, session) => {
                 e.subtotal_cents, e.tax_cents, e.total_cents, e.deposit_cents,
                 e.notes, e.created_by, e.travel_snapshot_id
          FROM estimates e
-         WHERE e.id = $1 AND e.account_id = $2`,
+         WHERE e.id = $1 AND e.company_id = $2`,
         [id, session.accountId]
       );
 
@@ -86,7 +86,7 @@ export const POST = withRole(["owner", "admin"], async (request, session) => {
         status: string;
       }>(
         `SELECT id, status FROM invoices
-         WHERE estimate_id = $1 AND account_id = $2 AND invoice_kind = 'final'
+         WHERE estimate_id = $1 AND company_id = $2 AND invoice_kind = 'final'
          LIMIT 1`,
         [id, session.accountId]
       );
@@ -152,7 +152,7 @@ export const POST = withRole(["owner", "admin"], async (request, session) => {
       const jobStatus = estimate.job_id
         ? (
             await client.query<{ status: string }>(
-              `SELECT status FROM jobs WHERE id = $1 AND account_id = $2`,
+              `SELECT status FROM jobs WHERE id = $1 AND company_id = $2`,
               [estimate.job_id, session.accountId],
             )
           ).rows[0]?.status ?? null
@@ -161,7 +161,7 @@ export const POST = withRole(["owner", "admin"], async (request, session) => {
 
       const invoiceResult = await client.query<{ id: string }>(
         `INSERT INTO invoices
-           (account_id, client_id, job_id, estimate_id, property_id,
+           (company_id, client_id, job_id, estimate_id, property_id,
             status, invoice_kind, invoice_number,
             subtotal_cents, tax_cents, total_cents, paid_cents, deposit_cents,
             notes, due_date, created_by, travel_snapshot_id, travel_billing_mode)
@@ -195,7 +195,7 @@ export const POST = withRole(["owner", "admin"], async (request, session) => {
         await client.query(
           `UPDATE travel_calculation_snapshots
            SET invoice_id = $1, updated_at = now()
-           WHERE id = $2 AND account_id = $3 AND invoice_id IS NULL`,
+           WHERE id = $2 AND company_id = $3 AND invoice_id IS NULL`,
           [invoiceId, estimate.travel_snapshot_id, session.accountId]
         );
       }

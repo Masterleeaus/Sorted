@@ -1,4 +1,4 @@
-import { query, queryOne } from "@/lib/db";
+import { queryForSession, queryOneForSession } from "@/lib/db";
 import {
   defaultStopReason,
   isOpenJobStatus,
@@ -9,6 +9,7 @@ import {
   type HomeFence,
   type StopReason,
 } from "@ai-fsm/domain";
+import type { SessionPayload } from "@/lib/auth/session";
 
 export type StopInterviewCard = {
   segmentId: string;
@@ -46,20 +47,21 @@ export type StopInterviewPayload = {
 };
 
 export async function loadStopInterview(
-  accountId: string,
+  session: SessionPayload,
   date: string,
 ): Promise<StopInterviewPayload> {
+  const accountId = session.accountId;
   const [homeRow, segments, openJobs, closedJobs, receipts, closedOutToday] = await Promise.all([
-    queryOne<{
+    queryOneForSession<{
       home_latitude: number | null;
       home_longitude: number | null;
       home_radius_meters: number | null;
-    }>(
+    }>(session,
       `SELECT home_latitude, home_longitude, home_radius_meters
          FROM accounts WHERE id = $1`,
       [accountId],
     ),
-    query<{
+    queryForSession<{
       id: string;
       started_at: string;
       ended_at: string | null;
@@ -74,7 +76,7 @@ export async function loadStopInterview(
       client_id: string | null;
       client_name: string | null;
       property_address: string | null;
-    }>(
+    }>(session,
       `SELECT s.id, s.started_at::text, s.ended_at::text, s.latitude, s.longitude,
               s.place_label, s.zone,
               s.stop_reason, s.stop_notes,
@@ -82,10 +84,10 @@ export async function loadStopInterview(
               vc.matched_client_id AS client_id,
               c.name AS client_name, p.address AS property_address
        FROM location_segments s
-       LEFT JOIN visit_candidates vc ON vc.location_segment_id = s.id AND vc.account_id = s.account_id
+       LEFT JOIN visit_candidates vc ON vc.location_segment_id = s.id AND vc.company_id = s.company_id
        LEFT JOIN properties p ON p.id = vc.property_id
        LEFT JOIN clients c ON c.id = vc.matched_client_id
-       WHERE s.account_id = $1
+       WHERE s.company_id = $1
          AND s.segment_date = $2::date
          AND s.kind = 'stop'
          AND s.status <> 'dismissed'
@@ -93,51 +95,51 @@ export async function loadStopInterview(
        ORDER BY s.started_at ASC`,
       [accountId, date],
     ),
-    query<{
+    queryForSession<{
       id: string;
       property_id: string;
       job_number: string;
       title: string;
       status: string;
-    }>(
+    }>(session,
       `SELECT DISTINCT ON (property_id) id, property_id, job_number, title, status
        FROM jobs
-       WHERE account_id = $1
+       WHERE company_id = $1
          AND property_id IS NOT NULL
          AND status IN ('draft', 'quoted', 'scheduled', 'in_progress')
        ORDER BY property_id, updated_at DESC`,
       [accountId],
     ),
-    query<{
+    queryForSession<{
       id: string;
       property_id: string;
       job_number: string;
       title: string;
       status: string;
-    }>(
+    }>(session,
       `SELECT DISTINCT ON (property_id) id, property_id, job_number, title, status
        FROM jobs
-       WHERE account_id = $1
+       WHERE company_id = $1
          AND property_id IS NOT NULL
          AND status IN ('completed', 'invoiced')
        ORDER BY property_id, updated_at DESC`,
       [accountId],
     ),
-    query<StopInterviewReceipt & { vendor_name: string; amount_cents: number }>(
+    queryForSession<StopInterviewReceipt & { vendor_name: string; amount_cents: number }>(session,
       `SELECT id, vendor_name, amount_cents, category
        FROM expenses
-       WHERE account_id = $1
+       WHERE company_id = $1
          AND expense_date = $2::date
          AND job_id IS NULL
          AND reviewed_at IS NULL
        ORDER BY created_at`,
       [accountId, date],
     ),
-    query<{ property_id: string }>(
+    queryForSession<{ property_id: string }>(session,
       `SELECT DISTINCT j.property_id
          FROM visits v
-         JOIN jobs j ON j.id = v.job_id AND j.account_id = v.account_id
-        WHERE v.account_id = $1
+         JOIN jobs j ON j.id = v.job_id AND j.company_id = v.company_id
+        WHERE v.company_id = $1
           AND v.closeout_kind = 'done'
           AND v.status = 'completed'
           AND j.property_id IS NOT NULL

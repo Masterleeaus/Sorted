@@ -31,7 +31,7 @@ export async function lastKnownOdometer(
   const { rows } = await client.query<{ last_known: number | null }>(
     `SELECT MAX(GREATEST(start_odometer, COALESCE(end_odometer, start_odometer)))::int AS last_known
        FROM vehicle_sessions
-      WHERE account_id = $1 AND vehicle_id = $2`,
+      WHERE company_id = $1 AND vehicle_id = $2`,
     [accountId, vehicleId],
   );
   return rows[0]?.last_known ?? null;
@@ -52,7 +52,7 @@ export async function findOpenSessionForVehicle(
   const { rows } = await client.query<OpenSessionRow>(
     `SELECT id, start_odometer, session_date::text AS session_date
        FROM vehicle_sessions
-      WHERE account_id = $1
+      WHERE company_id = $1
         AND vehicle_id = $2
         AND status = 'open'
         AND end_odometer IS NULL

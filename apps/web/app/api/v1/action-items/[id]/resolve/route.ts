@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { OWNER_PROMISE_ACTION_TYPE } from "@ai-fsm/domain";
 import { withRole } from "@/lib/auth/middleware";
-import { queryForSession } from "@/lib/db";
+import { queryForSession, companyIdFromSession } from "@/lib/db";
 import { logger } from "@/lib/logger";
 import { CUSTOMER_PROMISE_BUCKET_HREF } from "@/lib/captures/promise-queue";
 
@@ -58,8 +58,8 @@ export const POST = withRole(["owner", "admin"], async (request: NextRequest, se
       session,
       `SELECT id, resolved_at, resolved_by, action_type
        FROM action_items
-       WHERE id = $1 AND account_id = $2 AND action_type = $3`,
-      [id, session.accountId, OWNER_PROMISE_ACTION_TYPE],
+       WHERE id = $1 AND company_id = $2 AND action_type = $3`,
+      [id, companyIdFromSession(session), OWNER_PROMISE_ACTION_TYPE],
     );
     const row = existing[0];
     if (!row) {
@@ -73,9 +73,9 @@ export const POST = withRole(["owner", "admin"], async (request: NextRequest, se
       session,
       `UPDATE action_items
        SET resolved_at = now(), resolved_by = $1
-       WHERE id = $2 AND account_id = $3 AND resolved_at IS NULL
+       WHERE id = $2 AND company_id = $3 AND resolved_at IS NULL
        RETURNING id, resolved_at, resolved_by`,
-      [session.userId, id, session.accountId],
+      [session.userId, id, companyIdFromSession(session)],
     );
     const resolved = updated[0] ?? row;
     return resolveResponse(request, resolved);

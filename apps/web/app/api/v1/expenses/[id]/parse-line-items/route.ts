@@ -15,6 +15,7 @@ import { appendAuditLog } from "@/lib/db/audit";
 import { logger } from "@/lib/logger";
 import fs from "fs";
 import path from "path";
+import { companyIdFromSession } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
 
@@ -45,8 +46,8 @@ export const POST = withRole(["owner", "admin"], async (request, session) => {
         expense_date: string;
       }>(
         `SELECT id, receipt_url, vendor_name, category, expense_date::text AS expense_date
-         FROM expenses WHERE id = $1 AND account_id = $2`,
-        [expenseId, session.accountId],
+         FROM expenses WHERE id = $1 AND company_id = $2`,
+        [expenseId, companyIdFromSession(session)],
       );
       if ((expense.rowCount ?? 0) === 0) {
         throw Object.assign(new Error("Expense not found"), { code: "NOT_FOUND" });

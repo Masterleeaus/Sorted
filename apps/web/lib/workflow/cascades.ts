@@ -36,7 +36,7 @@ export async function completeAssessmentCascade(
   }>(
     `SELECT id, status, visit_type, completed_at
      FROM visits
-     WHERE id = $1 AND account_id = $2
+     WHERE id = $1 AND company_id = $2
      FOR UPDATE`,
     [ctx.visitId, ctx.accountId]
   );
@@ -52,7 +52,7 @@ export async function completeAssessmentCascade(
     `UPDATE visits
      SET status = 'completed'
      WHERE id = $1
-       AND account_id = $2
+       AND company_id = $2
        AND visit_type = 'site_visit'
        AND status NOT IN ('completed', 'cancelled')
      RETURNING id`,
@@ -66,7 +66,7 @@ export async function completeAssessmentCascade(
   await client.query(
     `UPDATE visits
      SET completed_at = COALESCE($3, $4, now())
-     WHERE id = $1 AND account_id = $2`,
+     WHERE id = $1 AND company_id = $2`,
     [ctx.visitId, ctx.accountId, priorCompletedAt, completedAt]
   );
 
@@ -136,7 +136,7 @@ export async function sendEstimateCascade(
      SET expires_at = now() + ($3::int * interval '1 day'),
          updated_at = now()
      WHERE id = $1
-       AND account_id = $2
+       AND company_id = $2
        AND status = 'draft'
        AND expires_at IS NULL`,
     [ctx.estimateId, ctx.accountId, expiryDays]
@@ -149,7 +149,7 @@ export async function sendEstimateCascade(
   const { rows: jobRows } = await client.query<{ id: string; status: string }>(
     `SELECT id, status
      FROM jobs
-     WHERE id = $1 AND account_id = $2
+     WHERE id = $1 AND company_id = $2
      FOR UPDATE`,
     [ctx.jobId, ctx.accountId]
   );
@@ -163,7 +163,7 @@ export async function sendEstimateCascade(
     `UPDATE jobs
      SET status = 'quoted'
      WHERE id = $1
-       AND account_id = $2
+       AND company_id = $2
        AND status = 'draft'
      RETURNING id`,
     [ctx.jobId, ctx.accountId]

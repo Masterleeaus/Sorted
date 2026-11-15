@@ -25,6 +25,7 @@ import { PRIORITY } from "./notification/priority.js";
 interface StaleLead {
   id: string;
   account_id: string;
+  company_id: string;
   name: string;
   hours_pending: number;
   owner_email: string | null;
@@ -32,7 +33,7 @@ interface StaleLead {
 
 export async function findDueLeadFollowups(client: Client): Promise<AutomationRow[]> {
   const { rows } = await client.query<AutomationRow>(
-    `SELECT id, account_id, type, config, enabled, next_run_at::text
+    `SELECT id, account_id, company_id, type, config, enabled, next_run_at::text
        FROM automations
       WHERE type = 'lead_followup'
         AND enabled = true
@@ -48,24 +49,24 @@ export async function findStaleLeads(
   const hoursThreshold = (automation.config as { hours_threshold?: number }).hours_threshold ?? 24;
 
   const { rows } = await client.query<StaleLead>(
-    `SELECT br.id, br.account_id, br.name,
+    `SELECT br.id, br.account_id, br.company_id, br.name,
             EXTRACT(EPOCH FROM (now() - br.created_at)) / 3600 AS hours_pending,
             (SELECT u.email FROM users u
-              WHERE u.account_id = br.account_id AND u.role = 'owner'
+              WHERE u.company_id = br.company_id AND u.role = 'owner'
               ORDER BY u.created_at ASC LIMIT 1) AS owner_email
        FROM booking_requests br
-      WHERE br.account_id = $1
+      WHERE br.company_id = $1
         AND br.status = 'pending'
         AND br.created_at <= now() - ($2 || ' hours')::interval
         AND NOT EXISTS (
           SELECT 1 FROM audit_log al
-           WHERE al.account_id = br.account_id
+           WHERE al.company_id = br.company_id
              AND al.entity_type = 'lead_followup'
              AND al.entity_id = br.id
         )
       ORDER BY br.created_at ASC
       LIMIT 50`,
-    [automation.account_id, hoursThreshold]
+    [automation.company_id, hoursThreshold]
   );
 
   return rows;
@@ -90,9 +91,9 @@ async function emitLeadFollowup(
   // in findStaleLeads so concurrent runs don't double-send).
   const { rowCount } = await client.query(
     `SELECT 1 FROM audit_log
-      WHERE account_id = $1 AND entity_type = 'lead_followup' AND entity_id = $2
+      WHERE company_id = $1 AND entity_type = 'lead_followup' AND entity_id = $2
       LIMIT 1`,
-    [lead.account_id, lead.id]
+    [lead.company_id, lead.id]
   );
   if (rowCount && rowCount > 0) return false;
 

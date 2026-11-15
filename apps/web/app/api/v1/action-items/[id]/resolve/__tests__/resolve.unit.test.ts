@@ -23,7 +23,7 @@ vi.mock("@/lib/auth/middleware", () => ({
 
 const mockQueryForSession = vi.fn();
 
-vi.mock("@/lib/db", () => ({
+vi.mock("@/lib/db", () => ({ companyIdFromSession: (s: { accountId: string }) => s.accountId,
   queryForSession: (...args: unknown[]) => mockQueryForSession(...args),
 }));
 

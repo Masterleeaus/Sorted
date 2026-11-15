@@ -15,7 +15,7 @@ vi.mock("@/lib/auth/middleware", () => ({
 }));
 
 const mockWithDbSession = vi.fn();
-vi.mock("@/lib/db", () => ({
+vi.mock("@/lib/db", () => ({ companyIdFromSession: (s: { accountId: string }) => s.accountId,
   withDbSession: (...args: unknown[]) => mockWithDbSession(...args),
 }));
 

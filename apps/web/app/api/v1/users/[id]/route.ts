@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { withAuth } from "@/lib/auth/middleware";
 import type { AuthSession } from "@/lib/auth/middleware";
-import { getPool, queryOne } from "@/lib/db";
+import { getPool, queryOneForSession, companyIdFromSession } from "@/lib/db";
 import { appendAuditLog } from "@/lib/db/audit";
 import { logger } from "@/lib/logger";
 import { getPathId } from "@/lib/route-utils";
@@ -28,9 +28,9 @@ export const GET = withAuth(async (request: NextRequest, session: AuthSession) =
       { status: 403 }
     );
   }
-  const row = await queryOne(
-    `SELECT id, full_name, email, phone, role, created_at FROM users WHERE id = $1 AND account_id = $2`,
-    [id, session.accountId]
+  const row = await queryOneForSession(session,
+    `SELECT id, full_name, email, phone, role, created_at FROM users WHERE id = $1 AND company_id = $2`,
+    [id, companyIdFromSession(session)]
   );
   if (!row) {
     return NextResponse.json(
@@ -76,8 +76,8 @@ export const PATCH = withAuth(async (request: NextRequest, session: AuthSession)
       const client = await getPool().connect();
       try {
         const { rows } = await client.query(
-          `SELECT COUNT(*)::int AS cnt FROM users WHERE account_id = $1 AND role = 'owner'`,
-          [session.accountId]
+          `SELECT COUNT(*)::int AS cnt FROM users WHERE company_id = $1 AND role = 'owner'`,
+          [companyIdFromSession(session)]
         );
         if ((rows[0]?.cnt ?? 0) <= 1) {
           return NextResponse.json(
@@ -113,8 +113,8 @@ export const PATCH = withAuth(async (request: NextRequest, session: AuthSession)
     );
 
     const before = await client.query(
-      `SELECT id, full_name, email, phone, role FROM users WHERE id = $1 AND account_id = $2`,
-      [id, session.accountId]
+      `SELECT id, full_name, email, phone, role FROM users WHERE id = $1 AND company_id = $2`,
+      [id, companyIdFromSession(session)]
     );
     if (!before.rowCount) {
       await client.query("ROLLBACK");
@@ -132,8 +132,8 @@ export const PATCH = withAuth(async (request: NextRequest, session: AuthSession)
     params.push(id);
 
     const { rows } = await client.query(
-      `UPDATE users SET ${setClauses.join(", ")} WHERE id = $${idx} AND account_id = $${idx + 1} RETURNING id, full_name, email, phone, role`,
-      [...params, session.accountId]
+      `UPDATE users SET ${setClauses.join(", ")} WHERE id = $${idx} AND company_id = $${idx + 1} RETURNING id, full_name, email, phone, role`,
+      [...params, companyIdFromSession(session)]
     );
 
     await appendAuditLog(client, {
@@ -189,8 +189,8 @@ export const DELETE = withAuth(async (request: NextRequest, session: AuthSession
     );
 
     const before = await client.query(
-      `SELECT id, full_name, email, role FROM users WHERE id = $1 AND account_id = $2`,
-      [id, session.accountId]
+      `SELECT id, full_name, email, role FROM users WHERE id = $1 AND company_id = $2`,
+      [id, companyIdFromSession(session)]
     );
     if (!before.rowCount) {
       await client.query("ROLLBACK");
@@ -200,8 +200,8 @@ export const DELETE = withAuth(async (request: NextRequest, session: AuthSession
     const target = before.rows[0] as { role: string; full_name: string; email: string };
     if (target.role === "owner") {
       const { rows } = await client.query(
-        `SELECT COUNT(*)::int AS cnt FROM users WHERE account_id = $1 AND role = 'owner'`,
-        [session.accountId]
+        `SELECT COUNT(*)::int AS cnt FROM users WHERE company_id = $1 AND role = 'owner'`,
+        [companyIdFromSession(session)]
       );
       if ((rows[0]?.cnt ?? 0) <= 1) {
         await client.query("ROLLBACK");
@@ -212,7 +212,7 @@ export const DELETE = withAuth(async (request: NextRequest, session: AuthSession
       }
     }
 
-    await client.query(`DELETE FROM users WHERE id = $1 AND account_id = $2`, [id, session.accountId]);
+    await client.query(`DELETE FROM users WHERE id = $1 AND company_id = $2`, [id, companyIdFromSession(session)]);
 
     await appendAuditLog(client, {
       account_id: session.accountId,

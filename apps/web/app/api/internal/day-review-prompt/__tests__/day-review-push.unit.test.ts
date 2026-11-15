@@ -5,6 +5,7 @@ const INTERNAL_KEY = "test-internal-key";
 
 const {
   mockQueryOne,
+  mockClientQuery,
   mockSendPushToOwners,
   mockBusinessToday,
   mockBusinessMinutesNow,
@@ -12,6 +13,7 @@ const {
   process.env.LOCATION_INTERNAL_KEY = "test-internal-key";
   return {
     mockQueryOne: vi.fn(),
+    mockClientQuery: vi.fn(),
     mockSendPushToOwners: vi.fn(),
     mockBusinessToday: vi.fn(() => "2026-09-05"),
     mockBusinessMinutesNow: vi.fn(() => 20 * 60),
@@ -20,6 +22,9 @@ const {
 
 vi.mock("@/lib/db", () => ({
   queryOne: (...args: unknown[]) => mockQueryOne(...args),
+  getPool: () => ({
+    connect: async () => ({ query: (...args: unknown[]) => mockClientQuery(...args), release: () => {} }),
+  }),
 }));
 
 vi.mock("@/lib/push/send", () => ({
@@ -33,7 +38,7 @@ vi.mock("@/lib/operations/business-day", () => ({
 
 import { POST } from "../route";
 
-const ACCOUNT_ID = "acct-owner-1";
+const ACCOUNT_ID = "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa";
 const BUSINESS_DAY_ID = "bd-1";
 const DAY_REVIEW_PUSH = {
   title: "Walk today’s stops",
@@ -49,6 +54,13 @@ function post(apiKey?: string): NextRequest {
     method: "POST",
     headers,
   });
+}
+
+// The resolver returns the owner's account id; the day row and the business-day
+// update run on the pool client inside that account's context.
+let currentRow: Record<string, unknown> | null = null;
+function setRow(overrides: Record<string, unknown> = {}) {
+  currentRow = openDayRow(overrides);
 }
 
 function openDayRow(overrides: Record<string, unknown> = {}) {
@@ -67,7 +79,15 @@ describe("POST /api/internal/day-review-prompt Web Push (TASK-116)", () => {
     mockBusinessToday.mockReturnValue("2026-09-05");
     mockBusinessMinutesNow.mockReturnValue(20 * 60);
     mockSendPushToOwners.mockResolvedValue(1);
-    mockQueryOne.mockResolvedValue(openDayRow());
+    mockQueryOne.mockImplementation(async (sql: string) =>
+      sql.includes("resolve_owner_account_id") ? { account_id: currentRow?.account_id ?? null } : null,
+    );
+    mockClientQuery.mockImplementation(async (sql: string) => {
+      if (/^(BEGIN|COMMIT|ROLLBACK)$/.test(sql) || sql.startsWith("SELECT set_config")) return { rows: [] };
+      if (sql.includes("FROM accounts a")) return { rows: currentRow ? [currentRow] : [] };
+      return { rows: [] };
+    });
+    setRow();
   });
 
   it("returns 401 and does not send when the api key is missing", async () => {
@@ -96,14 +116,14 @@ describe("POST /api/internal/day-review-prompt Web Push (TASK-116)", () => {
   });
 
   it("does not send when there is no open day", async () => {
-    mockQueryOne.mockResolvedValueOnce(openDayRow({ business_day_id: null }));
+    setRow({ business_day_id: null });
     const res = await POST(post(INTERNAL_KEY));
     expect(await res.json()).toEqual({ result: "skipped", reason: "no_open_day" });
     expect(mockSendPushToOwners).not.toHaveBeenCalled();
   });
 
   it("does not send when already prompted", async () => {
-    mockQueryOne.mockResolvedValueOnce(openDayRow({ already_prompted: true }));
+    setRow({ already_prompted: true });
     const res = await POST(post(INTERNAL_KEY));
     expect(await res.json()).toEqual({ result: "skipped", reason: "already_prompted" });
     expect(mockSendPushToOwners).not.toHaveBeenCalled();

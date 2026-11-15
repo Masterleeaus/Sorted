@@ -16,14 +16,14 @@ export async function validateWorkOrderForeignKeys(
   },
 ): Promise<string | null> {
   const cli = await client.query(
-    `SELECT id FROM clients WHERE id = $1 AND account_id = $2`,
+    `SELECT id FROM clients WHERE id = $1 AND company_id = $2`,
     [refs.client_id, accountId],
   );
   if (cli.rowCount === 0) return "Unknown client";
 
   if (refs.job_id) {
     const job = await client.query(
-      `SELECT id, client_id FROM jobs WHERE id = $1 AND account_id = $2`,
+      `SELECT id, client_id FROM jobs WHERE id = $1 AND company_id = $2`,
       [refs.job_id, accountId],
     );
     if (job.rowCount === 0) return "Unknown project";
@@ -32,7 +32,7 @@ export async function validateWorkOrderForeignKeys(
 
   if (refs.property_id) {
     const prop = await client.query(
-      `SELECT id, client_id FROM properties WHERE id = $1 AND account_id = $2`,
+      `SELECT id, client_id FROM properties WHERE id = $1 AND company_id = $2`,
       [refs.property_id, accountId],
     );
     if (prop.rowCount === 0) return "Unknown property";
@@ -41,7 +41,7 @@ export async function validateWorkOrderForeignKeys(
 
   if (refs.source_visit_id) {
     const visit = await client.query(
-      `SELECT id FROM visits WHERE id = $1 AND account_id = $2`,
+      `SELECT id FROM visits WHERE id = $1 AND company_id = $2`,
       [refs.source_visit_id, accountId],
     );
     if (visit.rowCount === 0) return "Unknown source visit";
@@ -49,7 +49,7 @@ export async function validateWorkOrderForeignKeys(
 
   if (refs.source_assessment_id) {
     const assessment = await client.query(
-      `SELECT id FROM site_visit_assessments WHERE id = $1 AND account_id = $2`,
+      `SELECT id FROM site_visit_assessments WHERE id = $1 AND company_id = $2`,
       [refs.source_assessment_id, accountId],
     );
     if (assessment.rowCount === 0) return "Unknown source assessment";
@@ -83,7 +83,7 @@ export async function validateWorkOrderCompletion(
   completionCriteria: CompletionCriterion[],
 ): Promise<string | null> {
   const visitRes = await client.query<{ status: string }>(
-    `SELECT status FROM visits WHERE work_order_id = $1 AND account_id = $2`,
+    `SELECT status FROM visits WHERE work_order_id = $1 AND company_id = $2`,
     [workOrderId, accountId],
   );
   return completionGateMessage(visitRes.rows, completionCriteria);

@@ -127,6 +127,7 @@ describe.skipIf(!shouldRun)("Visit Reminder Integration Tests", () => {
     const automation: AutomationRow = {
       id: testAutomationId,
       account_id: ACCOUNT_A,
+      company_id: ACCOUNT_A,
       type: "visit_reminder",
       config: { hours_before: 24 },
       enabled: true,
@@ -146,6 +147,7 @@ describe.skipIf(!shouldRun)("Visit Reminder Integration Tests", () => {
     const automation: AutomationRow = {
       id: testAutomationId,
       account_id: ACCOUNT_A,
+      company_id: ACCOUNT_A,
       type: "visit_reminder",
       config: { hours_before: 1 }, // Only 1 hour window — our visit is 12h away
       enabled: true,
@@ -161,6 +163,7 @@ describe.skipIf(!shouldRun)("Visit Reminder Integration Tests", () => {
     const visit: EligibleVisit = {
       id: testVisitId,
       account_id: ACCOUNT_A,
+      company_id: ACCOUNT_A,
       job_id: testJobId,
       client_id: testClientId,
       assigned_user_id: TECH_A,
@@ -195,6 +198,7 @@ describe.skipIf(!shouldRun)("Visit Reminder Integration Tests", () => {
     const visit: EligibleVisit = {
       id: testVisitId,
       account_id: ACCOUNT_A,
+      company_id: ACCOUNT_A,
       job_id: testJobId,
       client_id: testClientId,
       assigned_user_id: TECH_A,

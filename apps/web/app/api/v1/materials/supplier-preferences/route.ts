@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { withAuth, type AuthSession } from "@/lib/auth/middleware";
-import { withDbSession } from "@/lib/db";
+import { withDbSession, companyIdFromSession } from "@/lib/db";
 import { logger } from "@/lib/logger";
 
 export const dynamic = "force-dynamic";
@@ -33,14 +33,14 @@ export const PUT = withAuth(async (request: NextRequest, session: AuthSession) =
       const supplier = parsed.data.supplier;
       const saved = await client.query(
         `INSERT INTO account_supplier_preferences
-           (account_id, supplier, supplier_normalized, branch_label, address)
+           (company_id, supplier, supplier_normalized, branch_label, address)
          VALUES ($1, $2, $3, $4, $5)
          ON CONFLICT (account_id, supplier_normalized) DO UPDATE
          SET supplier = EXCLUDED.supplier,
              branch_label = EXCLUDED.branch_label,
              address = EXCLUDED.address
          RETURNING supplier, supplier_normalized, branch_label, address`,
-        [session.accountId, supplier, supplier.toLowerCase(), parsed.data.branch_label, parsed.data.address ?? null],
+        [companyIdFromSession(session), supplier, supplier.toLowerCase(), parsed.data.branch_label, parsed.data.address ?? null],
       );
       return NextResponse.json({ data: saved.rows[0] });
     });

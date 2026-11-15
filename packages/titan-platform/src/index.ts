@@ -3,6 +3,7 @@ export * from "./runtime.js";
 export * from "./workforce.js";
 export * from "./workforce-native/index.js";
 export * from "./workforce-delegation/index.js";
+export * from "./workforce-capacity/index.js";
 export * from "./intelligence.js";
 export * from "./business-ops.js";
 export * from "./business-evidence.js";

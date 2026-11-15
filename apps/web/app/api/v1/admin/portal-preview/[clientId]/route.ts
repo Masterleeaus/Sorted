@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/auth/session";
 import { canManageClients } from "@/lib/auth/permissions";
-import { queryOneForSession } from "@/lib/db";
+import { queryOneForSession, companyIdFromSession } from "@/lib/db";
 import { createPortalSession, PORTAL_SESSION_COOKIE, PREVIEW_SESSION_SECONDS } from "@/lib/portal/session";
 import { appUrl } from "@/lib/email/mailer";
 
@@ -18,8 +18,8 @@ export async function GET(
 
   const client = await queryOneForSession<{ id: string; portal_token: string }>(
     session,
-    `SELECT id, portal_token FROM clients WHERE id = $1 AND account_id = $2`,
-    [clientId, session.accountId]
+    `SELECT id, portal_token FROM clients WHERE id = $1 AND company_id = $2`,
+    [clientId, companyIdFromSession(session)]
   );
 
   if (!client) {

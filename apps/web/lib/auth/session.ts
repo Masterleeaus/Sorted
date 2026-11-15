@@ -59,7 +59,7 @@ export async function getSession(): Promise<SessionPayload | null> {
 
   const user = await queryOneForSession<UserSessionRow>(
     verified,
-    `SELECT id, account_id, role FROM users WHERE id = $1 AND account_id = $2`,
+    `SELECT id, account_id, role FROM users WHERE id = $1 AND company_id = $2`,
     [verified.userId, verified.accountId],
   );
   if (!user) return null;
