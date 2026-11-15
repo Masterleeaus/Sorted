@@ -42,3 +42,14 @@ export {
 } from "./link-assertion";
 export * from './service-token';
 export * from './entitlements';
+export { verifyEventEnvelopeSignature } from './event-envelope';
+export { createMemoryLinkNonceStore, type LinkNonceStore } from './link-nonce-store';
+export {
+  createCentralServiceClient,
+  CentralServiceError,
+  readCentralServiceConfig,
+  type CentralServiceClient,
+  type CentralServiceClientOptions,
+  type CentralServiceConfig,
+  type CentralServiceErrorCode,
+} from './central-service-client';

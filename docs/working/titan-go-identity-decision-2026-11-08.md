@@ -12,6 +12,12 @@ Issue: #8. Docs and package description only. No code behaviour changed.
 
 Owner to confirm: that Titan Go stays a UI layer and the prototype surfaces below are not promoted to production.
 
+## Update 2026-11-15: name confirmed
+
+- Owner confirmed Titan Go as the name of the Field PWA.
+- `docs/canonical/PRODUCT_VISION.md` now records this under "Field App Name". This is a naming decision only. Product identity remains Dovetails FSM.
+- Open point: the Decision section above says Titan Go is "a UI layer" and "not a separate PWA product". The name confirmation does not settle whether the Field PWA is a separate installable app or a mode of the main app. Owner to confirm.
+
 ## Why
 
 - `docs/canonical/PRODUCT_VISION.md` lists "A generic multi-company field service platform", "A SaaS subscription platform" and "An AI estimating product" as not current identity.
