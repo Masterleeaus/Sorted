@@ -1,3 +1,10 @@
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Jobs",
+  description: "Manage field jobs, assignments and progress in Sorted Field.",
+};
+
 import Link from "next/link";
 import type { Route } from "next";
 import { redirect } from "next/navigation";

@@ -20,10 +20,10 @@ export const POST = withAuth(async (_request: NextRequest, session) => {
   }
   try {
     const sent = await sendPushToUser(session.accountId, session.userId, {
-      title: "Dovetails test",
+      title: "Sorted test",
       body: "Push notifications are working.",
       url: "/app",
-      tag: "dovetails-test",
+      tag: "sorted-test",
     });
     return NextResponse.json({ data: { sent } });
   } catch (error) {
