@@ -21,7 +21,7 @@ export const GET = withAuth(async (request: NextRequest, session: AuthSession) =
   try {
     return await withDbSession(session, async (client) => {
       const wo = await client.query(
-        `SELECT id FROM work_orders WHERE id = $1 AND account_id = $2`,
+        `SELECT id FROM work_orders WHERE id = $1 AND company_id = $2`,
         [woId, session.accountId],
       );
       if (wo.rowCount === 0) {

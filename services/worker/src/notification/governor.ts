@@ -55,7 +55,7 @@ function nextWorkingHoursStart(rules: NotificationSettings): Date {
 export async function getRules(client: Client, accountId: string): Promise<NotificationSettings> {
   const { rows } = await client.query<NotificationSettings>(
     `SELECT cooldown_hours, max_per_day, working_hours_start, working_hours_end, working_hours_tz
-     FROM automation_settings WHERE account_id = $1`,
+     FROM automation_settings WHERE company_id = $1`,
     [accountId]
   );
   return rows[0] ?? {
@@ -91,7 +91,7 @@ export async function checkGovernor(
   if (!isCritical && notification.client_id) {
     const cooldown = await client.query<{ last_sent_at: string }>(
       `SELECT last_sent_at FROM notification_cooldowns
-       WHERE account_id = $1 AND client_id = $2`,
+       WHERE company_id = $1 AND client_id = $2`,
       [notification.account_id, notification.client_id]
     );
     if (cooldown.rows.length > 0) {

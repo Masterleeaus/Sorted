@@ -47,7 +47,7 @@ export async function deleteSubscription(
   endpoint: string,
 ): Promise<void> {
   await client.query(
-    `DELETE FROM push_subscriptions WHERE account_id = $1 AND endpoint = $2`,
+    `DELETE FROM push_subscriptions WHERE company_id = $1 AND endpoint = $2`,
     [accountId, endpoint],
   );
 }

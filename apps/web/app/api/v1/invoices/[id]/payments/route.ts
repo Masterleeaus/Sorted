@@ -28,7 +28,7 @@ export const GET = withAuth(async (request, session) => {
     const data = await withInvoiceContext(session, async (client) => {
       // Verify invoice exists and belongs to account
       const invoiceCheck = await client.query(
-        `SELECT id FROM invoices WHERE id = $1 AND account_id = $2`,
+        `SELECT id FROM invoices WHERE id = $1 AND company_id = $2`,
         [invoiceId, session.accountId]
       );
       if (invoiceCheck.rowCount === 0) return null;
@@ -40,7 +40,7 @@ export const GET = withAuth(async (request, session) => {
                 u.full_name AS created_by_name
          FROM payments p
          LEFT JOIN users u ON u.id = p.created_by
-         WHERE p.invoice_id = $1 AND p.account_id = $2
+         WHERE p.invoice_id = $1 AND p.company_id = $2
          ORDER BY p.received_at DESC, p.created_at DESC`,
         [invoiceId, session.accountId]
       );
@@ -132,7 +132,7 @@ export const POST = withRole(["owner", "admin"], async (request, session) => {
       }>(
         `SELECT id, status, total_cents, paid_cents, deposit_cents, client_id, job_id
          FROM invoices
-         WHERE id = $1 AND account_id = $2
+         WHERE id = $1 AND company_id = $2
          FOR UPDATE`,
         [invoiceId, session.accountId]
       );
@@ -180,7 +180,7 @@ export const POST = withRole(["owner", "admin"], async (request, session) => {
       if (idempotency_key) {
         const existing = await client.query<{ id: string }>(
           `SELECT id FROM payments
-           WHERE invoice_id = $1 AND account_id = $2
+           WHERE invoice_id = $1 AND company_id = $2
              AND notes LIKE $3`,
           [
             invoiceId,
@@ -197,7 +197,7 @@ export const POST = withRole(["owner", "admin"], async (request, session) => {
       // Deterministic duplicate guard: same invoice, amount, method within 60 seconds
       const dupCheck = await client.query<{ id: string }>(
         `SELECT id FROM payments
-         WHERE invoice_id = $1 AND account_id = $2
+         WHERE invoice_id = $1 AND company_id = $2
            AND amount_cents = $3 AND method = $4
            AND created_at > now() - interval '60 seconds'`,
         [invoiceId, session.accountId, amount_cents, method]
@@ -226,7 +226,7 @@ export const POST = withRole(["owner", "admin"], async (request, session) => {
 
       const insertResult = await client.query<{ id: string }>(
         `INSERT INTO payments
-           (account_id, invoice_id, job_id, customer_id, amount_cents, method,
+           (company_id, invoice_id, job_id, customer_id, amount_cents, method,
             payment_type, status, received_at, paid_at, notes, created_by)
          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
          RETURNING id`,

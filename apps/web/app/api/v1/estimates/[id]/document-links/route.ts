@@ -61,7 +61,7 @@ export const PATCH = withRole(["owner", "admin"], async (request, session) => {
         property_id: string | null;
       }>(
         `SELECT id, status, client_id, job_id, property_id
-         FROM estimates WHERE id = $1 AND account_id = $2`,
+         FROM estimates WHERE id = $1 AND company_id = $2`,
         [id, session.accountId],
       );
 
@@ -122,7 +122,7 @@ export const PATCH = withRole(["owner", "admin"], async (request, session) => {
       await client.query(
         `UPDATE estimates
          SET client_id = $1, job_id = $2, property_id = $3, updated_at = now()
-         WHERE id = $4 AND account_id = $5`,
+         WHERE id = $4 AND company_id = $5`,
         [next.client_id, next.job_id, next.property_id, id, session.accountId],
       );
 

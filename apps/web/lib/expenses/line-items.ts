@@ -30,7 +30,7 @@ export async function fetchExpenseLineItems(
     `SELECT id, expense_id, name, quantity::float8 AS quantity,
             unit_cost_cents, sku, sort_order, billable
      FROM expense_line_items
-     WHERE account_id = $1 AND expense_id = $2
+     WHERE company_id = $1 AND expense_id = $2
      ORDER BY sort_order ASC, created_at ASC`,
     [accountId, expenseId],
   );
@@ -44,7 +44,7 @@ export async function replaceExpenseLineItems(
   items: ExpenseLineItemInput[],
 ): Promise<ExpenseLineItemRow[]> {
   await client.query(
-    `DELETE FROM expense_line_items WHERE account_id = $1 AND expense_id = $2`,
+    `DELETE FROM expense_line_items WHERE company_id = $1 AND expense_id = $2`,
     [accountId, expenseId],
   );
   if (items.length === 0) return [];

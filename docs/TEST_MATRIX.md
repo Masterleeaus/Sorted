@@ -114,6 +114,7 @@ pnpm test:integration
 CI provides a disposable `LOCATION_INTERNAL_KEY` to both the server and tests.
 The restricted-role regression additionally uses `TEST_RUNTIME_DATABASE_URL`,
 provisioned by `scripts/db-provision-runtime.sh` after migrations.
+Tenant isolation: `apps/web/lib/__tests__/api-tenant-isolation.integration.test.ts` (route handlers, account A session on account B records; `TEST_WEB_DATABASE_URL` selects the role) and `services/worker/src/worker-role.integration.test.ts` (`TEST_WORKER_DATABASE_URL`, cross-account sweep as `ai_fsm_worker`). See `docs/working/rls-web-tier-flip.md`.
 
 ---
 

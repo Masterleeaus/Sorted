@@ -185,9 +185,9 @@ export default async function VisitDetailPage({
      LEFT JOIN jobs j ON j.id = v.job_id
      LEFT JOIN properties p ON p.id = j.property_id
      LEFT JOIN clients c ON c.id = j.client_id
-     LEFT JOIN maintenance_plans mp ON mp.id = v.generated_from_plan_id AND mp.account_id = v.account_id
+     LEFT JOIN maintenance_plans mp ON mp.id = v.generated_from_plan_id AND mp.company_id = v.company_id
      LEFT JOIN users u ON u.id = v.assigned_user_id
-     WHERE v.id = $1 AND v.account_id = $2`,
+     WHERE v.id = $1 AND v.company_id = $2`,
     [id, session.accountId]
   );
 
@@ -207,7 +207,7 @@ export default async function VisitDetailPage({
   const assignableUsers = canAssign
     ? await queryForSession<{ id: string; full_name: string; role: string; [key: string]: unknown }>(
         session,
-        `SELECT id, full_name, role FROM users WHERE account_id = $1 ORDER BY full_name ASC`,
+        `SELECT id, full_name, role FROM users WHERE company_id = $1 ORDER BY full_name ASC`,
         [session.accountId]
       )
     : [];
@@ -240,7 +240,7 @@ export default async function VisitDetailPage({
           `SELECT COUNT(*)::int AS membership_visit_number
            FROM visits v2
            WHERE v2.generated_from_plan_id = $1
-             AND v2.account_id = $2
+             AND v2.company_id = $2
              AND (
                v2.scheduled_start < $3
                OR (v2.scheduled_start = $3 AND v2.id <= $4)
@@ -254,7 +254,7 @@ export default async function VisitDetailPage({
           session,
           `SELECT DISTINCT category
            FROM property_vault_items
-           WHERE property_id = $1 AND account_id = $2`,
+           WHERE property_id = $1 AND company_id = $2`,
           [visit.job_property_id, session.accountId]
         )
       : Promise.resolve([] as VaultCategoryRow[]),
@@ -265,7 +265,7 @@ export default async function VisitDetailPage({
           session,
           `SELECT id, title, severity, area, occurrence_count
            FROM property_issues
-           WHERE property_id = $1 AND account_id = $2
+           WHERE property_id = $1 AND company_id = $2
              AND status IN ('open','monitoring')
            ORDER BY CASE severity
              WHEN 'critical' THEN 1 WHEN 'major' THEN 2 WHEN 'moderate' THEN 3 ELSE 4
@@ -281,7 +281,7 @@ export default async function VisitDetailPage({
           session,
           `SELECT id, body, source, created_at::text AS created_at
            FROM property_notes
-           WHERE property_id = $1 AND account_id = $2 AND pinned = true
+           WHERE property_id = $1 AND company_id = $2 AND pinned = true
            ORDER BY created_at DESC
            LIMIT 3`,
           [visit.job_property_id!, session.accountId]
@@ -295,7 +295,7 @@ export default async function VisitDetailPage({
           `SELECT v2.id, j2.title AS job_title, v2.completed_at::text AS completed_at
            FROM visits v2
            JOIN jobs j2 ON j2.id = v2.job_id
-           WHERE j2.property_id = $1 AND v2.account_id = $2
+           WHERE j2.property_id = $1 AND v2.company_id = $2
              AND v2.status = 'completed' AND v2.id != $3
            ORDER BY v2.completed_at DESC
            LIMIT 1`,
@@ -307,7 +307,7 @@ export default async function VisitDetailPage({
       ? queryOneForSession<{ completed_at: string | Date | null }>(
           session,
           `SELECT completed_at FROM site_visit_assessments
-           WHERE visit_id = $1 AND account_id = $2`,
+           WHERE visit_id = $1 AND company_id = $2`,
           [id, session.accountId]
         )
       : Promise.resolve(null),
@@ -344,21 +344,21 @@ export default async function VisitDetailPage({
           queryForSession<PhotoMeta>(
             session,
             `SELECT id, original_name, created_at FROM visit_media
-             WHERE visit_id = $1 AND account_id = $2 AND category = 'before'
+             WHERE visit_id = $1 AND company_id = $2 AND category = 'before'
              ORDER BY created_at`,
             [id, session.accountId]
           ),
           queryForSession<PhotoMeta>(
             session,
             `SELECT id, original_name, created_at FROM visit_media
-             WHERE visit_id = $1 AND account_id = $2 AND category = 'after'
+             WHERE visit_id = $1 AND company_id = $2 AND category = 'after'
              ORDER BY created_at`,
             [id, session.accountId]
           ),
           queryForSession<PartRow>(
             session,
             `SELECT id, name, quantity, actual_cost_cents, customer_price_cents, receipt_media_id
-             FROM visit_parts WHERE visit_id = $1 AND account_id = $2
+             FROM visit_parts WHERE visit_id = $1 AND company_id = $2
              ORDER BY created_at`,
             [id, session.accountId]
           ),
@@ -371,7 +371,7 @@ export default async function VisitDetailPage({
           session,
           `SELECT photo_urls, signature_url, signature_waiver, notes, photos_waived, photos_waiver_reason
            FROM completion_packets
-           WHERE visit_id = $1 AND account_id = $2`,
+           WHERE visit_id = $1 AND company_id = $2`,
           [id, session.accountId]
         )
       : null;
@@ -383,7 +383,7 @@ export default async function VisitDetailPage({
         session,
         `SELECT EXISTS(
            SELECT 1 FROM estimates e
-           WHERE e.job_id = $1 AND e.account_id = $2
+           WHERE e.job_id = $1 AND e.company_id = $2
          ) AS exists`,
         [visit.job_id, session.accountId],
       )
@@ -406,7 +406,7 @@ export default async function VisitDetailPage({
       ? await queryOneForSession<{ id: string; scope_assumptions: string | null }>(
           session,
           `SELECT id, scope_assumptions FROM estimates
-           WHERE job_id = $1 AND account_id = $2 AND status = 'approved'
+           WHERE job_id = $1 AND company_id = $2 AND status = 'approved'
            ORDER BY created_at DESC LIMIT 1`,
           [visit.job_id, session.accountId]
         )
@@ -418,7 +418,7 @@ export default async function VisitDetailPage({
           await queryOneForSession<{ count: string }>(
             session,
             `SELECT COUNT(*)::text AS count FROM change_orders
-             WHERE estimate_id = $1 AND account_id = $2 AND status = 'draft'`,
+             WHERE estimate_id = $1 AND company_id = $2 AND status = 'draft'`,
             [approvedEstimate.id, session.accountId]
           )
         )?.count ?? "0"
@@ -450,17 +450,17 @@ export default async function VisitDetailPage({
     : null;
 
   // TASK-067: production sequence from lifecycle + visit-linked activities
-  const productionTimeline = await loadVisitTimeline(session.accountId, id);
+  const productionTimeline = await loadVisitTimeline(session, id);
 
   const [mediaFace, laterVisit, addWorkEstimate] = await Promise.all([
     queryOneForSession<{ n: number; latest_id: string | null }>(
       session,
       `SELECT
          (SELECT COUNT(*)::int FROM visit_media
-            WHERE visit_id = $1 AND account_id = $2
+            WHERE visit_id = $1 AND company_id = $2
               AND category IN ('before', 'after', 'assessment')) AS n,
          (SELECT id::text FROM visit_media
-            WHERE visit_id = $1 AND account_id = $2
+            WHERE visit_id = $1 AND company_id = $2
               AND category IN ('before', 'after', 'assessment')
             ORDER BY created_at DESC LIMIT 1) AS latest_id`,
       [id, session.accountId],
@@ -469,7 +469,7 @@ export default async function VisitDetailPage({
       ? queryOneForSession<{ id: string }>(
           session,
           `SELECT id::text FROM visits
-           WHERE job_id = $1 AND account_id = $2 AND id <> $3
+           WHERE job_id = $1 AND company_id = $2 AND id <> $3
              AND status NOT IN ('cancelled','completed')
              AND scheduled_start > now()
            ORDER BY scheduled_start ASC
@@ -481,7 +481,7 @@ export default async function VisitDetailPage({
       ? queryOneForSession<{ id: string }>(
           session,
           `SELECT id::text FROM estimates
-           WHERE job_id = $1 AND account_id = $2 AND status = 'approved'
+           WHERE job_id = $1 AND company_id = $2 AND status = 'approved'
            ORDER BY created_at DESC LIMIT 1`,
           [visit.job_id, session.accountId],
         )

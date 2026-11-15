@@ -5,6 +5,7 @@ import { appendAuditLog } from "@/lib/db/audit";
 import { logger } from "@/lib/logger";
 import { getPathId } from "@/lib/route-utils";
 import { deriveInvoiceStatus } from "@/lib/invoices/payments";
+import { companyIdFromSession } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
 
@@ -26,8 +27,8 @@ export const DELETE = withRole(["owner"], async (request, session) => {
       }>(
         `SELECT id, invoice_id, amount_cents, method
          FROM payments
-         WHERE id = $1 AND account_id = $2`,
-        [paymentId, session.accountId]
+         WHERE id = $1 AND company_id = $2`,
+        [paymentId, companyIdFromSession(session)]
       );
 
       if (paymentResult.rowCount === 0) {

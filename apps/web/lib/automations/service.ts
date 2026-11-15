@@ -37,7 +37,7 @@ export async function triggerAutomation(
   context: TriggerContext
 ): Promise<void> {
   await client.query(
-    `SET LOCAL app.current_user_id = $1; SET LOCAL app.current_account_id = $2; SET LOCAL app.current_role = $3`,
+    `SET LOCAL app.current_user_id = $1; SET LOCAL app.current_company_id = $2; SET LOCAL app.current_role = $3`,
     [context.userId, context.accountId, "owner"]
   );
 

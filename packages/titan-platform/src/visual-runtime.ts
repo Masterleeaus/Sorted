@@ -18,5 +18,5 @@ export function planVisualRuntime(input:Readonly<Record<string,unknown>>,environ
     preferences,
     support,
   });
-  return Object.freeze({...envelope,authority_granted:false,semantics_mutable:false});
+  return Object.freeze({...envelope,authority_granted:false,semantics_mutable:false,authorizes_actions:false});
 }

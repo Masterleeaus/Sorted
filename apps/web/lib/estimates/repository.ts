@@ -91,7 +91,7 @@ export async function getEstimateById(client: PoolClient, id: string, accountId:
             c.name AS client_name
      FROM estimates e
      LEFT JOIN clients c ON c.id = e.client_id
-     WHERE e.id = $1 AND e.account_id = $2`,
+     WHERE e.id = $1 AND e.company_id = $2`,
     [id, accountId]
   );
 
@@ -160,7 +160,7 @@ export async function updateEstimateById(
             requires_drying_or_curing, coordination_required,
             internal_material_cost_cents,
             deposit_required, deposit_type, deposit_percentage, deposit_fixed_cents
-     FROM estimates WHERE id = $1 AND account_id = $2`,
+     FROM estimates WHERE id = $1 AND company_id = $2`,
     [id, session.accountId]
   );
 
@@ -508,7 +508,7 @@ export async function deleteEstimateById(
     job_id: string | null;
   }>(
     `SELECT id, status, estimate_number, total_cents, client_id, job_id
-     FROM estimates WHERE id = $1 AND account_id = $2`,
+     FROM estimates WHERE id = $1 AND company_id = $2`,
     [id, session.accountId]
   );
 
@@ -524,7 +524,7 @@ export async function deleteEstimateById(
     `SELECT invoice_number, status
      FROM invoices
      WHERE estimate_id = $1
-       AND account_id = $2
+       AND company_id = $2
        AND (paid_cents > 0 OR status IN ('paid', 'partial'))
      LIMIT 3`,
     [id, session.accountId]

@@ -9,7 +9,8 @@ import {
   type VisitTimelineEvent,
   type VisitTimelineVisitInput,
 } from "@ai-fsm/domain";
-import { query } from "@/lib/db";
+import { queryForSession } from "@/lib/db";
+import type { SessionPayload } from "@/lib/auth/session";
 import { BUSINESS_TIMEZONE } from "@/lib/operations/business-day";
 
 /** Postgres timezone literal for date bucketing (matches Day Review). */
@@ -66,24 +67,24 @@ function toActivityInput(r: ActivityRow): VisitTimelineActivityInput {
 }
 
 async function loadActivitiesForVisitIds(
-  accountId: string,
+  session: SessionPayload,
   visitIds: string[],
 ): Promise<Record<string, VisitTimelineActivityInput[]>> {
   const byVisit: Record<string, VisitTimelineActivityInput[]> = {};
   for (const id of visitIds) byVisit[id] = [];
   if (visitIds.length === 0) return byVisit;
 
-  const rows = await query<ActivityRow>(
+  const rows = await queryForSession<ActivityRow>(session,
     `SELECT ae.id, ae.entity_id::text AS entity_id, ae.activity_type,
             ae.started_at::text AS started_at, ae.ended_at::text AS ended_at,
             ae.note
      FROM activity_entries ae
-     WHERE ae.account_id = $1
+     WHERE ae.company_id = $1
        AND ae.entity_type = 'visit'
        AND ae.entity_id = ANY($2::uuid[])
        AND ae.voided_at IS NULL
      ORDER BY ae.started_at ASC`,
-    [accountId, visitIds],
+    [session.accountId, visitIds],
   );
 
   for (const r of rows) {
@@ -95,26 +96,26 @@ async function loadActivitiesForVisitIds(
 
 /** Single visit production timeline. */
 export async function loadVisitTimeline(
-  accountId: string,
+  session: SessionPayload,
   visitId: string,
 ): Promise<VisitTimelineEvent[]> {
-  const rows = await query<VisitRow>(
+  const rows = await queryForSession<VisitRow>(session,
     `SELECT v.id, v.scheduled_start::text, v.scheduled_end::text,
             v.arrived_at::text, v.completed_at::text, v.status,
             COALESCE(p.address, 'Property') AS property_name,
             COALESCE(c.name, 'Client') AS client_name,
             j.title AS job_title
      FROM visits v
-     JOIN jobs j ON j.id = v.job_id AND j.account_id = v.account_id
-     LEFT JOIN properties p ON p.id = j.property_id AND p.account_id = v.account_id
-     LEFT JOIN clients c ON c.id = j.client_id AND c.account_id = v.account_id
-     WHERE v.account_id = $1 AND v.id = $2`,
-    [accountId, visitId],
+     JOIN jobs j ON j.id = v.job_id AND j.company_id = v.company_id
+     LEFT JOIN properties p ON p.id = j.property_id AND p.company_id = v.company_id
+     LEFT JOIN clients c ON c.id = j.client_id AND c.company_id = v.company_id
+     WHERE v.company_id = $1 AND v.id = $2`,
+    [session.accountId, visitId],
   );
   const visit = rows[0];
   if (!visit) return [];
 
-  const activitiesByVisit = await loadActivitiesForVisitIds(accountId, [visitId]);
+  const activitiesByVisit = await loadActivitiesForVisitIds(session, [visitId]);
   return buildVisitTimeline({
     visit: toVisitInput(visit),
     activities: activitiesByVisit[visitId] ?? [],
@@ -126,20 +127,20 @@ export async function loadVisitTimeline(
  * Date rule: any of scheduled_start / arrived_at / completed_at on that date (business TZ).
  */
 export async function loadDayVisitTimelines(
-  accountId: string,
+  session: SessionPayload,
   businessDate: string,
 ): Promise<VisitTimelineCard[]> {
-  const visitRows = await query<VisitRow>(
+  const visitRows = await queryForSession<VisitRow>(session,
     `SELECT v.id, v.scheduled_start::text, v.scheduled_end::text,
             v.arrived_at::text, v.completed_at::text, v.status,
             COALESCE(p.address, 'Property') AS property_name,
             COALESCE(c.name, 'Client') AS client_name,
             j.title AS job_title
      FROM visits v
-     JOIN jobs j ON j.id = v.job_id AND j.account_id = v.account_id
-     LEFT JOIN properties p ON p.id = j.property_id AND p.account_id = v.account_id
-     LEFT JOIN clients c ON c.id = j.client_id AND c.account_id = v.account_id
-     WHERE v.account_id = $1
+     JOIN jobs j ON j.id = v.job_id AND j.company_id = v.company_id
+     LEFT JOIN properties p ON p.id = j.property_id AND p.company_id = v.company_id
+     LEFT JOIN clients c ON c.id = j.client_id AND c.company_id = v.company_id
+     WHERE v.company_id = $1
        AND v.status IS DISTINCT FROM 'cancelled'
        AND (
          (v.scheduled_start AT TIME ZONE '${TZ}')::date = $2::date
@@ -147,11 +148,11 @@ export async function loadDayVisitTimelines(
          OR (v.completed_at AT TIME ZONE '${TZ}')::date = $2::date
        )
      ORDER BY COALESCE(v.arrived_at, v.scheduled_start) ASC NULLS LAST`,
-    [accountId, businessDate],
+    [session.accountId, businessDate],
   );
 
   const ids = visitRows.map((v) => v.id);
-  const activitiesByVisit = await loadActivitiesForVisitIds(accountId, ids);
+  const activitiesByVisit = await loadActivitiesForVisitIds(session, ids);
   const dayRows = buildDayVisitTimelines({
     visits: visitRows.map(toVisitInput),
     activitiesByVisitId: activitiesByVisit,

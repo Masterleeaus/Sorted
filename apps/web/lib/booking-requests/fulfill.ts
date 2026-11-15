@@ -19,7 +19,7 @@ export async function markLinkedBookingRequestConverted(
 ): Promise<{ id: string; fromStatus: string } | null> {
   const { rows } = await client.query<{ id: string; status: string }>(
     `SELECT id, status FROM booking_requests
-     WHERE account_id = $1
+     WHERE company_id = $1
        AND job_id = $2
        AND status NOT IN ('converted', 'cancelled', 'duplicate')
      ORDER BY created_at ASC
@@ -40,7 +40,7 @@ export async function markLinkedBookingRequestConverted(
            $4
          ),
          updated_at = now()
-     WHERE id = $1 AND account_id = $2`,
+     WHERE id = $1 AND company_id = $2`,
     [
       br.id,
       opts.accountId,

@@ -10,6 +10,7 @@ import {
 } from "@/lib/expenses/duplicate-match";
 import { appendAuditLog } from "@/lib/db/audit";
 import { logger } from "@/lib/logger";
+import { companyIdFromSession } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
 
@@ -77,8 +78,8 @@ export const POST = withRole(["owner", "admin"], async (request: NextRequest, se
       }>(
         `SELECT id, vendor_name, amount_cents, expense_date, external_ref, source
          FROM expenses
-         WHERE account_id = $1 AND expense_date = ANY($2::date[])`,
-        [session.accountId, dates],
+         WHERE company_id = $1 AND expense_date = ANY($2::date[])`,
+        [companyIdFromSession(session), dates],
       );
       const fingerprints: ExpenseFingerprint[] = existingRes.rows.map((row) => ({
         id: row.id,
@@ -111,10 +112,10 @@ export const POST = withRole(["owner", "admin"], async (request: NextRequest, se
                job_id = COALESCE(job_id, $5),
                client_id = COALESCE(client_id, $6),
                updated_at = now()
-             WHERE id = $1 AND account_id = $2`,
+             WHERE id = $1 AND company_id = $2`,
             [
               matched.id,
-              session.accountId,
+              companyIdFromSession(session),
               source,
               t.external_ref,
               t.job_id ?? null,
@@ -126,7 +127,7 @@ export const POST = withRole(["owner", "admin"], async (request: NextRequest, se
         } else {
           const ins = await client.query<{ id: string }>(
             `INSERT INTO expenses
-               (account_id, job_id, client_id, vendor_name, category, amount_cents,
+               (company_id, job_id, client_id, vendor_name, category, amount_cents,
                 expense_date, notes, source, external_ref, created_by)
              VALUES ($1, $2, $3, $4, $5, $6, $7::date, $8, $9, $10, $11)
              ON CONFLICT (account_id, source, external_ref)
@@ -134,7 +135,7 @@ export const POST = withRole(["owner", "admin"], async (request: NextRequest, se
              DO NOTHING
              RETURNING id`,
             [
-              session.accountId, t.job_id ?? null, t.client_id ?? null, t.vendor,
+              companyIdFromSession(session), t.job_id ?? null, t.client_id ?? null, t.vendor,
               t.expense_category, t.amount_cents, t.date, notes, source, t.external_ref, session.userId,
             ]
           );
@@ -156,11 +157,11 @@ export const POST = withRole(["owner", "admin"], async (request: NextRequest, se
             const found = await client.query<{ id: string; last_purchased_at: string | null }>(
               `SELECT id, last_purchased_at::text
                FROM materials_price_book
-               WHERE account_id = $1
+               WHERE company_id = $1
                  AND ( ($2::text IS NOT NULL AND sku = $2) OR (lower(name) = lower($3) AND unit = 'each') )
                ORDER BY ($2::text IS NOT NULL AND sku = $2) DESC
                LIMIT 1`,
-              [session.accountId, sku, li.name]
+              [companyIdFromSession(session), sku, li.name]
             );
             const existing = found.rows[0];
 
@@ -184,13 +185,13 @@ export const POST = withRole(["owner", "admin"], async (request: NextRequest, se
               // New item: store what we have (even if it was on sale — it's all we know).
               await client.query(
                 `INSERT INTO materials_price_book
-                   (account_id, name, category, unit, unit_cost_cents, supplier, sku, last_purchased_at, created_by)
+                   (company_id, name, category, unit, unit_cost_cents, supplier, sku, last_purchased_at, created_by)
                  VALUES ($1, $2, $3, 'each', $4, $5, $6, $7::date, $8)
                  ON CONFLICT (account_id, lower(name), unit) DO UPDATE SET
                    last_purchased_at = GREATEST(materials_price_book.last_purchased_at, EXCLUDED.last_purchased_at),
                    sku               = COALESCE(materials_price_book.sku, EXCLUDED.sku),
                    updated_at        = now()`,
-                [session.accountId, li.name, li.category, li.unit_cost_cents, t.vendor, sku, t.date, session.userId]
+                [companyIdFromSession(session), li.name, li.category, li.unit_cost_cents, t.vendor, sku, t.date, session.userId]
               );
             }
             materials++;

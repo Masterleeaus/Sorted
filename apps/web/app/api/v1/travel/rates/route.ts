@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { withRole } from "@/lib/auth/middleware";
 import type { AuthSession } from "@/lib/auth/middleware";
-import { getPool } from "@/lib/db";
+import { getPool, companyIdFromSession } from "@/lib/db";
 import { appendAuditLog } from "@/lib/db/audit";
 import { logger } from "@/lib/logger";
 
@@ -31,10 +31,10 @@ export const GET = withRole(["owner", "admin"], async (_req: NextRequest, sessio
     const r = await client.query(
       `SELECT id, rate_cents, effective_date::text, source, description, is_active, created_at
        FROM mileage_rates
-       WHERE account_id = $1
+       WHERE company_id = $1
        ORDER BY effective_date DESC, created_at DESC
        LIMIT 50`,
-      [session.accountId]
+      [companyIdFromSession(session)]
     );
     return NextResponse.json({ data: r.rows });
   } catch (error) {
@@ -80,18 +80,18 @@ export const POST = withRole(["owner", "admin"], async (request: NextRequest, se
     if (data.is_active && data.make_exclusive_active) {
       await client.query(
         `UPDATE mileage_rates SET is_active = false, updated_at = now()
-         WHERE account_id = $1 AND is_active = true`,
-        [session.accountId]
+         WHERE company_id = $1 AND is_active = true`,
+        [companyIdFromSession(session)]
       );
     }
 
     const r = await client.query(
       `INSERT INTO mileage_rates
-         (account_id, rate_cents, effective_date, source, description, is_active, created_by)
+         (company_id, rate_cents, effective_date, source, description, is_active, created_by)
        VALUES ($1, $2, COALESCE($3::date, CURRENT_DATE), $4, $5, $6, $7)
        RETURNING id, rate_cents, effective_date::text, source, description, is_active, created_at`,
       [
-        session.accountId,
+        companyIdFromSession(session),
         data.rate_cents,
         data.effective_date ?? null,
         data.source,
@@ -106,8 +106,8 @@ export const POST = withRole(["owner", "admin"], async (request: NextRequest, se
       await client.query(
         `UPDATE business_travel_settings
          SET default_mileage_rate_cents = $1, updated_at = now()
-         WHERE account_id = $2`,
-        [data.rate_cents, session.accountId]
+         WHERE company_id = $2`,
+        [data.rate_cents, companyIdFromSession(session)]
       );
     }
 

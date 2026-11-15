@@ -14,7 +14,7 @@ export async function listAttentionEvents(
     `SELECT id, account_id, type, entity_type, entity_id, title, summary, href,
             dedupe_key, created_at, read_at
      FROM attention_events
-     WHERE account_id = $1
+     WHERE company_id = $1
        AND created_at >= now() - ($2::text || ' days')::interval
      ORDER BY created_at DESC
      LIMIT $3`,
@@ -31,7 +31,7 @@ export async function markAttentionEventRead(
   const r = await client.query(
     `UPDATE attention_events
      SET read_at = COALESCE(read_at, now())
-     WHERE id = $1 AND account_id = $2`,
+     WHERE id = $1 AND company_id = $2`,
     [eventId, accountId],
   );
   return (r.rowCount ?? 0) > 0;
@@ -44,7 +44,7 @@ export async function markAllAttentionEventsRead(
   const r = await client.query(
     `UPDATE attention_events
      SET read_at = now()
-     WHERE account_id = $1
+     WHERE company_id = $1
        AND read_at IS NULL
        AND created_at >= now() - ($2::text || ' days')::interval`,
     [accountId, String(ATTENTION_RETENTION_DAYS)],

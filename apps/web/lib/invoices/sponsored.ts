@@ -58,12 +58,12 @@ export async function validateInvoiceContext(
   accountId: string,
   input: InvoiceContextInput,
 ) {
-  const payer = await client.query(`SELECT id FROM clients WHERE id = $1 AND account_id = $2`, [input.payerClientId, accountId]);
+  const payer = await client.query(`SELECT id FROM clients WHERE id = $1 AND company_id = $2`, [input.payerClientId, accountId]);
   if (!payer.rows[0]) throw contextError("Invoice payer not found", "NOT_FOUND");
 
   if (input.jobId) {
     const job = await client.query(
-      `SELECT id FROM jobs WHERE id = $1 AND account_id = $2 AND client_id = $3`,
+      `SELECT id FROM jobs WHERE id = $1 AND company_id = $2 AND client_id = $3`,
       [input.jobId, accountId, input.payerClientId],
     );
     if (!job.rows[0]) throw contextError("Project must belong to the invoice payer", "VALIDATION_ERROR");
@@ -75,7 +75,7 @@ export async function validateInvoiceContext(
     }
     if (!input.propertyId) return;
     const property = await client.query<{ client_id: string | null }>(
-      `SELECT client_id FROM properties WHERE id = $1 AND account_id = $2`,
+      `SELECT client_id FROM properties WHERE id = $1 AND company_id = $2`,
       [input.propertyId, accountId],
     );
     if (!property.rows[0]) throw contextError("Property not found", "NOT_FOUND");
@@ -88,13 +88,13 @@ export async function validateInvoiceContext(
   if (!input.propertyId || !input.sponsoredPurpose) {
     throw contextError("Sponsored invoice requires property and purpose", "VALIDATION_ERROR");
   }
-  const property = await client.query(`SELECT id FROM properties WHERE id = $1 AND account_id = $2`, [input.propertyId, accountId]);
+  const property = await client.query(`SELECT id FROM properties WHERE id = $1 AND company_id = $2`, [input.propertyId, accountId]);
   if (!property.rows[0]) throw contextError("Property not found", "NOT_FOUND");
   // TASK-159: "work for" is optional; when set it must belong to the property.
   if (!input.beneficiaryPropertyContactId) return;
 
   const beneficiary = await client.query(
-    `SELECT id FROM property_contacts WHERE id = $1 AND property_id = $2 AND account_id = $3`,
+    `SELECT id FROM property_contacts WHERE id = $1 AND property_id = $2 AND company_id = $3`,
     [input.beneficiaryPropertyContactId, input.propertyId, accountId],
   );
   if (!beneficiary.rows[0]) {
@@ -109,8 +109,8 @@ export async function validateInvoiceContext(
  */
 export const SPONSORED_DOCUMENT_JOIN = `
   LEFT JOIN property_contacts spc
-    ON spc.id = i.beneficiary_property_contact_id AND spc.account_id = i.account_id
-  LEFT JOIN clients spcc ON spcc.id = spc.client_id AND spcc.account_id = i.account_id`;
+    ON spc.id = i.beneficiary_property_contact_id AND spc.company_id = i.company_id
+  LEFT JOIN clients spcc ON spcc.id = spc.client_id AND spcc.company_id = i.company_id`;
 
 export const SPONSORED_DOCUMENT_SELECT = `
   i.billing_context, i.sponsored_purpose, i.business_purpose,

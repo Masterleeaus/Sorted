@@ -43,7 +43,7 @@ export async function getClientContext(
     query<ClientContextEstimate>(
       `SELECT id, status, total_cents, sent_at, notes
        FROM estimates
-       WHERE account_id = $1 AND client_id = $2 AND status IN ('draft','sent')
+       WHERE company_id = $1 AND client_id = $2 AND status IN ('draft','sent')
        ORDER BY created_at DESC
        LIMIT 10`,
       [accountId, clientId]
@@ -51,7 +51,7 @@ export async function getClientContext(
     query<ClientContextJob>(
       `SELECT id, title, status
        FROM jobs
-       WHERE account_id = $1 AND client_id = $2
+       WHERE company_id = $1 AND client_id = $2
        ORDER BY created_at DESC
        LIMIT 5`,
       [accountId, clientId]
@@ -59,7 +59,7 @@ export async function getClientContext(
     query<ClientContextMessage>(
       `SELECT direction, body_preview, created_at
        FROM communications_log
-       WHERE account_id = $1 AND client_id = $2
+       WHERE company_id = $1 AND client_id = $2
        ORDER BY created_at DESC
        LIMIT 10`,
       [accountId, clientId]

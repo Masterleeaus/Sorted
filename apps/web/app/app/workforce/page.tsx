@@ -32,7 +32,7 @@ export default async function WorkforcePage() {
       session,
       `SELECT id, full_name, email, phone
          FROM users
-        WHERE account_id = $1 AND role = 'tech'
+        WHERE company_id = $1 AND role = 'tech'
         ORDER BY full_name`,
       [session.accountId],
     ),

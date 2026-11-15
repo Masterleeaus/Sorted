@@ -40,7 +40,7 @@ export function todayCoveringTechSql(userParam: string): string {
     OR EXISTS (
       SELECT 1 FROM visits cv
       WHERE cv.work_order_id = w.id
-        AND cv.account_id = w.account_id
+        AND cv.company_id = w.company_id
         AND cv.assigned_user_id = ${userParam}
         AND cv.status NOT IN ('completed','cancelled')
     )

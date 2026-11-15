@@ -65,7 +65,7 @@ export async function computeAndPersist(args: ComputeAndPersistArgs): Promise<Co
     deposit_fixed_cents: number | null;
   }>(
     `SELECT deposit_required, deposit_type, deposit_percentage, deposit_fixed_cents
-     FROM estimates WHERE id = $1 AND account_id = $2`,
+     FROM estimates WHERE id = $1 AND company_id = $2`,
     [estimateId, accountId]
   );
   const policy = policyRows[0];
@@ -93,7 +93,7 @@ export async function computeAndPersist(args: ComputeAndPersistArgs): Promise<Co
        internal_labor_cost_cents   = $9,
        target_margin_pct           = $10,
        updated_at        = NOW()
-     WHERE id = $11 AND account_id = $12`,
+     WHERE id = $11 AND company_id = $12`,
     [
       JSON.stringify(spec),
       ENGINE_VERSION,

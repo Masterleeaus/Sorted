@@ -49,8 +49,8 @@ export default async function AppPage() {
        FROM jobs j
        LEFT JOIN clients c ON c.id = j.client_id
        LEFT JOIN properties p ON p.id = j.property_id
-       LEFT JOIN visits v ON v.job_id = j.id AND v.account_id = j.account_id
-       WHERE j.account_id = $1
+       LEFT JOIN visits v ON v.job_id = j.id AND v.company_id = j.company_id
+       WHERE j.company_id = $1
          AND v.status IN ('scheduled','arrived','in_progress')
          AND timezone('America/New_York', v.scheduled_start)::date
            = (CURRENT_TIMESTAMP AT TIME ZONE 'America/New_York')::date + 1
@@ -67,7 +67,7 @@ export default async function AppPage() {
           COUNT(*) FILTER (WHERE status = 'in_progress')::text AS in_progress,
           COUNT(*) FILTER (WHERE status = 'completed')::text AS completed
        FROM visits
-       WHERE account_id = $1
+       WHERE company_id = $1
          AND timezone('America/New_York', scheduled_start)::date
            = (CURRENT_TIMESTAMP AT TIME ZONE 'America/New_York')::date`,
       [accountId],
@@ -76,7 +76,7 @@ export default async function AppPage() {
       session,
       `SELECT COUNT(*)::text AS count
          FROM users
-        WHERE account_id = $1 AND role = 'tech'`,
+        WHERE company_id = $1 AND role = 'tech'`,
       [accountId],
     ),
     loadNeedsAttention(session),

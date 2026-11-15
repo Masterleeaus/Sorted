@@ -34,5 +34,7 @@ describe("selectDayPhotoRecap", () => {
 describe("visitMediaPath", () => {
   it("reads from the visit upload dir", () => {
     expect(visitMediaPath("visit-1", "shot.jpg")).toBe("/app/uploads/visits/visit-1/shot.jpg");
+    expect(visitMediaPath("visit-1", "../../../etc/passwd")).toBeNull();
+    expect(visitMediaPath("../visit", "shot.jpg")).toBeNull();
   });
 });

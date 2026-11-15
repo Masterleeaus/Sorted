@@ -76,7 +76,7 @@ export async function loadTravelSettings(
   accountId: string
 ): Promise<TravelSettings> {
   const existing = await client.query(
-    `SELECT * FROM business_travel_settings WHERE account_id = $1`,
+    `SELECT * FROM business_travel_settings WHERE company_id = $1`,
     [accountId]
   );
   if ((existing.rowCount ?? 0) > 0) {
@@ -89,7 +89,7 @@ export async function loadTravelSettings(
     [accountId]
   );
   const seeded = await client.query(
-    `SELECT * FROM business_travel_settings WHERE account_id = $1`,
+    `SELECT * FROM business_travel_settings WHERE company_id = $1`,
     [accountId]
   );
   return rowToTravelSettings(seeded.rows[0] as Record<string, unknown> | undefined);
@@ -118,7 +118,7 @@ export async function loadActiveMileageRate(
   }>(
     `SELECT id, rate_cents, effective_date::text, source, description
      FROM mileage_rates
-     WHERE account_id = $1 AND is_active = true
+     WHERE company_id = $1 AND is_active = true
      ORDER BY effective_date DESC, created_at DESC
      LIMIT 1`,
     [accountId]

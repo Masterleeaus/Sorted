@@ -10,7 +10,7 @@ export async function syncWorkOrderLeadFromVisit(
   if (!assignedUserId) return;
   await client.query(
     `UPDATE work_orders SET assigned_user_id = $3, updated_at = now()
-     WHERE id = $1 AND account_id = $2`,
+     WHERE id = $1 AND company_id = $2`,
     [workOrderId, accountId, assignedUserId],
   );
 }

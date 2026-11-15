@@ -5,6 +5,7 @@ import type { AuthSession } from "../../../../../lib/auth/middleware";
 import { getPool } from "../../../../../lib/db";
 import { normalizeClientName } from "../../../../../lib/crm/normalization";
 import { logger } from "../../../../../lib/logger";
+import { companyIdFromSession } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
 
@@ -95,12 +96,12 @@ export const POST = withAuth(async (request: NextRequest, session: AuthSession) 
       // email); otherwise fall back to exact name+email.
       const exists = row.square_customer_id
         ? await client.query<{ id: string }>(
-            `SELECT id FROM clients WHERE account_id = $1 AND square_customer_id = $2`,
-            [session.accountId, row.square_customer_id]
+            `SELECT id FROM clients WHERE company_id = $1 AND square_customer_id = $2`,
+            [companyIdFromSession(session), row.square_customer_id]
           )
         : await client.query<{ id: string }>(
-            `SELECT id FROM clients WHERE account_id = $1 AND LOWER(name) = LOWER($2) AND LOWER(COALESCE(email,'')) = LOWER(COALESCE($3,''))`,
-            [session.accountId, row.name, row.email ?? ""]
+            `SELECT id FROM clients WHERE company_id = $1 AND LOWER(name) = LOWER($2) AND LOWER(COALESCE(email,'')) = LOWER(COALESCE($3,''))`,
+            [companyIdFromSession(session), row.name, row.email ?? ""]
           );
       if (exists.rows.length > 0) {
         // Refresh Square history fields on match — CSV re-import is the way to
@@ -128,7 +129,7 @@ export const POST = withAuth(async (request: NextRequest, session: AuthSession) 
              email_subscription_status = COALESCE($19, email_subscription_status),
              instant_profile = COALESCE($20, instant_profile),
              updated_at = now()
-           WHERE id = $1 AND account_id = $21`,
+           WHERE id = $1 AND company_id = $21`,
           [
             existingId,
             row.nickname,
@@ -150,7 +151,7 @@ export const POST = withAuth(async (request: NextRequest, session: AuthSession) 
             row.lifetime_spend_cents,
             row.email_subscription_status,
             row.instant_profile,
-            session.accountId,
+            companyIdFromSession(session),
           ],
         );
         updated++;
@@ -159,13 +160,13 @@ export const POST = withAuth(async (request: NextRequest, session: AuthSession) 
 
       await client.query(
         `INSERT INTO clients (
-           account_id, name, nickname, email, phone, company_name,
+           company_id, name, nickname, email, phone, company_name,
            address_line1, address_line2, city, state, zip, notes, birthday,
            square_customer_id, creation_source, first_visit_at, last_visit_at,
            transaction_count, lifetime_spend_cents, email_subscription_status, instant_profile
          ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21)`,
         [
-          session.accountId, normalizeClientName(row.name), row.nickname, row.email, row.phone, row.company_name,
+          companyIdFromSession(session), normalizeClientName(row.name), row.nickname, row.email, row.phone, row.company_name,
           row.address_line1, row.address_line2, row.city, row.state, row.zip, row.notes, row.birthday,
           row.square_customer_id, row.creation_source, row.first_visit_at, row.last_visit_at,
           row.transaction_count, row.lifetime_spend_cents, row.email_subscription_status, row.instant_profile,

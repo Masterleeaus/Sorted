@@ -26,6 +26,7 @@ function mockClient(overrides: Record<string, unknown> = {}): Client {
 const AUTOMATION: AutomationRow = {
   id: "auto-1",
   account_id: "acct-1",
+  company_id: "acct-1",
   type: "visit_reminder",
   config: { hours_before: 24 },
   enabled: true,
@@ -35,6 +36,7 @@ const AUTOMATION: AutomationRow = {
 const VISIT: EligibleVisit = {
   id: "visit-1",
   account_id: "acct-1",
+  company_id: "acct-1",
   job_id: "job-1",
   client_id: "client-1",
   assigned_user_id: "user-1",
@@ -85,7 +87,7 @@ describe("findEligibleVisits", () => {
     expect(result).toEqual([VISIT]);
     expect(client.query).toHaveBeenCalledWith(
       expect.stringContaining("scheduled"),
-      [AUTOMATION.account_id, 24]
+      [AUTOMATION.company_id, 24]
     );
   });
 
@@ -100,7 +102,7 @@ describe("findEligibleVisits", () => {
 
     expect(client.query).toHaveBeenCalledWith(
       expect.any(String),
-      [autoNoConfig.account_id, 24]
+      [autoNoConfig.company_id, 24]
     );
   });
 
@@ -115,7 +117,7 @@ describe("findEligibleVisits", () => {
 
     expect(client.query).toHaveBeenCalledWith(
       expect.any(String),
-      [autoCustom.account_id, 48]
+      [autoCustom.company_id, 48]
     );
   });
 

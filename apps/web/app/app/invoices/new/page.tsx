@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth/session";
 import { canCreateInvoices } from "@/lib/auth/permissions";
-import { query, queryForSession } from "@/lib/db";
+import { queryForSession } from "@/lib/db";
 import { Breadcrumbs, Card, PageContainer, PageHeader, HubSubnav } from "@/components/ui";
 import { MONEY_HUB_LINKS } from "@/lib/navigation/hubs";
 import { NewInvoiceForm } from "./NewInvoiceForm";
@@ -64,24 +64,24 @@ export default async function NewInvoicePage({ searchParams }: PageProps) {
   const { client_id, job_id, property_id, approved_estimate_id } = await searchParams;
 
   const [clients, jobs, properties, propertyContacts] = await Promise.all([
-    query<Client>(
-      `SELECT id, name FROM clients WHERE account_id = $1 ORDER BY name ASC`,
+    queryForSession<Client>(session,
+      `SELECT id, name FROM clients WHERE company_id = $1 ORDER BY name ASC`,
       [session.accountId]
     ),
-    query<Job>(
-      `SELECT id, title, client_id FROM jobs WHERE account_id = $1 ORDER BY title ASC`,
+    queryForSession<Job>(session,
+      `SELECT id, title, client_id FROM jobs WHERE company_id = $1 ORDER BY title ASC`,
       [session.accountId]
     ),
-    query<Property>(
-      `SELECT id, address, client_id FROM properties WHERE account_id = $1 ORDER BY address ASC`,
+    queryForSession<Property>(session,
+      `SELECT id, address, client_id FROM properties WHERE company_id = $1 ORDER BY address ASC`,
       [session.accountId]
     ),
     queryForSession<PropertyContact>(
       session,
       `SELECT pc.id, pc.property_id, COALESCE(c.name, pc.external_name) AS display_name
        FROM property_contacts pc
-       LEFT JOIN clients c ON c.id = pc.client_id AND c.account_id = pc.account_id
-       WHERE pc.account_id = $1
+       LEFT JOIN clients c ON c.id = pc.client_id AND c.company_id = pc.company_id
+       WHERE pc.company_id = $1
        ORDER BY COALESCE(c.name, pc.external_name) ASC`,
       [session.accountId]
     ),
@@ -93,7 +93,7 @@ export default async function NewInvoicePage({ searchParams }: PageProps) {
   let prefillSource: "tm_actuals" | "estimate" | null = null;
 
   if (job_id) {
-    const pricingMode = await resolveJobPricingMode(session.accountId, job_id);
+    const pricingMode = await resolveJobPricingMode(session, job_id);
     if (pricingMode === "hourly_internal") {
       const actuals = await prefillLineItemsFromTmActuals(session.accountId, job_id);
       if (actuals.length > 0) {
@@ -104,12 +104,12 @@ export default async function NewInvoicePage({ searchParams }: PageProps) {
   }
 
   if (!prefillLineItems && approved_estimate_id) {
-    const estimateItems = await query<EstimateLineItem>(
+    const estimateItems = await queryForSession<EstimateLineItem>(session,
       `SELECT eli.description, eli.quantity, eli.unit_price_cents, eli.sort_order
        FROM estimate_line_items eli
        JOIN estimates e ON e.id = eli.estimate_id
        WHERE eli.estimate_id = $1
-         AND e.account_id = $2
+         AND e.company_id = $2
          AND e.status = 'approved'
          AND eli.option_id IS NULL
        ORDER BY eli.sort_order ASC`,

@@ -91,7 +91,7 @@ export default async function WorkOrderDetailPage({ params }: { params: Promise<
      LEFT JOIN clients c ON c.id = w.client_id
      LEFT JOIN properties p ON p.id = w.property_id
      LEFT JOIN jobs j ON j.id = w.job_id
-     WHERE w.id = $1 AND w.account_id = $2`,
+     WHERE w.id = $1 AND w.company_id = $2`,
     [id, session.accountId],
   );
   const wo = rows[0];
@@ -116,7 +116,7 @@ export default async function WorkOrderDetailPage({ params }: { params: Promise<
             u.full_name AS tech_name
      FROM visits v
      LEFT JOIN users u ON u.id = v.assigned_user_id
-     WHERE v.work_order_id = $1 AND v.account_id = $2
+     WHERE v.work_order_id = $1 AND v.company_id = $2
      ORDER BY v.scheduled_start ASC`,
     [id, session.accountId],
   );

@@ -146,7 +146,7 @@ export async function snapshotInvoiceFeePolicy(
   );
   const pricing = await client.query<{ material_handling_pct: number; card_fee_pct: string | number }>(
     `SELECT material_handling_pct, card_fee_pct
-     FROM business_pricing_settings WHERE account_id = $1`,
+     FROM business_pricing_settings WHERE company_id = $1`,
     [accountId],
   );
   const legacyPct = account.rows[0]?.settings?.material_handling_pct;
@@ -162,7 +162,7 @@ export async function snapshotInvoiceFeePolicy(
     `UPDATE invoices
      SET material_handling_pct_snapshot = COALESCE(material_handling_pct_snapshot, $2),
          card_fee_pct_snapshot = COALESCE(card_fee_pct_snapshot, $3)
-     WHERE id = $1 AND account_id = $4 AND status = 'draft'`,
+     WHERE id = $1 AND company_id = $4 AND status = 'draft'`,
     [invoiceId, resolved.pct, cardFee, accountId],
   );
 }
@@ -193,7 +193,7 @@ export async function upsertMaterialHandlingFeeLine(
   );
   const pricing = await client.query<{ material_handling_pct: number; card_fee_pct: string | number }>(
     `SELECT material_handling_pct, card_fee_pct
-     FROM business_pricing_settings WHERE account_id = $1`,
+     FROM business_pricing_settings WHERE company_id = $1`,
     [accountId],
   );
   const legacyPct = account.rows[0]?.settings?.material_handling_pct;
@@ -318,7 +318,7 @@ export async function fetchUninvoicedJobMaterialExpenses(
             e.expense_date::text AS expense_date,
             e.commercial_tag, e.category
      FROM expenses e
-     WHERE e.account_id = $1
+     WHERE e.company_id = $1
        AND e.job_id = $2
        AND e.category = 'materials'
        AND e.billable IS DISTINCT FROM false
@@ -346,7 +346,7 @@ export async function fetchUninvoicedJobEquipmentExpenses(
             e.expense_date::text AS expense_date,
             e.commercial_tag, e.category
      FROM expenses e
-     WHERE e.account_id = $1
+     WHERE e.company_id = $1
        AND e.job_id = $2
        AND e.billable IS DISTINCT FROM false
        AND NOT EXISTS (
@@ -395,7 +395,7 @@ export async function fetchLinkableMaterialExpenses(
             e.job_id, e.client_id,
             (e.job_id = $2) AS already_on_job
      FROM expenses e
-     WHERE e.account_id = $1
+     WHERE e.company_id = $1
        AND e.category = 'materials'
        AND e.billable IS DISTINCT FROM false
        AND (e.allocation IS NULL OR e.allocation = 'job')
@@ -467,7 +467,7 @@ export async function fetchJobMaterialExpenses(
               SELECT 1 FROM invoice_line_items ili WHERE ili.source_expense_id = e.id
             ) AS billed
      FROM expenses e
-     WHERE e.account_id = $1
+     WHERE e.company_id = $1
        AND e.job_id = $2
        AND e.category = 'materials'
      ORDER BY e.expense_date DESC, e.created_at DESC`,
@@ -497,7 +497,7 @@ export async function loadJobLinkContext(
   jobId: string,
 ): Promise<JobLinkContext> {
   const result = await client.query<JobLinkContext>(
-    `SELECT id, client_id, property_id FROM jobs WHERE id = $1 AND account_id = $2`,
+    `SELECT id, client_id, property_id FROM jobs WHERE id = $1 AND company_id = $2`,
     [jobId, accountId],
   );
   if ((result.rowCount ?? 0) === 0) {
@@ -524,7 +524,7 @@ export async function linkMaterialExpensesToJob(
   }>(
     `SELECT id, job_id, client_id, category
      FROM expenses
-     WHERE account_id = $1 AND id = ANY($2::uuid[])`,
+     WHERE company_id = $1 AND id = ANY($2::uuid[])`,
     [accountId, expenseIds],
   );
 
@@ -566,7 +566,7 @@ export async function linkMaterialExpensesToJob(
     await client.query(
       `UPDATE expenses
        SET job_id = $1, client_id = $2, property_id = $3
-       WHERE id = $4 AND account_id = $5`,
+       WHERE id = $4 AND company_id = $5`,
       [job.id, job.client_id, job.property_id, id, accountId],
     );
     linked.push(id);
@@ -591,7 +591,7 @@ export async function linkAndAppendMaterialsToInvoice(
     `SELECT id, vendor_name, amount_cents, notes,
             expense_date::text AS expense_date
      FROM expenses
-     WHERE account_id = $1 AND id = ANY($2::uuid[])
+     WHERE company_id = $1 AND id = ANY($2::uuid[])
      ORDER BY expense_date ASC, created_at ASC`,
     [accountId, linked],
   );
@@ -697,7 +697,7 @@ export async function materialLineItemsFromJobExpenses(
   }
 
   const pricing = await client.query<{ material_handling_pct: number }>(
-    `SELECT material_handling_pct FROM business_pricing_settings WHERE account_id = $1`,
+    `SELECT material_handling_pct FROM business_pricing_settings WHERE company_id = $1`,
     [accountId],
   );
   const account = await client.query<{ settings: Record<string, unknown> }>(

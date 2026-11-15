@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { withRole } from "@/lib/auth/middleware";
-import { getPool } from "@/lib/db";
+import { getPool, companyIdFromSession } from "@/lib/db";
 import { logger } from "@/lib/logger";
 import { recordStatusChange } from "../../../../../lib/status-history";
 import {
@@ -35,8 +35,8 @@ export const GET = withRole(["owner", "admin"], async (request: NextRequest, ses
        FROM booking_requests br
        LEFT JOIN users u ON u.id = br.reviewed_by
        LEFT JOIN jobs j ON j.id = br.job_id
-       WHERE br.id = $1 AND br.account_id = $2`,
-      [id, session.accountId]
+       WHERE br.id = $1 AND br.company_id = $2`,
+      [id, companyIdFromSession(session)]
     );
 
     if (rows.length === 0) {
@@ -89,8 +89,8 @@ export const PATCH = withRole(["owner", "admin"], async (request: NextRequest, s
     );
 
     const { rows: existing } = await client.query(
-      `SELECT status FROM booking_requests WHERE id = $1 AND account_id = $2`,
-      [id, session.accountId]
+      `SELECT status FROM booking_requests WHERE id = $1 AND company_id = $2`,
+      [id, companyIdFromSession(session)]
     );
     if (existing.length === 0) {
       await client.query("ROLLBACK");
@@ -112,7 +112,7 @@ export const PATCH = withRole(["owner", "admin"], async (request: NextRequest, s
     }
 
     const setClauses: string[] = ["updated_at = now()"];
-    const params: unknown[] = [id, session.accountId];
+    const params: unknown[] = [id, companyIdFromSession(session)];
     let idx = 3;
 
     if (status !== undefined) {
@@ -146,7 +146,7 @@ export const PATCH = withRole(["owner", "admin"], async (request: NextRequest, s
 
     const { rows } = await client.query(
       `UPDATE booking_requests SET ${setClauses.join(", ")}
-       WHERE id = $1 AND account_id = $2
+       WHERE id = $1 AND company_id = $2
        RETURNING *`,
       params
     );

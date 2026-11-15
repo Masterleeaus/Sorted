@@ -30,7 +30,7 @@ const TRIAGE_VISIT_SELECT = `
 export async function getTriageVisits(session: SessionPayload): Promise<TriageVisitRow[]> {
   const rows = await queryForSession<TriageVisitRow>(session, 
     `${TRIAGE_VISIT_SELECT}
-     WHERE v.account_id = $1
+     WHERE v.company_id = $1
      ORDER BY
        CASE WHEN v.status IN ('completed', 'cancelled') THEN 1 ELSE 0 END,
        CASE WHEN v.status IN ('completed', 'cancelled') THEN NULL ELSE v.scheduled_start END ASC NULLS LAST,
