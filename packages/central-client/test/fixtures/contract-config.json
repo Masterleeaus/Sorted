@@ -1,0 +1,43 @@
+{
+  "product": "sorted",
+  "application": "field",
+  "linkAudience": "titan-central",
+  "clockEpochSeconds": 1794240060,
+  "linkKeySets": {
+    "sorted": [
+      { "kid": "sorted-contract-2026-01", "label": "sorted-previous", "notBefore": "2026-01-01T00:00:00.000Z", "notAfter": "2026-11-10T00:00:00.000Z" },
+      { "kid": "sorted-contract-2026-11", "label": "sorted-current", "notBefore": "2026-11-01T00:00:00.000Z" }
+    ],
+    "supercharged": [
+      { "kid": "supercharged-contract-2026-11", "label": "supercharged-current", "notBefore": "2026-11-01T00:00:00.000Z" }
+    ]
+  },
+  "centralRecord": { "sub": "usr_7f3k2m9a", "org": "org_4hq8c1zd" },
+  "command": { "lu": "sorted-user-1842", "la": "sorted-acct-2291" },
+  "baseHeader": { "alg": "EdDSA", "typ": "titan-link+jwt", "kid": "sorted-contract-2026-11" },
+  "baseAssertion": {
+    "iss": "sorted",
+    "aud": "titan-central",
+    "sub": "usr_7f3k2m9a",
+    "org": "org_4hq8c1zd",
+    "lu": "sorted-user-1842",
+    "la": "sorted-acct-2291",
+    "nonce": "q2XvR7kLmN0pTbZ3sYcW9A",
+    "iat": 1794240000,
+    "exp": 1794240120
+  },
+  "serviceClient": {
+    "clientId": "sorted-contract-client",
+    "clientSecret": "contract-fixture-client-secret",
+    "tokenPath": "/oidc/token",
+    "audience": "urn:titan-central:product:sorted",
+    "otherAudience": "urn:titan-central:product:supercharged",
+    "tokenTtlSeconds": 300,
+    "tokenKeyLabel": "central-token",
+    "tokenIssuer": "https://central.contract.invalid"
+  },
+  "routeSecrets": {
+    "current": "contract-fixture-route-secret-current-0001",
+    "other": "contract-fixture-route-secret-other-0002"
+  }
+}
