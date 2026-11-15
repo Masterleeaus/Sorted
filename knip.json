@@ -33,7 +33,6 @@
       ],
       "ignore": [
         "app/app/ZeroChatFirst.tsx",
-        "app/app/settings/WorkforceLifecyclePanel.tsx",
         "app/titan/runtime/go-field-runtime.d.mts",
         "app/titan/runtime/go-schedule-intelligence.d.mts",
         "app/titan/runtime/surface-contract.d.mts",
@@ -68,7 +67,6 @@
         "src/ported/**",
         "tests/**",
         "migration-tests/**",
-        "**/.test-dist/**",
         "src/distributed/authority.ts",
         "src/distributed/context.ts",
         "src/distributed/contracts.ts",
@@ -140,7 +138,6 @@
         "src/workforce-lifecycle/configuration.ts",
         "src/workforce-lifecycle/contracts.ts",
         "src/workforce-lifecycle/health.ts",
-        "src/workforce-lifecycle/index.ts",
         "src/workforce-lifecycle/migration.ts",
         "src/workforce-lifecycle/registration.ts",
         "src/workforce-lifecycle/replacement.ts",
