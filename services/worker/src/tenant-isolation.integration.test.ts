@@ -108,6 +108,7 @@ describe.skipIf(!shouldRun)("cross-account isolation (worker)", () => {
     return {
       id: randomUUID(),
       account_id: t.accountId,
+      company_id: t.accountId,
       type,
       config,
       enabled: true,

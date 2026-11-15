@@ -33,6 +33,7 @@ export type { AutomationRow, RunResult };
 export interface EligibleVisit {
   id: string;
   account_id: string;
+  company_id: string;
   job_id: string;
   client_id: string;
   assigned_user_id: string | null;
@@ -49,7 +50,7 @@ export interface EligibleVisit {
  */
 export async function findDueReminders(client: Client): Promise<AutomationRow[]> {
   const { rows } = await client.query<AutomationRow>(
-    `SELECT id, account_id, type, config, enabled, next_run_at::text
+    `SELECT id, account_id, company_id, type, config, enabled, next_run_at::text
      FROM automations
      WHERE type = 'visit_reminder'
        AND enabled = true
@@ -74,17 +75,17 @@ export async function findEligibleVisits(
   const hoursBefore = (automation.config.hours_before as number | undefined) ?? 24;
 
   const { rows } = await client.query<EligibleVisit>(
-    `SELECT v.id, v.account_id, v.job_id, c.id AS client_id, v.assigned_user_id,
+    `SELECT v.id, v.account_id, v.company_id, v.job_id, c.id AS client_id, v.assigned_user_id,
             v.scheduled_start::text, j.title AS job_title,
             c.name AS client_name, c.email AS client_email,
             p.address AS property_address,
             u.full_name AS tech_name
      FROM visits v
-     JOIN jobs j ON j.id = v.job_id AND j.account_id = v.account_id
-     JOIN clients c ON c.id = j.client_id AND c.account_id = v.account_id
-     LEFT JOIN properties p ON p.id = j.property_id AND p.account_id = v.account_id
-     LEFT JOIN users u ON u.id = v.assigned_user_id AND u.account_id = v.account_id
-     WHERE v.account_id = $1
+     JOIN jobs j ON j.id = v.job_id AND j.company_id = v.company_id
+     JOIN clients c ON c.id = j.client_id AND c.company_id = v.company_id
+     LEFT JOIN properties p ON p.id = j.property_id AND p.company_id = v.company_id
+     LEFT JOIN users u ON u.id = v.assigned_user_id AND u.company_id = v.company_id
+     WHERE v.company_id = $1
        AND v.status = 'scheduled'
        AND v.scheduled_start > now()
        AND v.scheduled_start <= now() + ($2 || ' hours')::interval
@@ -92,10 +93,10 @@ export async function findEligibleVisits(
          SELECT 1 FROM audit_log al
          WHERE al.entity_type = 'visit_reminder'
            AND al.entity_id = v.id
-           AND al.account_id = v.account_id
+           AND al.company_id = v.company_id
        )
      ORDER BY v.scheduled_start ASC`,
-    [automation.account_id, hoursBefore]
+    [automation.company_id, hoursBefore]
   );
 
   return rows;
@@ -117,9 +118,9 @@ export async function emitVisitReminder(
     `SELECT 1 FROM audit_log
      WHERE entity_type = 'visit_reminder'
        AND entity_id = $1
-       AND account_id = $2
+       AND company_id = $2
      LIMIT 1`,
-    [visit.id, visit.account_id]
+    [visit.id, visit.company_id]
   );
 
   if (rowCount && rowCount > 0) {

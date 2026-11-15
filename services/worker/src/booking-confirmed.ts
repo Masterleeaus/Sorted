@@ -21,6 +21,7 @@ import { PRIORITY } from "./notification/priority.js";
 interface EligibleBooking {
   id: string;
   account_id: string;
+  company_id: string;
   job_id: string;
   client_id: string;
   scheduled_start: string;
@@ -34,7 +35,7 @@ interface EligibleBooking {
 
 export async function findDueBookingConfirmations(client: Client): Promise<AutomationRow[]> {
   const { rows } = await client.query<AutomationRow>(
-    `SELECT id, account_id, type, config, enabled, next_run_at::text
+    `SELECT id, account_id, company_id, type, config, enabled, next_run_at::text
      FROM automations
      WHERE type = 'booking_confirmed'
        AND enabled = true
@@ -50,18 +51,18 @@ export async function findEligibleBookings(
   const hoursWindow = (automation.config as { hours_window?: number }).hours_window ?? 48;
 
   const { rows } = await client.query<EligibleBooking>(
-    `SELECT v.id, v.account_id, v.job_id, c.id AS client_id,
+    `SELECT v.id, v.account_id, v.company_id, v.job_id, c.id AS client_id,
             v.scheduled_start::text, v.scheduled_end::text,
             j.title AS job_title,
             c.name AS client_name, c.email AS client_email,
             p.address AS property_address,
             u.full_name AS tech_name
      FROM visits v
-     JOIN jobs j ON j.id = v.job_id AND j.account_id = v.account_id
-     JOIN clients c ON c.id = j.client_id AND c.account_id = v.account_id
-     LEFT JOIN properties p ON p.id = j.property_id AND p.account_id = v.account_id
-     LEFT JOIN users u ON u.id = v.assigned_user_id AND u.account_id = v.account_id
-     WHERE v.account_id = $1
+     JOIN jobs j ON j.id = v.job_id AND j.company_id = v.company_id
+     JOIN clients c ON c.id = j.client_id AND c.company_id = v.company_id
+     LEFT JOIN properties p ON p.id = j.property_id AND p.company_id = v.company_id
+     LEFT JOIN users u ON u.id = v.assigned_user_id AND u.company_id = v.company_id
+     WHERE v.company_id = $1
        AND v.status = 'scheduled'
        AND v.scheduled_start > now()
        AND v.created_at >= now() - ($2 || ' hours')::interval
@@ -69,10 +70,10 @@ export async function findEligibleBookings(
          SELECT 1 FROM audit_log al
          WHERE al.entity_type = 'booking_confirmed'
            AND al.entity_id = v.id
-           AND al.account_id = v.account_id
+           AND al.company_id = v.company_id
        )
      ORDER BY v.created_at ASC`,
-    [automation.account_id, hoursWindow]
+    [automation.company_id, hoursWindow]
   );
 
   return rows;
@@ -87,9 +88,9 @@ async function emitBookingConfirmation(
     `SELECT 1 FROM audit_log
      WHERE entity_type = 'booking_confirmed'
        AND entity_id = $1
-       AND account_id = $2
+       AND company_id = $2
      LIMIT 1`,
-    [booking.id, booking.account_id]
+    [booking.id, booking.company_id]
   );
 
   if (rowCount && rowCount > 0) {

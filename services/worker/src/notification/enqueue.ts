@@ -26,7 +26,7 @@ export async function enqueueNotification(
   // Check idempotency — skip if any non-failed row exists for this key
   const existing = await client.query<{ status: string }>(
     `SELECT status FROM notification_queue
-      WHERE account_id = $1 AND idempotency_key = $2 LIMIT 1`,
+      WHERE company_id = $1 AND idempotency_key = $2 LIMIT 1`,
     [opts.accountId, opts.idempotencyKey]
   );
   if (existing.rows.length > 0 && existing.rows[0].status !== "failed") {
@@ -39,8 +39,8 @@ export async function enqueueNotification(
       `SELECT nc.last_sent_at,
               COALESCE(ar.cooldown_hours, 4) AS cooldown_hours
        FROM notification_cooldowns nc
-       LEFT JOIN automation_settings ar ON ar.account_id = nc.account_id
-       WHERE nc.account_id = $1 AND nc.client_id = $2`,
+       LEFT JOIN automation_settings ar ON ar.company_id = nc.company_id
+       WHERE nc.company_id = $1 AND nc.client_id = $2`,
       [opts.accountId, opts.clientId]
     );
     if (cooldown.rows.length > 0) {
@@ -59,8 +59,8 @@ export async function enqueueNotification(
          COUNT(nq.id)::int                           AS today_count,
          COALESCE(ar.max_per_day, 2)                 AS max_per_day
        FROM notification_queue nq
-       LEFT JOIN automation_settings ar ON ar.account_id = nq.account_id
-       WHERE nq.account_id = $1
+       LEFT JOIN automation_settings ar ON ar.company_id = nq.company_id
+       WHERE nq.company_id = $1
          AND nq.client_id  = $2
          AND nq.status     = 'sent'
          AND nq.sent_at    >= date_trunc('day', now() AT TIME ZONE COALESCE(ar.working_hours_tz, 'America/New_York'))
@@ -115,7 +115,7 @@ export function cancelNotificationsForEntity(
   return client.query(
     `UPDATE notification_queue
         SET status = 'cancelled'
-      WHERE account_id  = $4
+      WHERE company_id  = $4
         AND entity_type = $1
         AND entity_id   = $2::uuid
         AND status      = 'pending'

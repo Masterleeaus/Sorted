@@ -23,12 +23,12 @@ const OPTS = {
 };
 
 describe("enqueueNotification account scoping", () => {
-  it("looks up the idempotency key within the account", async () => {
+  it("looks up the idempotency key within the company", async () => {
     const { client, query } = mockClient();
     await enqueueNotification(client, OPTS);
 
     const [sql, params] = query.mock.calls[0];
-    expect(sql).toContain("account_id");
+    expect(sql).toContain("company_id");
     expect(params).toEqual([ACCOUNT_A, "review_request:job-1"]);
   });
 
@@ -50,7 +50,7 @@ describe("cancelNotificationsForEntity account scoping", () => {
 
     expect(cancelled).toBe(1);
     const [sql, params] = query.mock.calls[0];
-    expect(sql).toContain("account_id  = $4");
+    expect(sql).toContain("company_id  = $4");
     expect(params).toEqual(["job", ENTITY, "invoice.paid", ACCOUNT_A]);
   });
 });
