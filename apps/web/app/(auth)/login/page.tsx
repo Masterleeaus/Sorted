@@ -44,17 +44,14 @@ export default function LoginPage() {
 
   return (
     <div className="tz-login-page">
-      <div className="tz-login-brand tg-login-field-lockup">
-        <img src="/brand/titan-zero-field-lockup.jpeg" alt="Sorted Field — Run the work" />
-      </div>
       <div className="tg-login-go-brand">
         <img src="/icons/icon-192.png" alt="" aria-hidden="true" />
-        <span><b>SORTED</b><small><i /> FIELD MODE</small></span>
+        <span><b>SORTED</b><small><i /> FIELD OPERATIONS</small></span>
       </div>
       <div className="login-card tz-login-card">
-        <span className="tz-eyebrow">SORTED · FIELD MODE</span>
+        <span className="tz-eyebrow">SORTED · FIELD OPERATIONS</span>
         <h1>Sign in</h1>
-        <p>Sign in once. Sorted opens the modes and roles available to your account.</p>
+        <p>Sign in to your Sorted workspace to manage field operations and assigned work.</p>
 
         {error ? <div className="error-message" role="alert">{error}</div> : null}
 

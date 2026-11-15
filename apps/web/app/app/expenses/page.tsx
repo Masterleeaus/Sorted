@@ -1,3 +1,10 @@
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Expenses",
+  description: "Track operational expenses in Sorted Field.",
+};
+
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth/session";
 import { withExpenseContext } from "@/lib/expenses/db";

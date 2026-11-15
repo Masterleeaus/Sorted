@@ -1,3 +1,10 @@
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Invoices",
+  description: "Review business invoices and payment status in Sorted Field.",
+};
+
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import type { Route } from "next";

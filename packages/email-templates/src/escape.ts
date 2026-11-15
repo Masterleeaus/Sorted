@@ -37,6 +37,8 @@ export function safeUrl(value: string | null | undefined): string | null {
   } catch {
     return null;
   }
+  // PR 30 intent: credentials embedded in a link (user:pass@host) are never allowed.
+  if (parsed.username || parsed.password) return null;
   return ALLOWED_URL_PROTOCOLS.has(parsed.protocol) ? trimmed : null;
 }
 

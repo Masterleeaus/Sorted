@@ -1,3 +1,10 @@
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Clients",
+  description: "Manage company client records in Sorted Field.",
+};
+
 import Link from "next/link";
 import type { Route } from "next";
 import { redirect } from "next/navigation";

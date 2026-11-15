@@ -1,3 +1,10 @@
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Assets",
+  description: "Track equipment custody and asset readiness in Sorted Field.",
+};
+
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import type { Route } from "next";

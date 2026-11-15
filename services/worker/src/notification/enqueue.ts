@@ -74,7 +74,7 @@ export async function enqueueNotification(
 
   // Upsert: if a failed row exists for this key, reset it; otherwise insert fresh
   const nextAttemptAt = opts.scheduledFor ?? new Date();
-  await client.query(
+  const queued = await client.query<{ id: string }>(
     `INSERT INTO notification_queue
        (account_id, client_id, automation_type, priority, to_address,
         subject, html_body, idempotency_key, entity_type, entity_id,
@@ -84,7 +84,16 @@ export async function enqueueNotification(
        SET status          = 'pending',
            attempt_count   = 0,
            failure_reason  = NULL,
-           next_attempt_at = EXCLUDED.next_attempt_at`,
+           failed_at       = NULL,
+           sent_at         = NULL,
+           next_attempt_at = EXCLUDED.next_attempt_at,
+           to_address      = EXCLUDED.to_address,
+           subject         = EXCLUDED.subject,
+           html_body       = EXCLUDED.html_body,
+           metadata        = EXCLUDED.metadata
+     WHERE notification_queue.status = 'failed'
+       AND notification_queue.account_id = EXCLUDED.account_id
+     RETURNING id`,
     [
       opts.accountId,
       opts.clientId,
@@ -102,9 +111,13 @@ export async function enqueueNotification(
     ]
   );
 
-  return "enqueued";
+  return queued.rows.length ? "enqueued" : "duplicate";
 }
 
+/**
+ * Cancel pending notifications for an entity owned by a single account.
+ * The account ID is mandatory: entity IDs and event names are not tenant authority.
+ */
 export function cancelNotificationsForEntity(
   client: Client,
   entityType: string,
