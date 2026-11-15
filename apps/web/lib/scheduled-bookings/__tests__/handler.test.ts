@@ -1,5 +1,38 @@
 import { describe, expect, it, vi, beforeEach } from "vitest";
 import type { PoolClient } from "pg";
+import { readFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
+
+/**
+ * Job transitions as the database enforces them, read from the shipped migration rather than
+ * copied here. Parses the `when 'x' then array[...]` rows of validate_job_transition().
+ */
+function loadJobTransitions(): Map<string, string[]> {
+  const sql = readFileSync(
+    fileURLToPath(new URL("../../../../../db/migrations/004_workflow_invariants.sql", import.meta.url)),
+    "utf8",
+  );
+  const fn = sql.slice(sql.indexOf("create or replace function validate_job_transition"));
+  const start = fn.indexOf("allowed := case old.status");
+  const block = fn.slice(start, fn.indexOf("\n  end;", start));
+  const table = new Map<string, string[]>();
+  for (const m of block.matchAll(/when '(\w+)'\s+then array\[([^\]]*)\]/g)) {
+    table.set(m[1], [...m[2].matchAll(/'(\w+)'/g)].map((x) => x[1]));
+  }
+  if (table.size !== 7) throw new Error(`expected 7 job transition rows, parsed ${table.size}`);
+  return table;
+}
+
+const JOB_TRANSITIONS = loadJobTransitions();
+
+/** The trigger's check: raises the same way for a transition the migration does not allow. */
+function assertJobTransition(from: string, to: string): void {
+  if (from === to) return;
+  const allowed = JOB_TRANSITIONS.get(from) ?? [];
+  if (!allowed.includes(to)) {
+    throw new Error(`invalid job transition: ${from} → ${to} (allowed: ${allowed.join(", ")})`);
+  }
+}
 
 vi.mock("../../work-orders/create-default", () => ({
   createDefaultWorkOrderForJob: vi.fn(async () => "wo-1"),
@@ -57,7 +90,7 @@ function envelope(overrides: Record<string, unknown> = {}, key = "idem-1") {
 
 /** In-memory stand-in for the tenant transaction. Recognises the statements the handler uses. */
 function fakeTenant() {
-  const receipts = new Set<string>();
+  const receipts = new Map<string, { event_type: string; booking_id: string }>();
   const links = new Map<string, { job_id: string; last_occurred_at: Date; status: string }>();
   const customers = new Map<string, string>([["cus_abc123", CLIENT]]);
   const jobs = new Map<string, string>();
@@ -69,8 +102,18 @@ function fakeTenant() {
       if (sql.includes("INSERT INTO scheduled_booking_receipts")) {
         const key = `${params[0]}|${params[1]}`;
         if (receipts.has(key)) return { rows: [], rowCount: 0 };
-        receipts.add(key);
+        receipts.set(key, { event_type: String(params[2]), booking_id: String(params[3]) });
         return { rows: [{ idempotency_key: params[1] }], rowCount: 1 };
+      }
+      if (sql.includes("FROM scheduled_booking_receipts") && sql.includes("'booking.cancelled'")) {
+        const found = [...receipts.values()].some(
+          (r) => r.event_type === "booking.cancelled" && r.booking_id === String(params[1]),
+        );
+        return { rows: found ? [{ "?column?": 1 }] : [], rowCount: found ? 1 : 0 };
+      }
+      if (sql.includes("SELECT status FROM jobs")) {
+        const status = jobs.get(String(params[1]));
+        return { rows: status ? [{ status }] : [], rowCount: status ? 1 : 0 };
       }
       if (sql.includes("FROM scheduled_booking_links") && sql.includes("FOR UPDATE")) {
         const link = links.get(String(params[1]));
@@ -96,7 +139,19 @@ function fakeTenant() {
         return { rows: [], rowCount: 1 };
       }
       if (sql.includes("UPDATE jobs")) {
-        writes.push("jobs.cancel");
+        // Same guard as the database trigger: the WHERE clause decides which row matches,
+        // and a status change the migration does not allow raises instead of matching.
+        const jobId = String(params[1]);
+        const current = jobs.get(jobId);
+        const whereMatches = sql.includes("status = $3")
+          ? current === params[2]
+          : current !== undefined && sql.includes("status = 'scheduled'") && current === "scheduled";
+        if (!whereMatches || current === undefined) return { rows: [], rowCount: 0 };
+        const next = /SET status = '(\w+)'/.exec(sql)?.[1];
+        if (!next) throw new Error(`unexpected UPDATE in test: ${sql.slice(0, 60)}`);
+        assertJobTransition(current, next);
+        jobs.set(jobId, next);
+        writes.push(`jobs.${next}`);
         return { rows: [], rowCount: 1 };
       }
       throw new Error(`unexpected SQL in test: ${sql.slice(0, 60)}`);
@@ -108,7 +163,11 @@ function fakeTenant() {
     return fn(client);
   });
 
-  return { runInTenant, receipts, links, jobs, writes, tenantsSeen };
+  function seedJob(jobId: string, status: string) {
+    jobs.set(jobId, status);
+  }
+
+  return { runInTenant, receipts, links, jobs, writes, tenantsSeen, seedJob };
 }
 
 function post(body: unknown) {
@@ -213,7 +272,108 @@ describe("handleScheduledBookingEvent", () => {
     );
     const result = await handleScheduledBookingEvent({ rawBody: post(cancel), config, runInTenant: tenant.runInTenant });
     expect(result.body).toEqual({ data: { outcome: "cancelled" } });
-    expect(tenant.writes).toContain("jobs.cancel");
+    expect(tenant.jobs.get(JOB)).toBe("cancelled");
+    // A draft cannot go straight to cancelled under the invariants, so it passes through scheduled.
+    expect(tenant.writes.filter((w) => w.startsWith("jobs."))).toEqual([
+      "jobs.insert",
+      "jobs.scheduled",
+      "jobs.cancelled",
+    ]);
+  });
+
+  it("cancels a draft job without a rejected transition", async () => {
+    // The job is still a draft, as booking.created leaves it. A direct draft -> cancelled would raise.
+    await handleScheduledBookingEvent({ rawBody: post(envelope({}, "k-d")), config, runInTenant: tenant.runInTenant });
+    expect(tenant.jobs.get(JOB)).toBe("draft");
+    const cancel = envelope(
+      {
+        eventType: "booking.cancelled",
+        idempotencyKey: "k-d2",
+        occurredAt: "2026-11-15T02:00:00.000Z",
+        payload: payload({ status: "cancelled", occurredAt: "2026-11-15T02:00:00.000Z" }),
+      },
+      "k-d2",
+    );
+    const result = await handleScheduledBookingEvent({ rawBody: post(cancel), config, runInTenant: tenant.runInTenant });
+    expect(result).toEqual({ status: 200, body: { data: { outcome: "cancelled" } } });
+  });
+
+  it("cancels a quoted job through scheduled as well", async () => {
+    await handleScheduledBookingEvent({ rawBody: post(envelope({}, "k-q")), config, runInTenant: tenant.runInTenant });
+    tenant.jobs.set(JOB, "quoted");
+    const cancel = envelope(
+      {
+        eventType: "booking.cancelled",
+        idempotencyKey: "k-q2",
+        occurredAt: "2026-11-15T02:00:00.000Z",
+        payload: payload({ status: "cancelled", occurredAt: "2026-11-15T02:00:00.000Z" }),
+      },
+      "k-q2",
+    );
+    const result = await handleScheduledBookingEvent({ rawBody: post(cancel), config, runInTenant: tenant.runInTenant });
+    expect(result.body).toEqual({ data: { outcome: "cancelled" } });
+    expect(tenant.jobs.get(JOB)).toBe("cancelled");
+  });
+
+  it("leaves a job already in progress alone and reports it as not cancellable", async () => {
+    await handleScheduledBookingEvent({ rawBody: post(envelope({}, "k-p")), config, runInTenant: tenant.runInTenant });
+    tenant.jobs.set(JOB, "in_progress");
+    const cancel = envelope(
+      {
+        eventType: "booking.cancelled",
+        idempotencyKey: "k-p2",
+        occurredAt: "2026-11-15T02:00:00.000Z",
+        payload: payload({ status: "cancelled", occurredAt: "2026-11-15T02:00:00.000Z" }),
+      },
+      "k-p2",
+    );
+    const result = await handleScheduledBookingEvent({ rawBody: post(cancel), config, runInTenant: tenant.runInTenant });
+    expect(result.status).toBe(200);
+    expect(result.body).toEqual({ data: { outcome: "job_not_cancellable" } });
+    expect(tenant.jobs.get(JOB)).toBe("in_progress");
+  });
+
+  it("refuses a created event for a booking cancelled before any job existed", async () => {
+    const cancel = envelope(
+      {
+        eventType: "booking.cancelled",
+        idempotencyKey: "k-early-cancel",
+        occurredAt: "2026-11-15T00:30:00.000Z",
+        payload: payload({ status: "cancelled", occurredAt: "2026-11-15T00:30:00.000Z" }),
+      },
+      "k-early-cancel",
+    );
+    const first = await handleScheduledBookingEvent({ rawBody: post(cancel), config, runInTenant: tenant.runInTenant });
+    expect(first.body).toEqual({ data: { outcome: "no_linked_job" } });
+
+    // A retry of booking.created under a new key must not create a live draft.
+    const created = await handleScheduledBookingEvent({
+      rawBody: post(envelope({}, "k-late-create")),
+      config,
+      runInTenant: tenant.runInTenant,
+    });
+    expect(created).toEqual({ status: 200, body: { data: { outcome: "refused_cancelled" } } });
+    expect(tenant.jobs.size).toBe(0);
+    expect(tenant.links.has("bk_1001")).toBe(false);
+  });
+
+  it("still creates a job for a booking that was only rescheduled before creation", async () => {
+    const reschedule = envelope(
+      {
+        eventType: "booking.rescheduled",
+        idempotencyKey: "k-early-resched",
+        occurredAt: "2026-11-15T00:30:00.000Z",
+        payload: payload({ status: "confirmed", occurredAt: "2026-11-15T00:30:00.000Z" }),
+      },
+      "k-early-resched",
+    );
+    await handleScheduledBookingEvent({ rawBody: post(reschedule), config, runInTenant: tenant.runInTenant });
+    const created = await handleScheduledBookingEvent({
+      rawBody: post(envelope({}, "k-resched-create")),
+      config,
+      runInTenant: tenant.runInTenant,
+    });
+    expect(created.body).toEqual({ data: { outcome: "created" } });
   });
 
   it("refuses an unmapped customer reference with a retryable 409 and no receipt", async () => {
@@ -237,6 +397,20 @@ describe("handleScheduledBookingEvent", () => {
     });
     expect(badEnd.status).toBe(422);
     expect(tenant.runInTenant).not.toHaveBeenCalled();
+  });
+});
+
+describe("job transition invariants (004_workflow_invariants.sql)", () => {
+  it("parses the shipped table rather than a copy of it", () => {
+    expect(JOB_TRANSITIONS.get("draft")).toEqual(["quoted", "scheduled"]);
+    expect(JOB_TRANSITIONS.get("scheduled")).toEqual(["in_progress", "cancelled"]);
+    expect(JOB_TRANSITIONS.get("cancelled")).toEqual(["draft"]);
+  });
+
+  it("rejects a direct draft -> cancelled and allows the two-step path", () => {
+    expect(() => assertJobTransition("draft", "cancelled")).toThrow(/invalid job transition/);
+    expect(() => assertJobTransition("draft", "scheduled")).not.toThrow();
+    expect(() => assertJobTransition("scheduled", "cancelled")).not.toThrow();
   });
 });
 

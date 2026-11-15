@@ -25,6 +25,7 @@ export type BookingEventOutcome =
   | "cancelled"
   | "job_not_cancellable"
   | "no_linked_job"
+  | "refused_cancelled"
   | "stale"
   | "duplicate";
 
@@ -36,6 +37,8 @@ export type ApplyInput = {
   payload: ScheduledBookingPayload;
 };
 
+// Mirrors db/migrations/004_workflow_invariants.sql (trg_jobs_transition). Only "scheduled" may go
+// straight to "cancelled"; "draft" and "quoted" must pass through "scheduled" first.
 const CANCELLABLE_JOB_STATUSES = ["draft", "quoted", "scheduled"];
 
 export async function applyScheduledBookingEvent(
@@ -76,6 +79,11 @@ export async function applyScheduledBookingEvent(
       await upsertLink(client, tenantId, payload, link.job_id, "scheduled");
       return { outcome: "updated", jobId: link.job_id };
     }
+    // A cancellation that arrived before any job existed is kept as a receipt. Refuse a later
+    // created event for the same booking so a retry under a new key cannot create a live draft.
+    if (await cancellationRecorded(client, tenantId, payload.bookingId)) {
+      return { outcome: "refused_cancelled", jobId: null };
+    }
     const clientId = await resolveClient(client, tenantId, payload.customerRef);
     const jobId = await insertJob(client, tenantId, actorUserId, clientId, payload);
     await createDefaultWorkOrderForJob({
@@ -100,15 +108,49 @@ export async function applyScheduledBookingEvent(
 
   // booking.cancelled
   await upsertLink(client, tenantId, payload, link.job_id, "cancelled");
+  const outcome = await cancelLinkedJob(client, tenantId, link.job_id);
+  return { outcome, jobId: link.job_id };
+}
+
+async function cancellationRecorded(client: PoolClient, tenantId: string, bookingId: string): Promise<boolean> {
+  const { rows } = await client.query(
+    `SELECT 1 FROM scheduled_booking_receipts
+     WHERE company_id = $1 AND booking_id = $2 AND event_type = 'booking.cancelled'
+     LIMIT 1`,
+    [tenantId, bookingId],
+  );
+  return rows.length > 0;
+}
+
+/**
+ * Moves the linked job to cancelled along transitions the trigger allows:
+ * draft or quoted -> scheduled -> cancelled. A direct draft -> cancelled raises P0001.
+ */
+async function cancelLinkedJob(
+  client: PoolClient,
+  tenantId: string,
+  jobId: string,
+): Promise<"cancelled" | "job_not_cancellable"> {
+  const { rows } = await client.query<{ status: string }>(
+    `SELECT status FROM jobs WHERE account_id = $1 AND id = $2 FOR UPDATE`,
+    [tenantId, jobId],
+  );
+  const status = rows[0]?.status;
+  if (!status || !CANCELLABLE_JOB_STATUSES.includes(status)) return "job_not_cancellable";
+
+  if (status !== "scheduled") {
+    await client.query(
+      `UPDATE jobs SET status = 'scheduled', updated_at = now()
+       WHERE account_id = $1 AND id = $2 AND status = $3`,
+      [tenantId, jobId, status],
+    );
+  }
   const cancelled = await client.query(
     `UPDATE jobs SET status = 'cancelled', updated_at = now()
-     WHERE account_id = $1 AND id = $2 AND status = ANY($3::text[])`,
-    [tenantId, link.job_id, CANCELLABLE_JOB_STATUSES],
+     WHERE account_id = $1 AND id = $2 AND status = 'scheduled'`,
+    [tenantId, jobId],
   );
-  return {
-    outcome: (cancelled.rowCount ?? 0) > 0 ? "cancelled" : "job_not_cancellable",
-    jobId: link.job_id,
-  };
+  return (cancelled.rowCount ?? 0) > 0 ? "cancelled" : "job_not_cancellable";
 }
 
 async function resolveClient(client: PoolClient, tenantId: string, customerRef: string): Promise<string> {

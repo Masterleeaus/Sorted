@@ -3,6 +3,7 @@ import { withTokenAccountContext } from "../../../_lib/account-context";
 import { readScheduledBookingConfig, ScheduledBookingConfigError } from "@/lib/scheduled-bookings/config";
 import { handleScheduledBookingEvent } from "@/lib/scheduled-bookings/handler";
 import { MAX_ENVELOPE_BYTES } from "@/lib/scheduled-bookings/envelope";
+import { readBodyUpTo } from "@/lib/scheduled-bookings/bounded-body";
 import { logger } from "@/lib/logger";
 
 export const dynamic = "force-dynamic";
@@ -29,15 +30,19 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     return new NextResponse(null, { status: 404 });
   }
 
-  const declared = Number(request.headers.get("content-length") ?? "0");
-  if (declared > MAX_ENVELOPE_BYTES) {
-    return NextResponse.json(
+  // A declared length is an early refusal only. When it is absent or malformed, readBodyUpTo
+  // still stops at the limit while reading, so the full body is never buffered.
+  const declaredHeader = request.headers.get("content-length");
+  const declared = declaredHeader !== null && /^\d+$/.test(declaredHeader.trim()) ? Number(declaredHeader) : 0;
+  const tooLarge = () =>
+    NextResponse.json(
       { error: { code: "payload_too_large", message: "envelope exceeds the size limit" } },
       { status: 413 },
     );
-  }
+  if (declared > MAX_ENVELOPE_BYTES) return tooLarge();
 
-  const rawBody = await request.text();
+  const rawBody = await readBodyUpTo(request, MAX_ENVELOPE_BYTES);
+  if (rawBody === null) return tooLarge();
   const result = await handleScheduledBookingEvent({
     rawBody,
     config,
