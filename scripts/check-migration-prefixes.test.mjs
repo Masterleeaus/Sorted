@@ -52,3 +52,12 @@ test("pricing policy migration supports account_id and company_id schema generat
   assert.match(sql, /USING \(%I = app_account_id\(\)\) WITH CHECK \(%I = app_account_id\(\)\)/);
   assert.doesNotMatch(sql, /USING \(account_id = app_account_id\(\)\)\s*WITH CHECK \(account_id = app_account_id\(\)\)/);
 });
+
+// The CI seed runs after all numbered migrations, including 209's tenant rename.
+test("development seed uses post-209 company_id for users", async () => {
+  const { readFileSync } = await import("node:fs");
+  const { fileURLToPath } = await import("node:url");
+  const sql = readFileSync(fileURLToPath(new URL("../db/migrations/002_seed_dev.sql", import.meta.url)), "utf8");
+  assert.match(sql, /insert into users \(id, company_id, email, full_name, password_hash, role\)/);
+  assert.doesNotMatch(sql, /insert into users \(id, account_id,/);
+});
