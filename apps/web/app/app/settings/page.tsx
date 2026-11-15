@@ -5,6 +5,7 @@ import { PageContainer, PageHeader } from "@/components/ui";
 import { SettingsTabsClient } from "./SettingsTabsClient";
 import type { TeamMember } from "./TeamPanel";
 import type { LocationDayValues } from "./LocationDaySettings";
+import { loadWorkforceLifecycleInspection } from "./workforce-lifecycle-data";
 
 export const dynamic = "force-dynamic";
 
@@ -69,6 +70,8 @@ export default async function SettingsPage() {
   if (!me) redirect("/login");
 
   const isOwner = session.role === "owner";
+  // Read-only lifecycle projection; same loader the Workforce page uses.
+  const workforceLifecycle = isAdmin ? loadWorkforceLifecycleInspection(session.accountId) : [];
   const locationDay: LocationDayValues | undefined = isOwner && account
     ? {
         dayReviewCutoffTime: account.day_review_cutoff_time,
@@ -101,6 +104,7 @@ export default async function SettingsPage() {
         hasAccount={!!account}
         users={users as TeamMember[]}
         locationDay={locationDay}
+        workforceLifecycle={workforceLifecycle}
       />
     </PageContainer>
   );
