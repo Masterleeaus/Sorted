@@ -92,7 +92,7 @@ export async function calculateTravelForAccount(
       longitude: number | null;
     }>(
       `SELECT address, city, state, zip, latitude, longitude
-       FROM properties WHERE id = $1 AND account_id = $2`,
+       FROM properties WHERE id = $1 AND company_id = $2`,
       [req.property_id, accountId]
     );
     if (prop.rowCount) {
@@ -117,7 +117,7 @@ export async function calculateTravelForAccount(
       `SELECT relationship_type, travel_rule,
               custom_included_one_way_miles, custom_mileage_rate_cents,
               custom_travel_time_rate_cents, minimum_project_value_exempt
-       FROM clients WHERE id = $1 AND account_id = $2`,
+       FROM clients WHERE id = $1 AND company_id = $2`,
       [req.client_id, accountId]
     );
     if (c.rowCount) {

@@ -44,7 +44,7 @@ export async function loadBusinessTimeZone(session: SessionPayload): Promise<str
   const rows = await queryForSession<{ working_hours_tz: string | null }>(session,
     `SELECT working_hours_tz
      FROM automation_rules
-     WHERE account_id = $1
+     WHERE company_id = $1
      LIMIT 1`,
     [session.accountId],
   );

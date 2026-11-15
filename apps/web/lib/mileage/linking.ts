@@ -41,7 +41,7 @@ export async function voidEnclosedGpsEstimates(
   const { rows } = await client.query<GpsSessionToVoid>(
     `SELECT id, miles, start_odometer, end_odometer, miles_source
        FROM vehicle_sessions
-      WHERE account_id = $1
+      WHERE company_id = $1
         AND session_date = $2::date
         AND id <> $3
         AND status = 'closed'

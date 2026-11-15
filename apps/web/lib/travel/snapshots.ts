@@ -222,7 +222,7 @@ export async function applyTravelToEstimate(
       : snapshot.total_travel_charge_cents;
 
   const modeRow = await client.query<{ presentation_mode: string | null }>(
-    `SELECT presentation_mode FROM estimates WHERE id = $1 AND account_id = $2`,
+    `SELECT presentation_mode FROM estimates WHERE id = $1 AND company_id = $2`,
     [estimateId, opts.accountId]
   );
   const presentationMode = modeRow.rows[0]?.presentation_mode ?? "standard";
@@ -287,7 +287,7 @@ export async function applyTravelToEstimate(
          travel_charge_mode = $2,
          travel_surcharge_cents = $3,
          updated_at = now()
-     WHERE id = $4 AND account_id = $5`,
+     WHERE id = $4 AND company_id = $5`,
     [snapshot.id, chargeMode, surchargeField, estimateId, opts.accountId]
   );
 
@@ -307,7 +307,7 @@ async function recalculateEstimateTotals(
     presentation_mode: string | null;
   }>(
     `SELECT travel_surcharge_cents, risk_adjustment_cents, tax_cents, presentation_mode
-     FROM estimates WHERE id = $1 AND account_id = $2`,
+     FROM estimates WHERE id = $1 AND company_id = $2`,
     [estimateId, accountId]
   );
   if (!est.rowCount) return;
@@ -343,7 +343,7 @@ async function recalculateEstimateTotals(
     `UPDATE estimates
      SET subtotal_cents = $1, total_cents = $2, balance_cents = GREATEST($2 - deposit_cents, 0),
          updated_at = now()
-     WHERE id = $3 AND account_id = $4`,
+     WHERE id = $3 AND company_id = $4`,
     [subtotal, total, estimateId, accountId]
   );
 }
@@ -518,7 +518,7 @@ export async function applyTravelToInvoice(
      SET travel_snapshot_id = $1,
          travel_billing_mode = $2,
          updated_at = now()
-     WHERE id = $3 AND account_id = $4`,
+     WHERE id = $3 AND company_id = $4`,
     [snapshot.id, billingMode, invoiceId, opts.accountId]
   );
 
@@ -532,7 +532,7 @@ export async function applyTravelToInvoice(
   await client.query(
     `UPDATE invoices
      SET subtotal_cents = $1, tax_cents = 0, total_cents = $1, updated_at = now()
-     WHERE id = $2 AND account_id = $3`,
+     WHERE id = $2 AND company_id = $3`,
     [subtotal, invoiceId, opts.accountId]
   );
 }

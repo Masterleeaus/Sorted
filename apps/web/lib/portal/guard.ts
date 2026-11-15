@@ -32,7 +32,7 @@ export async function requirePortalClient(
     ? await withTokenAccountContext(resolved.account_id, async (tx) => {
         const { rows } = await tx.query<PortalClient>(
           `SELECT id::text, account_id::text, name, email, phone, preferred_contact, sms_consent
-           FROM clients WHERE portal_token = $1 AND account_id = $2`,
+           FROM clients WHERE portal_token = $1 AND company_id = $2`,
           [clientToken, resolved.account_id],
         );
         return rows[0] ?? null;

@@ -15,8 +15,8 @@ export async function loadDayDraft(accountId: string, date: string): Promise<Day
   }>(
     `SELECT bd.id, a.visit_confidence_threshold AS confidence_threshold
      FROM business_days bd
-     JOIN accounts a ON a.id = bd.account_id
-     WHERE bd.account_id = $1 AND bd.business_date = $2::date`,
+     JOIN accounts a ON a.id = bd.company_id
+     WHERE bd.company_id = $1 AND bd.business_date = $2::date`,
     [accountId, date],
   );
   if (!day) return null;
@@ -36,7 +36,7 @@ export async function loadDayDraft(accountId: string, date: string): Promise<Day
               activity_entry_id, suggested_activity_type, vehicle_id, is_likely_noise,
               ROUND((distance_meters / 1609.344)::numeric, 1)::float8 AS estimated_miles
        FROM location_segments
-       WHERE account_id = $1 AND segment_date = $2::date
+       WHERE company_id = $1 AND segment_date = $2::date
        ORDER BY started_at ASC`,
       [accountId, date],
     ),
@@ -61,7 +61,7 @@ export async function loadDayDraft(accountId: string, date: string): Promise<Day
        LEFT JOIN properties p ON p.id = vc.property_id
        LEFT JOIN clients c ON c.id = vc.matched_client_id
        LEFT JOIN visits vis ON vis.id = vc.visit_id
-       WHERE vc.account_id = $1
+       WHERE vc.company_id = $1
          AND vc.status = 'pending'
          AND (vc.arrival_time AT TIME ZONE 'America/New_York')::date = $2::date`,
       [accountId, date],
@@ -69,13 +69,13 @@ export async function loadDayDraft(accountId: string, date: string): Promise<Day
     query<DayDraftEvidenceExpense & { vendor_name: string }>(
       `SELECT vendor_name, category, notes
        FROM expenses
-       WHERE account_id = $1 AND expense_date = $2::date`,
+       WHERE company_id = $1 AND expense_date = $2::date`,
       [accountId, date],
     ),
     query<{ started_at: string; ended_at: string }>(
       `SELECT started_at::text, ended_at::text
        FROM activity_entries
-       WHERE account_id = $1 AND session_date = $2::date
+       WHERE company_id = $1 AND session_date = $2::date
          AND voided_at IS NULL AND ended_at IS NOT NULL`,
       [accountId, date],
     ),
@@ -84,12 +84,12 @@ export async function loadDayDraft(accountId: string, date: string): Promise<Day
                 COALESCE(clock_out_at, now()) - clock_in_at
               )) / 60), 0)::int::text AS minutes
        FROM time_clock_sessions
-       WHERE account_id = $1 AND business_day_id = $2 AND voided_at IS NULL`,
+       WHERE company_id = $1 AND business_day_id = $2 AND voided_at IS NULL`,
       [accountId, day.id],
     ),
     queryOne<{ id: string }>(
       `SELECT id FROM vehicles
-       WHERE account_id = $1 AND is_default = true
+       WHERE company_id = $1 AND is_default = true
        ORDER BY created_at LIMIT 1`,
       [accountId],
     ),

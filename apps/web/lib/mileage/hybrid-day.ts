@@ -29,7 +29,7 @@ async function gpsDriveMilesMeters(
   const sql = `
     SELECT COALESCE(SUM(distance_meters), 0)::float8 AS meters
     FROM location_segments
-    WHERE account_id = $1
+    WHERE company_id = $1
       AND segment_date = $2::date
       AND kind = 'drive'
       AND status <> 'dismissed'
@@ -55,7 +55,7 @@ export async function loadHybridMileageForDay(
            vs.miles_source
     FROM vehicle_sessions vs
     LEFT JOIN vehicles v ON v.id = vs.vehicle_id
-    WHERE vs.account_id = $1 AND vs.session_date = $2::date
+    WHERE vs.company_id = $1 AND vs.session_date = $2::date
       AND vs.status <> 'voided'
       ${userId ? "AND vs.created_by = $3" : ""}
     ORDER BY vs.started_at DESC NULLS LAST
@@ -96,7 +96,7 @@ export async function loadHybridMileageForSessionDay(
            vs.miles_source
     FROM vehicle_sessions vs
     LEFT JOIN vehicles v ON v.id = vs.vehicle_id
-    WHERE vs.account_id = $1 AND vs.session_date = $2::date
+    WHERE vs.company_id = $1 AND vs.session_date = $2::date
       AND vs.status <> 'voided'
       AND vs.created_by = $3
     ORDER BY vs.started_at DESC NULLS LAST
@@ -113,7 +113,7 @@ export async function loadHybridMileageForSessionDay(
     session,
     `SELECT COALESCE(SUM(distance_meters), 0)::float8 AS meters
      FROM location_segments
-     WHERE account_id = $1
+     WHERE company_id = $1
        AND segment_date = $2::date
        AND kind = 'drive'
        AND status <> 'dismissed'

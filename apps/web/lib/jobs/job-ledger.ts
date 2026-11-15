@@ -68,20 +68,20 @@ export async function loadJobLedger(
     session,
     `SELECT
        (SELECT id FROM estimates
-        WHERE job_id = $1 AND account_id = $2 AND status = 'approved'
+        WHERE job_id = $1 AND company_id = $2 AND status = 'approved'
         ORDER BY created_at DESC LIMIT 1) AS approved_estimate_id,
        (SELECT id FROM estimates
-        WHERE job_id = $1 AND account_id = $2
+        WHERE job_id = $1 AND company_id = $2
           AND status NOT IN ('declined')
         ORDER BY
           CASE status WHEN 'approved' THEN 0 WHEN 'sent' THEN 1 ELSE 2 END,
           created_at DESC
         LIMIT 1) AS latest_estimate_id,
        (SELECT pricing_mode FROM estimates
-        WHERE job_id = $1 AND account_id = $2 AND status = 'approved'
+        WHERE job_id = $1 AND company_id = $2 AND status = 'approved'
         ORDER BY created_at DESC LIMIT 1) AS estimate_pricing_mode,
        (SELECT pricing_mode FROM booking_requests
-        WHERE job_id = $1 AND account_id = $2
+        WHERE job_id = $1 AND company_id = $2
         ORDER BY created_at DESC LIMIT 1) AS booking_pricing_mode,
        -- Pretax-allocated paid: when invoice has tax, scale paid by subtotal/total
        (SELECT COALESCE(SUM(
@@ -91,7 +91,7 @@ export async function loadJobLedger(
             ELSE paid_cents
           END
         ), 0)::text FROM invoices
-        WHERE job_id = $1 AND account_id = $2 AND status != 'void') AS paid_cents
+        WHERE job_id = $1 AND company_id = $2 AND status != 'void') AS paid_cents
     `,
     [jobId, session.accountId],
   );
@@ -130,7 +130,7 @@ export async function loadJobLedger(
     }>(
       session,
       `SELECT id, estimate_number, status, total_cents, subtotal_cents, tax_cents, pricing_mode
-       FROM estimates WHERE id = $1 AND account_id = $2`,
+       FROM estimates WHERE id = $1 AND company_id = $2`,
       [estimateId, session.accountId],
     );
     if (est) {
@@ -168,7 +168,7 @@ export async function loadJobLedger(
         session,
         `SELECT id, title, status, total_cents, subtotal_cents
          FROM change_orders
-         WHERE estimate_id = $1 AND account_id = $2
+         WHERE estimate_id = $1 AND company_id = $2
          ORDER BY created_at DESC`,
         [estimateId, session.accountId],
       )
@@ -180,7 +180,7 @@ export async function loadJobLedger(
       session,
       `SELECT COALESCE(SUM(EXTRACT(EPOCH FROM (ae.ended_at - ae.started_at)) / 60), 0)::numeric AS minutes
        FROM activity_entries ae
-       WHERE ae.account_id = $2
+       WHERE ae.company_id = $2
          AND ae.activity_type = 'job_work'
          AND ae.voided_at IS NULL
          AND ae.started_at IS NOT NULL
@@ -190,12 +190,12 @@ export async function loadJobLedger(
            (ae.entity_type = 'job' AND ae.entity_id = $1)
            OR (ae.entity_type = 'visit' AND ae.entity_id IN (
              SELECT v.id FROM visits v
-             WHERE v.job_id = $1 AND v.account_id = $2
+             WHERE v.job_id = $1 AND v.company_id = $2
                AND v.visit_type IS DISTINCT FROM 'site_visit'
            ))
            OR (ae.entity_type = 'work_order' AND ae.entity_id IN (
              SELECT wo.id FROM work_orders wo
-             WHERE wo.job_id = $1 AND wo.account_id = $2
+             WHERE wo.job_id = $1 AND wo.company_id = $2
            ))
          )`,
       [jobId, session.accountId],
@@ -211,7 +211,7 @@ export async function loadJobLedger(
       session,
       `SELECT amount_cents, commercial_tag, category, notes, vendor_name
        FROM expenses
-       WHERE account_id = $2 AND job_id = $1`,
+       WHERE company_id = $2 AND job_id = $1`,
       [jobId, session.accountId],
     );
     materialsExpenses = expenses

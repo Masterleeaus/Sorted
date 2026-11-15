@@ -47,7 +47,7 @@ export async function assertDraftInvoice(
   }>(
     `SELECT id, status, job_id, paid_cents, deposit_cents
      FROM invoices
-     WHERE id = $1 AND account_id = $2`,
+     WHERE id = $1 AND company_id = $2`,
     [invoiceId, accountId]
   );
 
@@ -89,7 +89,7 @@ export async function recalculateInvoiceTotals(
          tax_cents = $2,
          total_cents = $3,
          updated_at = now()
-     WHERE id = $4 AND account_id = $5
+     WHERE id = $4 AND company_id = $5
      RETURNING subtotal_cents, tax_cents, total_cents, paid_cents, balance_cents`,
     [subtotalCents, taxCents, totalCents, invoiceId, accountId]
   );
