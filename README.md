@@ -65,3 +65,9 @@ pnpm gate:fast
 ## Production Target
 
 Production runs on garonhome.local using `infra/compose.garonhome.yml` and deploy root `/opt/business/ai-fsm`. The runbook is [DEPLOY.md](DEPLOY.md). Do not deploy to `/home/admin/apps/ai-fsm`; that path is legacy.
+
+## License
+
+This repository is licensed under the [MIT License](LICENSE). Copyright (c) 2026 Dovetails Services LLC.
+
+Imported and ported third-party material under `packages/titan-platform` and `titan-donor/` keeps its own provenance record in [docs/working/titan-donor-provenance.md](docs/working/titan-donor-provenance.md). Check that record before reusing those files outside this repository.
