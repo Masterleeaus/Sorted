@@ -23,7 +23,7 @@ psql_cmd() {
     exit 1
   fi
 
-  docker run --rm --network host -v "${REPO_ROOT}:${REPO_ROOT}" -w "${REPO_ROOT}" postgres:16 \
+  docker run --rm --network host -e PGPASSWORD -v "${REPO_ROOT}:${REPO_ROOT}" -w "${REPO_ROOT}" postgres:16 \
     psql "$DATABASE_URL" "$@"
 }
 

@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, afterEach } from "vitest";
 import { getEnv, _resetEnvCache } from "../env";
 
 const VALID_ENV = {
-  DATABASE_URL: "postgres://test:test@localhost/test",
+  DATABASE_URL: "postgres://test@localhost/test",
   AUTH_SECRET: "this-is-a-valid-secret-exactly-32-chars!",
   NODE_ENV: "test",
 };

@@ -118,11 +118,14 @@ TEST_PG_NAME="ai-fsm-gate-pg-$$"
 TEST_PG_PORT="15432"
 TEST_DB="ai_fsm_test"
 TEST_USER="ai_fsm_test"
-TEST_PASS="ai_fsm_gate_pw"
-TEST_DATABASE_URL="postgresql://${TEST_USER}:${TEST_PASS}@localhost:${TEST_PG_PORT}/${TEST_DB}"
+# Random per run; never written into a URL. libpq reads PGPASSWORD for every
+# connection, including the ai_fsm_web runtime role provisioned below.
+TEST_PASS="$(openssl rand -hex 16)"
+export PGPASSWORD="$TEST_PASS"
+TEST_DATABASE_URL="postgresql://${TEST_USER}@localhost:${TEST_PG_PORT}/${TEST_DB}"
 TEST_AUTH_SECRET="gate-test-auth-secret-min-32-chars!!"
 TEST_INTERNAL_KEY="gate-internal-test-only"
-TEST_RUNTIME_DATABASE_URL="postgresql://ai_fsm_web:gate-runtime-only@localhost:${TEST_PG_PORT}/${TEST_DB}"
+TEST_RUNTIME_DATABASE_URL="postgresql://ai_fsm_web@localhost:${TEST_PG_PORT}/${TEST_DB}"
 TEST_WEB_PORT="${TEST_WEB_PORT:-$(choose_port 3000)}"
 TEST_BASE_URL="http://localhost:${TEST_WEB_PORT}"
 SERVER_PID=""
@@ -154,7 +157,7 @@ MIGRATION_DATABASE_URL="$TEST_DATABASE_URL" DATABASE_URL="$TEST_DATABASE_URL" ba
 DATABASE_URL="$TEST_DATABASE_URL" bash scripts/db-seed.sh
 
 if [[ "${SKIP_INTEGRATION:-}" != "1" ]]; then
-  MIGRATION_DATABASE_URL="$TEST_DATABASE_URL" RUNTIME_DB_PASSWORD=gate-runtime-only bash scripts/db-provision-runtime.sh
+  MIGRATION_DATABASE_URL="$TEST_DATABASE_URL" RUNTIME_DB_PASSWORD="$TEST_PASS" bash scripts/db-provision-runtime.sh
 
   log "starting test server"
   DATABASE_URL="$TEST_DATABASE_URL" \
