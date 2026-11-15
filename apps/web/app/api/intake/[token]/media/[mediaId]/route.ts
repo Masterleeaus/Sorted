@@ -63,7 +63,7 @@ export async function DELETE(
       `SELECT id FROM intake_invites
        WHERE id = $1 AND company_id = $2 AND used_at IS NULL AND expires_at > now()
        FOR UPDATE`,
-      [invite.id, invite.account_id],
+      [invite.id, invite.company_id],
     );
     if (active.length === 0) {
       await client.query("ROLLBACK");
