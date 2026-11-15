@@ -340,7 +340,7 @@ describe("DELETE /api/intake/[token]/media/[mediaId]", () => {
   });
 
   it("does not delete a different tenant's photo with a valid invite token", async () => {
-    db.state.media[0].account_id = "99999999-9999-4999-8999-999999999999";
+    db.state.media[0].company_id = "99999999-9999-4999-8999-999999999999";
     const res = await DELETE(deleteRequest(MEDIA_ID), deleteCtx(MEDIA_ID));
     expect(res.status).toBe(404);
     expect(db.state.media).toHaveLength(1);
