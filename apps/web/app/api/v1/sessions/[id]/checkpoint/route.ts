@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { withAuth } from "@/lib/auth/middleware";
 import type { AuthSession } from "@/lib/auth/middleware";
-import { getPool } from "@/lib/db";
+import { getPool, companyIdFromSession } from "@/lib/db";
 import { appendAuditLog } from "@/lib/db/audit";
 import { lastCheckpointOdometer } from "@/lib/mileage/sessions";
 import { logger } from "@/lib/logger";
@@ -60,9 +60,9 @@ export const POST = withAuth(async (request: NextRequest, session: AuthSession) 
     }>(
       `SELECT id, start_odometer, end_odometer, miles::text AS miles, notes
        FROM vehicle_sessions
-       WHERE id = $1 AND account_id = $2
+       WHERE id = $1 AND company_id = $2
        FOR UPDATE`,
-      [id, session.accountId],
+      [id, companyIdFromSession(session)],
     );
 
     const row = existing.rows[0];
@@ -118,9 +118,9 @@ export const POST = withAuth(async (request: NextRequest, session: AuthSession) 
     }>(
       `UPDATE vehicle_sessions
        SET notes = $1, updated_at = now()
-       WHERE id = $2 AND account_id = $3
+       WHERE id = $2 AND company_id = $3
        RETURNING id, notes`,
-      [notes, id, session.accountId],
+      [notes, id, companyIdFromSession(session)],
     );
 
     await appendAuditLog(client, {

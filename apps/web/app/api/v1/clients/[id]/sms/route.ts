@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { withRole } from "@/lib/auth/middleware";
 import type { AuthSession } from "@/lib/auth/middleware";
-import { queryOneForSession, withDbSession } from "@/lib/db";
+import { queryOneForSession, withDbSession, companyIdFromSession } from "@/lib/db";
 import { logger } from "@/lib/logger";
 import { normalizePhone } from "@/lib/phone";
 import { isSmsGatewayConfigured, sendSmsViaGateway } from "@/lib/sms/gateway";
@@ -78,8 +78,8 @@ export const POST = withRole(
       phone: string | null;
       sms_consent: boolean;
     }>(session,
-      `SELECT id, name, phone, sms_consent FROM clients WHERE id = $1 AND account_id = $2`,
-      [clientId, session.accountId]
+      `SELECT id, name, phone, sms_consent FROM clients WHERE id = $1 AND company_id = $2`,
+      [clientId, companyIdFromSession(session)]
     );
     if (!client) {
       return NextResponse.json(
@@ -130,8 +130,8 @@ export const POST = withRole(
     let jobId = parsed.data.job_id ?? null;
     if (jobId) {
       const job = await queryOneForSession<{ id: string }>(session,
-        `SELECT id FROM jobs WHERE id = $1 AND account_id = $2 AND client_id = $3`,
-        [jobId, session.accountId, clientId]
+        `SELECT id FROM jobs WHERE id = $1 AND company_id = $2 AND client_id = $3`,
+        [jobId, companyIdFromSession(session), clientId]
       );
       if (!job) {
         return NextResponse.json(

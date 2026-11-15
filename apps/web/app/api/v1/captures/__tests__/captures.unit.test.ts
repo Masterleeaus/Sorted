@@ -42,7 +42,7 @@ vi.mock("fs", () => ({
 const mockQuery = vi.fn();
 const mockWithDbSession = vi.fn();
 
-vi.mock("@/lib/db", () => ({
+vi.mock("@/lib/db", () => ({ companyIdFromSession: (s: { accountId: string }) => s.accountId,
   withDbSession: (...args: unknown[]) => mockWithDbSession(...args),
 }));
 

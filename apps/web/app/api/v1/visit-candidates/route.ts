@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { withAuth, type AuthSession } from "@/lib/auth/middleware";
-import { queryForSession, getPool } from "@/lib/db";
+import { queryForSession, getPool, companyIdFromSession } from "@/lib/db";
 import { canViewReports } from "@/lib/auth/permissions";
 import { logger } from "@/lib/logger";
 import {
@@ -54,11 +54,11 @@ export const GET = withAuth(async (request: NextRequest, session: AuthSession) =
        FROM visit_candidates vc
        LEFT JOIN properties p ON p.id = vc.property_id
        LEFT JOIN clients c ON c.id = vc.matched_client_id
-       WHERE vc.account_id = $1
+       WHERE vc.company_id = $1
          AND vc.status = 'pending'
          AND vc.arrival_time::date = COALESCE($2::date, CURRENT_DATE)
        ORDER BY vc.arrival_time ASC`,
-      [session.accountId, day],
+      [companyIdFromSession(session), day],
     );
     return NextResponse.json({ data: { candidates: rows } });
   } catch (error) {
@@ -114,15 +114,15 @@ export const POST = withAuth(async (request: NextRequest, session: AuthSession) 
     );
 
     // Validate the client (and property, if given) belong to this account.
-    const cli = await client.query(`SELECT id FROM clients WHERE id = $1 AND account_id = $2`, [d.client_id, session.accountId]);
+    const cli = await client.query(`SELECT id FROM clients WHERE id = $1 AND company_id = $2`, [d.client_id, companyIdFromSession(session)]);
     if (cli.rowCount === 0) {
       await client.query("ROLLBACK");
       return err("VALIDATION_ERROR", "Unknown client", 400, session.traceId);
     }
     if (d.property_id) {
       const prop = await client.query(
-        `SELECT id FROM properties WHERE id = $1 AND account_id = $2 AND client_id = $3`,
-        [d.property_id, session.accountId, d.client_id],
+        `SELECT id FROM properties WHERE id = $1 AND company_id = $2 AND client_id = $3`,
+        [d.property_id, companyIdFromSession(session), d.client_id],
       );
       if (prop.rowCount === 0) {
         await client.query("ROLLBACK");
@@ -135,23 +135,23 @@ export const POST = withAuth(async (request: NextRequest, session: AuthSession) 
 
     const { rows: ins } = await client.query<{ id: string }>(
       `INSERT INTO activity_entries
-         (account_id, user_id, session_date, activity_type, category,
+         (company_id, user_id, session_date, activity_type, category,
           started_at, ended_at, entity_type, entity_id, source, note)
        VALUES ($1, $2, $3::date, $4, $5, $6, $7, 'client', $8, 'manual', $9)
        RETURNING id`,
-      [session.accountId, session.userId, arrival.toISOString(), activityType, category,
+      [companyIdFromSession(session), session.userId, arrival.toISOString(), activityType, category,
        arrival.toISOString(), departure.toISOString(), d.client_id, d.note ?? null],
     );
     const entryId = ins[0].id;
 
     const { rows: cand } = await client.query<{ id: string }>(
       `INSERT INTO visit_candidates
-         (account_id, location_segment_id, property_id, matched_client_id,
+         (company_id, location_segment_id, property_id, matched_client_id,
           confidence_score, arrival_time, departure_time, duration_minutes,
           status, classification, activity_entry_id, source)
        VALUES ($1, NULL, $2, $3, 100, $4, $5, $6, 'confirmed', $7, $8, 'manual')
        RETURNING id`,
-      [session.accountId, d.property_id ?? null, d.client_id,
+      [companyIdFromSession(session), d.property_id ?? null, d.client_id,
        arrival.toISOString(), departure.toISOString(), d.duration_minutes, classification, entryId],
     );
 
@@ -162,8 +162,8 @@ export const POST = withAuth(async (request: NextRequest, session: AuthSession) 
         `UPDATE properties
          SET latitude = $1, longitude = $2, coordinate_source = 'manual',
              coordinate_confidence = 'manual', coordinate_updated_at = now(), updated_at = now()
-         WHERE id = $3 AND account_id = $4 AND latitude IS NULL`,
-        [d.latitude, d.longitude, d.property_id, session.accountId],
+         WHERE id = $3 AND company_id = $4 AND latitude IS NULL`,
+        [d.latitude, d.longitude, d.property_id, companyIdFromSession(session)],
       );
     }
 

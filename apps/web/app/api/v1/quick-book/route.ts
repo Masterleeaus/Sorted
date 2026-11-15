@@ -7,7 +7,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { withRole } from "@/lib/auth/middleware";
 import type { AuthSession } from "@/lib/auth/middleware";
-import { getPool } from "@/lib/db";
+import { getPool, companyIdFromSession } from "@/lib/db";
 import { appendAuditLog } from "@/lib/db/audit";
 import { logger } from "@/lib/logger";
 import { syncWorkOrderLeadFromVisit } from "@/lib/work-orders/assign-lead";
@@ -80,8 +80,8 @@ export const POST = withRole(["owner", "admin"], async (request: NextRequest, se
 
     if (d.client_id) {
       const { rows } = await client.query<{ id: string }>(
-        `SELECT id FROM clients WHERE id = $1 AND account_id = $2`,
-        [d.client_id, session.accountId]
+        `SELECT id FROM clients WHERE id = $1 AND company_id = $2`,
+        [d.client_id, companyIdFromSession(session)]
       );
       if (!rows[0]) {
         await client.query("ROLLBACK");
@@ -93,10 +93,10 @@ export const POST = withRole(["owner", "admin"], async (request: NextRequest, se
       clientId = rows[0].id;
     } else {
       const { rows } = await client.query<{ id: string }>(
-        `INSERT INTO clients (account_id, name)
+        `INSERT INTO clients (company_id, name)
          VALUES ($1, $2)
          RETURNING id`,
-        [session.accountId, d.client_name!]
+        [companyIdFromSession(session), d.client_name!]
       );
       clientId = rows[0].id;
       await appendAuditLog(client, {
@@ -126,8 +126,8 @@ export const POST = withRole(["owner", "admin"], async (request: NextRequest, se
     let propertyId: string;
     if (house.kind === "existing") {
       const { rows } = await client.query<{ id: string; client_id: string }>(
-        `SELECT id, client_id FROM properties WHERE id = $1 AND account_id = $2`,
-        [house.propertyId, session.accountId],
+        `SELECT id, client_id FROM properties WHERE id = $1 AND company_id = $2`,
+        [house.propertyId, companyIdFromSession(session)],
       );
       if (!rows[0]) {
         await client.query("ROLLBACK");
@@ -147,18 +147,18 @@ export const POST = withRole(["owner", "admin"], async (request: NextRequest, se
     } else {
       const { rows: existing } = await client.query<{ id: string }>(
         `SELECT id FROM properties
-         WHERE account_id = $1 AND client_id = $2 AND lower(address) = lower($3)
+         WHERE company_id = $1 AND client_id = $2 AND lower(address) = lower($3)
          LIMIT 1`,
-        [session.accountId, clientId, house.address],
+        [companyIdFromSession(session), clientId, house.address],
       );
       if (existing[0]) {
         propertyId = existing[0].id;
       } else {
         const { rows: created } = await client.query<{ id: string }>(
-          `INSERT INTO properties (account_id, client_id, name, address)
+          `INSERT INTO properties (company_id, client_id, name, address)
            VALUES ($1, $2, $3, $3)
            RETURNING id`,
-          [session.accountId, clientId, house.address],
+          [companyIdFromSession(session), clientId, house.address],
         );
         propertyId = created[0].id;
         await appendAuditLog(client, {
@@ -175,11 +175,11 @@ export const POST = withRole(["owner", "admin"], async (request: NextRequest, se
 
     // ── 3. Create job (T&M) ──────────────────────────────────────────────────
     const { rows: jobRows } = await client.query<{ id: string }>(
-      `INSERT INTO jobs (account_id, client_id, property_id, title, job_type, description, pricing_mode, created_by)
+      `INSERT INTO jobs (company_id, client_id, property_id, title, job_type, description, pricing_mode, created_by)
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
        RETURNING id`,
       [
-        session.accountId,
+        companyIdFromSession(session),
         clientId,
         propertyId,
         d.job_title,
@@ -225,11 +225,11 @@ export const POST = withRole(["owner", "admin"], async (request: NextRequest, se
 
     // ── 5. Create visit ──────────────────────────────────────────────────────
     const { rows: visitRows } = await client.query(
-      `INSERT INTO visits (account_id, job_id, work_order_id, assigned_user_id, scheduled_start, scheduled_end, visit_type)
+      `INSERT INTO visits (company_id, job_id, work_order_id, assigned_user_id, scheduled_start, scheduled_end, visit_type)
        VALUES ($1, $2, $3, $4, $5, $6, 'standard')
        RETURNING *`,
       [
-        session.accountId,
+        companyIdFromSession(session),
         jobId,
         workOrderId,
         assignedUserId,
@@ -258,8 +258,8 @@ export const POST = withRole(["owner", "admin"], async (request: NextRequest, se
 
     // ── 6. Advance job to 'scheduled' ────────────────────────────────────────
     await client.query(
-      `UPDATE jobs SET status = 'scheduled', updated_at = now() WHERE id = $1 AND account_id = $2`,
-      [jobId, session.accountId]
+      `UPDATE jobs SET status = 'scheduled', updated_at = now() WHERE id = $1 AND company_id = $2`,
+      [jobId, companyIdFromSession(session)]
     );
     await appendAuditLog(client, {
       account_id: session.accountId,

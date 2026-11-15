@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { withRole } from "@/lib/auth/middleware";
-import { getPool } from "@/lib/db";
+import { getPool, companyIdFromSession } from "@/lib/db";
 import { logger } from "@/lib/logger";
 import { createIntakeRecords } from "../../../../lib/intake/records";
 import { bookingRequestStatusSchema } from "@ai-fsm/domain";
@@ -94,8 +94,8 @@ export const GET = withRole(["owner", "admin"], async (request: NextRequest, ses
       [session.userId, session.accountId, session.role]
     );
 
-    const conditions: string[] = ["br.account_id = $1"];
-    const params: unknown[] = [session.accountId];
+    const conditions: string[] = ["br.company_id = $1"];
+    const params: unknown[] = [companyIdFromSession(session)];
     let idx = 2;
 
     if (status && (VALID_STATUSES as readonly string[]).includes(status)) {

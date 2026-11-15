@@ -57,7 +57,7 @@ describe("POST /api/v1/clients/[id]/sms account context", () => {
     expect(calls[0]).toBe("BEGIN");
     expect(calls[1]).toContain("set_config('app.current_account_id'");
     const lookup = mockClientQuery.mock.calls.find((c) => String(c[0]).includes("FROM clients"));
-    expect(lookup?.[0]).toMatch(/account_id = \$2/);
+    expect(lookup?.[0]).toMatch(/company_id = \$2/);
     expect(lookup?.[1]).toEqual([CLIENT_ID, mockSession.accountId]);
     expect(calls).toContain("COMMIT");
   });

@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { withAuth, withRole } from "@/lib/auth/middleware";
 import { appendAuditLog } from "@/lib/db/audit";
-import { withDbSession } from "@/lib/db";
+import { withDbSession, companyIdFromSession } from "@/lib/db";
 import { logger } from "@/lib/logger";
 
 export const dynamic = "force-dynamic";
@@ -48,8 +48,8 @@ export const POST = withRole(["owner", "admin", "tech"], async (request, session
     const outcome = await withDbSession(session, async (client) => {
       // Verify estimate belongs to account and is approved
       const estimateResult = await client.query<{ id: string; status: string; client_id: string }>(
-        `SELECT id, status, client_id FROM estimates WHERE id = $1 AND account_id = $2`,
-        [data.estimate_id, session.accountId]
+        `SELECT id, status, client_id FROM estimates WHERE id = $1 AND company_id = $2`,
+        [data.estimate_id, companyIdFromSession(session)]
       );
       const estimate = estimateResult.rows[0] ?? null;
 
@@ -65,11 +65,11 @@ export const POST = withRole(["owner", "admin", "tech"], async (request, session
 
       // Create change order
       const { rows } = await client.query<{ id: string }>(
-        `INSERT INTO change_orders (estimate_id, account_id, title, description, notes,
+        `INSERT INTO change_orders (estimate_id, company_id, title, description, notes,
                                      subtotal_cents, tax_cents, total_cents, status, created_by)
          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, 'draft', $9)
          RETURNING id`,
-        [data.estimate_id, session.accountId, data.title, data.description ?? null, data.notes ?? null,
+        [data.estimate_id, companyIdFromSession(session), data.title, data.description ?? null, data.notes ?? null,
          subtotalCents, taxCents, totalCents, session.userId]
       );
 
@@ -135,9 +135,9 @@ export const GET = withAuth(async (request, session) => {
       JOIN estimates e ON e.id = co.estimate_id
       LEFT JOIN users u ON u.id = co.created_by
       LEFT JOIN users u2 ON u2.id = co.approved_by
-      WHERE co.account_id = $1
+      WHERE co.company_id = $1
     `;
-    const params: unknown[] = [session.accountId];
+    const params: unknown[] = [companyIdFromSession(session)];
 
     if (estimateId) {
       query += ` AND co.estimate_id = $2`;

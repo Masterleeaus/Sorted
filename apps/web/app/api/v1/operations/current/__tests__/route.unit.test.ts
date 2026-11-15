@@ -29,7 +29,7 @@ vi.mock("@/lib/operations/state", () => ({
 const mockWithDbSession = vi.fn(async (_session: unknown, fn: (client: unknown) => Promise<unknown>) =>
   fn({}),
 );
-vi.mock("@/lib/db", () => ({
+vi.mock("@/lib/db", () => ({ companyIdFromSession: (s: { accountId: string }) => s.accountId,
   withDbSession: (...args: unknown[]) => mockWithDbSession(...(args as [unknown, (c: unknown) => Promise<unknown>])),
 }));
 

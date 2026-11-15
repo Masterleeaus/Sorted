@@ -3,7 +3,7 @@ import { z } from "zod";
 import { withAuth, withRole } from "@/lib/auth/middleware";
 import type { AuthSession } from "@/lib/auth/middleware";
 import { appendAuditLog } from "@/lib/db/audit";
-import { queryOneForSession, queryForSession, withDbSession } from "@/lib/db";
+import { queryOneForSession, queryForSession, withDbSession, companyIdFromSession } from "@/lib/db";
 import { logger } from "@/lib/logger";
 
 export const dynamic = "force-dynamic";
@@ -67,8 +67,8 @@ export const PATCH = withRole(["owner", "admin"], async (request, session) => {
     // Early returns below happen before any write, so a normal return (commit) is safe.
     const result = await withDbSession(session, async (client) => {
       const existingResult = await client.query<{ id: string; status: string; subtotal_cents: number; tax_cents: number }>(
-        `SELECT id, status, subtotal_cents, tax_cents FROM change_orders WHERE id = $1 AND account_id = $2`,
-        [id, session.accountId]
+        `SELECT id, status, subtotal_cents, tax_cents FROM change_orders WHERE id = $1 AND company_id = $2`,
+        [id, companyIdFromSession(session)]
       );
       const existing = existingResult.rows[0] ?? null;
 
@@ -126,11 +126,11 @@ export const PATCH = withRole(["owner", "admin"], async (request, session) => {
 
       // Push WHERE params after all SET params so indices don't collide
       const whereIdx = idx;
-      params.push(id, session.accountId);
+      params.push(id, companyIdFromSession(session));
 
       if (updates.length > 0) {
         await client.query(
-          `UPDATE change_orders SET ${updates.join(", ")} WHERE id = $${whereIdx} AND account_id = $${whereIdx + 1}`,
+          `UPDATE change_orders SET ${updates.join(", ")} WHERE id = $${whereIdx} AND company_id = $${whereIdx + 1}`,
           params
         );
       }
@@ -162,8 +162,8 @@ async function handleAction(id: string, action: string, session: AuthSession) {
     // Early returns below happen before any write, so a normal return (commit) is safe.
     const result = await withDbSession(session, async (client) => {
       const existingResult = await client.query<{ id: string; status: string; estimate_id: string; total_cents: number }>(
-        `SELECT id, status, estimate_id, total_cents FROM change_orders WHERE id = $1 AND account_id = $2`,
-        [id, session.accountId]
+        `SELECT id, status, estimate_id, total_cents FROM change_orders WHERE id = $1 AND company_id = $2`,
+        [id, companyIdFromSession(session)]
       );
       const existing = existingResult.rows[0] ?? null;
 
@@ -255,8 +255,8 @@ export const GET = withAuth(async (request, session) => {
        FROM change_orders co
        LEFT JOIN users u ON u.id = co.created_by
        LEFT JOIN users u2 ON u2.id = co.approved_by
-       WHERE co.id = $1 AND co.account_id = $2`,
-      [id, session.accountId]
+       WHERE co.id = $1 AND co.company_id = $2`,
+      [id, companyIdFromSession(session)]
     );
 
     if (!co) {

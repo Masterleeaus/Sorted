@@ -58,7 +58,7 @@ describe("GET /api/v1/sessions/suggestions account context", () => {
     const dataCalls = mockClientQuery.mock.calls.filter((c) => /FROM (jobs|visits|estimates)/.test(String(c[0])));
     expect(dataCalls).toHaveLength(3);
     for (const [sql, params] of dataCalls) {
-      expect(String(sql)).toMatch(/account_id = \$1/);
+      expect(String(sql)).toMatch(/company_id = \$1/);
       expect(params).toEqual([mockSession.accountId, "2026-05-04"]);
     }
   });

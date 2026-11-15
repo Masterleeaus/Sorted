@@ -8,6 +8,7 @@ import { logger } from "@/lib/logger";
 import { payloadTooLargeResponse, readMultipartWithLimit, UPLOAD_BODY_LIMITS } from "@/lib/uploads/body-limit";
 import { imageExtensionForMime } from "@/lib/uploads/paths";
 import { syncReceiptToPaperless } from "@/lib/paperless/receipt-sync";
+import { companyIdFromSession } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
 
@@ -45,8 +46,8 @@ export const GET = withRole(["owner", "admin"], async (request: NextRequest, ses
   try {
     const expense = await withExpenseContext(session, async (client) => {
       const result = await client.query<ExpenseReceiptRow>(
-        `SELECT id, receipt_url FROM expenses WHERE id = $1 AND account_id = $2`,
-        [id, session.accountId]
+        `SELECT id, receipt_url FROM expenses WHERE id = $1 AND company_id = $2`,
+        [id, companyIdFromSession(session)]
       );
       return result.rows[0] ?? null;
     });
@@ -140,8 +141,8 @@ export const POST = withRole(["owner", "admin"], async (request: NextRequest, se
     const existing = await withExpenseContext(session, async (client) => {
       const found = await client.query<ExpenseReceiptSyncRow>(
         `SELECT id, receipt_url, vendor_name, expense_date
-         FROM expenses WHERE id = $1 AND account_id = $2`,
-        [id, session.accountId]
+         FROM expenses WHERE id = $1 AND company_id = $2`,
+        [id, companyIdFromSession(session)]
       );
       return found.rows[0] ?? null;
     });
@@ -168,9 +169,9 @@ export const POST = withRole(["owner", "admin"], async (request: NextRequest, se
       const updated = await client.query<ExpenseReceiptRow>(
         `UPDATE expenses
          SET receipt_url = $1, updated_at = now()
-         WHERE id = $2 AND account_id = $3 AND receipt_url IS NULL
+         WHERE id = $2 AND company_id = $3 AND receipt_url IS NULL
          RETURNING id, receipt_url`,
-        [filePath, id, session.accountId]
+        [filePath, id, companyIdFromSession(session)]
       );
       if (!updated.rows[0]) {
         try { fs.unlinkSync(filePath); } catch { /* ignore */ }

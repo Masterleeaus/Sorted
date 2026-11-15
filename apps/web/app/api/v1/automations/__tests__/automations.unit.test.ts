@@ -25,6 +25,7 @@ vi.mock("../../../../../lib/db", () => ({
   // GET routes run through the session helper: (session, sql, params)
   queryForSession: (_session: unknown, ...args: unknown[]) => mockQuery(...args),
   getPool: () => mockPool,
+  companyIdFromSession: (s: { accountId: string }) => s.accountId,
 }));
 
 vi.mock("../../../../../lib/db/audit", () => ({

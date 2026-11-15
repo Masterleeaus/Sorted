@@ -6,7 +6,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { withAuth } from "@/lib/auth/middleware";
 import type { AuthSession } from "@/lib/auth/middleware";
-import { getPool, queryForSession } from "@/lib/db";
+import { getPool, queryForSession, companyIdFromSession } from "@/lib/db";
 import { logger } from "@/lib/logger";
 
 export const dynamic = "force-dynamic";
@@ -41,8 +41,8 @@ export const GET = withAuth(async (request: NextRequest, session: AuthSession) =
   const category = searchParams.get("category");
   const search = searchParams.get("search");
 
-  const conditions = ["account_id = $1", "is_active = true"];
-  const params: unknown[] = [session.accountId];
+  const conditions = ["company_id = $1", "is_active = true"];
+  const params: unknown[] = [companyIdFromSession(session)];
   let idx = 2;
 
   if (category && VALID_CATEGORIES.includes(category as typeof VALID_CATEGORIES[number])) {
@@ -113,7 +113,7 @@ export const POST = withAuth(async (request: NextRequest, session: AuthSession) 
     for (const item of items) {
       const { rows } = await client.query(
         `INSERT INTO materials_price_book
-           (account_id, name, brand, category, unit, unit_cost_cents, supplier, sku,
+           (company_id, name, brand, category, unit, unit_cost_cents, supplier, sku,
             last_purchased_at, notes, created_by, avg_paid_cents, purchase_count)
          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11,
                  CASE WHEN $12 THEN NULL ELSE $6 END,
@@ -154,7 +154,7 @@ export const POST = withAuth(async (request: NextRequest, session: AuthSession) 
            updated_at        = now()
          RETURNING *`,
         [
-          session.accountId,
+          companyIdFromSession(session),
           item.name,
           item.brand ?? null,
           item.category,

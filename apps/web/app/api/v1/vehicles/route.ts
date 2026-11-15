@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { withRole } from "@/lib/auth/middleware";
-import { withDbSession } from "@/lib/db";
+import { withDbSession, companyIdFromSession } from "@/lib/db";
 import { logger } from "@/lib/logger";
 
 export const dynamic = "force-dynamic";
@@ -45,20 +45,20 @@ export const GET = withRole(["owner", "admin", "tech"], async (req: NextRequest,
        LEFT JOIN LATERAL (
          SELECT end_odometer, session_date
          FROM vehicle_sessions
-         WHERE vehicle_id = v.id AND account_id = v.account_id AND end_odometer IS NOT NULL
+         WHERE vehicle_id = v.id AND company_id = v.company_id AND end_odometer IS NOT NULL
          ORDER BY session_date DESC, created_at DESC
          LIMIT 1
        ) last_s ON true
        LEFT JOIN LATERAL (
          SELECT COALESCE(SUM(COALESCE(miles, end_odometer - start_odometer)), 0) AS total_miles
          FROM vehicle_sessions
-         WHERE vehicle_id = v.id AND account_id = v.account_id
+         WHERE vehicle_id = v.id AND company_id = v.company_id
            AND (miles IS NOT NULL OR end_odometer IS NOT NULL)
        ) roll ON true
-       WHERE v.account_id = $1
+       WHERE v.company_id = $1
          ${mileageOnly ? "AND v.kind <> 'trailer'" : ""}
        ORDER BY v.is_active DESC, v.nickname ASC`,
-      [session.accountId]
+      [companyIdFromSession(session)]
     )).rows);
     return NextResponse.json({ data: rows });
   } catch (err) {
@@ -76,11 +76,11 @@ export const POST = withRole(["owner", "admin"], async (req: NextRequest, sessio
   const { nickname, make, model, year, plate, kind } = parsed.data;
   try {
     const row = await withDbSession(session, async (client) => (await client.query<VehicleRow>(
-      `INSERT INTO vehicles (account_id, nickname, make, model, year, plate, kind)
+      `INSERT INTO vehicles (company_id, nickname, make, model, year, plate, kind)
        VALUES ($1, $2, $3, $4, $5, $6, $7)
        RETURNING id, nickname, make, model, year, plate, kind, is_active, created_at::text`,
       [
-        session.accountId,
+        companyIdFromSession(session),
         nickname,
         make ?? null,
         model ?? null,

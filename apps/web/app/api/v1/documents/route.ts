@@ -5,6 +5,7 @@ import { withDocumentContext, listDocumentLinks, createDocumentLink } from "@/li
 import { appendAuditLog } from "@/lib/db/audit";
 import { documentLinkEntityTypeSchema } from "@ai-fsm/domain";
 import { logger } from "@/lib/logger";
+import { companyIdFromSession } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
 
@@ -126,11 +127,11 @@ export const POST = withRole(["owner", "admin"], async (request: NextRequest, se
         await client.query(
           `UPDATE document_links
            SET is_archived = true
-           WHERE account_id = $1
+           WHERE company_id = $1
              AND document_type = $2
              AND is_master_template = true
              AND is_archived = false`,
-          [session.accountId, document_type]
+          [companyIdFromSession(session), document_type]
         );
       }
 

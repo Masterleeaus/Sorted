@@ -56,7 +56,7 @@ export async function POST(request: NextRequest) {
     );
     // Re-check: another client may have taken the address since the request.
     const taken = await db.query(
-      `SELECT 1 FROM clients WHERE account_id = $1 AND id <> $2 AND lower(email) = lower($3)`,
+      `SELECT 1 FROM clients WHERE company_id = $1 AND id <> $2 AND lower(email) = lower($3)`,
       [row.account_id, row.client_id, row.email],
     );
     if (taken.rowCount) {
