@@ -32,7 +32,7 @@ async function getOwnerContext(): Promise<{ accountId: string; userId: string }>
   if (_accountId && _userId) return { accountId: _accountId, userId: _userId };
   const row = await queryOne<{ account_id: string; user_id: string }>(
     `SELECT a.id AS account_id, u.id AS user_id
-     FROM accounts a JOIN users u ON u.account_id = a.id
+     FROM accounts a JOIN users u ON u.company_id = a.id
      WHERE u.role = 'owner' ORDER BY u.created_at LIMIT 1`
   );
   if (!row) throw new Error("No owner account found in database");
@@ -71,7 +71,7 @@ async function handleSmsKeyword(opts: {
   // STOP/START need a client row to persist consent; create a minimal lead if new.
   if (!clientId && (keyword === "stop" || keyword === "start")) {
     const [created] = await query<{ id: string }>(
-      `INSERT INTO clients (account_id, name, phone, notes)
+      `INSERT INTO clients (company_id, name, phone, notes)
        VALUES ($1, $2, $3, $4) RETURNING id`,
       [
         accountId,
@@ -110,7 +110,7 @@ async function handleSmsKeyword(opts: {
            sms_consent_at = NOW(),
            sms_consent_source = 'sms_stop',
            preferred_contact = CASE WHEN preferred_contact = 'sms' THEN 'email' ELSE preferred_contact END
-       WHERE account_id = $1
+       WHERE company_id = $1
          AND (
            phone = $2
            OR phone = $3
@@ -126,7 +126,7 @@ async function handleSmsKeyword(opts: {
            sms_consent_source = 'sms_start',
            sms_consent_text = $5,
            preferred_contact = 'sms'
-       WHERE account_id = $1
+       WHERE company_id = $1
          AND (
            phone = $2
            OR phone = $3
@@ -207,7 +207,7 @@ async function createDraftJob(
   message: string
 ): Promise<string> {
   const [job] = await query<{ id: string }>(
-    `INSERT INTO jobs (account_id, client_id, title, description, status, job_type, created_by)
+    `INSERT INTO jobs (company_id, client_id, title, description, status, job_type, created_by)
      VALUES ($1, $2, $3, $4, 'draft', $5, $6) RETURNING id`,
     [
       accountId,
@@ -293,7 +293,7 @@ export async function POST(req: NextRequest) {
   // The unique index on (account_id, external_id) is the hard backstop.
   if (external_id) {
     const seen = await queryOne<{ id: string }>(
-      `SELECT id FROM communications_log WHERE account_id = $1 AND external_id = $2 LIMIT 1`,
+      `SELECT id FROM communications_log WHERE company_id = $1 AND external_id = $2 LIMIT 1`,
       [accountId, external_id]
     );
     if (seen) {
@@ -311,7 +311,7 @@ export async function POST(req: NextRequest) {
     sms_consent_at: string | null;
   }>(
     `SELECT id, name, sms_consent, sms_consent_at FROM clients
-     WHERE account_id = $1
+     WHERE company_id = $1
        AND (
          phone = $2
          OR phone = $3
@@ -408,7 +408,7 @@ export async function POST(req: NextRequest) {
     isNewClient = false;
   } else {
     const [created] = await query<{ id: string }>(
-      `INSERT INTO clients (account_id, name, phone, notes)
+      `INSERT INTO clients (company_id, name, phone, notes)
        VALUES ($1, $2, $3, $4) RETURNING id`,
       [
         accountId,

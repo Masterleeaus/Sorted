@@ -85,7 +85,7 @@ async function getOwnerAccountId(): Promise<string> {
   if (_accountId) return _accountId;
   const row = await queryOne<{ account_id: string }>(
     `SELECT a.id AS account_id
-     FROM accounts a JOIN users u ON u.account_id = a.id
+     FROM accounts a JOIN users u ON u.company_id = a.id
      WHERE u.role = 'owner' ORDER BY u.created_at LIMIT 1`,
   );
   if (!row) throw new Error("No owner account found in database");
@@ -148,7 +148,7 @@ export async function POST(req: NextRequest) {
               (a.location_paused_until IS NOT NULL AND a.location_paused_until > now()) AS paused,
               EXISTS (
                 SELECT 1 FROM vehicle_sessions vs
-                WHERE vs.account_id = a.id
+                WHERE vs.company_id = a.id
                   AND vs.session_date = ($2::timestamptz)::date
                   AND vs.ended_at IS NULL
               ) AS active_session
@@ -159,7 +159,7 @@ export async function POST(req: NextRequest) {
     let duplicate: { id: string } | null = null;
     if (data.external_id) {
       const { rows: seenRows } = await client.query<{ id: string }>(
-        `SELECT id FROM location_events WHERE account_id = $1 AND external_id = $2 LIMIT 1`,
+        `SELECT id FROM location_events WHERE company_id = $1 AND external_id = $2 LIMIT 1`,
         [accountId, data.external_id],
       );
       duplicate = seenRows[0] ?? null;
@@ -204,7 +204,7 @@ export async function POST(req: NextRequest) {
     // 1. Raw event (append-only feed).
     await client.query(
       `INSERT INTO location_events
-         (account_id, occurred_at, kind, zone, latitude, longitude,
+         (company_id, occurred_at, kind, zone, latitude, longitude,
           geocoded_address, detected_activity, external_id, raw)
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
       [
@@ -227,7 +227,7 @@ export async function POST(req: NextRequest) {
     if (data.kind === "vehicle_connect" && data.vehicle_bluetooth) {
       const { rows: veh } = await client.query<{ id: string }>(
         `SELECT id FROM vehicles
-         WHERE account_id = $1 AND bluetooth_id IS NOT NULL
+         WHERE company_id = $1 AND bluetooth_id IS NOT NULL
            AND (bluetooth_id = $2 OR bluetooth_id ILIKE '%' || $2 || '%')
          LIMIT 1`,
         [accountId, data.vehicle_bluetooth],
@@ -266,7 +266,7 @@ export async function POST(req: NextRequest) {
       `SELECT id, kind, started_at::text, ended_at::text, zone, place_label,
               latitude, longitude, suggested_activity_type, status, vehicle_id
        FROM location_segments
-       WHERE account_id = $1 AND ended_at IS NULL
+       WHERE company_id = $1 AND ended_at IS NULL
        ORDER BY started_at DESC LIMIT 1
        FOR UPDATE`,
       [accountId],
@@ -327,7 +327,7 @@ export async function POST(req: NextRequest) {
       }>(
         `SELECT p.id, p.client_id, p.address, p.latitude, p.longitude, p.geofence_radius_feet
            FROM properties p
-          WHERE p.account_id = $1 AND p.latitude IS NOT NULL AND p.longitude IS NOT NULL`,
+          WHERE p.company_id = $1 AND p.latitude IS NOT NULL AND p.longitude IS NOT NULL`,
         [accountId],
       );
       geos = props.map((p) => ({
@@ -390,7 +390,7 @@ export async function POST(req: NextRequest) {
       if (open.kind === "drive") {
         const { rows: pts } = await client.query<{ latitude: number; longitude: number }>(
           `SELECT latitude, longitude FROM location_events
-           WHERE account_id = $1 AND latitude IS NOT NULL AND longitude IS NOT NULL
+           WHERE company_id = $1 AND latitude IS NOT NULL AND longitude IS NOT NULL
              AND occurred_at >= $2::timestamptz AND occurred_at <= $3::timestamptz
            ORDER BY occurred_at ASC`,
           [accountId, open.startedAt, mut.closeOpen.endedAt],
@@ -441,14 +441,14 @@ export async function POST(req: NextRequest) {
              is_likely_noise = $5,
              status = CASE WHEN $6 THEN 'dismissed' ELSE status END,
              updated_at = now()
-         WHERE id = $2 AND account_id = $3 AND ended_at IS NULL`,
+         WHERE id = $2 AND company_id = $3 AND ended_at IS NULL`,
         [mut.closeOpen.endedAt, open.id, accountId, distanceMeters, isLikelyNoise, dismissAsNoise],
       );
       if (dismissAsNoise && open.kind === "stop") {
         await client.query(
           `UPDATE visit_candidates
            SET status = 'ignored', classification = 'ignore', updated_at = now()
-           WHERE account_id = $1
+           WHERE company_id = $1
              AND location_segment_id = $2
              AND status = 'pending'
              AND visit_id IS NULL`,
@@ -466,7 +466,7 @@ export async function POST(req: NextRequest) {
            longitude   = COALESCE($4, longitude),
            vehicle_id  = COALESCE($5, vehicle_id),
            updated_at  = now()
-         WHERE id = $6 AND account_id = $7 AND ended_at IS NULL`,
+         WHERE id = $6 AND company_id = $7 AND ended_at IS NULL`,
         [u.placeLabel ?? null, u.zone ?? null, u.latitude ?? null, u.longitude ?? null, u.vehicleId ?? null, open.id, accountId],
       );
     }
@@ -489,7 +489,7 @@ export async function POST(req: NextRequest) {
         // re-asserts eligibility atomically.
         `SELECT id, zone, latitude, longitude
            FROM location_segments
-          WHERE account_id = $1 AND kind = 'stop' AND ended_at = $2::timestamptz
+          WHERE company_id = $1 AND kind = 'stop' AND ended_at = $2::timestamptz
           ORDER BY started_at DESC
           LIMIT 1`,
         [accountId, open.startedAt],
@@ -524,7 +524,7 @@ export async function POST(req: NextRequest) {
                   longitude = COALESCE(longitude, $7),
                   suggested_activity_type = COALESCE(suggested_activity_type, $8),
                   updated_at = now()
-            WHERE id = $1 AND account_id = $2 AND ended_at = $3::timestamptz
+            WHERE id = $1 AND company_id = $2 AND ended_at = $3::timestamptz
               AND (status = 'provisional'
                    OR (status = 'dismissed' AND COALESCE(is_likely_noise, false) = true))
           RETURNING id`,
@@ -557,7 +557,7 @@ export async function POST(req: NextRequest) {
       // current date, so backfilled/retried events land on the right day (P2).
       const { rows: ins } = await client.query<{ id: string }>(
         `INSERT INTO location_segments
-           (account_id, segment_date, kind, started_at, zone, place_label,
+           (company_id, segment_date, kind, started_at, zone, place_label,
             latitude, longitude, suggested_activity_type, vehicle_id)
          VALUES ($1, ($2::timestamptz)::date, $3, $2, $4, $5, $6, $7, $8, $9)
          RETURNING id`,
@@ -699,7 +699,7 @@ async function detectVisitCandidate(
        ORDER BY j.scheduled_start ASC NULLS LAST
        LIMIT 1
      ) oj ON true
-     WHERE p.account_id = $1
+     WHERE p.company_id = $1
        AND (p.latitude IS NOT NULL OR tv.visit_id IS NOT NULL OR oj.id IS NOT NULL)`,
     [accountId, stop.startedAt],
   );
@@ -759,7 +759,7 @@ async function detectVisitCandidate(
   let visitIdForInsert = resolution.visitId ?? top.visitId;
   if (resolution.workOrderId) {
     const { rows: woRows } = await client.query<{ job_id: string }>(
-      `SELECT job_id FROM work_orders WHERE id = $1 AND account_id = $2`,
+      `SELECT job_id FROM work_orders WHERE id = $1 AND company_id = $2`,
       [resolution.workOrderId, accountId],
     );
     if (woRows[0]) jobIdForInsert = woRows[0].job_id;
@@ -767,7 +767,7 @@ async function detectVisitCandidate(
     // If resolution has no visit, keep top.visitId only when it is on the same WO/job.
     if (!visitIdForInsert && top.visitId) {
       const { rows: vRows } = await client.query<{ work_order_id: string | null; job_id: string }>(
-        `SELECT work_order_id, job_id FROM visits WHERE id = $1 AND account_id = $2`,
+        `SELECT work_order_id, job_id FROM visits WHERE id = $1 AND company_id = $2`,
         [top.visitId, accountId],
       );
       const v = vRows[0];
@@ -794,7 +794,7 @@ async function detectVisitCandidate(
   if (stampUserId) {
     const { rows: bd } = await client.query<{ id: string }>(
       `SELECT id FROM business_days
-       WHERE account_id = $1 AND user_id = $2 AND closed_at IS NULL
+       WHERE company_id = $1 AND user_id = $2 AND closed_at IS NULL
          AND business_date = ($3::timestamptz AT TIME ZONE 'America/New_York')::date
        LIMIT 1`,
       [accountId, stampUserId, stop.startedAt],
@@ -804,7 +804,7 @@ async function detectVisitCandidate(
     // Live prompt / candidate without a resolved tech: any open day (solo path).
     const { rows: bd } = await client.query<{ id: string }>(
       `SELECT id FROM business_days
-       WHERE account_id = $1 AND closed_at IS NULL
+       WHERE company_id = $1 AND closed_at IS NULL
          AND business_date = ($2::timestamptz AT TIME ZONE 'America/New_York')::date
        LIMIT 1`,
       [accountId, stop.startedAt],
@@ -830,7 +830,7 @@ async function detectVisitCandidate(
     // refresh so the arrival push below fires exactly once. Reviewed candidates
     // (status <> 'pending') are left untouched (the WHERE skips them).
     `INSERT INTO visit_candidates
-       (account_id, location_segment_id, property_id, matched_client_id, job_id, visit_id,
+       (company_id, location_segment_id, property_id, matched_client_id, job_id, visit_id,
         work_order_id, wo_resolution, live_eligible,
         distance_meters, confidence_score, arrival_time, departure_time, duration_minutes)
      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
@@ -870,7 +870,7 @@ async function detectVisitCandidate(
   }>(
     `UPDATE visit_candidates
         SET departure_time = $3::timestamptz, duration_minutes = $4
-      WHERE account_id = $1 AND location_segment_id = $2
+      WHERE company_id = $1 AND location_segment_id = $2
         AND status = 'confirmed' AND departure_time < $3::timestamptz
     RETURNING id, visit_id, classification`,
     [accountId, stop.id, endedAt, Math.round(durationMinutes)],
@@ -887,7 +887,7 @@ async function detectVisitCandidate(
                   (
                     SELECT MIN(b.started_at)
                     FROM activity_entries b
-                    WHERE b.account_id = a.account_id
+                    WHERE b.company_id = a.company_id
                       AND b.user_id = a.user_id
                       AND b.voided_at IS NULL
                       AND b.id <> a.id
@@ -898,9 +898,9 @@ async function detectVisitCandidate(
                 )
               )
          FROM visit_candidates vc
-        WHERE vc.account_id = $1 AND vc.location_segment_id = $2
+        WHERE vc.company_id = $1 AND vc.location_segment_id = $2
           AND vc.status = 'confirmed' AND vc.activity_entry_id = a.id
-          AND a.account_id = $1 AND a.ended_at < $3::timestamptz
+          AND a.company_id = $1 AND a.ended_at < $3::timestamptz
       RETURNING a.user_id`,
       [accountId, stop.id, endedAt],
     );
@@ -975,7 +975,7 @@ async function detectVisitCandidate(
     `SELECT p.address, c.name AS client_name
      FROM properties p
      LEFT JOIN clients c ON c.id = p.client_id
-     WHERE p.id = $1 AND p.account_id = $2`,
+     WHERE p.id = $1 AND p.company_id = $2`,
     [top.propertyId, accountId],
   );
   const propertyLabel = propRows[0]?.address ?? propRows[0]?.client_name ?? null;

@@ -41,7 +41,7 @@ export async function POST(req: NextRequest) {
     const { rows: updated } = await tx.query<{ id: string; live_prompted_at: string | null }>(
       `UPDATE visit_candidates
        SET live_prompted_at = COALESCE(live_prompted_at, now()), updated_at = now()
-       WHERE id = $1 AND account_id = $2 AND status = 'pending'
+       WHERE id = $1 AND company_id = $2 AND status = 'pending'
        RETURNING id, live_prompted_at::text`,
       [parsed.data.candidate_id, accountId],
     );

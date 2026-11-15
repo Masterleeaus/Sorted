@@ -28,9 +28,9 @@ export async function POST(req: NextRequest) {
                   a.day_review_cutoff_time::text AS cutoff_time,
                   (bd.review_prompted_at IS NOT NULL) AS already_prompted
            FROM accounts a
-           JOIN users u ON u.account_id = a.id
+           JOIN users u ON u.company_id = a.id
            LEFT JOIN business_days bd
-             ON bd.account_id = a.id
+             ON bd.company_id = a.id
              AND bd.business_date = $1::date
              AND bd.status NOT IN ('CLOSED')
            WHERE u.role = 'owner' AND a.id = $2

@@ -26,13 +26,13 @@ export async function POST(req: NextRequest) {
                   a.suppress_weekend_start_prompt,
                   EXISTS (
                     SELECT 1 FROM vehicle_sessions vs
-                    WHERE vs.account_id = a.id
+                    WHERE vs.company_id = a.id
                       AND vs.session_date = $1::date
                       AND vs.end_odometer IS NULL
                       AND vs.miles IS NULL
                   ) AS has_open_mileage_today
            FROM accounts a
-           JOIN users u ON u.account_id = a.id
+           JOIN users u ON u.company_id = a.id
            WHERE u.role = 'owner' AND a.id = $2
            ORDER BY u.created_at LIMIT 1`,
           [businessToday(), accountId],
