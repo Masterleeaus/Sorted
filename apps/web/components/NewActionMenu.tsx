@@ -59,7 +59,7 @@ export function NewActionMenu({ compact = false }: { compact?: boolean }) {
       </button>
 
       {open ? (
-        <div className="tz-new-menu__panel" role="menu" aria-label="Create in Titan Field">
+        <div className="tz-new-menu__panel" role="menu" aria-label="Create in Sorted Field">
           <div className="tz-new-menu__heading">
             <span>NEW IN FIELD</span>
             <small>Create manually when you already know exactly what you need.</small>
