@@ -10,6 +10,8 @@
  * as the INITIAL value of the notes field — it never overwrites later edits.
  */
 
+import { formatBusinessDate } from "@/lib/time/business-tz";
+
 export interface WalkthroughPart {
   name: string;
   quantity: number;
@@ -27,7 +29,8 @@ function formatVisitDate(iso: string | null): string | null {
   if (!iso) return null;
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return null;
-  return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+  // Use the single business timezone, not the host zone (server runs UTC, browsers vary).
+  return formatBusinessDate(d, { month: "short", day: "numeric", year: "numeric" });
 }
 
 /**
