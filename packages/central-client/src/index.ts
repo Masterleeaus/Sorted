@@ -24,3 +24,24 @@ export {
   type PendingLogin,
 } from "./authorize";
 export { verifyIdToken, type VerifiedIdToken, type VerifyIdTokenOptions } from "./id-token";
+export {
+  createServiceTokenClient,
+  REFRESH_MARGIN_SECONDS,
+  SORTED_PRODUCT_AUDIENCE,
+  ServiceTokenError,
+  type ServiceTokenClient,
+  type ServiceTokenClientOptions,
+  type ServiceTokenConfig,
+  type ServiceTokenErrorCode,
+} from "./service-token";
+export {
+  createEntitlementReader,
+  EntitlementError,
+  SORTED_CAPABILITIES,
+  SORTED_CENTRAL_APPLICATION,
+  type CapabilityState,
+  type EntitlementReader,
+  type EntitlementReaderOptions,
+  type SortedCapability,
+  type SortedEntitlements,
+} from "./entitlements";
