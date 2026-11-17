@@ -1,5 +1,8 @@
 # Dovetails FSM
 
+> **Titan Zero suite:** SortedAt.Work is the field and operations app upgrade. It is available with every Titan Zero plugin, alongside the AI Assistant and AI Agent Team upgrades and the other three app upgrades (SuperchargedAt.Work, SkilledAt.Work and ScheduledAt.Work). Note: this repository is currently titled Dovetails FSM, and the rename to SortedAt.Work is pending.
+
+
 Dovetails FSM is a residential handyman and home maintenance operating system focused on preserving property history, managing client relationships, creating accurate estimates, executing work efficiently, and maintaining a permanent service record for every property.
 
 ## Documentation Hierarchy
