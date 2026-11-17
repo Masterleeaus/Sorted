@@ -1,78 +1,66 @@
-# Dovetails FSM
+# SortedAt.Work — field operations, jobs, quotes and invoicing
 
-> **Titan Zero suite:** SortedAt.Work is the field and operations app upgrade. It is available with every Titan Zero plugin, alongside the AI Assistant and AI Agent Team upgrades and the other three app upgrades (SuperchargedAt.Work, SkilledAt.Work and ScheduledAt.Work). Note: this repository is currently titled Dovetails FSM, and the rename to SortedAt.Work is pending.
+**Repository:** `Masterleeaus/Sorted` · **Documentation review:** 18 November 2026
 
+Sorted is Titan Zero's field-operations product direction: customer/property records, job intake, estimates, service visits, staff/teams, job evidence, invoices, and an installable field-work PWA. The checked-in repository retains **Dovetails FSM** branding and a small-business residential-service product model. **That is an unresolved product-boundary decision, not permission to silently reinterpret existing data or rename compatibility-critical identifiers.**
 
-Dovetails FSM is a residential handyman and home maintenance operating system focused on preserving property history, managing client relationships, creating accurate estimates, executing work efficiently, and maintaining a permanent service record for every property.
+## Product identity: resolve before migration
 
-## Documentation Hierarchy
+- The current root README calls the field PWA **Sorted** and the product **Dovetails FSM**; [canonical PRODUCT_VISION.md](docs/canonical/PRODUCT_VISION.md) still calls the installable field app **Titan Go** and explicitly excludes a generic multi-company SaaS platform. [Canonical ARCHITECTURE.md](docs/canonical/ARCHITECTURE.md) still describes the current single-business Dovetails model.
+- Titan Zero's [Central ADR-009](https://github.com/Masterleeaus/Central/blob/main/TITAN_ARCHITECTURE_DECISIONS.md) instead specifies Sorted as the **jobs/field operations** application in a five-product, `company_id`-scoped shared PostgreSQL architecture.
+- [#29](https://github.com/Masterleeaus/Sorted/issues/29), [#26](https://github.com/Masterleeaus/Sorted/issues/26) and [Central #140](https://github.com/Masterleeaus/Central/issues/140) must reconcile product identity, user-facing names, data migration and tenancy before production cutover. Do **not** rewrite the canonical product vision or silently drop existing Dovetails workflows as part of documentation cleanup.
 
-Use documentation in this order:
+## Capabilities and responsibility
 
-1. Code and database migrations are the implemented truth.
-2. `docs/canonical/` is the authoritative product, domain, and architecture truth.
-3. `docs/contracts/` and `docs/working/` contain supporting implementation notes.
-4. `ai/` is only a compact AI-agent quick-reference layer.
-5. `docs/archive/` and `docs/generated/` are historical/evidence only, not active instruction sources.
+| Workstream | Source direction | Verification / tracking |
+| --- | --- | --- |
+| Intake and customer/property history | Requests, clients, work orders, retained service history and images | [#87](https://github.com/Masterleeaus/Sorted/issues/87), [#99](https://github.com/Masterleeaus/Sorted/issues/99) |
+| Field execution | Technician PWA, jobs, visits, notes, photos, material evidence, offline-friendly workflows | [#107](https://github.com/Masterleeaus/Sorted/issues/107) |
+| Quotes and rate cards | Estimates, revisions, review/approval and quote-to-job handoff | [#103](https://github.com/Masterleeaus/Sorted/issues/103), [#106](https://github.com/Masterleeaus/Sorted/issues/106), [#108](https://github.com/Masterleeaus/Sorted/issues/108) |
+| Invoices and teams | Keep canonical invoicing, staff/team, service agreements and payments functionality | [#109](https://github.com/Masterleeaus/Sorted/issues/109), [#87](https://github.com/Masterleeaus/Sorted/issues/87) |
+| Shared Titan interfaces | Receive scheduled bookings and authorized front-desk handoffs, preserve company and customer identity | [#86](https://github.com/Masterleeaus/Sorted/issues/86), [#102](https://github.com/Masterleeaus/Sorted/issues/102), [#110](https://github.com/Masterleeaus/Sorted/issues/110) |
 
-## Canonical Product Docs
+**Ownership:** Scheduled owns booking/calendar; Sorted owns **jobs, quotes, invoices and field-work execution**; Supercharged owns communications and agent workflows; Skilled owns competencies; Central owns shared identity, tenant company and migration coordination. AI estimates remain **draft recommendations** until deterministic pricing rules and owner approval accept them.
 
-Product direction comes only from:
+## Codebase and documentation hierarchy
 
-- [Product Vision](docs/canonical/PRODUCT_VISION.md)
-- [Domain Model](docs/canonical/DOMAIN_MODEL.md)
-- [Workflow](docs/canonical/WORKFLOW.md)
-- [Architecture](docs/canonical/ARCHITECTURE.md)
-- [Roadmap](docs/canonical/ROADMAP.md)
+- `apps/web/`: Next.js UI, API routes, owner/admin and field workflows.
+- `services/worker/`: queue/notification and background operations.
+- `packages/domain/`: reusable operational schemas and labels; `packages/titan-platform/` contains additional integrated/donor material with provenance obligations.
+- `db/migrations/`: SQL migrations and row-level security; `infra/`: local/deployment Compose profiles.
+- `docs/canonical/`: current Dovetails product documentation **until the owner resolves the five-product conflict**; `docs/working/`, `docs/contracts/` and `ai/`: technical support; `docs/archive/`, `docs/generated/`: history, not implementation authority.
 
-Historical plans, generated reports, archived agent docs, and working notes are supporting material only.
+[Product vision](docs/canonical/PRODUCT_VISION.md) · [Domain model](docs/canonical/DOMAIN_MODEL.md) · [Workflow](docs/canonical/WORKFLOW.md) · [Architecture](docs/canonical/ARCHITECTURE.md) · [Roadmap](docs/canonical/ROADMAP.md) · [Deployment](DEPLOY.md).
 
-## Sorted (Field PWA)
+## Local development (existing environment)
 
-Sorted is the name of the installable Field PWA inside this app. It is not a separate product. Canonical docs define scope. See [docs/working/titan-go-identity-decision-2026-11-08.md](docs/working/titan-go-identity-decision-2026-11-08.md) for the decision and the list of prototype surfaces.
-
-Historical note (2026-11-15): the Field PWA was called "Titan Go" until the owner decided on the name Sorted. "Titan Go" survives only in dated records and in the code paths that have not been renamed.
-
-## Quick Start
+Use the pinned pnpm 9.12.0 workspace manager, local PostgreSQL and Redis, and a **disposable database**:
 
 ```bash
+corepack enable
+pnpm install --frozen-lockfile
 cp .env.example .env
-pnpm install
 docker compose -f infra/compose.dev.yml up -d postgres redis
 pnpm db:migrate
 pnpm dev:web
-```
-
-## Project Layout
-
-- `apps/web`: Next.js web app for owner/admin/tech workflows.
-- `services/worker`: background worker for queued notifications and automation support.
-- `packages/domain`: shared schemas, labels, constants, and domain helpers.
-- `db/migrations`: SQL schema and migration history.
-- `infra`: Docker Compose profiles.
-- `docs/canonical`: source-of-truth product direction.
-- `docs/working`: implementation and operations support.
-- `docs/archive`: historical planning material.
-- `docs/generated`: generated reports, audits, and migration records.
-
-## Quality Gate
-
-```bash
+# Required quality gate:
 pnpm gate
-```
-
-For faster local static/unit feedback:
-
-```bash
+# Faster feedback:
 pnpm gate:fast
 ```
 
-## Production Target
+Check the actual environment variables before running migrations. The historical `garonhome.local` Compose target in [DEPLOY.md](DEPLOY.md) is **not** proof that Central's shared-database staging has been cut over; validate host and migration history before any deployment.
 
-Production runs on garonhome.local using `infra/compose.garonhome.yml` and deploy root `/opt/business/ai-fsm`. The runbook is [DEPLOY.md](DEPLOY.md). Do not deploy to `/home/admin/apps/ai-fsm`; that path is legacy.
+## Migration and security blockers
 
-## License
+1. **[Migration collisions #100](https://github.com/Masterleeaus/Sorted/issues/100):** two 209 and two 210 migration prefixes and potentially applied migration content. Read environment `schema_migrations` ledgers first. Do not rename or edit already applied SQL; new reviewed migrations must have unique ordered identifiers and safe backfill/rollback.
+2. **[Audit writer #95](https://github.com/Masterleeaus/Sorted/issues/95):** compare `audit_log.company_id` against an actually migrated PostgreSQL schema with tenant RLS/insert integration tests.
+3. **[Shared tenancy #26](https://github.com/Masterleeaus/Sorted/issues/26) / [#42](https://github.com/Masterleeaus/Sorted/issues/42):** canonical `company_id`, membership and least-privilege RLS, Central OIDC, signed inter-app events.
+4. **[CI/drift #88](https://github.com/Masterleeaus/Sorted/issues/88) / [#97](https://github.com/Masterleeaus/Sorted/issues/97) / [#98](https://github.com/Masterleeaus/Sorted/issues/98):** reconcile PRs, manifest checksums and migration reversal policy; do not suppress failing checks to turn a build green.
+5. **[Navigation compatibility #94](https://github.com/Masterleeaus/Sorted/issues/94):** settle product vocabulary before rewriting tests or changing the PWA identity.
 
-This repository is licensed under the [MIT License](LICENSE). Copyright (c) 2026 Dovetails Services LLC.
+## Quality, handoffs and licensing
 
-Imported and ported third-party material under `packages/titan-platform` and `titan-donor/` keeps its own provenance record in [docs/working/titan-donor-provenance.md](docs/working/titan-donor-provenance.md). Check that record before reusing those files outside this repository.
+Run `pnpm gate`, migration guards, fresh-install and upgrade database fixtures, two-company access negatives, quote-to-invoice workflows, worker tests and browser/mobile checks. No production-ready claim without these results. Each [open issue](https://github.com/Masterleeaus/Sorted/issues?q=is%3Aissue+is%3Aopen) carries a task checklist; check only evidenced work.
+
+The root [MIT licence](LICENSE) applies subject to retained third-party notices/provenance. Review [donor provenance](docs/working/titan-donor-provenance.md) before redistributing code imported under other terms.
