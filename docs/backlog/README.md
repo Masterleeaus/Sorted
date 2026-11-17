@@ -1,5 +1,8 @@
 # Dovetails FSM — Product Backlog
 
+> **Status / scope (2026-11-18):** This Dovetails backlog is a preserved product planning reference. Live delivery tasks and their verified `[ ]`/`[x]` gates are maintained in [the repository's GitHub issues](https://github.com/Masterleeaus/Sorted/issues?q=is%3Aissue+is%3Aopen). The historical single-business Dovetails and Titan Go naming conflict with Titan Zero's intended SortedAt.Work multi-company field operations boundary; resolve [Sorted #29](https://github.com/Masterleeaus/Sorted/issues/29), [#26](https://github.com/Masterleeaus/Sorted/issues/26) and [Central ADR-009](https://github.com/Masterleeaus/Central/blob/main/TITAN_ARCHITECTURE_DECISIONS.md) before changing product identity or migration authority. This text is **not** proof that a backlog feature has been implemented.
+
+
 This is the **active product backlog** for Dovetails FSM. It exists so future
 work is tracked intentionally in the repo instead of being scattered across
 chat sessions.
