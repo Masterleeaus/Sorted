@@ -7,6 +7,7 @@ import type { AuthSession } from "@/lib/auth/middleware";
 import { getPool } from "@/lib/db";
 import { logger } from "@/lib/logger";
 import { learnMaterialsFromLineItems } from "@/lib/materials/catalog";
+import { payloadTooLargeResponse, readMultipartWithLimit, UPLOAD_BODY_LIMITS } from "@/lib/uploads/body-limit";
 import {
   mapHdDepartmentToCategory,
   parseHomeDepotPurchaseCsv,
@@ -20,7 +21,13 @@ export const POST = withRole(["owner", "admin"], async (request: NextRequest, se
 
   try {
     if (contentType.includes("multipart/form-data")) {
-      const form = await request.formData();
+      // Body cap before full multipart parsing (#16).
+      const multipart = await readMultipartWithLimit(request, UPLOAD_BODY_LIMITS.materialsImport);
+      if (!multipart.ok && multipart.reason === "too_large") {
+        return payloadTooLargeResponse(session.traceId, UPLOAD_BODY_LIMITS.materialsImport);
+      }
+      if (!multipart.ok) throw new Error("invalid multipart body");
+      const form = multipart.formData;
       const file = form.get("file") ?? form.get("csv");
       if (file instanceof File) {
         csvText = await file.text();

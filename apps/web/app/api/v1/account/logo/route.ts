@@ -9,6 +9,7 @@ import type { PoolClient } from "pg";
 import { appendAuditLog } from "@/lib/db/audit";
 import { logger } from "@/lib/logger";
 import { accountLogoDir, type CompanyProfileSettings } from "@/lib/company/branding";
+import { declaredLengthExceeds, payloadTooLargeResponse, readMultipartWithLimit, UPLOAD_BODY_LIMITS } from "@/lib/uploads/body-limit";
 
 export const dynamic = "force-dynamic";
 
@@ -59,7 +60,15 @@ export const GET = withRole(["owner", "admin"], async (_request: NextRequest, se
 });
 
 export const POST = withRole(["owner", "admin"], async (request: NextRequest, session: AuthSession) => {
-  const form = await request.formData().catch(() => null);
+  // Body cap before full multipart parsing (#16).
+  if (declaredLengthExceeds(request, UPLOAD_BODY_LIMITS.accountLogo)) {
+    return payloadTooLargeResponse(session.traceId, UPLOAD_BODY_LIMITS.accountLogo);
+  }
+  const multipart = await readMultipartWithLimit(request, UPLOAD_BODY_LIMITS.accountLogo);
+  if (!multipart.ok && multipart.reason === "too_large") {
+    return payloadTooLargeResponse(session.traceId, UPLOAD_BODY_LIMITS.accountLogo);
+  }
+  const form = multipart.ok ? multipart.formData : null;
   const file = form?.get("file");
   if (!(file instanceof File)) {
     return NextResponse.json(

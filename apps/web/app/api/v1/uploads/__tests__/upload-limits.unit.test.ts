@@ -54,6 +54,9 @@ import { POST as vaultPost } from "../../vault-items/[itemId]/media/route";
 import { POST as captures } from "../../captures/route";
 import { POST as receiptPost } from "../../expenses/[id]/receipt/route";
 import { POST as previewPost } from "../../expenses/import/preview/route";
+import { POST as logoPost } from "../../account/logo/route";
+import { POST as scanReceiptPost } from "../../expenses/scan-receipt/route";
+import { POST as materialsImportPost } from "../../materials/import/route";
 import { UPLOAD_BODY_LIMITS, formatLimit } from "@/lib/uploads/body-limit";
 
 const ID = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
@@ -70,10 +73,15 @@ const cases: Array<{
   { name: "captures", url: `http://localhost/api/v1/captures`, handler: captures as never, limit: UPLOAD_BODY_LIMITS.captures },
   { name: "expense receipt", url: `http://localhost/api/v1/expenses/${ID}/receipt`, handler: receiptPost as never, limit: UPLOAD_BODY_LIMITS.expenseReceipt },
   { name: "expense import preview", url: `http://localhost/api/v1/expenses/import/preview`, handler: previewPost as never, limit: UPLOAD_BODY_LIMITS.expenseImportPreview },
+  { name: "account logo", url: `http://localhost/api/v1/account/logo`, handler: logoPost as never, limit: UPLOAD_BODY_LIMITS.accountLogo },
+  { name: "expense scan receipt", url: `http://localhost/api/v1/expenses/scan-receipt`, handler: scanReceiptPost as never, limit: UPLOAD_BODY_LIMITS.expenseScanReceipt },
+  { name: "materials import", url: `http://localhost/api/v1/materials/import`, handler: materialsImportPost as never, limit: UPLOAD_BODY_LIMITS.materialsImport },
 ];
 
 beforeEach(() => {
   vi.clearAllMocks();
+  // Scan-receipt checks for an API key before reading the body. A placeholder is enough; no call is made.
+  vi.stubEnv("ANTHROPIC_API_KEY", "unit-test-placeholder");
   mockSession.role = "owner";
   // Visit and vault routes look up their parent record through withDbSession.
   dbMocks.withDbSession.mockImplementation(
