@@ -39,7 +39,7 @@ interface BenchmarkMetrics {
 
 const DATABASE_URL =
   process.env.DATABASE_URL ||
-  `postgresql://${process.env.POSTGRES_USER || 'ai_fsm'}:${process.env.POSTGRES_PASSWORD || 'ai_fsm_dev_password'}@${process.env.POSTGRES_HOST || 'localhost'}:${process.env.POSTGRES_PORT || '5432'}/${process.env.POSTGRES_DB || 'ai_fsm'}`;
+  `postgresql://${process.env.POSTGRES_USER || 'ai_fsm'}@${process.env.POSTGRES_HOST || 'localhost'}:${process.env.POSTGRES_PORT || '5432'}/${process.env.POSTGRES_DB || 'ai_fsm'}`;
 
 async function runBenchmark() {
   console.log('---------------------------------------------------------');
