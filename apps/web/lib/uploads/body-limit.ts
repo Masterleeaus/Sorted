@@ -27,6 +27,12 @@ export const UPLOAD_BODY_LIMITS = {
   intakePhoto: 11 * MIB,
   /** Expense CSV import preview: 5 MB file. */
   expenseImportPreview: 6 * MIB,
+  /** Account logo: 2 MB file. */
+  accountLogo: 3 * MIB,
+  /** Expense receipt scan (AI parse): 5 MB file. */
+  expenseScanReceipt: 6 * MIB,
+  /** Home Depot materials CSV import: 5 MB file. Decision for #16, no prior cap existed. */
+  materialsImport: 6 * MIB,
 } as const;
 
 export type UploadBodyLimit = (typeof UPLOAD_BODY_LIMITS)[keyof typeof UPLOAD_BODY_LIMITS];
