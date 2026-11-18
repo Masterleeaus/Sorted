@@ -47,6 +47,13 @@ export function isStoredFilename(value: string): boolean {
   return STORED_FILENAME.test(value);
 }
 
+/** A bare file name for a value read from storage: starts with a letter or digit, so `.` and `..` never match. */
+const BASE_NAME = /^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$/;
+
+export function isSafeBaseName(value: string): boolean {
+  return BASE_NAME.test(value);
+}
+
 /**
  * Resolve `ownerId` and `filename` under `root` and confirm the result stays inside `root`.
  * Returns null for any value that could escape the directory, or that is not a stored-file shape.
