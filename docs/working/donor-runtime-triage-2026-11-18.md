@@ -31,3 +31,22 @@ The manifest's 43 not-integrated paths include 31 `services/workforce/` files an
 - [ ] Propose reversible archive/removal changes only after licensing, dependency and regression checks.
 
 Keep all items unchecked until evidenced. See #124 for the complete consolidation gate.
+
+## Pass 4 — Additional direct source inspection (18 November 2026)
+
+Eight additional files were fetched from the audit branch and their imports, exported symbols and selected tenant/storage markers inspected. This is **static source inspection**, not a passing build or runtime test.
+
+| Donor file | Directly observed | Required disposition |
+| --- | --- | --- |
+| `services/workforce/src/hosted-runtime.ts` | Exports `createHostedRuntime`; uses session registry, company placement/storage, bounded execution gateway, native field-service runtime and company-scoped work orders. | Preserve; map orchestration ownership and PostgreSQL persistence requirements before porting. |
+| `services/workforce/src/server.ts` | Exports HTTP server/bootstrap; directly initializes SQLite storage and `SqliteWorkforceStore`, with readiness probes. | Do not activate against shared PostgreSQL unchanged; design compatible adapter and tests. |
+| `services/workforce/src/sqlite-store.ts` | Exports `SqliteWorkforceStore`; creates workforce work-item/event tables with company identifiers and SQLite AUTOINCREMENT. | Retain as donor evidence; review data model and event ordering before PostgreSQL migration. |
+| `services/workforce/src/session-credential-verifier.ts` | Wraps Titan security-boundary session verifier. | Compare canonical Central identity verification and replay/expiry requirements. |
+| `services/workforce/src/zero-runtime-dispatcher.ts` | Exports dispatcher, persistent runtime ports, cancellation, event and run types; references company scope. | Compare with Supercharged agent orchestration; preserve idempotency/cancellation contracts. |
+| `services/workforce/src/conversation-api.ts` | Exports request normalization, conversation handler, response helpers and HTTP status mapping; includes company and idempotency fields. | Compare with Supercharged communications APIs; avoid second authority. |
+| `apps/web/app/api/v1/zero/interactions/route.ts` | POST/GET route obtains authenticated session, derives tenant from `session.accountId` and checks requested company ID. | Review against current route and Central company mapping; do not mount donor route blindly. |
+| `workforce/contracts/WorkerPostActionVerification.schema.json` | Contains a `company_id` field in a worker post-action verification schema. | Preserve contract pending schema-level compatibility checks. |
+
+**Risk:** The donor server's SQLite initialization is a concrete incompatibility with the planned Central-governed PostgreSQL deployment; company-scoped fields alone do not prove RLS or tenant isolation. No live database, migrations or CI results were inspected.
+
+**Next gates:** inspect the remaining unique donor files, compare canonical runtime implementations, inspect the entire JSON verification schema and tests, run the manifest checker and integration suite, then propose only evidence-backed moves/deletions. Do not mark #124 complete.
