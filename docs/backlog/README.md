@@ -1,8 +1,9 @@
 # Dovetails FSM — Product Backlog
 
-This is the **active product backlog** for Dovetails FSM. It exists so future
-work is tracked intentionally in the repo instead of being scattered across
-chat sessions.
+> **Status / scope (2026-11-18):** This Dovetails backlog is a preserved product planning reference. Live delivery tasks and their verified `[ ]`/`[x]` gates are maintained in [the repository's GitHub issues](https://github.com/Masterleeaus/Sorted/issues?q=is%3Aissue+is%3Aopen). The historical single-business Dovetails and Titan Go naming conflict with Titan Zero's intended SortedAt.Work multi-company field operations boundary; resolve [Sorted #29](https://github.com/Masterleeaus/Sorted/issues/29), [#26](https://github.com/Masterleeaus/Sorted/issues/26) and [Central ADR-009](https://github.com/Masterleeaus/Central/blob/main/TITAN_ARCHITECTURE_DECISIONS.md) before changing product identity or migration authority. This text is **not** proof that a backlog feature has been implemented.
+
+
+This is a **preserved historical product backlog** for Dovetails FSM. It records earlier task planning and implementation history. Current execution and acceptance are tracked in repository GitHub issues; this file must not independently authorize new work or override canonical architecture.
 
 This backlog was created as an initial pass from recent planning discussions.
 The tasks here did **not** previously exist as a tracked list — this is the
@@ -10,14 +11,9 @@ first time they are written down in one place.
 
 ## Working rule
 
-**No new work may be started unless it maps to an existing task here, or a new
-task is added to this backlog first.** If nothing fits, add a `Proposed` task
-(correct epic, the standard headings below) before writing code. Adding the task
-can be the first step of the same effort, but the task must exist before the
-work.
+**New implementation work must map to a current GitHub issue with actionable checklist tasks.** Historical backlog entries may inform issue scope, but do not create an independent competing task authority. When a task is absent, create or update the GitHub issue before implementation; preserve historical IDs and references here for traceability.
 
-A task closes when its acceptance criteria are met — it then moves to
-`docs/archive/backlog-done/`.
+A current GitHub issue closes only after its required checklist items have verified implementation and test evidence. Historical completed task records remain in `docs/archive/backlog-done/`.
 Do not keep a task open because new ideas surfaced during the build; new ideas
 become new tasks, which earn their place only after the shipped feature proves
 its value in use.

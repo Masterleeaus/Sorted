@@ -115,12 +115,12 @@ describe.skipIf(!TEST_DB)("intake photos against Postgres", () => {
     await admin.query("INSERT INTO accounts (id, name) VALUES ($1, 'intake-foreign-tenant')", [otherAccount]);
     try {
       await admin.query(
-        `INSERT INTO intake_invites (id, account_id, token, lead_name, lead_email)
+        `INSERT INTO intake_invites (id, company_id, token, lead_name, lead_email)
          VALUES ($1, $2, $3, 'Other Lead', 'other@example.com')`,
         [otherInvite, otherAccount, otherToken],
       );
       const { rows } = await admin.query<{ id: string }>(
-        `INSERT INTO intake_media (account_id, intake_invite_id, filename, original_name, mime_type, size_bytes)
+        `INSERT INTO intake_media (company_id, intake_invite_id, filename, original_name, mime_type, size_bytes)
          VALUES ($1, $2, $3, 'foreign.jpg', 'image/jpeg', 10) RETURNING id`,
         [otherAccount, otherInvite, randomUUID() + ".jpg"],
       );

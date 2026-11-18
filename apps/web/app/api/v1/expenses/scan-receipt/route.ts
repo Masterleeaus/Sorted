@@ -12,6 +12,7 @@ import {
   type ParsedReceipt,
 } from "@/lib/expenses/receipt-line-items";
 import { gallonsFromParsedReceipt } from "@/lib/expenses/fuel-from-receipt";
+import { payloadTooLargeResponse, readMultipartWithLimit, UPLOAD_BODY_LIMITS } from "@/lib/uploads/body-limit";
 
 export const dynamic = "force-dynamic";
 
@@ -40,7 +41,13 @@ export const POST = withAuth(async (request: NextRequest, session: AuthSession) 
   let mediaType: "image/jpeg" | "image/png" | "image/gif" | "image/webp";
 
   try {
-    const formData = await request.formData();
+    // Body cap before full multipart parsing (#16).
+    const multipart = await readMultipartWithLimit(request, UPLOAD_BODY_LIMITS.expenseScanReceipt);
+    if (!multipart.ok && multipart.reason === "too_large") {
+      return payloadTooLargeResponse(session.traceId, UPLOAD_BODY_LIMITS.expenseScanReceipt);
+    }
+    if (!multipart.ok) throw new Error("invalid multipart body");
+    const formData = multipart.formData;
     const file = formData.get("receipt") as File | null;
     if (!file) {
       return NextResponse.json(

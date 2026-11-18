@@ -1,13 +1,13 @@
 # Carry PR 32 onto main: merge decisions
 
-Date: 2026-11-15
-Branch: `issue/carry-32-backup-intake` (from `origin/main` at d8fac56)
+Date: 2026-11-18 (reconciled against current main)
+Branch: `issue/carry-32-backup-intake` (reconciled with current main)
 Merged: `origin/fix/backup-preflight-health-20261109` (252 commits, merged with `--no-ff`, no rebase, no force push)
 
 ## Summary
 
-- Textual conflicts: 0. Git auto-merged the branch. Eight files changed on both sides and merged without markers (listed below).
-- Migration numbering: no renumbering. PR 32 adds only `210_intake_media_tenant_integrity.sql`. Main now contains `209_scheduled_booking_links.sql`; intake integrity was renumbered to 210 to eliminate the CI collision. The original 209 intake migration was not applied on main. `scripts/check-migration-prefixes.mjs` passes.
+- Textual conflicts: resolved by preserving the current main versions of `README.md` and `.github/workflows/central-oidc-adapter.yml`; the PR implementation is overlaid on current main.
+- Migration numbering: this intake constraint migration is numbered 211 because main reserves prefix 210 for its existing migration pair. Migration 209 renames tenant columns to `company_id`; this migration follows that change and uses `company_id` throughout. Existing applied migration SQL remains untouched.
 - Semantic fix: five production route files had account-only tenant predicates from PR 32. Main had already moved app code to `company_id`. These predicates were converted to `company_id`. Migration 205 keeps `account_id` as an equal copy during the dual-column period, so the old predicates still ran. The change is for convention and to keep one tenant key in code.
 
 ## Files changed on both sides (auto-merged)
@@ -18,7 +18,7 @@ Merged: `origin/fix/backup-preflight-health-20261109` (252 commits, merged with 
 | `docs/working/intake-photo-attachments.md` | Kept both sides. Docs only. |
 | `infra/garonhome.env.example` | Kept both sides. Config example only. |
 | `scripts/gate.sh` | Kept both sides. Not run in full (`pnpm gate` is out of scope for this carry). |
-| `apps/web/app/api/intake/[token]/route.ts` | Kept PR 32 logic (claim, photo count, invite lock). Converted its `account_id = $N` predicates to `company_id = $N`, matching main's existing line that already used `company_id`. The `SELECT ... account_id` read and the `set_config` value stay on `account_id`, as on main. |
+| `apps/web/app/api/intake/[token]/route.ts` | Kept PR 32 logic (claim, photo count, invite lock). Converted its `account_id = $N` predicates to `company_id = $N`, matching main's existing line that already used `company_id`. The tenant column reads use `company_id` after migration 209. The `app.current_account_id` transaction setting name remains unchanged for compatibility. |
 | `apps/web/app/api/intake/[token]/media/route.ts` | Kept PR 32 logic (locked upload, photo cap). Converted two `account_id = $N` predicates to `company_id`. |
 | `apps/web/app/api/intake/[token]/media/[mediaId]/route.ts` | Kept PR 32 logic (invite lock and `ALREADY_USED` 409 before delete, private file helper). Converted the new `account_id` predicate to `company_id`. Main's `company_id = $3` delete predicate was already there and is unchanged. |
 | `apps/web/app/api/intake/[token]/media/__tests__/media.unit.test.ts` | Kept both sides. Mock of the new private-file helper. |
@@ -41,7 +41,7 @@ The narrow typecheck found seven errors, all in PR 32's new test files, none in 
 
 ## Deliberately not changed
 
-- `db/migrations/210_intake_media_tenant_integrity.sql` keeps `account_id` in its constraints and checks. This is schema DDL, not app query code. `account_id` is the dual column that migration 205 keeps equal to `company_id`, and the FK is additive. Moving it to `company_id` is a later migration, not part of this carry.
+- `db/migrations/211_intake_media_tenant_integrity.sql` uses `company_id` because migration 209 renames the tenant key on intake and booking tables before this constraint migration runs.
 - Pre-existing `account_id` predicates in worker code (`services/worker/src/vehicle-maintenance-reminder.ts`, `prune-location-events.ts`) were already on main. They are outside PR 32 and are not touched here.
 - Migration 210 has no rollback note. It is additive (unique indexes and two FKs). A rollback would be `DROP CONSTRAINT fk_intake_media_invite_account, fk_intake_media_booking_account` and `DROP INDEX idx_intake_invites_id_account, idx_booking_requests_id_account_intake`. Not added here, and flagged for review.
 - The titan manifest drift (`apps/web/lib/titan/interface-runtime/live-context.ts` and its test) is present on main too. Not caused by this carry.

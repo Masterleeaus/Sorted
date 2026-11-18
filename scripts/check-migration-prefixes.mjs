@@ -19,6 +19,10 @@ export const GRANDFATHERED = {
   153: ["153_booking_request_funnel.sql", "153_communications_outcome_received.sql"],
   162: ["162_expense_commercial_tag.sql", "162_materials_catalog_stats.sql"],
   175: ["175_capture_evidence.sql", "175_push_subscriptions.sql"],
+  // Both pairs already exist on main. Do not renumber applied migrations;
+  // freeze these exact filenames so any third collision still fails CI.
+  209: ["209_rename_account_id_to_company_id.sql", "209_scheduled_booking_links.sql"],
+  210: ["210_organisation_memberships.sql", "210_rls_force_and_pricing_policy.sql"],
 };
 
 export function groupMigrationFiles(filenames) {

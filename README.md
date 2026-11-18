@@ -1,119 +1,66 @@
-# Dovetails FSM
+# SortedAt.Work — field operations, jobs, quotes and invoicing
 
-Dovetails FSM is a residential handyman and home maintenance operating system focused on preserving property history, managing client relationships, creating accurate estimates, executing work efficiently, and maintaining a permanent service record for every property.
+**Repository:** `Masterleeaus/Sorted` · **Documentation review:** 18 November 2026
 
-## Documentation Hierarchy
+Sorted is Titan Zero's field-operations product direction: customer/property records, job intake, estimates, service visits, staff/teams, job evidence, invoices, and an installable field-work PWA. The checked-in repository retains **Dovetails FSM** branding and a small-business residential-service product model. **That is an unresolved product-boundary decision, not permission to silently reinterpret existing data or rename compatibility-critical identifiers.**
 
-Use documentation in this order:
+## Product identity: resolve before migration
 
-1. Code and database migrations are the implemented truth.
-2. `docs/canonical/` is the authoritative product, domain, and architecture truth.
-3. `docs/contracts/` and `docs/working/` contain supporting implementation notes.
-4. `ai/` is only a compact AI-agent quick-reference layer.
-5. `docs/archive/` and `docs/generated/` are historical/evidence only, not active instruction sources.
+- The current root README calls the field PWA **Sorted** and the product **Dovetails FSM**; [canonical PRODUCT_VISION.md](docs/canonical/PRODUCT_VISION.md) still calls the installable field app **Titan Go** and explicitly excludes a generic multi-company SaaS platform. [Canonical ARCHITECTURE.md](docs/canonical/ARCHITECTURE.md) still describes the current single-business Dovetails model.
+- Titan Zero's [Central ADR-009](https://github.com/Masterleeaus/Central/blob/main/TITAN_ARCHITECTURE_DECISIONS.md) instead specifies Sorted as the **jobs/field operations** application in a five-product, `company_id`-scoped shared PostgreSQL architecture.
+- [#29](https://github.com/Masterleeaus/Sorted/issues/29), [#26](https://github.com/Masterleeaus/Sorted/issues/26) and [Central #140](https://github.com/Masterleeaus/Central/issues/140) must reconcile product identity, user-facing names, data migration and tenancy before production cutover. Do **not** rewrite the canonical product vision or silently drop existing Dovetails workflows as part of documentation cleanup.
 
-## Canonical Product Docs
+## Capabilities and responsibility
 
-Product direction comes only from:
+| Workstream | Source direction | Verification / tracking |
+| --- | --- | --- |
+| Intake and customer/property history | Requests, clients, work orders, retained service history and images | [#87](https://github.com/Masterleeaus/Sorted/issues/87), [#99](https://github.com/Masterleeaus/Sorted/issues/99) |
+| Field execution | Technician PWA, jobs, visits, notes, photos, material evidence, offline-friendly workflows | [#107](https://github.com/Masterleeaus/Sorted/issues/107) |
+| Quotes and rate cards | Estimates, revisions, review/approval and quote-to-job handoff | [#103](https://github.com/Masterleeaus/Sorted/issues/103), [#106](https://github.com/Masterleeaus/Sorted/issues/106), [#108](https://github.com/Masterleeaus/Sorted/issues/108) |
+| Invoices and teams | Keep canonical invoicing, staff/team, service agreements and payments functionality | [#109](https://github.com/Masterleeaus/Sorted/issues/109), [#87](https://github.com/Masterleeaus/Sorted/issues/87) |
+| Shared Titan interfaces | Receive scheduled bookings and authorized front-desk handoffs, preserve company and customer identity | [#86](https://github.com/Masterleeaus/Sorted/issues/86), [#102](https://github.com/Masterleeaus/Sorted/issues/102), [#110](https://github.com/Masterleeaus/Sorted/issues/110) |
 
-- [Product Vision](docs/canonical/PRODUCT_VISION.md)
-- [Domain Model](docs/canonical/DOMAIN_MODEL.md)
-- [Workflow](docs/canonical/WORKFLOW.md)
-- [Architecture](docs/canonical/ARCHITECTURE.md)
-- [Roadmap](docs/canonical/ROADMAP.md)
+**Ownership:** Scheduled owns booking/calendar; Sorted owns **jobs, quotes, invoices and field-work execution**; Supercharged owns communications and agent workflows; Skilled owns competencies; Central owns shared identity, tenant company and migration coordination. AI estimates remain **draft recommendations** until deterministic pricing rules and owner approval accept them.
 
-Historical plans, generated reports, archived agent docs, and working notes are supporting material only.
+## Codebase and documentation hierarchy
 
-## Sorted (Field PWA)
+- `apps/web/`: Next.js UI, API routes, owner/admin and field workflows.
+- `services/worker/`: queue/notification and background operations.
+- `packages/domain/`: reusable operational schemas and labels; `packages/titan-platform/` contains additional integrated/donor material with provenance obligations.
+- `db/migrations/`: SQL migrations and row-level security; `infra/`: local/deployment Compose profiles.
+- `docs/canonical/`: current Dovetails product documentation **until the owner resolves the five-product conflict**; `docs/working/`, `docs/contracts/` and `ai/`: technical support; `docs/archive/`, `docs/generated/`: history, not implementation authority.
 
-Sorted is the name of the installable Field PWA inside this app. It is not a separate product. Canonical docs define scope. See [docs/working/titan-go-identity-decision-2026-11-08.md](docs/working/titan-go-identity-decision-2026-11-08.md) for the decision and the list of prototype surfaces.
+[Product vision](docs/canonical/PRODUCT_VISION.md) · [Domain model](docs/canonical/DOMAIN_MODEL.md) · [Workflow](docs/canonical/WORKFLOW.md) · [Architecture](docs/canonical/ARCHITECTURE.md) · [Roadmap](docs/canonical/ROADMAP.md) · [Deployment](DEPLOY.md).
 
-Historical note (2026-11-15): the Field PWA was called "Titan Go" until the owner decided on the name Sorted. "Titan Go" survives only in dated records and in the code paths that have not been renamed.
+## Local development (existing environment)
 
-## Quick Start
+Use the pinned pnpm 9.12.0 workspace manager, local PostgreSQL and Redis, and a **disposable database**:
 
 ```bash
+corepack enable
+pnpm install --frozen-lockfile
 cp .env.example .env
-pnpm install
 docker compose -f infra/compose.dev.yml up -d postgres redis
 pnpm db:migrate
 pnpm dev:web
-```
-
-## Project Layout
-
-- `apps/web`: Next.js web app for owner/admin/tech workflows.
-- `services/worker`: background worker for queued notifications and automation support.
-- `packages/domain`: shared schemas, labels, constants, and domain helpers.
-- `db/migrations`: SQL schema and migration history.
-- `infra`: Docker Compose profiles.
-- `docs/canonical`: source-of-truth product direction.
-- `docs/working`: implementation and operations support.
-- `docs/archive`: historical planning material.
-- `docs/generated`: generated reports, audits, and migration records.
-
-## Quality Gate
-
-```bash
+# Required quality gate:
 pnpm gate
-```
-
-For faster local static/unit feedback:
-
-```bash
+# Faster feedback:
 pnpm gate:fast
 ```
 
-## Backup safety checks
+Check the actual environment variables before running migrations. The historical `garonhome.local` Compose target in [DEPLOY.md](DEPLOY.md) is **not** proof that Central's shared-database staging has been cut over; validate host and migration history before any deployment.
 
-The encrypted backup and restore procedures are in [Backup Runbook](docs/BACKUP_RUNBOOK.md). For a read-only production backup health signal:
+## Migration and security blockers
 
-```bash
-node scripts/check-backup-health.mjs /opt/business/ai-fsm/backups 26
-```
+1. **[Migration collisions #100](https://github.com/Masterleeaus/Sorted/issues/100):** two 209 and two 210 migration prefixes and potentially applied migration content. Read environment `schema_migrations` ledgers first. Do not rename or edit already applied SQL; new reviewed migrations must have unique ordered identifiers and safe backfill/rollback.
+2. **[Audit writer #95](https://github.com/Masterleeaus/Sorted/issues/95):** compare `audit_log.company_id` against an actually migrated PostgreSQL schema with tenant RLS/insert integration tests.
+3. **[Shared tenancy #26](https://github.com/Masterleeaus/Sorted/issues/26) / [#42](https://github.com/Masterleeaus/Sorted/issues/42):** canonical `company_id`, membership and least-privilege RLS, Central OIDC, signed inter-app events.
+4. **[CI/drift #88](https://github.com/Masterleeaus/Sorted/issues/88) / [#97](https://github.com/Masterleeaus/Sorted/issues/97) / [#98](https://github.com/Masterleeaus/Sorted/issues/98):** reconcile PRs, manifest checksums and migration reversal policy; do not suppress failing checks to turn a build green.
+5. **[Navigation compatibility #94](https://github.com/Masterleeaus/Sorted/issues/94):** settle product vocabulary before rewriting tests or changing the PWA identity.
 
-A nonzero exit indicates a stale, missing or incomplete verified backup, and should trigger operator investigation. Only backup status reports attesting `sha256-readback` of every encrypted offsite artifact and its manifest are accepted; old size-only success reports require a new backup. Remote age-only deletion is disabled to preserve independently unverified historical recovery sets. The health file alone is not proof of a successful scratch restore.
+## Quality, handoffs and licensing
 
-## Intake media storage and lifecycle (Pass 11)
+Run `pnpm gate`, migration guards, fresh-install and upgrade database fixtures, two-company access negatives, quote-to-invoice workflows, worker tests and browser/mobile checks. No production-ready claim without these results. Each [open issue](https://github.com/Masterleeaus/Sorted/issues?q=is%3Aissue+is%3Aopen) carries a task checklist; check only evidenced work.
 
-The upload route and delete route now share a private file boundary that checks existing parent-directory segments with `lstat`, refuses symlinks, creates new photo files exclusively with `0600` permissions and deletes only regular files. Invite claiming, photo counting and request updates carry explicit tenant predicates even after setting transaction-local tenant context. The browser retains photos whose server deletion fails, exposing a retry instead of pretending the photo was removed, and clears in-flight removed items on upload failures.
-
-Run `pnpm --filter @ai-fsm/web exec vitest run intake-photo-` for executable filesystem/format checks, plus `node --test scripts/tests/intake-photo-*.test.mjs` for route contracts. Database-backed tests and customer media retention/deletion policy remain required before treating issue #5 as complete.
-
-
-
-Customer intake photos are uploaded one at a time to a private, server-managed directory. The upload route checks declared file size/type against image signatures, rejects duplicate multipart fields, enforces invite-locked photo limits, and creates files exclusively with owner-only permissions. Deletion rechecks and locks the active invite in the same transaction as row deletion, blocking post-submit races. Photos are associated to their booking request when the invite is claimed; the count is calculated from database rows rather than a browser-supplied value. The server-side storage root is not a publicly guessable URL.
-
-The `scripts/tests/intake-photo-*.test.mjs` quality subgate guards those cross-layer contracts, but real PostgreSQL and browser integration remain mandatory before issue #5 can be closed.
-
-
-
-Scheduled and manual encrypted backups are serialized by a kernel `flock`. An `ACTIVE` status marker blocks the health gate during an active or interrupted job. Before any production database mutation, the deployment runner also performs streaming SHA-256 checks of the local encrypted dump, uploads, environment, and manifest against the latest attested success record. This is an integrity preflight, not a decryption or PostgreSQL restore test. Never clear an interrupted marker without reviewing the previous run.
-
-
-
-Backup creation uses private file permissions, rejects unsafe rclone remote names, and applies configurable finite timeouts to offsite copies and SHA-256 verification reads. Any misconfiguration is recorded as `INCOMPLETE`. The backup alert hook must be a single executable path, not a shell command.
-
-A destructive PostgreSQL restore requires `FSM_RESTORE_CONFIRM_DB` equal to the target `POSTGRES_DB`. Both the destructive restore and scratch-restore drill reject unexpected uploads archive paths. The destructive path is **database-only**; it does not automatically overwrite host environment files or unpack uploads. See [Backup Runbook](docs/BACKUP_RUNBOOK.md) for required companion recovery and restore approval.
-
-## Safe deployment and service monitoring
-
-The sole host deployment entrypoint is `scripts/deploy-garonhome.sh`; `scripts/deploy.sh` passes a validated branch over SSH without resetting the worktree itself. The production runner refuses dirty checkouts, enforces an independently verified recent encrypted backup and bounds the PostgreSQL and web-readiness checks.
-
-`scripts/healthcheck-garonhome.sh` also tests the verified backup status, attempts a notification on stale/incomplete backups, and returns nonzero to the scheduler for a web or backup failure. Set the maximum-age and timeout values in the host environment using `infra/garonhome.env.example`. Never treat source-level mocks as evidence of a real encrypted restore or authorized production deployment; see [deployment](DEPLOY.md) and [backup operations](docs/BACKUP_RUNBOOK.md).
-
-## Production Target
-
-Production runs on garonhome.local using `infra/compose.garonhome.yml` and deploy root `/opt/business/ai-fsm`. The runbook is [DEPLOY.md](DEPLOY.md). Do not deploy to `/home/admin/apps/ai-fsm`; that path is legacy.
-
-## Booking-request intake photo access (Pass 12)
-
-Private intake photos can now be listed and downloaded by authenticated owner/admin sessions using `/api/v1/booking-requests/{requestId}/media` and `/api/v1/booking-requests/{requestId}/media/{mediaId}`. These endpoints bind the booking and media to the session account; they do not expose filesystem paths or unauthenticated URLs. The download boundary refuses symlinks, missing/oversized files and serves non-cacheable attachments.
-
-Migration 210 adds database-level same-account foreign keys for intake invite and booking associations, strengthening tenant isolation even when the application uses a privileged connection. The new PostgreSQL integration checks execute before the native SQLite unit suite in CI. Review the migration's existing-data audit and the unresolved orphan-file retention policy before deployment.
-
-## License
-
-This repository is licensed under the [MIT License](LICENSE). Copyright (c) 2026 Dovetails Services LLC.
-
-Imported and ported third-party material under `packages/titan-platform` and `titan-donor/` keeps its own provenance record in [docs/working/titan-donor-provenance.md](docs/working/titan-donor-provenance.md). Check that record before reusing those files outside this repository.
+The root [MIT licence](LICENSE) applies subject to retained third-party notices/provenance. Review [donor provenance](docs/working/titan-donor-provenance.md) before redistributing code imported under other terms.

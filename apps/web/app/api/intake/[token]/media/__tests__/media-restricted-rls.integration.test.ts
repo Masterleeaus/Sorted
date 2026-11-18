@@ -15,7 +15,7 @@ describe.skipIf(!process.env.TEST_DATABASE_URL || !process.env.TEST_RUNTIME_DATA
     const client=await restricted.connect();
     try{
       await client.query("BEGIN");
-      await client.query("SELECT set_config('app.current_account_id',$1,true)",[tenant]);
+      await client.query("SELECT set_config('app.current_company_id',$1,true)",[tenant]);
       return await callback(client);
     }finally{await client.query("ROLLBACK").catch(()=>undefined);client.release()}
   }
@@ -34,7 +34,7 @@ describe.skipIf(!process.env.TEST_DATABASE_URL || !process.env.TEST_RUNTIME_DATA
   });
   it("cannot insert a media row with another account ID",async()=>{
     await expect(scoped(f.accountA,async c=>c.query(
-      `INSERT INTO intake_media(account_id,intake_invite_id,filename,original_name,mime_type,size_bytes)
+      `INSERT INTO intake_media(company_id,intake_invite_id,filename,original_name,mime_type,size_bytes)
        VALUES($1,$2,$3,'forged.jpg','image/jpeg',10)`,
       [f.accountB,f.inviteB,"fake-"+photoB+".jpg"]
     ))).rejects.toMatchObject({code:"42501"});

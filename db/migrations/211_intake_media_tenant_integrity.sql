@@ -7,22 +7,22 @@ BEGIN
   IF EXISTS (
     SELECT 1 FROM intake_media AS media
     JOIN intake_invites AS invite ON invite.id = media.intake_invite_id
-    WHERE media.account_id <> invite.account_id
+    WHERE media.company_id <> invite.company_id
   ) OR EXISTS (
     SELECT 1 FROM intake_media AS media
     JOIN booking_requests AS request ON request.id = media.booking_request_id
-    WHERE media.account_id <> request.account_id
+    WHERE media.company_id <> request.company_id
   ) THEN
-    RAISE EXCEPTION 'intake media cross-account links must be remediated before migration 210';
+    RAISE EXCEPTION 'intake media cross-account links must be remediated before migration 211';
   END IF;
 END $$;
 
 -- Composite keys make both linked identities and tenant id jointly referential.
 -- Preserve the existing single-column primary keys and their dependent objects.
 CREATE UNIQUE INDEX IF NOT EXISTS idx_intake_invites_id_account
-  ON intake_invites (id, account_id);
+  ON intake_invites (id, company_id);
 CREATE UNIQUE INDEX IF NOT EXISTS idx_booking_requests_id_account_intake
-  ON booking_requests (id, account_id);
+  ON booking_requests (id, company_id);
 
 DO $$
 BEGIN
@@ -33,8 +33,8 @@ BEGIN
   ) THEN
     ALTER TABLE intake_media
       ADD CONSTRAINT fk_intake_media_invite_account
-      FOREIGN KEY (intake_invite_id, account_id)
-      REFERENCES intake_invites(id, account_id) ON DELETE CASCADE;
+      FOREIGN KEY (intake_invite_id, company_id)
+      REFERENCES intake_invites(id, company_id) ON DELETE CASCADE;
   END IF;
   IF NOT EXISTS (
     SELECT 1 FROM pg_constraint
@@ -43,12 +43,12 @@ BEGIN
   ) THEN
     ALTER TABLE intake_media
       ADD CONSTRAINT fk_intake_media_booking_account
-      FOREIGN KEY (booking_request_id, account_id)
-      REFERENCES booking_requests(id, account_id) ON DELETE CASCADE;
+      FOREIGN KEY (booking_request_id, company_id)
+      REFERENCES booking_requests(id, company_id) ON DELETE CASCADE;
   END IF;
 END $$;
 
 COMMENT ON CONSTRAINT fk_intake_media_invite_account ON intake_media IS
-  'Media account_id must match the owning intake invite account.';
+  'Media company_id must match the owning intake invite account.';
 COMMENT ON CONSTRAINT fk_intake_media_booking_account ON intake_media IS
-  'Media account_id must match the linked booking request account.';
+  'Media company_id must match the linked booking request account.';

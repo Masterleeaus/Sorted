@@ -13,13 +13,13 @@ export async function createIntakeMediaDbFixture() {
   try {
     await pool.query("INSERT INTO accounts(id,name) VALUES ($1,'photo-tx-A'),($2,'photo-tx-B')", [accountA, accountB]);
     await pool.query(
-      `INSERT INTO booking_requests (id,account_id,name,service_description)
+      `INSERT INTO booking_requests (id,company_id,name,service_description)
        VALUES ($1,$2,'Lead A','A request with an attached photograph'),
               ($3,$4,'Lead B','Another tenant request with a photograph')`,
       [requestA, accountA, requestB, accountB],
     );
     await pool.query(
-      `INSERT INTO intake_invites(id,account_id,booking_request_id,token,lead_name,lead_email)
+      `INSERT INTO intake_invites(id,company_id,booking_request_id,token,lead_name,lead_email)
        VALUES ($1,$2,$3,$4,'Lead A','a@example.com'),
               ($5,$6,$7,$8,'Lead B','b@example.com')`,
       [inviteA, accountA, requestA, tokenA, inviteB, accountB, requestB, tokenB],
@@ -32,7 +32,7 @@ export async function createIntakeMediaDbFixture() {
   async function insertMedia(accountId = accountA, inviteId = inviteA, bookingId: string|null = requestA) {
     const filename = randomUUID() + ".jpg";
     const {rows} = await pool.query<{id:string}>(
-      `INSERT INTO intake_media(account_id,intake_invite_id,booking_request_id,filename,original_name,mime_type,size_bytes)
+      `INSERT INTO intake_media(company_id,intake_invite_id,booking_request_id,filename,original_name,mime_type,size_bytes)
        VALUES($1,$2,$3,$4,'photo.jpg','image/jpeg',10) RETURNING id`,
       [accountId,inviteId,bookingId,filename],
     );
