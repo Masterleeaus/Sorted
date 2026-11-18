@@ -64,3 +64,9 @@ Check the actual environment variables before running migrations. The historical
 Run `pnpm gate`, migration guards, fresh-install and upgrade database fixtures, two-company access negatives, quote-to-invoice workflows, worker tests and browser/mobile checks. No production-ready claim without these results. Each [open issue](https://github.com/Masterleeaus/Sorted/issues?q=is%3Aissue+is%3Aopen) carries a task checklist; check only evidenced work.
 
 The root [MIT licence](LICENSE) applies subject to retained third-party notices/provenance. Review [donor provenance](docs/working/titan-donor-provenance.md) before redistributing code imported under other terms.
+
+## Find every README and developer guide
+
+- **[Complete README directory](docs/README_DIRECTORY.md)** — direct links to every README-style file in this repository, including component, test, vendor and historical documentation.
+- **[Documentation index](docs/README.md)** — curated entry point to the main technical guides and developer workflows.
+- **[Seven-repository platform map](https://github.com/Masterleeaus/Central/blob/main/docs/PLATFORM_MAP.md)** — cross-product architecture, ownership and integration boundaries.
