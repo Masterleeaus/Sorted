@@ -6,7 +6,7 @@ import { withRole } from "@/lib/auth/middleware";
 import { withExpenseContext } from "@/lib/expenses/db";
 import { logger } from "@/lib/logger";
 import { payloadTooLargeResponse, readMultipartWithLimit, UPLOAD_BODY_LIMITS } from "@/lib/uploads/body-limit";
-import { imageExtensionForMime } from "@/lib/uploads/paths";
+import { imageExtensionForMime, isSafePathSegment } from "@/lib/uploads/paths";
 import { syncReceiptToPaperless } from "@/lib/paperless/receipt-sync";
 import { companyIdFromSession } from "@/lib/db";
 
@@ -95,7 +95,7 @@ export const GET = withRole(["owner", "admin"], async (request: NextRequest, ses
 
 export const POST = withRole(["owner", "admin"], async (request: NextRequest, session) => {
   const id = expenseIdFromPath(request);
-  if (!id) {
+  if (!id || !isSafePathSegment(id)) {
     return NextResponse.json(
       { error: { code: "NOT_FOUND", message: "Expense not found", traceId: session.traceId } },
       { status: 404 }

@@ -2,6 +2,7 @@ import { describe, it, expect } from "vitest";
 import path from "path";
 import {
   imageExtensionForMime,
+  isSafeBaseName,
   isSafePathSegment,
   isStoredFilename,
   resolveStoredUpload,
@@ -47,6 +48,19 @@ describe("isSafePathSegment", () => {
     "rejects %s",
     (...values) => {
       for (const v of values) expect(isSafePathSegment(v)).toBe(false);
+    },
+  );
+});
+
+describe("isSafeBaseName", () => {
+  it("accepts generated logo and receipt names", () => {
+    expect(isSafeBaseName("logo-1a2b3c4d.png")).toBe(true);
+  });
+
+  it.each(["..", ".", "../x.png", "a/b.png", "a\\b.png", ".hidden", "a\0b.png", ""])(
+    "rejects %j",
+    (name) => {
+      expect(isSafeBaseName(name)).toBe(false);
     },
   );
 });

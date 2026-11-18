@@ -10,6 +10,7 @@ import { appendAuditLog } from "@/lib/db/audit";
 import { logger } from "@/lib/logger";
 import { accountLogoDir, type CompanyProfileSettings } from "@/lib/company/branding";
 import { declaredLengthExceeds, payloadTooLargeResponse, readMultipartWithLimit, UPLOAD_BODY_LIMITS } from "@/lib/uploads/body-limit";
+import { isSafeBaseName } from "@/lib/uploads/paths";
 
 export const dynamic = "force-dynamic";
 
@@ -121,8 +122,10 @@ export const POST = withRole(["owner", "admin"], async (request: NextRequest, se
     // Remove prior logo file if present
     const prev = (before.rows[0].settings as CompanyProfileSettings)?.logo_filename;
     if (prev) {
-      const prevPath = path.join(dir, path.basename(prev));
-      try { fs.unlinkSync(prevPath); } catch { /* ignore */ }
+      const prevName = path.basename(prev);
+      if (isSafeBaseName(prevName)) {
+        try { fs.unlinkSync(path.join(dir, prevName)); } catch { /* ignore */ }
+      }
     }
 
     const patch = { logo_filename: filename };
