@@ -2,7 +2,7 @@
 
 Status: working note for issue #9. Date: 2026-11-08.
 Machine-readable map: `docs/generated/titan-donor-manifest.json`.
-Check (report only, not in CI): `pnpm check:titan-manifest`.
+Check (exit 1 on checksum drift; runs in the CI lint job): `pnpm check:titan-manifest`.
 
 ## Which tree is canonical
 
@@ -55,7 +55,7 @@ Use `--root <dir>` to point it at a copy, for example a fixture in a scratch fol
 ## Decisions taken in this pass (no behaviour change)
 
 - No file was deleted or moved. No source code changed.
-- The checker is report-only and is not added to CI.
+- The checker exits 1 on checksum drift and runs in the CI lint job (issue #97). Intentional edits are recorded as `imported-modified` with `integratedSha256`.
 - The donor tree stays in git as evidence.
 
 ## Open for the owner

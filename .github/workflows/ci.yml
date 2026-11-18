@@ -34,6 +34,8 @@ jobs:
         run: pnpm install --frozen-lockfile
       - name: Run ESLint across all workspaces
         run: pnpm lint
+      - name: Check Titan donor manifest checksums
+        run: pnpm check:titan-manifest
       - name: Validate backup, restore and restore-drill shell syntax
         run: bash -n scripts/backup-garonhome.sh scripts/restore-garonhome.sh scripts/verify-backup-garonhome.sh scripts/lib/backup-policy.sh scripts/lib/backup-archive-safety.sh
       - name: Validate migration and seed shell syntax
