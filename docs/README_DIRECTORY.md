@@ -16,6 +16,10 @@
 
 - [`titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/hierarchy/README.md`](../titan-donor/workforce/packages/titan-platform/src/ported/titan-workforce/hierarchy/README.md)
 
+## This directory
+
+- [`docs/README_DIRECTORY.md`](README_DIRECTORY.md) — this complete linked inventory.
+
 ## Root README
 
 - [`README.md`](../README.md)
