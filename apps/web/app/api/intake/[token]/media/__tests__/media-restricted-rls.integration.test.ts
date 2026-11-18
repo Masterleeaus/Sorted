@@ -15,7 +15,7 @@ describe.skipIf(!process.env.TEST_DATABASE_URL || !process.env.TEST_RUNTIME_DATA
     const client=await restricted.connect();
     try{
       await client.query("BEGIN");
-      await client.query("SELECT set_config('app.current_company_id',$1,true)",[tenant]);
+      await client.query("SELECT set_config('app.current_account_id',$1,true),set_config('app.company_id',$1,true)",[tenant]);
       return await callback(client);
     }finally{await client.query("ROLLBACK").catch(()=>undefined);client.release()}
   }
