@@ -12,9 +12,9 @@ Deploy root: `/opt/business/ai-fsm/`
 
 | Backup type | Tool | Frequency | Retention |
 |-------------|------|-----------|-----------|
-| Logical (SQL dump) | `pg_dump` → `gpg --symmetric` (AES-256) | Daily (cron) | 7 days local + 30 days offsite (Google Drive, via rclone) |
-| Uploaded files (`data/uploads/`) | `tar` → `gpg --symmetric` (AES-256) | Daily (cron) | 7 days local + 30 days offsite |
-| Secrets (`.env`) | `gpg --symmetric` (AES-256) | Daily (cron) | 7 days local + 30 days offsite |
+| Logical (SQL dump) | `pg_dump` → `gpg --symmetric` (AES-256) | Daily (cron) | 7 days local; offsite retained until audited per-set deletion exists |
+| Uploaded files (`data/uploads/`) | `tar` → `gpg --symmetric` (AES-256) | Daily (cron) | 7 days local; offsite retained until audited per-set deletion exists |
+| Secrets (`.env`) | `gpg --symmetric` (AES-256) | Daily (cron) | 7 days local; offsite retained until audited per-set deletion exists |
 
 Every artifact is encrypted before it leaves the pipeline. No plaintext dump, archive or `.env` copy is written to the host or uploaded. See [Encryption and key management](#encryption-and-key-management).
 | WAL archiving | Not configured | — | N/A (MVP) |
@@ -35,7 +35,7 @@ cd /opt/business/ai-fsm/repo
 bash scripts/backup-garonhome.sh
 ```
 
-The script writes an encrypted, compressed Postgres custom-format dump to `/opt/business/ai-fsm/backups/` and prunes files older than 7 days.
+The script writes an encrypted, compressed Postgres custom-format dump to `/opt/business/ai-fsm/backups/`. It only prunes individually verified backup files older than seven days after a successful run, and never prunes an unverified historical set solely because a newer backup succeeded.
 
 ### Automated backup (cron)
 
@@ -52,12 +52,18 @@ The backup script (`scripts/backup-garonhome.sh`) performs:
 3. `gpg --symmetric` encryption of `.env` to `ai_fsm_env_YYYYMMDDTHHMMSSZ.gpg`
 4. Writes `ai_fsm_YYYYMMDDTHHMMSSZ.sha256` (SHA-256 of the three encrypted files above)
 5. Pushes all four files offsite via `rclone`
-6. Verifies each offsite copy by remote listing (name and byte size) before counting it as stored
+6. Reads every offsite object back with `rclone cat` and verifies its SHA-256 checksum against the original local object, including the manifest (size check remains an early diagnostic). A failed stream or differing hash makes the entire run incomplete
 7. Writes the status markers described in [Backup status and alerts](#backup-status-and-alerts)
 8. Prunes local sets older than 7 days, but only sets whose offsite copy is verified (see Retention below)
-9. Prunes offsite (Google Drive) copies older than 30 days via `rclone delete --min-age`, only when this run's set is complete and verified
+9. Does **not** prune offsite objects automatically: a broad age-based delete can remove incomplete and independently unverified historical recovery sets. Set-by-set audited retention needs a separate implementation and restore evidence
 
-The run refuses to start (no files written) if the passphrase file is missing or empty, or if it sits inside the backup directory. A run is **complete** only when the database dump, the uploads archive, the `.env` backup and the manifest are all written and all four are verified on Drive. Anything else is **INCOMPLETE**: the script exits non-zero and the status files say why.
+The run refuses to start (no files written) if the passphrase file is missing or empty, or if it sits inside the backup directory. A run is **complete** only when the database dump, the uploads archive, the `.env` backup and the manifest are all written and all four are verified on Drive by SHA-256 read-back, not just name and size. A successful checksum is an integrity check on encrypted bytes, **not** proof that PostgreSQL can restore the dump or that archives are operationally usable. Perform periodic independent scratch restores. Anything else is **INCOMPLETE**: the script exits non-zero and the status files say why.
+
+### Cryptographic offsite verification and retention
+
+The backup job now compares the SHA-256 of each local encrypted object with the bytes read back from remote storage using `rclone cat`, including the checksum manifest. Its `last-success.json` report records `offsite.verification: "sha256-readback"`; the read-only backup health gate **rejects older name/size-only reports**. Recreate a verified backup after upgrading the backup script before relying on the deployment health gate.
+
+Remote age-only pruning has been disabled. Remote backups may accumulate until a per-set audited retention procedure is implemented. Do not reintroduce `rclone delete --min-age` without demonstrating that each historical set selected for deletion is complete, individually verified, restorable, and no longer required by the recovery policy.
 
 ### Backup status and alerts
 
@@ -68,7 +74,7 @@ Status lives in `/opt/business/ai-fsm/backups/status/` (not matched by the artif
 | `last-success.json` | Written only by a complete, verified run. Holds the set timestamp, completion time, and the name, byte size and SHA-256 of each artifact. It is the source of truth for "last good backup". |
 | `last-run.json` | The most recent run, `"status": "ok"` or `"incomplete"`, with the list of failures. |
 | `INCOMPLETE` | Present only while the most recent run was incomplete. Lists the failures. |
-| `verified-<timestamp>` | Marker that a set was verified on Drive. Local sets are pruned only if this marker exists (or if a complete run has just finished). |
+| `verified-<timestamp>` | Marker that a set was verified on Drive. Local sets are pruned only if their **own** marker exists and the current run succeeds. A fresh successful set never authorizes deleting an unrelated unverified old set. |
 
 **Alert hook: not configured.** The repo has no alert endpoint. The script calls `BACKUP_ALERT_CMD` with the message as its first argument whenever a run is incomplete. Set it in the env file to a command that posts to your chat or email service, for example:
 
@@ -78,6 +84,24 @@ BACKUP_ALERT_CMD=/opt/business/ai-fsm/bin/notify-backup
 ```
 
 If `BACKUP_ALERT_CMD` is unset, the script prints `ALERT (BACKUP_ALERT_CMD not configured; nothing sent)` to stderr and the cron log. That is a missing alert, not a successful one. Until the hook is configured, check the status files daily (see below).
+
+### Deployment and monitoring enforcement
+
+Before starting PostgreSQL, applying migrations or rebuilding services, `scripts/deploy-garonhome.sh` now executes the read-only backup health gate with `FSM_PREDEPLOY_BACKUP_MAX_AGE_HOURS` (default 26 hours). A stale, incomplete, missing or mismatched report blocks the deployment; **there is no automatic fallback to a previous apparently successful set**. Take and verify a fresh complete encrypted backup before retrying. A new host with no prior verified backups requires an explicitly designed and reviewed initial-provisioning procedure, not an implicit backup bypass.
+
+`scripts/healthcheck-garonhome.sh` independently evaluates backup status on its monitoring schedule. Web-down and backup-invalid states now return exit code 1 to the scheduler as well as attempting ntfy notification. Configure an external monitoring system to observe that exit status, because network delivery of an alert is not guaranteed. `FSM_BACKUP_MAX_AGE_HOURS` controls the monitor's freshness threshold; do not confuse this with the predeployment threshold.
+
+### Machine-readable health check
+
+Run the read-only health gate from the repository checkout:
+
+```bash
+node scripts/check-backup-health.mjs /opt/business/ai-fsm/backups 26
+```
+
+It prints one JSON record and exits **0** only when the most recent run succeeded, its set matches the individually verified backup, the three required artifacts have valid metadata, the verification marker exists, and the success timestamp is recent. All missing, stale, invalid, incomplete, and inconsistent states exit **1**. The check reads status files only: it does not connect to the production database or decrypt backup data. It is suitable for a local monitoring scheduler, but **does not independently verify the remote content or prove that a restore will succeed**. Continue regular offsite-download and scratch-restore drills.
+
+If the environment file is absent or fails to source, the backup script still writes `last-run.json` and `INCOMPLETE` before exiting. External monitoring should alert on the health check's non-zero exit; a `BACKUP_ALERT_CMD` inside a missing environment file cannot be relied upon for this failure case.
 
 ### Operator check: is the last full backup good?
 
@@ -99,7 +123,7 @@ rclone lsf --files-only googledrive:ai-fsm-backups | grep "<TS>"
 
 Expect four names: `ai_fsm_<TS>.dump.gpg`, `ai_fsm_uploads_<TS>.tar.gz.gpg`, `ai_fsm_env_<TS>.gpg`, `ai_fsm_<TS>.sha256`.
 
-A `last-success.json` older than about 26 hours, or an `INCOMPLETE` file, means the nightly job did not produce a complete verified set. Fix the cause listed in `INCOMPLETE` (or in `docs/BACKUP_RUNBOOK.md` Known Limitations) and run the script manually.
+A `last-success.json` older than about 26 hours, or an `INCOMPLETE` file, means the nightly job did not produce a complete verified set. Startup failures such as a missing or malformed `.env` now persist an incomplete status as well. Fix the cause listed in `INCOMPLETE` (or in `docs/BACKUP_RUNBOOK.md` Known Limitations) and run the script manually.
 
 ### One-time setup: the `.env` backup passphrase
 
@@ -138,8 +162,10 @@ cd /opt/business/ai-fsm/repo
 bash scripts/restore-garonhome.sh /opt/business/ai-fsm/backups/ai_fsm_YYYYMMDDTHHMMSSZ.dump.gpg
 ```
 
+The restore helper intentionally accepts **only** encrypted `*.dump.gpg` sets, refuses reserved PostgreSQL system database names, requires a usable decryption passphrase, and stops before any destructive operation if the manifest or any companion archive is missing. Old plaintext/partial sets must be migrated through a separate, explicitly reviewed recovery procedure rather than passed to the production restore command.
+
 The restore script handles the full sequence automatically:
-1. Checks the SHA-256 manifest for the set (when present) and decrypts the dump to `/dev/null` to confirm the passphrase and integrity, before anything is stopped
+1. Requires the SHA-256 manifest and all three encrypted artifacts, checks the full set, and decrypts the dump to `/dev/null` to confirm passphrase and integrity before anything is stopped
 2. Stops `web` and `worker` containers (prevents writes during restore)
 3. Terminates active DB sessions
 4. Drops and recreates the `ai_fsm` database
@@ -349,6 +375,34 @@ No error output = file is structurally valid.
 
 ---
 
+## Upload archive safety and recovery validation (Pass 9)
+
+Backups fail closed when `data/uploads` is symlinked or contains symlinks. The encrypted uploads archive cannot silently include references outside the uploads tree. Both production restore preflight and the scratch restore drill validate full tar member paths and verbose member types. Only ordinary files and directories under `uploads/` are permitted; links, special devices, traversal segments, doubled separators and noncanonical paths are rejected **before database restoration**. A scratch drill that fails to drop its temporary PostgreSQL database now returns an error and requires manual cleanup.
+
+The local encrypted artifact audit refuses symlinked local files and SHA-256 manifests. Backup health also rejects symlinked status and verified-marker files. These checks protect the local verification boundary from incorrectly trusting redirected files; they do not replace a real full restore rehearsal, credential protection, or remote permissions review.
+
+
+
+A backup runner now acquires a nonblocking Linux `flock` under `backups/status/.backup.lock` before reading environment configuration or writing status. Only one runner can publish status or prune verified local archives. It creates an `ACTIVE` record and removes it only after finalizing success or incomplete status. Unexpected termination may leave a stale `ACTIVE` file; the health monitor then fails closed. Inspect that runner, local encrypted artifacts, and the latest report before clearing an orphaned record. Do **not** clear an active record while a backup is still running.
+
+Before any production database or container mutation, `deploy-garonhome.sh` now performs two separate read-only gates: `check-backup-health.mjs` checks the latest completed verified offsite status, and `audit-backup-local.mjs` streams every recent encrypted artifact, verifies its SHA-256 against the three-entry manifest, and reconciles manifest digests and byte lengths with the success report. This local check requires all three encrypted artifacts and their manifest to remain on the deploy host; absence or byte mismatch aborts. Neither check decrypts data or establishes that PostgreSQL can restore the backup, so retain the scratch restore drill.
+
+
+
+Before an operator triggers a destructive database restore, `scripts/restore-garonhome.sh` now requires `FSM_RESTORE_CONFIRM_DB` to equal **the exact target `POSTGRES_DB` name**. This guards against accidental one-argument database replacement. The preflight checks the encrypted dump and both companion files, validates archive contents against the required `uploads/` path prefix, and only then asks for the typed confirmation before stopping services. Health waits after restore are bounded by `FSM_RESTORE_WEB_ATTEMPTS` (default 30 attempts at 2 seconds). It does **not** automatically restore the uploads directory or overwrite the running host `.env`; those require a separately reviewed recovery procedure.
+
+Backups run with `umask 077` and the rclone destination must be a simple configured remote name, not an arbitrary path. Transfers and hash read-back use `timeout` with configurable `FSM_BACKUP_REMOTE_COPY_TIMEOUT_SEC` and `FSM_BACKUP_REMOTE_READ_TIMEOUT_SEC` (defaults 900 seconds, allowed 5–3600). Invalid values record a machine-readable `INCOMPLETE` failure. `BACKUP_ALERT_CMD` is a **single executable path**, called with the failure message as an argument; it is never interpreted by `bash -c`.
+
+Example destructive restore after separately completing the scratch restore drill:
+
+```bash
+cd /opt/business/ai-fsm/repo
+FSM_RESTORE_CONFIRM_DB=ai_fsm bash scripts/restore-garonhome.sh \
+  /opt/business/ai-fsm/backups/ai_fsm_YYYYMMDDTHHMMSSZ.dump.gpg
+```
+
+This confirmation does not replace operator approval, a verified recovery plan, or an actual scratch restore. Never run this on production without explicit release/recovery authorization.
+
 ## Encryption and key management
 
 All dump, uploads and `.env` artifacts are encrypted with `gpg --symmetric --cipher-algo AES256` (the same tool already used for `.env`, so no new software is needed on garonhome). The key is one passphrase, stored in a file.
@@ -376,7 +430,7 @@ Nothing in this layout puts the decryption key beside the archive it protects. A
 2. Save the new value in the password manager, under a new entry name that includes the date.
 3. Move the old file to `env/backup.passphrase.<YYYYMMDD>` (still outside `backups/`), and move the new file into place as `env/backup.passphrase`.
 4. Run a backup, then the restore drill against the new set.
-5. Keep the old passphrase file only until every set encrypted with it has aged out of local and offsite retention (30 days offsite). Then delete it and mark the password-manager entry as retired. To decrypt an old set during that window, pass the old file as `FSM_BACKUP_PASSPHRASE_FILE=...` to the restore or verify script.
+5. Keep the old passphrase accessible until every set encrypted with it has been individually retired under a reviewed retention policy. **Offsite auto-prune is disabled**, so elapsed time alone is not evidence it is safe to destroy old keys. To decrypt an old set during that window, pass the old file as `FSM_BACKUP_PASSPHRASE_FILE=...` to the restore or verify script.
 
 ### Incident steps (passphrase or backup set suspected exposed)
 
@@ -388,8 +442,8 @@ Nothing in this layout puts the decryption key beside the archive it protects. A
 
 ### Retention and deletion
 
-- Local: 7 days, deleted by `backup-garonhome.sh`, and only for a set whose offsite copy is verified (marker `status/verified-<ts>`). An unverified set is kept while Drive is failing. Once a run completes and verifies, older unverified sets are pruned as well, because a complete offsite set now exists. If Drive is down for a long time, local disk use grows by one set per night; the INCOMPLETE alert is the signal to act.
-- Offsite: 30 days (`FSM_BACKUP_REMOTE_RETENTION_DAYS`), deleted by `rclone delete --min-age`.
+- Local: 7 days, deleted by `backup-garonhome.sh`, and only for a set whose offsite copy is verified (marker `status/verified-<ts>`). An unverified set is kept while Drive is failing. Older unverified sets are **never** removed merely because a new set is verified. If Drive is down for a long time, local disk use grows by one set per night; the INCOMPLETE alert is the signal to act.
+- Offsite: no automatic age-based deletion; retain individually unverified or incomplete sets pending an audited per-set retention process. `FSM_BACKUP_REMOTE_RETENTION_DAYS` is no longer acted on by the backup runner.
 - A set is deleted as a unit: its dump, uploads, env and `.sha256` files.
 - Deleting a set does not require rotating the key. Destroying a retired passphrase file makes its remaining copies permanently unreadable, which is the intended deletion for a retired key.
 

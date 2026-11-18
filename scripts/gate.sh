@@ -81,6 +81,13 @@ wait_http() {
 log "lint"
 pnpm lint
 
+log "migration and backup shell syntax"
+bash -n scripts/db-migrate.sh scripts/deploy-garonhome.sh scripts/db-seed.sh \
+  scripts/lib/migration-safety.sh scripts/lib/deploy-safety.sh \
+  scripts/deploy.sh scripts/healthcheck-garonhome.sh \
+  scripts/backup-garonhome.sh scripts/restore-garonhome.sh \
+  scripts/verify-backup-garonhome.sh scripts/lib/backup-policy.sh scripts/lib/backup-archive-safety.sh
+
 log "dead code (knip)"
 # Fails on unused files / dependencies (the floor that stops replacements leaving
 # corpses). Unused exports/types are warn-only — see knip.json rules.
@@ -93,6 +100,20 @@ node scripts/check-rls-coverage.mjs
 log "worker grants"
 node scripts/check-worker-grants.mjs
 node --test scripts/*.test.mjs
+log "offsite cryptographic verification and encrypted restore contracts"
+node --test scripts/tests/offsite-*.test.mjs \
+  scripts/tests/restore-companion-format.test.mjs \
+  scripts/tests/scratch-restore-safety.test.mjs
+log "backup process coordination and local artifact integrity"
+node --test scripts/tests/backup-lock.test.mjs scripts/tests/audit-backup-local.test.mjs
+log "executable intake media validation and private filesystem tests"
+pnpm --filter @ai-fsm/web exec vitest run intake-photo-
+log "intake and staff photo route unit tests"
+pnpm --filter @ai-fsm/web exec vitest run media.unit.test.ts list.unit.test.ts download.unit.test.ts
+log "public intake media lifecycle and security"
+node --test scripts/tests/intake-photo-*.test.mjs
+log "backup lifecycle and restore safety"
+node --test scripts/tests/*.test.mjs
 
 log "typecheck"
 pnpm typecheck
