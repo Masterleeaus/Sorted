@@ -59,14 +59,36 @@ BEGIN
   END LOOP;
 END $$;
 
-DROP POLICY IF EXISTS pricing_rule_snapshots_account ON pricing_rule_snapshots;
-CREATE POLICY pricing_rule_snapshots_account
-  ON pricing_rule_snapshots
-  USING (account_id = app_account_id())
-  WITH CHECK (account_id = app_account_id());
+-- Migration 209 can already have renamed account_id to company_id.
+-- Choose the physically present tenant column, never assume the old name.
+-- This preserves the previously applied migration's intent on both schema
+-- generations, without changing the app_account_id() tenant guard.
+DO $pricing_policy$
+DECLARE
+  tenant_column text;
+BEGIN
+  SELECT c.column_name INTO tenant_column
+  FROM information_schema.columns c
+  WHERE c.table_schema = 'public'
+    AND c.table_name = 'pricing_rule_snapshots'
+    AND c.column_name IN ('company_id', 'account_id')
+  ORDER BY CASE WHEN c.column_name = 'company_id' THEN 0 ELSE 1 END
+  LIMIT 1;
+
+  IF tenant_column IS NULL THEN
+    RAISE EXCEPTION 'pricing_rule_snapshots has no tenant column';
+  END IF;
+
+  EXECUTE 'DROP POLICY IF EXISTS pricing_rule_snapshots_account ON public.pricing_rule_snapshots';
+  EXECUTE format(
+    'CREATE POLICY pricing_rule_snapshots_account ON public.pricing_rule_snapshots USING (%I = app_account_id()) WITH CHECK (%I = app_account_id())',
+    tenant_column, tenant_column
+  );
+END
+$pricing_policy$;
 
 -- ROLLBACK (manual, if needed):
 --   ALTER TABLE <each table above> NO FORCE ROW LEVEL SECURITY;
 --   DROP POLICY IF EXISTS pricing_rule_snapshots_account ON pricing_rule_snapshots;
---   CREATE POLICY pricing_rule_snapshots_account ON pricing_rule_snapshots
---     USING (account_id = current_setting('app.account_id', true)::uuid);
+--   Recreate the previous policy using the tenant column actually present
+--   in the deployment (company_id after 209, account_id before 209).

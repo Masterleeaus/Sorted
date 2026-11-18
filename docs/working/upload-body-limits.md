@@ -28,10 +28,13 @@ The 413 response has this shape:
 | `POST /api/v1/captures` | audio 25 MB, photo 10 MB | 40 MB |
 | `POST /api/v1/expenses/import/preview` | 5 MB | 6 MB |
 | `POST /api/intake/[token]/media` (public intake photo) | 10 MB | 11 MB |
+| `POST /api/v1/account/logo` | 2 MB | 3 MB |
+| `POST /api/v1/expenses/scan-receipt` | 5 MB | 6 MB |
+| `POST /api/v1/materials/import` (multipart only) | 5 MB (decision, no prior cap) | 6 MB |
 
 The caps are the constants `UPLOAD_BODY_LIMITS` in `body-limit.ts`. Change them there and in this table together.
 
-Not yet capped (see "Not covered" below): `POST /api/v1/account/logo` (2 MB file), `POST /api/v1/expenses/scan-receipt` (5 MB file), `POST /api/v1/materials/import`, `POST /api/v1/clients/import`.
+Not yet capped (see "Not covered" below): `POST /api/v1/clients/import` (JSON body, not multipart).
 
 ## Production proxy
 
@@ -43,7 +46,7 @@ Record the value and the date here once it is set: **not yet set (unverified)**.
 
 ## Not covered
 
-- The four routes listed above with no cap yet. They keep the old behaviour (parse, then check the file size).
+- `POST /api/v1/clients/import` has no cap yet. It reads a JSON body, so it needs a separate JSON size limit (not covered by the multipart helper).
 - The proxy limit is documented, not verified by a test.
 
 ## Decisions
