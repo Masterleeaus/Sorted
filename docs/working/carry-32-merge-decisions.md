@@ -43,7 +43,7 @@ The narrow typecheck found seven errors, all in PR 32's new test files, none in 
 
 - `db/migrations/211_intake_media_tenant_integrity.sql` uses `company_id` because migration 209 renames the tenant key on intake and booking tables before this constraint migration runs.
 - Pre-existing `account_id` predicates in worker code (`services/worker/src/vehicle-maintenance-reminder.ts`, `prune-location-events.ts`) were already on main. They are outside PR 32 and are not touched here.
-- Migration 210 has no rollback note. It is additive (unique indexes and two FKs). A rollback would be `DROP CONSTRAINT fk_intake_media_invite_account, fk_intake_media_booking_account` and `DROP INDEX idx_intake_invites_id_account, idx_booking_requests_id_account_intake`. Not added here, and flagged for review.
+- Migration 211 (intake media tenant integrity) has no rollback note. It is additive (unique indexes and two FKs). A rollback would be `DROP CONSTRAINT fk_intake_media_invite_account, fk_intake_media_booking_account` and `DROP INDEX idx_intake_invites_id_account, idx_booking_requests_id_account_intake`. Not added here, and flagged for review.
 - The titan manifest drift (`apps/web/lib/titan/interface-runtime/live-context.ts` and its test) is present on main too. Not caused by this carry.
 
 ## Checks
