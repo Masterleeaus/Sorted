@@ -8,6 +8,9 @@ const security = await tsImport('../src/security-boundary.ts', { parentURL: impo
 const { DirectAdminSessionBridge, createDirectAdminGateway, DirectAdminCockpitSession,
   directAdminBridgeFailureKind, redactDirectAdminDiagnostics } = sdk;
 const { createSessionCredentialService, createSessionCredentialVerifier, directAdminIssuer } = security;
+const { mountZeroCore } = await tsImport('../../../apps/directadmin/zero-core/cockpit.mjs', { parentURL: import.meta.url, tsconfig: false });
+const { mountOperationsHub } = await tsImport('../../../apps/directadmin/operations-hub/cockpit.mjs', { parentURL: import.meta.url, tsconfig: false });
+const { mountBrandStudio } = await tsImport('../../../apps/directadmin/brand-studio/cockpit.mjs', { parentURL: import.meta.url, tsconfig: false });
 import { fixture, ORIGIN, b64, encode, external, proof, expected, csrf } from './fixtures/directadmin-bridge-fixture.mjs';
 
 const bootstrapNonce = 'N'.repeat(43);
@@ -1047,8 +1050,7 @@ function root() {
   return doc.createElement('section');
 }
 
-// Skipped: apps/directadmin/{zero-core,operations-hub,brand-studio}/cockpit.mjs were never committed (see issue #90). Re-enable when those modules exist.
-test.skip('three real consumer modules share signed-session gateway over disposable HTTP and purge together', async t => {
+test('three real consumer modules share signed-session gateway over disposable HTTP and purge together', async t => {
   const f = await fixture(t); const gateway = createDirectAdminGateway(f.bridge, f.owners, bootstrapProviderFor(f, 'three-consumers'));
   const server = createServer(async (incoming, outgoing) => {
     const chunks = []; for await (const chunk of incoming) chunks.push(chunk);
@@ -1121,8 +1123,7 @@ for (const action of ['connect', 'projection']) for (const invalidate of ['inval
   });
 }
 
-// Skipped: apps/directadmin/{zero-core,operations-hub,brand-studio}/cockpit.mjs were never committed (see issue #90). Re-enable when those modules exist.
-test.skip('one unavailable plugin degrades locally without clearing healthy sibling workspaces', async t => {
+test('one unavailable plugin degrades locally without clearing healthy sibling workspaces', async t => {
   const f = await fixture(t); const original = f.owners.projection;
   f.owners.projection = async (plugin, context) => {
     if (plugin === 'titan_operations') throw new Error('backend offline'); return original(plugin, context);
@@ -1288,8 +1289,7 @@ for (const [operation, sessionMethod, path] of [
   assert.equal((await f.sessions.authenticate(f.token)).context.company_id, 'company-a');
 });
 
-// Skipped: apps/directadmin/{zero-core,operations-hub,brand-studio}/cockpit.mjs were never committed (see issue #90). Re-enable when those modules exist.
-test.skip('cross-tab invalidation clears every mounted consumer without accepting a supplied company', async t => {
+test('cross-tab invalidation clears every mounted consumer without accepting a supplied company', async t => {
   const f = await fixture(t); const gateway = createDirectAdminGateway(f.bridge, f.owners, bootstrapProviderFor(f, 'cross-tab'));
   const channel = { onmessage: null, postMessage() {}, close() {} };
   const browser = directBrowserFetch(f, gateway);
@@ -1320,13 +1320,12 @@ for (const [label, mutate] of [
   await assert.rejects(session.projection('titan_zero'), /invalid-projection/);
 });
 
-// Skipped: needs mountZeroCore from apps/directadmin/zero-core, never committed (see issue #90).
 for (const [label, modify, expected] of [
   ['incompatible schema', p => ({ ...p, data: { ...p.data, schema: 'titan.zero-cockpit.v99' } }), 'incompatible'],
   ['unknown freshness', p => ({ ...p, freshness: null }), 'unknown'],
   ['future freshness', p => ({ ...p, freshness: new Date(Date.now() + 300_000).toISOString() }), 'unknown'],
   ['stale projection', p => ({ ...p, freshness: new Date(Date.now() - 600_000).toISOString() }), 'stale'],
-]) test.skip(`renderer exposes ${label} as read-only without a fresh data summary`, async t => {
+]) test(`renderer exposes ${label} as read-only without a fresh data summary`, async t => {
   const f = await fixture(t); const original = f.owners.projection;
   f.owners.projection = async (...args) => modify(await original(...args));
   const gateway = createDirectAdminGateway(f.bridge, f.owners, bootstrapProviderFor(f, `renderer-${label}`));
