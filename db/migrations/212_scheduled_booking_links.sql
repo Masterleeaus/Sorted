@@ -1,5 +1,5 @@
 -- =============================================================================
--- 209_scheduled_booking_links.sql
+-- 212_scheduled_booking_links.sql
 --
 -- Storage for inbound Scheduled booking events (apps/web/lib/scheduled-bookings).
 --

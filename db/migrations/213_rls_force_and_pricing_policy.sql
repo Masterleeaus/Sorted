@@ -1,5 +1,5 @@
 -- =============================================================================
--- 210_rls_force_and_pricing_policy.sql — RLS hardening (issue #6)
+-- 213_rls_force_and_pricing_policy.sql — RLS hardening (issue #6)
 --
 -- Found by auditing a migrated database (PostgreSQL 16) against the
 -- restricted web role ai_fsm_web:
