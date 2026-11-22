@@ -27,17 +27,20 @@ test("seed files and unprefixed names are ignored", () => {
   assert.equal(result.ok, true, result.errors.join("; "));
 });
 
-// Exact filename freezes preserve the migration ledger of existing deployments.
-// These are not permissions to introduce further duplicate migration numbers.
-test("existing main collisions 209 and 210 remain frozen by filename", () => {
-  for (const prefix of [209, 210]) {
-    const existing = GRANDFATHERED[prefix];
-    assert.equal(existing.length, 2);
-    assert.equal(checkMigrationPrefixes(existing).ok, true);
-    const added = checkMigrationPrefixes([...existing, `${prefix}_unexpected_new_migration.sql`]);
-    assert.equal(added.ok, false);
-    assert.match(added.errors.join("; "), new RegExp(`prefix ${prefix} is frozen`));
-  }
+// Migrations 209 and 210 were renumbered to unique prefixes (212, 213) so each
+// prefix now has one file. A new duplicate must still fail the check.
+test("renumbered 209 and 210 prefixes are unique and new duplicates still fail", () => {
+  const files = [
+    "209_rename_account_id_to_company_id.sql",
+    "210_organisation_memberships.sql",
+    "211_intake_media_tenant_integrity.sql",
+    "212_scheduled_booking_links.sql",
+    "213_rls_force_and_pricing_policy.sql",
+  ];
+  assert.equal(checkMigrationPrefixes(files).ok, true);
+  const added = checkMigrationPrefixes([...files, "209_unexpected_new_migration.sql"]);
+  assert.equal(added.ok, false);
+  assert.match(added.errors.join("; "), /prefix 209 collides/);
 });
 
 // Both 209 and 210 filenames are run on fresh CI databases. Migration 209
@@ -45,7 +48,7 @@ test("existing main collisions 209 and 210 remain frozen by filename", () => {
 test("pricing policy migration supports account_id and company_id schema generations", async () => {
   const { readFileSync } = await import("node:fs");
   const { fileURLToPath } = await import("node:url");
-  const path = fileURLToPath(new URL("../db/migrations/210_rls_force_and_pricing_policy.sql", import.meta.url));
+  const path = fileURLToPath(new URL("../db/migrations/213_rls_force_and_pricing_policy.sql", import.meta.url));
   const sql = readFileSync(path, "utf8");
   assert.match(sql, /c\.column_name IN \('company_id', 'account_id'\)/);
   assert.match(sql, /IF tenant_column IS NULL THEN[\s\S]*RAISE EXCEPTION/);
