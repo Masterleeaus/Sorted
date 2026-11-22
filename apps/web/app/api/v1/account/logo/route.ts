@@ -10,6 +10,7 @@ import { appendAuditLog } from "@/lib/db/audit";
 import { logger } from "@/lib/logger";
 import { accountLogoDir, type CompanyProfileSettings } from "@/lib/company/branding";
 import { declaredLengthExceeds, payloadTooLargeResponse, readMultipartWithLimit, UPLOAD_BODY_LIMITS } from "@/lib/uploads/body-limit";
+import { isSafeBaseName } from "@/lib/uploads/paths";
 
 export const dynamic = "force-dynamic";
 
@@ -40,8 +41,9 @@ export const GET = withRole(["owner", "admin"], async (_request: NextRequest, se
         { status: 404 },
       );
     }
-    const filePath = path.join(accountLogoDir(session.accountId), path.basename(filename));
-    if (!fs.existsSync(filePath)) {
+    const storedName = path.basename(filename);
+    const filePath = path.join(accountLogoDir(session.accountId), storedName);
+    if (!isSafeBaseName(storedName) || !fs.existsSync(filePath)) {
       return NextResponse.json(
         { error: { code: "NOT_FOUND", message: "Logo file not found", traceId: session.traceId } },
         { status: 404 },
@@ -116,13 +118,22 @@ export const POST = withRole(["owner", "admin"], async (request: NextRequest, se
     fs.mkdirSync(dir, { recursive: true });
     const buffer = Buffer.from(await file.arrayBuffer());
     const filePath = path.join(dir, filename);
+    if (!isSafeBaseName(filename)) {
+      await client.query("ROLLBACK");
+      return NextResponse.json(
+        { error: { code: "VALIDATION_ERROR", message: "Invalid logo filename", traceId: session.traceId } },
+        { status: 422 },
+      );
+    }
     fs.writeFileSync(filePath, buffer);
 
     // Remove prior logo file if present
     const prev = (before.rows[0].settings as CompanyProfileSettings)?.logo_filename;
     if (prev) {
-      const prevPath = path.join(dir, path.basename(prev));
-      try { fs.unlinkSync(prevPath); } catch { /* ignore */ }
+      const prevName = path.basename(prev);
+      if (isSafeBaseName(prevName)) {
+        try { fs.unlinkSync(path.join(dir, prevName)); } catch { /* ignore */ }
+      }
     }
 
     const patch = { logo_filename: filename };
@@ -172,8 +183,11 @@ export const DELETE = withRole(["owner", "admin"], async (_request: NextRequest,
     }
     const settings = before.rows[0].settings as CompanyProfileSettings;
     if (settings.logo_filename) {
-      const filePath = path.join(accountLogoDir(session.accountId), path.basename(settings.logo_filename));
-      try { fs.unlinkSync(filePath); } catch { /* ignore */ }
+      const storedName = path.basename(settings.logo_filename);
+      if (isSafeBaseName(storedName)) {
+        const filePath = path.join(accountLogoDir(session.accountId), storedName);
+        try { fs.unlinkSync(filePath); } catch { /* ignore */ }
+      }
     }
     const { rows } = await client.query(
       `UPDATE accounts SET settings = settings - 'logo_filename', updated_at = now()
