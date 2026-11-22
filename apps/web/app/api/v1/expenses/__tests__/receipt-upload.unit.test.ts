@@ -75,4 +75,13 @@ describe("POST /api/v1/expenses/[id]/receipt", () => {
     expect(json.error.message).toBe("Only image files are allowed");
     expect(mockWithExpenseContext).not.toHaveBeenCalled();
   });
+  it("rejects an expense id that is not a safe path segment before touching the database", async () => {
+    const form = new FormData();
+    form.append("file", new File(["img"], "receipt.jpg", { type: "image/jpeg" }));
+    const req = new NextRequest("http://localhost/api/v1/expenses/bad.id/receipt", { method: "POST", body: form });
+
+    const res = await POST(req);
+    expect(res.status).toBe(404);
+    expect(mockWithExpenseContext).not.toHaveBeenCalled();
+  });
 });

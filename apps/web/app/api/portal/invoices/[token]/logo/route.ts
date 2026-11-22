@@ -3,6 +3,7 @@ import fs from "fs";
 import path from "path";
 import { queryOne } from "@/lib/db";
 import { accountLogoDir, type CompanyProfileSettings } from "@/lib/company/branding";
+import { isSafeBaseName } from "@/lib/uploads/paths";
 
 export const dynamic = "force-dynamic";
 
@@ -23,8 +24,9 @@ export async function GET(
     return new NextResponse(null, { status: 404 });
   }
 
-  const filePath = path.join(accountLogoDir(row.company_id), path.basename(row.settings.logo_filename));
-  if (!fs.existsSync(filePath)) {
+  const storedName = path.basename(row.settings.logo_filename);
+  const filePath = path.join(accountLogoDir(row.company_id), storedName);
+  if (!isSafeBaseName(storedName) || !fs.existsSync(filePath)) {
     return new NextResponse(null, { status: 404 });
   }
 
