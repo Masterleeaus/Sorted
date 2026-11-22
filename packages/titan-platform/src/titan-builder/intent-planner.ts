@@ -45,7 +45,8 @@ export function applyBuilderSemanticIntentPlan(document:BuilderDocument,purpose:
    const plan=planBuilderSemanticIntent(document.surface,purpose,node);
    const explicitSource=(node.props as any)?.data_binding?.source;
    const explicitResponsive=(node.props as any)?.responsive;
-   const plannedType=GENERIC.has(node.type)&&plan.intent!=="generic"?plan.component:node.type;
+   const explicitType=(node.props as any)?.builder_explicit_type===true;
+   const plannedType=GENERIC.has(node.type)&&plan.intent!=="generic"&&!explicitType?plan.component:node.type;
    const props={...(node.props??{}),semantic_intent:{name:plan.intent,confidence:plan.confidence,reason:plan.reason,authority_granted:false},responsive:explicitResponsive??plan.responsive} as Record<string,unknown>;
    if(!explicitSource&&plan.data_source)props.data_binding={source:plan.data_source,mode:"read-only",field_map:plan.field_map,auto:true,reason:plan.reason,confidence:plan.confidence};
    const existing=new Set((node.actions??[]).map(a=>a.action));

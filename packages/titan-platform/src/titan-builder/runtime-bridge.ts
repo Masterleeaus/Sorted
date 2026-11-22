@@ -39,7 +39,7 @@ function presentationNodeToBuilder(node:PresentationNode,index:number):BuilderNo
   return {
     id:safeId(node.key || `${node.type}-${index}`,index),
     type:node.type,
-    props:sanitizeBuilderProjection(node.props ?? {}) as Record<string,unknown>,
+    props:{...(sanitizeBuilderProjection(node.props ?? {}) as Record<string,unknown>),builder_explicit_type:true},
     children:(node.children ?? []).map((child,childIndex)=>presentationNodeToBuilder(child,childIndex)),
   };
 }
