@@ -99,6 +99,8 @@ log "rls coverage"
 node scripts/check-rls-coverage.mjs
 log "worker grants"
 node scripts/check-worker-grants.mjs
+log "titan donor manifest (checksum drift fails)"
+node scripts/check-titan-manifest.mjs
 node --test scripts/*.test.mjs
 log "offsite cryptographic verification and encrypted restore contracts"
 node --test scripts/tests/offsite-*.test.mjs \

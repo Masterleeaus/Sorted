@@ -2,7 +2,7 @@
 
 Status: working note for issue #9. Date: 2026-11-08.
 Machine-readable map: `docs/generated/titan-donor-manifest.json`.
-Check (report only, not in CI): `pnpm check:titan-manifest`.
+Check (errors fail `scripts/gate.sh`): `pnpm check:titan-manifest`.
 
 ## Which tree is canonical
 
@@ -38,7 +38,7 @@ The manifest also lists 7 `knownInternalDuplicateGroups` inside `packages/titan-
 
 `scripts/check-titan-manifest.mjs` (Node built-ins only):
 
-1. Errors (exit 1): a manifest path is missing, or its sha256 no longer matches. A change to an integrated copy is drift on purpose. Re-hash it in the manifest in the same change, and say why in the commit. A declared copy with `declaredCopyStatus` `retired-removed` is exempt from the existence check, but its sha256 is kept as history.
+1. Errors (exit 1): a manifest path is missing, or its sha256 no longer matches. A change to an integrated copy is drift on purpose. Set its `status` to `imported-modified`, re-hash the copy into `integratedSha256` in the manifest in the same change, and say why in the commit. Entries with `imported-identical` or `imported-identical-relocated` must match the donor hash. A declared copy with `declaredCopyStatus` `retired-removed` is exempt from the existence check, but its sha256 is kept as history.
 2. Warnings (exit 0): content duplicates under `titan-donor/` and `packages/titan-platform/src/` that include a file the manifest does not declare. `packages/workforce/` is no longer scanned.
 3. Warnings (exit 0): a bundle-like file under `packages/titan-platform/src/` (`*.iife.*`, `assets/`, `*.compat.*`, `*.min.*`, `*.bundle.json`, or 1 MB or more) that is not listed in `docs/generated/bundled-assets-provenance.md`. Add its row there in the same change.
 
@@ -55,8 +55,13 @@ Use `--root <dir>` to point it at a copy, for example a fixture in a scratch fol
 ## Decisions taken in this pass (no behaviour change)
 
 - No file was deleted or moved. No source code changed.
-- The checker is report-only and is not added to CI.
+- The checker was report-only at the time (superseded for errors by issue #97, see below).
 - The donor tree stays in git as evidence.
+
+## Decisions for issue #97 (2026-11-22)
+
+- The four interface-runtime copies (`business-context.ts`, `live-context.ts` and their two tests) were changed on purpose (`account_id` to `company_id`, commit 1e20f4d). They are recorded as `imported-modified` with `integratedSha256`. Chosen over regenerating the entries because the donor file stays as evidence.
+- `pnpm check:titan-manifest` is now a gate step in `scripts/gate.sh` (Phase 1). Checksum drift fails the gate. Unexpected duplicates and bundle warnings stay non-blocking.
 
 ## Open for the owner
 

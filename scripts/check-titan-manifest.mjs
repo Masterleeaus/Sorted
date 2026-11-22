@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
- * Titan donor provenance report (issue #9). Report-only, non-blocking.
- * Not wired into CI. Uses Node built-ins only (no dependencies).
+ * Titan donor provenance check (issue #9, gated by issue #97).
+ * Errors fail scripts/gate.sh. Warnings never do. Uses Node built-ins only.
  *
  * Checks docs/generated/titan-donor-manifest.json against the working tree:
  *   1. Every manifest path (donor file, integrated copy, declared extra copy)
@@ -167,7 +167,7 @@ export function runCheck(root) {
 function main() {
   const { root } = parseArgs(process.argv.slice(2));
   const { errors, warnings, summary } = runCheck(root);
-  console.log("Titan donor manifest report (non-blocking)");
+  console.log("Titan donor manifest check");
   console.log(`Root: ${root}`);
   for (const e of errors) console.log(`ERROR   ${e}`);
   for (const w of warnings) console.log(`WARN    ${w}`);

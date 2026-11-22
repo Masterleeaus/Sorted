@@ -17,12 +17,14 @@
   "statusValues": {
     "imported-identical": "Byte-identical copy at the same relative path under packages/titan-platform/src/",
     "imported-identical-relocated": "Byte-identical copy at a different tracked path (see integratedPath)",
+    "imported-modified": "Copy at integratedPath was changed on purpose after import. integratedSha256 holds the re-hashed reviewed content; sha256 still holds the donor hash. Reason recorded in docs/working/titan-donor-provenance.md.",
     "not-integrated": "No byte-identical tracked copy exists in the repository; donor-only evidence",
     "retired-removed": "Declared copy under packages/workforce/ (retired and deleted 2026-11-08 by owner decision). Kept in otherIdenticalPaths and history; existence is not required. Set per path in declaredCopyStatus."
   },
   "statusCounts": {
     "not-integrated": 43,
-    "imported-identical-relocated": 78,
+    "imported-identical-relocated": 74,
+    "imported-modified": 4,
     "imported-identical": 250
   },
   "entries": [
@@ -327,9 +329,10 @@
       "donorPath": "titan-donor/workforce/apps/web/lib/interface-runtime/__tests__/business-context.unit.test.ts",
       "bytes": 1589,
       "sha256": "a56c0760a6434904f3762247d705d865c4bf528e4d2c6ed26b524cb81cfea5a0",
-      "status": "imported-identical-relocated",
+      "status": "imported-modified",
       "integratedPath": "apps/web/lib/titan/interface-runtime/__tests__/business-context.unit.test.ts",
-      "otherIdenticalPaths": []
+      "otherIdenticalPaths": [],
+      "integratedSha256": "4b6ef356e74b743f74242a3ee628e3f3438dfe6b17e3713dbfc8f0f9694e15a5"
     },
     {
       "donorPath": "titan-donor/workforce/apps/web/lib/interface-runtime/__tests__/host.unit.test.ts",
@@ -343,9 +346,10 @@
       "donorPath": "titan-donor/workforce/apps/web/lib/interface-runtime/__tests__/live-context.contract.test.ts",
       "bytes": 766,
       "sha256": "f22825f3a61d86a445aa68d641645697e0a27285cc76b98344dffab86f8ab588",
-      "status": "imported-identical-relocated",
+      "status": "imported-modified",
       "integratedPath": "apps/web/lib/titan/interface-runtime/__tests__/live-context.contract.test.ts",
-      "otherIdenticalPaths": []
+      "otherIdenticalPaths": [],
+      "integratedSha256": "a8de62c65b2fb7ff651ed08d750e4f5b934318078b6f6c572974273eba674a7c"
     },
     {
       "donorPath": "titan-donor/workforce/apps/web/lib/interface-runtime/__tests__/shell-projection.unit.test.ts",
@@ -359,9 +363,10 @@
       "donorPath": "titan-donor/workforce/apps/web/lib/interface-runtime/business-context.ts",
       "bytes": 2619,
       "sha256": "6406a8421fdc1182713027ea4409859575c866037fa54788865082190fce8653",
-      "status": "imported-identical-relocated",
+      "status": "imported-modified",
       "integratedPath": "apps/web/lib/titan/interface-runtime/business-context.ts",
-      "otherIdenticalPaths": []
+      "otherIdenticalPaths": [],
+      "integratedSha256": "98a3958d7c72f3de705361dba788b1d782e00f7d9c37df3fa3de5514193eea4a"
     },
     {
       "donorPath": "titan-donor/workforce/apps/web/lib/interface-runtime/host.ts",
@@ -375,9 +380,10 @@
       "donorPath": "titan-donor/workforce/apps/web/lib/interface-runtime/live-context.ts",
       "bytes": 2260,
       "sha256": "769d32961a7445182a6eeff9f88d052f45d613f36ea72b5f5f8351bfe7a0a8c1",
-      "status": "imported-identical-relocated",
+      "status": "imported-modified",
       "integratedPath": "apps/web/lib/titan/interface-runtime/live-context.ts",
-      "otherIdenticalPaths": []
+      "otherIdenticalPaths": [],
+      "integratedSha256": "a2618d70bee15c100fa2666875024f31d62eb461758474185fa556c4ac355936"
     },
     {
       "donorPath": "titan-donor/workforce/apps/web/lib/interface-runtime/shell-projection.ts",
