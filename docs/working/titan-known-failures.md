@@ -22,3 +22,14 @@ The same 18 fail on `main`. They are not caused by the current change set.
 ## What would change this
 
 Each entry needs one of: the missing module restored from a source with a checksum, a product spec for the behaviour, or a decision to delete the test. Until then the check stays red on PRs that run the titan suite.
+
+## 2026-11-25: dropped tests for features missing from the runtime (issue #91, PR #135)
+
+Owner decision (final, 2026-11-25): drop these tests. Do not build the missing features.
+
+Dropped from `packages/titan-platform/tests/interface-runtime-native.test.mjs`:
+
+- `receipt presenter rejects cross-company projection`. It covered `presentReceipt`, which is not exported or defined anywhere in the runtime.
+- `runtime registry rejects duplicate contribution keys`. It covered `runtime.contributions.register` and the `duplicate-interface-contribution` error. The interface runtime exposes no contribution registry.
+
+The first test in the file was rewritten to use `runtime.presentation.compose` instead of `PresentationComposer`. The rewrite is kept. The file now has 4 tests, all passing.
