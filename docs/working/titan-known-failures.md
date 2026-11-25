@@ -22,3 +22,24 @@ The same 18 fail on `main`. They are not caused by the current change set.
 ## What would change this
 
 Each entry needs one of: the missing module restored from a source with a checksum, a product spec for the behaviour, or a decision to delete the test. Until then the check stays red on PRs that run the titan suite.
+
+## 2026-11-25: deleted tests for source files that were never committed
+
+Decision: the owner chose to delete these tests on 2026-11-25. Git history search found no commit that ever contained the missing files, so the tests cannot pass and are removed rather than kept as debt.
+
+Deleted (file-level failures, no test in these files ran):
+
+- `tests/titan-builder-auto-binding.test.mjs` read `apps/web/app/app/builder/BuilderStudio.tsx` (missing).
+- `tests/titan-builder-component-structured.test.mjs` read `apps/web/app/app/builder/StructuredPropEditor.tsx` (missing).
+- `tests/titan-builder-pass7.test.mjs` read `apps/web/app/app/builder/BuilderStudio.tsx` (missing).
+- `tests/titan-builder-preview-adapter.test.mjs` read `apps/web/app/app/builder/BuilderStudio.tsx` (missing).
+- `tests/titan-builder-preview-data.test.mjs` read `apps/web/app/app/builder/BuilderStudio.tsx` (missing).
+- `tests/titan-builder-runtime-projection.test.mjs` read `apps/web/app/api/v1/titan/builder/route.ts` (missing).
+- `tests/titan-builder-server-projection-static.test.mjs` read `apps/web/app/api/v1/titan/builder/route.ts` (missing).
+- `tests/titan-builder-signal-projection.test.mjs` read `apps/web/app/api/v1/titan/builder/route.ts` (missing).
+- `tests/titan-builder-structured-props.test.mjs` read `apps/web/app/app/builder/BuilderStudio.tsx` and `StructuredPropEditor.tsx` (missing).
+- `tests/directadmin-bridge.test.mjs` imported `apps/directadmin/zero-core/cockpit.mjs` (missing). The file has 61 test definitions; none could run.
+
+Not deleted: the test "Interaction presentation intent becomes review-only Builder proposal" in `tests/titan-builder-runtime-bridge.test.mjs`. It reads no missing file. It fails on a real assertion (summary banner before card), which is the Class C entry above. It stays red until the behaviour is decided.
+
+Still failing, not decided: the five-tier call qualification test (delegation worker not found), `tests/interface-runtime-native.test.mjs` (PresentationComposer), and the Builder bridge test above.
