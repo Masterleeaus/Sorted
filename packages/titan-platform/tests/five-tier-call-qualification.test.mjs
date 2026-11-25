@@ -1,4 +1,5 @@
 import test from 'node:test';
+import { readFileSync } from 'node:fs';
 import assert from 'node:assert/strict';
 import {
   resolveDelegationChain,
@@ -36,4 +37,20 @@ test('unknown caller creates lead proposal but does not persist',()=>{
   assert.equal(p.lead_creation_is_proposal,true);
   assert.equal(p.customer_creation_permitted,false);
   assert.equal(p.execution_permitted,false);
+});
+
+test('every phone-channel binding resolves to an atomic, non-authoritative five-tier route',()=>{
+  const bindings=JSON.parse(readFileSync(new URL('../src/ported/titan-workforce/hierarchy/communication-provider-bindings.json',import.meta.url),'utf8'));
+  const phone=bindings.worker_bindings.filter(b=>b.allowed_channels.includes('phone'));
+  assert.equal(phone.length,bindings.voice_worker_contract.worker_count);
+  for(const b of phone){
+    const r=resolveDelegationChain({company_id:'company-a',orchestrator_key:'reception',worker_id:b.worker_id,task:'voice call'});
+    assert.equal(r.route_status,'READY_FOR_GOVERNED_HANDOFF',b.worker_id);
+    assert.equal(r.worker.atomic,true,b.worker_id);
+    assert.equal(r.grants_authority,false,b.worker_id);
+  }
+});
+
+test('unknown worker id still fails closed in the five-tier router',()=>{
+  assert.throws(()=>resolveDelegationChain({company_id:'company-a',orchestrator_key:'reception',worker_id:'titan.worker.not_real_agent',task:'x'}),/delegation-worker-not-found/);
 });
