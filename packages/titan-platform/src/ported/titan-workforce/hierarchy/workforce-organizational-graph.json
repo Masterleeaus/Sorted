@@ -22,10 +22,10 @@
     "managers": 21,
     "supervisors": 18,
     "specialists": 80,
-    "recovered_atomic_workers": 62,
+    "recovered_atomic_workers": 70,
     "supplemental_supervisors": 5,
     "supervisors_total": 23,
-    "agent_nodes_total": 196
+    "agent_nodes_total": 204
   },
   "orchestrators": [
     {
@@ -2132,6 +2132,102 @@
       "reports_to_specialist": "titan.operations.process_coordinator",
       "legacy_class": "WorkforceAvailabilityAgent",
       "legacy_path": "System/TitanAI/tier3/Actions/WorkforceAvailabilityAgent.php",
+      "company_boundary": "company_id",
+      "activation_confers_authority": false
+    },
+    {
+      "worker_id": "titan.worker.answer_call_agent",
+      "name": "Answer Call Agent",
+      "workforce_tier": "worker",
+      "atomic": true,
+      "can_delegate": false,
+      "reports_to_specialist": "titan.customer.customer_care_coordinator",
+      "legacy_class": null,
+      "legacy_path": null,
+      "company_boundary": "company_id",
+      "activation_confers_authority": false
+    },
+    {
+      "worker_id": "titan.worker.capture_voicemail_agent",
+      "name": "Capture Voicemail Agent",
+      "workforce_tier": "worker",
+      "atomic": true,
+      "can_delegate": false,
+      "reports_to_specialist": "titan.customer.customer_care_coordinator",
+      "legacy_class": null,
+      "legacy_path": null,
+      "company_boundary": "company_id",
+      "activation_confers_authority": false
+    },
+    {
+      "worker_id": "titan.worker.end_call_agent",
+      "name": "End Call Agent",
+      "workforce_tier": "worker",
+      "atomic": true,
+      "can_delegate": false,
+      "reports_to_specialist": "titan.customer.customer_care_coordinator",
+      "legacy_class": null,
+      "legacy_path": null,
+      "company_boundary": "company_id",
+      "activation_confers_authority": false
+    },
+    {
+      "worker_id": "titan.worker.get_call_status_agent",
+      "name": "Get Call Status Agent",
+      "workforce_tier": "worker",
+      "atomic": true,
+      "can_delegate": false,
+      "reports_to_specialist": "titan.customer.customer_care_coordinator",
+      "legacy_class": null,
+      "legacy_path": null,
+      "company_boundary": "company_id",
+      "activation_confers_authority": false
+    },
+    {
+      "worker_id": "titan.worker.place_call_agent",
+      "name": "Place Call Agent",
+      "workforce_tier": "worker",
+      "atomic": true,
+      "can_delegate": false,
+      "reports_to_specialist": "titan.customer.customer_care_coordinator",
+      "legacy_class": null,
+      "legacy_path": null,
+      "company_boundary": "company_id",
+      "activation_confers_authority": false
+    },
+    {
+      "worker_id": "titan.worker.prepare_call_agent",
+      "name": "Prepare Call Agent",
+      "workforce_tier": "worker",
+      "atomic": true,
+      "can_delegate": false,
+      "reports_to_specialist": "titan.customer.customer_care_coordinator",
+      "legacy_class": null,
+      "legacy_path": null,
+      "company_boundary": "company_id",
+      "activation_confers_authority": false
+    },
+    {
+      "worker_id": "titan.worker.start_call_recording_agent",
+      "name": "Start Call Recording Agent",
+      "workforce_tier": "worker",
+      "atomic": true,
+      "can_delegate": false,
+      "reports_to_specialist": "titan.customer.customer_care_coordinator",
+      "legacy_class": null,
+      "legacy_path": null,
+      "company_boundary": "company_id",
+      "activation_confers_authority": false
+    },
+    {
+      "worker_id": "titan.worker.transfer_call_agent",
+      "name": "Transfer Call Agent",
+      "workforce_tier": "worker",
+      "atomic": true,
+      "can_delegate": false,
+      "reports_to_specialist": "titan.customer.customer_care_coordinator",
+      "legacy_class": null,
+      "legacy_path": null,
       "company_boundary": "company_id",
       "activation_confers_authority": false
     }
